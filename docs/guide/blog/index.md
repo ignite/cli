@@ -20,6 +20,8 @@ By completing this tutorial, you will learn about:
 * Reading data from the store and return it as a result of a query
 * Using the blockchain's CLI to broadcast transactions and query the blockchain
 
+**Note:** All the functions in this chapter can be scaffolded with a single command but instead we will learn how to add each functionality individually. 
+
 ## Create Your Blog Chain
 
 First, create a new blockchain.

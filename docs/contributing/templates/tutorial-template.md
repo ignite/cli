@@ -1,4 +1,4 @@
-# How To [Build/Create/Do Something] in Starport
+# How to [build/create/do something] in Starport
 
 <!--
 Use this tutorial template as a quick starting point when writing Starport how-to tutorials. 
@@ -21,25 +21,25 @@ We admire, respect, and rely on these resources:
 Our users must be able to follow the tutorial from beginning to end on their own computer. Before submitting a tutorial for PR review, be sure to test the content by completing all steps from start to finish exactly as they are written. Cut and paste commands from the article into your terminal to make sure that typos are not present in the commands. If you find yourself executing a command that isn't in the article, incorporate that command into the article to make sure the user gets the exact same results. 
 -->
 
-<!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
+<!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
 
 <!-- Use GitHub flavored Markdown, see [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)  -->
 
 <!-- Our articles have a specific structure. How-To tutorials follow this structure:
 
-* Front Matter Metadata
+* Front matter metadata
 * Title
-* Introduction and Purpose (Level 2 heading)
+* Introduction and purpose (Level 2 heading)
 * Prerequisites (Level 2 heading)
-* Step 1 — Doing Something (Level 2 heading)
-* Step 2 — Doing Something (Level 2 heading)
+* Step 1 — Doing something (Level 2 heading)
+* Step 2 — Doing something (Level 2 heading)
 ...
-* Step 5 — Doing Something (Level 2 heading)
+* Step 5 — Doing something (Level 2 heading)
 * Conclusion (Level 2 heading)
 
  -->
 
-### Introduction and Purpose
+### Introduction and purpose
 
 Introductory paragraph about the topic that explains what this topic is about and why the user should care; what problem does the tutorial solve?
 
@@ -68,7 +68,7 @@ To complete this tutorial, you will need:
 
 -->
 
-## Step 1 — Doing Something
+## Step 1 — Doing something
 
 Introduction to the step. What are you going to do and why are you doing it?
 
@@ -88,8 +88,13 @@ starport --version
 
 You'll see release details like the following output:
 
-```
-starport version v0.18.4 darwin/amd64 -build date: 2021-12-01T18:34:28Z
+```bash
+Starport version:	v0.19.1
+Starport build date:	2021-12-18T05:56:36Z
+Starport source hash:	-
+Your OS:		darwin
+Your arch:		amd64
+Your go version:	go version go1.16.4 darwin/amd64
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:
@@ -123,7 +128,7 @@ message MsgCreatePost {
 
 Now transition to the next step by telling the user what's next.
 
-## Step 2 — Title Case
+## Step 2 — Next step in sentence case
 
 Another introduction
 
@@ -131,7 +136,7 @@ Your content that guides the user to accomplish a specific step
 
 Transition to the next step.
 
-## Step 3 — Title Case
+## Step 3 — Next step in sentence case
 
 Another introduction
 

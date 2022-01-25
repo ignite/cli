@@ -5,7 +5,7 @@
 [Starport](https://starport.com) is the all-in-one platform to build, launch, and maintain any crypto application on a sovereign and secured blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
 * [**Build a blockchain with Starport in a web-based IDE** (stable)](https://gitpod.io/#https://github.com/tendermint/starport/tree/master) or use [nightly version](https://gitpod.io/#https://github.com/tendermint/starport/)
-* [Check out the latest features in v0.18](https://medium.com/tendermint/starport-v0-18-cosmos-sdk-updates-and-scaffolding-enhancements-5ea5654bcd0c)
+* [Check out the latest features in v0.19](https://starport.com/blog/starport-v0-19)
 
 ## Quick start
 
@@ -54,12 +54,12 @@ If you're not sure where to start, check out [contributing.md](contributing.md) 
 
 ## Community
 
-Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Here's where you can find us. Stay in touch.
+Starport is a free and open-source product maintained by [Tendermint](https://tendermint.com). Here's where you can find us. Stay in touch.
 
 - [Starport.com website](https://starport.com)
 - [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
 - [Starport.com/blog](https://starport.com/blog/)
-- [Starport Discord](https://discord.com/starport)
+- [Starport Discord](https://discord.gg/starport)
 - [Starport YouTube](https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q)
 - [Starport docs](https://docs.starport.com/)
 - [Tendermint jobs](https://tendermint.com/careers)
