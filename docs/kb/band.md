@@ -84,7 +84,7 @@ In the `x/oracle/types/keys.go` file, update the `Version` variable in the `cons
 const (
     
     // Version defines the current version the IBC module supports
-    Version = "bandchain=1"
+    Version = "bandchain-1"
 ```
 
 ## Start your chain in development
@@ -99,6 +99,16 @@ Keep this terminal window open.
 
 ## Configure and connect the Starport relayer
 
+If you previously used the Starport relayer, it is a good idea to remove existing relayer and Starport configurations:
+
+1. Stop your blockchains 
+2. Delete previous configuration files:
+
+    ```bash
+    rm -rf ~/.starport/relayer
+    ```
+3. Restart your blockchains.
+
 In another terminal tab, configure the [Starport relayer](../docs/kb/../../kb/relayer.md):
 
 ```bash
@@ -109,14 +119,14 @@ starport relayer configure -a \
 --source-gasprice "0uband" \
 --source-gaslimit 5000000 \
 --source-prefix "band" \
---source-version "bandchain=1" \
+--source-version "bandchain-1" \
 --target-rpc "http://localhost:26657" \
 --target-faucet "http://localhost:4500" \
 --target-port "consuming" \
 --target-gasprice "0.0stake" \
 --target-gaslimit 300000 \
 --target-prefix "cosmos"  \
---target-version "bandchain=1"
+--target-version "bandchain-1"
 ```
 
 When prompted, press Enter to accept the default source and target accounts.
@@ -144,6 +154,22 @@ Connect the relayer:
 
 ```bash
 starport relayer connect
+```
+
+You can see the paths of the `oracle` port on the testnet and the `consuming` port on your local oracle module in the relayer connection status that is output to the terminal:
+
+```bash
+------
+Paths
+------
+
+band-laozi-testnet4-oracle:
+    band-laozi-testnet4 > (port: oracle)    (channel: channel-405)
+    oracle              > (port: consuming) (channel: channel-0)
+
+------
+Listening and relaying packets between chains...
+------
 ```
 
 Leave this terminal tab open so you can monitor the relayer.
