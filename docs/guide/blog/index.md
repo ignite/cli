@@ -156,7 +156,7 @@ message Post {
 }
 ```
 
-The contents of the `post.proto` file are fairly standard. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Post`. 
+The contents of the `post.proto` file are fairly standard. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Post`.
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Post` type is available.
 
@@ -166,7 +166,7 @@ The next step is to define the `AppendPost` keeper method. Create the `x/blog/ke
 
 To implement `AppendPost` you must first understand how the store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product-` or `post-`.
 
-To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post-value-` and `Post-count-`. 
+To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post-value-` and `Post-count-`.
 
 Add these prefixes to the `x/blog/types/keys.go` file:
 
@@ -177,7 +177,7 @@ const (
 )
 ```
 
-When a `Post` message is sent to the `AppendPost` function, four actions occur: 
+When a `Post` message is sent to the `AppendPost` function, four actions occur:
 
 - Get the number of posts in the store (count)
 - Add a post by using the count as an ID
