@@ -206,7 +206,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
 	var p2pAddresses []string
 	for _, val := range genesisVals {
-		p2pAddresses = append(p2pAddresses, val.Peer)
+		p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
 	}
 
 	// set persistent peers
