@@ -21,10 +21,11 @@ func (n Network) Join(
 	publicAddress string,
 	gentxPath string,
 ) error {
-	peer, err := c.Peer(ctx, publicAddress)
+	peerAddress, err := c.Peer(ctx, publicAddress)
 	if err != nil {
 		return err
 	}
+	peer := launchtypes.NewPeerConn(c.Name(), peerAddress)
 
 	isCustomGentx := gentxPath != ""
 
@@ -133,7 +134,7 @@ func (n Network) sendAccountRequest(
 func (n Network) sendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
-	peer string,
+	peer launchtypes.Peer,
 	valAddress string,
 	gentx []byte,
 	gentxInfo cosmosutil.GentxInfo,

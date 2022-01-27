@@ -1,0 +1,61 @@
+name: Release nightly 
+
+on:
+  push:
+    branches:
+      - develop 
+
+jobs:
+  release-nightly:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: go/src/github.com/tendermint/starport
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Delete the nightly release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          tag_name: nightly 
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version and push tag
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: nightly 
+          tag_prefix: ""
+
+      - name: Upsert the nightly release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: nightly 
+          name: nightly 
+          body: "Install and move to bin: `curl https://get.starport.network/starport@nightly! | bash`"
+          prerelease: true 
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.working-directory }}
+          fetch-depth: 0
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          workdir: ${{ env.working-directory }}
+          # never versions always requires semver even with the use of --skip-validate flag.
+          # we need to avoid semver since nightly release updated everytime there is chance on develop branch.
+          # by avoiding semver, we prevent GOPROXY and pkg.go.dev to cache this tag.
+          version: v0.157.0
+          args: release --rm-dist --skip-validate -f .goreleaser.nightly.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}

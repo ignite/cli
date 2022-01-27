@@ -271,7 +271,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 				validatorEntries = append(validatorEntries, []string{
 					acc.Address,
 					acc.SelfDelegation.String(),
-					acc.Peer,
+					acc.Peer.GetTcpAddress(),
 				})
 			}
 			if len(validatorEntries) > 0 {
@@ -313,7 +313,7 @@ func newNetworkChainShowPeers() *cobra.Command {
 
 			peers := make([]string, 0)
 			for _, acc := range genVals {
-				peers = append(peers, acc.Peer)
+				peers = append(peers, acc.Peer.GetTcpAddress())
 			}
 			nb.Spinner.Stop()
 			if len(peers) > 0 {
