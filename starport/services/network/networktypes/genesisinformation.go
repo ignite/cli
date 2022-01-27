@@ -34,7 +34,7 @@ type VestingAccount struct {
 type GenesisValidator struct {
 	Address        string
 	Gentx          []byte
-	Peer           string
+	Peer           launchtypes.Peer
 	SelfDelegation sdk.Coin
 }
 
