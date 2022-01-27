@@ -94,11 +94,11 @@ func TestToGenesisValidator(t *testing.T) {
 			name: "genesis validator",
 			fetched: launchtypes.GenesisValidator{
 				GenTx: []byte("abc"),
-				Peer:  "abc@0.0.0.0",
+				Peer:  launchtypes.NewPeerConn("abc", "abc@0.0.0.0"),
 			},
 			expected: networktypes.GenesisValidator{
 				Gentx: []byte("abc"),
-				Peer:  "abc@0.0.0.0",
+				Peer:  launchtypes.NewPeerConn("abc", "abc@0.0.0.0"),
 			},
 		},
 	}
@@ -141,7 +141,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			{
 				Address: "spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6",
 				Gentx:   []byte("aaa"),
-				Peer:    "foo",
+				Peer:    launchtypes.NewPeerConn("foo", "foo"),
 			},
 		},
 	)
@@ -188,7 +188,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					[]byte("bbb"),
 					[]byte("ccc"),
 					newCoin("1000bar"),
-					"bar",
+					launchtypes.NewPeerConn("bar", "bar"),
 				),
 			},
 		},
@@ -258,7 +258,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					[]byte("bbb"),
 					[]byte("ccc"),
 					newCoin("1000bar"),
-					"bar",
+					launchtypes.NewPeerConn("bar", "bar"),
 				),
 			},
 			invalidRequest: true,
