@@ -19,8 +19,8 @@ To migrate your chain that was scaffolded with Starport versions lower than v0.1
    
 2. In your chain's `go.mod` file, remove `tendermint/spm` and add the v0.19.2 version of `tendermint/starport`. If your chain uses these packages, change the import paths as shown: 
 
-    - `spm/ibckeeper` moved to `pkg/cosmosibckeeper`
-    - `spm/cosmoscmd` moved to `pkg/cosmoscmd` 
-    - `spm/openapiconsole` moved to `pkg/openapiconsole`
-    - `testutil/sample` moved to `cosmostestutil/sample`
+    - `github.com/tendermint/spm/ibckeeper` moved to `github.com/tendermint/starport/pkg/cosmosibckeeper`
+    - `github.com/tendermint/spm/cosmoscmd` moved to `github.com/tendermint/starport/pkg/cosmoscmd` 
+    - `github.com/tendermint/spm/openapiconsole` moved to `github.com/tendermint/starport/pkg/openapiconsole`
+    - `github.com/tendermint/spm/testutil/sample` moved to `github.com/tendermint/starport/cosmostestutil/sample`
 
