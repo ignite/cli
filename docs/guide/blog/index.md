@@ -99,7 +99,7 @@ message MsgCreatePostResponse {
 
 ## Review the message code
 
-Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title and body. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
+Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title, and body. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
 
 ```go
 service Msg {
@@ -154,7 +154,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-## Write data to the store
+## Define Post type and AppendPost keeper method
 
 Define the `Post` type and the `AppendPost` keeper method.
 
@@ -183,7 +183,7 @@ The contents of the `post.proto` file are standard. The file defines:
 
 Continue developing your blog chain.
 
-## Define Keeper Methods
+### Define keeper methods
 
 The next step is to define the `AppendPost` keeper method. 
 
@@ -211,7 +211,7 @@ Your blog is now updated to take these actions when a `Post` message is sent to 
 - Increment the count
 - Return the count
 
-## Write Data to the Store
+## Write data to the store
 
 Now, after the `import` section in the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
 
