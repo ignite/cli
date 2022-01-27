@@ -34,8 +34,6 @@ If you previously used the Starport relayer, follow these steps to remove existi
     rm -rf ~/.starport/relayer
     ```
 
-    If existing configurations do not exist, the command returns `no matches found` and no action is taken.
-
 3. Restart your blockchains.
 
 ## Relayer configure example
