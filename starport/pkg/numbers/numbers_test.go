@@ -43,8 +43,8 @@ func TestParseListErrors(t *testing.T) {
 		list string
 		err  error
 	}{
-		{"12-8", errors.New("cannot parse the number range: 12-8")},
-		{"1-2-3", errors.New("cannot parse the number range: 1-2-3")},
+		{"12-8", errors.New("cannot parse a reverse ordering range: 12-8")},
+		{"1-2-3", errors.New("cannot parse a reverse ordering range: 1-2-3")},
 	}
 	for _, tt := range cases {
 		t.Run("list "+tt.list, func(t *testing.T) {

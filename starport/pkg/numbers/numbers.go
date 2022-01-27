@@ -62,7 +62,7 @@ func ParseList(arg string) ([]uint64, error) {
 				return nil, err
 			}
 			if start > end {
-				return nil, fmt.Errorf("cannot parse the number range: %s", trimmedRange)
+				return nil, fmt.Errorf("cannot parse a reverse ordering range: %s", trimmedRange)
 			}
 			for ; start <= end; start++ {
 				if _, ok := listNumbers[start]; ok {
