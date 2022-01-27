@@ -1499,8 +1499,8 @@ github.com/tendermint/btcd v0.1.1 h1:0VcxPfflS2zZ3RiOAHkBiFUcPvbtRj5O7zHmcJWHV7s
 github.com/tendermint/btcd v0.1.1/go.mod h1:DC6/m53jtQzr/NFmMNEu0rxf18/ktVoVtMrnDD5pN+U=
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RMWx1aInLzndwxKalgi5rTqgfXxOxbEI=
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
-github.com/tendermint/flutter/v2 v2.0.2 h1:Z8xIYCpiHCt1MZBN6+caWaN6TyD2RCuAZ/9Aqvg0v4A=
-github.com/tendermint/flutter/v2 v2.0.2/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMonsB9EIWP0AGMPw0=
+github.com/tendermint/flutter/v2 v2.0.3 h1:+J3Q6FRdcDTLkrcPQHY306J7wRPEKxfU2K2xCVFJGqs=
+github.com/tendermint/flutter/v2 v2.0.3/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMonsB9EIWP0AGMPw0=
 github.com/tendermint/fundraising v0.1.1-0.20220120023412-21f96392d57e/go.mod h1:abSJIfCub3X91Hq66X622CawkXEqPLFlRULjnyb0aj0=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
