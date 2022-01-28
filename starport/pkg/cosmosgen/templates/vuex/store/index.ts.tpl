@@ -126,7 +126,7 @@ export default {
 			try {
 				const key = params ?? {};
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.{{ camelCase $FullName -}}
+				let value= (await queryClient.{{ camelCaseSta $FullName -}}
 				{{- $n -}}(
 					{{- range $j,$a :=$rule.Params -}}
 						{{- if (gt $j 0) -}}, {{ end }} key.{{ $a -}}
@@ -143,7 +143,7 @@ export default {
 				
 					{{ if $rule.HasQuery }}
 				while (all && (<any> value).pagination && (<any> value).pagination.next_key!=null) {
-					let next_values=(await queryClient.{{ camelCase $FullName -}}
+					let next_values=(await queryClient.{{ camelCaseSta $FullName -}}
 					{{- $n -}}(
 						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.next_key}
 						{{- if $rule.HasBody -}}, {...key}
