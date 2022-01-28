@@ -1,4 +1,4 @@
-# Set Up Your Starport Development Environment 
+# Set up your Starport development environment 
 
 To ensure you have a successful experience developing with Starport, make sure that your local system meets these technical requirements.
 
@@ -10,11 +10,11 @@ Starport is supported for the following operating systems:
 
 ## Install Go
 
-This installation method removes existing Go installations, installs Go in `/usr/local/go/bin/go`, and sets the environment variables.
+This installation method removes existing Go installations, installs Go, and sets the environment variables.
 
-1. Install [Go](https://golang.org/doc/install) (**version 1.16** or higher).
+1. Install the latest version of [Go](https://golang.org/doc/install).
 
-2. Download the binary release that is suitable for your system.
+2. Download the release that is suitable for your system.
 
 3. Follow the installation instructions.
 
@@ -27,16 +27,15 @@ Ensure the Go environment variables are [set properly](https://golang.org/doc/go
 1. Edit your `~/.bashrc` file and add `export PATH=$PATH:$(go env GOPATH)/bin`. 
 2. To apply the changes, run `source ~/.bashrc`.
 
-## Remove Existing Starport Installations 
+## Remove existing Starport installations 
 
 Before you install a new version of Starport, remove all existing Starport installations. 
 
-1. Remove the Starport binary with `rm $(which starport)`.
-   
+1. Remove the Starport binary with `rm $(which starport)`
+
    Depending on your user permissions, run the command with or without `sudo`.
 
 2. Repeat this step until all `starport` installations are removed from your system.
-
 
 `curl https://get.starport.network/starport! | bash`
 
@@ -52,7 +51,7 @@ See [Install Starport](docs/install.md).
 
 2. Run `make install`.
 
-## Verify Your Starport Version 
+## Verify Your Starport version 
 
 To verify the version of Starport you have installed, run `starport version`. 
 
