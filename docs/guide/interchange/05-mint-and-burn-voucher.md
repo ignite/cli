@@ -14,12 +14,6 @@ There is a lot to learn from this `dex` module implementation:
 
 This implementation can teach you how to use various interactions with module accounts or minting, locking or burning tokens.
 
-There is a lot to learn from this implementation. 
-
-- You work with the `bank` keeper and use several methods it offers.
-- You interact with another module and use the module account to lock tokens.
-
-This implementation teaches you how to use various interactions with module accounts or minting, locking, or burning tokens.
 
 ## Create the SafeBurn Function to Burn Vouchers or Lock Tokens
 

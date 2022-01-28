@@ -169,3 +169,14 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 func (r Runner) AddGenesisAccount(ctx context.Context, address, coins string) error {
 	return r.run(ctx, runOptions{}, r.chainCmd.AddGenesisAccountCommand(address, coins))
 }
+
+// AddVestingAccount adds vesting account to genesis by its address.
+func (r Runner) AddVestingAccount(
+	ctx context.Context,
+	address,
+	originalCoins,
+	vestingCoins string,
+	vestingEndTime int64,
+) error {
+	return r.run(ctx, runOptions{}, r.chainCmd.AddVestingAccountCommand(address, originalCoins, vestingCoins, vestingEndTime))
+}

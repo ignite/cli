@@ -14,7 +14,7 @@ Thank you for your contribution!
 
 * Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/tendermint/starport/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
 * To provide feedback or ask a question, create a [GitHub issue](https://github.com/tendermint/starport/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
-* We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/H6wGTY8sxw).
+* We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/starport).
 
 ## Opening pull requests
 

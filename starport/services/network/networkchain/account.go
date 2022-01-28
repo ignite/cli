@@ -6,8 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
+	"github.com/tendermint/starport/starport/pkg/randstr"
 	"github.com/tendermint/starport/starport/services/chain"
+)
+
+const (
+	passphraseLength = 32
+	sampleAccount    = "alice"
 )
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
@@ -49,7 +56,7 @@ func (c Chain) InitAccount(ctx context.Context, v chain.Validator, accountName s
 func (c *Chain) ImportAccount(ctx context.Context, name string) (string, error) {
 	// keys import command of chain CLI requires that the key file is encrypted with a passphrase of at least 8 characters
 	// we generate a random passphrase to import the account
-	passphrase := randomPassphrase()
+	passphrase := randstr.Runes(passphraseLength)
 
 	// export the key in a temporary file.
 	armored, err := c.ar.Export(name, passphrase)
@@ -75,4 +82,25 @@ func (c *Chain) ImportAccount(ctx context.Context, name string) (string, error) 
 
 	acc, err := chainCmd.ImportAccount(ctx, name, keyFile.Name(), passphrase)
 	return acc.Address, err
+}
+
+// detectPrefix detects the account address prefix for the chain
+// the method create a sample account and parse the address prefix from it
+func (c Chain) detectPrefix(ctx context.Context) (string, error) {
+	chainCmd, err := c.chain.Commands(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	var acc chaincmdrunner.Account
+	acc, err = chainCmd.ShowAccount(ctx, sampleAccount)
+	if errors.Is(err, chaincmdrunner.ErrAccountDoesNotExist) {
+		// the sample account doesn't exist, we create it
+		acc, err = chainCmd.AddAccount(ctx, sampleAccount, "", "")
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return cosmosutil.GetAddressPrefix(acc.Address)
 }
