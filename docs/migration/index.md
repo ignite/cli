@@ -25,20 +25,20 @@ To migrate your chain that was scaffolded with Starport versions lower than v0.1
 
   `<github.com/tendermint/starport/starport/pkg/cosmosibckeeper>`
 
-- `<github.com/tendermint/spm/tree/master/cosmoscmd>` 
+- `<github.com/tendermint/spm/cosmoscmd>` 
 
   moved to
   
-  `<github.com/tendermint/starport/tree/develop/starport/pkg/cosmoscmd>`
+  `<github.com/tendermint/starport/starport/pkg/cosmoscmd>`
 
-- `<github.com/tendermint/spm/tree/master/openapiconsole>`
-
-  moved to
-  
-  `<github.com/tendermint/starport/tree/develop/starport/pkg/openapiconsole>`
-
-- `<github.com/tendermint/spm/tree/master/testutil/sample>` 
+- `<github.com/tendermint/spm/openapiconsole>`
 
   moved to
   
-  `<github.com/tendermint/starport/tree/develop/starport/pkg/cosmostestutil/sample>`
+  `<github.com/tendermint/starport/starport/pkg/openapiconsole>`
+
+- `<github.com/tendermint/spm/testutil/sample>` 
+
+  moved to
+  
+  `<github.com/tendermint/starport/starport/pkg/cosmostestutil/sample>`
