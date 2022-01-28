@@ -5,8 +5,8 @@ parent:
   order: 2
 ---
 
-# Introduction
+# Knowledge Base
 
-Knowledge base contains article that cover different aspects of Starport: from scaffolding a chain to starting an IBC relayer.
+Knowledge base articles cover different aspects of Starport. This online library includes reference content on supported types, protocol buffer files, chain simulation as well as an overview of scaffolding a chain all the way to starting an IBC relayer.
 
 If you're new to Starport or want to go through a series of tutorials, visit the [Developer Tutorials](/guide/).

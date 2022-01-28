@@ -14,15 +14,13 @@ description: Steps to install Starport on your local computer.
   - [Build from source](#build-from-source)
   - [Summary](#summary)
 
-
 # Install Starport
 
-You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer. 
-
+You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer.
 
 ## Prerequisites
 
-Be sure you have met the prerequisites before you install and use Starport. 
+Be sure you have met the prerequisites before you install and use Starport.
 
 ### Operating Systems
 
@@ -32,14 +30,14 @@ Starport is supported for the following operating systems:
 - macOS
 - Windows Subsystem for Linux (WSL)
 
-### Go 
+### Go
 
 Starport is written in the Go programming language. To use Starport on a local system:
 
 - Install [Go](https://golang.org/doc/install) (**version 1.16** or higher)
 - Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
 
-## Verify Your Starport Version 
+## Verify Your Starport Version
 
 To verify the version of Starport you have installed, run the following command:
 
@@ -75,7 +73,7 @@ sudo mv starport /usr/local/bin/
 
 ## Upgrading Your Starport Installation
 
-Before you install a new version of Starport, remove all existing Starport installations. 
+Before you install a new version of Starport, remove all existing Starport installations.
 
 To remove the current Starport installation:
 
@@ -88,13 +86,13 @@ After all existing Starport installations are removed, follow the [Installing St
 
 ## Installing Starport on macOS with Homebrew
 
-Using brew to install Starport is supported only for macOS machines without the M1 chip. 
+Using brew to install Starport is supported only for macOS machines without the M1 chip.
 
 ```bash
 brew install tendermint/tap/starport
 ```
 
-To install Starport on macOS machines with the M1 chip, use the `curl` command as described in [Installing Starport](#installing-starport). 
+To install Starport on macOS machines with the M1 chip, use the `curl` command as described in [Installing Starport](#installing-starport).
 
 ## Build from source
 
