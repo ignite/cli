@@ -23,6 +23,19 @@ The optional `--advanced` flag lets you configure port and version for the custo
 
 By default, relayer configuration is stored in `$HOME/.relayer/`.
 
+## Remove existing relayers
+
+If you previously used the Starport relayer, follow these steps to remove existing relayer and Starport configurations:
+
+1. Stop your blockchain or blockchains.
+2. Delete previous configuration files:
+
+    ```bash
+    rm -rf ~/.starport/relayer
+    ```
+
+3. Restart your blockchains.
+
 ## Relayer configure example
 
 All values can be passed with flags.
@@ -33,4 +46,6 @@ starport relayer configure --advanced --source-rpc "http://0.0.0.0:26657" --sour
 
 ## Connect blockchains and watch for IBC packets
 
-The `starport relayer connect` command connects configured blockchains and watches for IBC packets to relay.
+The `starport relayer connect` command connects configured blockchains and watches for IBC packets to relay. 
+
+**Tip:** You can observe the relayer packets on the terminal window where you connected your relayer. 
