@@ -9,7 +9,7 @@ description: For chains that were scaffolded with Starport versions lower than v
 
 # Upgrading a blockchain to use Starport v0.19.2
 
-Starport v0.19.2 comes with IBC v2.0.2. 
+Starport v0.19.2 comes with IBC v2.0.2.
 
 With Starport v0.19.2, the contents of the deprecated Starport Modules `tendermint/spm` repo are moved to the official Starport repo which introduces breaking changes.
 
@@ -23,4 +23,3 @@ To migrate your chain that was scaffolded with Starport versions lower than v0.1
     - `github.com/tendermint/spm/cosmoscmd` moved to `github.com/tendermint/starport/pkg/cosmoscmd` 
     - `github.com/tendermint/spm/openapiconsole` moved to `github.com/tendermint/starport/pkg/openapiconsole`
     - `github.com/tendermint/spm/testutil/sample` moved to `github.com/tendermint/starport/cosmostestutil/sample`
-
