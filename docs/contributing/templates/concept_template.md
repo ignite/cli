@@ -16,7 +16,7 @@ We admire and respect these resources:
 
 -->
 
-<!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
+<!-- Use sentence case for all Headings and Titles, see https://capitalizemytitle.com/ -->
 
 <!-- We like the way Digital Ocean explains things, you can learn about the title, introduction, and Goals sections at https://do.co/style#title-introduction-and-goals -->
 

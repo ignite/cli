@@ -17,17 +17,17 @@ Experimentation and file system impact is limited to the Docker instance. The ho
 
 Docker must be installed. See [Get Started with Docker](https://www.docker.com/get-started).
 
-## Starport Commands in Docker
+## Starport commands in Docker
 
 After you scaffold and start a chain in your Docker container, all Starport commands are available. Just type the commands after `docker run -ti starport/cli`. For example:
 
 ```bash
 docker run -ti starport/cli -h
-docker run -ti starport/cli scaffold chain github.com/test/planet
+docker run -ti starport/cli scaffold chain github.com/cosmonaut/planet
 docker run -ti starport/cli chain serve
 ```
 
-## Scaffolding a Chain
+## Scaffolding a chain
 
 When Docker is installed, you can build a blockchain with a single command.
 
@@ -49,7 +49,7 @@ Be patient, this command takes a minute or two to run because it does everything
 
     **Note:** The directory name for the `-w` and `-v` flags can be a name other then `/app`, but the same directory must be specified for both flags. If you omit `-w` and `-v`, the changes are made in the container only and are lost when that container is shut down.
 
-## Starting a Blockchain
+## Starting a blockchain
 
 To start the blockchain node in the Docker container you just created, run this command:
 
@@ -71,20 +71,20 @@ This command does the following:
 
 You can specify which version of Starport to install and run in your Docker container.
 
-### Latest Version
+### Latest version
 
 - By default, `starport/cli` resolves to `starport/cli:latest`.
 - The `latest` image tag is always the latest stable [Starport release](https://github.com/tendermint/starport/releases).
 
-For example, if latest release is [v0.15.1](https://github.com/tendermint/starport/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
+For example, if latest release is [v0.19.2](https://github.com/tendermint/starport/releases/tag/v0.19.2), the `latest` tag points to the `0.19.2` tag.
 
-### Specific Version
+### Specific version
 
 You can specify to use a specific version of Starport. All available tags are in the [starport/cli image](https://hub.docker.com/repository/docker/starport/cli/tags?page=1&ordering=last_updated) on Docker Hub.
 
 For example:
 
-- Use `starport/cli:0.15.1` (without the `v` prefix) to use version 0.15.1.
+- Use `starport/cli:0.19.2` (without the `v` prefix) to use version 0.19.2.
 - Use `starport/cli:develop` to use the `develop` branch so you can experiment with the next version.
 
 To get the latest image, run `docker pull`.
