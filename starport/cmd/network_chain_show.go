@@ -133,7 +133,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 				return err
 			}
 
-			// check if the genesis already exist
+			// check if the genesis already exists
 			if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
 				// fetch the information to construct genesis
 				genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
