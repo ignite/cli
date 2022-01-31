@@ -39,7 +39,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		if _, err := c.chain.Build(ctx, ""); err != nil {
 			return err
 		}
-		c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
+		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
 
 		c.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
 		if err := c.initGenesis(ctx); err != nil {
