@@ -95,7 +95,7 @@ As always, start your development with a proto file.
 
 In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
 
-- Add `createdAt`
+- Add `id`
 - Define the `id` for `message MsgCreateCommentResponse`:
 
 ```go
@@ -183,15 +183,12 @@ When Comment's validity is checked, it throws 2 error messages - `ErrID` and `Er
 //...
 var (
 	ErrCommentOld = sdkerrors.Register(ModuleName, 1300, "")
-)
-
-var (
 	ErrID = sdkerrors.Register(ModuleName, 1400, "")
 )
 ```
 
 
-In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make a few modifications.
+In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make a modification to add `createdAt`
 
 ```go
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
@@ -214,8 +211,6 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 
 ## Write Data to the Store
-
-Define the `Comment` type and the `AppendComment` keeper method.
 
 When you define the `Comment` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
 
