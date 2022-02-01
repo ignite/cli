@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tendermint/starport/integration"
+	envtest "github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
@@ -49,6 +49,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 				"textCoin:coin",
 				"textCoins:array.coin",
 				"textCoinsAlias:coins",
+				"--no-simulation",
 			),
 			step.Workdir(path),
 		)),

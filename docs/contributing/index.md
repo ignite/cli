@@ -1,14 +1,14 @@
 # Contributing to Starport docs
 
-- [Contributing](#contributing)
+- [Contributing to Starport docs](#contributing-to-starport-docs)
   - [Using this repo](#using-this-repo)
   - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
   - [Where can I find the tutorials and docs?](#where-can-i-find-the-tutorials-and-docs)
   - [Who works on the tutorials?](#who-works-on-the-tutorials)
-  - [Viewing Tutorial Builds](#viewing-tutorial-builds)
-    - [Preview PRs on a Deployed Preview](#preview-prs-on-a-deployed-preview)
-    - [Preview Draft PRs on a Local Web Browser](#preview-draft-prs-on-a-local-web-browser)
+  - [Viewing tutorial builds](#viewing-tutorial-builds)
+    - [Preview PRs on a deployed preview](#preview-prs-on-a-deployed-preview)
+    - [Preview draft PRs on a local web browser](#preview-draft-prs-on-a-local-web-browser)
   
 
 Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
@@ -55,8 +55,9 @@ Other useful resources:
 
 Technical content includes knowledge base articles and interactive tutorials. 
  
-- The Starport Developer Tutorials content is in the `docs/guide` folder. 
-- The Knowledge Base content is in the `docs/kb` folder. 
+- Starport Developer Tutorials content is in the `docs/guide` folder. 
+- Knowledge Base content is in the `docs/kb` folder. 
+- Migration content for required action steps required for upgrades to new Starport versions is in the `docs/migration` folder.
 
 Locations and folders for other content can vary. Explore the self-describing folders for the content that you are interested in. Some articles and tutorials reside in a single Markdown file while sub-folders might be present for other tutorials.
 
@@ -77,7 +78,7 @@ There are two ways to see what your changes will look like in production before 
 - When a PR is ready for review, you can see a deployed preview on a URL that is unique for that PR.
 - While a PR is in draft mode, you can preview a local build.
 
-### Preview PRs on a Deployed Preview
+### Preview PRs on a deployed preview
 
 After the PR moves from **Draft** to **Ready for review**, the CI status checks generate a Netlify deploy preview. Netlify keeps this preview up to date as you continue to work and commit new changes to the same branch.
 
@@ -100,7 +101,7 @@ Since the deploy preview doesn't work on Draft PRs, follow these steps to previe
 
 2. Local tutorials require JavaScript. If needed, install [npm](https://docs.npmjs.com/cli/v6/commands/npm-install).
 
-3. For each branch you work in, install the npm packages for the SDK tutorials:
+3. For each branch you work in, install the npm packages for the developer tutorials:
 
     ```bash
     npm install
@@ -120,4 +121,4 @@ Since the deploy preview doesn't work on Draft PRs, follow these steps to previe
 
 5. You can now view the docs build on a local web browser. Isn't this fun?
 
-    Tip: On a mac, press the command key and click `http://localhost:8080/` for quick access to the local preview. If you are already using port 8080 on your local machine, the preview increments to the next available port 8081, and so on. 
+    Tip: On a Mac, press the command key and click `http://localhost:8080/` for quick access to the local preview. If you are already using port 8080 on your local machine, the preview increments to the next available port 8081, and so on. 

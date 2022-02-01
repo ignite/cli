@@ -35,11 +35,12 @@ For questions and support, join the official [Starport Discord](https://discord.
 
 Blockchains created with Starport use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the best possible experience, use the version of Starport that corresponds to the version of Cosmos SDK that your blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
-| Starport | Cosmos SDK | Notes                                            |
-| -------- | ---------- | ------------------------------------------------ |
-| v0.19    | v0.44      | |
-| v0.18    | v0.44      | `starport chain serve` works with v0.44.x chains |
-| v0.17    | v0.42      | |
+| Starport | Cosmos SDK | IBC                  | Notes                                            |
+| -------- | ---------- | -------------------- | ------------------------------------------------ |
+| v0.19.2  | v0.44.5    | v2.0.2               | |
+| v0.19    | v0.44      | v1.2.2               | |
+| v0.18    | v0.44      | v1.2.2               | `starport chain serve` works with v0.44.x chains |
+| v0.17    | v0.42      | Same with Cosmos SDK | |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migration guide](https://docs.starport.com/migration/).
 
@@ -58,7 +59,7 @@ Starport is a free and open-source product maintained by [Tendermint](https://te
 - [Starport.com website](https://starport.com)
 - [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
 - [Starport.com/blog](https://starport.com/blog/)
-- [Starport Discord](https://discord.com/starport)
+- [Starport Discord](https://discord.gg/starport)
 - [Starport YouTube](https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q)
 - [Starport docs](https://docs.starport.com/)
 - [Tendermint jobs](https://tendermint.com/careers)

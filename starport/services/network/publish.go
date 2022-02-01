@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // publishOptions holds info about how to create a chain.
@@ -75,7 +75,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 	}
 
-	coordinatorAddress := n.account.Address(networkchain.SPN)
+	coordinatorAddress := n.account.Address(networktypes.SPN)
 	campaignID = o.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
@@ -128,7 +128,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	msgCreateChain := launchtypes.NewMsgCreateChain(
-		n.account.Address(networkchain.SPN),
+		n.account.Address(networktypes.SPN),
 		chainID,
 		c.SourceURL(),
 		c.SourceHash(),

@@ -7,16 +7,17 @@ import (
 
 // Options ...
 type Options struct {
-	AppName    string
-	AppPath    string
-	ModuleName string
-	ModulePath string
-	OwnerName  string
-	MsgName    multiformatname.Name
-	MsgSigner  multiformatname.Name
-	MsgDesc    string
-	Fields     field.Fields
-	ResFields  field.Fields
+	AppName      string
+	AppPath      string
+	ModuleName   string
+	ModulePath   string
+	OwnerName    string
+	MsgName      multiformatname.Name
+	MsgSigner    multiformatname.Name
+	MsgDesc      string
+	Fields       field.Fields
+	ResFields    field.Fields
+	NoSimulation bool
 }
 
 // Validate that options are usuable

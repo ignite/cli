@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
@@ -69,7 +69,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 
 	// parse coins to pass to the faucet as coins.
 	for _, coin := range conf.Faucet.Coins {
-		amount, denom, err := cosmoscoin.Parse(coin)
+		parsedCoin, err := sdk.ParseCoinNormalized(coin)
 		if err != nil {
 			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
 		}
@@ -78,17 +78,17 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 
 		// find out the max amount for this coin.
 		for _, coinMax := range conf.Faucet.CoinsMax {
-			amount, denomMax, err := cosmoscoin.Parse(coinMax)
+			parsedMax, err := sdk.ParseCoinNormalized(coinMax)
 			if err != nil {
 				return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
 			}
-			if denomMax == denom {
-				amountMax = amount
+			if parsedMax.Denom == parsedCoin.Denom {
+				amountMax = parsedMax.Amount.Uint64()
 				break
 			}
 		}
 
-		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
+		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(parsedCoin.Amount.Uint64(), amountMax, parsedCoin.Denom))
 	}
 
 	if conf.Faucet.RateLimitWindow != "" {

@@ -20,6 +20,9 @@ var (
 
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
+
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
@@ -35,6 +38,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsStargateComponent,
 			"stargate/component/",
+			opts.AppPath,
+		)
+		simappTemplate = xgenny.NewEmbedWalker(
+			fsStargateSimapp,
+			"stargate/simapp/",
 			opts.AppPath,
 		)
 	)
@@ -55,7 +63,13 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
-		g.RunFn(moduleSimulationModify(replacer, opts))
+
+		if !opts.NoSimulation {
+			g.RunFn(moduleSimulationModify(replacer, opts))
+			if err := typed.Box(simappTemplate, opts, g); err != nil {
+				return nil, err
+			}
+		}
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err

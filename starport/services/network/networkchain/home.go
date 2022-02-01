@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // ChainHome returns the default home dir used for a chain from SPN.
@@ -13,7 +15,7 @@ func ChainHome(launchID uint64) (path string) {
 		panic(err)
 	}
 
-	return filepath.Join(home, SPN, strconv.FormatUint(launchID, 10))
+	return filepath.Join(home, networktypes.SPN, strconv.FormatUint(launchID, 10))
 }
 
 // IsChainHomeExist checks if a home with the provided launchID already exist.

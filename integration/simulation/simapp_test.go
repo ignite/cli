@@ -6,7 +6,7 @@ package simulation_test
 import (
 	"testing"
 
-	"github.com/tendermint/starport/integration"
+	envtest "github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
@@ -26,6 +26,13 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "single", "baz", "foobar"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create an singleton type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "noSimapp", "foobar", "--no-simulation"),
 			step.Workdir(path),
 		)),
 	))
