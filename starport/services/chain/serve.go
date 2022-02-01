@@ -79,7 +79,7 @@ func ServeResetOnce() ServeOption {
 }
 
 // Serve serves an app.
-func (c *Chain) Serve(ctx context.Context, ldFlags []string, options ...ServeOption) error {
+func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	serveOptions := newServeOption()
 
 	// apply the options
@@ -133,7 +133,7 @@ func (c *Chain) Serve(ctx context.Context, ldFlags []string, options ...ServeOpt
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err = c.serve(serveCtx, shouldReset, ldFlags...)
+				err = c.serve(serveCtx, shouldReset)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -244,7 +244,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context, forceReset bool, ldFlags ...string) error {
+func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -328,7 +328,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool, ldFlags ...string) e
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, "", ldFlags...); err != nil {
+		if err := c.build(ctx, ""); err != nil {
 			return err
 		}
 	}

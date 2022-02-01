@@ -28,7 +28,6 @@ func NewChainServe() *cobra.Command {
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
-	c.Flags().StringSliceP(flagLDFlags, "l", []string{}, "ldflags to set version information for go applications")
 
 	return c
 }
@@ -73,10 +72,6 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
-	ldFlags, err := cmd.Flags().GetStringSlice(flagLDFlags)
-	if err != nil {
-		return err
-	}
 
-	return c.Serve(cmd.Context(), ldFlags, serveOptions...)
+	return c.Serve(cmd.Context(), serveOptions...)
 }
