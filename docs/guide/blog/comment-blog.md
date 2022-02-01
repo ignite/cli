@@ -34,7 +34,7 @@ To get the useful functions for this tutorial, you use the `starport scaffold li
 2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an array, run:
 
 ```bash
-starport scaffold list comment --no-message
+starport scaffold list comment --no-message creator:string title:string body:string postID:uint createdAt:int 
 ```
 
 The `--no-message` flag disables CRUD interaction messages scaffolding because you will write your own messages.
@@ -214,22 +214,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 When you define the `Comment` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
 
-Inside the `proto/blog/comment.proto` file, define the `Comment` message:
-
-```go
-syntax = "proto3";
-package cosmonaut.blog.blog;
-option go_package = "github.com/cosmonaut/blog/x/blog/types";
-
-message Comment {
-  string creator = 1;
-  uint64 id = 2;
-  string title = 3;
-  string body = 4; 
-  uint64 postID = 5;
-  int64 createdAt = 6;
-}
-```
+Inside the `proto/blog/comment.proto` file, you can observe, starport has already added the required fields inside the `Comment` message.
 
 The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Comment`. 
 
