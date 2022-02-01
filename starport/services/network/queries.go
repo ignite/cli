@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -17,7 +18,7 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 		LaunchID: id,
 	})
 	if err != nil {
-		return networktypes.ChainLaunch{}, err
+		return networktypes.ChainLaunch{}, cosmoserror.Unwrap(err)
 	}
 
 	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
@@ -32,7 +33,7 @@ func (n Network) ChainLaunches(ctx context.Context) ([]networktypes.ChainLaunch,
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
 	if err != nil {
-		return chainLaunches, err
+		return chainLaunches, cosmoserror.Unwrap(err)
 	}
 
 	// Parse fetched chains
@@ -40,7 +41,7 @@ func (n Network) ChainLaunches(ctx context.Context) ([]networktypes.ChainLaunch,
 		chainLaunches = append(chainLaunches, networktypes.ToChainLaunch(chain))
 	}
 
-	return chainLaunches, err
+	return chainLaunches, nil
 }
 
 // GenesisInformation returns all the information to construct the genesis from a chain ID
@@ -70,7 +71,7 @@ func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs 
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return genAccs, err
+		return genAccs, cosmoserror.Unwrap(err)
 	}
 
 	for _, acc := range res.GenesisAccount {
@@ -87,7 +88,7 @@ func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingA
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return vestingAccs, err
+		return vestingAccs, cosmoserror.Unwrap(err)
 	}
 
 	for i, acc := range res.VestingAccount {
@@ -109,7 +110,7 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return genVals, err
+		return genVals, cosmoserror.Unwrap(err)
 	}
 
 	for _, acc := range res.GenesisValidator {

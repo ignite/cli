@@ -12,8 +12,11 @@ import (
 )
 
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/message/* stargate/message/**/*
+	fsStargateMessage embed.FS
+
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {

@@ -26,6 +26,9 @@ var (
 
 	//go:embed stargate/tests/messages/* stargate/tests/messages/**/*
 	fsStargateTestsMessages embed.FS
+
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new map type in a Stargate module
@@ -62,6 +65,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 			"stargate/tests/component/",
 			opts.AppPath,
 		)
+		simappTemplate = xgenny.NewEmbedWalker(
+			fsStargateSimapp,
+			"stargate/simapp/",
+			opts.AppPath,
+		)
 	)
 
 	g.RunFn(protoRPCModify(replacer, opts))
@@ -79,7 +87,13 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
-		g.RunFn(moduleSimulationModify(replacer, opts))
+
+		if !opts.NoSimulation {
+			g.RunFn(moduleSimulationModify(replacer, opts))
+			if err := typed.Box(simappTemplate, opts, g); err != nil {
+				return nil, err
+			}
+		}
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -121,11 +135,11 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
-		var snakeIndexes []string
+		var protoIndexes []string
 		for _, index := range opts.Indexes {
-			snakeIndexes = append(snakeIndexes, fmt.Sprintf("{%s}", index.Name.Snake))
+			protoIndexes = append(protoIndexes, fmt.Sprintf("{%s}", index.ProtoFieldName()))
 		}
-		indexPath := strings.Join(snakeIndexes, "/")
+		indexPath := strings.Join(protoIndexes, "/")
 
 		// Add the service
 		templateService := `// Queries a %[2]v by index.
