@@ -1508,8 +1508,10 @@ github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2l
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.1.5/go.mod h1:+rHrI1axfSX1R0DY6KA4IbrHPgJ0WVNJKhey71ulXO8=
 github.com/tendermint/spm v0.1.8/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpXuN/42Q=
-github.com/tendermint/spn v0.1.1-0.20220125123630-1268765f1209 h1:ugR2sp4EVUa5EYLut6kmVXyq/Rt0PSwUS1cYkzV04oU=
-github.com/tendermint/spn v0.1.1-0.20220125123630-1268765f1209/go.mod h1:Q7d4ECO+tManVrdo/mI1tIzdPaEQxTKfrQnOEY8dPMo=
+github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57/go.mod h1:p4BO8YC6kOKSKqMfySqaLHfwBmuPE/QcLwnnVhh7H9M=
+github.com/tendermint/spn v0.1.1-0.20220201164838-2464b6474c82 h1:qxeAiKDPJ/Yw2dtNp2lLRV1bqEc0UKidoOhXOzLS0iQ=
+github.com/tendermint/spn v0.1.1-0.20220201164838-2464b6474c82/go.mod h1:aPUMZ2zCuwpu98HIhaG+hWjOKgw23k5202P0LAIbFHw=
+github.com/tendermint/starport v0.19.3/go.mod h1:1BlPohoDtLl8CFqTHbMSN3rhq5YLBHlTQ9mJhcRuvwI=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
 github.com/tendermint/tendermint v0.34.0/go.mod h1:Aj3PIipBFSNO21r+Lq3TtzQ+uKESxkbA3yo/INM4QwQ=
@@ -2123,6 +2125,7 @@ google.golang.org/genproto v0.0.0-20210319143718-93e7006c17a6/go.mod h1:FWY/as6D
 google.golang.org/genproto v0.0.0-20210402141018-6c239bbf2bb1/go.mod h1:9lPAdzaEmUacj36I+k7YKbEc5CXzPIeORRgDAUOu28A=
 google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c/go.mod h1:UODoCrxHCcBojKKwX1terBiRUaqAsFqJiF615XL43r0=
 google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71/go.mod h1:eFjDcFEctNawg4eG61bRv87N7iHBWyVhJu7u1kqDUXY=
+google.golang.org/genproto v0.0.0-20211129164237-f09f9a12af12/go.mod h1:5CzLGKJ67TSI2B9POpiiyGha0AjJvZIUgRMt1dSmuhc=
 google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa/go.mod h1:5CzLGKJ67TSI2B9POpiiyGha0AjJvZIUgRMt1dSmuhc=
 google.golang.org/genproto v0.0.0-20220118154757-00ab72f36ad5 h1:zzNejm+EgrbLfDZ6lu9Uud2IVvHySPl8vQzf04laR5Q=
 google.golang.org/genproto v0.0.0-20220118154757-00ab72f36ad5/go.mod h1:5CzLGKJ67TSI2B9POpiiyGha0AjJvZIUgRMt1dSmuhc=
