@@ -23,11 +23,13 @@ By completing this tutorial, you will learn about:
 
 ## Core Concepts 
 
-This tutorial relies on the `blog` blockchain that you built in the build a blog tutorial. 
+This tutorial relies on the `blog` blockchain that you built in the `Build a Blog Tutorial.`
 
 ## Fetch Functions Using List Command
 
-To get the useful functions for this tutorial, you use the `starport scaffold list comment --no-message` command. Make sure to familiarize yourself with the command.
+To get the useful functions for this tutorial, you use the `starport scaffold list NAME [field]... [flags]` command. Make sure to familiarize yourself with the command.
+
+
 
 1. Navigate to the `blog` directory that you created in the build a blog tutorial.
 
