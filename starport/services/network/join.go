@@ -111,12 +111,12 @@ func (n Network) sendAccountRequest(
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	var requestRes launchtypes.MsgRequestAddAccountResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	if requestRes.AutoApproved {
@@ -162,12 +162,12 @@ func (n Network) sendValidatorRequest(
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	var requestRes launchtypes.MsgRequestAddValidatorResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	if requestRes.AutoApproved {
@@ -187,8 +187,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -202,8 +201,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -213,8 +211,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
