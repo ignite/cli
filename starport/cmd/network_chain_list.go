@@ -41,7 +41,6 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	nb.Spinner.Stop()
 
@@ -53,6 +52,8 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	nb.Cleanup()
 	return renderLaunchSummaries(chainLaunches, os.Stdout)
 }
 

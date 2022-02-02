@@ -20,8 +20,6 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 		return networktypes.ChainLaunch{}, err
 	}
 
-	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
-
 	return networktypes.ToChainLaunch(res.Chain), nil
 }
 
