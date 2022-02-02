@@ -85,8 +85,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -107,7 +106,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				CampaignID: o.campaignID,
 			})
 		if err != nil {
-			return 0, 0, cosmoserror.Unwrap(err)
+			return 0, 0, err
 		}
 	} else {
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
@@ -117,12 +116,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {
-			return 0, 0, cosmoserror.Unwrap(err)
+			return 0, 0, err
 		}
 
 		var createCampaignRes campaigntypes.MsgCreateCampaignResponse
 		if err := res.Decode(&createCampaignRes); err != nil {
-			return 0, 0, cosmoserror.Unwrap(err)
+			return 0, 0, err
 		}
 		campaignID = createCampaignRes.CampaignID
 	}
@@ -139,12 +138,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
 	if err != nil {
-		return 0, 0, cosmoserror.Unwrap(err)
+		return 0, 0, err
 	}
 
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
-		return 0, 0, cosmoserror.Unwrap(err)
+		return 0, 0, err
 	}
 
 	return createChainRes.LaunchID, campaignID, nil
