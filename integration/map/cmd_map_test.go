@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tendermint/starport/integration"
+	envtest "github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
@@ -19,7 +19,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "user", "email"),
+			step.Exec("starport", "s", "map", "user", "user-id", "email"),
 			step.Workdir(path),
 		)),
 	))
@@ -47,7 +47,16 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
+			step.Exec(
+				"starport",
+				"s",
+				"list",
+				"user",
+				"email",
+				"--module",
+				"example",
+				"--no-simulation",
+			),
 			step.Workdir(path),
 		)),
 	))

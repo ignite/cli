@@ -4,7 +4,7 @@
 
 ## What is Starport?
 
-Starport is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
+Starport is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Starport includes a command-line interface that lets you manage keys, create validators, and send tokens.
 
 With just a few commands, you can use Starport to:
 
@@ -44,7 +44,7 @@ Many projects already showcase the Tendermint BFT consensus engine and the Cosmo
 * [Zenchain](https://github.com/zenchainprotocol/zenchain)
 * [Onomy Protocol](https://github.com/onomyprotocol/ochain)
 * [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
-* [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
+* [Celestia](https://github.com/celestiaorg/celestia-app)
 * [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
 * [Starport Network](https://github.com/tendermint/spn)
 * [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)

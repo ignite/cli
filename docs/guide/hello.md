@@ -3,25 +3,27 @@ order: 2
 description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module. 
 ---
 
-# Hello, World
+# Hello, Starport
 
 This tutorial is a great place to start your journey into the Cosmos ecosystem. Instead of wondering how to build a blockchain, follow these steps to build your first blockchain and your first Cosmos SDK module.
 
-## Get Started
+## Get started
 
 In the previous chapter you've learned how to install [Starport](https://github.com/tendermint/starport), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Starport, so to install Starport v0.18.0 use the following command:
+This series of tutorials is based on a specific version of Starport, so to install Starport v0.19.2 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.18.0! | bash
+curl https://get.starport.network/starport@v0.19.2! | bash
 ```
 
 Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
 
 One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `starport scaffold chain` command.
 
-Are you ready? Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain with the default directory structure, run this command:
+Are you ready? Open a terminal and navigate to a directory where you have permissions to create files. 
+
+To create your Cosmos SDK blockchain with the default directory structure, run this command:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/hello
@@ -34,11 +36,17 @@ This new blockchain imports standard Cosmos SDK modules, including:
 - [`staking`](https://docs.cosmos.network/master/modules/staking/) (for delegated proof of stake)
 - [`bank`](https://docs.cosmos.network/master/modules/bank/) (for fungible token transfers between accounts)
 - [`gov`](https://docs.cosmos.network/master/modules/gov/) (for on-chain governance)
-- And [other modules](https://docs.cosmos.network/master/modules/)
+- And other Cosmos SDK [modules](https://docs.cosmos.network/master/modules/)
 
-Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
+You can use `--help` on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
 
-## Blockchain Directory Structure
+To learn about the command you just used, run:
+
+```bash
+starport scaffold --help
+```
+
+## Blockchain directory structure
 
 After you create the blockchain, switch to its directory:
 
@@ -52,8 +60,8 @@ The `hello` directory contains a number of generated files and directories that 
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | app/           | Files that wire together the blockchain. The most important file is `app.go` that contains type definition of the blockchain and functions to create and initialize it. |
 | cmd/           | The main package responsible for the CLI of compiled binary.                                                                                                            |
-| docs/          | Directory for project's documentation. By default, an OpenAPI spec is generated.                                                                                        |
-| proto/         | Protocol buffer files describing the data structure>                                                                                                                    |
+| docs/          | Directory for project documentation. By default, an OpenAPI spec is generated.                                                                                        |
+| proto/         | Protocol buffer files describing the data structure.                                                                                                                    |
 | testutil/      | Helper functions for testing.                                                                                                                                           |
 | vue/           | A Vue 3 web app template.                                                                                                                                               |
 | x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
@@ -61,7 +69,7 @@ The `hello` directory contains a number of generated files and directories that 
 
 Now you can get your blockchain up and running locally on a single node.
 
-## Start a Blockchain
+## Start a blockchain
 
 You already have a fully-functional blockchain. To start your chain on your development machine, run the following command in the `hello` directory
 
@@ -69,11 +77,13 @@ You already have a fully-functional blockchain. To start your chain on your deve
 starport chain serve
 ```
 
-This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, Starport uses the name of the repo + `d`. From now on, use this binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
+This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, the binary name is the name of the repo + `d`. From now on, use this `hellod` binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
+
+Leave this terminal window open.
 
 ## HTTP API Console
 
-By default a validator node exposes two API endpoints:
+By default, a validator node exposes two API endpoints:
 
 - [http://localhost:26657](http://localhost:26657) for the low-level Tendermint API
 - [http://localhost:1317](http://localhost:1317) for the high-level blockchain API
@@ -82,32 +92,36 @@ Now that you started your `hello` chain, you can use a web browser to see the hi
 
 ![./images/api.png](./images/api.png)
 
-## Stop a Blockchain
+## Stop a blockchain
 
-When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running.
+When you want to stop your blockchain, press control+C in the terminal window where it's running.
 
-In the development environment, you don't have to restart the blockchain after you make changes. All changes you make in the `hello` directory files are automatically picked up by Starport.
+In the development environment, you don't have to restart the blockchain after you make changes. Because Starport server hot reloads, all changes you make in the `hello` directory files are automatically detected.
 
 ## Say "Hello, Starport"
 
-To get your Cosmos SDK blockchain to say "Hello", you need to make these changes:
+To get your Cosmos SDK blockchain to say `Hello! Starport`, you need to make these changes:
 
 - Modify a protocol buffer file
 - Create a keeper query function that returns data
 - Register a query function
 
-Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. rpc calls are also responsible for exposing an HTTP API.
+Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. The rpc calls are also responsible for exposing an HTTP API.
 
-For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/master/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, you must register the query. You only need to register a query once.
+For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/master/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
 
 In terms of workflow, developers typically follow this sequence:
 
 - Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/master/building-modules/msg-services.html)
 - Define and register [queries](https://docs.cosmos.network/master/building-modules/query-services.html)
-- Define message handlers logic
-- Finally, implement the logic of these queries and message handlers in keeper functions.
+- Define message handler logic
+- Finally, implement the logic of these queries and message handlers in keeper functions
 
-## Create a Query
+## Create a query
+
+For all subsequent commands, you use a terminal window that is different from the window you started the chain in. 
+
+In a different terminal window, navigate to your `hello` directory.
 
 Create a `posts` query:
 
@@ -126,7 +140,7 @@ The `query` command has created and modified several files:
 
 Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Starport uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
 
-### Updates to the Query Service  
+### Updates to the query qervice  
 
 In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Query` service.
 
@@ -145,7 +159,7 @@ Here's how the `Posts` rpc for the `Query` service works:
 - Returns response of type `QueryPostsResponse`
 - The `option` defines the endpoint that is used by gRPC to generate an HTTP API
 
-### Request and Reponse Types
+### Request and reponse types
 
 Now, take a look at the following request and response types:
 
@@ -162,7 +176,7 @@ message QueryPostsResponse {
 - The `QueryPostsRequest` message is empty because requesting all posts doesn't require parameters.
 - The `QueryPostsResponse` message contains `title` and `body` that is returned from the chain.
 
-## Posts Keeper Function
+## Posts keeper function
 
 The `x/hello/keeper/grpc_query_posts.go` file contains the `Posts` keeper function that handles the query and returns data.
 
@@ -177,7 +191,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-Here's all of the actions the `Posts` function does:
+The `Posts` function performs these actions:
 
 - Makes a basic check on the request and throws an error if it's `nil`
 - Stores context in a `ctx` variable that contains information about the environment of the request
@@ -185,9 +199,12 @@ Here's all of the actions the `Posts` function does:
 
 Right now the response is empty.
 
-### Update Keeper Function
+### Update keeper function
 
-From the `query.proto` file we know that response accepts `title` and `body`, so use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. On the last line of the keeper function, change the line to return a "Hello!":
+In the `query.proto` file, the response accepts `title` and `body`. 
+
+- Use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. 
+- On the last line of the keeper function, change the line to return a "Hello!":
 
 ```go
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -196,39 +213,51 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-Save the file to restart your chain. Visit the [posts endpoint](http://localhost:1317/cosmonaut/hello/hello/posts), you see a `Not Implemented` error. This message is expected behavior, because you still need to register the query handlers with gRPC.
+- Save the file to restart your chain. 
+- In a web browser, visit the posts endpoint [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts).
 
-## Register Query Handlers
+  Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
 
-Make the required changes to the `x/hello/module.go` file. 
+## Register query handlers
 
-As shown in the following example, add `"context"` to the list of packages in the import statement, search for `RegisterGRPCGatewayRoutes`, and register the query handlers:
+Make the required changes to the `x/hello/module.go` file.
 
-```go
-import (
-  //...
-  "context"
-)
+1. Add `"context"` to the list of packages in the import statement.
 
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-  types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
+    ```go
+    import (
+      "encoding/json"
+      "fmt"
+      //...
+      "context"
+    ```
 
-Now you're ready to start your blockchain:
+    Do not save the file yet, you need to continue with these modifications.
 
-```go
-starport chain serve
-```
+2. Search for `RegisterGRPCGatewayRoutes`.
 
-After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed!
+3. Register the query handlers:
 
-```go
-{
-  "title": "Hello!",
-  "body": "Starport"
-}
-```
+    ```go
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+      types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
+
+5. Now you're ready to start your blockchain:
+
+    ```go
+    starport chain serve
+    ```
+
+6. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+
+    ```go
+    {
+      "title": "Hello!",
+      "body": "Starport"
+    }
+    ```
 
 The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 

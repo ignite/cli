@@ -1,16 +1,16 @@
 ---
 order: 1
 parent:
-  title: "Module Basics: Blog"
+  title: "Module basics: Blog"
   order: 3
 description: Learn module basics by writing and reading blog posts to your chain.
 ---
 
-# Build a Blog
+# Build a blog
 
 In this tutorial, you create a blockchain with a module that lets you write to and read data from the blockchain. This module implements create and read functionalities for a blog-like application. The end user will be able to submit new blog posts and show a list of blog posts on the blockchain.
 
-> The purpose of this tutorial is to guide you through the imlementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
+> The purpose of this tutorial is to guide you through the implementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
 
 By completing this tutorial, you will learn about:
 
@@ -20,7 +20,17 @@ By completing this tutorial, you will learn about:
 * Reading data from the store and return it as a result of a query
 * Using the blockchain's CLI to broadcast transactions and query the blockchain
 
-## Create Your Blog Chain
+**Note:** All the functions in this chapter can be scaffolded with a single command but instead you will learn how to add each functionality individually. 
+
+## Prerequisites 
+
+This series of blog tutorials is based on a specific version of Starport, so to install Starport v0.19.2 use the following command:
+
+```bash
+curl https://get.starport.network/starport@v0.19.2! | bash
+```
+
+## Create your blog chain
 
 First, create a new blockchain.
 
@@ -32,13 +42,13 @@ starport scaffold chain github.com/cosmonaut/blog
 
 The `blog` directory is created with the default directory structure.
 
-## High Level Transaction Review
+## High-level transaction review
 
 So far, you have learned how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
 
 You can think of the state as being a collection of key-value stores. Each module is responsible for its own store. Changes to the store are triggered by transactions that are signed and broadcasted by users. Each transaction contains Cosmos SDK messages (not to be confused with proto `message`). When a transaction is processed, each message gets routed to its module. A module has message handlers that process messages. Processing a message can trigger changes in the state.
 
-## Create Message Types
+## Create message types
 
 A Cosmos SDK message contains information that can trigger changes in the state of a blockchain.
 
@@ -58,15 +68,22 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-- modified `proto/blog/tx.proto`
-- modified `x/blog/handler.go`
-- created `x/blog/keeper/msg_server_create_post.go`
-- modified `x/blog/client/cli/tx.go`
-- created `x/blog/client/cli/tx_create_post.go`
-- created `x/blog/types/message_create_post.go`
-- modified `x/blog/types/codec.go`
+```bash
+modify proto/blog/tx.proto
+modify x/blog/client/cli/tx.go
+create x/blog/client/cli/tx_create_post.go
+modify x/blog/handler.go
+create x/blog/keeper/msg_server_create_post.go
+modify x/blog/module_simulation.go
+create x/blog/simulation/create_post.go
+modify x/blog/types/codec.go
+create x/blog/types/message_create_post.go
+create x/blog/types/message_create_post_test.go
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to define the id for `message MsgCreatePostResponse`:
+🎉 Created a message `createPost`.
+```
+
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
 ```go
 message MsgCreatePost {
@@ -80,7 +97,9 @@ message MsgCreatePostResponse {
 }
 ```
 
-First, define a Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title and body. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
+## Review the message code
+
+Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title, and body. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
 
 ```go
 service Msg {
@@ -109,7 +128,7 @@ The `case *types.MsgCreatePost` statement handles messages of type `MsgCreatePos
 
 Every module has a handler function like this to process messages and call keeper methods.
 
-## Process Messages
+## Define messages logic
 
 In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post.
 
@@ -124,9 +143,9 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
   ctx := sdk.UnwrapSDKContext(goCtx)
   // Create variable of type Post
   var post = types.Post{
-    Creator: msg.Creator,
-    Title:   msg.Title,
-    Body:    msg.Body,
+     Creator: msg.Creator,
+     Title:   msg.Title,
+     Body:    msg.Body,
   }
   // Add a post to the store and get back the ID
   id := k.AppendPost(ctx, post)
@@ -135,7 +154,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-## Write Data to the Store
+## Define Post type and AppendPost keeper method
 
 Define the `Post` type and the `AppendPost` keeper method.
 
@@ -156,37 +175,45 @@ message Post {
 }
 ```
 
-The contents of the `post.proto` file are fairly standard. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Post`. 
+The contents of the `post.proto` file are standard. The file defines:
 
-Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Post` type is available.
+- A package name `cosmonaut.blog.blog` that is used to identify messages
+- The Go package `go_package = "github.com/cosmonaut/blog/x/blog/types"` where new files are generated 
+- The message `message Post`
 
-### Define Keeper Methods
+Continue developing your blog chain.
 
-The next step is to define the `AppendPost` keeper method. Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function.
+### Define keeper methods
 
-To implement `AppendPost` you must first understand how the store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product-` or `post-`.
+The next step is to define the `AppendPost` keeper method. 
 
-To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post-value-` and `Post-count-`. 
+Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function and what you want to call the prefixes. The file will be empty for now.
 
-Add these prefixes to the `x/blog/types/keys.go` file:
+- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product-` or `post-`.
+
+- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post-value-` and `Post-count-`. 
+
+Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and add a comment that describes the keys:
 
 ```go
 const (
+  //...
+	// Keep track of the index of posts  
   PostKey      = "Post-value-"
   PostCountKey = "Post-count-"
 )
 ```
 
-When a `Post` message is sent to the `AppendPost` function, four actions occur: 
+Your blog is now updated to take these actions when a `Post` message is sent to the `AppendPost` function: 
 
 - Get the number of posts in the store (count)
 - Add a post by using the count as an ID
 - Increment the count
 - Return the count
 
-## Write Data to the Store
+## Write data to the store
 
-Now, after the `import` section, draft the `AppendPost` function in the `x/blog/keeper/post.go` file:
+Now, after the `import` section in the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
 
 ```go
 // func (k Keeper) AppendPost() uint64 {
@@ -232,7 +259,7 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 }
 ```
 
-Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind the `AppendPost` function:
+Now that you have implemented functions for getting the number of posts and setting the post count, at the top of the same `x/blog/keeper/post.go` file, implement the logic behind the `AppendPost` function:
 
 ```go
 package keeper
@@ -267,12 +294,16 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
 
 By following these steps, you have implemented all of the code required to create new posts and store them on-chain. Now, when a transaction that contains a message of type `MsgCreatePost` is broadcast, the message is routed to your blog module.
 
-- `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`.
-- `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID.
+- `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`
+- `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID
 
-## Create a Post
+## Create a post
 
-Try it out! If the chain is yet not started, run `starport chain serve`.
+Try it out! Start your chain:
+
+```go
+starport chain serve
+```
 
 Create a post:
 
@@ -280,16 +311,25 @@ Create a post:
 blogd tx blog create-post foo bar --from alice
 ```
 
+The command output shows the transaction and asks you to sign the transaction:
+
 ```bash
 "body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
+```
+
+Type `y`. The transaction is output to the terminal:
+
+```bash
 {"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
 ```
 
 Now that you have added the functionality to create posts and broadcast them to our chain, you can add querying.
 
-## Display Posts
+## Display posts
+
+To display posts, scaffold a query:
 
 ```bash
 starport scaffold query posts --response title,body
@@ -302,26 +342,35 @@ Two components are responsible for querying data:
 
 First, review the services and messages in `proto/blog/query.proto`. The `Posts` rpc accepts an empty request and returns an object with two fields: title and body. Now you can make changes so it can return a list of posts. The list of posts can be long, so add pagination. When pagination is added, the request and response include a page number so you can request a particular page when you know what page has been returned.
 
-In the `proto/blog/query.proto` file:
+To define the types in proto files, make the following updates in `proto/blog/query.proto`:
 
-```go
-// Import the Post message
-import "blog/post.proto";
+1. Add the `import`:
 
-message QueryPostsRequest {
-  // Adding pagination to request
-  cosmos.base.query.v1beta1.PageRequest pagination = 1;
-}
+    ```go
+    import "blog/post.proto";
+    ```
 
-message QueryPostsResponse {
-  // Returning a list of posts
-  repeated Post Post = 1;
-  // Adding pagination to response
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-```
+2. Add pagination to the post request:
 
-After the types are defined in proto files, you can implement post querying logic. In `grpc_query_posts.go`:
+    ```go
+    message QueryPostsRequest {
+      // Adding pagination to request
+      cosmos.base.query.v1beta1.PageRequest pagination = 1;
+    }
+    ```
+
+3. Add pagination to the post response:
+
+    ```go
+    message QueryPostsResponse {
+      // Returning a list of posts
+      repeated Post Post = 1;
+      // Adding pagination to response
+      cosmos.base.query.v1beta1.PageResponse pagination = 2;
+    }
+    ```
+
+To implement post querying logic in the `grpc_query_posts.go` file, delete the contents of that file and replace it with:
 
 ```go
 package keeper
@@ -368,20 +417,20 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-## Add gRPC to the Module Handler
+## Add gRPC to the module handler
 
 In the `x/blog/module.go` file:
 
-1. Add `"context"` to the imports.
+1. Add `"context"` to the imports, don't save the file yet.
 
     ```go
     import (
-	"context"
+	    "context"
 	// ... other imports
     )
     ```
 
-2. Register the query handler:
+2. Update the `RegisterGRPCGatewayRoutes` function to register the query handler client:
 
     ```go
     // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
@@ -390,29 +439,43 @@ In the `x/blog/module.go` file:
     }
     ```
 
+3. Now that you've modified the file with the two updates, now it's safe to save the file. 
 
-## Use the CLI To Create And Display Posts
+## Use the CLI to create a post
 
-Now that you have implemented logic for creating and querying posts, you can use the node's binary to interact with your chain. Your blog chain binary is `blogd`.
+Now that you have implemented logic for creating and querying posts, you can interact with your blog chain using the command line. The blog chain binary is `blogd`.
 
-To create a post using the command line:
+To create a post at the command line:
 
 ```bash
 blogd tx blog create-post foo bar --from alice
 ```
 
+The transaction is output to the terminal. You are prompted to confirm the transaction:
+
 ```bash
 {"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
+```
+
+Type `y` to sign the transaction:
+
+```bash
 {"height":"2828","txhash":"E04A712E65B0F6F30F5DC291A6552B69F6CB3F77761F28AFFF8EAA535EC4C589","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
 ```
+
+Congratulations, you built a chain binary and used the `blogd` binary CLI to create a blog post.
+
+## Use the CLI to query posts
 
 To query the list of all on-chain posts:
 
 ```bash
 blogd q blog posts
 ```
+
+The result: 
 
 ```bash
 Post:

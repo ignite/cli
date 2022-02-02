@@ -175,7 +175,6 @@ You need a message so that an end user can delete a name that belongs to them.
 
 To create the `MsgDeleteName` for the nameservice module:
 
-
 ```bash
 starport scaffold message delete-name name
 ```

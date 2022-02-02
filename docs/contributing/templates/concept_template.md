@@ -1,7 +1,7 @@
 # Understanding [Some Concept]
 
 <!--
-Use this article template as a quick starting point when writing Cosmos SDK conceptual tutorials. 
+Use this article template as a quick starting point when writing Starport conceptual tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 
@@ -16,7 +16,7 @@ We admire and respect these resources:
 
 -->
 
-<!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
+<!-- Use sentence case for all Headings and Titles, see https://capitalizemytitle.com/ -->
 
 <!-- We like the way Digital Ocean explains things, you can learn about the title, introduction, and Goals sections at https://do.co/style#title-introduction-and-goals -->
 
