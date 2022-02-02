@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrInternal       = errors.New("some invariants expected by the underlying system has been broken")
-	ErrInvalidRequest = errors.New("invalid GRPC request argument or object not found")
+	ErrInternal       = errors.New("internal error")
+	ErrInvalidRequest = errors.New("invalid request")
 )
 
 func Unwrap(err error) error {
