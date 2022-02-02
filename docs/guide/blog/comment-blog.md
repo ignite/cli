@@ -3,9 +3,9 @@ description: Write a query that returns a blog post by ID with associated commen
 order: 2
 ---
 
-# Add Associated Comments to a Blog Post
+# Add associated comments to a blog post
 
-In this tutorial, you create a new message to add comments to a blog post. These tutorial steps 
+In this tutorial, you create a new message to add comments to a blog post.  
 
 By completing this tutorial, you will learn about:
 
@@ -19,19 +19,17 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites
 
-- This tutorial is an extension of and requires completion of the [Module Basics: Build a Blog](index.md) tutorial. 
+This tutorial is an extension of and requires completion of the [Module Basics: Build a Blog](index.md) tutorial. 
 
-## Core Concepts 
+## Core concepts 
 
 This tutorial relies on the `blog` blockchain that you built in the `Build a Blog Tutorial.`
 
-## Fetch Functions Using List Command
+## Fetch functions using list command
 
 To get the useful functions for this tutorial, you use the `starport scaffold list NAME [field]... [flags]` command. Make sure to familiarize yourself with the command.
 
-
-
-1. Navigate to the `blog` directory that you created in the build a blog tutorial.
+1. Navigate to the `blog` directory that you created in the [Build a blog](index.md) tutorial.
 
 2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an array, run:
 
@@ -65,8 +63,7 @@ modify x/blog/types/keys.go
 🎉 comment added.
 ```
 
-
-## Add a Comment to a Post
+## Add a comment to a post
 
 To create a new message that adds a comment to the existing post, run:
 
@@ -97,8 +94,8 @@ As always, start your development with a proto file.
 
 In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
 
-- Add `id`
-- Define the `id` for `message MsgCreateCommentResponse`:
+* Add `id`
+* Define the `id` for `message MsgCreateCommentResponse`:
 
 ```go
 message MsgCreateComment {
@@ -131,16 +128,15 @@ message MsgCreatePost {
 }
 ```
 
-
-## Process Messages
+## Process messages
 
 In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function (marked with `//TODO`). Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
 
 You need to do the following things:
 
-- Create a variable of type `Comment` with title and body from the message
-- Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks.
-- Append this `Comment` to the store
+* Create a variable of type `Comment` with title and body from the message
+* Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks
+* Append this `Comment` to the store
 
 ```go
 import (
@@ -179,7 +175,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 }
 ```
 
-When Comment's validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by adding error definitions to `x/blog/types/errors.go`:
+When the Comment validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by adding error definitions to `x/blog/types/errors.go`:
 
 ```go
 //...
@@ -211,8 +207,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-
-## Write Data to the Store
+## Write data to the store
 
 When you define the `Comment` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
 
@@ -233,15 +228,13 @@ message Post {
 }
 ```
 
-
-### Define Keeper Methods
+### Define keeper methods
 
 The function `starport scaffold list comment --no-message` has fetched all of the required functions for keeper. 
 
 Inside `x/blog/types/keys.go` file, you can see that the `comment-value` and `comment-count` keys are added.
 
-
-## Write Data to the Store
+## Write data to the store
 
 In `x/blog/keeper/post.go`, add a new function to get the post:
 
@@ -273,9 +266,7 @@ By following these steps, you have implemented all of the code required to creat
 - `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
-
-
-## Create the delete-comment Message
+## Create the delete-comment message
 
 To create a message, use the `message` command:
 
@@ -302,7 +293,7 @@ create x/blog/types/message_delete_comment_test.go
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. Leave `MsgCreateResponse` blank as there is no value returned for it. 
 
-## Process Messages
+## Process messages
 
 In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of the `DeleteComment` function. Right now it does nothing and returns an empty response. 
 
@@ -337,8 +328,7 @@ package keeper
  }
 ```
 
-
-## Display Posts
+## Display posts
 
 Implement logic to query existing posts:
 
@@ -418,9 +408,11 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 
 **Note:** Since gRPC has been already added to module handler in the previous tutorial, you don't need to add it again.
 
-## Create Post and Comment
+## Create post and comment
 
-Try it out! If the chain is yet not started, run `starport chain serve`.
+Try it out! 
+
+If the chain is yet not started, run `starport chain serve`.
 
 Create a post:
 
@@ -451,7 +443,14 @@ blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```bash
 {"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","blogID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
+
+When prompted, press Enter to confirm the transaction:
+
+```bash
 confirm transaction before signing and broadcasting [y/N]: y
+```
+
+The command output shows the results of the transaction:
 
 ```bash
 code: 0
@@ -475,12 +474,13 @@ tx: null
 txhash: 0CAFC113D1C73BC0210EFEA5964EBD2EB530311169FB442C5CBF0B5E92521C41
 ```
 
-
-## Display Post and Comment
+## Display post and comment
 
 ```bash
 blogd q blog comments 0
 ```
+
+The results are output:
 
 ```bash
 Comment:
@@ -498,11 +498,13 @@ Post:
   title: Uno
 ```
 
-## Delete Comment
+## Delete comment
 
 ```bash
 blogd tx blog delete-comment 0 0 --from alice -y
 ```
+
+The results are output:
 
 ```bash
 code: 0
@@ -532,6 +534,8 @@ txhash: 0312234CBB9EEA1A59D474496E100AFC5A460A0E60E7D009D3E9417530148A75
 blogd q blog comments 0
 ```
 
+The results are output:
+
 ```bash
 Comment:
 []
@@ -543,15 +547,15 @@ Post:
   title: Uno
 ```
 
+## Edge cases
 
-
-## Edge Cases
-
-1. Add comment to non existent Blog Id 
+1. Add comment to a nonexistent blog id:
 
 ```bash
 blogd tx blog create-comment 53 "Edge1"  "This is the 53 comment" --from alice -y
 ```
+
+The transaction is not able to be completed because the blog id does not exist:
 
 ```bash
 code: 1400
@@ -568,11 +572,13 @@ tx: null
 txhash: B99BD295A0B08DF58B9FEC8EB41D467C2F28BD4EC8CDB56FBF30DB728B877ABA
 ```
 
-2. Add comment to an old Blog post
+1. Add comment to a blog post that is older than 100 blocks:
 
 ```bash
 blogd tx blog create-comment 0 "Comment" "This is a comment" --from alice -y
 ```
+
+The transaction is not executed:
 
 ```bash
 code: 1300
