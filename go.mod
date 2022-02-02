@@ -9,7 +9,6 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v2 v2.0.2
@@ -18,7 +17,6 @@ require (
 	github.com/fatih/color v1.12.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.1.0
-	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/logger v1.0.3
 	github.com/gobuffalo/packd v0.3.0
@@ -35,7 +33,6 @@ require (
 	github.com/jpillora/chisel v1.7.6
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-zglob v0.0.3
-	github.com/moby/sys/mount v0.3.0 // indirect
 	github.com/otiai10/copy v1.6.0
 	github.com/pelletier/go-toml v1.9.4
 	github.com/pkg/errors v0.9.1
@@ -46,9 +43,9 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/takuoki/gocase v1.0.0 // indirect
+	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.3
-	github.com/tendermint/spn v0.1.1-0.20220125123630-1268765f1209
+	github.com/tendermint/spn v0.1.1-0.20220201164838-2464b6474c82
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tendermint/vue v0.1.58

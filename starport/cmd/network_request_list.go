@@ -34,7 +34,6 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseLaunchID(args[0])
@@ -52,7 +51,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
+	nb.Cleanup()
 	return renderRequestSummaries(requests, os.Stdout)
 }
 
