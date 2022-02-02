@@ -1,8 +1,6 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
-import { Registry, GeneratedType } from "@cosmjs/proto-signing";
 {{ range .Modules }}import {{ .FullName }} from './{{ .FullPath }}'
-import {MsgTypes as {{ .FullName}}MsgTypes} from './{{ .FullPath }}/module'
 {{ end }}
 
 export default { 
@@ -10,7 +8,6 @@ export default {
   {{ end }}
 }
 
-export const registry = new Registry(<any>[{{ range $j,$mod :=.Modules }}{{- if (gt $j 0) -}}, {{ end }}...{{$mod.FullName}}MsgTypes{{end}}]);
 
 function load(mod, fullns) {
     return function init(store) {        

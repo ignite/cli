@@ -2,18 +2,18 @@
 
 import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet, GeneratedType } from "@cosmjs/proto-signing";
+import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
 {{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
 {{ end }}
 
-export const MsgTypes:Array<[string, GeneratedType]> = [
+const types = [
   {{ range .Module.Msgs }}["/{{ .URI }}", {{ .Name }}],
   {{ end }}
 ];
 export const MissingWalletError = new Error("wallet is required");
 
-export const registry = new Registry(<any>MsgTypes);
+export const registry = new Registry(<any>types);
 
 const defaultFee = {
   amount: [],
