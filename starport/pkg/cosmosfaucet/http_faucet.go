@@ -5,13 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
-)
-
-const (
-	statusOK    = "ok"
-	statusError = "error"
 )
 
 type TransferRequest struct {
@@ -23,15 +18,15 @@ type TransferRequest struct {
 	Coins []string `json:"coins"`
 }
 
-type TransferResponse struct {
-	Error     string     `json:"error,omitempty"`
-	Transfers []Transfer `json:"transfers,omitempty"`
+func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
+	return TransferRequest{
+		AccountAddress: accountAddress,
+		Coins:          coins,
+	}
 }
 
-type Transfer struct {
-	Coin   string `json:"coin"`
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
+type TransferResponse struct {
+	Error string `json:"error,omitempty"`
 }
 
 func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,35 +39,21 @@ func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// determine coins to transfer.
-	coins, err := f.coinsToTransfer(req)
+	coins, err := f.coinsFromRequest(req)
 	if err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	// send coins and create a transfers response.
-	var transfers []Transfer
-
-	for _, coin := range coins {
-		t := Transfer{
-			Coin:   coin.String(),
-			Status: statusOK,
+	// try performing the transfer
+	if err := f.Transfer(r.Context(), req.AccountAddress, coins); err != nil {
+		if err == context.Canceled {
+			return
 		}
-
-		if err := f.Transfer(r.Context(), req.AccountAddress, coin.amount, coin.denom); err != nil {
-			if err == context.Canceled {
-				return
-			}
-
-			t.Status = statusError
-			t.Error = err.Error()
-		}
-
-		transfers = append(transfers, t)
+		responseError(w, http.StatusInternalServerError, err)
+	} else {
+		responseSuccess(w)
 	}
-
-	// send the response.
-	responseSuccess(w, transfers)
 }
 
 // FaucetInfoResponse is the faucet info payload.
@@ -92,28 +73,26 @@ func (f Faucet) faucetInfoHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// coinsToTransfer determines tokens to transfer from transfer request.
-func (f Faucet) coinsToTransfer(req TransferRequest) ([]coin, error) {
+// coinsFromRequest determines tokens to transfer from transfer request.
+func (f Faucet) coinsFromRequest(req TransferRequest) (sdk.Coins, error) {
 	if len(req.Coins) == 0 {
 		return f.coins, nil
 	}
 
-	var coins []coin
+	var coins []sdk.Coin
 	for _, c := range req.Coins {
-		amount, denom, err := cosmoscoin.Parse(c)
+		coin, err := sdk.ParseCoinNormalized(c)
 		if err != nil {
 			return nil, err
 		}
-		coins = append(coins, coin{amount, denom})
+		coins = append(coins, coin)
 	}
 
 	return coins, nil
 }
 
-func responseSuccess(w http.ResponseWriter, transfers []Transfer) {
-	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{
-		Transfers: transfers,
-	})
+func responseSuccess(w http.ResponseWriter) {
+	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{})
 }
 
 func responseError(w http.ResponseWriter, code int, err error) {

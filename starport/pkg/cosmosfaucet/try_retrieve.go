@@ -52,11 +52,6 @@ func TryRetrieve(
 	if resp.Error != "" {
 		return fmt.Errorf("faucet is not operational: %s", resp.Error)
 	}
-	for _, transfer := range resp.Transfers {
-		if transfer.Error != "" {
-			return fmt.Errorf("faucet is not operational: %s", transfer.Error)
-		}
-	}
 
 	return nil
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // publishOptions holds info about how to create a chain.
@@ -75,7 +75,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 	}
 
-	coordinatorAddress := n.account.Address(networkchain.SPN)
+	coordinatorAddress := n.account.Address(networktypes.SPN)
 	campaignID = o.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
@@ -85,8 +85,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -107,7 +106,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				CampaignID: o.campaignID,
 			})
 		if err != nil {
-			return 0, 0, cosmoserror.Unwrap(err)
+			return 0, 0, err
 		}
 	} else {
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
@@ -117,18 +116,18 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {
-			return 0, 0, cosmoserror.Unwrap(err)
+			return 0, 0, err
 		}
 
 		var createCampaignRes campaigntypes.MsgCreateCampaignResponse
 		if err := res.Decode(&createCampaignRes); err != nil {
-			return 0, 0, cosmoserror.Unwrap(err)
+			return 0, 0, err
 		}
 		campaignID = createCampaignRes.CampaignID
 	}
 
 	msgCreateChain := launchtypes.NewMsgCreateChain(
-		n.account.Address(networkchain.SPN),
+		n.account.Address(networktypes.SPN),
 		chainID,
 		c.SourceURL(),
 		c.SourceHash(),
@@ -139,12 +138,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
 	if err != nil {
-		return 0, 0, cosmoserror.Unwrap(err)
+		return 0, 0, err
 	}
 
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
-		return 0, 0, cosmoserror.Unwrap(err)
+		return 0, 0, err
 	}
 
 	return createChainRes.LaunchID, campaignID, nil

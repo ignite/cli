@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // Join to the network.
@@ -21,10 +21,11 @@ func (n Network) Join(
 	publicAddress string,
 	gentxPath string,
 ) error {
-	peer, err := c.Peer(ctx, publicAddress)
+	peerAddress, err := c.Peer(ctx, publicAddress)
 	if err != nil {
 		return err
 	}
+	peer := launchtypes.NewPeerConn(c.Name(), peerAddress)
 
 	isCustomGentx := gentxPath != ""
 
@@ -49,7 +50,7 @@ func (n Network) Join(
 	}
 
 	// change the chain address prefix to spn
-	accountAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networkchain.SPN)
+	accountAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networktypes.SPN)
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,7 @@ func (n Network) sendAccountRequest(
 	accountAddress string,
 	amount sdk.Coin,
 ) (err error) {
-	address := n.account.Address(networkchain.SPN)
+	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
@@ -101,7 +102,7 @@ func (n Network) sendAccountRequest(
 	}
 
 	msg := launchtypes.NewMsgRequestAddAccount(
-		n.account.Address(networkchain.SPN),
+		n.account.Address(networktypes.SPN),
 		launchID,
 		accountAddress,
 		sdk.NewCoins(amount),
@@ -110,12 +111,12 @@ func (n Network) sendAccountRequest(
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	var requestRes launchtypes.MsgRequestAddAccountResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	if requestRes.AutoApproved {
@@ -133,7 +134,7 @@ func (n Network) sendAccountRequest(
 func (n Network) sendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
-	peer string,
+	peer launchtypes.Peer,
 	valAddress string,
 	gentx []byte,
 	gentxInfo cosmosutil.GentxInfo,
@@ -148,7 +149,7 @@ func (n Network) sendValidatorRequest(
 	}
 
 	msg := launchtypes.NewMsgRequestAddValidator(
-		n.account.Address(networkchain.SPN),
+		n.account.Address(networktypes.SPN),
 		launchID,
 		valAddress,
 		gentx,
@@ -161,12 +162,12 @@ func (n Network) sendValidatorRequest(
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	var requestRes launchtypes.MsgRequestAddValidatorResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return cosmoserror.Unwrap(err)
+		return err
 	}
 
 	if requestRes.AutoApproved {
@@ -186,8 +187,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -201,8 +201,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -212,8 +211,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = cosmoserror.Unwrap(err)
-	if err == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
