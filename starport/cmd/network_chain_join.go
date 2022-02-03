@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
@@ -88,8 +89,13 @@ func askPublicAddress(s *clispinner.Spinner) (publicAddress string, err error) {
 	options := []cliquiz.Option{
 		cliquiz.Required(),
 	}
-	if !xchisel.IsEnabled() {
-		ip, _ := ipify.GetIp()
+	if gitpod.IsOnGitpod() {
+		addr := gitpod.GitPodPortUrl(xchisel.DefaultServerPort)
+		if addr != "" {
+			options = append(options, cliquiz.DefaultAnswer(addr))
+		}
+	} else {
+		ip, err := ipify.GetIp()
 		if err == nil {
 			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
 		}

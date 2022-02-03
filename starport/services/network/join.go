@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -25,7 +26,14 @@ func (n Network) Join(
 	if err != nil {
 		return err
 	}
-	peer := launchtypes.NewPeerConn(c.Name(), peerAddress)
+
+	var peer launchtypes.Peer
+	if strings.HasPrefix(publicAddress, "http") {
+		peer = launchtypes.NewPeerTunnel(c.Name(), "chisel", peerAddress)
+	} else {
+		peer = launchtypes.NewPeerConn(c.Name(), peerAddress)
+
+	}
 
 	isCustomGentx := gentxPath != ""
 
