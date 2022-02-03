@@ -1,6 +1,6 @@
-# Contributing to Starport Docs
+# Contributing to Starport docs
 
-- [Contributing to Starport Docs](#contributing-to-starport-docs)
+- [Contributing to Starport docs](#contributing-to-starport-docs)
   - [Using this repo](#using-this-repo)
   - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
@@ -9,7 +9,6 @@
   - [Viewing tutorial builds](#viewing-tutorial-builds)
     - [Preview PRs on a deployed preview](#preview-prs-on-a-deployed-preview)
     - [Preview draft PRs on a local web browser](#preview-draft-prs-on-a-local-web-browser)
-  
 
 Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
 

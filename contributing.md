@@ -44,14 +44,26 @@ Don't worry about adding too many commits. The commits are squashed into a singl
 
 When you open a PR for the Starport codebase, you must also update the relevant documentation. For changes to:
 
-- [Developer Guide](https://docs.starport.network/guide/) tutorials, update content in the `/docs/guide` folder.
-- [Knowledge Base](https://docs.starport.network/kb/), update content in the `/docs/kb` folder.
-- [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), navigate to the `./starport/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
+* [Developer Guide](https://docs.starport.network/guide/) tutorials, update content in the `/docs/guide` folder.
+* [Knowledge Base](https://docs.starport.network/kb/), update content in the `/docs/kb` folder.
+* [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), navigate to the `./starport/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
 
 ### Ask for help
 
 If you started a PR but couldn't finish it for whatever reason, don't give up. Instead, just ask for help. Someone else can take over and assume the ownership.
 
+## Git branch and release strategy
+
+Starport follows [Gitflow workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) for the Git branching strategy.
+
+* Each Starport release has a milestone, see https://github.com/tendermint/starport/milestones.
+
+* Issues in each milestone have a low, medium, or high priority label. An issue labeled as low priority in milestone v0.1.0 has higher priority than an issue labeled as high priority in milestone v0.2.0.
+
+* Milestone **Next** is applied to issues that suggest adding features, docs, and so on to assign a higher priority than other issues with milestone **Issues with no milestone** (no milestone is assigned). Issues in the **Next** milestone usually have a lower priority than milestones associated with a release version, like **Milestone v0.1.0**.
+
+* A single project board (https://github.com/tendermint/starport/projects/4) shows the issues we are currently working on and what issues we plan to work on. 
+
+Contributors can check the **To Do** column on the board to find an issue to work on.
+
 We appreciate every bit of your work!
-
-
