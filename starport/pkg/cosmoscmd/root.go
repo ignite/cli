@@ -171,7 +171,7 @@ func NewRootCmd(
 				serverCtx := server.GetServerContextFromCmd(cmd)
 				ctx := context.Background()
 				if gitpod.IsOnGitpod() {
-					serverCtx.Logger.Error("Starting chisel server", "port", xchisel.DefaultServerPort, "proxy", serverCtx.Config.P2P.ListenAddress)
+					serverCtx.Logger.Info("Starting chisel server", "port", xchisel.DefaultServerPort, "proxy", serverCtx.Config.P2P.ListenAddress)
 					go func() {
 						err := xchisel.StartServer(ctx, xchisel.DefaultServerPort, serverCtx.Config.P2P.ListenAddress)
 						if err != nil {
@@ -185,7 +185,7 @@ func NewRootCmd(
 					for _, peer := range tunneledPeersConfig.TunneledPeers {
 						if peer.Name == "chisel" {
 							peer := peer
-							serverCtx.Logger.Error("Starting chisel client", "tunnelAddress", peer.Address, "localPort", peer.LocalPort)
+							serverCtx.Logger.Info("Starting chisel client", "tunnelAddress", peer.Address, "localPort", peer.LocalPort)
 							go func() {
 								err := xchisel.StartClient(ctx, peer.Address, peer.LocalPort, xchisel.DefaultServerPort)
 								if err != nil {
