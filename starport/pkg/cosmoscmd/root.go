@@ -1,6 +1,7 @@
 package cosmoscmd
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
@@ -28,6 +29,9 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
+	"github.com/tendermint/starport/starport/pkg/xchisel"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -161,6 +165,38 @@ func NewRootCmd(
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
+
+			if cmd.Name() == "start" {
+				//check whether command is start or not
+				serverCtx := server.GetServerContextFromCmd(cmd)
+				ctx := context.Background()
+				if gitpod.IsOnGitpod() {
+					serverCtx.Logger.Error("Starting chisel server", "port", xchisel.DefaultServerPort, "proxy", serverCtx.Config.P2P.ListenAddress)
+					go func() {
+						err := xchisel.StartServer(ctx, xchisel.DefaultServerPort, serverCtx.Config.P2P.ListenAddress)
+						if err != nil {
+							serverCtx.Logger.Error("Failed to start chisel server", "port", xchisel.DefaultServerPort)
+						}
+					}()
+				}
+
+				tunneledPeersConfig, err := networkchain.GetTunneledPeersConfig(filepath.Join(initClientCtx.HomeDir, "config", networkchain.TunneledPeersFile))
+				if err == nil {
+					for _, peer := range tunneledPeersConfig.TunneledPeers {
+						if peer.Name == "chisel" {
+							peer := peer
+							serverCtx.Logger.Error("Starting chisel client", "tunnelAddress", peer.Address, "localPort", peer.LocalPort)
+							go func() {
+								err := xchisel.StartClient(ctx, peer.Address, peer.LocalPort, xchisel.DefaultServerPort)
+								if err != nil {
+									serverCtx.Logger.Error("Failed to start chisel client", "tunnelAddress", peer.Address, "localPort", peer.LocalPort)
+									return
+								}
+							}()
+						}
+					}
+				}
+			}
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 		},

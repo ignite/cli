@@ -20,8 +20,10 @@ func IsEnabled() bool {
 	return ServerAddr() != ""
 }
 
-func StartServer(ctx context.Context, port string) error {
-	s, err := chserver.NewServer(&chserver.Config{})
+func StartServer(ctx context.Context, port, proxy string) error {
+	s, err := chserver.NewServer(&chserver.Config{
+		Proxy: proxy,
+	})
 	if err != nil {
 		return err
 	}

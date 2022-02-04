@@ -14,9 +14,10 @@ type TunneledPeerConfig struct {
 }
 
 type TunneledPeer struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	NodeID  string `json:"node_id"`
+	Name      string `json:"name"`
+	Address   string `json:"address"`
+	NodeID    string `json:"node_id"`
+	LocalPort string `json:"local_port"`
 }
 
 func GetTunneledPeersConfig(path string) (TunneledPeerConfig, error) {

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/pelletier/go-toml"
@@ -206,7 +207,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
 	var p2pAddresses []string
 	var tunnelAddresses []TunneledPeer
-	for _, val := range genesisVals {
+	for i, val := range genesisVals {
 		if val.Peer.GetTcpAddress() != "" {
 			p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
 		} else {
@@ -215,11 +216,14 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 			if len(addressParts) != 2 {
 				return errors.Errorf("invalid http tunnel address: %s", tunnel.Address)
 			}
-			tunnelAddresses = append(tunnelAddresses, TunneledPeer{
-				Name:    tunnel.Name,
-				Address: addressParts[1],
-				NodeID:  addressParts[0],
-			})
+			tunneledPeer := TunneledPeer{
+				Name:      tunnel.Name,
+				Address:   addressParts[1],
+				NodeID:    addressParts[0],
+				LocalPort: strconv.Itoa(i + 22000),
+			}
+			tunnelAddresses = append(tunnelAddresses, tunneledPeer)
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@127.0.0.1:%s", tunneledPeer.NodeID, tunneledPeer.LocalPort))
 		}
 	}
 
