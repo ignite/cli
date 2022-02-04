@@ -528,7 +528,7 @@ tx: null
 txhash: 0312234CBB9EEA1A59D474496E100AFC5A460A0E60E7D009D3E9417530148A75
 ```
 
-## Display The Post And All Associated Comments
+## Display the Post and All Associated Comments
 
 ```bash
 blogd q blog comments 0
