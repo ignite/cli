@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -25,5 +26,5 @@ func GitPodPortUrl(port string) string {
 	if err != nil {
 		return ""
 	}
-	return string(output)
+	return strings.Trim(string(output), "\n")
 }

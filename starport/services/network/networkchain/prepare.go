@@ -205,30 +205,61 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
 	var p2pAddresses []string
+	var tunnelAddresses []TunneledPeer
 	for _, val := range genesisVals {
-		p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
+		if val.Peer.GetTcpAddress() != "" {
+			p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
+		} else {
+			tunnel := val.Peer.GetHttpTunnel()
+			addressParts := strings.Split(tunnel.Address, "@")
+			if len(addressParts) != 2 {
+				return errors.Errorf("invalid http tunnel address: %s", tunnel.Address)
+			}
+			tunnelAddresses = append(tunnelAddresses, TunneledPeer{
+				Name:    tunnel.Name,
+				Address: addressParts[1],
+				NodeID:  addressParts[0],
+			})
+		}
 	}
 
-	// set persistent peers
-	configPath, err := c.chain.ConfigTOMLPath()
-	if err != nil {
-		return err
-	}
-	configToml, err := toml.LoadFile(configPath)
-	if err != nil {
-		return err
-	}
-	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
-	if err != nil {
-		return err
+	if len(p2pAddresses) > 0 {
+		// set persistent peers
+		configPath, err := c.chain.ConfigTOMLPath()
+		if err != nil {
+			return err
+		}
+		configToml, err := toml.LoadFile(configPath)
+		if err != nil {
+			return err
+		}
+		configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
+		if err != nil {
+			return err
+		}
+
+		// save config.toml file
+		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer configTomlFile.Close()
+		_, err = configToml.WriteTo(configTomlFile)
+		if err != nil {
+			return err
+		}
 	}
 
-	// save config.toml file
-	configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
+	if len(tunnelAddresses) > 0 {
+		tunneledPeersConfigPath, err := c.TunneledPeersConfigPath()
+		if err != nil {
+			return err
+		}
+		err = SetTunneledPeersConfig(TunneledPeerConfig{TunneledPeers: tunnelAddresses}, tunneledPeersConfigPath)
+		if err != nil {
+			return err
+		}
 	}
-	defer configTomlFile.Close()
-	_, err = configToml.WriteTo(configTomlFile)
-	return err
+	return nil
+
 }
