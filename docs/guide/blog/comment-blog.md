@@ -111,7 +111,7 @@ message MsgCreateCommentResponse {
 }
 ```
 
- You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, blogID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+ You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, PostID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
 ```go
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
@@ -441,7 +441,7 @@ blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```
 
 ```bash
-{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","blogID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","PostID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 When prompted, press Enter to confirm the transaction:
@@ -528,7 +528,7 @@ tx: null
 txhash: 0312234CBB9EEA1A59D474496E100AFC5A460A0E60E7D009D3E9417530148A75
 ```
 
-## Display
+## Display The Post And All Associated Comments
 
 ```bash
 blogd q blog comments 0
