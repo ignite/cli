@@ -34,7 +34,7 @@ To get the useful functions for this tutorial, you use the `starport scaffold li
 2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an array, run:
 
 ```bash
-starport scaffold list comment --no-message creator:string title:string body:string postID:uint createdAt:int 
+starport scaffold list comment --no-message creator:string title:string body:string postID:uint createdAt:uint 
 ```
 
 The `--no-message` flag disables CRUD interaction messages scaffolding because you will write your own messages.
