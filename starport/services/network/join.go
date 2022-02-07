@@ -10,6 +10,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
@@ -29,7 +30,7 @@ func (n Network) Join(
 
 	var peer launchtypes.Peer
 	if strings.HasPrefix(publicAddress, "http") {
-		peer = launchtypes.NewPeerTunnel(c.Name(), "chisel", peerAddress)
+		peer = launchtypes.NewPeerTunnel(c.Name(), networkchain.HTTPTunnelChisel, peerAddress)
 	} else {
 		peer = launchtypes.NewPeerConn(c.Name(), peerAddress)
 

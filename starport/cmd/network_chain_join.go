@@ -1,6 +1,7 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,7 +57,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
 
 	// get the peer public address for the validator.
-	publicAddr, err := askPublicAddress(nb.Spinner)
+	publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
 	if err != nil {
 		return err
 	}
@@ -82,7 +83,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(s *clispinner.Spinner) (publicAddress string, err error) {
+func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress string, err error) {
 	s.Stop()
 	defer s.Start()
 
@@ -90,10 +91,11 @@ func askPublicAddress(s *clispinner.Spinner) (publicAddress string, err error) {
 		cliquiz.Required(),
 	}
 	if gitpod.IsOnGitpod() {
-		addr := gitpod.GitPodPortUrl(xchisel.DefaultServerPort)
-		if addr != "" {
-			options = append(options, cliquiz.DefaultAnswer(addr))
+		publicAddress = gitpod.GitPodURLForPort(ctx, xchisel.DefaultServerPort)
+		if publicAddress == "" {
+			return "", errors.New("cannot read gitpod url")
 		}
+		return publicAddress, nil
 	} else {
 		ip, err := ipify.GetIp()
 		if err == nil {
