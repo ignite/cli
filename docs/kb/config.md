@@ -34,16 +34,18 @@ accounts:
 
 ## build
 
-| Key    | Required | Type   | Description                                                    |
-| ------ | -------- | ------ | -------------------------------------------------------------- |
-| main   | N        | String | When an app contains more than one main Go package, required to define the path of the chain's main package. |
-| binary | N        | String | Name of the node binary that is built, typically ends with `d`. |
+| Key      | Required | Type             | Description                                                                                                  |
+|----------|----------|------------------|--------------------------------------------------------------------------------------------------------------|
+| main     | N        | String           | When an app contains more than one main Go package, required to define the path of the chain's main package. |
+| binary   | N        | String           | Name of the node binary that is built, typically ends with `d`.                                              |
+| ldflags  | N        | List of Strings  | ldflags to set version information for go applications.                                                      |
 
 **build example**
 
 ```yaml
 build:
   binary: "mychaind"
+  ldflags: [ "-X main.Version=development", "-X main.Date=01/05/2022T19:54" ]
 ```
 
 ### build.proto
