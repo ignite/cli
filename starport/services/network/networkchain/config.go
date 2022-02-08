@@ -1,9 +1,10 @@
 package networkchain
 
 import (
+	"path/filepath"
+
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"path/filepath"
 )
 
 const (

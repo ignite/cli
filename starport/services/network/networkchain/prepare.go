@@ -255,11 +255,11 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 	}
 
 	if len(tunnelAddresses) > 0 {
-		tunneledPeersConfigPath, err := c.TunneledPeersConfigPath()
+		tunneledPeersConfigPath, err := c.SPNConfigPath()
 		if err != nil {
 			return err
 		}
-		err = SetTunneledPeersConfig(TunneledPeerConfig{TunneledPeers: tunnelAddresses}, tunneledPeersConfigPath)
+		err = SetSPNConfig(Config{TunneledPeers: tunnelAddresses}, tunneledPeersConfigPath)
 		if err != nil {
 			return err
 		}
