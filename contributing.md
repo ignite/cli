@@ -68,7 +68,9 @@ If you started a PR but couldn't finish it for whatever reason, don't give up. I
 
 ## Prioritizing issues with milestones
 
-* Each Starport release has a milestone, see <https://github.com/tendermint/starport/milestones>.
+Starport follows Git Flow for branch strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>.
+
+- Each Starport release has a milestone, see <https://github.com/tendermint/starport/milestones>.
 
 - Issues in each milestone have a **priority/high**, **priority/medium**, or **priority/low** label.
 
