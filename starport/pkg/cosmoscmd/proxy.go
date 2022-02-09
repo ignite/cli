@@ -22,8 +22,8 @@ func startProxyForTunneledPeers(clientCtx client.Context, cmd *cobra.Command) {
 		if gitpod.IsOnGitpod() {
 			go func() {
 				for {
-					serverCtx.Logger.Info("Starting chisel server", "port", xchisel.DefaultServerPort, "proxy", serverCtx.Config.P2P.ListenAddress)
-					err := xchisel.StartServer(cmdCtx, xchisel.DefaultServerPort, serverCtx.Config.P2P.ListenAddress)
+					serverCtx.Logger.Info("Starting chisel server", "port", xchisel.DefaultServerPort)
+					err := xchisel.StartServer(cmdCtx, xchisel.DefaultServerPort)
 					if err != nil {
 						serverCtx.Logger.Error(
 							"Failed to start chisel server",
@@ -52,7 +52,7 @@ func startProxyForTunneledPeers(clientCtx client.Context, cmd *cobra.Command) {
 				go func() {
 					for {
 						serverCtx.Logger.Info("Starting chisel client", "tunnelAddress", peer.Address, "localPort", peer.LocalPort)
-						err := xchisel.StartClient(cmdCtx, peer.Address, peer.LocalPort, xchisel.DefaultServerPort)
+						err := xchisel.StartClient(cmdCtx, peer.Address, peer.LocalPort, "26656")
 						if err != nil {
 							serverCtx.Logger.Error("Failed to start chisel client",
 								"tunnelAddress", peer.Address,
