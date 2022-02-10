@@ -87,7 +87,7 @@ The `starport scaffold map whois name value price --no-message` command created 
 
 * `x/nameservice/genesis.go`
  
-    Logic for exporting and exporting the state.
+    Logic for exporting the state.
 
 * `x/nameservice/types/genesis.go`
 

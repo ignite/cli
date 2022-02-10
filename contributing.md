@@ -4,6 +4,10 @@ If you're willing to create a new PR on Starport, make sure that you read and co
 
 Start a new [Discussion](https://github.com/tendermint/starport/discussions/new) if you want to propose changes to this document.
 
+To prepare for success, see [Set Up Your Starport Development Environment](dev-env-setup.md).
+
+To contribute to docs and tutorials, see [Contributing to Starport Docs](docs/contributing/index.md).
+
 Thank you for your contribution!
 
 ## Providing Feedback
