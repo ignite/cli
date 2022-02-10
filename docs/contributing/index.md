@@ -1,6 +1,6 @@
-# Contributing to Starport docs
+# Contributing to Starport Docs
 
-- [Contributing to Starport docs](#contributing-to-starport-docs)
+- [Contributing to Starport Docs](#contributing-to-starport-docs)
   - [Using this repo](#using-this-repo)
   - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
