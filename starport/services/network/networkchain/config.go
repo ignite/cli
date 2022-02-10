@@ -26,10 +26,7 @@ type TunneledPeer struct {
 
 func GetSPNConfig(path string) (conf Config, err error) {
 	err = confile.New(confile.DefaultYAMLEncodingCreator, path).Load(&conf)
-	if err != nil {
-		return Config{}, err
-	}
-	return conf, nil
+	return
 }
 
 func SetSPNConfig(config Config, path string) error {

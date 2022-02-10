@@ -934,6 +934,7 @@ github.com/jpillora/ansi v1.0.2 h1:+Ei5HCAH0xsrQRCT2PDr4mq9r4Gm4tg+arNdXRkB22s=
 github.com/jpillora/ansi v1.0.2/go.mod h1:D2tT+6uzJvN1nBVQILYWkIdq7zG+b5gcFN5WI/VyjMY=
 github.com/jpillora/backoff v1.0.0 h1:uvFg412JmmHBHw7iwprIxkPMI+sGQ4kzOWsMeHnm2EA=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
+github.com/jpillora/chisel v1.7.6/go.mod h1:BC2zg11mTIoyGPUjc2EkTgfz3uUUV93+K9tNYCCU/fw=
 github.com/jpillora/chisel v1.7.7 h1:eLbzoX+ekDhVmF5CpSJD01NtH/w7QMYeaFCIFbzn9ns=
 github.com/jpillora/chisel v1.7.7/go.mod h1:X3ZzJDlOSlkMLVY3DMsdrd03rMtugLYk2IOUhvX0SXo=
 github.com/jpillora/requestlog v1.0.0 h1:bg++eJ74T7DYL3DlIpiwknrtfdUA9oP/M4fL+PpqnyA=
