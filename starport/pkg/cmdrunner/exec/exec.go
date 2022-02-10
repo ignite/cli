@@ -56,7 +56,7 @@ func Exec(ctx context.Context, fullCommand []string, options ...Option) error {
 	if err != nil {
 		return &Error{
 			Err:                   errors.Wrap(err, errb.String()),
-			Command:               fullCommand[0],
+			Command:               strings.Join(fullCommand, " "),
 			StdLogs:               logs.String(),
 			includeStdLogsToError: c.includeStdLogsToError,
 		}
