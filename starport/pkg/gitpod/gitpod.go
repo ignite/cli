@@ -15,7 +15,7 @@ func IsOnGitpod() bool {
 	return os.Getenv("GITPOD_WORKSPACE_ID") != ""
 }
 
-func GitPodURLForPort(ctx context.Context, port string) string {
+func URLForPort(ctx context.Context, port string) string {
 	buf := bytes.Buffer{}
 	if err := cmdrunner.New(cmdrunner.DefaultStdout(&buf)).Run(ctx, step.New(step.Exec("gp", "url", port))); err != nil {
 		return ""

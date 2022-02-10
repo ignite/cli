@@ -91,17 +91,18 @@ func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress
 		cliquiz.Required(),
 	}
 	if gitpod.IsOnGitpod() {
-		publicAddress = gitpod.GitPodURLForPort(ctx, xchisel.DefaultServerPort)
+		publicAddress = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
 		if publicAddress == "" {
 			return "", errors.New("cannot read gitpod url")
 		}
 		return publicAddress, nil
-	} else {
-		ip, err := ipify.GetIp()
-		if err == nil {
-			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
-		}
 	}
+
+	ip, err := ipify.GetIp()
+	if err == nil {
+		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	}
+
 	questions := []cliquiz.Question{cliquiz.NewQuestion(
 		"Peer's address",
 		&publicAddress,
