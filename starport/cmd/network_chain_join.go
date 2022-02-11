@@ -91,13 +91,15 @@ func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress
 		cliquiz.Required(),
 	}
 	if gitpod.IsOnGitpod() {
-		publicAddress = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
-		if publicAddress == "" {
-			return "", errors.New("cannot read gitpod url")
+		publicAddress, err = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
+		if err != nil {
+			return "", errors.Wrap(err, "cannot read public Gitpod address of the node")
 		}
 		return publicAddress, nil
 	}
 
+	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
+	// just in case if GetIp fails user should enter his address manually
 	ip, err := ipify.GetIp()
 	if err == nil {
 		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))

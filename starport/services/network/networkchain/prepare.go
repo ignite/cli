@@ -205,17 +205,19 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
-	var p2pAddresses []string
-	var tunnelAddresses []TunneledPeer
+	var (
+		p2pAddresses    []string
+		tunnelAddresses []TunneledPeer
+	)
 	for i, val := range genesisVals {
 		if val.Peer.GetTcpAddress() != "" {
 			p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
 		} else {
 			tunnel := val.Peer.GetHttpTunnel()
-			addressParts := strings.Split(tunnel.Address, "@")
-			if len(addressParts) != 2 {
+			if cosmosutil.VerifyPeerFormat(val.Peer) {
 				return errors.Errorf("invalid http tunnel address: %s", tunnel.Address)
 			}
+			addressParts := strings.Split(tunnel.Address, "@")
 			tunneledPeer := TunneledPeer{
 				Name:      tunnel.Name,
 				Address:   addressParts[1],
@@ -248,8 +250,8 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 			return err
 		}
 		defer configTomlFile.Close()
-		_, err = configToml.WriteTo(configTomlFile)
-		if err != nil {
+
+		if _, err = configToml.WriteTo(configTomlFile); err != nil {
 			return err
 		}
 	}
@@ -259,8 +261,10 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		if err != nil {
 			return err
 		}
-		err = SetSPNConfig(Config{TunneledPeers: tunnelAddresses}, tunneledPeersConfigPath)
-		if err != nil {
+
+		if err = SetSPNConfig(Config{
+			TunneledPeers: tunnelAddresses,
+		}, tunneledPeersConfigPath); err != nil {
 			return err
 		}
 	}

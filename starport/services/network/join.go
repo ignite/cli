@@ -3,13 +3,13 @@ package network
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -29,7 +29,7 @@ func (n Network) Join(
 	}
 
 	var peer launchtypes.Peer
-	if strings.HasPrefix(publicAddress, "http") {
+	if xurl.IsHTTP(publicAddress) {
 		peer = launchtypes.NewPeerTunnel(c.Name(), networkchain.HTTPTunnelChisel, peerAddress)
 	} else {
 		peer = launchtypes.NewPeerConn(c.Name(), peerAddress)
