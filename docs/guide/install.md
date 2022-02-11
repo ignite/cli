@@ -60,7 +60,7 @@ Then run this command to move the `starport` executable to `/usr/local/bin/`:
 sudo mv starport /usr/local/bin/
 ```
 
-On some M1 chip machines, a permissions error occurs:
+On some machines, a permissions error occurs:
 
 ```bash
 mv: rename ./starport to /usr/local/bin/starport: Permission denied
