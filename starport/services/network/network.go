@@ -28,6 +28,7 @@ type Chain interface {
 	AppTOMLPath() (string, error)
 	ConfigTOMLPath() (string, error)
 	Peer(ctx context.Context, addr string) (string, error)
+	NodeID(ctx context.Context) (string, error)
 }
 
 type Option func(*Network)

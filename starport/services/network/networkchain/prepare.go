@@ -210,18 +210,17 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		tunnelAddresses []TunneledPeer
 	)
 	for i, val := range genesisVals {
+		if cosmosutil.VerifyPeerFormat(val.Peer) {
+			return errors.Errorf("invalid peer: %s", val.Peer.Id)
+		}
 		if val.Peer.GetTcpAddress() != "" {
-			p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@%s", val.Peer.Id, val.Peer.GetTcpAddress()))
 		} else {
 			tunnel := val.Peer.GetHttpTunnel()
-			if cosmosutil.VerifyPeerFormat(val.Peer) {
-				return errors.Errorf("invalid http tunnel address: %s", tunnel.Address)
-			}
-			addressParts := strings.Split(tunnel.Address, "@")
 			tunneledPeer := TunneledPeer{
 				Name:      tunnel.Name,
-				Address:   addressParts[1],
-				NodeID:    addressParts[0],
+				Address:   tunnel.Address,
+				NodeID:    val.Peer.Id,
 				LocalPort: strconv.Itoa(i + 22000),
 			}
 			tunnelAddresses = append(tunnelAddresses, tunneledPeer)

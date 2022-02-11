@@ -23,16 +23,16 @@ func (n Network) Join(
 	publicAddress string,
 	gentxPath string,
 ) error {
-	peerAddress, err := c.Peer(ctx, publicAddress)
+	nodeID, err := c.NodeID(ctx)
 	if err != nil {
 		return err
 	}
 
 	var peer launchtypes.Peer
 	if xurl.IsHTTP(publicAddress) {
-		peer = launchtypes.NewPeerTunnel(c.Name(), networkchain.HTTPTunnelChisel, peerAddress)
+		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, publicAddress)
 	} else {
-		peer = launchtypes.NewPeerConn(c.Name(), peerAddress)
+		peer = launchtypes.NewPeerConn(nodeID, publicAddress)
 
 	}
 

@@ -240,6 +240,20 @@ func (c Chain) Peer(ctx context.Context, addr string) (string, error) {
 	return fmt.Sprintf("%s@%s", nodeID, addr), nil
 }
 
+// NodeID returns the chain node id
+func (c Chain) NodeID(ctx context.Context) (string, error) {
+	chainCmd, err := c.chain.Commands(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	nodeID, err := chainCmd.ShowNodeID(ctx)
+	if err != nil {
+		return "", err
+	}
+	return nodeID, nil
+}
+
 // fetchSource fetches the chain source from url and returns a temporary path where source is saved
 func fetchSource(
 	ctx context.Context,

@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
@@ -17,7 +17,7 @@ func IsOnGitpod() bool {
 
 func URLForPort(ctx context.Context, port string) (string, error) {
 	buf := bytes.Buffer{}
-	if err := cmdrunner.New(cmdrunner.DefaultStdout(&buf)).Run(ctx, step.New(step.Exec("gp", "url", port))); err != nil {
+	if err := exec.Exec(ctx, []string{"gp", "url", port}, exec.StepOption(step.Stdout(&buf))); err != nil {
 		return "", err
 	}
 

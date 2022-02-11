@@ -21,10 +21,13 @@ type Config struct {
 type TunneledPeer struct {
 	// Name represents tunnel type e.g. "chisel"
 	Name string `json:"name" yaml:"name"`
+
 	// Address represents http address of the tunnel e.g. "https://tendermint-starport-i5e75cplx02.ws-eu31.gitpod.io/"
 	Address string `json:"address" yaml:"address"`
-	// NodeID tendermint node id of the node behind the tunnel
+
+	// NodeID tendermint node id of the node behind the tunnel e.g. "e6a59e37b2761f26a21c9168f78a7f2b07c120c7"
 	NodeID string `json:"node_id" yaml:"node_id"`
+
 	// LocalPort specifies port which has to be used for local tunnel client
 	LocalPort string `json:"local_port" yaml:"local_port"`
 }
