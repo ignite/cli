@@ -3,11 +3,11 @@ title: Glossary
 order: 0
 parent:
   order: 0
-  title: Developer Tutorials
+  title: Glossary
 description: Learn more about the language of Starport.
 ---
 
-Learn more about the language of Starport. Terms are defined in the context of blockchain networks.
+Learn more about the language of blockchain, cryptocurrency, and Ignite. Terms are defined in the context of blockchain networks.
 
 # Glossary 
 
@@ -17,19 +17,25 @@ Learn more about the language of Starport. Terms are defined in the context of b
 
 ### account
 
-A pair of private key/public key/addresses.
+A pair of a private key and a public key. Starport uses accounts to interact with the Starport Network blockchain, use an IBC relayer, and more.
 
-### application specific blockchain
+### airdrop
+
+Promotes a blockchain startup, project, or service by depositing cryptocurrency in public crypto wallets as a tool for marketing, liquidity creation, and network bootstrapping for many types of blockchain projects. Airdrops are a means of engaging with the community so that users engage with the product. This community engagement and airdrop deposits ensure a fair distribution of tokens among a community from day one.
+
+### application-specific blockchain
 
 A special purpose blockchain that is customized to operate a single application.
 
 ### ATOM
 
-The native staking currency of the Cosmos Hub. 
+The native staking currency of the Cosmos Hub.
 
 ## B
 
+### blockchain
 
+Digitally distributed, decentralized, immutable  public ledger that exists across a network. Blockchains facilitate the process of recording transactions and tracking digital assets.
 
 ## C
 
@@ -37,7 +43,7 @@ The native staking currency of the Cosmos Hub.
 
 A project to start a mainnet chain network. A campaign can be a sequence of testnets that precede and result in a mainnet launch.
 
-### chain 
+### chain
 
 The project of starting a new blockchain network. When you create a chain, you create a project to start a new blockchain network.
 
@@ -75,9 +81,17 @@ The current block height tracked for a chain for reward distribution. This value
 
 ## D
 
+### DeFi
+
+Digital financial infrastructure that theoretically eliminates the need for a central bank or government agency to approve financial transactions. Built on public blockchains, decentralized finance (DeFi) is the infrastructure, processes, and technologies used to democratize financial transactions.
+
 ### delegators
 
-A safeguard against validators that exhibit bad behavior. 
+A safeguard against validators that exhibit bad behavior.
+
+### DEX 
+
+
 
 ### distribution round
 
