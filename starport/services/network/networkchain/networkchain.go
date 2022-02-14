@@ -2,7 +2,6 @@ package networkchain
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/go-git/go-git/v5"
@@ -223,21 +222,6 @@ func (c Chain) IsHomeDirExist() (ok bool, err error) {
 		return false, nil
 	}
 	return err == nil, err
-}
-
-// Peer returns the chain peer string `<nodeID>@<host>` of node for others to connect.
-func (c Chain) Peer(ctx context.Context, addr string) (string, error) {
-	chainCmd, err := c.chain.Commands(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	nodeID, err := chainCmd.ShowNodeID(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%s@%s", nodeID, addr), nil
 }
 
 // NodeID returns the chain node id

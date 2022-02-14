@@ -1,7 +1,6 @@
 package cosmosutil
 
 import (
-	"net"
 	"strings"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -15,13 +14,13 @@ func VerifyPeerFormat(peer launchtypes.Peer) bool {
 	case *launchtypes.Peer_TcpAddress:
 		nodeHost := strings.Split(conn.TcpAddress, ":")
 		if len(nodeHost) != 2 ||
-			net.ParseIP(nodeHost[0]) == nil ||
+			len(nodeHost[0]) == 0 ||
 			len(nodeHost[1]) == 0 {
 			return false
 		}
 		return true
 	case *launchtypes.Peer_HttpTunnel:
-		return xurl.IsHTTP(conn.HttpTunnel.Address) && conn.HttpTunnel.Name == "chisel"
+		return xurl.IsHTTP(conn.HttpTunnel.Address)
 	default:
 		return false
 	}
