@@ -77,6 +77,12 @@ func newNetworkChainShowInfo() *cobra.Command {
 				return err
 			}
 
+			reward, err := n.ChainReward(cmd.Context(), launchID)
+			if err != nil {
+				return err
+			}
+			chainLaunch.Reward = reward.Coins.String()
+
 			var genesis []byte
 			if chainLaunch.GenesisURL != "" {
 				genesis, _, err = cosmosutil.GenesisAndHashFromURL(cmd.Context(), chainLaunch.GenesisURL)

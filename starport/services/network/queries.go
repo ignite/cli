@@ -2,12 +2,18 @@ package network
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+var ErrNotFound = status.Error(codes.InvalidArgument, "not found")
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.
 func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.ChainLaunch, error) {
@@ -23,8 +29,8 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 	return networktypes.ToChainLaunch(res.Chain), nil
 }
 
-// ChainLaunches fetches the chain launches from Starport Network
-func (n Network) ChainLaunches(ctx context.Context) ([]networktypes.ChainLaunch, error) {
+// ChainLaunchesWithReward fetches the chain launches with rewards from Starport Network
+func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
 	var chainLaunches []networktypes.ChainLaunch
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
@@ -35,7 +41,13 @@ func (n Network) ChainLaunches(ctx context.Context) ([]networktypes.ChainLaunch,
 
 	// Parse fetched chains
 	for _, chain := range res.Chain {
-		chainLaunches = append(chainLaunches, networktypes.ToChainLaunch(chain))
+		chainLaunch := networktypes.ToChainLaunch(chain)
+		reward, err := n.ChainReward(ctx, chain.LaunchID)
+		if err != nil {
+			return chainLaunches, err
+		}
+		chainLaunch.Reward = reward.Coins.String()
+		chainLaunches = append(chainLaunches, chainLaunch)
 	}
 
 	return chainLaunches, nil
@@ -115,4 +127,18 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	}
 
 	return genVals, nil
+}
+
+// ChainReward fetches the chain reward from SPN by launch id
+func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.RewardPool, error) {
+	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Fetching rewards for chain %d", launchID)))
+	res, err := rewardtypes.NewQueryClient(n.cosmos.Context).RewardPool(ctx, &rewardtypes.QueryGetRewardPoolRequest{
+		LaunchID: launchID,
+	})
+	if status.Code(err) == codes.InvalidArgument {
+		return rewardtypes.RewardPool{}, nil
+	} else if err != nil {
+		return rewardtypes.RewardPool{}, err
+	}
+	return res.RewardPool, nil
 }
