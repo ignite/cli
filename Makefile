@@ -37,7 +37,7 @@ govet:
 format:
 	@echo Formatting...
 	@find . $(FIND_ARGS) | xargs gofmt -d -s
-	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/tendermint/spn
+	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/tendermint/starport
 
 ## lint: Run Golang CI Lint.
 lint:
