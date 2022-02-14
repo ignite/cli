@@ -37,6 +37,11 @@ func startProxyForTunneledPeers(clientCtx client.Context, cmd *cobra.Command) {
 		serverCtx.Logger.Error("Failed to open spn config file", "reason", err.Error())
 		return
 	}
+	// exit if there aren't tunneled validators in the network
+	if len(spnConfig.TunneledPeers) == 0 {
+		return
+	}
+
 	for _, peer := range spnConfig.TunneledPeers {
 		if peer.Name == networkchain.HTTPTunnelChisel {
 			peer := peer
@@ -57,7 +62,7 @@ func startProxyForTunneledPeers(clientCtx client.Context, cmd *cobra.Command) {
 		}
 	}
 
-	if gitpod.IsOnGitpod() && len(spnConfig.TunneledPeers) > 0 {
+	if gitpod.IsOnGitpod() {
 		go func() {
 			ctxticker.DoNow(ctx, TunnelRerunDelay, func() error {
 				serverCtx.Logger.Info("Starting chisel server", "port", xchisel.DefaultServerPort)
