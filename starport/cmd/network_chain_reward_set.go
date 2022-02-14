@@ -1,0 +1,58 @@
+package starportcmd
+
+import (
+	"fmt"
+	"strconv"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/services/network"
+)
+
+// NewNetworkChainRewardSet creates a new chain reward set command to
+// add the chain reward to the network as a coordinator.
+func NewNetworkChainRewardSet() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "set [launch-id] [last-reward-height] [coins]",
+		Short: "set a network chain reward",
+		Args:  cobra.ExactArgs(3),
+		RunE:  networkChainRewardSetHandler,
+	}
+
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
+
+	return c
+}
+
+func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder(cmd)
+	if err != nil {
+		return err
+	}
+	defer nb.Cleanup()
+
+	// parse launch ID
+	launchID, err := network.ParseLaunchID(args[0])
+	if err != nil {
+		return err
+	}
+
+	// parse launch ID
+	lastRewardHeight, err := strconv.ParseUint(args[1], 10, 64)
+	if err != nil {
+		return err
+	}
+
+	coins, err := sdk.ParseCoinsNormalized(args[2])
+	if err != nil {
+		return fmt.Errorf("failed to parse coins: %w", err)
+	}
+
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
+	return n.SetReward(launchID, lastRewardHeight, coins)
+}
