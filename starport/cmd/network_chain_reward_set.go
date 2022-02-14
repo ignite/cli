@@ -38,7 +38,7 @@ func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// parse launch ID
+	// parse the last reward height
 	lastRewardHeight, err := strconv.ParseUint(args[1], 10, 64)
 	if err != nil {
 		return err
