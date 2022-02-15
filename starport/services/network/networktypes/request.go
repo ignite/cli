@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 

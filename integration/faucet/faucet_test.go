@@ -12,11 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sync/errgroup"
+
 	envtest "github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
