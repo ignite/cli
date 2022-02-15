@@ -202,10 +202,7 @@ If the new code is no longer compatible with the saved state, you can reset the 
 func (c *Chain) setup() error {
 	fmt.Fprintf(c.stdLog().out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
 
-	if err := c.checkSystem(); err != nil {
-		return err
-	}
-	return nil
+	return c.checkSystem()
 }
 
 // checkSystem checks if developer's work environment comply must to have
