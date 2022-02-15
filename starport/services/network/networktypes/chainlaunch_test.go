@@ -33,6 +33,7 @@ func TestToChainLaunch(t *testing.T) {
 				GenesisURL:  "",
 				GenesisHash: "",
 				CampaignID:  1,
+				Network:     "testnet",
 			},
 		},
 		{
@@ -58,6 +59,7 @@ func TestToChainLaunch(t *testing.T) {
 				GenesisHash: "0xccc",
 				LaunchTime:  100,
 				CampaignID:  0,
+				Network:     "testnet",
 			},
 		},
 	}
