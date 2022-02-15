@@ -11,7 +11,14 @@ import (
 
 // SetReward set a chain reward
 func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) error {
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Setting reward %s to chain %d", coins.String(), launchID)))
+	n.ev.Send(events.New(
+		events.StatusOngoing,
+		fmt.Sprintf("Setting reward %s to the chain %d at height %d",
+			coins.String(),
+			launchID,
+			lastRewardHeight,
+		),
+	))
 
 	msg := rewardtypes.NewMsgSetRewards(
 		n.account.Address(networktypes.SPN),
@@ -29,7 +36,12 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf("Chain %d reward set: %s", launchID, coins.String()),
+		fmt.Sprintf(
+			"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
+			coins.String(),
+			lastRewardHeight,
+			launchID,
+		),
 	))
 	return nil
 }
