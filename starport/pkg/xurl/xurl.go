@@ -81,3 +81,7 @@ func IsLocalPath(address string) bool {
 	}
 	return true
 }
+
+func IsHTTP(address string) bool {
+	return strings.HasPrefix(address, "http")
+}
