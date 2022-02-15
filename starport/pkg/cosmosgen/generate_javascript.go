@@ -49,11 +49,7 @@ func (g *generator) generateJS() error {
 		return err
 	}
 
-	if err := jsg.generateVuexModuleLoader(); err != nil {
-		return err
-	}
-
-	return nil
+	return jsg.generateVuexModuleLoader()
 }
 
 func (g *jsGenerator) generateModules() error {
