@@ -5,29 +5,29 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/spn/x/launch/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 func TestPeerAddress(t *testing.T) {
 	tests := []struct {
 		name string
-		peer types.Peer
+		peer launchtypes.Peer
 		want string
 		err  error
 	}{
 		{
 			name: "simple peer connection",
-			peer: types.NewPeerConn("simple-conn", "200.100.50.20"),
+			peer: launchtypes.NewPeerConn("simple-conn", "200.100.50.20"),
 			want: "simple-conn@200.100.50.20",
 		},
 		{
 			name: "http tunnel peer",
-			peer: types.NewPeerTunnel("httpTunnel", "tunnel", "200.100.50.20"),
+			peer: launchtypes.NewPeerTunnel("httpTunnel", "tunnel", "200.100.50.20"),
 			want: "httpTunnel@200.100.50.20",
 		},
 		{
 			name: "invalid peer",
-			peer: types.Peer{Id: "invalid-peer", Connection: nil},
+			peer: launchtypes.Peer{Id: "invalid-peer", Connection: nil},
 			err:  errors.New("invalid peer connection type: <nil>"),
 		},
 	}
