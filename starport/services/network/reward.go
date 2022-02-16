@@ -24,7 +24,8 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 		n.account.Address(networktypes.SPN),
 		launchID,
 		lastRewardHeight,
-		coins)
+		coins,
+	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
