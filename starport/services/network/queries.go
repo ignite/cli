@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"sort"
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -44,6 +45,9 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 		for chainLaunch := range chainLaunchesChan {
 			chainLaunches = append(chainLaunches, chainLaunch)
 		}
+		sort.SliceStable(chainLaunches, func(i, j int) bool {
+			return chainLaunches[i].ID < chainLaunches[j].ID
+		})
 	}()
 
 	// Parse fetched chains and fetch rewards
