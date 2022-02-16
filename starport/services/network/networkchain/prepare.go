@@ -11,6 +11,7 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -213,18 +214,20 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		if !cosmosutil.VerifyPeerFormat(val.Peer) {
 			return errors.Errorf("invalid peer: %s", val.Peer.Id)
 		}
-		if val.Peer.GetTcpAddress() != "" {
-			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@%s", val.Peer.Id, val.Peer.GetTcpAddress()))
-		} else {
-			tunnel := val.Peer.GetHttpTunnel()
+		switch conn := val.Peer.Connection.(type) {
+		case *launchtypes.Peer_TcpAddress:
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@%s", val.Peer.Id, conn.TcpAddress))
+		case *launchtypes.Peer_HttpTunnel:
 			tunneledPeer := TunneledPeer{
-				Name:      tunnel.Name,
-				Address:   tunnel.Address,
+				Name:      conn.HttpTunnel.Name,
+				Address:   conn.HttpTunnel.Address,
 				NodeID:    val.Peer.Id,
 				LocalPort: strconv.Itoa(i + 22000),
 			}
 			tunnelAddresses = append(tunnelAddresses, tunneledPeer)
 			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@127.0.0.1:%s", tunneledPeer.NodeID, tunneledPeer.LocalPort))
+		default:
+			return fmt.Errorf("invalid peer type")
 		}
 	}
 
