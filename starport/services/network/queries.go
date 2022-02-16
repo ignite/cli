@@ -2,18 +2,16 @@ package network
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
-
-var ErrNotFound = status.Error(codes.InvalidArgument, "not found")
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.
 func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.ChainLaunch, error) {
@@ -31,25 +29,45 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 
 // ChainLaunchesWithReward fetches the chain launches with rewards from Starport Network
 func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
-	var chainLaunches []networktypes.ChainLaunch
+	g, ctx := errgroup.WithContext(ctx)
+	chainLaunchesChan := make(chan networktypes.ChainLaunch)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
 	if err != nil {
-		return chainLaunches, err
+		return nil, err
 	}
 
-	// Parse fetched chains
-	for _, chain := range res.Chain {
-		chainLaunch := networktypes.ToChainLaunch(chain)
-		reward, err := n.ChainReward(ctx, chain.LaunchID)
-		if err != nil {
-			return chainLaunches, err
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching rewards"))
+	var chainLaunches []networktypes.ChainLaunch
+	go func() {
+		for chainLaunch := range chainLaunchesChan {
+			chainLaunches = append(chainLaunches, chainLaunch)
 		}
-		chainLaunch.Reward = reward.Coins.String()
-		chainLaunches = append(chainLaunches, chainLaunch)
-	}
+	}()
 
+	// Parse fetched chains and fetch rewards
+	for _, chain := range res.Chain {
+		chain := chain
+		g.Go(func() error {
+			chainLaunch := networktypes.ToChainLaunch(chain)
+			reward, err := n.ChainReward(ctx, chain.LaunchID)
+			if err != nil {
+				return err
+			}
+			chainLaunch.Reward = reward.Coins.String()
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case chainLaunchesChan <- chainLaunch:
+			}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+	close(chainLaunchesChan)
 	return chainLaunches, nil
 }
 
@@ -131,7 +149,6 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 
 // ChainReward fetches the chain reward from SPN by launch id
 func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.RewardPool, error) {
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Fetching rewards for chain %d", launchID)))
 	res, err := rewardtypes.NewQueryClient(n.cosmos.Context).RewardPool(ctx, &rewardtypes.QueryGetRewardPoolRequest{
 		LaunchID: launchID,
 	})
