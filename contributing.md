@@ -78,7 +78,7 @@ Starport follows Git Flow for branch strategy <https://www.atlassian.com/git/tut
 
 - Milestone **Next** is applied to issues that suggest adding features, docs, and so on.
 
-  - Issues with the **Next** milestone have a higher priority than other issues with milestone **Issues with no milestone** (no milestone is assigned).
+  - Issues with the **Next** milestone have a higher priority than other **Issues with no milestone** (no milestone is assigned).
 
   - Issues in the **Next** milestone usually have a lower priority than milestones that are associated with a release version, like **Milestone v0.1.0**.
 
