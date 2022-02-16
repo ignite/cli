@@ -19,7 +19,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 		RunE:  networkChainLaunchHandler,
 	}
 
-	c.Flags().Duration(flagRemainingTime, 0, "The remaining time for validator preparation before the chain is effectively launched")
+	c.Flags().Duration(flagRemainingTime, 0, "Duration of time in seconds before the chain is effectively launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 

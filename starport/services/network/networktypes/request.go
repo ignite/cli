@@ -74,7 +74,7 @@ func VerifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator)
 	// Check the format of the peer
 	if !cosmosutil.VerifyPeerFormat(peer) {
 		return fmt.Errorf(
-			"the peer %s doesn't match the peer format <node-id>@<host>",
+			"the peer address %s doesn't match the peer format <host>:<port>",
 			peer.String(),
 		)
 	}

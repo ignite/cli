@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/pelletier/go-toml"
@@ -39,7 +40,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		if _, err := c.chain.Build(ctx, ""); err != nil {
 			return err
 		}
-		c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
+		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
 
 		c.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
 		if err := c.initGenesis(ctx); err != nil {
@@ -204,31 +205,68 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
-	var p2pAddresses []string
-	for _, val := range genesisVals {
-		p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
+	var (
+		p2pAddresses    []string
+		tunnelAddresses []TunneledPeer
+	)
+	for i, val := range genesisVals {
+		if !cosmosutil.VerifyPeerFormat(val.Peer) {
+			return errors.Errorf("invalid peer: %s", val.Peer.Id)
+		}
+		if val.Peer.GetTcpAddress() != "" {
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@%s", val.Peer.Id, val.Peer.GetTcpAddress()))
+		} else {
+			tunnel := val.Peer.GetHttpTunnel()
+			tunneledPeer := TunneledPeer{
+				Name:      tunnel.Name,
+				Address:   tunnel.Address,
+				NodeID:    val.Peer.Id,
+				LocalPort: strconv.Itoa(i + 22000),
+			}
+			tunnelAddresses = append(tunnelAddresses, tunneledPeer)
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@127.0.0.1:%s", tunneledPeer.NodeID, tunneledPeer.LocalPort))
+		}
 	}
 
-	// set persistent peers
-	configPath, err := c.chain.ConfigTOMLPath()
-	if err != nil {
-		return err
-	}
-	configToml, err := toml.LoadFile(configPath)
-	if err != nil {
-		return err
-	}
-	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
-	if err != nil {
-		return err
+	if len(p2pAddresses) > 0 {
+		// set persistent peers
+		configPath, err := c.chain.ConfigTOMLPath()
+		if err != nil {
+			return err
+		}
+		configToml, err := toml.LoadFile(configPath)
+		if err != nil {
+			return err
+		}
+		configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
+		if err != nil {
+			return err
+		}
+
+		// save config.toml file
+		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer configTomlFile.Close()
+
+		if _, err = configToml.WriteTo(configTomlFile); err != nil {
+			return err
+		}
 	}
 
-	// save config.toml file
-	configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
+	if len(tunnelAddresses) > 0 {
+		tunneledPeersConfigPath, err := c.SPNConfigPath()
+		if err != nil {
+			return err
+		}
+
+		if err = SetSPNConfig(Config{
+			TunneledPeers: tunnelAddresses,
+		}, tunneledPeersConfigPath); err != nil {
+			return err
+		}
 	}
-	defer configTomlFile.Close()
-	_, err = configToml.WriteTo(configTomlFile)
-	return err
+	return nil
+
 }
