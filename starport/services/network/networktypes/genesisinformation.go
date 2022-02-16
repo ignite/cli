@@ -247,7 +247,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 	case *launchtypes.RequestContent_ValidatorRemoval:
 		// validator removed from the genesis
 		vr := requestContent.ValidatorRemoval
-		if gi.ContainsGenesisValidator(vr.ValAddress) {
+		if !gi.ContainsGenesisValidator(vr.ValAddress) {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis validator can't be removed because it doesn't exist")
 		}
 	}
