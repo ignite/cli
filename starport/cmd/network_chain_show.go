@@ -313,7 +313,12 @@ func newNetworkChainShowPeers() *cobra.Command {
 
 			peers := make([]string, 0)
 			for _, acc := range genVals {
-				peers = append(peers, acc.Peer.GetTcpAddress())
+				if acc.Peer.GetTcpAddress() != "" {
+					peers = append(peers, fmt.Sprintf("%s@%s", acc.Peer.Id, acc.Peer.GetTcpAddress()))
+				} else {
+					peers = append(peers, fmt.Sprintf("%s@%s", acc.Peer.Id, acc.Peer.GetHttpTunnel().Address))
+
+				}
 			}
 			nb.Spinner.Stop()
 			if len(peers) > 0 {

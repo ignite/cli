@@ -243,6 +243,12 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 			return err
 		}
 
+		// if there are tunneled peers they will be connected with tunnel clients via localhost,
+		// so we need to allow to have few nodes with the same ip
+		if len(tunnelAddresses) > 0 {
+			configToml.Set("p2p.allow_duplicate_ip", true)
+		}
+
 		// save config.toml file
 		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
 		if err != nil {
