@@ -61,6 +61,7 @@ func NewNetwork() *cobra.Command {
 	// add sub commands.
 	c.AddCommand(
 		NewNetworkChain(),
+		NewNetworkCampaign(),
 		NewNetworkRequest(),
 	)
 

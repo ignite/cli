@@ -52,13 +52,13 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 	return n, nil
 }
 
-func ParseLaunchID(id string) (uint64, error) {
-	launchID, err := strconv.ParseUint(id, 10, 64)
+func ParseID(id string) (uint64, error) {
+	objID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		return 0, errors.Wrap(err, "error parsing launchID")
 	}
-	if launchID == 0 {
+	if objID == 0 {
 		return 0, errors.New("launch ID must be greater than 0")
 	}
-	return launchID, nil
+	return objID, nil
 }
