@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 

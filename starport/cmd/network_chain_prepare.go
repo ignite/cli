@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )

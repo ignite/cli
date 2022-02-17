@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"

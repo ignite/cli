@@ -7,11 +7,12 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.

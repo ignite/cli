@@ -9,10 +9,11 @@ import (
 
 	"github.com/mattn/go-zglob"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	protocgendart "github.com/tendermint/starport/starport/pkg/protoc-gen-dart"
-	"golang.org/x/sync/errgroup"
 )
 
 var (

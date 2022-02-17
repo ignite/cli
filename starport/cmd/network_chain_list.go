@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/services/network/networktypes"

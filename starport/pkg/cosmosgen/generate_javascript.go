@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -16,7 +18,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/nodetime/programs/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
-	"golang.org/x/sync/errgroup"
 )
 
 var (
