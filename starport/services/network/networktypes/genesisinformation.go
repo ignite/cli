@@ -77,34 +77,11 @@ func NewGenesisInformation(
 	vestingAccs []VestingAccount,
 	genVals []GenesisValidator,
 ) (gi GenesisInformation) {
-	gi.GenesisAccounts = make([]GenesisAccount, len(genAccs))
-	gi.VestingAccounts = make([]VestingAccount, len(vestingAccs))
-	gi.GenesisValidators = make([]GenesisValidator, len(genVals))
-	copy(gi.GenesisAccounts, genAccs)
-	copy(gi.VestingAccounts, vestingAccs)
-	copy(gi.GenesisValidators, genVals)
-	return gi
-}
-
-// GetGenesisAccounts converts into array and returns genesis accounts
-func (gi GenesisInformation) GetGenesisAccounts() (accs []GenesisAccount) {
-	accs = make([]GenesisAccount, len(gi.GenesisAccounts))
-	copy(accs, gi.GenesisAccounts)
-	return accs
-}
-
-// GetVestingAccounts converts into array and returns vesting accounts
-func (gi GenesisInformation) GetVestingAccounts() (accs []VestingAccount) {
-	accs = make([]VestingAccount, len(gi.VestingAccounts))
-	copy(accs, gi.VestingAccounts)
-	return accs
-}
-
-// GetGenesisValidators converts into array and returns genesis validators
-func (gi GenesisInformation) GetGenesisValidators() (vals []GenesisValidator) {
-	vals = make([]GenesisValidator, len(gi.GenesisValidators))
-	copy(vals, gi.GenesisValidators)
-	return vals
+	return GenesisInformation{
+		GenesisAccounts:   genAccs,
+		VestingAccounts:   vestingAccs,
+		GenesisValidators: genVals,
+	}
 }
 
 func (gi GenesisInformation) ContainsGenesisAccount(address string) bool {
@@ -166,33 +143,6 @@ func (gi *GenesisInformation) RemoveGenesisValidator(address string) {
 			gi.GenesisValidators = append(gi.GenesisValidators[:i], gi.GenesisValidators[i+1:]...)
 		}
 	}
-}
-
-func (gi GenesisInformation) GetGenesisAccount(address string) GenesisAccount {
-	for _, account := range gi.GenesisAccounts {
-		if account.Address == address {
-			return account
-		}
-	}
-	return GenesisAccount{}
-}
-
-func (gi GenesisInformation) GetVestingAccount(address string) VestingAccount {
-	for _, account := range gi.VestingAccounts {
-		if account.Address == address {
-			return account
-		}
-	}
-	return VestingAccount{}
-}
-
-func (gi GenesisInformation) GetGenesisValidator(address string) GenesisValidator {
-	for _, val := range gi.GenesisValidators {
-		if val.Address == address {
-			return val
-		}
-	}
-	return GenesisValidator{}
 }
 
 // ApplyRequest applies to the genesisInformation the changes implied by the approval of a request

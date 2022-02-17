@@ -314,13 +314,21 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			case *launchtypes.RequestContent_GenesisAccount:
 				ga := networktypes.ToGenesisAccount(*rc.GenesisAccount)
 				require.True(t, newGi.ContainsGenesisAccount(ga.Address))
-				require.EqualValues(t, ga, newGi.GetGenesisAccount(ga.Address))
+				for _, account := range newGi.GenesisAccounts {
+					if account.Address == ga.Address {
+						require.EqualValues(t, ga, account)
+					}
+				}
 
 			case *launchtypes.RequestContent_VestingAccount:
 				va, err := networktypes.ToVestingAccount(*rc.VestingAccount)
 				require.NoError(t, err)
 				require.True(t, newGi.ContainsVestingAccount(va.Address))
-				require.EqualValues(t, va, newGi.GetVestingAccount(va.Address))
+				for _, account := range newGi.VestingAccounts {
+					if account.Address == va.Address {
+						require.EqualValues(t, va, account)
+					}
+				}
 
 			case *launchtypes.RequestContent_AccountRemoval:
 				require.False(t, newGi.ContainsGenesisAccount(rc.AccountRemoval.Address))
@@ -329,7 +337,11 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			case *launchtypes.RequestContent_GenesisValidator:
 				gv := networktypes.ToGenesisValidator(*rc.GenesisValidator)
 				require.True(t, newGi.ContainsGenesisValidator(gv.Address))
-				require.EqualValues(t, gv, newGi.GetGenesisValidator(gv.Address))
+				for _, val := range newGi.GenesisValidators {
+					if val.Address == gv.Address {
+						require.EqualValues(t, gv, val)
+					}
+				}
 
 			case *launchtypes.RequestContent_ValidatorRemoval:
 				require.False(t, newGi.ContainsGenesisAccount(rc.ValidatorRemoval.ValAddress))

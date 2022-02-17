@@ -77,13 +77,13 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 	}
 
 	// apply genesis information to the genesis
-	if err := c.applyGenesisAccounts(ctx, gi.GetGenesisAccounts(), addressPrefix); err != nil {
+	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts, addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
-	if err := c.applyVestingAccounts(ctx, gi.GetVestingAccounts(), addressPrefix); err != nil {
+	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts, addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
-	if err := c.applyGenesisValidators(ctx, gi.GetGenesisValidators()); err != nil {
+	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
