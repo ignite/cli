@@ -23,11 +23,11 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkCampaignUpdateHandler,
 	}
-
 	c.Flags().String(flagCampaignName, "", "Update the campaign name")
 	c.Flags().String(flagCampaignTotalShares, "", "Update the shares supply for the campaign")
 	c.Flags().String(flagCampaignTotalSupply, "", "Update the total of the mainnet of a campaign")
-
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -81,7 +81,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if totalSupply.Empty() {
+	if !totalSupply.Empty() {
 		err := n.CampaignUpdateTotalSupply(campaignID, totalSupply)
 		if err != nil {
 			return err

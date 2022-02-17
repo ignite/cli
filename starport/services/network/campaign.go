@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -25,8 +24,8 @@ func (n Network) CampaignUpdateName(campaignID uint64, name string) error {
 		return err
 	}
 
-	var launchRes launchtypes.MsgTriggerLaunchResponse
-	if err := res.Decode(&launchRes); err != nil {
+	var campaignRes campaigntypes.MsgUpdateCampaignNameResponse
+	if err := res.Decode(&campaignRes); err != nil {
 		return err
 	}
 
@@ -52,8 +51,8 @@ func (n Network) CampaignUpdateTotalShares(campaignID uint64, totalShares campai
 		return err
 	}
 
-	var launchRes launchtypes.MsgTriggerLaunchResponse
-	if err := res.Decode(&launchRes); err != nil {
+	var campaignRes campaigntypes.MsgUpdateTotalSharesResponse
+	if err := res.Decode(&campaignRes); err != nil {
 		return err
 	}
 
@@ -79,8 +78,8 @@ func (n Network) CampaignUpdateTotalSupply(campaignID uint64, totalSupply sdk.Co
 		return err
 	}
 
-	var launchRes launchtypes.MsgTriggerLaunchResponse
-	if err := res.Decode(&launchRes); err != nil {
+	var campaignRes campaigntypes.MsgUpdateTotalSupplyResponse
+	if err := res.Decode(&campaignRes); err != nil {
 		return err
 	}
 
