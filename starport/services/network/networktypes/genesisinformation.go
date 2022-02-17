@@ -10,10 +10,10 @@ import (
 // GenesisInformation represents all information for a chain to construct the genesis.
 // This structure indexes accounts and validators by their address for better performance
 type GenesisInformation struct {
-        // make sure to use slices for the following because slices are ordered.
-        // they later used to create a Genesis so, having them ordered is important to
-        // be able to produce a deterministic Genesis.
-        
+	// make sure to use slices for the following because slices are ordered.
+	// they later used to create a Genesis so, having them ordered is important to
+	// be able to produce a deterministic Genesis.
+
 	GenesisAccounts   []GenesisAccount
 	VestingAccounts   []VestingAccount
 	GenesisValidators []GenesisValidator
