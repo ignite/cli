@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
