@@ -72,8 +72,12 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 				req.GenesisAccount.Coins.String())
 		case *launchtypes.RequestContent_GenesisValidator:
 			requestType = "Add Genesis Validator"
+			peer, err := network.PeerAddress(req.GenesisValidator.Peer)
+			if err != nil {
+				return err
+			}
 			content = fmt.Sprintf("%s, %s, %s",
-				req.GenesisValidator.Peer,
+				peer,
 				req.GenesisValidator.Address,
 				req.GenesisValidator.SelfDelegation.String())
 		case *launchtypes.RequestContent_VestingAccount:
