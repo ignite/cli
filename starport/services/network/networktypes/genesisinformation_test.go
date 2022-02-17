@@ -314,32 +314,38 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			switch rc := tt.r.Content.Content.(type) {
 			case *launchtypes.RequestContent_GenesisAccount:
 				ga := networktypes.ToGenesisAccount(*rc.GenesisAccount)
-				got, ok := newGi.GenesisAccounts[ga.Address]
-				require.True(t, ok)
-				require.EqualValues(t, ga, got)
+				require.True(t, newGi.ContainsGenesisAccount(ga.Address))
+				for _, account := range newGi.GenesisAccounts {
+					if account.Address == ga.Address {
+						require.EqualValues(t, ga, account)
+					}
+				}
 
 			case *launchtypes.RequestContent_VestingAccount:
 				va, err := networktypes.ToVestingAccount(*rc.VestingAccount)
 				require.NoError(t, err)
-				got, ok := newGi.VestingAccounts[va.Address]
-				require.True(t, ok)
-				require.EqualValues(t, va, got)
+				require.True(t, newGi.ContainsVestingAccount(va.Address))
+				for _, account := range newGi.VestingAccounts {
+					if account.Address == va.Address {
+						require.EqualValues(t, va, account)
+					}
+				}
 
 			case *launchtypes.RequestContent_AccountRemoval:
-				_, ok := newGi.GenesisAccounts[rc.AccountRemoval.Address]
-				require.False(t, ok)
-				_, ok = newGi.VestingAccounts[rc.AccountRemoval.Address]
-				require.False(t, ok)
+				require.False(t, newGi.ContainsGenesisAccount(rc.AccountRemoval.Address))
+				require.False(t, newGi.ContainsVestingAccount(rc.AccountRemoval.Address))
 
 			case *launchtypes.RequestContent_GenesisValidator:
 				gv := networktypes.ToGenesisValidator(*rc.GenesisValidator)
-				got, ok := newGi.GenesisValidators[gv.Address]
-				require.True(t, ok)
-				require.EqualValues(t, gv, got)
+				require.True(t, newGi.ContainsGenesisValidator(gv.Address))
+				for _, val := range newGi.GenesisValidators {
+					if val.Address == gv.Address {
+						require.EqualValues(t, gv, val)
+					}
+				}
 
 			case *launchtypes.RequestContent_ValidatorRemoval:
-				_, ok := newGi.GenesisAccounts[rc.ValidatorRemoval.ValAddress]
-				require.False(t, ok)
+				require.False(t, newGi.ContainsGenesisAccount(rc.ValidatorRemoval.ValAddress))
 			}
 		})
 	}
