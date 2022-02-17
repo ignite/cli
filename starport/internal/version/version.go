@@ -11,6 +11,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/google/go-github/v37/github"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gitpod"

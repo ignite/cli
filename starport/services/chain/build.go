@@ -11,6 +11,7 @@ import (
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/checksum"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"

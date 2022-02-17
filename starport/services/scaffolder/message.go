@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
