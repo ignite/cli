@@ -9,6 +9,18 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
+// Campaign fetches the campaign from Starport Network
+func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign information"))
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
+		CampaignID: campaignID,
+	})
+	if err != nil {
+		return networktypes.Campaign{}, err
+	}
+	return networktypes.ToCampaign(res.Campaign), nil
+}
+
 // Campaigns fetches the campaigns from Starport Network
 func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
 	var campaigns []networktypes.Campaign

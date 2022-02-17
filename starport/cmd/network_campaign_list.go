@@ -17,10 +17,6 @@ var CampaignSummaryHeader = []string{
 	"name",
 	"coordinator id",
 	"mainnet id",
-	"total supply",
-	"allocated shares",
-	"dynamic shares",
-	"total shares",
 }
 
 // NewNetworkCampaignList returns a new command to list all published campaigns on Starport Network
@@ -63,20 +59,16 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, out io.Writer) e
 	var campaignEntries [][]string
 
 	for _, c := range campaigns {
-		dynamicShares := "no"
-		if c.DynamicShares {
-			dynamicShares = "yes"
+		mainnetID := "-"
+		if c.MainnetInitialized {
+			mainnetID = fmt.Sprintf("%d", c.MainnetID)
 		}
 
 		campaignEntries = append(campaignEntries, []string{
 			fmt.Sprintf("%d", c.ID),
 			c.Name,
 			fmt.Sprintf("%d", c.CoordinatorID),
-			fmt.Sprintf("%d", c.MainnetID),
-			c.TotalSupply,
-			c.AllocatedShares,
-			dynamicShares,
-			c.TotalShares,
+			mainnetID,
 		})
 	}
 
