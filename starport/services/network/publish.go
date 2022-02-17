@@ -136,6 +136,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		genesisHash,
 		true,
 		campaignID,
+		nil,
 	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
 	if err != nil {

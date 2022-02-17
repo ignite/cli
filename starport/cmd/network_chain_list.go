@@ -14,14 +14,6 @@ import (
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}
 
-// LaunchSummary holds summarized information about a chain launch
-type LaunchSummary struct {
-	LaunchID   string
-	ChainID    string
-	Source     string
-	CampaignID string
-}
-
 // NewNetworkChainList returns a new command to list all published chains on Starport Network
 func NewNetworkChainList() *cobra.Command {
 	c := &cobra.Command{
