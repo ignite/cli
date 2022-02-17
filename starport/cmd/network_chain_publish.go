@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
@@ -11,13 +12,15 @@ import (
 )
 
 const (
-	flagTag      = "tag"
-	flagBranch   = "branch"
-	flagHash     = "hash"
-	flagGenesis  = "genesis"
-	flagCampaign = "campaign"
-	flagNoCheck  = "no-check"
-	flagChainID  = "chain-id"
+	flagTag            = "tag"
+	flagBranch         = "branch"
+	flagHash           = "hash"
+	flagGenesis        = "genesis"
+	flagCampaign       = "campaign"
+	flagNoCheck        = "no-check"
+	flagChainID        = "chain-id"
+	flagRewardCoins    = "reward.coins"
+	flagRewardDuration = "reward.duration"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -36,6 +39,8 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
+	c.Flags().String(flagRewardCoins, "", "Reward coins")
+	c.Flags().Uint64(flagRewardDuration, 0, "Last reward height")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -46,15 +51,29 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source        = args[0]
-		tag, _        = cmd.Flags().GetString(flagTag)
-		branch, _     = cmd.Flags().GetString(flagBranch)
-		hash, _       = cmd.Flags().GetString(flagHash)
-		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
-		chainID, _    = cmd.Flags().GetString(flagChainID)
-		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
-		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
+		source            = args[0]
+		tag, _            = cmd.Flags().GetString(flagTag)
+		branch, _         = cmd.Flags().GetString(flagBranch)
+		hash, _           = cmd.Flags().GetString(flagHash)
+		genesisURL, _     = cmd.Flags().GetString(flagGenesis)
+		chainID, _        = cmd.Flags().GetString(flagChainID)
+		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
+		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
+		rewardCoinsStr, _ = cmd.Flags().GetString(flagRewardCoins)
+		rewardDuration, _ = cmd.Flags().GetUint64(flagRewardDuration)
 	)
+
+	rewardCoins, err := sdk.ParseCoinsNormalized(rewardCoinsStr)
+	if err != nil {
+		return err
+	}
+
+	if !rewardCoins.Empty() && rewardDuration == 0 {
+		return fmt.Errorf("the reward duration flag (%s) should provide", flagRewardDuration)
+	}
+	if rewardCoins.Empty() && rewardDuration > 0 {
+		return fmt.Errorf("the reward coins flag (%s) should provide", flagRewardCoins)
+	}
 
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
@@ -127,6 +146,13 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
+	}
+
+	if !rewardCoins.Empty() && rewardDuration > 0 {
+		err := n.SetReward(launchID, rewardDuration, rewardCoins)
+		if err != nil {
+			return err
+		}
 	}
 
 	nb.Spinner.Stop()
