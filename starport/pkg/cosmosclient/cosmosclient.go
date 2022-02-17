@@ -28,9 +28,10 @@ import (
 	proto "github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer

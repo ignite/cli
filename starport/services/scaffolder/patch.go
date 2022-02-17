@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
