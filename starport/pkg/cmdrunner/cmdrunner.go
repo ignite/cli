@@ -7,9 +7,10 @@ import (
 	"os"
 	"os/exec"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/goenv"
-	"golang.org/x/sync/errgroup"
 )
 
 // Runner is an object to run commands
