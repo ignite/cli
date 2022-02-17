@@ -9,6 +9,7 @@ import (
 
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
+
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 

@@ -12,6 +12,8 @@ import (
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
@@ -21,7 +23,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
