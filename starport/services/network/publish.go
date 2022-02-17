@@ -15,10 +15,11 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL string
-	chainID    string
-	campaignID uint64
-	noCheck    bool
+	genesisURL  string
+	chainID     string
+	campaignID  uint64
+	noCheck     bool
+	totalShares campaigntypes.Shares
 }
 
 // PublishOption configures chain creation.
@@ -49,6 +50,13 @@ func WithNoCheck() PublishOption {
 func WithCustomGenesis(url string) PublishOption {
 	return func(o *publishOptions) {
 		o.genesisURL = url
+	}
+}
+
+// WithTotalShares provides a campaign total shares
+func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
+	return func(o *publishOptions) {
+		o.totalShares = totalShares
 	}
 }
 
@@ -146,6 +154,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
 		return 0, 0, err
+	}
+
+	if !o.totalShares.Empty() {
+		err := n.CampaignUpdateTotalShares(campaignID, o.totalShares)
+		if err != nil {
+			return createChainRes.LaunchID, campaignID, err
+		}
 	}
 
 	return createChainRes.LaunchID, campaignID, nil

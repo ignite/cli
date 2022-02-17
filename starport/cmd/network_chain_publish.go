@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
@@ -12,13 +13,14 @@ import (
 )
 
 const (
-	flagTag      = "tag"
-	flagBranch   = "branch"
-	flagHash     = "hash"
-	flagGenesis  = "genesis"
-	flagCampaign = "campaign"
-	flagNoCheck  = "no-check"
-	flagChainID  = "chain-id"
+	flagTag         = "tag"
+	flagBranch      = "branch"
+	flagHash        = "hash"
+	flagGenesis     = "genesis"
+	flagCampaign    = "campaign"
+	flagNoCheck     = "no-check"
+	flagChainID     = "chain-id"
+	flagTotalShares = "total-shares"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -37,6 +39,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
+	c.Flags().String(flagTotalShares, "", "Add a total shares to the campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -47,15 +50,21 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source        = args[0]
-		tag, _        = cmd.Flags().GetString(flagTag)
-		branch, _     = cmd.Flags().GetString(flagBranch)
-		hash, _       = cmd.Flags().GetString(flagHash)
-		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
-		chainID, _    = cmd.Flags().GetString(flagChainID)
-		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
-		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
+		source            = args[0]
+		tag, _            = cmd.Flags().GetString(flagTag)
+		branch, _         = cmd.Flags().GetString(flagBranch)
+		hash, _           = cmd.Flags().GetString(flagHash)
+		genesisURL, _     = cmd.Flags().GetString(flagGenesis)
+		chainID, _        = cmd.Flags().GetString(flagChainID)
+		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
+		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
+		totalSharesStr, _ = cmd.Flags().GetString(flagTotalShares)
 	)
+
+	totalShares, err := campaigntypes.NewShares(totalSharesStr)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
@@ -112,6 +121,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// use custom chain id if given.
 	if chainID != "" {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
+	}
+
+	if !totalShares.Empty() {
+		publishOptions = append(publishOptions, network.WithTotalShares(totalShares))
 	}
 
 	if noCheck {
