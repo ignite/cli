@@ -9,9 +9,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
+
+	"github.com/tendermint/starport/starport/pkg/gomodule"
 )
 
 // Path represents a Go module's path.

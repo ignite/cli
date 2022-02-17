@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+
 	"github.com/tendermint/starport/starport/pkg/openapiconsole"
 )
 
