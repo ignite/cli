@@ -11,6 +11,7 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
