@@ -2,7 +2,9 @@ package network
 
 import (
 	"context"
+	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -18,6 +20,7 @@ type publishOptions struct {
 	chainID    string
 	campaignID uint64
 	noCheck    bool
+	shares     campaigntypes.Shares
 }
 
 // PublishOption configures chain creation.
@@ -48,6 +51,13 @@ func WithNoCheck() PublishOption {
 func WithCustomGenesis(url string) PublishOption {
 	return func(o *publishOptions) {
 		o.genesisURL = url
+	}
+}
+
+// WithShares provides a account shares
+func WithShares(shares campaigntypes.Shares) PublishOption {
+	return func(o *publishOptions) {
+		o.shares = shares
 	}
 }
 
@@ -146,5 +156,46 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		return 0, 0, err
 	}
 
+	if !sdk.Coins(o.shares).Empty() {
+		err := n.AddShares(campaignID, coordinatorAddress, o.shares)
+		if err != nil {
+			return createChainRes.LaunchID, campaignID, err
+		}
+	}
 	return createChainRes.LaunchID, campaignID, nil
+}
+
+// AddShares add a shares to an account
+func (n Network) AddShares(campaignID uint64, address string, shares campaigntypes.Shares) error {
+	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
+		"Adding shares %s to account %s for campaign %d",
+		sdk.Coins(shares).String(),
+		address,
+		campaignID,
+	)))
+
+	msg := campaigntypes.NewMsgAddShares(
+		campaignID,
+		n.account.Address(networktypes.SPN),
+		address,
+		shares,
+	)
+
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return err
+	}
+
+	var sharesRes campaigntypes.MsgAddSharesResponse
+	if err := res.Decode(&sharesRes); err != nil {
+		return err
+	}
+
+	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
+		"Added %s for addess %s in the campaign %d",
+		sdk.Coins(shares).String(),
+		address,
+		campaignID,
+	)))
+	return nil
 }

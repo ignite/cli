@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
@@ -18,6 +20,7 @@ const (
 	flagCampaign = "campaign"
 	flagNoCheck  = "no-check"
 	flagChainID  = "chain-id"
+	flagShares   = "shares"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -34,6 +37,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
+	c.Flags().String(flagShares, "", "Add a shares to an account")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().AddFlagSet(flagNetworkFrom())
@@ -52,9 +56,15 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		hash, _       = cmd.Flags().GetString(flagHash)
 		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
 		chainID, _    = cmd.Flags().GetString(flagChainID)
+		sharesStr, _  = cmd.Flags().GetString(flagShares)
 		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
+
+	shares, err := campaigntypes.NewShares(sharesStr)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
@@ -111,6 +121,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// use custom chain id if given.
 	if chainID != "" {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
+	}
+
+	if !sdk.Coins(shares).Empty() {
+		publishOptions = append(publishOptions, network.WithShares(shares))
 	}
 
 	if noCheck {
