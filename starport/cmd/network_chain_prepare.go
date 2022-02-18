@@ -1,10 +1,16 @@
 package starportcmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
+)
+
+const (
+	flagForce = "force"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -16,6 +22,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 		RunE:  networkChainPrepareHandler,
 	}
 
+	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not started")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -24,6 +31,8 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
+	force, _ := cmd.Flags().GetBool(flagForce)
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
@@ -45,6 +54,10 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	chainLaunch, err := n.ChainLaunch(cmd.Context(), launchID)
 	if err != nil {
 		return err
+	}
+
+	if !force && !chainLaunch.LaunchTriggered {
+		return fmt.Errorf("chain %d is not launched yet", launchID)
 	}
 
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
