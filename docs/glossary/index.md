@@ -81,6 +81,10 @@ The current block height tracked for a chain for reward distribution. This value
 
 ## D
 
+### dApps
+
+Decentralized applications (dApp) run on blockchain networks in a public, open-source, decentralized environment and are free from control and interference by any single authority. dApps are designed for specific real-world use cases and provide a user experience that is similar to web applications.
+
 ### DeFi
 
 Digital financial infrastructure that theoretically eliminates the need for a central bank or government agency to approve financial transactions. Built on public blockchains, decentralized finance (DeFi) is the infrastructure, processes, and technologies used to democratize financial transactions.
