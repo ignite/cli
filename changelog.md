@@ -1,5 +1,17 @@
 # Changelog
 
+## `v0.19.4`
+
+### Features
+
+- Upgraded Vue template to `v0.3.0`.
+
+## `v0.19.3`
+
+### Features
+
+- Upgraded Flutter template to `v2.0.3`
+
 ## [`v0.19.2`](https://github.com/tendermint/starport/milestone/14)
 
 ### Fixes:
