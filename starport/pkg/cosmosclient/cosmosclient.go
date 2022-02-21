@@ -293,6 +293,8 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		if err != nil {
 			return Response{}, err
 		}
+
+		txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
 		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
 			return Response{}, err
 		}
