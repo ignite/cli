@@ -116,7 +116,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
+	} else if _, err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
 		return err
 	}
 

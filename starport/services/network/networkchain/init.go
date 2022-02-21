@@ -11,40 +11,40 @@ import (
 
 // Init initializes blockchain by building the binaries and running the init command and
 // create the initial genesis of the chain, and set up a validator key
-func (c *Chain) Init(ctx context.Context) error {
+func (c *Chain) Init(ctx context.Context) (binaryName string, err error) {
 	chainHome, err := c.chain.Home()
 	if err != nil {
-		return err
+		return
 	}
 
 	// cleanup home dir of app if exists.
-	if err := os.RemoveAll(chainHome); err != nil {
-		return err
+	if err = os.RemoveAll(chainHome); err != nil {
+		return
 	}
 
 	// build the chain and initialize it with a new validator key
 	c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-	if _, err := c.chain.Build(ctx, ""); err != nil {
-		return err
+	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
+		return
 	}
 
 	c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
 	c.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	if err := c.chain.Init(ctx, false); err != nil {
-		return err
+	if err = c.chain.Init(ctx, false); err != nil {
+		return
 	}
 
 	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// initialize and verify the genesis
-	if err := c.initGenesis(ctx); err != nil {
-		return err
+	if err = c.initGenesis(ctx); err != nil {
+		return
 	}
 
 	c.isInitialized = true
 
-	return nil
+	return
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)

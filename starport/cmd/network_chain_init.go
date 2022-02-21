@@ -107,7 +107,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Init(cmd.Context()); err != nil {
+	if _, err := c.Init(cmd.Context()); err != nil {
 		return err
 	}
 
