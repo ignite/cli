@@ -22,7 +22,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 		RunE:  networkChainPrepareHandler,
 	}
 
-	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not started")
+	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -57,7 +57,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !force && !chainLaunch.LaunchTriggered {
-		return fmt.Errorf("chain %d is not launched yet", launchID)
+		return fmt.Errorf("chain %d has not launched yet. use --force to prepare anyway", launchID)
 	}
 
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
