@@ -44,7 +44,7 @@ func (c *Chain) Init(ctx context.Context) (binaryName string, err error) {
 
 	c.isInitialized = true
 
-	return
+	return binaryName, err
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
