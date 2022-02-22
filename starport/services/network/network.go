@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -27,7 +28,7 @@ type Chain interface {
 	DefaultGentxPath() (string, error)
 	AppTOMLPath() (string, error)
 	ConfigTOMLPath() (string, error)
-	Peer(ctx context.Context, addr string) (string, error)
+	NodeID(ctx context.Context) (string, error)
 }
 
 type Option func(*Network)

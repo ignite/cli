@@ -5,6 +5,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -35,13 +36,13 @@ func NewNetworkChainInit() *cobra.Command {
 	}
 
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
-	c.Flags().String(flagValidatorWebsite, "", "Associate a website to the validator")
-	c.Flags().String(flagValidatorDetails, "", "Provide details about the validator")
-	c.Flags().String(flagValidatorSecurityContact, "", "Provide a validator security contact email")
-	c.Flags().String(flagValidatorMoniker, "", "Provide a custom validator moniker")
-	c.Flags().String(flagValidatorIdentity, "", "Provide a validator identity signature (ex. UPort or Keybase)")
-	c.Flags().String(flagValidatorSelfDelegation, "", "Provide a validator minimum self delegation")
-	c.Flags().String(flagValidatorGasPrice, "", "Provide a validator gas price")
+	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
+	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
+	c.Flags().String(flagValidatorSecurityContact, "", "Validator security contact email")
+	c.Flags().String(flagValidatorMoniker, "", "Custom validator moniker")
+	c.Flags().String(flagValidatorIdentity, "", "Validator identity signature (ex. UPort or Keybase)")
+	c.Flags().String(flagValidatorSelfDelegation, "", "Validator minimum self delegation")
+	c.Flags().String(flagValidatorGasPrice, "", "Validator gas price")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())

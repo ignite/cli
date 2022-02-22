@@ -1,14 +1,17 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
@@ -55,7 +58,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
 
 	// get the peer public address for the validator.
-	publicAddr, err := askPublicAddress(nb.Spinner)
+	publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
 	if err != nil {
 		return err
 	}
@@ -81,19 +84,28 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(s *clispinner.Spinner) (publicAddress string, err error) {
+func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress string, err error) {
 	s.Stop()
 	defer s.Start()
 
 	options := []cliquiz.Option{
 		cliquiz.Required(),
 	}
-	if !xchisel.IsEnabled() {
-		ip, _ := ipify.GetIp()
-		if err == nil {
-			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	if gitpod.IsOnGitpod() {
+		publicAddress, err = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
+		if err != nil {
+			return "", errors.Wrap(err, "cannot read public Gitpod address of the node")
 		}
+		return publicAddress, nil
 	}
+
+	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
+	// just in case if GetIp fails user should enter his address manually
+	ip, err := ipify.GetIp()
+	if err == nil {
+		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	}
+
 	questions := []cliquiz.Question{cliquiz.NewQuestion(
 		"Peer's address",
 		&publicAddress,

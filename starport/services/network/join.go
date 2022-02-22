@@ -6,9 +6,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
@@ -21,11 +24,18 @@ func (n Network) Join(
 	publicAddress string,
 	gentxPath string,
 ) error {
-	peerAddress, err := c.Peer(ctx, publicAddress)
+	nodeID, err := c.NodeID(ctx)
 	if err != nil {
 		return err
 	}
-	peer := launchtypes.NewPeerConn(c.Name(), peerAddress)
+
+	var peer launchtypes.Peer
+	if xurl.IsHTTP(publicAddress) {
+		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, publicAddress)
+	} else {
+		peer = launchtypes.NewPeerConn(nodeID, publicAddress)
+
+	}
 
 	isCustomGentx := gentxPath != ""
 

@@ -12,6 +12,8 @@ import (
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
@@ -21,7 +23,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -202,10 +203,7 @@ If the new code is no longer compatible with the saved state, you can reset the 
 func (c *Chain) setup() error {
 	fmt.Fprintf(c.stdLog().out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
 
-	if err := c.checkSystem(); err != nil {
-		return err
-	}
-	return nil
+	return c.checkSystem()
 }
 
 // checkSystem checks if developer's work environment comply must to have

@@ -13,6 +13,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+
 	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -253,7 +254,7 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Starport %s is available!
 ·
-· If you're looking to upgrade check out the instructions: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
+· To upgrade your Starport version, see the upgrade doc: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
 ·
 ··
 

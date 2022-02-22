@@ -30,7 +30,7 @@ require (
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
 	github.com/imdario/mergo v0.3.12
-	github.com/jpillora/chisel v1.7.6
+	github.com/jpillora/chisel v1.7.7
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/otiai10/copy v1.6.0
@@ -48,10 +48,10 @@ require (
 	github.com/tendermint/spn v0.1.1-0.20220201164838-2464b6474c82
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	github.com/tendermint/vue v0.1.58
+	github.com/tendermint/vue v0.3.0
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
+	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	google.golang.org/grpc v1.43.0
 )
 

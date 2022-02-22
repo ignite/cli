@@ -28,9 +28,10 @@ import (
 	proto "github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
@@ -292,6 +293,8 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		if err != nil {
 			return Response{}, err
 		}
+
+		txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
 		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
 			return Response{}, err
 		}

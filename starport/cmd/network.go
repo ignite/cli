@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
@@ -55,7 +56,7 @@ func NewNetwork() *cobra.Command {
 	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
 	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
 	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressAlpha, "SPN node address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN Faucet address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN faucet address")
 
 	// add sub commands.
 	c.AddCommand(
@@ -131,7 +132,7 @@ func (n NetworkBuilder) Cleanup() {
 func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	// check preconfigured networks
 	if nightly && local {
-		return cosmosclient.Client{}, errors.New("local and nightly networks can't be specified in the same command")
+		return cosmosclient.Client{}, errors.New("local and nightly networks can't both be specified in the same command, specify local or nightly")
 	}
 	if local {
 		spnNodeAddress = spnNodeAddressLocal

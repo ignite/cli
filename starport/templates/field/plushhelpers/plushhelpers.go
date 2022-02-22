@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/plush"
+
 	"github.com/tendermint/starport/starport/templates/field"
 	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
