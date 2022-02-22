@@ -7,8 +7,6 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
 // NewNetworkCampaignShow returns a new command to show published campaign on Starport Network
@@ -19,7 +17,7 @@ func NewNetworkCampaignShow() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkCampaignShowHandler,
 	}
-	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c

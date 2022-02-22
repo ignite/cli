@@ -7,7 +7,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -19,7 +18,7 @@ var CampaignSummaryHeader = []string{
 	"mainnet id",
 }
 
-// NewNetworkCampaignList returns a new command to list all published campaigns on Starport Network
+// NewNetworkCampaignList returns a new command to list all published campaigns on Starport Network.
 func NewNetworkCampaignList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",
@@ -27,7 +26,7 @@ func NewNetworkCampaignList() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  networkCampaignListHandler,
 	}
-	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c
@@ -39,8 +38,6 @@ func networkCampaignListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
-
 	n, err := nb.Network()
 	if err != nil {
 		return err
@@ -50,6 +47,7 @@ func networkCampaignListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	nb.Spinner.Stop()
 	nb.Cleanup()
 	return renderCampaignSummaries(campaigns, os.Stdout)
 }
@@ -59,7 +57,7 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, out io.Writer) e
 	var campaignEntries [][]string
 
 	for _, c := range campaigns {
-		mainnetID := "-"
+		mainnetID := entrywriter.None
 		if c.MainnetInitialized {
 			mainnetID = fmt.Sprintf("%d", c.MainnetID)
 		}
