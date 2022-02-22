@@ -4,14 +4,15 @@ import launchtypes "github.com/tendermint/spn/x/launch/types"
 
 // ChainLaunch represents the launch of a chain on SPN
 type ChainLaunch struct {
-	ID          uint64 `json:"ID"`
-	ChainID     string `json:"ChainID"`
-	SourceURL   string `json:"SourceURL"`
-	SourceHash  string `json:"SourceHash"`
-	GenesisURL  string `json:"GenesisURL"`
-	GenesisHash string `json:"GenesisHash"`
-	LaunchTime  int64  `json:"LaunchTime"`
-	CampaignID  uint64 `json:"CampaignID"`
+	ID              uint64 `json:"ID"`
+	ChainID         string `json:"ChainID"`
+	SourceURL       string `json:"SourceURL"`
+	SourceHash      string `json:"SourceHash"`
+	GenesisURL      string `json:"GenesisURL"`
+	GenesisHash     string `json:"GenesisHash"`
+	LaunchTime      int64  `json:"LaunchTime"`
+	CampaignID      uint64 `json:"CampaignID"`
+	LaunchTriggered bool   `json:"LaunchTriggered"`
 }
 
 // ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
@@ -22,12 +23,13 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	}
 
 	launch := ChainLaunch{
-		ID:         chain.LaunchID,
-		ChainID:    chain.GenesisChainID,
-		SourceURL:  chain.SourceURL,
-		SourceHash: chain.SourceHash,
-		LaunchTime: launchTime,
-		CampaignID: chain.CampaignID,
+		ID:              chain.LaunchID,
+		ChainID:         chain.GenesisChainID,
+		SourceURL:       chain.SourceURL,
+		SourceHash:      chain.SourceHash,
+		LaunchTime:      launchTime,
+		CampaignID:      chain.CampaignID,
+		LaunchTriggered: chain.LaunchTriggered,
 	}
 
 	// check if custom genesis URL is provided.
