@@ -37,13 +37,21 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 		return err
 	}
 
-	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf(
-			"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
-			coins.String(),
-			lastRewardHeight,
+	doneMsg := fmt.Sprintf("%s will be distributed to validators at height %d.", coins.String(), lastRewardHeight)
+	if setRewardRes.PreviousCoins.Empty() {
+		doneMsg = fmt.Sprintf("New reward pool was created.\n%s", doneMsg)
+	} else {
+		doneMsg = fmt.Sprintf("Previous reward pool was overwritten.\n%s", doneMsg)
+	}
+
+	if setRewardRes.NewCoins.Empty() {
+		n.ev.Send(events.New(events.StatusDone, "The reward pool was removed."))
+	} else {
+		n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
+			"%s.\nThe chain %d is now an incentivized testnet",
+			doneMsg,
 			launchID,
-		),
-	))
+		)))
+	}
 	return nil
 }
