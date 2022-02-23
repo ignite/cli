@@ -9,6 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	None = "-"
+)
+
 var ErrInvalidFormat = errors.New("invalid entry format")
 
 // MustWrite writes into out the tabulated entries and panic if the entry format is invalid

@@ -37,7 +37,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
