@@ -3,6 +3,8 @@ package starportcmd
 import (
 	"fmt"
 
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
@@ -33,6 +35,7 @@ func NewNetworkChainInit() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInitHandler,
 	}
+	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
 	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
 	c.Flags().String(flagValidatorSecurityContact, "", "Validator security contact email")
