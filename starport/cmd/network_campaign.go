@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewNetworkCampaign creates a new campaign command that holds some other
-// sub commands related to launching a network for a campaign.
+// NewNetworkCampaign creates a new campaign command that holds other
+// subcommands related to launching a network for a campaign.
 func NewNetworkCampaign() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "campaign",
@@ -13,8 +13,9 @@ func NewNetworkCampaign() *cobra.Command {
 	}
 
 	c.AddCommand(
+		NewNetworkCampaignList(),
+		NewNetworkCampaignShow(),
 		NewNetworkCampaignAccount(),
 	)
-
 	return c
 }

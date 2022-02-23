@@ -9,9 +9,9 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/cosmos/cosmos-sdk v0.44.5
+	github.com/cosmos/cosmos-sdk v0.44.6
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v2 v2.0.2
+	github.com/cosmos/ibc-go/v2 v2.0.3
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.12.0
@@ -45,7 +45,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.3
-	github.com/tendermint/spn v0.1.1-0.20220201164838-2464b6474c82
+	github.com/tendermint/spn v0.1.1-0.20220223181013-9b803b7972cc
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tendermint/vue v0.3.0
