@@ -191,7 +191,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 				return err
 			}
 
-			accountSummary := bytes.NewBufferString("")
+			accountSummary := &bytes.Buffer{}
 
 			// get all chain genesis accounts
 			genesisAccs, err := n.GenesisAccounts(cmd.Context(), launchID)

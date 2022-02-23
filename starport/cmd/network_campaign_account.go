@@ -2,17 +2,21 @@ package starportcmd
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 var (
 	campaignMainnetsAccSummaryHeader = []string{"Mainnet Account", "Shares"}
-	campaignVestingAccSummaryHeader  = []string{"Vesting Account", "Total Shares", "Vesting", "EndTime"}
+	campaignVestingAccSummaryHeader  = []string{"Vesting Account", "Total Shares", "Vesting", "End Time"}
 )
 
 // NewNetworkCampaignAccount creates a new campaign account command that holds some other
@@ -37,68 +41,99 @@ func newNetworkCampaignAccountList() *cobra.Command {
 		Use:   "list [campaign-id]",
 		Short: "Show all mainnet and mainnet vesting of the campaign",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			nb, campaignID, err := networkChainLaunch(cmd, args)
-			if err != nil {
-				return err
-			}
-			defer nb.Cleanup()
-			n, err := nb.Network()
-			if err != nil {
-				return err
-			}
-
-			accountSummary := bytes.NewBufferString("")
-
-			// get all campaign mainnet accounts
-			mainnetAccs, err := n.MainnetAccounts(cmd.Context(), campaignID)
-			if err != nil {
-				return err
-			}
-			mainnetAccEntries := make([][]string, 0)
-			for _, acc := range mainnetAccs {
-				mainnetAccEntries = append(mainnetAccEntries, []string{
-					acc.Address,
-					acc.Shares,
-				})
-			}
-			if len(mainnetAccEntries) > 0 {
-				if err = entrywriter.MustWrite(
-					accountSummary,
-					campaignMainnetsAccSummaryHeader,
-					mainnetAccEntries...,
-				); err != nil {
-					return err
-				}
-			}
-
-			// get all campaign vesting accounts
-			vestingAccs, err := n.MainnetVestingAccounts(cmd.Context(), campaignID)
-			if err != nil {
-				return err
-			}
-			mainnetVestingAccEntries := make([][]string, 0)
-			for _, acc := range vestingAccs {
-				mainnetVestingAccEntries = append(mainnetVestingAccEntries, []string{
-					acc.Address,
-					acc.TotalShares,
-					acc.Vesting,
-					strconv.FormatInt(acc.EndTime, 10),
-				})
-			}
-			if len(mainnetVestingAccEntries) > 0 {
-				if err = entrywriter.MustWrite(
-					accountSummary,
-					campaignVestingAccSummaryHeader,
-					mainnetVestingAccEntries...,
-				); err != nil {
-					return err
-				}
-			}
-			nb.Spinner.Stop()
-			fmt.Print(accountSummary.String())
-			return nil
-		},
+		RunE:  newNetworkCampaignAccountListHandler,
 	}
 	return c
+}
+
+func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) error {
+	nb, campaignID, err := networkChainLaunch(cmd, args)
+	if err != nil {
+		return err
+	}
+	defer nb.Cleanup()
+
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
+	accountSummary := &bytes.Buffer{}
+
+	// get all campaign accounts
+	mainnetAccs, vestingAccs, err := getAccounts(cmd.Context(), n, campaignID)
+	if err != nil {
+		return err
+	}
+
+	mainnetAccEntries := make([][]string, 0)
+	for _, acc := range mainnetAccs {
+		mainnetAccEntries = append(mainnetAccEntries, []string{
+			acc.Address,
+			acc.Shares,
+		})
+	}
+	if len(mainnetAccEntries) > 0 {
+		if err = entrywriter.MustWrite(
+			accountSummary,
+			campaignMainnetsAccSummaryHeader,
+			mainnetAccEntries...,
+		); err != nil {
+			return err
+		}
+	}
+
+	mainnetVestingAccEntries := make([][]string, 0)
+	for _, acc := range vestingAccs {
+		mainnetVestingAccEntries = append(mainnetVestingAccEntries, []string{
+			acc.Address,
+			acc.TotalShares,
+			acc.Vesting,
+			strconv.FormatInt(acc.EndTime, 10),
+		})
+	}
+	if len(mainnetVestingAccEntries) > 0 {
+		if err = entrywriter.MustWrite(
+			accountSummary,
+			campaignVestingAccSummaryHeader,
+			mainnetVestingAccEntries...,
+		); err != nil {
+			return err
+		}
+	}
+
+	nb.Spinner.Stop()
+	fmt.Print(accountSummary.String())
+	return nil
+}
+
+// getAccounts get all campaign mainnet and vesting accounts.
+func getAccounts(
+	ctx context.Context,
+	n network.Network,
+	campaignID uint64,
+) (
+	[]networktypes.MainnetAccount,
+	[]networktypes.MainnetVestingAccount,
+	error,
+) {
+	// start serving components.
+	g, ctx := errgroup.WithContext(ctx)
+	var (
+		mainnetAccs []networktypes.MainnetAccount
+		vestingAccs []networktypes.MainnetVestingAccount
+		err         error
+	)
+	// get all campaign mainnet accounts
+	g.Go(func() error {
+		mainnetAccs, err = n.MainnetAccounts(ctx, campaignID)
+		return err
+	})
+
+	// get all campaign vesting accounts
+	g.Go(func() error {
+		vestingAccs, err = n.MainnetVestingAccounts(ctx, campaignID)
+		return err
+	})
+	return mainnetAccs, vestingAccs, g.Wait()
 }

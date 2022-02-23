@@ -1,7 +1,6 @@
 package networktypes
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
@@ -41,11 +40,10 @@ type MainnetAccount struct {
 
 // ToMainnetAccount converts a mainnet account data from SPN and returns a MainnetAccount object
 func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
-	launch := MainnetAccount{
+	return MainnetAccount{
 		Address: acc.Address,
-		Shares:  sdk.Coins(acc.Shares).String(),
+		Shares:  acc.Shares.String(),
 	}
-	return launch
 }
 
 // MainnetVestingAccount represents the campaign mainnet vesting account of a chain on SPN
@@ -59,11 +57,10 @@ type MainnetVestingAccount struct {
 // ToMainnetVestingAccount converts a mainnet vesting account data from SPN and returns a MainnetVestingAccount object
 func ToMainnetVestingAccount(acc campaigntypes.MainnetVestingAccount) MainnetVestingAccount {
 	delaydVesting := acc.VestingOptions.GetDelayedVesting()
-	launch := MainnetVestingAccount{
+	return MainnetVestingAccount{
 		Address:     acc.Address,
-		TotalShares: sdk.Coins(delaydVesting.TotalShares).String(),
-		Vesting:     sdk.Coins(delaydVesting.Vesting).String(),
+		TotalShares: delaydVesting.TotalShares.String(),
+		Vesting:     delaydVesting.Vesting.String(),
 		EndTime:     delaydVesting.EndTime,
 	}
-	return launch
 }
