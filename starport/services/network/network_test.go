@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseLaunchID(t *testing.T) {
+func TestParseID(t *testing.T) {
 	tests := []struct {
 		name string
 		id   string

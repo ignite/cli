@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,21 +11,56 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-// CampaignUpdateName updates the campaign name
-func (n Network) CampaignUpdateName(campaignID uint64, name string) error {
+// Campaign fetches the campaign from Starport Network
+func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign information"))
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
+		CampaignID: campaignID,
+	})
+	if err != nil {
+		return networktypes.Campaign{}, err
+	}
+	return networktypes.ToCampaign(res.Campaign), nil
+}
+
+// Campaigns fetches the campaigns from Starport Network
+func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
+	var campaigns []networktypes.Campaign
+
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
+	if err != nil {
+		return campaigns, err
+	}
+
+	// Parse fetched campaigns
+	for _, campaign := range res.Campaign {
+		campaigns = append(campaigns, networktypes.ToCampaign(campaign))
+	}
+
+	return campaigns, nil
+}
+
+// CampaignEdit updates the campaign name or metadata
+func (n Network) CampaignEdit(campaignID uint64, name string, metadata []byte) error {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
 		"Updating the campaign %d name to %s",
 		campaignID,
 		name,
 	)))
 
-	msg := campaigntypes.NewMsgUpdateCampaignName(n.account.Address(networktypes.SPN), name, campaignID)
+	msg := campaigntypes.NewMsgEditCampaign(
+		n.account.Address(networktypes.SPN),
+		name,
+		campaignID,
+		metadata,
+	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
 	}
 
-	var campaignRes campaigntypes.MsgUpdateCampaignNameResponse
+	var campaignRes campaigntypes.MsgEditCampaignResponse
 	if err := res.Decode(&campaignRes); err != nil {
 		return err
 	}
