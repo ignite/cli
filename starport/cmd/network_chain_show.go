@@ -50,7 +50,7 @@ func networkChainLaunch(cmd *cobra.Command, args []string) (NetworkBuilder, uint
 		return nb, 0, err
 	}
 	// parse launch ID.
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return nb, launchID, err
 	}
