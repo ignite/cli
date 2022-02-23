@@ -47,7 +47,6 @@ func networkCampaignListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
 	nb.Cleanup()
 	return renderCampaignSummaries(campaigns, os.Stdout)
 }

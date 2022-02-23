@@ -41,7 +41,6 @@ func NewNetworkChainInit() *cobra.Command {
 	c.Flags().String(flagValidatorSelfDelegation, "", "Validator minimum self delegation")
 	c.Flags().String(flagValidatorGasPrice, "", "Validator gas price")
 	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetYes())
