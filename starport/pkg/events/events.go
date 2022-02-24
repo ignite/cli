@@ -19,6 +19,9 @@ type (
 
 		// Color of the text.
 		Color color.Color
+
+		// Icon of the text.
+		Icon string
 	}
 
 	// Status shows if state is ongoing or completed.
@@ -31,13 +34,19 @@ type (
 const (
 	StatusOngoing Status = iota
 	StatusDone
-	StatusInfo
 )
 
 // Color sets the text color
 func Color(c color.Color) Option {
 	return func(e *Event) {
 		e.Color = c
+	}
+}
+
+// Icon sets the text icon prefix
+func Icon(icon string) Option {
+	return func(e *Event) {
+		e.Icon = icon
 	}
 }
 

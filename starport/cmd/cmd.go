@@ -91,11 +91,12 @@ func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 			s.SetText(event.Text())
 			s.Start()
 		case events.StatusDone:
+			icon := event.Icon
+			if icon == "" {
+				icon = clispinner.OK
+			}
 			s.Stop()
-			fmt.Printf("%s %s\n", clispinner.OK, event.Description)
-		case events.StatusInfo:
-			s.Stop()
-			fmt.Printf("%s %s\n", clispinner.Info, event.Description)
+			fmt.Printf("%s %s\n", icon, event.Description)
 		}
 	}
 }

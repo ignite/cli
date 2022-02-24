@@ -7,6 +7,7 @@ import (
 	"github.com/gookit/color"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -40,18 +41,20 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 
 	if setRewardRes.PreviousCoins.Empty() {
 		n.ev.Send(events.New(
-			events.StatusInfo,
+			events.StatusDone,
 			"The reward pool was removed.",
 			events.Color(color.Yellow),
+			events.Icon(clispinner.Info),
 		))
 	} else {
-		n.ev.Send(events.New(events.StatusInfo,
+		n.ev.Send(events.New(events.StatusDone,
 			fmt.Sprintf(
 				"Previous reward pool %s at height %d was overwritten.",
 				coins.String(),
 				lastRewardHeight,
 			),
 			events.Color(color.Yellow),
+			events.Icon(clispinner.Info),
 		))
 	}
 
