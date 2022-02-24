@@ -70,7 +70,7 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	for _, acc := range mainnetAccs {
 		mainnetAccEntries = append(mainnetAccEntries, []string{
 			acc.Address,
-			acc.Shares,
+			acc.Shares.String(),
 		})
 	}
 	if len(mainnetAccEntries) > 0 {
@@ -87,8 +87,8 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	for _, acc := range vestingAccs {
 		mainnetVestingAccEntries = append(mainnetVestingAccEntries, []string{
 			acc.Address,
-			acc.TotalShares,
-			acc.Vesting,
+			acc.TotalShares.String(),
+			acc.Vesting.String(),
 			strconv.FormatInt(acc.EndTime, 10),
 		})
 	}
