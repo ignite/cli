@@ -2,7 +2,7 @@ package network
 
 import (
 	"context"
-	"sort"
+	"sync"
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -32,7 +32,6 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 // ChainLaunchesWithReward fetches the chain launches with rewards from Starport Network
 func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
-	chainLaunchesChan := make(chan networktypes.ChainLaunch)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
@@ -42,14 +41,10 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching rewards"))
 	var chainLaunches []networktypes.ChainLaunch
-	go func() {
-		for chainLaunch := range chainLaunchesChan {
-			chainLaunches = append(chainLaunches, chainLaunch)
-		}
-		sort.SliceStable(chainLaunches, func(i, j int) bool {
-			return chainLaunches[i].ID < chainLaunches[j].ID
-		})
-	}()
+	var mu sync.Mutex
+	//sort.SliceStable(chainLaunches, func(i, j int) bool {
+	//	return chainLaunches[i].ID < chainLaunches[j].ID
+	//})
 
 	// Parse fetched chains and fetch rewards
 	for _, chain := range res.Chain {
@@ -61,19 +56,13 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 				return err
 			}
 			chainLaunch.Reward = reward.Coins.String()
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case chainLaunchesChan <- chainLaunch:
-			}
+			mu.Lock()
+			chainLaunches = append(chainLaunches, chainLaunch)
+			mu.Unlock()
 			return nil
 		})
 	}
-	if err := g.Wait(); err != nil {
-		return nil, err
-	}
-	close(chainLaunchesChan)
-	return chainLaunches, nil
+	return chainLaunches, g.Wait()
 }
 
 // GenesisInformation returns all the information to construct the genesis from a chain ID
