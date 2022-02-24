@@ -63,8 +63,8 @@ func (n Network) CampaignUpdateTotalShares(campaignID uint64, totalShares campai
 	return nil
 }
 
-// CampaignEdit updates the campaign name or metadata
-func (n Network) CampaignEdit(
+// UpdateCampaign updates the campaign name or metadata
+func (n Network) UpdateCampaign(
 	campaignID uint64,
 	name string,
 	metadata []byte,
@@ -89,7 +89,6 @@ func (n Network) CampaignEdit(
 			totalShares,
 		))
 	}
-
 	if !totalSupply.Empty() {
 		msgs = append(msgs, campaigntypes.NewMsgUpdateTotalSupply(
 			account,

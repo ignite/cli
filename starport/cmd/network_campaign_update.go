@@ -73,7 +73,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = n.CampaignEdit(campaignID, campaignName, []byte(metadata), totalShares, totalSupply)
+	err = n.UpdateCampaign(campaignID, campaignName, []byte(metadata), totalShares, totalSupply)
 	if err != nil {
 		return err
 	}
