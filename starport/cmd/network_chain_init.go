@@ -3,8 +3,6 @@ package starportcmd
 import (
 	"fmt"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
