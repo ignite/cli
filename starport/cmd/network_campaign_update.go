@@ -2,11 +2,13 @@ package starportcmd
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
+	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
 )
 
@@ -71,5 +73,22 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.CampaignEdit(campaignID, campaignName, []byte(metadata), totalShares, totalSupply)
+	err = n.CampaignEdit(campaignID, campaignName, []byte(metadata), totalShares, totalSupply)
+	if err != nil {
+		return err
+	}
+
+	campaign, err := n.Campaign(cmd.Context(), campaignID)
+	if err != nil {
+		return err
+	}
+
+	info, err := yaml.Marshal(cmd.Context(), campaign)
+	if err != nil {
+		return err
+	}
+
+	nb.Spinner.Stop()
+	fmt.Print(info)
+	return nil
 }

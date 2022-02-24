@@ -71,14 +71,10 @@ func (n Network) CampaignEdit(
 	totalShares campaigntypes.Shares,
 	totalSupply sdk.Coins,
 ) error {
+	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Updating the campaign %d", campaignID)))
 	account := n.account.Address(networktypes.SPN)
 	msgs := make([]sdk.Msg, 0)
 	if name != "" || len(metadata) > 0 {
-		n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
-			"Updating the campaign %d name to %s",
-			campaignID,
-			name,
-		)))
 		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(
 			account,
 			name,
@@ -87,11 +83,6 @@ func (n Network) CampaignEdit(
 		))
 	}
 	if !totalShares.Empty() {
-		n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
-			"Updating the campaign %d total shares to %s",
-			campaignID,
-			totalShares.String(),
-		)))
 		msgs = append(msgs, campaigntypes.NewMsgUpdateTotalShares(
 			account,
 			campaignID,
@@ -100,11 +91,6 @@ func (n Network) CampaignEdit(
 	}
 
 	if !totalSupply.Empty() {
-		n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
-			"Updating the campaign %d total supply to %s",
-			campaignID,
-			totalSupply.String(),
-		)))
 		msgs = append(msgs, campaigntypes.NewMsgUpdateTotalSupply(
 			account,
 			campaignID,
