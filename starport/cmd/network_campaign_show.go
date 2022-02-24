@@ -17,9 +17,7 @@ func NewNetworkCampaignShow() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkCampaignShowHandler,
 	}
-	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 

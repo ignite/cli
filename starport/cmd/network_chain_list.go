@@ -21,9 +21,7 @@ func NewNetworkChainList() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  networkChainListHandler,
 	}
-	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 

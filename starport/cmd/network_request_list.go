@@ -24,8 +24,6 @@ func NewNetworkRequestList() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
