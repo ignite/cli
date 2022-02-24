@@ -8,8 +8,8 @@ import (
 	"github.com/gookit/color"
 )
 
-// Event represents a state.
 type (
+	// Event represents a state.
 	Event struct {
 		// Description of the state.
 		Description string
