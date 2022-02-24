@@ -58,7 +58,7 @@ func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, out io.Writ
 			campaign = fmt.Sprintf("%d", c.CampaignID)
 		}
 
-		reward := "-"
+		reward := entrywriter.None
 		if len(c.Reward) > 0 {
 			reward = c.Reward
 		}
