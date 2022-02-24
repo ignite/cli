@@ -42,9 +42,6 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching rewards"))
 	var chainLaunches []networktypes.ChainLaunch
 	var mu sync.Mutex
-	//sort.SliceStable(chainLaunches, func(i, j int) bool {
-	//	return chainLaunches[i].ID < chainLaunches[j].ID
-	//})
 
 	// Parse fetched chains and fetch rewards
 	for _, chain := range res.Chain {
