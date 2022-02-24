@@ -26,13 +26,9 @@ func NewNetworkCampaignAccount() *cobra.Command {
 		Use:   "account",
 		Short: "Handle campaign accounts",
 	}
-
 	c.AddCommand(
 		newNetworkCampaignAccountList(),
 	)
-	c.PersistentFlags().AddFlagSet(flagNetworkFrom())
-	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
-
 	return c
 }
 
