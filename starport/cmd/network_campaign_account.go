@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -99,7 +100,11 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	}
 
 	nb.Spinner.Stop()
-	fmt.Print(accountSummary.String())
+	if len(mainnetAccEntries) > 0 || len(mainnetVestingAccEntries) > 0 {
+		fmt.Print(accountSummary.String())
+	} else {
+		fmt.Printf("%s %s\n", clispinner.Info, "chain campaign account list")
+	}
 	return nil
 }
 
