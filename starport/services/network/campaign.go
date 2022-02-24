@@ -41,38 +41,6 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	return campaigns, nil
 }
 
-// CampaignEdit updates the campaign name or metadata
-func (n Network) CampaignEdit(campaignID uint64, name string, metadata []byte) error {
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
-		"Updating the campaign %d name to %s",
-		campaignID,
-		name,
-	)))
-
-	msg := campaigntypes.NewMsgEditCampaign(
-		n.account.Address(networktypes.SPN),
-		name,
-		campaignID,
-		metadata,
-	)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
-	if err != nil {
-		return err
-	}
-
-	var campaignRes campaigntypes.MsgEditCampaignResponse
-	if err := res.Decode(&campaignRes); err != nil {
-		return err
-	}
-
-	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
-		"Now the chain %d name is %s",
-		campaignID,
-		name,
-	)))
-	return nil
-}
-
 // CampaignUpdateTotalShares updates the campaign total shares
 func (n Network) CampaignUpdateTotalShares(campaignID uint64, totalShares campaigntypes.Shares) error {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
@@ -82,13 +50,8 @@ func (n Network) CampaignUpdateTotalShares(campaignID uint64, totalShares campai
 	)))
 
 	msg := campaigntypes.NewMsgUpdateTotalShares(n.account.Address(networktypes.SPN), campaignID, totalShares)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	_, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return err
-	}
-
-	var campaignRes campaigntypes.MsgUpdateTotalSharesResponse
-	if err := res.Decode(&campaignRes); err != nil {
 		return err
 	}
 
@@ -100,29 +63,61 @@ func (n Network) CampaignUpdateTotalShares(campaignID uint64, totalShares campai
 	return nil
 }
 
-// CampaignUpdateTotalSupply updates the campaign total supply
-func (n Network) CampaignUpdateTotalSupply(campaignID uint64, totalSupply sdk.Coins) error {
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
-		"Updating the campaign %d total supply to %s",
-		campaignID,
-		totalSupply.String(),
-	)))
+// CampaignEdit updates the campaign name or metadata
+func (n Network) CampaignEdit(
+	campaignID uint64,
+	name string,
+	metadata []byte,
+	totalShares campaigntypes.Shares,
+	totalSupply sdk.Coins,
+) error {
+	account := n.account.Address(networktypes.SPN)
+	msgs := make([]sdk.Msg, 0)
+	if name != "" || len(metadata) > 0 {
+		n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
+			"Updating the campaign %d name to %s",
+			campaignID,
+			name,
+		)))
+		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(
+			account,
+			name,
+			campaignID,
+			metadata,
+		))
+	}
+	if !totalShares.Empty() {
+		n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
+			"Updating the campaign %d total shares to %s",
+			campaignID,
+			totalShares.String(),
+		)))
+		msgs = append(msgs, campaigntypes.NewMsgUpdateTotalShares(
+			account,
+			campaignID,
+			totalShares,
+		))
+	}
 
-	msg := campaigntypes.NewMsgUpdateTotalSupply(n.account.Address(networktypes.SPN), campaignID, totalSupply)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if !totalSupply.Empty() {
+		n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
+			"Updating the campaign %d total supply to %s",
+			campaignID,
+			totalSupply.String(),
+		)))
+		msgs = append(msgs, campaigntypes.NewMsgUpdateTotalSupply(
+			account,
+			campaignID,
+			totalSupply,
+		))
+	}
+
+	_, err := n.cosmos.BroadcastTx(n.account.Name, msgs...)
 	if err != nil {
 		return err
 	}
-
-	var campaignRes campaigntypes.MsgUpdateTotalSupplyResponse
-	if err := res.Decode(&campaignRes); err != nil {
-		return err
-	}
-
 	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
-		"Now the chain %d total supply is %s",
-		campaignID,
-		totalSupply.String(),
+		"Campaign %d updated", campaignID,
 	)))
 	return nil
 }

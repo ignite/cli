@@ -71,25 +71,5 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if campaignName != "" {
-		err := n.CampaignEdit(campaignID, campaignName, []byte(metadata))
-		if err != nil {
-			return err
-		}
-	}
-
-	if !totalShares.Empty() {
-		err := n.CampaignUpdateTotalShares(campaignID, totalShares)
-		if err != nil {
-			return err
-		}
-	}
-
-	if !totalSupply.Empty() {
-		err := n.CampaignUpdateTotalSupply(campaignID, totalSupply)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return n.CampaignEdit(campaignID, campaignName, []byte(metadata), totalShares, totalSupply)
 }
