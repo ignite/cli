@@ -2,41 +2,66 @@
 // for others to consume and display to end users in meaningful ways.
 package events
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gookit/color"
+)
 
 // Event represents a state.
-type Event struct {
-	// Status shows the current status of event.
-	status Status
+type (
+	Event struct {
+		// Description of the state.
+		Description string
 
-	// Description of the state.
-	Description string
-}
+		// Status shows the current status of event.
+		Status Status
 
-// Status shows if state is ongoing or completed.
-type Status int
+		// Color of the text.
+		Color color.Color
+	}
+
+	// Status shows if state is ongoing or completed.
+	Status int
+
+	// Option event options
+	Option func(*Event)
+)
 
 const (
 	StatusOngoing Status = iota
 	StatusDone
+	StatusInfo
 )
 
+// Color sets the text color
+func Color(c color.Color) Option {
+	return func(e *Event) {
+		e.Color = c
+	}
+}
+
 // New creates a new event with given config.
-func New(status Status, description string) Event {
-	return Event{status, description}
+func New(status Status, description string, options ...Option) Event {
+	ev := Event{Status: status, Description: description}
+	for _, applyOption := range options {
+		applyOption(&ev)
+	}
+	return ev
 }
 
 // IsOngoing checks if state change that triggered this event is still ongoing.
 func (e Event) IsOngoing() bool {
-	return e.status == StatusOngoing
+	return e.Status == StatusOngoing
 }
 
 // Text returns the text state of event.
 func (e Event) Text() string {
+	text := e.Description
 	if e.IsOngoing() {
-		return fmt.Sprintf("%s...", e.Description)
+		text = fmt.Sprintf("%s...", e.Description)
 	}
-	return e.Description
+	return e.Color.Render(text)
 }
 
 // Bus is a send/receive event bus.

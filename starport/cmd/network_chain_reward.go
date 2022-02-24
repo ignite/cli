@@ -8,12 +8,10 @@ import (
 func NewNetworkChainReward() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "reward",
-		Short: "Handle network rewards",
+		Short: "Manage network rewards",
 	}
-
 	c.AddCommand(
 		NewNetworkChainRewardSet(),
 	)
-
 	return c
 }

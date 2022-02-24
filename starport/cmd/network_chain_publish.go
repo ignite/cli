@@ -1,6 +1,7 @@
 package starportcmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -13,15 +14,15 @@ import (
 )
 
 const (
-	flagTag            = "tag"
-	flagBranch         = "branch"
-	flagHash           = "hash"
-	flagGenesis        = "genesis"
-	flagCampaign       = "campaign"
-	flagNoCheck        = "no-check"
-	flagChainID        = "chain-id"
-	flagRewardCoins    = "reward.coins"
-	flagRewardDuration = "reward.duration"
+	flagTag          = "tag"
+	flagBranch       = "branch"
+	flagHash         = "hash"
+	flagGenesis      = "genesis"
+	flagCampaign     = "campaign"
+	flagNoCheck      = "no-check"
+	flagChainID      = "chain-id"
+	flagRewardCoins  = "reward.coins"
+	flagRewardHeight = "reward.height"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -41,7 +42,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
-	c.Flags().Uint64(flagRewardDuration, 0, "Last reward height")
+	c.Flags().Uint64(flagRewardHeight, 0, "Last reward height")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -61,7 +62,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
 		rewardCoinsStr, _ = cmd.Flags().GetString(flagRewardCoins)
-		rewardDuration, _ = cmd.Flags().GetUint64(flagRewardDuration)
+		rewardDuration, _ = cmd.Flags().GetUint64(flagRewardHeight)
 	)
 
 	rewardCoins, err := sdk.ParseCoinsNormalized(rewardCoinsStr)
@@ -69,11 +70,9 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if !rewardCoins.Empty() && rewardDuration == 0 {
-		return fmt.Errorf("the reward duration flag (%s) should provide", flagRewardDuration)
-	}
-	if rewardCoins.Empty() && rewardDuration > 0 {
-		return fmt.Errorf("the reward coins flag (%s) should provide", flagRewardCoins)
+	if (!rewardCoins.Empty() && rewardDuration == 0) ||
+		(rewardCoins.Empty() && rewardDuration > 0) {
+		return errors.New("--reward.coins and --reward.duration flags must be provided together")
 	}
 
 	nb, err := newNetworkBuilder(cmd)
@@ -150,8 +149,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !rewardCoins.Empty() && rewardDuration > 0 {
-		err := n.SetReward(launchID, rewardDuration, rewardCoins)
-		if err != nil {
+		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
 			return err
 		}
 	}

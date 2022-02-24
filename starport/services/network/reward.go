@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gookit/color"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -37,23 +38,30 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 		return err
 	}
 
-	doneMsg := fmt.Sprintf("%s will be distributed to validators at height %d", coins.String(), lastRewardHeight)
 	if setRewardRes.PreviousCoins.Empty() {
-		doneMsg = fmt.Sprintf("New reward pool was created.\n%s", doneMsg)
+		n.ev.Send(events.New(
+			events.StatusInfo,
+			"The reward pool was removed.",
+			events.Color(color.Yellow),
+		))
 	} else {
-		doneMsg = fmt.Sprintf("Previous reward pool %s at height %d was overwritten.\n%s",
-			coins.String(),
-			lastRewardHeight,
-			doneMsg,
-		)
+		n.ev.Send(events.New(events.StatusInfo,
+			fmt.Sprintf(
+				"Previous reward pool %s at height %d was overwritten.",
+				coins.String(),
+				lastRewardHeight,
+			),
+			events.Color(color.Yellow),
+		))
 	}
 
 	if setRewardRes.NewCoins.Empty() {
 		n.ev.Send(events.New(events.StatusDone, "The reward pool was removed."))
 	} else {
 		n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
-			"%s.\nThe chain %d is now an incentivized testnet",
-			doneMsg,
+			"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
+			coins.String(),
+			lastRewardHeight,
 			launchID,
 		)))
 	}

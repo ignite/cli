@@ -86,12 +86,16 @@ func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 	defer wg.Done()
 
 	for event := range bus {
-		if event.IsOngoing() {
+		switch event.Status {
+		case events.StatusOngoing:
 			s.SetText(event.Text())
 			s.Start()
-		} else {
+		case events.StatusDone:
 			s.Stop()
 			fmt.Printf("%s %s\n", clispinner.OK, event.Description)
+		case events.StatusInfo:
+			s.Stop()
+			fmt.Printf("%s %s\n", clispinner.Info, event.Description)
 		}
 	}
 }
