@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gookit/color"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -43,7 +42,6 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 		n.ev.Send(events.New(
 			events.StatusDone,
 			"The reward pool was removed.",
-			events.Color(color.Yellow),
 			events.Icon(clispinner.Info),
 		))
 	} else {
@@ -53,7 +51,6 @@ func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) e
 				coins.String(),
 				lastRewardHeight,
 			),
-			events.Color(color.Yellow),
 			events.Icon(clispinner.Info),
 		))
 	}

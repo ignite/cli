@@ -96,7 +96,7 @@ func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 				icon = clispinner.OK
 			}
 			s.Stop()
-			fmt.Printf("%s %s\n", icon, event.Description)
+			fmt.Printf("%s %s\n", icon, event.Text())
 		}
 	}
 }

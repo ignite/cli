@@ -17,8 +17,8 @@ type (
 		// Status shows the current status of event.
 		Status Status
 
-		// Color of the text.
-		Color color.Color
+		// TextColor of the text.
+		TextColor color.Color
 
 		// Icon of the text.
 		Icon string
@@ -36,10 +36,10 @@ const (
 	StatusDone
 )
 
-// Color sets the text color
-func Color(c color.Color) Option {
+// TextColor sets the text color
+func TextColor(c color.Color) Option {
 	return func(e *Event) {
-		e.Color = c
+		e.TextColor = c
 	}
 }
 
@@ -70,7 +70,7 @@ func (e Event) Text() string {
 	if e.IsOngoing() {
 		text = fmt.Sprintf("%s...", e.Description)
 	}
-	return e.Color.Render(text)
+	return e.TextColor.Render(text)
 }
 
 // Bus is a send/receive event bus.
