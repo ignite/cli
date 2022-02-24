@@ -30,6 +30,8 @@ func NewNetworkCampaignAccount() *cobra.Command {
 	c.AddCommand(
 		newNetworkCampaignAccountList(),
 	)
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 

@@ -40,6 +40,7 @@ func NewNetworkChainShow() *cobra.Command {
 		newNetworkChainShowValidators(),
 		newNetworkChainShowPeers(),
 	)
+	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
