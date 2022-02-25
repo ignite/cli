@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/cenkalti/backoff"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -305,6 +307,14 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		}
 
 		resp, err := ctx.BroadcastTx(txBytes)
+		if err == sdkerrors.ErrInsufficientFunds {
+			err = c.makeSureAccountHasTokens(context.Background(), accountAddress.String())
+			if err != nil {
+				return Response{}, err
+			}
+			resp, err = ctx.BroadcastTx(txBytes)
+		}
+
 		return Response{
 			codec:      ctx.Codec,
 			TxResponse: resp,
