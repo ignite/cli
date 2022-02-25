@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/relayer"
 )
 
@@ -478,7 +479,7 @@ func initChain(
 
 	balance := coins.String()
 	if balance == "" {
-		balance = "-"
+		balance = entrywriter.None
 	}
 	fmt.Printf(" |· (balance: %s)\n\n", balance)
 

@@ -34,7 +34,6 @@ func NewNetworkChainInit() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInitHandler,
 	}
-
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
 	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
@@ -47,7 +46,6 @@ func NewNetworkChainInit() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetYes())
-
 	return c
 }
 
@@ -59,7 +57,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
