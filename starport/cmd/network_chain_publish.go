@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
@@ -66,11 +65,8 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		totalSupplyStr, _ = cmd.Flags().GetString(flagTotalSupply)
 	)
 
-	if mainnet && campaign == 0 {
-		return errors.New("you should use the --mainnet flag along with the --campaign flag")
-	}
-	if !mainnet && totalSupplyStr != "" {
-		return errors.New("you should use the --mainnet flag along with the --total-supply flag")
+	if mainnet && campaign == 0 && totalSupplyStr == "" {
+		return errors.New("you should use the --mainnet flag along with the --campaign or --total-supply flag")
 	}
 
 	totalSupply, err := sdk.ParseCoinsNormalized(totalSupplyStr)

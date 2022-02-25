@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -41,6 +42,8 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	return campaigns, nil
 }
 func (n Network) CreateCampaign(name string, totalSupply sdk.Coins) (uint64, error) {
+	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
+
 	msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
 		n.account.Address(networktypes.SPN),
 		name,
@@ -55,6 +58,7 @@ func (n Network) CreateCampaign(name string, totalSupply sdk.Coins) (uint64, err
 	if err := res.Decode(&createCampaignRes); err != nil {
 		return 0, err
 	}
+
 	return createCampaignRes.CampaignID, nil
 }
 
@@ -65,7 +69,7 @@ func (n Network) InitializeMainnet(
 	sourceHash string,
 	mainnetChainID string,
 ) (uint64, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
+	n.ev.Send(events.New(events.StatusOngoing, "Initializing the mainnet campaign"))
 	msg := campaigntypes.NewMsgInitializeMainnet(
 		n.account.Address(networktypes.SPN),
 		campaignID,
@@ -83,6 +87,8 @@ func (n Network) InitializeMainnet(
 	if err := res.Decode(&initMainnetRes); err != nil {
 		return 0, err
 	}
+
+	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf("Campaign %d was mainnet initialized", campaignID)))
 
 	return initMainnetRes.MainnetID, nil
 }
