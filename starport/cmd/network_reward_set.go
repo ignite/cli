@@ -10,9 +10,9 @@ import (
 	"github.com/tendermint/starport/starport/services/network"
 )
 
-// NewNetworkChainRewardSet creates a new chain reward set command to
+// NewNetworkRewardSet creates a new chain reward set command to
 // add the chain reward to the network as a coordinator.
-func NewNetworkChainRewardSet() *cobra.Command {
+func NewNetworkRewardSet() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "set [launch-id] [last-reward-height] [coins]",
 		Short: "set a network chain reward",
