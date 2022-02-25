@@ -12,8 +12,6 @@ import (
 	"sync"
 	"time"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/cenkalti/backoff"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -22,12 +20,13 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	proto "github.com/gogo/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
