@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -26,7 +27,8 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	var campaigns []networktypes.Campaign
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
-	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+		CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
 		return campaigns, err
 	}
@@ -37,4 +39,50 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	}
 
 	return campaigns, nil
+}
+func (n Network) CreateCampaign(name string, totalSupply sdk.Coins) (uint64, error) {
+	msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
+		n.account.Address(networktypes.SPN),
+		name,
+		totalSupply,
+	)
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
+	if err != nil {
+		return 0, err
+	}
+
+	var createCampaignRes campaigntypes.MsgCreateCampaignResponse
+	if err := res.Decode(&createCampaignRes); err != nil {
+		return 0, err
+	}
+	return createCampaignRes.CampaignID, nil
+}
+
+// InitializeMainnet Initialize the mainnet of the campaign.
+func (n Network) InitializeMainnet(
+	campaignID uint64,
+	sourceURL,
+	sourceHash string,
+	mainnetChainID string,
+) (uint64, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
+	msg := campaigntypes.NewMsgInitializeMainnet(
+		n.account.Address(networktypes.SPN),
+		campaignID,
+		sourceURL,
+		sourceHash,
+		mainnetChainID,
+	)
+
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return 0, err
+	}
+
+	var initMainnetRes campaigntypes.MsgInitializeMainnetResponse
+	if err := res.Decode(&initMainnetRes); err != nil {
+		return 0, err
+	}
+
+	return initMainnetRes.MainnetID, nil
 }

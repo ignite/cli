@@ -1,10 +1,13 @@
 package starportcmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
@@ -12,13 +15,15 @@ import (
 )
 
 const (
-	flagTag      = "tag"
-	flagBranch   = "branch"
-	flagHash     = "hash"
-	flagGenesis  = "genesis"
-	flagCampaign = "campaign"
-	flagNoCheck  = "no-check"
-	flagChainID  = "chain-id"
+	flagTag         = "tag"
+	flagBranch      = "branch"
+	flagHash        = "hash"
+	flagGenesis     = "genesis"
+	flagCampaign    = "campaign"
+	flagNoCheck     = "no-check"
+	flagChainID     = "chain-id"
+	flagMainnet     = "mainnet"
+	flagTotalSupply = "total-supply"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -37,6 +42,8 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
+	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
+	c.Flags().String(flagTotalSupply, "", "Add total supply to the mainnet campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -47,15 +54,29 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source        = args[0]
-		tag, _        = cmd.Flags().GetString(flagTag)
-		branch, _     = cmd.Flags().GetString(flagBranch)
-		hash, _       = cmd.Flags().GetString(flagHash)
-		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
-		chainID, _    = cmd.Flags().GetString(flagChainID)
-		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
-		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
+		source            = args[0]
+		tag, _            = cmd.Flags().GetString(flagTag)
+		branch, _         = cmd.Flags().GetString(flagBranch)
+		hash, _           = cmd.Flags().GetString(flagHash)
+		genesisURL, _     = cmd.Flags().GetString(flagGenesis)
+		chainID, _        = cmd.Flags().GetString(flagChainID)
+		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
+		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
+		mainnet, _        = cmd.Flags().GetBool(flagMainnet)
+		totalSupplyStr, _ = cmd.Flags().GetString(flagTotalSupply)
 	)
+
+	if mainnet && campaign == 0 {
+		return errors.New("you should use the --mainnet flag along with the --campaign flag")
+	}
+	if !mainnet && totalSupplyStr != "" {
+		return errors.New("you should use the --mainnet flag along with the --total-supply flag")
+	}
+
+	totalSupply, err := sdk.ParseCoinsNormalized(totalSupplyStr)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
@@ -114,6 +135,14 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
 	}
 
+	if totalSupplyStr != "" && !totalSupply.Empty() {
+		publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
+	}
+
+	if mainnet {
+		publishOptions = append(publishOptions, network.Mainnet())
+	}
+
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
 	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
@@ -125,7 +154,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
@@ -135,6 +164,9 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	fmt.Printf("%s Network published \n", clispinner.OK)
 	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
 	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
+	if mainnet {
+		fmt.Printf("%s Mainnet ID: %d \n", clispinner.Bullet, mainnetID)
+	}
 
 	return nil
 }
