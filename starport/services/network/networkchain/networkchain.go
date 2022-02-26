@@ -196,6 +196,10 @@ func (c Chain) DefaultGentxPath() (path string, err error) {
 	return c.chain.DefaultGentxPath()
 }
 
+func (c Chain) ValidatorKeyPath() (path string, err error) {
+	return c.chain.ValidatorKeyPath()
+}
+
 func (c Chain) AppTOMLPath() (string, error) {
 	return c.chain.AppTOMLPath()
 }

@@ -148,5 +148,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		return 0, 0, err
 	}
 
+	validatorKeyPath, err := c.ValidatorKeyPath()
+	if err != nil {
+		return 0, 0, err
+	}
+	if err := n.SetValidatorConsAddress(ctx, validatorKeyPath, chainID); err != nil {
+		return 0, 0, err
+	}
+
 	return createChainRes.LaunchID, campaignID, nil
 }

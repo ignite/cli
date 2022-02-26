@@ -26,6 +26,7 @@ type Chain interface {
 	GenesisPath() (string, error)
 	GentxsPath() (string, error)
 	DefaultGentxPath() (string, error)
+	ValidatorKeyPath() (string, error)
 	AppTOMLPath() (string, error)
 	ConfigTOMLPath() (string, error)
 	NodeID(ctx context.Context) (string, error)
