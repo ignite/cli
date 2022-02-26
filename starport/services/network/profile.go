@@ -67,7 +67,7 @@ func (n Network) SetValidatorConsAddress(ctx context.Context, validatorKeyPath s
 		return err
 	}
 
-	var consAddrRes profiletypes.MsgSetValidatorConsAddress
+	var consAddrRes profiletypes.MsgSetValidatorConsAddressResponse
 	if err := res.Decode(&consAddrRes); err != nil {
 		return err
 	}
