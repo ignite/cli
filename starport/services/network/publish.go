@@ -152,7 +152,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if err != nil {
 		return 0, 0, err
 	}
-	if err := n.SetValidatorConsAddress(ctx, validatorKeyPath, chainID); err != nil {
+	if err := n.SetValidatorConsAddress(ctx, validatorKeyPath); err != nil {
 		return 0, 0, err
 	}
 
