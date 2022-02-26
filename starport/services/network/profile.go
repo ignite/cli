@@ -21,17 +21,7 @@ func (n Network) SetValidatorConsAddress(ctx context.Context, validatorKeyPath s
 		fmt.Sprintf("Reading the validator key %s", validatorKeyPath)))
 
 	// Read and parse the validator private key file
-	valConsKeyBytes, err := ioutil.ReadFile(validatorKeyPath)
-	if err != nil {
-		return err
-	}
-	valConsKey, err := valtypes.LoadValidatorKey(valConsKeyBytes)
-	if err != nil {
-		return err
-	}
-
-	// Convert to consensus pub key type to fetch the address
-	valPubKey, err := valtypes.NewValidatorConsPubKey(valConsKey.PubKey.Bytes(), valConsKey.PubKey.Type())
+	valConsKey, valPubKey, err := parseValidatorKey(validatorKeyPath)
 	if err != nil {
 		return err
 	}
@@ -61,7 +51,6 @@ func (n Network) SetValidatorConsAddress(ctx context.Context, validatorKeyPath s
 		nonce,
 		valConsKey.PubKey.Bytes(),
 	)
-
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
@@ -92,4 +81,20 @@ func (n Network) ConsensusKeyNonce(ctx context.Context, consensusAddress []byte)
 		return 0, err
 	}
 	return res.ConsensusKeyNonce.Nonce, nil
+}
+
+// parseValidatorKey read and parse the validator private key file from path
+func parseValidatorKey(validatorKeyPath string) (valtypes.ValidatorKey, valtypes.ValidatorConsPubKey, error) {
+	valConsKeyBytes, err := ioutil.ReadFile(validatorKeyPath)
+	if err != nil {
+		return valtypes.ValidatorKey{}, valtypes.ValidatorConsPubKey{}, err
+	}
+	valConsKey, err := valtypes.LoadValidatorKey(valConsKeyBytes)
+	if err != nil {
+		return valConsKey, valtypes.ValidatorConsPubKey{}, err
+	}
+
+	// Convert to consensus pub key type to fetch the address
+	valPubKey, err := valtypes.NewValidatorConsPubKey(valConsKey.PubKey.Bytes(), valConsKey.PubKey.Type())
+	return valConsKey, valPubKey, err
 }
