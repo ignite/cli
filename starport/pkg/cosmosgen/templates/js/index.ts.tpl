@@ -1,60 +1,74 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
 import { StdFee } from "@cosmjs/launchpad";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { SigningStargateClient, DeliverTxResponse } from "@cosmjs/stargate";
+import { Registry } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
+
 {{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
 {{ end }}
 
-const types = [
-  {{ range .Module.Msgs }}["/{{ .URI }}", {{ .Name }}],
-  {{ end }}
-];
-export const MissingWalletError = new Error("wallet is required");
+/*********************
+ *       MODULE      *
+ *********************/
 
-export const registry = new Registry(<any>types);
-
-const defaultFee = {
-  amount: [],
-  gas: "200000",
-};
-
-interface TxClientOptions {
-  addr: string
-}
-
-interface SignAndBroadcastOptions {
-  fee: StdFee,
+{{ range .Module.Msgs }}
+type send{{ .Name }}Params = {
+  value: {{ .Name }},
+  fee?: StdFee,
   memo?: string
-}
+};
+{{ end }}
+{{ range .Module.Msgs }}
+type {{ camelCase .Name }}Params = {
+  value: {{ .Name }},
+};
+{{ end }}
 
-const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
-  if (!wallet) throw MissingWalletError;
-  let client;
-  if (addr) {
-    client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
-  }else{
-    client = await SigningStargateClient.offline( wallet, { registry });
-  }
-  const { address } = (await wallet.getAccounts())[0];
+class Module extends Api<any> {
+	private _client: SigningStargateClient;
+	private _address: string;
 
-  return {
-    signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ""}) => client.signAndBroadcast(address, msgs, fee,memo),
-    {{ range .Module.Msgs }}{{ camelCase .Name }}: (data: {{ .Name }}): EncodeObject => ({ typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( data ) }),
+   types = [
+    {{ range .Module.Msgs }}["/{{ .URI }}", {{ .Name }}],
     {{ end }}
-  };
+  ];
+  registry = new Registry(<any>this.types);
+
+  	constructor(client: SigningStargateClient, address: string, baseUrl: string) {
+		super({
+			baseUrl
+		})
+
+		this._client = client;
+		this._address = address;
+	}
+
+	{{ range .Module.Msgs }}
+	async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
+		try {
+			let msg = { typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( value ) }
+			return await this._client.signAndBroadcast(this._address, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
+		} catch (e: any) {
+			throw new Error('TxClient:{{ .Name }}:Send Could not broadcast Tx: '+ e.message)
+		}
+	}
+	{{ end }}
+	{{ range .Module.Msgs }}
+	{{ camelCase .Name }}({ value }: {{ camelCase .Name }}Params): { typeUrl: string; value: {{ .Name }} } {
+		try {
+			return { typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( value ) }  
+		} catch (e: any) {
+			throw new Error('TxClient:{{ .Name }}:Create Could not create message: ' + e.message)
+		}
+	}
+	{{ end }}
 };
 
-interface QueryClientOptions {
-  addr: string
-}
-
-const queryClient = async ({ addr: addr }: QueryClientOptions = { addr: "http://localhost:1317" }) => {
-  return new Api({ baseUrl: addr });
-};
+/*********************
+ *        VUE        *
+ *********************/
 
 export {
-  txClient,
-  queryClient,
+  Module
 };
