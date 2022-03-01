@@ -7,17 +7,15 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-proto"
-	"github.com/tendermint/starport/starport/pkg/nodetime/programs/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -49,7 +47,11 @@ func (g *generator) generateJS() error {
 		return err
 	}
 
-	return jsg.generateVuexModuleLoader()
+	if err := jsg.generateVuexModuleLoader(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (g *jsGenerator) generateModules() error {
@@ -150,8 +152,8 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 			return err
 		}
 	}
-	// generate .js and .d.ts files for all ts files.
-	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
+
+	return nil
 }
 
 func (g *jsGenerator) generateVuexModuleLoader() error {
@@ -206,20 +208,9 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		})
 	}
 
-	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
-
 	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", data); err != nil {
 		return err
 	}
 
-	return tsc.Generate(g.g.ctx, tscConfig(loaderPath))
-}
-
-func tscConfig(include ...string) tsc.Config {
-	return tsc.Config{
-		Include: include,
-		CompilerOptions: tsc.CompilerOptions{
-			Declaration: true,
-		},
-	}
+	return nil
 }
