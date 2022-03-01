@@ -35,4 +35,14 @@ Scaffold a new module called `scavenge`. Based on the game design, the `scavenge
 starport scaffold module scavenge --dep bank
 ```
 
-This command creates the `x/scavenge` directory and imported into the blockchain in `app/app.go`.
+This command creates the `x/scavenge` directory and imports the scavenge module into the blockchain in the `app/app.go` directory.
+
+## Save changes
+
+Before you go to the next step, you can store your project in a git commit:
+
+```bash
+git add .
+git commit -m "scaffold scavenge chain and module"
+```
+
