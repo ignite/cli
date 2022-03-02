@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultVuexPath    = "vue/src/store"
+	defaultSDKPath     = "vue/src/sdk"
 	defaultDartPath    = "flutter/lib"
 	defaultOpenAPIPath = "docs/static/openapi.yml"
 )
@@ -35,7 +35,7 @@ func GenerateGo() GenerateTarget {
 }
 
 // GenerateVuex enables generating proto based Vuex store.
-func GenerateVuex() GenerateTarget {
+func GenerateSDK() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isVuexEnabled = true
 	}
@@ -63,8 +63,8 @@ func (c *Chain) generateAll(ctx context.Context) error {
 
 	var additionalTargets []GenerateTarget
 
-	if conf.Client.Vuex.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex())
+	if conf.Client.SDK.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateSDK())
 	}
 
 	if conf.Client.Dart.Path != "" {
@@ -113,24 +113,24 @@ func (c *Chain) Generate(
 
 	// generate Vuex code as well if it is enabled.
 	if targetOptions.isVuexEnabled {
-		vuexPath := conf.Client.Vuex.Path
-		if vuexPath == "" {
-			vuexPath = defaultVuexPath
+		sdkPath := conf.Client.SDK.Path
+		if sdkPath == "" {
+			sdkPath = defaultSDKPath
 		}
 
-		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
+		sdkRootPath := filepath.Join(c.app.Path, sdkPath)
+		if err := os.MkdirAll(sdkRootPath, 0766); err != nil {
 			return err
 		}
 
 		options = append(options,
-			cosmosgen.WithVuexGeneration(
+			cosmosgen.WithSDKGeneration(
 				enableThirdPartyModuleCodegen,
 				func(m module.Module) string {
 					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
+					return filepath.Join(sdkRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
-				storeRootPath,
+				sdkRootPath,
 			),
 		)
 	}
