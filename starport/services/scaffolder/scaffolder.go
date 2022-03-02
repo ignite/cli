@@ -105,17 +105,17 @@ func protoc(projectPath, gomodPath string) error {
 	}
 
 	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+	if conf.Client.SDK.Path != "" {
+		sdkRootPath := filepath.Join(projectPath, conf.Client.SDK.Path, "generated")
 
 		options = append(options,
-			cosmosgen.WithVuexGeneration(
+			cosmosgen.WithSDKGeneration(
 				false,
 				func(m module.Module) string {
 					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
+					return filepath.Join(sdkRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
-				storeRootPath,
+				sdkRootPath,
 			),
 		)
 	}
