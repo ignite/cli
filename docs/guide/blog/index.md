@@ -269,7 +269,6 @@ import (
   "github.com/cosmonaut/blog/x/blog/types"
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
-  "strconv"
 )
 
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
