@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,8 +29,6 @@ var (
 	}
 )
 
-const vuexRootMarker = "vuex-root"
-
 type jsGenerator struct {
 	g *generator
 }
@@ -47,7 +46,7 @@ func (g *generator) generateJS() error {
 		return err
 	}
 
-	if err := jsg.generateVuexModuleLoader(); err != nil {
+	if err := jsg.generateMainClass(); err != nil {
 		return err
 	}
 
@@ -84,10 +83,11 @@ func (g *jsGenerator) generateModules() error {
 // generateModule generates generates JS code for a module.
 func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
 	var (
-		out          = g.g.o.jsOut(m)
-		storeDirPath = filepath.Dir(out)
-		typesOut     = filepath.Join(out, "types")
+		out      = g.g.o.jsOut(m)
+		typesOut = filepath.Join(out, "types")
 	)
+
+	fmt.Println("generateModule", out)
 
 	includePaths, err := g.g.resolveInclude(appPath)
 	if err != nil {
@@ -139,25 +139,16 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		return err
 	}
 
-	// generate the js client wrapper.
 	pp := filepath.Join(appPath, g.g.protoDir)
-	if err := templateJSClient.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
+	if err := templateSDKModule.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
 		return err
-	}
-
-	// generate Vuex if enabled.
-	if g.g.o.vuexStoreRootPath != "" {
-		err = templateVuexStore.Write(storeDirPath, pp, struct{ Module module.Module }{m})
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
 }
 
-func (g *jsGenerator) generateVuexModuleLoader() error {
-	modulePaths, err := localfs.Search(g.g.o.vuexStoreRootPath, vuexRootMarker)
+func (g *jsGenerator) generateMainClass() error {
+	modulePaths, err := localfs.Search(g.g.o.sdkRootPath, "module.ts")
 	if err != nil {
 		return err
 	}
@@ -189,7 +180,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 	}
 
 	for _, path := range modulePaths {
-		pathrel, err := filepath.Rel(g.g.o.vuexStoreRootPath, path)
+		pathrel, err := filepath.Rel(g.g.o.sdkRootPath, path)
 		if err != nil {
 			return err
 		}
@@ -208,7 +199,9 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		})
 	}
 
-	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", data); err != nil {
+	fmt.Println("len(data.Modules", len(data.Modules))
+
+	if err := templateSDKRoot.Write(g.g.o.sdkRootPath, "", data); err != nil {
 		return err
 	}
 
