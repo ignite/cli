@@ -87,8 +87,6 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		typesOut = filepath.Join(out, "types")
 	)
 
-	fmt.Println("generateModule", out)
-
 	includePaths, err := g.g.resolveInclude(appPath)
 	if err != nil {
 		return err
