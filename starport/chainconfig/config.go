@@ -9,7 +9,6 @@ import (
 
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
-
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 
@@ -96,10 +95,9 @@ type Validator struct {
 
 // Build holds build configs.
 type Build struct {
-	Main    string   `yaml:"main"`
-	Binary  string   `yaml:"binary"`
-	LDFlags []string `yaml:"ldflags"`
-	Proto   Proto    `yaml:"proto"`
+	Main   string `yaml:"main"`
+	Binary string `yaml:"binary"`
+	Proto  Proto  `yaml:"proto"`
 }
 
 // Proto holds proto build configs.
@@ -115,7 +113,7 @@ type Proto struct {
 // Client configures code generation for clients.
 type Client struct {
 	// Vuex configures code generation for Vuex.
-	Vuex Vuex `yaml:"vuex"`
+	SDK SDK `yaml:"sdk"`
 
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart"`
@@ -125,7 +123,7 @@ type Client struct {
 }
 
 // Vuex configures code generation for Vuex.
-type Vuex struct {
+type SDK struct {
 	// Path configures out location for generated Vuex code.
 	Path string `yaml:"path"`
 }
