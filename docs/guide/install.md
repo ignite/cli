@@ -91,6 +91,8 @@ For details on version features and changes, see the [changelog.md](https://gith
 
 ## Build from source
 
+To experiment with the source code, you can build from source:
+
 ```bash
 git clone https://github.com/tendermint/starport --depth=1
 cd starport && make install
