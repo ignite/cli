@@ -3,9 +3,8 @@ package cosmosgen
 import (
 	"context"
 
-	gomodmodule "golang.org/x/mod/module"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
+	gomodmodule "golang.org/x/mod/module"
 )
 
 // generateOptions used to configure code generation.
@@ -15,7 +14,7 @@ type generateOptions struct {
 
 	jsOut               func(module.Module) string
 	jsIncludeThirdParty bool
-	vuexStoreRootPath   string
+	sdkRootPath         string
 
 	specOut string
 
@@ -43,11 +42,11 @@ func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (pa
 // WithVuexGeneration adds Vuex code generation. storeRootPath is used to determine the root path of generated
 // Vuex stores. includeThirdPartyModules and out configures the underlying JS lib generation which is
 // documented in WithJSGeneration.
-func WithVuexGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), storeRootPath string) Option {
+func WithSDKGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), sdkRootPath string) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
-		o.vuexStoreRootPath = storeRootPath
+		o.sdkRootPath = sdkRootPath
 	}
 }
 
