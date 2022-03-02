@@ -197,8 +197,6 @@ func (g *jsGenerator) generateMainClass() error {
 		})
 	}
 
-	fmt.Println("len(data.Modules", len(data.Modules))
-
 	if err := templateSDKRoot.Write(g.g.o.sdkRootPath, "", data); err != nil {
 		return err
 	}
