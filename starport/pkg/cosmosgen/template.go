@@ -8,17 +8,14 @@ import (
 	"text/template"
 
 	"github.com/iancoleman/strcase"
-	"github.com/takuoki/gocase"
 )
 
 var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateJSClient  = newTemplateWriter("js")         // js wrapper client.
-	templateVuexRoot  = newTemplateWriter("vuex/root")  // vuex store loader.
-	templateVuexStore = newTemplateWriter("vuex/store") // vuex store.
-
+	templateSDKRoot   = newTemplateWriter("root")
+	templateSDKModule = newTemplateWriter("module")
 )
 
 type templateWriter struct {
@@ -49,9 +46,6 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 	funcs := template.FuncMap{
 		"camelCase": strcase.ToLowerCamel,
-		"camelCaseSta": func(word string) string {
-			return gocase.Revert(strcase.ToLowerCamel(word))
-		},
 		"resolveFile": func(fullPath string) string {
 			rel, _ := filepath.Rel(protoPath, fullPath)
 			rel = strings.TrimSuffix(rel, ".proto")
