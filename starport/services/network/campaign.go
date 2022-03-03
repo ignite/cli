@@ -88,7 +88,7 @@ func (n Network) InitializeMainnet(
 		return 0, err
 	}
 
-	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf("Campaign %d was mainnet initialized", campaignID)))
+	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf("Campaign %d was initialized on mainnet", campaignID)))
 
 	return initMainnetRes.MainnetID, nil
 }

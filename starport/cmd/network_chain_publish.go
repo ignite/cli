@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -61,17 +60,20 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		chainID, _        = cmd.Flags().GetString(flagChainID)
 		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
-		mainnet, _        = cmd.Flags().GetBool(flagMainnet)
+		isMainnet, _      = cmd.Flags().GetBool(flagMainnet)
 		totalSupplyStr, _ = cmd.Flags().GetString(flagTotalSupply)
 	)
 
-	if mainnet && campaign == 0 && totalSupplyStr == "" {
-		return errors.New("you should use the --mainnet flag along with the --campaign or --total-supply flag")
+	if campaign != 0 && totalSupplyStr != "" {
+		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagTotalSupply)
 	}
-
-	totalSupply, err := sdk.ParseCoinsNormalized(totalSupplyStr)
-	if err != nil {
-		return err
+	if isMainnet && campaign == 0 && totalSupplyStr == "" {
+		return fmt.Errorf(
+			"%s flag requires on of the %s or %s flags to be set",
+			flagMainnet,
+			flagCampaign,
+			flagTotalSupply,
+		)
 	}
 
 	nb, err := newNetworkBuilder(cmd)
@@ -124,6 +126,14 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if campaign != 0 {
 		publishOptions = append(publishOptions, network.WithCampaign(campaign))
+	} else if totalSupplyStr != "" {
+		totalSupply, err := sdk.ParseCoinsNormalized(totalSupplyStr)
+		if err != nil {
+			return err
+		}
+		if !totalSupply.Empty() {
+			publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
+		}
 	}
 
 	// use custom chain id if given.
@@ -131,11 +141,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
 	}
 
-	if totalSupplyStr != "" && !totalSupply.Empty() {
-		publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
-	}
-
-	if mainnet {
+	if isMainnet {
 		publishOptions = append(publishOptions, network.Mainnet())
 	}
 
@@ -160,7 +166,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	fmt.Printf("%s Network published \n", clispinner.OK)
 	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
 	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
-	if mainnet {
+	if isMainnet {
 		fmt.Printf("%s Mainnet ID: %d \n", clispinner.Bullet, mainnetID)
 	}
 

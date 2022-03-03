@@ -12,8 +12,8 @@ import (
 // NewNetworkCampaignPublish returns a new command to publish a new campaigns on Starport Network.
 func NewNetworkCampaignPublish() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "publish [name] [total-supply]",
-		Short: "Publish a campaign",
+		Use:   "create [name] [total-supply]",
+		Short: "Create a campaign",
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkCampaignPublishHandler,
 	}
