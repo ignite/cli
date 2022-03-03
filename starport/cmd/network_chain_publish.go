@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -72,7 +71,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if (!rewardCoins.Empty() && rewardDuration == 0) ||
 		(rewardCoins.Empty() && rewardDuration > 0) {
-		return errors.New("--reward.coins and --reward.duration flags must be provided together")
+		return fmt.Errorf("%s and %s flags must be provided together", flagRewardCoins, flagRewardHeight)
 	}
 
 	nb, err := newNetworkBuilder(cmd)
