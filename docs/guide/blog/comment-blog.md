@@ -161,7 +161,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 	}
 
 	// Check if the Post Exists for which a comment is being created
-	if msg.PostID > postId {
+	if msg.PostID > postId && msg.PostID == postId {
 		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
 	}
 
@@ -239,6 +239,15 @@ Inside `x/blog/types/keys.go` file, you can see that the `comment-value` and `co
 In `x/blog/keeper/post.go`, add a new function to get the post:
 
 ```go
+import (
+	"encoding/binary"
+	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+//...
+
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (post types.Post) {
 	// Get the store using storeKey (which is "blog") and PostKey (which is "Post-")
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostKey))
@@ -306,26 +315,35 @@ For your blog chain, you want to delete the contents of the comment. Add the cod
 package keeper
 
  import (
-	//...
- 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"context"
+	"encoding/binary"
+
+	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
  )
 
  func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
- 	ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
- 	comment := k.GetComment(ctx, msg.Id)
+	comment, exist := k.GetComment(ctx, msg.Id)
+	if !exist {
+		return nil, sdkerrors.Wrapf(types.ErrID, "Comment doesnt exist")
+	}
 
- 	if msg.PostID != comment.PostID {
- 		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
- 	}
+	if msg.PostID != comment.PostID {
+		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
+	}
 
- 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.CommentKey))
- 	bz := make([]byte, 8)
- 	binary.BigEndian.PutUint64(bz, comment.Id)
- 	store.Delete(bz)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.CommentKey))
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, comment.Id)
+	store.Delete(bz)
 
- 	return &types.MsgDeleteCommentResponse{}, nil
- }
+	return &types.MsgDeleteCommentResponse{}, nil
+}
+
 ```
 
 ## Display posts
@@ -357,6 +375,19 @@ message QueryCommentsResponse {
 After the types are defined in proto files, you can implement post querying logic in `grpc_query_comments.go` by registering the `Comments` function:
 
 ```go
+
+import (
+	"context"
+
+	"github.com/cosmonaut/blog/x/blog/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/types/query"
+)
+
 func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*types.QueryCommentsResponse, error) {
 
 	// Throw an error if request is nil
@@ -404,6 +435,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 	// Return a struct containing a list of posts and pagination info
 	return &types.QueryCommentsResponse{Post: &post, Comment: comments, Pagination: pageRes}, nil
 }
+
 ```
 
 **Note:** Since gRPC has been already added to module handler in the previous tutorial, you don't need to add it again.
