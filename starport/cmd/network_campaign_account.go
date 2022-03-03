@@ -30,8 +30,6 @@ func NewNetworkCampaignAccount() *cobra.Command {
 	c.AddCommand(
 		newNetworkCampaignAccountList(),
 	)
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -42,6 +40,8 @@ func newNetworkCampaignAccountList() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  newNetworkCampaignAccountListHandler,
 	}
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -102,10 +102,10 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	}
 
 	nb.Spinner.Stop()
-	if len(mainnetAccEntries) > 0 || len(mainnetVestingAccEntries) > 0 {
+	if accountSummary.Len() > 0 {
 		fmt.Print(accountSummary.String())
 	} else {
-		fmt.Printf("%s %s\n", clispinner.Info, "chain campaign account list")
+		fmt.Printf("%s %s\n", clispinner.Info, "no campaign account found")
 	}
 	return nil
 }

@@ -240,7 +240,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 				}
 			}
 			nb.Spinner.Stop()
-			if len(genesisAccEntries) > 0 || len(genesisVestingAccEntries) > 0 {
+			if accountSummary.Len() > 0 {
 				fmt.Print(accountSummary.String())
 			} else {
 				fmt.Printf("%s %s\n", clispinner.Info, "empty chain account list")
@@ -295,7 +295,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 				}
 				fmt.Print(validatorSummary.String())
 			} else {
-				fmt.Printf("%s %s\n", clispinner.Info, "empty chain validator list")
+				fmt.Printf("%s %s\n", clispinner.Info, "no account found")
 			}
 			return nil
 		},
