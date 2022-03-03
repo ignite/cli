@@ -158,8 +158,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	if !o.totalShares.Empty() {
-		err := n.CampaignUpdateTotalShares(campaignID, o.totalShares)
-		if err != nil {
+		if err := n.CampaignUpdateTotalShares(campaignID, o.totalShares); err != nil {
 			return createChainRes.LaunchID, campaignID, err
 		}
 	}

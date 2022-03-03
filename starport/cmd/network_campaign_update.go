@@ -1,8 +1,8 @@
 package starportcmd
 
 import (
-	"errors"
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
@@ -65,7 +65,14 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 
 	if campaignName == "" && metadata == "" &&
 		totalShares.Empty() && totalSupply.Empty() {
-		return errors.New("at least one of the flags must be provided")
+		return fmt.Errorf("at least one of the flags %s must be provided",
+			strings.Join([]string{
+				flagCampaignName,
+				flagCampaignMetadata,
+				flagCampaignTotalShares,
+				flagCampaignTotalSupply,
+			}, ","),
+		)
 	}
 
 	n, err := nb.Network()
@@ -73,7 +80,22 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = n.UpdateCampaign(campaignID, campaignName, []byte(metadata), totalShares, totalSupply)
+	var proposals []network.Prop
+
+	if campaignName != "" {
+		proposals = append(proposals, network.WithCampaignName(campaignName))
+	}
+	if metadata != "" {
+		proposals = append(proposals, network.WithCampaignMetadata(metadata))
+	}
+	if !totalShares.Empty() {
+		proposals = append(proposals, network.WithCampaignTotalShares(totalShares))
+	}
+	if !totalSupply.Empty() {
+		proposals = append(proposals, network.WithCampaignTotalSupply(totalSupply))
+	}
+
+	err = n.UpdateCampaign(campaignID, proposals...)
 	if err != nil {
 		return err
 	}
