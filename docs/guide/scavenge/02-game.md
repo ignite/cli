@@ -4,7 +4,7 @@ order: 2
 
 # Scavenger hunt game
 
-This tutorial focuses on building the app as a **scavenger hunt** game. Scavenger hunts are all about someone setting up tasks or questions that challenge a participant to find solutions that come with some sort of a prize. The basic mechanics of the game are as follows:
+This tutorial focuses on building the app as a **scavenger hunt** game. Scavenger hunts are all about someone setting up tasks or questions that challenge a participant to find solutions that come with a prize. The basic mechanics of the game are as follows:
 
 * Anyone can post a question with an encrypted answer.
 * This question comes paired with a bounty of coins.
