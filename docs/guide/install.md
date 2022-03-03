@@ -85,21 +85,13 @@ To remove the current Starport installation:
    Depending on your user permissions, run the command with or without `sudo`.
 1. Repeat this step until all `starport` installations are removed from your system.
 
-After all existing Starport installations are removed, follow the  [Installing Starport](#installing-starport) instructions. 
+After all existing Starport installations are removed, follow the  [Installing Starport](#installing-starport) instructions.
 
 For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo.
 
-## Installing Starport on macOS with Homebrew
-
-Using `brew` to install Starport is supported only for macOS machines without the M1 chip.
-
-```bash
-brew install tendermint/tap/starport
-```
-
-To install Starport on macOS machines with the M1 chip, use the `curl` command as described in [Installing Starport](#installing-starport).
-
 ## Build from source
+
+To experiment with the source code, you can build from source:
 
 ```bash
 git clone https://github.com/tendermint/starport --depth=1
@@ -110,6 +102,6 @@ cd starport && make install
 
 - Verify the prerequisites.
 - To setup a local development environment, install Starport locally on your computer.
-- Install Starport by fetching the binary using cURL, Homebrew, or by building from source.
+- Install Starport by fetching the binary using cURL or by building from source.
 - The latest version is installed by default. You can install previous versions of the precompiled `starport` binary.
 - Stop the chain and remove existing versions before installing a new version.
