@@ -12,7 +12,7 @@ import (
 )
 
 // SetReward set a chain reward
-func (n Network) SetReward(launchID, lastRewardHeight uint64, coins sdk.Coins) error {
+func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
 	n.ev.Send(events.New(
 		events.StatusOngoing,
 		fmt.Sprintf("Setting reward %s to the chain %d at height %d",

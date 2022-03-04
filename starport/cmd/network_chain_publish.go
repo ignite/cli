@@ -61,7 +61,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
 		rewardCoinsStr, _ = cmd.Flags().GetString(flagRewardCoins)
-		rewardDuration, _ = cmd.Flags().GetUint64(flagRewardHeight)
+		rewardDuration, _ = cmd.Flags().GetInt64(flagRewardHeight)
 	)
 
 	rewardCoins, err := sdk.ParseCoinsNormalized(rewardCoinsStr)
