@@ -41,13 +41,14 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 
 	return campaigns, nil
 }
-func (n Network) CreateCampaign(name string, totalSupply sdk.Coins) (uint64, error) {
+func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
 
 	msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
 		n.account.Address(networktypes.SPN),
 		name,
 		totalSupply,
+		[]byte(metadata),
 	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 	if err != nil {

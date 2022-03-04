@@ -9,6 +9,10 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 )
 
+const (
+	flagMetadata = "metadata"
+)
+
 // NewNetworkCampaignPublish returns a new command to publish a new campaigns on Starport Network.
 func NewNetworkCampaignPublish() *cobra.Command {
 	c := &cobra.Command{
@@ -17,6 +21,7 @@ func NewNetworkCampaignPublish() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkCampaignPublishHandler,
 	}
+	c.Flags().String(flagMetadata, "", "Add a metada to the chain")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -41,7 +46,8 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	campaignID, err := n.CreateCampaign(args[0], totalSupply)
+	metadata, _ := cmd.Flags().GetString(flagMetadata)
+	campaignID, err := n.CreateCampaign(args[0], metadata, totalSupply)
 	if err != nil {
 		return err
 	}

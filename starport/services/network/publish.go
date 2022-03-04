@@ -127,7 +127,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, 0, err
 		}
 	} else {
-		campaignID, err = n.CreateCampaign(c.Name(), o.totalSupply)
+		campaignID, err = n.CreateCampaign(c.Name(), "", o.totalSupply)
 		if err != nil {
 			return 0, 0, 0, err
 		}
