@@ -16,9 +16,11 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
+const errNotFoundMsg = "rpc error: code = InvalidArgument desc = not found: invalid request"
+
 var (
 	// ErrObjectNotFound is returned when the query returns a not found error.
-	ErrObjectNotFound = status.Error(codes.InvalidArgument, "not found")
+	ErrObjectNotFound = errors.New("query object not found")
 )
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.
@@ -62,7 +64,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 			if err != nil && err != ErrObjectNotFound {
 				return err
 			}
-			chainLaunch.Reward = reward.Coins.String()
+			chainLaunch.Reward = reward.RemainingCoins.String()
 			mu.Lock()
 			chainLaunches = append(chainLaunches, chainLaunch)
 			mu.Unlock()
@@ -165,7 +167,9 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 				LaunchID: launchID,
 			},
 		)
-	if errors.Is(err, ErrObjectNotFound) {
+
+	statusErr, ok := status.FromError(err)
+	if ok && statusErr.Code() == codes.InvalidArgument && statusErr.Message() == errNotFoundMsg {
 		return rewardtypes.RewardPool{}, ErrObjectNotFound
 	} else if err != nil {
 		return rewardtypes.RewardPool{}, err

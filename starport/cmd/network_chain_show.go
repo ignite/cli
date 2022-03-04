@@ -79,10 +79,10 @@ func newNetworkChainShowInfo() *cobra.Command {
 			}
 
 			reward, err := n.ChainReward(cmd.Context(), launchID)
-			if err != nil {
+			if err != nil && err != network.ErrObjectNotFound {
 				return err
 			}
-			chainLaunch.Reward = reward.Coins.String()
+			chainLaunch.Reward = reward.RemainingCoins.String()
 
 			var genesis []byte
 			if chainLaunch.GenesisURL != "" {
