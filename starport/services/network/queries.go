@@ -4,15 +4,21 @@ import (
 	"context"
 	"sync"
 
+	"google.golang.org/grpc/status"
+
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
+)
+
+var (
+	// ErrObjectNotFound is returned when the query returns a not found error.
+	ErrObjectNotFound = status.Error(codes.InvalidArgument, "not found")
 )
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.
@@ -53,7 +59,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 		g.Go(func() error {
 			chainLaunch := networktypes.ToChainLaunch(chain)
 			reward, err := n.ChainReward(ctx, chain.LaunchID)
-			if err != nil {
+			if err != nil && err != ErrObjectNotFound {
 				return err
 			}
 			chainLaunch.Reward = reward.Coins.String()
@@ -159,8 +165,8 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 				LaunchID: launchID,
 			},
 		)
-	if status.Code(err) == codes.InvalidArgument {
-		return rewardtypes.RewardPool{}, nil
+	if errors.Is(err, ErrObjectNotFound) {
+		return rewardtypes.RewardPool{}, ErrObjectNotFound
 	} else if err != nil {
 		return rewardtypes.RewardPool{}, err
 	}
