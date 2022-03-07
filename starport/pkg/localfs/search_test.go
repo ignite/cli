@@ -10,16 +10,12 @@ import (
 
 func setupGlobTests(t *testing.T, files []string) string {
 	t.Helper()
-	tmpdir, err := os.MkdirTemp("", "glob-test")
-	require.NoError(t, err)
+	tmpdir := t.TempDir()
 
-	t.Cleanup(func() {
-		os.RemoveAll(tmpdir)
-	})
 	for _, file := range files {
 		fileDir := filepath.Dir(file)
 		fileDir = filepath.Join(tmpdir, fileDir)
-		err = os.MkdirAll(fileDir, 0755)
+		err := os.MkdirAll(fileDir, 0755)
 		require.NoError(t, err)
 		err = os.WriteFile(filepath.Join(tmpdir, file), []byte{}, 0644)
 		require.NoError(t, err)
