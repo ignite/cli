@@ -12,7 +12,7 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -32,7 +32,11 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if binaryName, err = c.Init(ctx); err != nil {
+		if err = c.Init(ctx); err != nil {
+			return err
+		}
+		binaryName, err = c.chain.Binary()
+		if err != nil {
 			return err
 		}
 	case err != nil:
@@ -72,10 +76,12 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	}
 
 	fmt.Printf(`
-🎉Chain is prepared for launch.
+%s Chain is prepared for launch.
 
-You can start your node by running: %s start --home %s
-`, binaryName, chainHome)
+You can start your node by running:
+ 
+%s start --home %s
+`, clispinner.OK, binaryName, chainHome)
 	return nil
 }
 

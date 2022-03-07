@@ -5,7 +5,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -105,7 +104,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if _, err := c.Init(cmd.Context()); err != nil {
+	if err := c.Init(cmd.Context()); err != nil {
 		return err
 	}
 

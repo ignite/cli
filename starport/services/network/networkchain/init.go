@@ -11,7 +11,7 @@ import (
 
 // Init initializes blockchain by building the binaries and running the init command and
 // create the initial genesis of the chain, and set up a validator key
-func (c *Chain) Init(ctx context.Context) (binaryName string, err error) {
+func (c *Chain) Init(ctx context.Context) (err error) {
 	chainHome, err := c.chain.Home()
 	if err != nil {
 		return
@@ -24,7 +24,7 @@ func (c *Chain) Init(ctx context.Context) (binaryName string, err error) {
 
 	// build the chain and initialize it with a new validator key
 	c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
+	if _, err = c.chain.Build(ctx, ""); err != nil {
 		return
 	}
 
@@ -44,7 +44,7 @@ func (c *Chain) Init(ctx context.Context) (binaryName string, err error) {
 
 	c.isInitialized = true
 
-	return binaryName, err
+	return err
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)

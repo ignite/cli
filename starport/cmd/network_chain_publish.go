@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
@@ -116,7 +115,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if _, err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
+	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
 		return err
 	}
 
