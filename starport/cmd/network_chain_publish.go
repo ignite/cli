@@ -69,7 +69,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 	if isMainnet && campaign == 0 && totalSupplyStr == "" {
 		return fmt.Errorf(
-			"%s flag requires on of the %s or %s flags to be set",
+			"%s flag requires one of the %s or %s flags to be set",
 			flagMainnet,
 			flagCampaign,
 			flagTotalSupply,
