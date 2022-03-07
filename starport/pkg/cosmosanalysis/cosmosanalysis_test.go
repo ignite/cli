@@ -39,12 +39,10 @@ func (f Foobar) barfoo() {}
 )
 
 func TestFindImplementation(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cosmosanalysis_test")
-	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpDir := t.TempDir()
 
 	f1 := filepath.Join(tmpDir, "1.go")
-	err = os.WriteFile(f1, file1, 0644)
+	err := os.WriteFile(f1, file1, 0644)
 	require.NoError(t, err)
 	f2 := filepath.Join(tmpDir, "2.go")
 	err = os.WriteFile(f2, file2, 0644)
@@ -58,9 +56,7 @@ func TestFindImplementation(t *testing.T) {
 	require.Contains(t, found, "Foobar")
 
 	// empty directory
-	emptyDir, err := os.MkdirTemp("", "cosmosanalysis_test")
-	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(emptyDir) })
+	emptyDir := t.TempDir()
 	found, err = cosmosanalysis.FindImplementation(emptyDir, expectedinterface)
 	require.NoError(t, err)
 	require.Empty(t, found)
