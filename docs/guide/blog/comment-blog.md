@@ -372,7 +372,7 @@ message QueryCommentsResponse {
 }
 ```
 
-After the types are defined in proto files, you can implement post querying logic in `grpc_query_comments.go` by registering the `Comments` function:
+After the types are defined in proto files, you can implement post querying logic in `x/blog/keeper/grpc_query_comment.go` by registering the `Comments` function:
 
 ```go
 
