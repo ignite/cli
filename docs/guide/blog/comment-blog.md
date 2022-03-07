@@ -217,7 +217,7 @@ The contents of the `comment.proto` file are fairly standard and similar to `pos
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Comment` type is available.
 
-Also, make a small modification in `post.proto` to add `createdAt`:
+Also, make a small modification in `proto/blog/post.proto` to add `createdAt`:
 
 ```go
 //...
