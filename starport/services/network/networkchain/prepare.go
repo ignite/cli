@@ -75,13 +75,10 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		return err
 	}
 
-	fmt.Printf(`
-%s Chain is prepared for launch.
+	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
+	fmt.Println("\nYou can start your node by running the following command:")
+	fmt.Printf("\t%s start --home %s\n", binaryName, chainHome)
 
-You can start your node by running:
- 
-%s start --home %s
-`, clispinner.OK, binaryName, chainHome)
 	return nil
 }
 
