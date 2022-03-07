@@ -1,86 +1,78 @@
 package events
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-func TestBus_Send(t *testing.T) {
-	type args struct {
-		e Event
-	}
+func TestBusSend(t *testing.T) {
 	tests := []struct {
-		name string
-		b    Bus
-		args args
+		name  string
+		bus   Bus
+		event Event
 	}{
 		{
 			name: "send status ongoing event",
-			b:    make(Bus),
-			args: args{Event{
+			bus:  make(Bus),
+			event: Event{
 				status:      StatusOngoing,
 				Description: "description",
-			}},
+			},
 		},
 		{
 			name: "send status done event",
-			b:    make(Bus),
-			args: args{Event{
+			bus:  make(Bus),
+			event: Event{
 				status:      StatusDone,
 				Description: "description",
-			}},
+			},
 		},
 		{
 			name: "send event on nil bus",
-			b:    nil,
-			args: args{Event{
+			bus:  nil,
+			event: Event{
 				status:      StatusDone,
 				Description: "description",
-			}},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			go func() {
-				tt.b.Send(tt.args.e)
-			}()
-			if tt.b != nil {
-				event := <-tt.b
-				if !reflect.DeepEqual(event, tt.args.e) {
-					t.Errorf("event = %v, want %v", event, tt.args.e)
-				}
+			go tt.bus.Send(tt.event)
+			if tt.bus != nil {
+				require.Equal(t, tt.event, <-tt.bus)
 			}
-			tt.b.Shutdown()
+			tt.bus.Shutdown()
 		})
 	}
 }
 
-func TestBus_Shutdown(t *testing.T) {
+func TestBusShutdown(t *testing.T) {
 	tests := []struct {
 		name string
-		b    Bus
+		bus  Bus
 	}{
 		{
 			name: "shutdown nil bus",
-			b:    nil,
+			bus:  nil,
 		},
 		{
 			name: "shutdown bus correctly",
-			b:    make(Bus),
+			bus:  make(Bus),
 		},
 		{
 			name: "shutdown bus with size correctly",
-			b:    make(Bus, 1),
+			bus:  make(Bus, 1),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.b.Shutdown()
+			tt.bus.Shutdown()
 		})
 	}
 }
 
-func TestEvent_IsOngoing(t *testing.T) {
+func TestEventIsOngoing(t *testing.T) {
 	type fields struct {
 		status      Status
 		Description string
@@ -99,14 +91,12 @@ func TestEvent_IsOngoing(t *testing.T) {
 				status:      tt.fields.status,
 				Description: tt.fields.Description,
 			}
-			if got := e.IsOngoing(); got != tt.want {
-				t.Errorf("IsOngoing() = %v, want %v", got, tt.want)
-			}
+			require.Equal(t, tt.want, e.IsOngoing())
 		})
 	}
 }
 
-func TestEvent_Text(t *testing.T) {
+func TestEventText(t *testing.T) {
 	type fields struct {
 		status      Status
 		Description string
@@ -138,9 +128,7 @@ func TestEvent_Text(t *testing.T) {
 				status:      tt.fields.status,
 				Description: tt.fields.Description,
 			}
-			if got := e.Text(); got != tt.want {
-				t.Errorf("Text() = %v, want %v", got, tt.want)
-			}
+			require.Equal(t, tt.want, e.Text())
 		})
 	}
 }
@@ -162,29 +150,27 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := New(tt.args.status, tt.args.description); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("New() = %v, want %v", got, tt.want)
-			}
+			require.Equal(t, tt.want, New(tt.args.status, tt.args.description))
 		})
 	}
 }
 
 func TestNewBus(t *testing.T) {
 	tests := []struct {
-		name string
-		want Bus
+		name  string
+		event Event
 	}{
-		{"new bus event chan", make(Bus)},
-		{"new nus event chan matches event chan", make(chan Event)},
+		{"new bus with status done event", Event{StatusDone, "description"}},
+		{"new bus with status ongoing event", Event{StatusOngoing, "description"}},
+		{"new bus with zero value event", Event{}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewBus()
-			if reflect.TypeOf(got).Kind() != reflect.Chan {
-				t.Errorf("NewBus() = %v is not a channel", got)
-			}
-			if reflect.TypeOf(got) != reflect.TypeOf(tt.want) {
-				t.Errorf("NewBus() = %v, want %v", got, tt.want)
+			bus := NewBus()
+			defer bus.Shutdown()
+			for i := 0; i < 10; i++ {
+				go bus.Send(tt.event)
+				require.Equal(t, tt.event, <-bus)
 			}
 		})
 	}
