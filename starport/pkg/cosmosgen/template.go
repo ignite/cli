@@ -14,8 +14,10 @@ var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateSDKRoot   = newTemplateWriter("root")
-	templateSDKModule = newTemplateWriter("module")
+	templateTSClientRoot      = newTemplateWriter("root")
+	templateTSClientModule    = newTemplateWriter("module")
+	templateTSClientPinia     = newTemplateWriter("pinia")
+	templateTSClientPiniaRoot = newTemplateWriter("pinia-root")
 )
 
 type templateWriter struct {

@@ -28,31 +28,67 @@ var (
 	}
 )
 
-type jsGenerator struct {
+type tsGenerator struct {
 	g *generator
 }
 
-func newJSGenerator(g *generator) *jsGenerator {
-	return &jsGenerator{
+func newTSGenerator(g *generator) *tsGenerator {
+	return &tsGenerator{
 		g: g,
 	}
 }
 
-func (g *generator) generateJS() error {
-	jsg := newJSGenerator(g)
+func (g *generator) generateTS() error {
+	tsg := newTSGenerator(g)
 
-	if err := jsg.generateModules(); err != nil {
+	if err := tsg.generateModules(); err != nil {
 		return err
 	}
 
-	if err := jsg.generateMainClass(); err != nil {
+	if err := tsg.generatePiniaStores(); err != nil {
+		return err
+	}
+
+	if err := tsg.generateRootClasses(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (g *jsGenerator) generateModules() error {
+func (g *tsGenerator) generatePiniaStores() error {
+	gg := &errgroup.Group{}
+
+	add := func(modules []module.Module) {
+		for _, m := range modules {
+			m := m
+			gg.Go(func() error {
+				path := filepath.Join(g.g.o.tsClientRootPath, "pinia", m.Pkg.Name)
+
+				if err := os.MkdirAll(path, 0766); err != nil {
+					return err
+				}
+				if err := templateTSClientPinia.Write(path, "", struct{ Module module.Module }{m}); err != nil {
+					return err
+				}
+
+				return nil
+			})
+		}
+	}
+
+	add(g.g.appModules)
+
+	if g.g.o.jsIncludeThirdParty {
+		for _, modules := range g.g.thirdModules {
+			add(modules)
+		}
+	}
+
+	return gg.Wait()
+}
+
+func (g *tsGenerator) generateModules() error {
 	tsprotoPluginPath, cleanup, err := tsproto.BinaryPath()
 	if err != nil {
 		return err
@@ -80,9 +116,9 @@ func (g *jsGenerator) generateModules() error {
 }
 
 // generateModule generates generates JS code for a module.
-func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
+func (g *tsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
 	var (
-		out      = g.g.o.jsOut(m)
+		out      = filepath.Join(g.g.o.tsClientRootPath, "client", m.Pkg.Name)
 		typesOut = filepath.Join(out, "types")
 	)
 
@@ -137,15 +173,15 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 	}
 
 	pp := filepath.Join(appPath, g.g.protoDir)
-	if err := templateSDKModule.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
+	if err := templateTSClientModule.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (g *jsGenerator) generateMainClass() error {
-	modulePaths, err := localfs.Search(g.g.o.sdkRootPath, "module.ts")
+func (g *tsGenerator) generateRootClasses() error {
+	modulePaths, err := localfs.Search(g.g.o.tsClientRootPath, "module.ts")
 	if err != nil {
 		return err
 	}
@@ -177,7 +213,7 @@ func (g *jsGenerator) generateMainClass() error {
 	}
 
 	for _, path := range modulePaths {
-		pathrel, err := filepath.Rel(g.g.o.sdkRootPath, path)
+		pathrel, err := filepath.Rel(g.g.o.tsClientRootPath, path)
 		if err != nil {
 			return err
 		}
@@ -196,7 +232,19 @@ func (g *jsGenerator) generateMainClass() error {
 		})
 	}
 
-	if err := templateSDKRoot.Write(g.g.o.sdkRootPath, "", data); err != nil {
+	tsClientOut := filepath.Join(g.g.o.tsClientRootPath, "client")
+	if err := os.MkdirAll(tsClientOut, 0766); err != nil {
+		return err
+	}
+	if err := templateTSClientRoot.Write(tsClientOut, "", data); err != nil {
+		return err
+	}
+
+	piniaOut := filepath.Join(g.g.o.tsClientRootPath, "pinia")
+	if err := os.MkdirAll(piniaOut, 0766); err != nil {
+		return err
+	}
+	if err := templateTSClientPiniaRoot.Write(piniaOut, "", data); err != nil {
 		return err
 	}
 

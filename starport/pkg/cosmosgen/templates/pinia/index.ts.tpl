@@ -2,8 +2,10 @@
 
 import { defineStore } from 'pinia'
 
-{{ range .Module.Types }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}"
+import { 
+{{ range .Module.Types }}{{ .Name }},
 {{ end }}
+} from "ts-client/{{ .Module.Pkg.Name }}/types";
 
  type PiniaState = {
 	{{ range .Module.Types }}{{ .Name }}All: {{ .Name }}[],
@@ -19,6 +21,6 @@ const piniaStore = {
   }
 };
 
-const usePiniaStore = defineStore('module', piniaStore); 
+const usePiniaStore = defineStore('{{ .Module.Pkg.Name }}', piniaStore); 
 
 export default usePiniaStore;

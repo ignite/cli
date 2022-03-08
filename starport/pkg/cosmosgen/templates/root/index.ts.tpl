@@ -1,10 +1,15 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
-import { OfflineSigner } from "@cosmjs/proto-signing";
+import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { SigningStargateClient } from "@cosmjs/stargate";
 
-{{ range .Modules }}import { Module as {{ .FullName }}, usePiniaStore as use{{ .FullName }}PiniaStore } from './{{ .FullPath }}/'
+{{ range .Modules }}import { Module as {{ .Name }}, msgTypes as {{ .Name }}MsgTypes } from './{{ .Path }}'
 {{ end }}
+
+const registry = new Registry(<any>[
+  {{ range .Modules }}...{{ .Name }}MsgTypes,
+  {{ end }}
+])
 
 class Signer {
   private _offlineSigner: OfflineSigner;
@@ -19,7 +24,8 @@ class Signer {
   public async init() {
     this._client = await SigningStargateClient.connectWithSigner(
       this._addr,
-      this._offlineSigner
+      this._offlineSigner,
+      { registry }
     );
   }
 
@@ -47,7 +53,7 @@ class Ignite {
   private _signer: Signer;
   private _address: string;
 
-{{ range .Modules }}public {{ .FullName }}: {{ .FullName }};
+{{ range .Modules }}public {{ .Name }}: {{ .Name }};
 {{ end }}
 
   constructor({ env, signer, address }: IgniteParams) {
@@ -62,7 +68,7 @@ class Ignite {
      let client: SigningStargateClient = this._signer
        .signer as SigningStargateClient;
 
-{{ range .Modules }}this.{{ .FullName }} = new {{ .FullName }}(
+{{ range .Modules }}this.{{ .Name }} = new {{ .Name }}(
      client,
     this._address,
      this._env.apiURL
@@ -76,7 +82,6 @@ class Ignite {
 }
 
 export {
+    registry,
     Ignite,
-  {{ range .Modules }}use{{ .FullName }}PiniaStore,
-  {{ end }}
 }

@@ -14,7 +14,7 @@ type generateOptions struct {
 
 	jsOut               func(module.Module) string
 	jsIncludeThirdParty bool
-	sdkRootPath         string
+	tsClientRootPath    string
 
 	specOut string
 
@@ -28,25 +28,14 @@ type generateOptions struct {
 // Option configures code generation.
 type Option func(*generateOptions)
 
-// WithJSGeneration adds JS code generation. out hook is called for each module to
-// retrieve the path that should be used to place generated js code inside for a given module.
-// if includeThirdPartyModules set to true, code generation will be made for the 3rd party modules
-// used by the app -including the SDK- as well.
-func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (path string)) Option {
-	return func(o *generateOptions) {
-		o.jsOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
-	}
-}
-
-// WithVuexGeneration adds Vuex code generation. storeRootPath is used to determine the root path of generated
-// Vuex stores. includeThirdPartyModules and out configures the underlying JS lib generation which is
+// WithTSClientGeneration adds Typescript Client code generation. tsClientRootPath is used to determine the root path of generated
+// Typescript Classes. includeThirdPartyModules and out configures the underlying JS lib generation which is
 // documented in WithJSGeneration.
-func WithSDKGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), sdkRootPath string) Option {
+func WithTSClientGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), tsClientRootPath string) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
-		o.sdkRootPath = sdkRootPath
+		o.tsClientRootPath = tsClientRootPath
 	}
 }
 
@@ -121,7 +110,7 @@ func Generate(ctx context.Context, appPath, protoDir string, options ...Option) 
 	// sdk.Msg implementations defined on the generated Go types.
 	// so it needs to run after Go code gen.
 	if g.o.jsOut != nil {
-		if err := g.generateJS(); err != nil {
+		if err := g.generateTS(); err != nil {
 			return err
 		}
 	}

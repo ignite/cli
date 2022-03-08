@@ -12,16 +12,16 @@ import (
 )
 
 const (
-	defaultSDKPath     = "vue/src/sdk"
-	defaultDartPath    = "flutter/lib"
-	defaultOpenAPIPath = "docs/static/openapi.yml"
+	defaultTSClientPath = "vue/src/generated"
+	defaultDartPath     = "flutter/lib"
+	defaultOpenAPIPath  = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
-	isGoEnabled      bool
-	isVuexEnabled    bool
-	isDartEnabled    bool
-	isOpenAPIEnabled bool
+	isGoEnabled       bool
+	isTSClientEnabled bool
+	isDartEnabled     bool
+	isOpenAPIEnabled  bool
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -34,10 +34,10 @@ func GenerateGo() GenerateTarget {
 	}
 }
 
-// GenerateVuex enables generating proto based Vuex store.
-func GenerateSDK() GenerateTarget {
+// GenerateTSClient enables generating proto based Typescript Client.
+func GenerateTSClient() GenerateTarget {
 	return func(o *generateOptions) {
-		o.isVuexEnabled = true
+		o.isTSClientEnabled = true
 	}
 }
 
@@ -63,8 +63,8 @@ func (c *Chain) generateAll(ctx context.Context) error {
 
 	var additionalTargets []GenerateTarget
 
-	if conf.Client.SDK.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateSDK())
+	if conf.Client.Typescript.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateTSClient())
 	}
 
 	if conf.Client.Dart.Path != "" {
@@ -111,26 +111,26 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Vuex code as well if it is enabled.
-	if targetOptions.isVuexEnabled {
-		sdkPath := conf.Client.SDK.Path
-		if sdkPath == "" {
-			sdkPath = defaultSDKPath
+	// generate Typescript Client code as well if it is enabled.
+	if targetOptions.isTSClientEnabled {
+		tsClientPath := conf.Client.Typescript.Path
+		if tsClientPath == "" {
+			tsClientPath = defaultTSClientPath
 		}
 
-		sdkRootPath := filepath.Join(c.app.Path, sdkPath)
-		if err := os.MkdirAll(sdkRootPath, 0766); err != nil {
+		tsClientRootPath := filepath.Join(c.app.Path, tsClientPath)
+		if err := os.MkdirAll(tsClientRootPath, 0766); err != nil {
 			return err
 		}
 
 		options = append(options,
-			cosmosgen.WithSDKGeneration(
+			cosmosgen.WithTSClientGeneration(
 				enableThirdPartyModuleCodegen,
 				func(m module.Module) string {
 					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(sdkRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
+					return filepath.Join(tsClientRootPath, "client", parsedGitURL.UserAndRepo(), m.Pkg.Name)
 				},
-				sdkRootPath,
+				tsClientRootPath,
 			),
 		)
 	}

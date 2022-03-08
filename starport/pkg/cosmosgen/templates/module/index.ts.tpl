@@ -1,4 +1,5 @@
 import Module from './module';
-import usePiniaStore from './pinia';
+import { msgTypes } from './registry';
 
-export { Module, usePiniaStore };
+export * from "./types";
+export { Module, msgTypes };

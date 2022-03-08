@@ -112,8 +112,8 @@ type Proto struct {
 
 // Client configures code generation for clients.
 type Client struct {
-	// Vuex configures code generation for Vuex.
-	SDK SDK `yaml:"sdk"`
+	// TSClient configures code generation for Typescript Client.
+	Typescript Typescript `yaml:"typescript"`
 
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart"`
@@ -122,9 +122,9 @@ type Client struct {
 	OpenAPI OpenAPI `yaml:"openapi"`
 }
 
-// Vuex configures code generation for Vuex.
-type SDK struct {
-	// Path configures out location for generated Vuex code.
+// TSClient configures code generation for Typescript Client.
+type Typescript struct {
+	// Path configures out location for generated Typescript Client code.
 	Path string `yaml:"path"`
 }
 

@@ -13,10 +13,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -104,21 +102,6 @@ func protoc(projectPath, gomodPath string) error {
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
-	// generate Vuex code as well if it is enabled.
-	if conf.Client.SDK.Path != "" {
-		sdkRootPath := filepath.Join(projectPath, conf.Client.SDK.Path, "generated")
-
-		options = append(options,
-			cosmosgen.WithSDKGeneration(
-				false,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(sdkRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
-				sdkRootPath,
-			),
-		)
-	}
 	if conf.Client.OpenAPI.Path != "" {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
