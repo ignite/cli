@@ -43,7 +43,6 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.3
 	github.com/tendermint/spn v0.1.1-0.20220217212620-bb39a868898e
 	github.com/tendermint/tendermint v0.34.14

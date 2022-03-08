@@ -12,16 +12,16 @@ import (
 )
 
 const (
-	defaultVuexPath    = "vue/src/store"
-	defaultDartPath    = "flutter/lib"
-	defaultOpenAPIPath = "docs/static/openapi.yml"
+	defaultTSClientPath = "vue/src/generated"
+	defaultDartPath     = "flutter/lib"
+	defaultOpenAPIPath  = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
-	isGoEnabled      bool
-	isVuexEnabled    bool
-	isDartEnabled    bool
-	isOpenAPIEnabled bool
+	isGoEnabled       bool
+	isTSClientEnabled bool
+	isDartEnabled     bool
+	isOpenAPIEnabled  bool
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -34,10 +34,10 @@ func GenerateGo() GenerateTarget {
 	}
 }
 
-// GenerateVuex enables generating proto based Vuex store.
-func GenerateVuex() GenerateTarget {
+// GenerateTSClient enables generating proto based Typescript Client.
+func GenerateTSClient() GenerateTarget {
 	return func(o *generateOptions) {
-		o.isVuexEnabled = true
+		o.isTSClientEnabled = true
 	}
 }
 
@@ -63,8 +63,8 @@ func (c *Chain) generateAll(ctx context.Context) error {
 
 	var additionalTargets []GenerateTarget
 
-	if conf.Client.Vuex.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex())
+	if conf.Client.Typescript.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateTSClient())
 	}
 
 	if conf.Client.Dart.Path != "" {
@@ -111,26 +111,26 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Vuex code as well if it is enabled.
-	if targetOptions.isVuexEnabled {
-		vuexPath := conf.Client.Vuex.Path
-		if vuexPath == "" {
-			vuexPath = defaultVuexPath
+	// generate Typescript Client code as well if it is enabled.
+	if targetOptions.isTSClientEnabled {
+		tsClientPath := conf.Client.Typescript.Path
+		if tsClientPath == "" {
+			tsClientPath = defaultTSClientPath
 		}
 
-		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
+		tsClientRootPath := filepath.Join(c.app.Path, tsClientPath)
+		if err := os.MkdirAll(tsClientRootPath, 0766); err != nil {
 			return err
 		}
 
 		options = append(options,
-			cosmosgen.WithVuexGeneration(
+			cosmosgen.WithTSClientGeneration(
 				enableThirdPartyModuleCodegen,
 				func(m module.Module) string {
 					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
+					return filepath.Join(tsClientRootPath, "client", parsedGitURL.UserAndRepo(), m.Pkg.Name)
 				},
-				storeRootPath,
+				tsClientRootPath,
 			),
 		)
 	}

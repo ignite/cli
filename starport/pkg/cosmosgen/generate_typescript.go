@@ -7,17 +7,15 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-proto"
-	"github.com/tendermint/starport/starport/pkg/nodetime/programs/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -30,29 +28,67 @@ var (
 	}
 )
 
-const vuexRootMarker = "vuex-root"
-
-type jsGenerator struct {
+type tsGenerator struct {
 	g *generator
 }
 
-func newJSGenerator(g *generator) *jsGenerator {
-	return &jsGenerator{
+func newTSGenerator(g *generator) *tsGenerator {
+	return &tsGenerator{
 		g: g,
 	}
 }
 
-func (g *generator) generateJS() error {
-	jsg := newJSGenerator(g)
+func (g *generator) generateTS() error {
+	tsg := newTSGenerator(g)
 
-	if err := jsg.generateModules(); err != nil {
+	if err := tsg.generateModules(); err != nil {
 		return err
 	}
 
-	return jsg.generateVuexModuleLoader()
+	if err := tsg.generatePiniaStores(); err != nil {
+		return err
+	}
+
+	if err := tsg.generateRootClasses(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (g *jsGenerator) generateModules() error {
+func (g *tsGenerator) generatePiniaStores() error {
+	gg := &errgroup.Group{}
+
+	add := func(modules []module.Module) {
+		for _, m := range modules {
+			m := m
+			gg.Go(func() error {
+				path := filepath.Join(g.g.o.tsClientRootPath, "pinia", m.Pkg.Name)
+
+				if err := os.MkdirAll(path, 0766); err != nil {
+					return err
+				}
+				if err := templateTSClientPinia.Write(path, "", struct{ Module module.Module }{m}); err != nil {
+					return err
+				}
+
+				return nil
+			})
+		}
+	}
+
+	add(g.g.appModules)
+
+	if g.g.o.jsIncludeThirdParty {
+		for _, modules := range g.g.thirdModules {
+			add(modules)
+		}
+	}
+
+	return gg.Wait()
+}
+
+func (g *tsGenerator) generateModules() error {
 	tsprotoPluginPath, cleanup, err := tsproto.BinaryPath()
 	if err != nil {
 		return err
@@ -80,11 +116,10 @@ func (g *jsGenerator) generateModules() error {
 }
 
 // generateModule generates generates JS code for a module.
-func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
+func (g *tsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
 	var (
-		out          = g.g.o.jsOut(m)
-		storeDirPath = filepath.Dir(out)
-		typesOut     = filepath.Join(out, "types")
+		out      = filepath.Join(g.g.o.tsClientRootPath, "client", m.Pkg.Name)
+		typesOut = filepath.Join(out, "types")
 	)
 
 	includePaths, err := g.g.resolveInclude(appPath)
@@ -137,25 +172,16 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		return err
 	}
 
-	// generate the js client wrapper.
 	pp := filepath.Join(appPath, g.g.protoDir)
-	if err := templateJSClient.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
+	if err := templateTSClientModule.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
 		return err
 	}
 
-	// generate Vuex if enabled.
-	if g.g.o.vuexStoreRootPath != "" {
-		err = templateVuexStore.Write(storeDirPath, pp, struct{ Module module.Module }{m})
-		if err != nil {
-			return err
-		}
-	}
-	// generate .js and .d.ts files for all ts files.
-	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
+	return nil
 }
 
-func (g *jsGenerator) generateVuexModuleLoader() error {
-	modulePaths, err := localfs.Search(g.g.o.vuexStoreRootPath, vuexRootMarker)
+func (g *tsGenerator) generateRootClasses() error {
+	modulePaths, err := localfs.Search(g.g.o.tsClientRootPath, "module.ts")
 	if err != nil {
 		return err
 	}
@@ -187,7 +213,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 	}
 
 	for _, path := range modulePaths {
-		pathrel, err := filepath.Rel(g.g.o.vuexStoreRootPath, path)
+		pathrel, err := filepath.Rel(g.g.o.tsClientRootPath, path)
 		if err != nil {
 			return err
 		}
@@ -206,20 +232,21 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		})
 	}
 
-	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
-
-	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", data); err != nil {
+	tsClientOut := filepath.Join(g.g.o.tsClientRootPath, "client")
+	if err := os.MkdirAll(tsClientOut, 0766); err != nil {
+		return err
+	}
+	if err := templateTSClientRoot.Write(tsClientOut, "", data); err != nil {
 		return err
 	}
 
-	return tsc.Generate(g.g.ctx, tscConfig(loaderPath))
-}
-
-func tscConfig(include ...string) tsc.Config {
-	return tsc.Config{
-		Include: include,
-		CompilerOptions: tsc.CompilerOptions{
-			Declaration: true,
-		},
+	piniaOut := filepath.Join(g.g.o.tsClientRootPath, "pinia")
+	if err := os.MkdirAll(piniaOut, 0766); err != nil {
+		return err
 	}
+	if err := templateTSClientPiniaRoot.Write(piniaOut, "", data); err != nil {
+		return err
+	}
+
+	return nil
 }

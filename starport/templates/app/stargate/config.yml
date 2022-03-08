@@ -9,8 +9,8 @@ validator:
 client:
   openapi:
     path: "docs/static/openapi.yml"
-  vuex:
-    path: "vue/src/store"
+  typescript:
+    path: "vue/src/generated"
 faucet:
   name: bob
   coins: ["5token", "100000stake"]
