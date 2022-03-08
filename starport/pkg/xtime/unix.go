@@ -5,7 +5,7 @@ import (
 )
 
 // Seconds creates a time.Duration based on the seconds parameter
-func Seconds(seconds uint64) time.Duration {
+func Seconds(seconds int64) time.Duration {
 	return time.Duration(seconds) * time.Second
 }
 
