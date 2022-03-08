@@ -9,7 +9,7 @@ import (
 )
 
 func TestSeconds(t *testing.T) {
-	tests := []uint64{
+	tests := []int64{
 		9999999999,
 		10000,
 		100,
@@ -24,7 +24,7 @@ func TestSeconds(t *testing.T) {
 }
 
 func TestNowAfter(t *testing.T) {
-	tests := []uint64{
+	tests := []int64{
 		9999999999,
 		10000,
 		100,
