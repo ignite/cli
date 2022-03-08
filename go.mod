@@ -9,9 +9,9 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/cosmos/cosmos-sdk v0.44.5
+	github.com/cosmos/cosmos-sdk v0.44.6
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v2 v2.0.2
+	github.com/cosmos/ibc-go/v2 v2.0.3
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.12.0
@@ -45,14 +45,14 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.3
-	github.com/tendermint/spn v0.1.1-0.20220217212620-bb39a868898e
+	github.com/tendermint/spn v0.1.1-0.20220307175754-0b579dc934ec
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tendermint/vue v0.3.0
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
-	google.golang.org/grpc v1.43.0
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	google.golang.org/grpc v1.44.0
 )
 
 replace (

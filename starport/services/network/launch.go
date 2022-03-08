@@ -30,8 +30,8 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	var (
-		minLaunch = xtime.Seconds(params.MinLaunchTime)
-		maxLaunch = xtime.Seconds(params.MaxLaunchTime)
+		minLaunch = xtime.Seconds(params.LaunchTimeRange.MinLaunchTime)
+		maxLaunch = xtime.Seconds(params.LaunchTimeRange.MaxLaunchTime)
 		address   = n.account.Address(networktypes.SPN)
 	)
 	switch {
@@ -48,7 +48,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 			xtime.NowAfter(maxLaunch))
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, uint64(remainingTime.Seconds()))
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, int64(remainingTime.Seconds()))
 	n.ev.Send(events.New(events.StatusOngoing, "Setting launch time"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
