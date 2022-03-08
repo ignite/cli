@@ -82,27 +82,6 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	return campaigns, nil
 }
 
-// CampaignUpdateTotalShares updates the campaign total shares
-func (n Network) CampaignUpdateTotalShares(campaignID uint64, totalShares campaigntypes.Shares) error {
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf(
-		"Updating the campaign %d total shares to %s",
-		campaignID,
-		totalShares.String(),
-	)))
-
-	msg := campaigntypes.NewMsgUpdateTotalShares(n.account.Address(networktypes.SPN), campaignID, totalShares)
-	if _, err := n.cosmos.BroadcastTx(n.account.Name, msg); err != nil {
-		return err
-	}
-
-	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
-		"Now the chain %d total shares is %s",
-		campaignID,
-		totalShares.String(),
-	)))
-	return nil
-}
-
 // UpdateCampaign updates the campaign name or metadata
 func (n Network) UpdateCampaign(
 	id uint64,
