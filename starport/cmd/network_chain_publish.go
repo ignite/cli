@@ -5,7 +5,6 @@ import (
 	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/spf13/cobra"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
