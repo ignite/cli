@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestBusSend(t *testing.T) {
