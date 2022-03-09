@@ -102,7 +102,7 @@ func (t Tracker) getTargetArtifacts() Artifacts {
 	return nil
 }
 
-// isChanged checks either tracked file were changed since last persist or not
+// isChanged checks if tracked files were changed since last persist
 func (t Tracker) isChanged(workdir, savePath string) (bool, error) {
 	return dirchange.HasDirChecksumChanged(workdir, t.paths, savePath, t.checksumFilename())
 }
