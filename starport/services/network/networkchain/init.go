@@ -44,7 +44,7 @@ func (c *Chain) Init(ctx context.Context) error {
 
 	c.isInitialized = true
 
-	return err
+	return nil
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
