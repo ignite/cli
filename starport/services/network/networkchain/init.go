@@ -11,35 +11,35 @@ import (
 
 // Init initializes blockchain by building the binaries and running the init command and
 // create the initial genesis of the chain, and set up a validator key
-func (c *Chain) Init(ctx context.Context) (err error) {
+func (c *Chain) Init(ctx context.Context) error {
 	chainHome, err := c.chain.Home()
 	if err != nil {
-		return
+		return err
 	}
 
 	// cleanup home dir of app if exists.
 	if err = os.RemoveAll(chainHome); err != nil {
-		return
+		return err
 	}
 
 	// build the chain and initialize it with a new validator key
 	c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
 	if _, err = c.chain.Build(ctx, ""); err != nil {
-		return
+		return err
 	}
 
 	c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
 	c.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
 	if err = c.chain.Init(ctx, false); err != nil {
-		return
+		return err
 	}
 
 	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// initialize and verify the genesis
 	if err = c.initGenesis(ctx); err != nil {
-		return
+		return err
 	}
 
 	c.isInitialized = true
