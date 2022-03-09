@@ -12,11 +12,27 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
+
+// ResetGenesisTime reset the chain genesis time
+func (c Chain) ResetGenesisTime() error {
+	// set the genesis time for the chain
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return errors.Wrap(err, "genesis of the blockchain can't be read")
+	}
+	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
+		return errors.Wrap(err, "genesis time can't be set")
+	}
+
+	fmt.Println("\nGenesis time was reset")
+	return nil
+}
 
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {

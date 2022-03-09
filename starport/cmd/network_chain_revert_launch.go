@@ -1,13 +1,10 @@
 package starportcmd
 
 import (
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
-
 	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 // NewNetworkChainRevertLaunch creates a new chain revert launch command
@@ -49,19 +46,14 @@ func networkChainRevertLaunchHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if err := n.RevertLaunch(cmd.Context(), launchID); err != nil {
+		return err
+	}
+
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
 	}
 
-	// set the genesis time for the chain
-	genesisPath, err := c.GenesisPath()
-	if err != nil {
-		return errors.Wrap(err, "genesis of the blockchain can't be read")
-	}
-	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
-		return errors.Wrap(err, "genesis time can't be set")
-	}
-
-	return n.RevertLaunch(cmd.Context(), launchID)
+	return c.ResetGenesisTime()
 }
