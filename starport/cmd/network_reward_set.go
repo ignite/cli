@@ -19,8 +19,9 @@ func NewNetworkRewardSet() *cobra.Command {
 		Args:  cobra.ExactArgs(3),
 		RunE:  networkChainRewardSetHandler,
 	}
-	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 

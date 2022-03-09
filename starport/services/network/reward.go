@@ -41,7 +41,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 	if setRewardRes.PreviousCoins.Empty() {
 		n.ev.Send(events.New(
 			events.StatusDone,
-			"The reward pool was removed.",
+			"The reward pool is empty.",
 			events.Icon(clispinner.Info),
 		))
 	} else {
