@@ -15,14 +15,13 @@ import (
 )
 
 const (
-	flagTag         = "tag"
-	flagBranch      = "branch"
-	flagHash        = "hash"
-	flagGenesis     = "genesis"
-	flagCampaign    = "campaign"
-	flagNoCheck     = "no-check"
-	flagChainID     = "chain-id"
-	flagTotalShares = "total-shares"
+	flagTag      = "tag"
+	flagBranch   = "branch"
+	flagHash     = "hash"
+	flagGenesis  = "genesis"
+	flagCampaign = "campaign"
+	flagNoCheck  = "no-check"
+	flagChainID  = "chain-id"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -43,7 +42,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	// FIXME: total shares cannot be set if the campaign doesn't have dynamic shares.
 	// TODO: we should update the SPN to accept dynamic shares before enabling this flag
-	// c.Flags().String(flagTotalShares, "", "Add a total shares to the campaign")
+	// c.Flags().String(flagCampaignTotalShares, "", "Add a total shares to the campaign")
 	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
 	c.Flags().String(flagCampaignTotalShares, "", "Add a shares supply for the campaign")
 	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
