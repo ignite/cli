@@ -41,7 +41,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
-	c.Flags().Uint64(flagRewardHeight, 0, "Last reward height")
+	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
