@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
@@ -92,7 +93,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v2/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)

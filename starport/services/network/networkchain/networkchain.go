@@ -2,11 +2,11 @@ package networkchain
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -225,8 +225,8 @@ func (c Chain) IsHomeDirExist() (ok bool, err error) {
 	return err == nil, err
 }
 
-// Peer returns the chain peer string `<nodeID>@<host>` of node for others to connect.
-func (c Chain) Peer(ctx context.Context, addr string) (string, error) {
+// NodeID returns the chain node id
+func (c Chain) NodeID(ctx context.Context) (string, error) {
 	chainCmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return "", err
@@ -236,8 +236,7 @@ func (c Chain) Peer(ctx context.Context, addr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	return fmt.Sprintf("%s@%s", nodeID, addr), nil
+	return nodeID, nil
 }
 
 // fetchSource fetches the chain source from url and returns a temporary path where source is saved

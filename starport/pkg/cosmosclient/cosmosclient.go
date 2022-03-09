@@ -20,17 +20,19 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	proto "github.com/gogo/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
@@ -292,6 +294,8 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		if err != nil {
 			return Response{}, err
 		}
+
+		txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
 		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
 			return Response{}, err
 		}
@@ -302,6 +306,14 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		}
 
 		resp, err := ctx.BroadcastTx(txBytes)
+		if err == sdkerrors.ErrInsufficientFunds {
+			err = c.makeSureAccountHasTokens(context.Background(), accountAddress.String())
+			if err != nil {
+				return Response{}, err
+			}
+			resp, err = ctx.BroadcastTx(txBytes)
+		}
+
 		return Response{
 			codec:      ctx.Codec,
 			TxResponse: resp,
@@ -349,11 +361,6 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	}
 	if faucetResp.Error != "" {
 		return errors.Wrap(errCannotRetrieveFundsFromFaucet, faucetResp.Error)
-	}
-	for _, transfer := range faucetResp.Transfers {
-		if transfer.Error != "" {
-			return errors.Wrap(errCannotRetrieveFundsFromFaucet, transfer.Error)
-		}
 	}
 
 	// make sure funds are retrieved.

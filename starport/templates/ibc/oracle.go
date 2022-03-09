@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -99,11 +100,11 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		// Ack packet dispatch
 		templateAck := `sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if sdkResult != nil {
 		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
-		return sdkResult, nil
+		return nil
 	}
 	%[1]v`
 		replacementAck := fmt.Sprintf(templateAck, PlaceholderOraclePacketModuleAck)

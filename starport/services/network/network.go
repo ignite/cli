@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -27,7 +28,7 @@ type Chain interface {
 	DefaultGentxPath() (string, error)
 	AppTOMLPath() (string, error)
 	ConfigTOMLPath() (string, error)
-	Peer(ctx context.Context, addr string) (string, error)
+	NodeID(ctx context.Context) (string, error)
 }
 
 type Option func(*Network)
@@ -51,7 +52,7 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 	return n, nil
 }
 
-func ParseLaunchID(id string) (uint64, error) {
+func ParseID(id string) (uint64, error) {
 	launchID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		return 0, errors.Wrap(err, "error parsing launchID")

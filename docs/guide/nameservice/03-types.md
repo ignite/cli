@@ -3,11 +3,11 @@ order: 3
 description: Implement types and methods that operate on the state.
 ---
 
-# Implement Types 
+# Implement Types
 
 Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate on the state.
 
-> The Cosmos SDK relies on keepers. A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, read, update, and delete (CRUD) are defined as keeper methods. 
+> The Cosmos SDK relies on keepers. A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, read, update, and delete (CRUD) are defined as keeper methods.
 
 For the nameservice blockchain, define a `whois` type and the create and delete methods.
 
@@ -19,7 +19,7 @@ Because Starport does the heavy lifting for you, choose from several [starport s
 
 ## Add the whois Type
 
-Use the `starport scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names. 
+Use the `starport scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names.
 
 In this example, the `whois` type is stored in a map-like data structure:
 
@@ -32,8 +32,8 @@ where:
 - whois is the type
 - name is the name the user sets
 - value is the name that name resolves to
-- price is the bid 
-- `--no-message` flag skips message creation 
+- price is the bid
+- `--no-message` flag skips message creation
 
     By default, generic CRUD messages are scaffolded. However, you've already created messages specifically for this blockchain, so you can skip message creation with the `--no-message` flag.
 
@@ -87,7 +87,7 @@ The `starport scaffold map whois name value price --no-message` command created 
 
 * `x/nameservice/genesis.go`
  
-    Logic for exporting and exporting the state.
+    Logic for exporting the state.
 
 * `x/nameservice/types/genesis.go`
 
@@ -99,7 +99,7 @@ The `starport scaffold map whois name value price --no-message` command created 
 
 ## Keeper Package
 
-In the `x/nameservice/keeper/whois.go` file, take at a look at the keeper package. 
+In the `x/nameservice/keeper/whois.go` file, take at a look at the keeper package.
 
 - `SetWhois` uses a key-value store with a prefix for the `Whois` type and uses a `store.Set` method to write a `Whois` into the store.
 

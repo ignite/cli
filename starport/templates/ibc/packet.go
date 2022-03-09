@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -140,7 +141,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	eventType = types.EventType%[3]vPacket
 %[1]v`
@@ -156,7 +157,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		templateTimeout := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := am.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
-		return nil, err
+		return err
 	}
 %[1]v`
 		replacementTimeout := fmt.Sprintf(

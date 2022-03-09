@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gocmd"

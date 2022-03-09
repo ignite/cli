@@ -6,20 +6,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}
-
-// LaunchSummary holds summarized information about a chain launch
-type LaunchSummary struct {
-	LaunchID   string
-	ChainID    string
-	Source     string
-	CampaignID string
-}
 
 // NewNetworkChainList returns a new command to list all published chains on Starport Network
 func NewNetworkChainList() *cobra.Command {
@@ -29,10 +21,9 @@ func NewNetworkChainList() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  networkChainListHandler,
 	}
-	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
-
 	return c
 }
 
@@ -41,7 +32,6 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	nb.Spinner.Stop()
 
@@ -53,6 +43,8 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	nb.Cleanup()
 	return renderLaunchSummaries(chainLaunches, os.Stdout)
 }
 

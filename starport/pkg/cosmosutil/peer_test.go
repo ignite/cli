@@ -4,36 +4,43 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 func TestVerifyPeerFormat(t *testing.T) {
 	tests := []struct {
-		peer string
+		name string
+		peer launchtypes.Peer
 		want bool
 	}{
 		{
-			peer: "nodeid@peer",
+			name: "valid peer connection",
+			peer: launchtypes.NewPeerConn("node", "peer:port"),
 			want: true,
 		},
 		{
-			peer: "@peer",
+			name: "peer connection without port",
+			peer: launchtypes.NewPeerConn("node", "peer"),
 			want: false,
 		},
 		{
-			peer: "nodeid@",
+			name: "peer connection without the node address",
+			peer: launchtypes.NewPeerConn("node", ":port"),
 			want: false,
 		},
 		{
-			peer: "nodeid",
+			name: "peer connection without the separator",
+			peer: launchtypes.NewPeerConn("node", "peerport"),
 			want: false,
 		},
 		{
-			peer: "@",
+			name: "invalid peer tunnel",
+			peer: launchtypes.NewPeerTunnel("", "", ""),
 			want: false,
 		},
 	}
 	for _, tt := range tests {
-		t.Run("verifying "+tt.peer, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			got := VerifyPeerFormat(tt.peer)
 			require.Equal(t, tt.want, got)
 		})

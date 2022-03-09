@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmoserror"
+
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -18,10 +18,8 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 		LaunchID: id,
 	})
 	if err != nil {
-		return networktypes.ChainLaunch{}, cosmoserror.Unwrap(err)
+		return networktypes.ChainLaunch{}, err
 	}
-
-	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
 
 	return networktypes.ToChainLaunch(res.Chain), nil
 }
@@ -33,7 +31,7 @@ func (n Network) ChainLaunches(ctx context.Context) ([]networktypes.ChainLaunch,
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
 	if err != nil {
-		return chainLaunches, cosmoserror.Unwrap(err)
+		return chainLaunches, err
 	}
 
 	// Parse fetched chains
@@ -71,7 +69,7 @@ func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs 
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return genAccs, cosmoserror.Unwrap(err)
+		return genAccs, err
 	}
 
 	for _, acc := range res.GenesisAccount {
@@ -88,7 +86,7 @@ func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingA
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return vestingAccs, cosmoserror.Unwrap(err)
+		return vestingAccs, err
 	}
 
 	for i, acc := range res.VestingAccount {
@@ -110,7 +108,7 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return genVals, cosmoserror.Unwrap(err)
+		return genVals, err
 	}
 
 	for _, acc := range res.GenesisValidator {

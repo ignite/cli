@@ -16,10 +16,12 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
@@ -29,6 +31,7 @@ import (
 const (
 	ServeTimeout = time.Minute * 15
 	StarportApp  = "starport"
+	ConfigYML    = "config.yml"
 )
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
@@ -233,7 +236,7 @@ func (e Env) Simulate(appPath string, numBlocks, blockSize int) {
 // EnsureAppIsSteady ensures that app living at the path can compile and its tests
 // are passing.
 func (e Env) EnsureAppIsSteady(appPath string) {
-	_, statErr := os.Stat(filepath.Join(appPath, "config.yml"))
+	_, statErr := os.Stat(filepath.Join(appPath, ConfigYML))
 	require.False(e.t, os.IsNotExist(statErr), "config.yml cannot be found")
 
 	e.Exec("make sure app is steady",
@@ -257,6 +260,15 @@ func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
 
+// IsFaucetServed checks that faucet of the app is served properly
+func (e Env) IsFaucetServed(ctx context.Context, faucetClient cosmosfaucet.HTTPClient) error {
+	checkAlive := func() error {
+		_, err := faucetClient.FaucetInfo(ctx)
+		return err
+	}
+	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
+}
+
 // TmpDir creates a new temporary directory.
 func (e Env) TmpDir() (path string) {
 	path, err := os.MkdirTemp("", "integration")
@@ -269,7 +281,7 @@ func (e Env) TmpDir() (path string) {
 // its config.yml and returns new values.
 func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
 	if configFile == "" {
-		configFile = "config.yml"
+		configFile = ConfigYML
 	}
 
 	// generate random server ports and servers list.
@@ -306,10 +318,38 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 	return servers
 }
 
+// ConfigureFaucet finds a random port for the app faucet and updates config.yml with this port and provided coins options
+func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []string) string {
+	if configFile == "" {
+		configFile = ConfigYML
+	}
+
+	// find a random available port
+	port, err := availableport.Find(1)
+	require.NoError(e.t, err)
+
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	require.NoError(e.t, err)
+	defer configyml.Close()
+
+	var conf chainconfig.Config
+	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
+
+	conf.Faucet.Port = port[0]
+	conf.Faucet.Coins = coins
+	conf.Faucet.CoinsMax = coinsMax
+	require.NoError(e.t, configyml.Truncate(0))
+	_, err = configyml.Seek(0, 0)
+	require.NoError(e.t, err)
+	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+
+	return xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
+}
+
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
 func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	if configFile == "" {
-		configFile = "config.yml"
+		configFile = ConfigYML
 	}
 
 	// update config.yml with the generated temporary directories

@@ -9,13 +9,14 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/flutter/v2"
+	"github.com/tendermint/vue"
+
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/templates/app"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
-	"github.com/tendermint/vue"
 )
 
 var (

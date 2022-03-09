@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
@@ -49,7 +50,7 @@ func networkChainLaunch(cmd *cobra.Command, args []string) (NetworkBuilder, uint
 		return nb, 0, err
 	}
 	// parse launch ID.
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return nb, launchID, err
 	}
@@ -133,7 +134,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 				return err
 			}
 
-			// check if the genesis already exist
+			// check if the genesis already exists
 			if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
 				// fetch the information to construct genesis
 				genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
@@ -268,10 +269,14 @@ func newNetworkChainShowValidators() *cobra.Command {
 			}
 			validatorEntries := make([][]string, 0)
 			for _, acc := range validators {
+				peer, err := network.PeerAddress(acc.Peer)
+				if err != nil {
+					return err
+				}
 				validatorEntries = append(validatorEntries, []string{
 					acc.Address,
 					acc.SelfDelegation.String(),
-					acc.Peer,
+					peer,
 				})
 			}
 			if len(validatorEntries) > 0 {
@@ -313,7 +318,11 @@ func newNetworkChainShowPeers() *cobra.Command {
 
 			peers := make([]string, 0)
 			for _, acc := range genVals {
-				peers = append(peers, acc.Peer)
+				peer, err := network.PeerAddress(acc.Peer)
+				if err != nil {
+					return err
+				}
+				peers = append(peers, peer)
 			}
 			nb.Spinner.Stop()
 			if len(peers) > 0 {

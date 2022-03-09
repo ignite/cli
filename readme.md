@@ -29,17 +29,18 @@ To learn more about building a JavaScript frontend for your Cosmos SDK blockchai
 
 ## Questions
 
-For questions and support, join the official [Starport Discord](https://discord.gg/starport) server. The issue list in this repo is exclusively for bug reports and feature requests.
+For questions and support, join the official [Starport Discord](https://discord.gg/ignt) server. The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK Compatibility
 
 Blockchains created with Starport use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the best possible experience, use the version of Starport that corresponds to the version of Cosmos SDK that your blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
-| Starport | Cosmos SDK | Notes                                            |
-| -------- | ---------- | ------------------------------------------------ |
-| v0.19    | v0.44      | |
-| v0.18    | v0.44      | `starport chain serve` works with v0.44.x chains |
-| v0.17    | v0.42      | |
+| Starport | Cosmos SDK | IBC                  | Notes                                            |
+| -------- | ---------- | -------------------- | ------------------------------------------------ |
+| v0.19.2  | v0.44.5    | v2.0.2               | |
+| v0.19    | v0.44      | v1.2.2               | |
+| v0.18    | v0.44      | v1.2.2               | `starport chain serve` works with v0.44.x chains |
+| v0.17    | v0.42      | Same with Cosmos SDK | |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migration guide](https://docs.starport.com/migration/).
 
@@ -53,12 +54,12 @@ If you're not sure where to start, check out [contributing.md](contributing.md) 
 
 ## Community
 
-Starport is a free and open-source product maintained by [Tendermint](https://tendermint.com). Here's where you can find us. Stay in touch.
+Starport is a free and open-source product maintained by [Ignite](https://ignt.com). Here's where you can find us. Stay in touch.
 
 - [Starport.com website](https://starport.com)
 - [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
 - [Starport.com/blog](https://starport.com/blog/)
-- [Starport Discord](https://discord.gg/starport)
+- [Starport Discord](https://discord.gg/ignt)
 - [Starport YouTube](https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q)
 - [Starport docs](https://docs.starport.com/)
-- [Tendermint jobs](https://tendermint.com/careers)
+- [Ignite jobs](https://ignt.com/careers/)

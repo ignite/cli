@@ -31,11 +31,10 @@ Create your `blogclient` directory first, change your current working directory,
 mkdir blogclient
 cd blogclient
 go mod init github.com/cosmonaut/blogclient
+touch main.go
 ```
 
 The `go.mod` file is created inside your `blogclient` directory.
-
-Create the `main.go` file and add the content as follows.
 
 Your blockchain client has only two dependencies: 
 
@@ -49,7 +48,7 @@ go 1.17
 
 require (
 	github.com/cosmonaut/blog v0.0.0-00010101000000-000000000000
-	github.com/tendermint/starport v0.18.0
+	github.com/tendermint/starport v0.19.2
 )
 
 replace github.com/cosmonaut/blog => ../blog
@@ -121,7 +120,7 @@ func main() {
 	// instantiate a query client for your `blog` blockchain
 	queryClient := types.NewQueryClient(cosmos.Context)
 
-	// query the blockchain using the client's `PostAll` method to get all posts
+	// query the blockchain using the client's `Posts` method to get all posts
 	// store all posts in queryResp
 	queryResp, err := queryClient.Posts(context.Background(), &types.QueryPostsRequest{})
 	if err != nil {
@@ -146,8 +145,6 @@ Make sure your blog blockchain is still running with `starport chain serve`.
 Install dependencies for your `blogclient`:
 
 ```bash
-cd blogclient
-
 go mod tidy
 ```
 
