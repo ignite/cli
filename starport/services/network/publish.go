@@ -3,6 +3,8 @@ package network
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -19,7 +21,9 @@ type publishOptions struct {
 	chainID     string
 	campaignID  uint64
 	noCheck     bool
+	metadata    []byte
 	totalShares campaigntypes.Shares
+	totalSupply sdk.Coins
 }
 
 // PublishOption configures chain creation.
@@ -57,6 +61,20 @@ func WithCustomGenesis(url string) PublishOption {
 func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
 	return func(o *publishOptions) {
 		o.totalShares = totalShares
+	}
+}
+
+// WithMetadata provides a meta data proposal to update the campaign.
+func WithMetadata(metadata string) PublishOption {
+	return func(c *publishOptions) {
+		c.metadata = []byte(metadata)
+	}
+}
+
+// WithTotalSupply provides a total supply proposal to update the campaign.
+func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
+	return func(c *publishOptions) {
+		c.totalSupply = totalSupply
 	}
 }
 
@@ -121,8 +139,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
 			coordinatorAddress,
 			c.Name(),
-			nil,
-			nil,
+			o.totalSupply,
+			o.metadata,
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {

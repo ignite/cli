@@ -71,7 +71,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 				flagCampaignMetadata,
 				flagCampaignTotalShares,
 				flagCampaignTotalSupply,
-			}, ","),
+			}, ", "),
 		)
 	}
 
@@ -103,6 +103,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("")
 
 	info, err := yaml.Marshal(cmd.Context(), campaign)
 	if err != nil {
