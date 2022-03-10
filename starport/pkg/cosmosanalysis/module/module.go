@@ -3,11 +3,11 @@ package module
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"path/filepath"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )

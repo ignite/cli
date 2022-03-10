@@ -99,7 +99,7 @@ func GetRegisteredModules(pathToApp string) ([]string, error) {
 					return false
 				}
 
-				if pkgsReg := lookForRegisterApiRouters(n); pkgsReg != nil {
+				if pkgsReg := lookForRegisterAPIRouters(n); pkgsReg != nil {
 					for _, rp := range pkgsReg {
 						importModule := importMap[rp]
 						if importModule == "" {
@@ -119,7 +119,7 @@ func GetRegisteredModules(pathToApp string) ([]string, error) {
 	return basicModules, nil
 }
 
-func extractImports(f *ast.File) map[string]string {
+func extractImports(f ast.Node) map[string]string {
 	importMap := make(map[string]string) // name -> import
 	ast.Inspect(f, func(n ast.Node) bool {
 		// look for struct methods.
@@ -184,7 +184,7 @@ func lookForBasicManagerRegistrations(n ast.Node) []string {
 	return nil
 }
 
-func lookForRegisterApiRouters(n ast.Node) []string {
+func lookForRegisterAPIRouters(n ast.Node) []string {
 	funcLitType, ok := n.(*ast.FuncDecl)
 	if ok && funcLitType.Name.Name == "RegisterAPIRoutes" {
 		packagesRegistered := make([]string, 0)
