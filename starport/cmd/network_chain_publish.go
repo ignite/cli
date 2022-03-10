@@ -6,21 +6,22 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
+
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (
-	flagTag         = "tag"
-	flagBranch      = "branch"
-	flagHash        = "hash"
-	flagGenesis     = "genesis"
-	flagCampaign    = "campaign"
-	flagNoCheck     = "no-check"
-	flagChainID     = "chain-id"
-	flagMainnet     = "mainnet"
-	flagTotalSupply = "total-supply"
+	flagTag      = "tag"
+	flagBranch   = "branch"
+	flagHash     = "hash"
+	flagGenesis  = "genesis"
+	flagCampaign = "campaign"
+	flagNoCheck  = "no-check"
+	flagChainID  = "chain-id"
+	flagMainnet  = "mainnet"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -39,8 +40,13 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
+	// FIXME: total shares cannot be set if the campaign doesn't have dynamic shares.
+	// TODO: we should update the SPN to accept dynamic shares before enabling this flag
+	// c.Flags().String(flagCampaignTotalShares, "", "Add a total shares to the campaign")
+	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
+	c.Flags().String(flagCampaignTotalShares, "", "Add a shares supply for the campaign")
+	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
-	c.Flags().String(flagTotalSupply, "", "Add total supply to the mainnet campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -51,28 +57,40 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source            = args[0]
-		tag, _            = cmd.Flags().GetString(flagTag)
-		branch, _         = cmd.Flags().GetString(flagBranch)
-		hash, _           = cmd.Flags().GetString(flagHash)
-		genesisURL, _     = cmd.Flags().GetString(flagGenesis)
-		chainID, _        = cmd.Flags().GetString(flagChainID)
-		campaign, _       = cmd.Flags().GetUint64(flagCampaign)
-		noCheck, _        = cmd.Flags().GetBool(flagNoCheck)
-		isMainnet, _      = cmd.Flags().GetBool(flagMainnet)
-		totalSupplyStr, _ = cmd.Flags().GetString(flagTotalSupply)
+		source                    = args[0]
+		tag, _                    = cmd.Flags().GetString(flagTag)
+		branch, _                 = cmd.Flags().GetString(flagBranch)
+		hash, _                   = cmd.Flags().GetString(flagHash)
+		genesisURL, _             = cmd.Flags().GetString(flagGenesis)
+		chainID, _                = cmd.Flags().GetString(flagChainID)
+		campaign, _               = cmd.Flags().GetUint64(flagCampaign)
+		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
+		campaignMetadata, _       = cmd.Flags().GetString(flagCampaignMetadata)
+		campaignTotalSharesStr, _ = cmd.Flags().GetString(flagCampaignTotalShares)
+		campaignTotalSupplyStr, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
+		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
 	)
 
-	if campaign != 0 && totalSupplyStr != "" {
-		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagTotalSupply)
+	if campaign != 0 && campaignTotalSupplyStr != "" {
+		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagCampaignTotalSupply)
 	}
-	if isMainnet && campaign == 0 && totalSupplyStr == "" {
+	if isMainnet && campaign == 0 && campaignTotalSupplyStr == "" {
 		return fmt.Errorf(
 			"%s flag requires one of the %s or %s flags to be set",
 			flagMainnet,
 			flagCampaign,
-			flagTotalSupply,
+			flagCampaignTotalSupply,
 		)
+	}
+
+	totalShares, err := campaigntypes.NewShares(campaignTotalSharesStr)
+	if err != nil {
+		return err
+	}
+
+	totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
+	if err != nil {
+		return err
 	}
 
 	nb, err := newNetworkBuilder(cmd)
@@ -117,7 +135,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var publishOptions []network.PublishOption
+	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
 	if genesisURL != "" {
 		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
@@ -125,8 +143,8 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if campaign != 0 {
 		publishOptions = append(publishOptions, network.WithCampaign(campaign))
-	} else if totalSupplyStr != "" {
-		totalSupply, err := sdk.ParseCoinsNormalized(totalSupplyStr)
+	} else if campaignTotalSupplyStr != "" {
+		totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
 		if err != nil {
 			return err
 		}
@@ -142,6 +160,14 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if isMainnet {
 		publishOptions = append(publishOptions, network.Mainnet())
+	}
+
+	if !totalSupply.Empty() {
+		publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
+	}
+
+	if !totalShares.Empty() {
+		publishOptions = append(publishOptions, network.WithTotalShares(totalShares))
 	}
 
 	if noCheck {

@@ -20,8 +20,10 @@ type publishOptions struct {
 	chainID     string
 	campaignID  uint64
 	noCheck     bool
-	mainnet     bool
+	metadata    string
+	totalShares campaigntypes.Shares
 	totalSupply sdk.Coins
+	mainnet     bool
 }
 
 // PublishOption configures chain creation.
@@ -55,10 +57,24 @@ func WithCustomGenesis(url string) PublishOption {
 	}
 }
 
-// WithTotalSupply add a total supply to campaign
-func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
+// WithTotalShares provides a campaign total shares
+func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
 	return func(o *publishOptions) {
-		o.totalSupply = totalSupply
+		o.totalShares = totalShares
+	}
+}
+
+// WithMetadata provides a meta data proposal to update the campaign.
+func WithMetadata(metadata string) PublishOption {
+	return func(c *publishOptions) {
+		c.metadata = metadata
+	}
+}
+
+// WithTotalSupply provides a total supply proposal to update the campaign.
+func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
+	return func(c *publishOptions) {
+		c.totalSupply = totalSupply
 	}
 }
 
@@ -127,7 +143,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, 0, err
 		}
 	} else {
-		campaignID, err = n.CreateCampaign(c.Name(), "", o.totalSupply)
+		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -152,6 +168,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
 		return 0, 0, 0, err
+	}
+
+	if !o.totalShares.Empty() {
+		if err := n.UpdateCampaign(campaignID, WithCampaignTotalShares(o.totalShares)); err != nil {
+			return 0, 0, 0, err
+		}
 	}
 
 	if o.mainnet {
