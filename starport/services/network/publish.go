@@ -3,6 +3,8 @@ package network
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -15,10 +17,13 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL string
-	chainID    string
-	campaignID uint64
-	noCheck    bool
+	genesisURL  string
+	chainID     string
+	campaignID  uint64
+	noCheck     bool
+	metadata    []byte
+	totalShares campaigntypes.Shares
+	totalSupply sdk.Coins
 }
 
 // PublishOption configures chain creation.
@@ -49,6 +54,27 @@ func WithNoCheck() PublishOption {
 func WithCustomGenesis(url string) PublishOption {
 	return func(o *publishOptions) {
 		o.genesisURL = url
+	}
+}
+
+// WithTotalShares provides a campaign total shares
+func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
+	return func(o *publishOptions) {
+		o.totalShares = totalShares
+	}
+}
+
+// WithMetadata provides a meta data proposal to update the campaign.
+func WithMetadata(metadata string) PublishOption {
+	return func(c *publishOptions) {
+		c.metadata = []byte(metadata)
+	}
+}
+
+// WithTotalSupply provides a total supply proposal to update the campaign.
+func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
+	return func(c *publishOptions) {
+		c.totalSupply = totalSupply
 	}
 }
 
@@ -113,8 +139,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
 			coordinatorAddress,
 			c.Name(),
-			nil,
-			nil,
+			o.totalSupply,
+			o.metadata,
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {
@@ -155,6 +181,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 	if err := n.SetValidatorConsAddress(ctx, validatorKeyPath); err != nil {
 		return 0, 0, err
+	}
+
+	if !o.totalShares.Empty() {
+		if err := n.UpdateCampaign(campaignID, WithCampaignTotalShares(o.totalShares)); err != nil {
+			return createChainRes.LaunchID, campaignID, err
+		}
 	}
 
 	return createChainRes.LaunchID, campaignID, nil
