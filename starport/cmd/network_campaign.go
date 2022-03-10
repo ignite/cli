@@ -15,7 +15,7 @@ func NewNetworkCampaign() *cobra.Command {
 	c.AddCommand(
 		NewNetworkCampaignList(),
 		NewNetworkCampaignShow(),
+		NewNetworkCampaignUpdate(),
 	)
-
 	return c
 }
