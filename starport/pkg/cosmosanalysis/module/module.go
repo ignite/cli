@@ -12,6 +12,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
+const appFolder = "app"
+
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
 
@@ -91,7 +93,7 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		return nil, err
 	}
 
-	rm, err := app.GetRegisteredModules(filepath.Join(chainRoot, "app"))
+	registeredModules, err := app.FindRegisteredModules(filepath.Join(chainRoot, appFolder))
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +102,7 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 
 	// Just filter out the registered modules that are not possibly relevant here
 	potentialModules := make([]string, 0)
-	for _, m := range rm {
+	for _, m := range registeredModules {
 		if strings.HasPrefix(m, basegopath) {
 			potentialModules = append(potentialModules, m)
 		}
@@ -144,10 +146,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
 	pkgpath := filepath.Join(d.sourcePath, pkgrelpath)
 
-	if len(pkg.Services) == 0 {
-		return Module{}, nil
-	}
-
 	found, err := d.pkgIsFromRegisteredModule(pkg)
 	if err != nil {
 		return Module{}, err
@@ -159,6 +157,10 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	msgs, err := cosmosanalysis.FindImplementation(pkgpath, messageImplementation)
 	if err != nil {
 		return Module{}, err
+	}
+
+	if len(pkg.Services)+len(msgs) == 0 {
+		return Module{}, nil
 	}
 
 	namesplit := strings.Split(pkg.Name, ".")

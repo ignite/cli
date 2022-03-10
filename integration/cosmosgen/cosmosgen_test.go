@@ -122,25 +122,30 @@ func TestCosmosGen(t *testing.T) {
 		"cosmos.vesting.v1beta1",
 	}
 
-	var expectedChainModules = []string{
+	var expectedCustomModules = []string{
 		"test.blog.blog",
 		"test.blog.withmsg",
 		"test.blog.withoutmsg",
 	}
 
-	for _, chainModule := range expectedChainModules {
-		_, statErr := os.Stat(filepath.Join(path, "vue", "src", "store", "generated", "test", "blog", chainModule))
+	dirGenerated := filepath.Join(path, "vue/src/store/generated")
+	for _, chainModule := range expectedCustomModules {
+		_, statErr := os.Stat(filepath.Join(dirGenerated, "test", "blog", chainModule))
 		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s vuex store should have be generated", chainModule))
+		require.NoError(t, statErr)
 	}
 
-	chainDir, _ := os.ReadDir(filepath.Join(path, "vue", "src", "store", "generated", "test", "blog"))
-	require.Equal(t, len(expectedChainModules), len(chainDir), "no extra modules should have been generated in chain dir")
+	chainDir, err := os.ReadDir(filepath.Join(dirGenerated, "test", "blog"))
+	require.Equal(t, len(expectedCustomModules), len(chainDir), "no extra modules should have been generated in chain dir")
+	require.NoError(t, err)
 
 	for _, cosmosModule := range expectedCosmosModules {
-		_, statErr := os.Stat(filepath.Join(path, "vue", "src", "store", "generated", "cosmos", "cosmos-sdk", cosmosModule))
+		_, statErr := os.Stat(filepath.Join(dirGenerated, "cosmos", "cosmos-sdk", cosmosModule))
 		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s vuex store should have be generated", cosmosModule))
+		require.NoError(t, statErr)
 	}
 
-	cosmosDirs, _ := os.ReadDir(filepath.Join(path, "vue", "src", "store", "generated", "cosmos", "cosmos-sdk"))
+	cosmosDirs, err := os.ReadDir(filepath.Join(dirGenerated, "cosmos", "cosmos-sdk"))
 	require.Equal(t, len(expectedCosmosModules), len(cosmosDirs), "no extra modules should have been generated in cosmos")
+	require.NoError(t, err)
 }

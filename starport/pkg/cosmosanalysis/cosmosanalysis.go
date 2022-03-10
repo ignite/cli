@@ -24,8 +24,6 @@ type implementation map[string]bool
 // DeepFindImplementation does the same as FindImplementation, but walks recursively through the folder structure
 // Useful if implementations might be in sub folders
 func DeepFindImplementation(modulePath string, interfaceList []string) (found []string, err error) {
-	found = make([]string, 0)
-
 	err = filepath.Walk(modulePath,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {

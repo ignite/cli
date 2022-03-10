@@ -70,7 +70,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	sdkmodule "github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -154,7 +154,7 @@ import (
 )
 
 var (
-	ModuleBasics = module.NewBasicManager(
+	ModuleBasics = sdkmodule.NewBasicManager(
 		auth.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
@@ -234,15 +234,13 @@ func TestCheckKeeper(t *testing.T) {
 }
 
 func TestGetRegisteredModules(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "app_test")
-	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpDir := t.TempDir()
 
 	tmpFile := filepath.Join(tmpDir, "app.go")
-	err = os.WriteFile(tmpFile, FullAppFile, 0644)
+	err := os.WriteFile(tmpFile, FullAppFile, 0644)
 	require.NoError(t, err)
 
-	registeredModules, err := app.GetRegisteredModules(tmpDir)
+	registeredModules, err := app.FindRegisteredModules(tmpDir)
 	require.NoError(t, err)
 	require.ElementsMatch(t, []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
