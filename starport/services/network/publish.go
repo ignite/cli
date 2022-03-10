@@ -173,7 +173,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	// FIXME: get the operator address from the cosmos-sdk
 	operatorAddress := ""
 	if err := n.SetValidatorOperatorAddress(operatorAddress); err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
 	if !o.totalShares.Empty() {
