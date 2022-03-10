@@ -175,11 +175,9 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		return 0, 0, err
 	}
 
-	validatorKeyPath, err := c.ValidatorKeyPath()
-	if err != nil {
-		return 0, 0, err
-	}
-	if err := n.SetValidatorConsAddress(ctx, validatorKeyPath); err != nil {
+	// FIXME: get the operator address from the cosmos-sdk
+	operatorAddress := ""
+	if err := n.SetValidatorOperatorAddress(ctx, operatorAddress); err != nil {
 		return 0, 0, err
 	}
 
