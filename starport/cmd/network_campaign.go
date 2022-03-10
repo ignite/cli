@@ -11,8 +11,8 @@ func NewNetworkCampaign() *cobra.Command {
 		Use:   "campaign",
 		Short: "Handle campaigns",
 	}
-
 	c.AddCommand(
+		NewNetworkCampaignPublish(),
 		NewNetworkCampaignList(),
 		NewNetworkCampaignShow(),
 		NewNetworkCampaignUpdate(),
