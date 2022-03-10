@@ -1,7 +1,6 @@
 package network
 
 import (
-	"context"
 	"fmt"
 
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -11,7 +10,7 @@ import (
 )
 
 // SetValidatorOperatorAddress associates a Tendermint operator address to a specific validator address on SPN
-func (n Network) SetValidatorOperatorAddress(ctx context.Context, operatorAddress string) error {
+func (n Network) SetValidatorOperatorAddress(operatorAddress string) error {
 	acc := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing,
 		fmt.Sprintf("Adding the operator address %s to validator %s", operatorAddress, acc)))
