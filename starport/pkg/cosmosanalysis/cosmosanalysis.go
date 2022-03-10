@@ -7,6 +7,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
+	"path/filepath"
 
 	"golang.org/x/mod/modfile"
 )
@@ -18,6 +20,36 @@ const (
 
 // implementation tracks the implementation of an interface for a given struct
 type implementation map[string]bool
+
+// DeepFindImplementation does the same as FindImplementation, but walks recursively through the folder structure
+// Useful if implementations might be in sub folders
+func DeepFindImplementation(modulePath string, interfaceList []string) (found []string, err error) {
+	found = make([]string, 0)
+
+	err = filepath.Walk(modulePath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() {
+				return nil
+			}
+
+			currFound, err := FindImplementation(path, interfaceList)
+			if err != nil {
+				return err
+			}
+
+			found = append(found, currFound...)
+			return nil
+		})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return found, nil
+}
 
 // FindImplementation finds the name of all types that implement the provided interface
 func FindImplementation(modulePath string, interfaceList []string) (found []string, err error) {
