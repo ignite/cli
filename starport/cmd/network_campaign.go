@@ -11,10 +11,10 @@ func NewNetworkCampaign() *cobra.Command {
 		Use:   "campaign",
 		Short: "Handle campaigns",
 	}
-
 	c.AddCommand(
 		NewNetworkCampaignList(),
 		NewNetworkCampaignShow(),
+		NewNetworkCampaignUpdate(),
 		NewNetworkCampaignAccount(),
 	)
 	return c
