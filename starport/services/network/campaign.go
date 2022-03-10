@@ -69,7 +69,8 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	var campaigns []networktypes.Campaign
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
-	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+		CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
 		return campaigns, err
 	}
@@ -80,6 +81,60 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	}
 
 	return campaigns, nil
+}
+
+// CreateCampaign creates a campaign in Starport Network
+func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
+	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
+
+	msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
+		n.account.Address(networktypes.SPN),
+		name,
+		totalSupply,
+		[]byte(metadata),
+	)
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
+	if err != nil {
+		return 0, err
+	}
+
+	var createCampaignRes campaigntypes.MsgCreateCampaignResponse
+	if err := res.Decode(&createCampaignRes); err != nil {
+		return 0, err
+	}
+
+	return createCampaignRes.CampaignID, nil
+}
+
+// InitializeMainnet Initialize the mainnet of the campaign.
+func (n Network) InitializeMainnet(
+	campaignID uint64,
+	sourceURL,
+	sourceHash string,
+	mainnetChainID string,
+) (uint64, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Initializing the mainnet campaign"))
+	msg := campaigntypes.NewMsgInitializeMainnet(
+		n.account.Address(networktypes.SPN),
+		campaignID,
+		sourceURL,
+		sourceHash,
+		mainnetChainID,
+	)
+
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return 0, err
+	}
+
+	var initMainnetRes campaigntypes.MsgInitializeMainnetResponse
+	if err := res.Decode(&initMainnetRes); err != nil {
+		return 0, err
+	}
+
+	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf("Campaign %d initialized on mainnet", campaignID)))
+
+	return initMainnetRes.MainnetID, nil
 }
 
 // UpdateCampaign updates the campaign name or metadata
