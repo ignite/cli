@@ -3,6 +3,7 @@ package events
 import (
 	"testing"
 
+	"github.com/gookit/color"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,7 +17,7 @@ func TestBusSend(t *testing.T) {
 			name: "send status ongoing event",
 			bus:  make(Bus),
 			event: Event{
-				status:      StatusOngoing,
+				Status:      StatusOngoing,
 				Description: "description",
 			},
 		},
@@ -24,7 +25,7 @@ func TestBusSend(t *testing.T) {
 			name: "send status done event",
 			bus:  make(Bus),
 			event: Event{
-				status:      StatusDone,
+				Status:      StatusDone,
 				Description: "description",
 			},
 		},
@@ -32,7 +33,7 @@ func TestBusSend(t *testing.T) {
 			name: "send event on nil bus",
 			bus:  nil,
 			event: Event{
-				status:      StatusDone,
+				Status:      StatusDone,
 				Description: "description",
 			},
 		},
@@ -76,7 +77,7 @@ func TestBusShutdown(t *testing.T) {
 func TestEventIsOngoing(t *testing.T) {
 	type fields struct {
 		status      Status
-		Description string
+		description string
 	}
 	tests := []struct {
 		name   string
@@ -89,8 +90,8 @@ func TestEventIsOngoing(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := Event{
-				status:      tt.fields.status,
-				Description: tt.fields.Description,
+				Status:      tt.fields.status,
+				Description: tt.fields.description,
 			}
 			require.Equal(t, tt.want, e.IsOngoing())
 		})
@@ -100,7 +101,8 @@ func TestEventIsOngoing(t *testing.T) {
 func TestEventText(t *testing.T) {
 	type fields struct {
 		status      Status
-		Description string
+		description string
+		textColor   color.Color
 	}
 	tests := []struct {
 		name   string
@@ -108,28 +110,41 @@ func TestEventText(t *testing.T) {
 		want   string
 	}{
 		{
-			name:   "status done",
-			fields: fields{StatusDone, "description"},
-			want:   "description",
+			name: "status done",
+			fields: fields{
+				status:      StatusDone,
+				description: "description",
+				textColor:   color.Red,
+			},
+			want: "description",
 		},
 		{
-			name:   "status ongoing",
-			fields: fields{StatusOngoing, "description"},
-			want:   "description...",
+			name: "status ongoing",
+			fields: fields{
+				status:      StatusOngoing,
+				description: "description",
+				textColor:   color.Red,
+			},
+			want: "description...",
 		},
 		{
-			name:   "status ongoing with empty description",
-			fields: fields{StatusOngoing, ""},
-			want:   "...",
+			name: "status ongoing with empty description",
+			fields: fields{
+				status:      StatusOngoing,
+				description: "",
+				textColor:   color.Red,
+			},
+			want: "...",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := Event{
-				status:      tt.fields.status,
-				Description: tt.fields.Description,
+				Status:      tt.fields.status,
+				Description: tt.fields.description,
+				TextColor:   tt.fields.textColor,
 			}
-			require.Equal(t, tt.want, e.Text())
+			require.Equal(t, e.TextColor.Render(tt.want), e.Text())
 		})
 	}
 }
@@ -145,9 +160,9 @@ func TestNew(t *testing.T) {
 		want Event
 	}{
 		{"zero value args", args{}, Event{}},
-		{"large value args", args{99999, "description"}, Event{99999, "description"}},
-		{"status ongoing", args{StatusOngoing, "description"}, Event{0, "description"}},
-		{"status done", args{StatusDone, "description"}, Event{1, "description"}},
+		{"large value args", args{status: 99999, description: "description"}, Event{Status: 99999, Description: "description"}},
+		{"status ongoing", args{status: StatusOngoing, description: "description"}, Event{Status: 0, Description: "description"}},
+		{"status done", args{status: StatusDone, description: "description"}, Event{Status: 1, Description: "description"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -161,8 +176,8 @@ func TestNewBus(t *testing.T) {
 		name  string
 		event Event
 	}{
-		{"new bus with status done event", Event{StatusDone, "description"}},
-		{"new bus with status ongoing event", Event{StatusOngoing, "description"}},
+		{"new bus with status done event", Event{Status: StatusDone, Description: "description"}},
+		{"new bus with status ongoing event", Event{Status: StatusOngoing, Description: "description"}},
 		{"new bus with zero value event", Event{}},
 	}
 	for _, tt := range tests {
