@@ -6,10 +6,13 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/goanalysis"
 )
+
+const appFileName = "app.go"
 
 var appImplementation = []string{
 	"RegisterAPIRoutes",
@@ -72,7 +75,7 @@ func CheckKeeper(path, keeperName string) error {
 }
 
 // FindRegisteredModules looks for all the registered modules in the App
-// It connects the imported go module to the registered module and returns a list of the go modules that are registered
+// It finds activated modules by checking if imported modules are registered in the app and also checking if their query clients are registered
 // It does so by:
 // 1. Mapping out all the imports and named imports
 // 2. Looking for the call to module.NewBasicManager and finds the modules registered there
@@ -87,6 +90,10 @@ func FindRegisteredModules(pathToApp string) ([]string, error) {
 	var basicModules []string
 	for _, pkg := range pkgs {
 		for p, f := range pkg.Files {
+			if !strings.HasSuffix(p, appFileName) {
+				continue
+			}
+
 			packages, err := goanalysis.FindImportedPackages(p)
 			if err != nil {
 				return nil, err

@@ -240,6 +240,10 @@ func TestGetRegisteredModules(t *testing.T) {
 	err := os.WriteFile(tmpFile, FullAppFile, 0644)
 	require.NoError(t, err)
 
+	tmpNoAppFile := filepath.Join(tmpDir, "someOtherFile.go")
+	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0644)
+	require.NoError(t, err)
+
 	registeredModules, err := app.FindRegisteredModules(tmpDir)
 	require.NoError(t, err)
 	require.ElementsMatch(t, []string{
