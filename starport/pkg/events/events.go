@@ -36,6 +36,20 @@ const (
 	StatusDone
 )
 
+// TextColor sets the text color
+func TextColor(c color.Color) Option {
+	return func(e *Event) {
+		e.TextColor = c
+	}
+}
+
+// Icon sets the text icon prefix
+func Icon(icon string) Option {
+	return func(e *Event) {
+		e.Icon = icon
+	}
+}
+
 // New creates a new event with given config.
 func New(status Status, description string, options ...Option) Event {
 	ev := Event{Status: status, Description: description}
