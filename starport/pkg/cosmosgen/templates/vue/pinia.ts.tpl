@@ -7,7 +7,7 @@ import {
 {{ end }}
 } from "ts-client/{{ .Module.Pkg.Name }}/types";
 
- type PiniaState = {
+type PiniaState = {
 	{{ range .Module.Types }}{{ .Name }}All: {{ .Name }}[],
 	{{ end }}
 };
@@ -18,9 +18,9 @@ const piniaStore = {
 		{{ range .Module.Types }}{{ .Name }}All: [],
 		{{ end }}
     }
-  }
+  },
 };
 
 const usePiniaStore = defineStore('{{ .Module.Pkg.Name }}', piniaStore); 
 
-export default usePiniaStore;
+export { usePiniaStore, PiniaState };

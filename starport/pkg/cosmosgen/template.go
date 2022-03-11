@@ -8,16 +8,17 @@ import (
 	"text/template"
 
 	"github.com/iancoleman/strcase"
+	"github.com/takuoki/gocase"
 )
 
 var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateTSClientRoot      = newTemplateWriter("root")
-	templateTSClientModule    = newTemplateWriter("module")
-	templateTSClientPinia     = newTemplateWriter("pinia")
-	templateTSClientPiniaRoot = newTemplateWriter("pinia-root")
+	templateTSClientRoot    = newTemplateWriter("root")
+	templateTSClientModule  = newTemplateWriter("module")
+	templateTSClientVue     = newTemplateWriter("vue")
+	templateTSClientVueRoot = newTemplateWriter("vue-root")
 )
 
 type templateWriter struct {
@@ -48,6 +49,9 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 	funcs := template.FuncMap{
 		"camelCase": strcase.ToLowerCamel,
+		"camelCaseSta": func(word string) string {
+			return gocase.Revert(strcase.ToLowerCamel(word))
+		},
 		"resolveFile": func(fullPath string) string {
 			rel, _ := filepath.Rel(protoPath, fullPath)
 			rel = strings.TrimSuffix(rel, ".proto")

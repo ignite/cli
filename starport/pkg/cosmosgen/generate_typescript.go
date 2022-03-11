@@ -45,7 +45,7 @@ func (g *generator) generateTS() error {
 		return err
 	}
 
-	if err := tsg.generatePiniaStores(); err != nil {
+	if err := tsg.generateVue(); err != nil {
 		return err
 	}
 
@@ -56,19 +56,21 @@ func (g *generator) generateTS() error {
 	return nil
 }
 
-func (g *tsGenerator) generatePiniaStores() error {
+func (g *tsGenerator) generateVue() error {
 	gg := &errgroup.Group{}
 
 	add := func(modules []module.Module) {
 		for _, m := range modules {
 			m := m
 			gg.Go(func() error {
-				path := filepath.Join(g.g.o.tsClientRootPath, "pinia", m.Pkg.Name)
+				path := filepath.Join(g.g.o.tsClientRootPath, "vue", m.Pkg.Name)
 
 				if err := os.MkdirAll(path, 0766); err != nil {
 					return err
 				}
-				if err := templateTSClientPinia.Write(path, "", struct{ Module module.Module }{m}); err != nil {
+
+				m.Name = strcase.ToCamel(m.Pkg.Name)
+				if err := templateTSClientVue.Write(path, "", struct{ Module module.Module }{m}); err != nil {
 					return err
 				}
 
@@ -240,11 +242,11 @@ func (g *tsGenerator) generateRootClasses() error {
 		return err
 	}
 
-	piniaOut := filepath.Join(g.g.o.tsClientRootPath, "pinia")
-	if err := os.MkdirAll(piniaOut, 0766); err != nil {
+	vueOut := filepath.Join(g.g.o.tsClientRootPath, "vue")
+	if err := os.MkdirAll(vueOut, 0766); err != nil {
 		return err
 	}
-	if err := templateTSClientPiniaRoot.Write(piniaOut, "", data); err != nil {
+	if err := templateTSClientVueRoot.Write(vueOut, "", data); err != nil {
 		return err
 	}
 
