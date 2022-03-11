@@ -56,7 +56,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 	}
 
 	if setRewardRes.NewCoins.Empty() {
-		n.ev.Send(events.New(events.StatusDone, "The reward pool was removed"))
+		n.ev.Send(events.New(events.StatusDone, "The reward pool is removed"))
 	} else {
 		n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
 			"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
