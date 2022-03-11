@@ -1,14 +1,14 @@
 package starportcmd
 
 import (
-	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
 const (
@@ -39,26 +39,12 @@ Starport uses accounts to interact with the Starport Network blockchain, use an 
 	return c
 }
 
-func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) {
-	w := &tabwriter.Writer{}
-	w.Init(os.Stdout, 0, 8, 0, '\t', 0)
-
-	if len(accounts) == 0 {
-		return
-	}
-
-	fmt.Fprintln(w, "name\taddress\tpublic key")
-
+func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) error {
+	var accEntries [][]string
 	for _, acc := range accounts {
-		fmt.Fprintf(w, "%s\t%s\t%s\n",
-			acc.Name,
-			acc.Address(getAddressPrefix(cmd)),
-			acc.PubKey(),
-		)
+		accEntries = append(accEntries, []string{acc.Name, acc.Address(getAddressPrefix(cmd)), acc.PubKey()})
 	}
-
-	fmt.Fprintln(w)
-	w.Flush()
+	return entrywriter.MustWrite(os.Stdout, []string{"name", "address", "public key"}, accEntries...)
 }
 
 func flagSetKeyringBackend() *flag.FlagSet {

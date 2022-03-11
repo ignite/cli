@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -264,6 +265,11 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
+// SetHome sets the chain home directory.
+func (c *Chain) SetHome(home string) {
+	c.options.homePath = home
+}
+
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() (string, error) {
 	// check if home is explicitly defined for the app
@@ -298,6 +304,15 @@ func (c *Chain) DefaultHome() (string, error) {
 	return c.plugin.Home(), nil
 }
 
+// DefaultGentxPath returns default gentx.json path of the app.
+func (c *Chain) DefaultGentxPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/gentx/gentx.json"), nil
+}
+
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() (string, error) {
 	home, err := c.Home()
@@ -305,6 +320,15 @@ func (c *Chain) GenesisPath() (string, error) {
 		return "", err
 	}
 	return filepath.Join(home, "config/genesis.json"), nil
+}
+
+// GentxsPath returns the directory where gentxs are stored for the app.
+func (c *Chain) GentxsPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/gentx"), nil
 }
 
 // AppTOMLPath returns app.toml path of the app.

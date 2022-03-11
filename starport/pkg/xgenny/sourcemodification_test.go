@@ -1,9 +1,11 @@
 package xgenny_test
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 var (

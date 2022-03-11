@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/docs"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/markdownviewer"
@@ -11,7 +12,7 @@ func NewDocs() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "docs",
 		Short: "Show Starport docs",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE:  docsHandler,
 	}
 	return c

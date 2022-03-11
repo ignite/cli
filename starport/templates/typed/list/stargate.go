@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/typed"
@@ -19,6 +20,9 @@ var (
 
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
+
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new type in a Stargate module
@@ -34,6 +38,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsStargateComponent,
 			"stargate/component/",
+			opts.AppPath,
+		)
+		simappTemplate = xgenny.NewEmbedWalker(
+			fsStargateSimapp,
+			"stargate/simapp/",
 			opts.AppPath,
 		)
 	)
@@ -52,7 +61,13 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(protoTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
-		g.RunFn(moduleSimulationModify(replacer, opts))
+
+		if !opts.NoSimulation {
+			g.RunFn(moduleSimulationModify(replacer, opts))
+			if err := typed.Box(simappTemplate, opts, g); err != nil {
+				return nil, err
+			}
+		}
 
 		// Messages template
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
@@ -213,23 +228,23 @@ func protoQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// RPC service
-		templateRPC := `// Queries a %[3]v by id.
+		templateRPC := `// Queries a %[2]v by id.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{id}";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v/{id}";
 	}
 
-	// Queries a list of %[3]v items.
+	// Queries a list of %[2]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 %[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementRPC)
 

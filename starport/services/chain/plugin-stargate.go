@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/pelletier/go-toml"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -38,6 +39,10 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 		chaincmd.GentxWithCommissionMaxChangeRate(v.CommissionMaxChangeRate),
 		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
 		chaincmd.GentxWithGasPrices(v.GasPrices),
+		chaincmd.GentxWithDetails(v.Details),
+		chaincmd.GentxWithIdentity(v.Identity),
+		chaincmd.GentxWithWebsite(v.Website),
+		chaincmd.GentxWithSecurityContact(v.SecurityContact),
 	)
 }
 

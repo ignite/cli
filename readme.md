@@ -5,7 +5,7 @@
 [Starport](https://starport.com) is the all-in-one platform to build, launch, and maintain any crypto application on a sovereign and secured blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
 * [**Build a blockchain with Starport in a web-based IDE** (stable)](https://gitpod.io/#https://github.com/tendermint/starport/tree/master) or use [nightly version](https://gitpod.io/#https://github.com/tendermint/starport/)
-* [Check out the latest features in v0.18](https://medium.com/tendermint/starport-v0-18-cosmos-sdk-updates-and-scaffolding-enhancements-5ea5654bcd0c)
+* [Check out the latest features in v0.19](https://starport.com/blog/starport-v0-19)
 
 ## Quick start
 
@@ -29,16 +29,18 @@ To learn more about building a JavaScript frontend for your Cosmos SDK blockchai
 
 ## Questions
 
-For questions and support, join the official [Starport Discord server](https://discord.gg/7fwqwc3afK). The issue list in this repo is exclusively for bug reports and feature requests.
+For questions and support, join the official [Starport Discord](https://discord.gg/ignt) server. The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK Compatibility
 
 Blockchains created with Starport use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the best possible experience, use the version of Starport that corresponds to the version of Cosmos SDK that your blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
-| Starport | Cosmos SDK | Notes                                            |
-| -------- | ---------- | ------------------------------------------------ |
-| v0.18    | v0.44      | `starport chain serve` works with v0.44.x chains | |                                                  |
-| v0.17    | v0.42      | |
+| Starport | Cosmos SDK | IBC                  | Notes                                            |
+| -------- | ---------- | -------------------- | ------------------------------------------------ |
+| v0.19.2  | v0.44.5    | v2.0.2               | |
+| v0.19    | v0.44      | v1.2.2               | |
+| v0.18    | v0.44      | v1.2.2               | `starport chain serve` works with v0.44.x chains |
+| v0.17    | v0.42      | Same with Cosmos SDK | |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migration guide](https://docs.starport.com/migration/).
 
@@ -46,15 +48,18 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. 
 
-**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github describing the proposed changes.
+**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github that describes the proposed changes.
 
 If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Starport. Thank you to everyone who has contributed to Starport!
 
-## Stay in touch
+## Community
 
-Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
+Starport is a free and open-source product maintained by [Ignite](https://ignt.com). Here's where you can find us. Stay in touch.
 
-- [Website](https://starport.com)
-- [Twitter](https://twitter.com/StarportHQ)
-- [Blog](https://medium.com/tendermint)
-- [Jobs](https://tendermint.com/careers)
+- [Starport.com website](https://starport.com)
+- [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
+- [Starport.com/blog](https://starport.com/blog/)
+- [Starport Discord](https://discord.gg/ignt)
+- [Starport YouTube](https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q)
+- [Starport docs](https://docs.starport.com/)
+- [Ignite jobs](https://ignt.com/careers/)

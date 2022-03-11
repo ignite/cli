@@ -11,10 +11,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
+
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 // ErrGoModNotFound returned when go.mod file cannot be found for an app.
@@ -64,6 +65,9 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 	}
 
 	for _, req := range f.Require {
+		if req.Indirect {
+			continue
+		}
 		if !isReplacementAdded(req.Mod) {
 			versions = append(versions, req.Mod)
 		}

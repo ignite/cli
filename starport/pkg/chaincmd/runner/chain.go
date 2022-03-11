@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/cenkalti/backoff"
+	"github.com/pkg/errors"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -78,7 +79,7 @@ func (r Runner) Gentx(
 
 	if err := r.run(ctx, runOptions{
 		stdout: b,
-		stderr: io.MultiWriter(b, os.Stderr),
+		stderr: b,
 		stdin:  os.Stdin,
 	}, r.chainCmd.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
 		return "", err
@@ -164,7 +165,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 }
 
 // BankSend sends amount from fromAccount to toAccount.
-func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
+func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) (string, error) {
 	b := newBuffer()
 	opt := []step.Option{
 		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
@@ -182,30 +183,55 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 		if strings.Contains(err.Error(), "key not found") || // stargate
 			strings.Contains(err.Error(), "unknown address") || // launchpad
 			strings.Contains(b.String(), "item could not be found") { // launchpad
-			return errors.New("account doesn't have any balances")
+			return "", errors.New("account doesn't have any balances")
 		}
 
-		return err
+		return "", err
 	}
 
-	out := struct {
-		Code  int    `json:"code"`
-		Error string `json:"raw_log"`
-	}{}
-
-	data, err := b.JSONEnsuredBytes()
+	txResult, err := decodeTxResult(b)
 	if err != nil {
-		return err
-	}
-	if err := json.Unmarshal(data, &out); err != nil {
-		return err
+		return "", err
 	}
 
-	if out.Code > 0 {
-		return fmt.Errorf("cannot send tokens (SDK code %d): %s", out.Code, out.Error)
+	if txResult.Code > 0 {
+		return "", fmt.Errorf("cannot send tokens (SDK code %d): %s", txResult.Code, txResult.RawLog)
 	}
 
-	return nil
+	return txResult.TxHash, nil
+}
+
+// WaitTx waits until a tx is successfully added to a block and can be queried
+func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Duration, maxRetry int) error {
+	retry := 0
+
+	// retry querying the request
+	checkTx := func() error {
+		b := newBuffer()
+		if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxCommand(txHash)); err != nil {
+			// filter not found error and check for max retry
+			if !strings.Contains(err.Error(), "not found") {
+				return backoff.Permanent(err)
+			}
+			retry++
+			if retry == maxRetry {
+				return backoff.Permanent(fmt.Errorf("can't retrieve tx %s", txHash))
+			}
+			return err
+		}
+
+		// parse tx and check code
+		txResult, err := decodeTxResult(b)
+		if err != nil {
+			return backoff.Permanent(err)
+		}
+		if txResult.Code != 0 {
+			return backoff.Permanent(fmt.Errorf("tx %s failed: %s", txHash, txResult.RawLog))
+		}
+
+		return nil
+	}
+	return backoff.Retry(checkTx, backoff.WithContext(backoff.NewConstantBackOff(retryDelay), ctx))
 }
 
 // Export exports the state of the chain into the specified file

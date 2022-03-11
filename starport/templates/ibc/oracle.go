@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -99,11 +100,11 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		// Ack packet dispatch
 		templateAck := `sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if sdkResult != nil {
 		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
-		return sdkResult, nil
+		return nil
 	}
 	%[1]v`
 		replacementAck := fmt.Sprintf(templateAck, PlaceholderOraclePacketModuleAck)
@@ -132,19 +133,19 @@ func protoQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) 
 		templateService := `
   	// %[2]vResult defines a rpc handler method for Msg%[2]vData.
   	rpc %[2]vResult(Query%[2]vRequest) returns (Query%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v_result/{request_id}";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v_result/{request_id}";
   	}
 
   	// Last%[2]vId query the last %[2]v result id
   	rpc Last%[2]vId(QueryLast%[2]vIdRequest) returns (QueryLast%[2]vIdResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/last_%[3]v_id";
+		option (google.api.http).get = "/%[3]v/%[4]v/last_%[5]v_id";
   	}
 %[1]v`
 		replacementService := fmt.Sprintf(templateService, Placeholder2,
 			opts.QueryName.UpperCamel,
-			opts.QueryName.Snake,
 			opts.AppName,
 			opts.ModuleName,
+			opts.QueryName.Snake,
 		)
 		content = replacer.Replace(content, Placeholder2, replacementService)
 

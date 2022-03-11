@@ -4,10 +4,12 @@ package chaincmdrunner
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -175,4 +177,21 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 	}
 
 	return bytes, nil
+}
+
+type txResult struct {
+	Code   int    `json:"code"`
+	RawLog string `json:"raw_log"`
+	TxHash string `json:"txhash"`
+}
+
+func decodeTxResult(b *buffer) (txResult, error) {
+	var r txResult
+
+	data, err := b.JSONEnsuredBytes()
+	if err != nil {
+		return r, err
+	}
+
+	return r, json.Unmarshal(data, &r)
 }

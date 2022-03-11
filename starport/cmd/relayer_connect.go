@@ -6,6 +6,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/relayer"
@@ -31,7 +32,9 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	ca, err := cosmosaccount.New(cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)))
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
 	if err != nil {
 		return err
 	}

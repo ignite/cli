@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 )
 
@@ -52,13 +53,11 @@ func (f Bar) RegisterTendermintService() {}
 )
 
 func TestCheckKeeper(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "app_test")
-	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpDir := t.TempDir()
 
 	// Test with a source file containing an app
 	tmpFile := filepath.Join(tmpDir, "app.go")
-	err = os.WriteFile(tmpFile, AppFile, 0644)
+	err := os.WriteFile(tmpFile, AppFile, 0644)
 	require.NoError(t, err)
 
 	err = app.CheckKeeper(tmpDir, "FooKeeper")
@@ -67,9 +66,7 @@ func TestCheckKeeper(t *testing.T) {
 	require.Error(t, err)
 
 	// No app in source must return an error
-	tmpDirNoApp, err := os.MkdirTemp("", "app_test")
-	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpDirNoApp := t.TempDir()
 	tmpFileNoApp := filepath.Join(tmpDirNoApp, "app.go")
 	err = os.WriteFile(tmpFileNoApp, NoAppFile, 0644)
 	require.NoError(t, err)
@@ -77,9 +74,7 @@ func TestCheckKeeper(t *testing.T) {
 	require.Error(t, err)
 
 	// More than one app must return an error
-	tmpDirTwoApp, err := os.MkdirTemp("", "app_test")
-	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpDirTwoApp := t.TempDir()
 	tmpFileTwoApp := filepath.Join(tmpDirTwoApp, "app.go")
 	err = os.WriteFile(tmpFileTwoApp, TwoAppFile, 0644)
 	require.NoError(t, err)

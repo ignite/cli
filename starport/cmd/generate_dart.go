@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
 func NewGenerateDart() *cobra.Command {
 	c := &cobra.Command{
-		Hidden: true,
-		Use:    "dart",
-		Short:  "Generate a Dart client",
-		RunE:   generateDartHandler,
+		Use:   "dart",
+		Short: "Generate a Dart client",
+		RunE:  generateDartHandler,
 	}
 	return c
 }

@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
@@ -31,6 +32,5 @@ func accountListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printAccounts(cmd, accounts...)
-	return nil
+	return printAccounts(cmd, accounts...)
 }

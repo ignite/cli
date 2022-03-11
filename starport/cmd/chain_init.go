@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
 )
@@ -12,10 +13,11 @@ func NewChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize your chain",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE:  chainInitHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
 
 	return c

@@ -2,8 +2,10 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -42,8 +44,8 @@ func (s Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided request fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, reqFields); err != nil {
-		return sm, err
+	if ok := containCustomTypes(reqFields); ok {
+		return sm, errors.New("query request params can't contain custom type")
 	}
 	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
