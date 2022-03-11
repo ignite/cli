@@ -22,12 +22,18 @@ type Option func(*configs)
 type configs struct {
 	pluginPath             string
 	isGeneratedDepsEnabled bool
+	pluginOptions          []string
 }
 
 // Plugin configures a plugin for code generation.
 func Plugin(path string) Option {
 	return func(c *configs) {
 		c.pluginPath = path
+	}
+}
+func PluginOption(option string) Option {
+	return func(c *configs) {
+		c.pluginOptions = append(c.pluginOptions, option)
 	}
 }
 
@@ -73,6 +79,7 @@ func Command() (command Cmd, cleanup func(), err error) {
 // Generate generates code into outDir from protoPath and its includePaths by using plugins provided with protocOuts.
 func Generate(ctx context.Context, outDir, protoPath string, includePaths, protocOuts []string, options ...Option) error {
 	c := configs{}
+
 	for _, o := range options {
 		o(&c)
 	}
@@ -89,7 +96,6 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	if c.pluginPath != "" {
 		command = append(command, "--plugin", c.pluginPath)
 	}
-
 	var existentIncludePaths []string
 
 	// skip if a third party proto source actually doesn't exist on the filesystem.
@@ -115,6 +121,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	for _, out := range protocOuts {
 		command := append(command, out)
 		command = append(command, files...)
+		command = append(command, c.pluginOptions...)
 
 		if err := exec.Exec(ctx, command,
 			exec.StepOption(step.Workdir(outDir)),
