@@ -28,7 +28,6 @@ func NewNetworkCampaignList() *cobra.Command {
 	}
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
