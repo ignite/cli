@@ -41,13 +41,13 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 	if setRewardRes.PreviousCoins.Empty() {
 		n.ev.Send(events.New(
 			events.StatusDone,
-			"The reward pool is empty.",
+			"The reward pool is empty",
 			events.Icon(clispinner.Info),
 		))
 	} else {
 		n.ev.Send(events.New(events.StatusDone,
 			fmt.Sprintf(
-				"Previous reward pool %s at height %d was overwritten.",
+				"Previous reward pool %s at height %d was overwritten",
 				coins.String(),
 				lastRewardHeight,
 			),
@@ -56,7 +56,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 	}
 
 	if setRewardRes.NewCoins.Empty() {
-		n.ev.Send(events.New(events.StatusDone, "The reward pool was removed."))
+		n.ev.Send(events.New(events.StatusDone, "The reward pool was removed"))
 	} else {
 		n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
 			"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
