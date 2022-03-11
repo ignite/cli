@@ -4,13 +4,13 @@ import (
 	"context"
 	"sync"
 
-	"google.golang.org/grpc/status"
-
 	"github.com/pkg/errors"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -157,6 +157,46 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	}
 
 	return genVals, nil
+}
+
+// MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN
+func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetAccount, err error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet accounts"))
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+		MainnetAccountAll(ctx,
+			&campaigntypes.QueryAllMainnetAccountRequest{
+				CampaignID: campaignID,
+			},
+		)
+	if err != nil {
+		return genAccs, err
+	}
+
+	for _, acc := range res.MainnetAccount {
+		genAccs = append(genAccs, networktypes.ToMainnetAccount(acc))
+	}
+
+	return genAccs, nil
+}
+
+// MainnetVestingAccounts returns the list of campaign mainnet vesting accounts for a launch from SPN
+func (n Network) MainnetVestingAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetVestingAccount, err error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet vesting accounts"))
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+		MainnetVestingAccountAll(ctx,
+			&campaigntypes.QueryAllMainnetVestingAccountRequest{
+				CampaignID: campaignID,
+			},
+		)
+	if err != nil {
+		return genAccs, err
+	}
+
+	for _, acc := range res.MainnetVestingAccount {
+		genAccs = append(genAccs, networktypes.ToMainnetVestingAccount(acc))
+	}
+
+	return genAccs, nil
 }
 
 // ChainReward fetches the chain reward from SPN by launch id
