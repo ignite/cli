@@ -47,7 +47,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 	} else {
 		n.ev.Send(events.New(events.StatusDone,
 			fmt.Sprintf(
-				"Previous reward pool %s at height %d was overwritten",
+				"Previous reward pool %s at height %d is overwritten",
 				coins.String(),
 				lastRewardHeight,
 			),
