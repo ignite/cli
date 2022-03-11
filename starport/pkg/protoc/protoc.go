@@ -26,14 +26,10 @@ type configs struct {
 }
 
 // Plugin configures a plugin for code generation.
-func Plugin(path string) Option {
+func Plugin(path string, options ...string) Option {
 	return func(c *configs) {
 		c.pluginPath = path
-	}
-}
-func PluginOption(option string) Option {
-	return func(c *configs) {
-		c.pluginOptions = append(c.pluginOptions, option)
+		c.pluginOptions = options
 	}
 }
 

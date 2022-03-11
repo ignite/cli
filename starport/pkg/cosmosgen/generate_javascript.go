@@ -103,8 +103,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		m.Pkg.Path,
 		includePaths,
 		tsOut,
-		protoc.Plugin(tsprotoPluginPath),
-		protoc.PluginOption("--ts_proto_opt=snakeToCamel=false"),
+		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
 	)
 	if err != nil {
 		return err
