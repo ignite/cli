@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/field/datatype"

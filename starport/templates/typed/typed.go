@@ -5,7 +5,6 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/testutil"
@@ -44,5 +43,9 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))
 
 	// Create the 'testutil' package with the test helpers
-	return testutil.Register(g, opts.AppPath)
+	if err := testutil.Register(g, opts.AppPath); err != nil {
+		return err
+	}
+
+	return nil
 }

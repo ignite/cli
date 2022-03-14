@@ -4,7 +4,6 @@ import (
 	"embed"
 
 	"github.com/gobuffalo/genny"
-
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
