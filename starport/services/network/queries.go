@@ -51,7 +51,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 		return nil, err
 	}
 
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching rewards"))
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching reward information"))
 	var chainLaunches []networktypes.ChainLaunch
 	var mu sync.Mutex
 
