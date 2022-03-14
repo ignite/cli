@@ -3,7 +3,7 @@
 function build {
     echo "building container..."
     docker build -t starport -f - > /dev/null . << EOF
-FROM golang:1.16.2-buster
+FROM golang:1.17-buster
 
 WORKDIR /apps
 

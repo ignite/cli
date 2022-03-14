@@ -1,5 +1,13 @@
 # Changelog
 
+## `Unreleased`
+
+### Features
+- upgraded template to v0.45.0
+- annotated template
+
+### Fixes
+- Updated golang to v 1.17 in all files
 ## `v0.19.4`
 
 ### Features
