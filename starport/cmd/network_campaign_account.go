@@ -40,8 +40,6 @@ func newNetworkCampaignAccountList() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  newNetworkCampaignAccountListHandler,
 	}
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 

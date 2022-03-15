@@ -19,12 +19,12 @@ func ModuleSimulationMsgModify(
 	}
 	for _, msg := range msgs {
 		// simulation constants
-		templateConst := `opWeightMsg%[2]v%[3]v = "op_weight_msg_create_chain"
+		templateConst := `opWeightMsg%[2]v%[3]v = "op_weight_msg_%[4]v"
 	// TODO: Determine the simulation weight value
 	defaultWeightMsg%[2]v%[3]v int = 100
 
 	%[1]v`
-		replacementConst := fmt.Sprintf(templateConst, PlaceholderSimappConst, msg, typeName.UpperCamel)
+		replacementConst := fmt.Sprintf(templateConst, PlaceholderSimappConst, msg, typeName.UpperCamel, typeName.Snake)
 		content = replacer.Replace(content, PlaceholderSimappConst, replacementConst)
 
 		// simulation operations

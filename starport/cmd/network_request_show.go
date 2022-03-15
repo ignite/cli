@@ -20,7 +20,6 @@ func NewNetworkRequestShow() *cobra.Command {
 		RunE:  networkRequestShowHandler,
 		Args:  cobra.ExactArgs(2),
 	}
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
