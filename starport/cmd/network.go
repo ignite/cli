@@ -117,11 +117,17 @@ func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...netwo
 func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
 	options = append(options, network.CollectEvents(n.ev))
 
-	account, err := cosmos.AccountRegistry.GetByName(getFrom(n.cmd))
-	if err != nil {
-		return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
+	var (
+		err     error
+		from    = getFrom(n.cmd)
+		account = cosmosaccount.Account{}
+	)
+	if from != "" {
+		account, err = cosmos.AccountRegistry.GetByName(getFrom(n.cmd))
+		if err != nil {
+			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
+		}
 	}
-
 	return network.New(*cosmos, account, options...)
 }
 
@@ -160,7 +166,9 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	if gitpod.IsOnGitpod() {
 		keyringBackend = cosmosaccount.KeyringTest
 	}
-	cosmosOptions = append(cosmosOptions, cosmosclient.WithKeyringBackend(keyringBackend))
+	if keyringBackend != "" {
+		cosmosOptions = append(cosmosOptions, cosmosclient.WithKeyringBackend(keyringBackend))
+	}
 
 	// init cosmos client only once on start in order to spnclient to
 	// reuse unlocked keyring in the following steps.
