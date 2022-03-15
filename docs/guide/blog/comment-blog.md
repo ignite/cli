@@ -100,7 +100,7 @@ In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
 ```go
 message MsgCreateComment {
   string creator = 1;
-  int32 postID = 2;
+  uint64 postID = 2;
   string title = 3;
   string body = 4;
   uint64 id = 5;
