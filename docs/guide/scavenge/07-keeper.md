@@ -32,7 +32,6 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
   // create a new scavenge from the data in the MsgSubmitScavenge message
 	var scavenge = types.Scavenge{
 		Index:        msg.SolutionHash,
-		Scavenger:    msg.Creator,
 		Description:  msg.Description,
 		SolutionHash: msg.SolutionHash,
 		Reward:       msg.Reward,
