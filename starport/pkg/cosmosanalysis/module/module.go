@@ -12,8 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
-const appFolder = "app"
-
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
 
@@ -93,7 +91,7 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		return nil, err
 	}
 
-	registeredModules, err := app.FindRegisteredModules(filepath.Join(chainRoot, appFolder))
+	registeredModules, err := app.FindRegisteredModules(chainRoot)
 	if err != nil {
 		return nil, err
 	}

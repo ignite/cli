@@ -3,6 +3,7 @@
 package cosmosanalysis
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -16,7 +17,14 @@ import (
 const (
 	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
 	tendermintModulePath = "github.com/tendermint/tendermint"
+	appFileName          = "app.go"
 )
+
+var appImplementation = []string{
+	"Name",
+	"BeginBlocker",
+	"EndBlocker",
+}
 
 // implementation tracks the implementation of an interface for a given struct
 type implementation map[string]bool
@@ -54,60 +62,70 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 	// parse go packages/files under path
 	fset := token.NewFileSet()
 
-	// collect all structs under path to find out the ones that satisfies the implementation
-	structImplementations := make(map[string]implementation)
 	pkgs, err := parser.ParseDir(fset, modulePath, nil, 0)
 	if err != nil {
 		return nil, err
 	}
 	for _, pkg := range pkgs {
+		var files []*ast.File
 		for _, f := range pkg.Files {
-			ast.Inspect(f, func(n ast.Node) bool {
-				// look for struct methods.
-				methodDecl, ok := n.(*ast.FuncDecl)
-				if !ok {
-					return true
-				}
-
-				// not a method.
-				if methodDecl.Recv == nil {
-					return true
-				}
-
-				methodName := methodDecl.Name.Name
-
-				// find the struct name that method belongs to.
-				t := methodDecl.Recv.List[0].Type
-				ident, ok := t.(*ast.Ident)
-				if !ok {
-					sexp, ok := t.(*ast.StarExpr)
-					if !ok {
-						return true
-					}
-					ident = sexp.X.(*ast.Ident)
-				}
-				structName := ident.Name
-
-				// mark the implementation that this struct satisfies.
-				if _, ok := structImplementations[structName]; !ok {
-					structImplementations[structName] = newImplementation(interfaceList)
-				}
-
-				structImplementations[structName][methodName] = true
-
-				return true
-			})
+			files = append(files, f)
 		}
+		found = append(found, findImplementationInFiles(files, interfaceList)...)
 	}
 
-	// append structs that satisfy the implementation
+	return found, nil
+}
+
+func findImplementationInFiles(files []*ast.File, interfaceList []string) (found []string) {
+	// collect all structs under path to find out the ones that satisfies the implementation
+	structImplementations := make(map[string]implementation)
+
+	for _, f := range files {
+		ast.Inspect(f, func(n ast.Node) bool {
+			// look for struct methods.
+			methodDecl, ok := n.(*ast.FuncDecl)
+			if !ok {
+				return true
+			}
+
+			// not a method.
+			if methodDecl.Recv == nil {
+				return true
+			}
+
+			methodName := methodDecl.Name.Name
+
+			// find the struct name that method belongs to.
+			t := methodDecl.Recv.List[0].Type
+			ident, ok := t.(*ast.Ident)
+			if !ok {
+				sexp, ok := t.(*ast.StarExpr)
+				if !ok {
+					return true
+				}
+				ident = sexp.X.(*ast.Ident)
+			}
+			structName := ident.Name
+
+			// mark the implementation that this struct satisfies.
+			if _, ok := structImplementations[structName]; !ok {
+				structImplementations[structName] = newImplementation(interfaceList)
+			}
+
+			structImplementations[structName][methodName] = true
+
+			return true
+		})
+	}
+
 	for name, impl := range structImplementations {
 		if checkImplementation(impl) {
 			found = append(found, name)
 		}
 	}
 
-	return found, nil
+	return found
 }
 
 // newImplementation returns a new object to parse implementation of an interface
@@ -142,4 +160,62 @@ func ValidateGoMod(module *modfile.File) error {
 		return fmt.Errorf("invalid go module, missing %s package dependency", m)
 	}
 	return nil
+}
+
+// FindAppFilePath looks for the app file that implements the interfaces listed in appImplementation
+func FindAppFilePath(chainRoot string) (path string, err error) {
+	var found []string
+
+	err = filepath.Walk(chainRoot, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() || filepath.Ext(info.Name()) != ".go" {
+			return nil
+		}
+
+		fset := token.NewFileSet()
+		f, err := parser.ParseFile(fset, path, nil, 0)
+		if err != nil {
+			return err
+		}
+
+		currFound := findImplementationInFiles([]*ast.File{f}, appImplementation)
+
+		if len(currFound) > 0 {
+			found = append(found, path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	numFound := len(found)
+	if numFound == 0 {
+		return "", errors.New("app file not found")
+	}
+
+	if numFound == 1 {
+		return found[0], nil
+	}
+
+	appFilePath := ""
+	for _, p := range found {
+		if filepath.Base(p) == appFileName {
+			if appFilePath != "" {
+				return "", errors.New("multiple app.go files found")
+			}
+
+			appFilePath = p
+		}
+	}
+
+	if appFilePath != "" {
+		return appFilePath, nil
+	}
+
+	return "", errors.New("multiple app files found, but no app.go file")
 }

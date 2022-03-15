@@ -6,13 +6,10 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/goanalysis"
 )
-
-const appFileName = "app.go"
 
 var appImplementation = []string{
 	"RegisterAPIRoutes",
@@ -80,56 +77,53 @@ func CheckKeeper(path, keeperName string) error {
 // 1. Mapping out all the imports and named imports
 // 2. Looking for the call to module.NewBasicManager and finds the modules registered there
 // 3. Looking for the implementation of RegisterAPIRoutes and find the modules that call their RegisterGRPCGatewayRoutes
-func FindRegisteredModules(pathToApp string) ([]string, error) {
+func FindRegisteredModules(chainRoot string) ([]string, error) {
+	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
+	if err != nil {
+		return nil, err
+	}
+
 	fileSet := token.NewFileSet()
-	pkgs, err := parser.ParseDir(fileSet, pathToApp, nil, 0)
+	f, err := parser.ParseFile(fileSet, appFilePath, nil, 0)
 	if err != nil {
 		return []string{}, err
 	}
 
-	var basicModules []string
-	for _, pkg := range pkgs {
-		for p, f := range pkg.Files {
-			if !strings.HasSuffix(p, appFileName) {
-				continue
-			}
-
-			packages, err := goanalysis.FindImportedPackages(p)
-			if err != nil {
-				return nil, err
-			}
-
-			basicManagerModule, err := findBasicManagerModule(packages)
-			if err != nil {
-				return nil, err
-			}
-
-			ast.Inspect(f, func(n ast.Node) bool {
-				if pkgsReg := findBasicManagerRegistrations(n, basicManagerModule); pkgsReg != nil {
-					for _, rp := range pkgsReg {
-						importModule := packages[rp]
-						basicModules = append(basicModules, importModule)
-					}
-
-					return false
-				}
-
-				if pkgsReg := findRegisterAPIRoutersRegistrations(n); pkgsReg != nil {
-					for _, rp := range pkgsReg {
-						importModule := packages[rp]
-						if importModule == "" {
-							continue
-						}
-						basicModules = append(basicModules, importModule)
-					}
-
-					return false
-				}
-
-				return true
-			})
-		}
+	packages, err := goanalysis.FindImportedPackages(appFilePath)
+	if err != nil {
+		return nil, err
 	}
+
+	basicManagerModule, err := findBasicManagerModule(packages)
+	if err != nil {
+		return nil, err
+	}
+
+	var basicModules []string
+	ast.Inspect(f, func(n ast.Node) bool {
+		if pkgsReg := findBasicManagerRegistrations(n, basicManagerModule); pkgsReg != nil {
+			for _, rp := range pkgsReg {
+				importModule := packages[rp]
+				basicModules = append(basicModules, importModule)
+			}
+
+			return false
+		}
+
+		if pkgsReg := findRegisterAPIRoutersRegistrations(n); pkgsReg != nil {
+			for _, rp := range pkgsReg {
+				importModule := packages[rp]
+				if importModule == "" {
+					continue
+				}
+				basicModules = append(basicModules, importModule)
+			}
+
+			return false
+		}
+
+		return true
+	})
 
 	return basicModules, nil
 }
