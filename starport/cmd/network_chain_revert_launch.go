@@ -46,14 +46,10 @@ func networkChainRevertLaunchHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := n.RevertLaunch(cmd.Context(), launchID); err != nil {
-		return err
-	}
-
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
 	}
 
-	return c.ResetGenesisTime()
+	return n.RevertLaunch(launchID, c)
 }

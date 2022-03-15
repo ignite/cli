@@ -29,8 +29,6 @@ func (c Chain) ResetGenesisTime() error {
 	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
-
-	fmt.Println("\nGenesis time was reset")
 	return nil
 }
 
