@@ -19,6 +19,19 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
+// ResetGenesisTime reset the chain genesis time
+func (c Chain) ResetGenesisTime() error {
+	// set the genesis time for the chain
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return errors.Wrap(err, "genesis of the blockchain can't be read")
+	}
+	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
+		return errors.Wrap(err, "genesis time can't be set")
+	}
+	return nil
+}
+
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization

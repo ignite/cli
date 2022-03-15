@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
@@ -39,8 +40,6 @@ func NewNetworkChainShow() *cobra.Command {
 		newNetworkChainShowValidators(),
 		newNetworkChainShowPeers(),
 	)
-	c.PersistentFlags().AddFlagSet(flagNetworkFrom())
-	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -191,7 +190,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 				return err
 			}
 
-			accountSummary := bytes.NewBufferString("")
+			accountSummary := &bytes.Buffer{}
 
 			// get all chain genesis accounts
 			genesisAccs, err := n.GenesisAccounts(cmd.Context(), launchID)
@@ -239,7 +238,11 @@ func newNetworkChainShowAccounts() *cobra.Command {
 				}
 			}
 			nb.Spinner.Stop()
-			fmt.Print(accountSummary.String())
+			if accountSummary.Len() > 0 {
+				fmt.Print(accountSummary.String())
+			} else {
+				fmt.Printf("%s %s\n", clispinner.Info, "empty chain account list")
+			}
 			return nil
 		},
 	}
@@ -279,6 +282,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 					peer,
 				})
 			}
+			nb.Spinner.Stop()
 			if len(validatorEntries) > 0 {
 				if err = entrywriter.MustWrite(
 					validatorSummary,
@@ -287,9 +291,10 @@ func newNetworkChainShowValidators() *cobra.Command {
 				); err != nil {
 					return err
 				}
+				fmt.Print(validatorSummary.String())
+			} else {
+				fmt.Printf("%s %s\n", clispinner.Info, "no account found")
 			}
-			nb.Spinner.Stop()
-			fmt.Print(validatorSummary.String())
 			return nil
 		},
 	}
