@@ -35,6 +35,14 @@ function useModule({ $ignt }: Params): Response {
   {{ end }}
   } = $ignt.{{ .Module.Name }} 
 
+  {{ $ModuleName := .Module.Name }}
+  {{ range .Module.Msgs }}
+	send{{ .Name }} = send{{ .Name }}.bind($ignt.{{ $ModuleName }})
+  {{ end }}
+  {{ range .Module.HTTPQueries }}
+  {{ camelCase .FullName }} = {{ camelCase .FullName }}.bind($ignt.{{ $ModuleName }})
+  {{ end }}
+
   return {
 	$s,
   {{ range .Module.Msgs }}
