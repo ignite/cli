@@ -366,7 +366,7 @@ func New(
 		&app.IBCKeeper.PortKeeper,
 		scopedMonitoringKeeper,
 	)
-	monitoringModule := monitoringpmodule.NewAppModule(appCodec, app.MonitoringKeeper, app.AccountKeeper, app.BankKeeper)
+	monitoringModule := monitoringpmodule.NewAppModule(appCodec, app.MonitoringKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
