@@ -50,7 +50,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= index.ValueInvalidIndex() %>,
                 <% } %>
 			},
-			err:     status.Error(codes.InvalidArgument, "not found"),
+			err:     status.Error(codes.NotFound, "not found"),
 		},
 		{
 			desc: "InvalidRequest",
