@@ -34,6 +34,8 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 		accs[i] = acc.Address.String()
 	}
 	<%= moduleName %>Genesis := types.GenesisState{
+		Params:	types.DefaultParams(),<%= if (isIBC) { %>
+		PortId: types.PortID,<% } %>
 		// this line is used by starport scaffolding # simapp/module/genesisState
 	}
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&<%= moduleName %>Genesis)
