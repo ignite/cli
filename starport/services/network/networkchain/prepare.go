@@ -39,7 +39,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
 		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-		if _, err := c.chain.Build(ctx, ""); err != nil {
+		if _, err := c.Build(ctx); err != nil {
 			return err
 		}
 		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
