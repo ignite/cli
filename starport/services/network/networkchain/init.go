@@ -18,7 +18,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// cleanup home dir of app if exists.
-	if err := os.RemoveAll(chainHome); err != nil {
+	if err = os.RemoveAll(chainHome); err != nil {
 		return err
 	}
 
@@ -31,14 +31,14 @@ func (c *Chain) Init(ctx context.Context) error {
 	c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
 	c.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	if err := c.chain.Init(ctx, false); err != nil {
+	if err = c.chain.Init(ctx, false); err != nil {
 		return err
 	}
 
 	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// initialize and verify the genesis
-	if err := c.initGenesis(ctx); err != nil {
+	if err = c.initGenesis(ctx); err != nil {
 		return err
 	}
 
