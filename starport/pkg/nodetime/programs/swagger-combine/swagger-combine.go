@@ -28,6 +28,9 @@ type API struct {
 	ID           string       `json:"-"`
 	URL          string       `json:"url"`
 	OperationIDs OperationIDs `json:"operationIds"`
+	Dereference  struct {
+		Circular string `json:"circular"`
+	} `json:"dereference"`
 }
 
 type OperationIDs struct {
@@ -63,6 +66,10 @@ func (c *Config) AddSpec(id, path string) error {
 		ID:           id,
 		URL:          path,
 		OperationIDs: OperationIDs{Rename: rename},
+		// Added due to https://github.com/maxdome/swagger-combine/pull/110 after enabling more services to be generated in #835
+		Dereference: struct {
+			Circular string `json:"circular"`
+		}(struct{ Circular string }{Circular: "ignore"}),
 	})
 
 	return nil

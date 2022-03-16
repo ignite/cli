@@ -70,3 +70,29 @@ func DiscoverOneMain(path string) (pkgPath string, err error) {
 
 	return pkgPaths[0], nil
 }
+
+// FindImportedPackages finds the imported packages in a Go file and returns a map
+// with package name, import path pair.
+func FindImportedPackages(name string) (map[string]string, error) {
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, name, nil, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	packages := make(map[string]string) // name -> import
+	for _, imp := range f.Imports {
+		var importName string
+		if imp.Name != nil {
+			importName = imp.Name.Name
+		} else {
+			importParts := strings.Split(imp.Path.Value, "/")
+			importName = importParts[len(importParts)-1]
+		}
+
+		name := strings.Trim(importName, "\"")
+		packages[name] = strings.Trim(imp.Path.Value, "\"")
+	}
+
+	return packages, nil
+}
