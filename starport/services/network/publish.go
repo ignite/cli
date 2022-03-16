@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -107,6 +108,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		if err != nil {
 			return 0, 0, 0, err
 		}
+		chainID = fmt.Sprintf("%s-1", chainID)
 	}
 
 	coordinatorAddress := n.account.Address(networktypes.SPN)
