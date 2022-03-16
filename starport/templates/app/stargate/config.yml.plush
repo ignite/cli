@@ -16,14 +16,3 @@ faucet:
   coins: ["5token", "100000stake"]
 genesis:
   chain_id: <%= AppName %>-1
-  app_state:
-    monitoringp:
-      params:
-        debugMode: false
-        lastBlockHeight: 1
-        consumerChainID: "spn-1"
-        consumerConsensusState:
-          root:
-            hash: ""
-          timestamp: ""
-          nextValidatorsHash: ""
