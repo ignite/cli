@@ -271,12 +271,14 @@ func (c *Chain) Build(ctx context.Context) (string, error) {
 	}
 
 	// cache built binary for launch id
-	binaryChecksum, err := checksum.BinaryChecksum(binaryName)
-	if err != nil {
-		return "", err
-	}
-	if err = CacheBinaryForLaunchID(c.launchID, binaryChecksum, c.hash); err != nil {
-		return "", err
+	if c.launchID != 0 {
+		binaryChecksum, err := checksum.BinaryChecksum(binaryName)
+		if err != nil {
+			return "", err
+		}
+		if err = CacheBinaryForLaunchID(c.launchID, binaryChecksum, c.hash); err != nil {
+			return "", err
+		}
 	}
 
 	return binaryName, nil
