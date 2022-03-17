@@ -50,7 +50,7 @@ require (
 	github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	github.com/tendermint/vue v0.3.3
+	github.com/tendermint/vue v0.3.4
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
