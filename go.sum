@@ -1500,13 +1500,14 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/flutter/v2 v2.0.3 h1:+J3Q6FRdcDTLkrcPQHY306J7wRPEKxfU2K2xCVFJGqs=
 github.com/tendermint/flutter/v2 v2.0.3/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMonsB9EIWP0AGMPw0=
+github.com/tendermint/fundraising v0.1.1 h1:RCPAD1tw8ax5g66CUDCa96WfxrllCLsLkN8P/A2jKFE=
 github.com/tendermint/fundraising v0.1.1/go.mod h1:5QEwrPzpkIqCeGSK9HgI2DxO5RKC5Jk8nXWqowUW0to=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.1.8/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpXuN/42Q=
 github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57/go.mod h1:p4BO8YC6kOKSKqMfySqaLHfwBmuPE/QcLwnnVhh7H9M=
-github.com/tendermint/spn v0.1.1-0.20220309210912-ae38eed8fbee h1:V4aDFMIRRTEqDAOyxg9o1CweDifo8JECJTjwNdWEww4=
-github.com/tendermint/spn v0.1.1-0.20220309210912-ae38eed8fbee/go.mod h1:E1/XLH8W9U3B+E/Lyytly+HXbpkIXqy5nbhdra14paU=
+github.com/tendermint/spn v0.1.1-0.20220316205125-335c925d4d26 h1:zWaHzG+7Q3HiS6rjCAT/4nhToLxn25A1fMSA+de/EQU=
+github.com/tendermint/spn v0.1.1-0.20220316205125-335c925d4d26/go.mod h1:E1/XLH8W9U3B+E/Lyytly+HXbpkIXqy5nbhdra14paU=
 github.com/tendermint/starport v0.19.3/go.mod h1:1BlPohoDtLl8CFqTHbMSN3rhq5YLBHlTQ9mJhcRuvwI=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
