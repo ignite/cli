@@ -68,10 +68,11 @@ func List(paths ...PathRetriever) PathsRetriever {
 	}
 }
 
-func IsDirEmpty(path string) bool {
+// IsEmptyDir returns true if the dir is empty or not exist
+func IsEmptyDir(path string) bool {
 	f, err := os.Open(path)
 	if err != nil {
-		return false
+		return true
 	}
 	defer f.Close()
 

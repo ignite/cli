@@ -89,7 +89,7 @@ func TestList(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestIsDirEmpty(t *testing.T) {
+func TestIsEmptyDir(t *testing.T) {
 	tests := []struct {
 		name string
 		dir  string
@@ -114,12 +114,12 @@ func TestIsDirEmpty(t *testing.T) {
 		{
 			name: "invalid dir",
 			dir:  "())*",
-			want: false,
+			want: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := xfilepath.IsDirEmpty(tt.dir)
+			got := xfilepath.IsEmptyDir(tt.dir)
 			require.Equal(t, tt.want, got)
 		})
 	}
