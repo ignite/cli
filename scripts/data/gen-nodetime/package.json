@@ -6,7 +6,7 @@
 		"nodetime": "./nodetime"
 	},
 	"scripts": {
-		"prebuild": "rm -rf dist",
+		"prebuild": "rm -rf dist && tsc",
 		"build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64 -o nodetime ."
 	},
 	"dependencies": {
