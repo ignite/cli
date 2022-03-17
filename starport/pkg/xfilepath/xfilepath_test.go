@@ -88,3 +88,39 @@ func TestList(t *testing.T) {
 	_, err = retriever()
 	require.Error(t, err)
 }
+
+func TestIsDirEmpty(t *testing.T) {
+	tests := []struct {
+		name string
+		dir  string
+		want bool
+		err  error
+	}{
+		{
+			name: "current dir",
+			dir:  "./",
+			want: false,
+		},
+		{
+			name: "temp dir",
+			dir:  t.TempDir(),
+			want: true,
+		},
+		{
+			name: "parent dir",
+			dir:  "../",
+			want: false,
+		},
+		{
+			name: "invalid dir",
+			dir:  "())*",
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := xfilepath.IsDirEmpty(tt.dir)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

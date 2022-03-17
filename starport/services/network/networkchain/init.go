@@ -7,6 +7,7 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 
 // Init initializes blockchain by building the binaries and running the init command and
@@ -99,6 +100,10 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 
 // checkGenesis checks the stored genesis is valid
 func (c *Chain) checkGenesis(ctx context.Context) error {
+	if err := c.checkGentxFiles(); err != nil {
+		return err
+	}
+
 	// perform static analysis of the chain with the validate-genesis command.
 	chainCmd, err := c.chain.Commands(ctx)
 	if err != nil {
@@ -110,4 +115,23 @@ func (c *Chain) checkGenesis(ctx context.Context) error {
 	// TODO: static analysis of the genesis with validate-genesis doesn't check the full validity of the genesis
 	// example: gentxs formats are not checked
 	// to perform a full validity check of the genesis we must try to start the chain with sample accounts
+}
+
+// checkGentxFiles checks if a gentx exist for the chain
+func (c *Chain) checkGentxFiles() error {
+	gentxPath, err := c.DefaultGentxPath()
+	if err != nil {
+		return err
+	}
+	if _, err = os.Stat(gentxPath); !os.IsNotExist(err) {
+		return fmt.Errorf("gentx %s found in initial genesis", gentxPath)
+	}
+	gentxsPath, err := c.GentxsPath()
+	if err != nil {
+		return err
+	}
+	if xfilepath.IsDirEmpty(gentxsPath) {
+		return fmt.Errorf("gentxs folder %s is not empty in the initial genesis", gentxsPath)
+	}
+	return nil
 }

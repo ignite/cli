@@ -2,6 +2,7 @@
 package xfilepath
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -65,4 +66,18 @@ func List(paths ...PathRetriever) PathsRetriever {
 	return func() ([]string, error) {
 		return list, err
 	}
+}
+
+func IsDirEmpty(path string) bool {
+	f, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	// read in ONLY one file
+	_, err = f.Readdir(1)
+
+	// and if the file is EOF... well, the dir is empty.
+	return err == io.EOF
 }
