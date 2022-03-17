@@ -101,7 +101,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {
 	var filteredModules []module.Module
 
-	modules, err := module.Discover(g.ctx, path, protoDir)
+	modules, err := module.Discover(g.ctx, g.appPath, path, protoDir)
 	if err != nil {
 		return nil, err
 	}

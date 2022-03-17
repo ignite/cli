@@ -186,7 +186,6 @@ export default {
 					throw new Error('TxClient:{{ .Name }}:Init Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new Error('TxClient:{{ .Name }}:Create Could not create message: ' + e.message)
-					
 				}
 			}
 		},
