@@ -24,7 +24,7 @@ func (c *Chain) Init(ctx context.Context) error {
 
 	// build the chain and initialize it with a new validator key
 	c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-	if _, err = c.chain.Build(ctx, ""); err != nil {
+	if _, err := c.Build(ctx); err != nil {
 		return err
 	}
 
