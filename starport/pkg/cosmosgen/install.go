@@ -12,7 +12,6 @@ import (
 
 // InstallDependencies installs protoc dependencies needed by Cosmos ecosystem.
 func InstallDependencies(ctx context.Context, appPath string) error {
-
 	plugins := []string{
 		// installs the gocosmos plugin.
 		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
