@@ -35,17 +35,16 @@ class Signer {
 }
 
 interface Environment {
-  chainID: string;
-  chainName: string;
+  chainID?: string;
+  chainName?: string;
   apiURL: string;
   rpcURL: string;
   wsURL: string;
+  prefix?: string
 }
 
 interface IgniteParams {
   env: Environment;
-  signer: OfflineSigner;
-  address: string;
 }
 
 class Ignite {
@@ -56,25 +55,33 @@ class Ignite {
 {{ range .Modules }}public {{ .Name }}: {{ .Name }};
 {{ end }}
 
-  constructor({ env, signer, address }: IgniteParams) {
+  constructor({ env }: IgniteParams) {
     this._env = env;
-    this._address = address;
-    this._signer = new Signer(env.rpcURL, signer);
-  }
-
-  public async init() {
-   await this._signer.init();
-
-     let client: SigningStargateClient = this._signer
-       .signer as SigningStargateClient;
-
-{{ range .Modules }}this.{{ .Name }} = new {{ .Name }}(
-     client,
-    this._address,
+    {{ range .Modules }}this.{{ .Name }} = new {{ .Name }}(
      this._env.apiURL
 );
 {{ end }}
    }
+
+  public async withSigner({
+    signer,
+    address
+  }) {
+    this._address = address
+
+    this._signer = new Signer(this._env.rpcURL, signer)
+    await this._signer.init();
+
+    let client: SigningStargateClient = this._signer
+       .signer as SigningStargateClient;
+
+  {{ range .Modules }}this.{{ .Name }}.withSigner(client, this._address)
+  {{ end }}
+  }
+
+  get signer(): Signer {
+    return this._signer
+  }
 
   get env(): Environment {
     return this._env;

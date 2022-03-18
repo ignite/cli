@@ -25,11 +25,13 @@ class Module extends Api<any> {
 	private _client: SigningStargateClient;
 	private _address: string;
 
-  	constructor(client: SigningStargateClient, address: string, baseUrl: string) {
+  	constructor(baseUrl: string) {
 		super({
 			baseUrl
 		})
+	}
 
+	public withSigner(client: SigningStargateClient, address: string) {
 		this._client = client;
 		this._address = address;
 	}
