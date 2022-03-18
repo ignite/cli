@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -29,6 +28,7 @@ type Chain interface {
 	AppTOMLPath() (string, error)
 	ConfigTOMLPath() (string, error)
 	NodeID(ctx context.Context) (string, error)
+	CacheBinary(launchID uint64) error
 }
 
 type Option func(*Network)
