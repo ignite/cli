@@ -3,7 +3,6 @@
 package cosmosanalysis
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"golang.org/x/mod/modfile"
 )
 
@@ -18,6 +18,7 @@ const (
 	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
 	tendermintModulePath = "github.com/tendermint/tendermint"
 	appFileName          = "app.go"
+	defaultAppFilePath   = "app/" + appFileName
 )
 
 var appImplementation = []string{
@@ -195,7 +196,7 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 
 	numFound := len(found)
 	if numFound == 0 {
-		return "", errors.New("app file not found")
+		return "", errors.New("app.go file cannot be found")
 	}
 
 	if numFound == 1 {
@@ -206,7 +207,8 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 	for _, p := range found {
 		if filepath.Base(p) == appFileName {
 			if appFilePath != "" {
-				return "", errors.New("multiple app.go files found")
+				// multiple app.go found, fallback to app/app.go
+				return getDefaultAppFile(chainRoot)
 			}
 
 			appFilePath = p
@@ -217,5 +219,12 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 		return appFilePath, nil
 	}
 
-	return "", errors.New("multiple app files found, but no app.go file")
+	return getDefaultAppFile(chainRoot)
+}
+
+// getDefaultAppFile returns the default app.go file path for a chain.
+func getDefaultAppFile(chainRoot string) (string, error) {
+	path := filepath.Join(chainRoot, defaultAppFilePath)
+	_, err := os.Stat(path)
+	return path, errors.Wrap(err, "cannot locate your app.go")
 }
