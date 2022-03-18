@@ -1,6 +1,8 @@
 package starportcmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -29,11 +31,16 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	from := getFrom(cmd)
+
 	campaigns, err := n.Campaigns(cmd.Context())
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("You're %s")
+	fmt.Println("You have vouchers:\n%s")
+	fmt.Println("You have tokens:\n%s")
 	nb.Cleanup()
 	return nil
 }
