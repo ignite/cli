@@ -41,7 +41,8 @@ func Sum(dirPath, outPath string) error {
 	return os.WriteFile(outPath, b.Bytes(), 0666)
 }
 
-func BinaryChecksum(binaryName string) (string, error) {
+// Binary returns SHA256 hash of executable file, file is searched by name in PATH
+func Binary(binaryName string) (string, error) {
 	// get binary path
 	binaryPath, err := exec.LookPath(binaryName)
 	if err != nil {
@@ -61,10 +62,11 @@ func BinaryChecksum(binaryName string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-func SHA256Checksum(inputs ...[]byte) string {
+// Strings concatenates all inputs and returns SHA256 hash of them
+func Strings(inputs ...string) string {
 	h := sha256.New()
 	for _, input := range inputs {
-		h.Write(input)
+		h.Write([]byte(input))
 	}
 	return fmt.Sprintf("%x", h.Sum(nil))
 }

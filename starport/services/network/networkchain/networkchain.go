@@ -251,11 +251,11 @@ func (c *Chain) Build(ctx context.Context) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		binaryChecksum, err := checksum.BinaryChecksum(binaryName)
+		binaryChecksum, err := checksum.Binary(binaryName)
 		if err != nil && !errors.Is(err, exec.ErrNotFound) {
 			return "", err
 		}
-		binaryMatch, err := CheckBinaryCacheForLaunchID(c.launchID, binaryChecksum, c.hash)
+		binaryMatch, err := checkBinaryCacheForLaunchID(c.launchID, binaryChecksum, c.hash)
 		if err != nil {
 			return "", err
 		}
@@ -272,16 +272,27 @@ func (c *Chain) Build(ctx context.Context) (string, error) {
 
 	// cache built binary for launch id
 	if c.launchID != 0 {
-		binaryChecksum, err := checksum.BinaryChecksum(binaryName)
+		err := c.CacheBinary(c.launchID)
 		if err != nil {
-			return "", err
-		}
-		if err = CacheBinaryForLaunchID(c.launchID, binaryChecksum, c.hash); err != nil {
-			return "", err
+			return "", nil
 		}
 	}
 
 	return binaryName, nil
+}
+
+// CacheBinary caches last built chain binary associated with launch id
+func (c *Chain) CacheBinary(launchID uint64) error {
+	binaryName, err := c.chain.Binary()
+	if err != nil {
+		return err
+	}
+	binaryChecksum, err := checksum.Binary(binaryName)
+
+	if err != nil {
+		return err
+	}
+	return cacheBinaryForLaunchID(launchID, binaryChecksum, c.hash)
 }
 
 // fetchSource fetches the chain source from url and returns a temporary path where source is saved

@@ -1,8 +1,6 @@
 package networkchain
 
 import (
-	"strconv"
-
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/checksum"
 	"github.com/tendermint/starport/starport/pkg/confile"
@@ -10,48 +8,78 @@ import (
 )
 
 const (
+	SPNCacheDirectory    = "spn"
 	BinaryCacheDirectory = "binary-cache"
-	BinaryCacheFilename  = "list.yml"
+	BinaryCacheFilename  = "checksums.yml"
 )
 
-type List struct {
-	CachedBinary map[string]string `json:"cached_binary" yaml:"cached_binary"`
+type BinaryCacheList struct {
+	CachedBinaries []Binary `yaml:"cached_binaries"`
 }
 
-// CacheBinaryForLaunchID caches hash sha256(sha256(binary) + sourcehash) for launch id
-func CacheBinaryForLaunchID(launchID uint64, binaryHash, sourceHash string) error {
+// Binary associates launch id with build hash where build hash is sha256(binary, source)
+type Binary struct {
+	LaunchID  uint64
+	BuildHash string
+}
+
+func (l *BinaryCacheList) Set(launchID uint64, buildHash string) {
+	for i, binary := range l.CachedBinaries {
+		if binary.LaunchID == launchID {
+			l.CachedBinaries[i].BuildHash = buildHash
+			return
+		}
+	}
+	l.CachedBinaries = append(l.CachedBinaries, Binary{
+		LaunchID:  launchID,
+		BuildHash: buildHash,
+	})
+}
+
+func (l *BinaryCacheList) Get(launchID uint64) (string, bool) {
+	for _, binary := range l.CachedBinaries {
+		if binary.LaunchID == launchID {
+			return binary.BuildHash, true
+		}
+	}
+	return "", false
+}
+
+// cacheBinaryForLaunchID caches hash sha256(sha256(binary) + sourcehash) for launch id
+func cacheBinaryForLaunchID(launchID uint64, binaryHash, sourceHash string) error {
 	cachePath, err := getBinaryCacheFilepath()
 	if err != nil {
 		return err
 	}
-	cacheList := List{CachedBinary: map[string]string{}}
+	var cacheList = BinaryCacheList{}
 	err = confile.New(confile.DefaultYAMLEncodingCreator, cachePath).Load(&cacheList)
 	if err != nil {
 		return err
 	}
-	cacheList.CachedBinary[strconv.Itoa(int(launchID))] = checksum.SHA256Checksum([]byte(binaryHash), []byte(sourceHash))
+	cacheList.Set(launchID, checksum.Strings(binaryHash, sourceHash))
 
 	return confile.New(confile.DefaultYAMLEncodingCreator, cachePath).Save(cacheList)
 }
 
-// CheckBinaryCacheForLaunchID checks if binary for the given launch was already built
-func CheckBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string) (bool, error) {
+// checkBinaryCacheForLaunchID checks if binary for the given launch was already built
+func checkBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string) (bool, error) {
 	cachePath, err := getBinaryCacheFilepath()
 	if err != nil {
 		return false, err
 	}
-	cacheList := List{CachedBinary: map[string]string{}}
+	var cacheList = BinaryCacheList{}
 	err = confile.New(confile.DefaultYAMLEncodingCreator, cachePath).Load(&cacheList)
 	if err != nil {
 		return false, err
 	}
-	return cacheList.CachedBinary[strconv.Itoa(int(launchID))] == checksum.SHA256Checksum([]byte(binaryHash), []byte(sourceHash)), nil
+	buildHash, ok := cacheList.Get(launchID)
+	return !ok && buildHash == checksum.Strings(binaryHash, sourceHash), nil
 }
 
 func getBinaryCacheFilepath() (string, error) {
 	return xfilepath.Join(
 		chainconfig.ConfigDirPath,
-		xfilepath.Path("spn"),
+		xfilepath.Path(SPNCacheDirectory),
 		xfilepath.Path(BinaryCacheDirectory),
 		xfilepath.Path(BinaryCacheFilename),
 	)()
