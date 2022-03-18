@@ -63,3 +63,21 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 	}
 	return res.Balances, nil
 }
+
+// Profile returns the address profile info
+func (n Network) Profile(ctx context.Context) (sdk.Coins, error) {
+	address := n.account.Address(networktypes.SPN)
+	coord, err := n.Coordinator(ctx, address)
+	if err != nil {
+		return sdk.Coins{}, err
+	}
+	val, err := n.Validator(ctx, address)
+	if err != nil {
+		return sdk.Coins{}, err
+	}
+	balances, err := n.Balances(ctx, address)
+	if err != nil {
+		return sdk.Coins{}, err
+	}
+
+}

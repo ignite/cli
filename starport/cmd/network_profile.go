@@ -2,8 +2,8 @@ package starportcmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/yaml"
 )
 
 // NewNetworkProfile returns a new command to show the address profile info on Starport Network.
@@ -31,16 +31,17 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	from := getFrom(cmd)
-
-	campaigns, err := n.Campaigns(cmd.Context())
+	profile, err := n.Profile(cmd.Context())
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("You're %s")
-	fmt.Println("You have vouchers:\n%s")
-	fmt.Println("You have tokens:\n%s")
+	profileInfo, err := yaml.Marshal(cmd.Context(), profile)
+	if err != nil {
+		return err
+	}
+
 	nb.Cleanup()
+	fmt.Print(profileInfo)
 	return nil
 }

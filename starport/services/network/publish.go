@@ -112,13 +112,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	campaignID = o.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
-
-	_, err = profiletypes.
-		NewQueryClient(n.cosmos.Context).
-		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
-			Address: coordinatorAddress,
-		})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if _, err := n.Coordinator(ctx, coordinatorAddress); cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",

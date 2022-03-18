@@ -1,6 +1,7 @@
 package networktypes
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 )
 
@@ -47,5 +48,31 @@ func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 		Identity:      coord.Description.Identity,
 		Website:       coord.Description.Website,
 		Details:       coord.Description.Details,
+	}
+}
+
+// Profile represents the address profile on SPN
+type Profile struct {
+	Address         string    `json:"Address"`
+	Identity        string    `json:"Identity,omitempty"`
+	Website         string    `json:"Website,omitempty"`
+	Details         string    `json:"Details,omitempty"`
+	Moniker         string    `json:"Moniker,omitempty"`
+	SecurityContact string    `json:"SecurityContact,omitempty"`
+	Vouchers        sdk.Coins `json:"Vouchers,omitempty"`
+	Shares          sdk.Coins `json:"Shares,omitempty"`
+}
+
+// ToProfile fetches all address data from SPN and returns a Profile object
+func ToProfile(coord profiletypes.Coordinator) Profile {
+	return Profile{
+		Address:         coord.Address,
+		Identity:        coord.Description.Identity,
+		Website:         coord.Description.Website,
+		Details:         coord.Description.Details,
+		Moniker:         "",
+		SecurityContact: "",
+		Vouchers:        nil,
+		Shares:          nil,
 	}
 }
