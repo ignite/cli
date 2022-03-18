@@ -9,9 +9,8 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
+	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -206,8 +205,7 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 			},
 		)
 
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return rewardtypes.RewardPool{}, ErrObjectNotFound
 	} else if err != nil {
 		return rewardtypes.RewardPool{}, err
