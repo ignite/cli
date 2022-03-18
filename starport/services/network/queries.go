@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -155,6 +156,58 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	}
 
 	return genVals, nil
+}
+
+// MainnetAccount returns the campaign mainnet account for a launch from SPN
+func (n Network) MainnetAccount(
+	ctx context.Context,
+	campaignID uint64,
+	address string,
+) (acc networktypes.MainnetAccount, err error) {
+	n.ev.Send(events.New(events.StatusOngoing,
+		fmt.Sprintf("Fetching campaign %d mainnet account %s", campaignID, address)),
+	)
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+		MainnetAccount(ctx,
+			&campaigntypes.QueryGetMainnetAccountRequest{
+				CampaignID: campaignID,
+				Address:    address,
+			},
+		)
+	statusErr, ok := status.FromError(err)
+	if ok && statusErr.Code() == codes.NotFound {
+		return networktypes.MainnetAccount{}, ErrObjectNotFound
+	} else if err != nil {
+		return acc, err
+	}
+
+	return networktypes.ToMainnetAccount(res.MainnetAccount), nil
+}
+
+// MainnetVestingAccount returns the campaign mainnet vesting account for a launch from SPN
+func (n Network) MainnetVestingAccount(
+	ctx context.Context,
+	campaignID uint64,
+	address string,
+) (acc networktypes.MainnetVestingAccount, err error) {
+	n.ev.Send(events.New(events.StatusOngoing,
+		fmt.Sprintf("Fetching campaign %d mainnet vesting account %s", campaignID, address)),
+	)
+	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+		MainnetVestingAccount(ctx,
+			&campaigntypes.QueryGetMainnetVestingAccountRequest{
+				CampaignID: campaignID,
+				Address:    address,
+			},
+		)
+	statusErr, ok := status.FromError(err)
+	if ok && statusErr.Code() == codes.NotFound {
+		return networktypes.MainnetVestingAccount{}, ErrObjectNotFound
+	} else if err != nil {
+		return acc, err
+	}
+
+	return networktypes.ToMainnetVestingAccount(res.MainnetVestingAccount), nil
 }
 
 // MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN

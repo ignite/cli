@@ -3,6 +3,10 @@ package network
 import (
 	"context"
 
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -20,7 +24,10 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 				Address: address,
 			},
 		)
-	if err != nil {
+	statusErr, ok := status.FromError(err)
+	if ok && statusErr.Code() == codes.NotFound {
+		return networktypes.Coordinator{}, ErrObjectNotFound
+	} else if err != nil {
 		return networktypes.Coordinator{}, err
 	}
 	resCoord, err := profiletypes.NewQueryClient(n.cosmos.Context).
@@ -29,7 +36,10 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 				CoordinatorID: resCoordByAddr.CoordinatorByAddress.CoordinatorID,
 			},
 		)
-	if err != nil {
+	statusErr, ok = status.FromError(err)
+	if ok && statusErr.Code() == codes.NotFound {
+		return networktypes.Coordinator{}, ErrObjectNotFound
+	} else if err != nil {
 		return networktypes.Coordinator{}, err
 	}
 	return networktypes.ToCoordinator(resCoord.Coordinator), nil
@@ -44,7 +54,10 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 				Address: address,
 			},
 		)
-	if err != nil {
+	statusErr, ok := status.FromError(err)
+	if ok && statusErr.Code() == codes.NotFound {
+		return networktypes.Validator{}, ErrObjectNotFound
+	} else if err != nil {
 		return networktypes.Validator{}, err
 	}
 	return networktypes.ToValidator(res.Validator), nil
@@ -58,26 +71,50 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 			Address: address,
 		},
 	)
-	if err != nil {
+	statusErr, ok := status.FromError(err)
+	if ok && statusErr.Code() == codes.NotFound {
+		return sdk.Coins{}, ErrObjectNotFound
+	} else if err != nil {
 		return sdk.Coins{}, err
 	}
 	return res.Balances, nil
 }
 
 // Profile returns the address profile info
-func (n Network) Profile(ctx context.Context) (sdk.Coins, error) {
+func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.Profile, error) {
 	address := n.account.Address(networktypes.SPN)
-	coord, err := n.Coordinator(ctx, address)
+	vouchers, err := n.Balances(ctx, address)
 	if err != nil {
-		return sdk.Coins{}, err
-	}
-	val, err := n.Validator(ctx, address)
-	if err != nil {
-		return sdk.Coins{}, err
-	}
-	balances, err := n.Balances(ctx, address)
-	if err != nil {
-		return sdk.Coins{}, err
+		return networktypes.Profile{}, err
 	}
 
+	var shares, vestingShares campaigntypes.Shares
+	if campaignID > 0 {
+		acc, err := n.MainnetAccount(ctx, campaignID, address)
+		switch {
+		case err == ErrObjectNotFound:
+			accVest, err := n.MainnetVestingAccount(ctx, campaignID, address)
+			if err != nil && err != ErrObjectNotFound {
+				return networktypes.Profile{}, err
+			}
+			shares = accVest.TotalShares
+			vestingShares = accVest.Vesting
+		case err != nil:
+			return networktypes.Profile{}, err
+		default:
+			shares = acc.Shares
+		}
+	}
+
+	var p interface{}
+	p, err = n.Validator(ctx, address)
+	if err == ErrObjectNotFound {
+		p, err = n.Coordinator(ctx, address)
+		if err != nil {
+			return networktypes.Profile{}, err
+		}
+	} else if err != nil {
+		return networktypes.Profile{}, err
+	}
+	return networktypes.ToProfile(p, campaignID, vouchers, shares, vestingShares), err
 }

@@ -2,8 +2,9 @@ package module
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"testing"
+
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 
 	"github.com/stretchr/testify/require"
 )
