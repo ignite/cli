@@ -1,7 +1,6 @@
 package cosmosanalysis_test
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -87,6 +86,7 @@ func TestFindImplementation(t *testing.T) {
 	f1 := filepath.Join(tmpDir, "1.go")
 	err = os.WriteFile(f1, file1, 0644)
 	require.NoError(t, err)
+
 	f2 := filepath.Join(tmpDir, "2.go")
 	err = os.WriteFile(f2, file2, 0644)
 	require.NoError(t, err)
@@ -159,7 +159,7 @@ func TestFindAppFilePath(t *testing.T) {
 
 	// No file
 	_, err = cosmosanalysis.FindAppFilePath(tmpDir)
-	require.Equal(t, errors.New("app file not found"), err)
+	require.Equal(t, "app.go file cannot be found", err.Error())
 
 	// Only one file with app implementation
 	myOwnAppFilePath := filepath.Join(secondaryAppFolder, "my_own_app.go")
@@ -174,7 +174,7 @@ func TestFindAppFilePath(t *testing.T) {
 	err = os.WriteFile(appTestFilePath, appTestFile, 0644)
 	require.NoError(t, err)
 	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
-	require.Equal(t, errors.New("multiple app files found, but no app.go file"), err)
+	require.Contains(t, err.Error(), "cannot locate your app.go")
 
 	// With an additional app file (that is app.go)
 	appFilePath := filepath.Join(appFolder, "app.go")
@@ -189,5 +189,6 @@ func TestFindAppFilePath(t *testing.T) {
 	err = os.WriteFile(extraAppFilePath, appFile, 0644)
 	require.NoError(t, err)
 	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
-	require.Equal(t, errors.New("multiple app.go files found"), err)
+	require.NoError(t, err)
+	require.Equal(t, filepath.Join(appFolder, "app.go"), pathFound)
 }
