@@ -24,7 +24,7 @@ var (
 	}
 
 	jsOpenAPIOut = []string{
-		"--openapiv2_out=logtostderr=true,allow_merge=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
+		"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 	}
 )
 
@@ -140,7 +140,7 @@ func (g *tsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		m.Pkg.Path,
 		includePaths,
 		tsOut,
-		protoc.Plugin(tsprotoPluginPath),
+		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
 	)
 	if err != nil {
 		return err
