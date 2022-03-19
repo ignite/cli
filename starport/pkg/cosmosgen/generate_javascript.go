@@ -13,7 +13,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-proto"
-	"github.com/tendermint/starport/starport/pkg/nodetime/programs/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"golang.org/x/sync/errgroup"
@@ -25,7 +24,7 @@ var (
 	}
 
 	jsOpenAPIOut = []string{
-		"--openapiv2_out=logtostderr=true,allow_merge=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
+		"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 	}
 )
 
@@ -106,7 +105,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		m.Pkg.Path,
 		includePaths,
 		tsOut,
-		protoc.Plugin(tsprotoPluginPath),
+		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
 	)
 	if err != nil {
 		return err
@@ -153,8 +152,8 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 			return err
 		}
 	}
-	// generate .js and .d.ts files for all ts files.
-	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
+
+	return nil
 }
 
 func (g *jsGenerator) generateVuexModuleLoader() error {
@@ -209,20 +208,9 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		})
 	}
 
-	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
-
 	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", data); err != nil {
 		return err
 	}
 
-	return tsc.Generate(g.g.ctx, tscConfig(loaderPath))
-}
-
-func tscConfig(include ...string) tsc.Config {
-	return tsc.Config{
-		Include: include,
-		CompilerOptions: tsc.CompilerOptions{
-			Declaration: true,
-		},
-	}
+	return nil
 }
