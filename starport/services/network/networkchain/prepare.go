@@ -13,14 +13,29 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
+// ResetGenesisTime reset the chain genesis time
+func (c Chain) ResetGenesisTime() error {
+	// set the genesis time for the chain
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return errors.Wrap(err, "genesis of the blockchain can't be read")
+	}
+	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
+		return errors.Wrap(err, "genesis time can't be set")
+	}
+	return nil
+}
+
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization
+	var binaryName string
 	chainHome, err := c.chain.Home()
 	if err != nil {
 		return err
@@ -31,7 +46,11 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if err := c.Init(ctx); err != nil {
+		if err = c.Init(ctx); err != nil {
+			return err
+		}
+		binaryName, err = c.chain.Binary()
+		if err != nil {
 			return err
 		}
 	case err != nil:
@@ -39,7 +58,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
 		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-		if _, err := c.chain.Build(ctx, ""); err != nil {
+		if binaryName, err = c.Build(ctx); err != nil {
 			return err
 		}
 		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
@@ -66,7 +85,15 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	}
 
 	// reset the saved state in case the chain has been started before
-	return cmd.UnsafeReset(ctx)
+	if err := cmd.UnsafeReset(ctx); err != nil {
+		return err
+	}
+
+	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
+	fmt.Println("\nYou can start your node by running the following command:")
+	fmt.Printf("\t%s start --home %s\n", binaryName, chainHome)
+
+	return nil
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests

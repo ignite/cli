@@ -34,10 +34,7 @@ func tempSource(t *testing.T, tarPath string) (path string) {
 
 	defer f.Close()
 
-	dir, err := os.MkdirTemp("", "")
-	require.NoError(t, err)
-
-	t.Cleanup(func() { os.RemoveAll(dir) })
+	dir := t.TempDir()
 
 	require.NoError(t, archive.Untar(f, dir, &archive.TarOptions{NoLchown: true}))
 

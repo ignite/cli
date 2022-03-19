@@ -1,6 +1,4 @@
 import { txClient, queryClient, MissingWalletError , registry} from './module'
-// @ts-ignore
-import { SpVuexError } from '@starport/vuex'
 
 {{ range .Module.Types }}import { {{ .Name }} } from "./module/types/{{ resolveFile .FilePath }}"
 {{ end }}
@@ -110,7 +108,7 @@ export default {
 					const sub=JSON.parse(subscription)
 					await dispatch(sub.action, sub.payload)
 				}catch(e) {
-					throw new SpVuexError('Subscriptions: ' + e.message)
+					throw new Error('Subscriptions: ' + e.message)
 				}
 			})
 		},
@@ -156,7 +154,7 @@ export default {
 				if (subscribe) commit('SUBSCRIBE', { action: '{{ $FullName }}{{ $n }}', payload: { options: { all }, params: {...key},query }})
 				return getters['get{{ $Name }}']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				throw new SpVuexError('QueryClient:{{ $FullName }}{{ $n }}', 'API Node Unavailable. Could not perform query: ' + e.message)
+				throw new Error('QueryClient:{{ $FullName }}{{ $n }} API Node Unavailable. Could not perform query: ' + e.message)
 				
 			}
 		},
@@ -171,9 +169,9 @@ export default {
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new Error('TxClient:{{ .Name }}:Init Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:{{ .Name }}:Send', 'Could not broadcast Tx: '+ e.message)
+					throw new Error('TxClient:{{ .Name }}:Send Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -185,9 +183,9 @@ export default {
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new Error('TxClient:{{ .Name }}:Init  Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:{{ .Name }}:Create', 'Could not create message: ' + e.message)
+					throw new Error('TxClient:{{ .Name }}:Create  Could not create message: ' + e.message)
 					
 				}
 			}
