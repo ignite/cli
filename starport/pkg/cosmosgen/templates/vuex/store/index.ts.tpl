@@ -183,10 +183,9 @@ export default {
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new Error('TxClient:{{ .Name }}:Init  Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new Error('TxClient:{{ .Name }}:Create  Could not create message: ' + e.message)
-					
+					throw new Error('TxClient:{{ .Name }}:Init Could not initialize signing client. Wallet is required.')
+				} else{
+					throw new Error('TxClient:{{ .Name }}:Create Could not create message: ' + e.message)
 				}
 			}
 		},
