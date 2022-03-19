@@ -31,6 +31,7 @@ parent:
 # CLI Reference
 
 Documentation for Starport CLI.
+
 `
 
 func main() {
@@ -52,7 +53,7 @@ func generate(cmd *cobra.Command, outPath string) error {
 	}
 	defer f.Close()
 
-	if _, err := fmt.Fprintln(f, head); err != nil {
+	if _, err := fmt.Fprint(f, head); err != nil {
 		return err
 	}
 
