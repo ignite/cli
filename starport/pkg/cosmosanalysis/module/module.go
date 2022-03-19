@@ -270,9 +270,21 @@ func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) 
 			for i, rpcFunc := range s.RPCFuncs {
 				methods[i] = rpcFunc.Name
 			}
+
 			found, err := cosmosanalysis.DeepFindImplementation(implPath, methods)
 			if err != nil {
 				return false, err
+			}
+
+			// In some cases, the module registration is in another level of sub dir in the module.
+			// TODO: find the closest sub dir.
+			if len(found) == 0 && strings.HasPrefix(rm, pkg.GoImportName) {
+				altImplRelPath := strings.TrimPrefix(pkg.GoImportName, d.basegopath)
+				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
+				found, err = cosmosanalysis.DeepFindImplementation(altImplPath, methods)
+				if err != nil {
+					return false, err
+				}
 			}
 
 			if len(found) > 0 {
