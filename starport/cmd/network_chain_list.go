@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}
+var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID", "network", "reward"}
 
 // NewNetworkChainList returns a new command to list all published chains on Starport Network
 func NewNetworkChainList() *cobra.Command {
@@ -21,9 +21,6 @@ func NewNetworkChainList() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  networkChainListHandler,
 	}
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
@@ -39,7 +36,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	chainLaunches, err := n.ChainLaunches(cmd.Context())
+	chainLaunches, err := n.ChainLaunchesWithReward(cmd.Context())
 	if err != nil {
 		return err
 	}
@@ -58,11 +55,18 @@ func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, out io.Writ
 			campaign = fmt.Sprintf("%d", c.CampaignID)
 		}
 
+		reward := entrywriter.None
+		if len(c.Reward) > 0 {
+			reward = c.Reward
+		}
+
 		launchEntries = append(launchEntries, []string{
 			fmt.Sprintf("%d", c.ID),
 			c.ChainID,
 			c.SourceURL,
 			campaign,
+			c.Network.String(),
+			reward,
 		})
 	}
 
