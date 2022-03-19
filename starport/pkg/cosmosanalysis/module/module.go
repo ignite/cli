@@ -277,7 +277,7 @@ func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) 
 			}
 
 			// In some cases, the module registration is in another level of sub dir in the module.
-			// TODO: find the closest sub dir.
+			// TODO: find the closest sub dir among proto packages.
 			if len(found) == 0 && strings.HasPrefix(rm, pkg.GoImportName) {
 				altImplRelPath := strings.TrimPrefix(pkg.GoImportName, d.basegopath)
 				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
