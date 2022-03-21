@@ -197,7 +197,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -211,7 +211,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -221,7 +221,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
