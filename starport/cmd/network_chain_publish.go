@@ -80,13 +80,18 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	if campaign != 0 && campaignTotalSupplyStr != "" {
 		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagCampaignTotalSupply)
 	}
-	if isMainnet && campaign == 0 && campaignTotalSupplyStr == "" {
-		return fmt.Errorf(
-			"%s flag requires one of the %s or %s flags to be set",
-			flagMainnet,
-			flagCampaign,
-			flagCampaignTotalSupply,
-		)
+	if isMainnet {
+		if campaign == 0 && campaignTotalSupplyStr == "" {
+			return fmt.Errorf(
+				"%s flag requires one of the %s or %s flags to be set",
+				flagMainnet,
+				flagCampaign,
+				flagCampaignTotalSupply,
+			)
+		}
+		if chainID == "" {
+			return fmt.Errorf("%s flag requires the %s flag", flagMainnet, flagChainID)
+		}
 	}
 
 	totalShares, err := campaigntypes.NewShares(campaignTotalSharesStr)

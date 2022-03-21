@@ -93,11 +93,20 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		apply(&o)
 	}
 
-	var genesisHash string
+	var (
+		genesisHash string
+		genesisFile []byte
+		genesis     cosmosutil.Genesis
+	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.noCheck && o.genesisURL != "" {
-		if _, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL); err != nil {
+		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+		genesis, err = cosmosutil.ParseGenesis(genesisFile)
+		if err != nil {
 			return 0, 0, 0, err
 		}
 	}

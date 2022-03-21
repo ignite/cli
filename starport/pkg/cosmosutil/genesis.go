@@ -24,6 +24,7 @@ type (
 	}
 	// ChainGenesis represents the stargate genesis file
 	ChainGenesis struct {
+		ChainID  string `json:"chain_id"`
 		AppState struct {
 			Auth struct {
 				Accounts []struct {
@@ -49,15 +50,19 @@ func (g Genesis) HasAccount(address string) bool {
 	return false
 }
 
-// ParseGenesis parse ChainGenesis object from a genesis file
-func ParseGenesis(genesisPath string) (Genesis, error) {
+// ParseGenesisFromPath parse ChainGenesis object from a genesis file
+func ParseGenesisFromPath(genesisPath string) (Genesis, error) {
 	genesisFile, err := os.ReadFile(genesisPath)
 	if err != nil {
 		return Genesis{}, errors.Wrap(err, "cannot open genesis file")
 	}
+	return ParseGenesis(genesisFile)
+}
+
+// ParseGenesis parse ChainGenesis object from a byte slice
+func ParseGenesis(genesisFile []byte) (Genesis, error) {
 	var chainGenesis ChainGenesis
-	err = json.Unmarshal(genesisFile, &chainGenesis)
-	if err != nil {
+	if err := json.Unmarshal(genesisFile, &chainGenesis); err != nil {
 		return Genesis{}, errors.New("cannot unmarshal the genesis file: " + err.Error())
 	}
 	genesis := Genesis{StakeDenom: chainGenesis.AppState.Staking.Params.BondDenom}
@@ -75,7 +80,7 @@ func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 	} else if err != nil {
 		return false, err
 	}
-	genesis, err := ParseGenesis(genesisPath)
+	genesis, err := ParseGenesisFromPath(genesisPath)
 	if err != nil {
 		return false, err
 	}

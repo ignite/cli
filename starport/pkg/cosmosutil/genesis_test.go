@@ -112,7 +112,7 @@ func TestParseGenesis(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotGenesis, err := cosmosutil.ParseGenesis(tt.genesisPath)
+			gotGenesis, err := cosmosutil.ParseGenesisFromPath(tt.genesisPath)
 			if tt.wantErr {
 				require.Error(t, err)
 				return

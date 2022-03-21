@@ -114,7 +114,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.ParseGenesis(genesisPath)
+	genesis, err := cosmosutil.ParseGenesisFromPath(genesisPath)
 	if err != nil {
 		return err
 	}
