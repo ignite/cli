@@ -6,7 +6,7 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 {{ range .Modules }}import { Module as {{ .Name }}, msgTypes as {{ .Name }}MsgTypes } from './{{ .Path }}'
 {{ end }}
 
-const registry = new Registry(<any>[
+const registry = new Registry([
   {{ range .Modules }}...{{ .Name }}MsgTypes,
   {{ end }}
 ])
