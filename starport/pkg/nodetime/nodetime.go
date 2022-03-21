@@ -19,9 +19,6 @@ const (
 	// CommandTSProto is https://github.com/stephenh/ts-proto.
 	CommandTSProto CommandName = "ts-proto"
 
-	// CommandTSC is https://github.com/microsoft/TypeScript.
-	CommandTSC CommandName = "tsc"
-
 	// CommandSTA is https://github.com/acacode/swagger-typescript-api.
 	CommandSTA CommandName = "sta"
 
