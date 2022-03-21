@@ -73,7 +73,7 @@ func checkBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string)
 		return false, err
 	}
 	buildHash, ok := cacheList.Get(launchID)
-	return !ok && buildHash == checksum.Strings(binaryHash, sourceHash), nil
+	return ok && buildHash == checksum.Strings(binaryHash, sourceHash), nil
 }
 
 func getBinaryCacheFilepath() (string, error) {
