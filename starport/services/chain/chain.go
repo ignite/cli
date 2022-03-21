@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -284,7 +285,7 @@ func (c *Chain) Home() (string, error) {
 	}
 
 	// expand environment variables in home
-	home = filepath.Join(os.ExpandEnv(home))
+	home = os.ExpandEnv(home)
 
 	return home, nil
 }

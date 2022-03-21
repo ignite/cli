@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseLaunchID(t *testing.T) {
+func TestParseID(t *testing.T) {
 	tests := []struct {
 		name string
 		id   string
@@ -37,7 +37,7 @@ func TestParseLaunchID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseLaunchID(tt.id)
+			got, err := ParseID(tt.id)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.err.Error(), err.Error())

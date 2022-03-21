@@ -3,6 +3,7 @@
 # Project variables.
 PROJECT_NAME = starport
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
+FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go'
 HEAD = $(shell git rev-parse HEAD)
 LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
@@ -35,11 +36,13 @@ govet:
 ## format: Run gofmt.
 format:
 	@echo Formatting...
-	@find . -name '*.go' -type f | xargs gofmt -d -s
+	@find . $(FIND_ARGS) | xargs gofmt -d -s
+	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/tendermint/starport
 
 ## lint: Run Golang CI Lint.
 lint:
 	@echo Running gocilint...
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.0
 	@golangci-lint run --out-format=tab --issues-exit-code=0
 
 ## test-unit: Run the unit tests.

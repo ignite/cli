@@ -9,7 +9,6 @@
   - [Viewing tutorial builds](#viewing-tutorial-builds)
     - [Preview PRs on a deployed preview](#preview-prs-on-a-deployed-preview)
     - [Preview draft PRs on a local web browser](#preview-draft-prs-on-a-local-web-browser)
-  
 
 Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
 

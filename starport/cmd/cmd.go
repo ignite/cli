@@ -13,6 +13,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+
 	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -85,12 +86,17 @@ func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 	defer wg.Done()
 
 	for event := range bus {
-		if event.IsOngoing() {
+		switch event.Status {
+		case events.StatusOngoing:
 			s.SetText(event.Text())
 			s.Start()
-		} else {
+		case events.StatusDone:
+			icon := event.Icon
+			if icon == "" {
+				icon = clispinner.OK
+			}
 			s.Stop()
-			fmt.Printf("%s %s\n", clispinner.OK, event.Description)
+			fmt.Printf("%s %s\n", icon, event.Text())
 		}
 	}
 }
@@ -253,7 +259,7 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Starport %s is available!
 ·
-· If you're looking to upgrade check out the instructions: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
+· To upgrade your Starport version, see the upgrade doc: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
 ·
 ··
 

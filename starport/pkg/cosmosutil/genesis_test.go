@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
@@ -22,12 +23,10 @@ const (
 )
 
 func TestSetGenesisTime(t *testing.T) {
-	tmp, err := os.MkdirTemp("", "")
-	t.Cleanup(func() { os.RemoveAll(tmp) })
+	tmp := t.TempDir()
 	tmpGenesis := filepath.Join(tmp, "genesis.json")
 
 	// fails with no file
-	require.NoError(t, err)
 	require.Error(t, cosmosutil.SetGenesisTime(tmpGenesis, 0))
 
 	require.NoError(t, os.WriteFile(tmpGenesis, []byte(genesisSample), 0644))

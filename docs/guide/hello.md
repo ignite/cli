@@ -21,7 +21,9 @@ Starport comes with a number of scaffolding commands that are designed to make d
 
 One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `starport scaffold chain` command.
 
-Are you ready? Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain with the default directory structure, run this command:
+Are you ready? Open a terminal and navigate to a directory where you have permissions to create files. 
+
+To create your Cosmos SDK blockchain with the default directory structure, run this command:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/hello
@@ -34,9 +36,15 @@ This new blockchain imports standard Cosmos SDK modules, including:
 - [`staking`](https://docs.cosmos.network/master/modules/staking/) (for delegated proof of stake)
 - [`bank`](https://docs.cosmos.network/master/modules/bank/) (for fungible token transfers between accounts)
 - [`gov`](https://docs.cosmos.network/master/modules/gov/) (for on-chain governance)
-- And [other modules](https://docs.cosmos.network/master/modules/)
+- And other Cosmos SDK [modules](https://docs.cosmos.network/master/modules/)
 
-Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
+You can use `--help` on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
+
+To learn about the command you just used, run:
+
+```bash
+starport scaffold --help
+```
 
 ## Blockchain directory structure
 
@@ -71,7 +79,9 @@ starport chain serve
 
 This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, the binary name is the name of the repo + `d`. From now on, use this `hellod` binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
 
-## HTTP API console
+Leave this terminal window open.
+
+## HTTP API Console
 
 By default, a validator node exposes two API endpoints:
 
@@ -90,7 +100,7 @@ In the development environment, you don't have to restart the blockchain after y
 
 ## Say "Hello, Starport"
 
-To get your blockchain to say "Hello", you need to make these changes:
+To get your Cosmos SDK blockchain to say `Hello! Starport`, you need to make these changes:
 
 - Modify a protocol buffer file
 - Create a keeper query function that returns data
@@ -109,7 +119,11 @@ In terms of workflow, developers typically follow this sequence:
 
 ## Create a query
 
-To create a `posts` query:
+For all subsequent commands, you use a terminal window that is different from the window you started the chain in. 
+
+In a different terminal window, navigate to your `hello` directory.
+
+Create a `posts` query:
 
 ```bash
 starport scaffold query posts --response title,body
@@ -126,7 +140,7 @@ The `query` command has created and modified several files:
 
 Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Starport uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
 
-### Updates to the query qervice  
+### Updates to the query service
 
 In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Query` service.
 
@@ -177,7 +191,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-Here's all of the actions the `Posts` function does:
+The `Posts` function performs these actions:
 
 - Makes a basic check on the request and throws an error if it's `nil`
 - Stores context in a `ctx` variable that contains information about the environment of the request
@@ -187,7 +201,10 @@ Right now the response is empty.
 
 ### Update keeper function
 
-From the `query.proto` file we know that response accepts `title` and `body`, so use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. On the last line of the keeper function, change the line to return a "Hello!":
+In the `query.proto` file, the response accepts `title` and `body`. 
+
+- Use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. 
+- On the last line of the keeper function, change the line to return a "Hello!":
 
 ```go
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -196,39 +213,51 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-Save the file to restart your chain. Visit the [posts endpoint](http://localhost:1317/cosmonaut/hello/hello/posts), you see a `Not Implemented` error. This message is expected behavior, because you still need to register the query handlers with gRPC.
+- Save the file to restart your chain. 
+- In a web browser, visit the posts endpoint [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts).
+
+  Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
 
 ## Register query handlers
 
 Make the required changes to the `x/hello/module.go` file.
 
-As shown in the following example, add `"context"` to the list of packages in the import statement, search for `RegisterGRPCGatewayRoutes`, and register the query handlers:
+1. Add `"context"` to the list of packages in the import statement.
 
-```go
-import (
-  //...
-  "context"
-)
+    ```go
+    import (
+      "encoding/json"
+      "fmt"
+      //...
+      "context"
+    ```
 
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-  types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
+    Do not save the file yet, you need to continue with these modifications.
 
-Now you're ready to start your blockchain:
+2. Search for `RegisterGRPCGatewayRoutes`.
 
-```go
-starport chain serve
-```
+3. Register the query handlers:
 
-After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed!
+    ```go
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+      types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
 
-```go
-{
-  "title": "Hello!",
-  "body": "Starport"
-}
-```
+5. Now you're ready to start your blockchain:
+
+    ```go
+    starport chain serve
+    ```
+
+6. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+
+    ```go
+    {
+      "title": "Hello!",
+      "body": "Starport"
+    }
+    ```
 
 The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 

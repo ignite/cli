@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
@@ -38,8 +40,6 @@ func NewNetworkChainShow() *cobra.Command {
 		newNetworkChainShowValidators(),
 		newNetworkChainShowPeers(),
 	)
-	c.PersistentFlags().AddFlagSet(flagNetworkFrom())
-	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -49,7 +49,7 @@ func networkChainLaunch(cmd *cobra.Command, args []string) (NetworkBuilder, uint
 		return nb, 0, err
 	}
 	// parse launch ID.
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return nb, launchID, err
 	}
@@ -76,6 +76,12 @@ func newNetworkChainShowInfo() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			reward, err := n.ChainReward(cmd.Context(), launchID)
+			if err != nil && err != network.ErrObjectNotFound {
+				return err
+			}
+			chainLaunch.Reward = reward.RemainingCoins.String()
 
 			var genesis []byte
 			if chainLaunch.GenesisURL != "" {
@@ -133,7 +139,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 				return err
 			}
 
-			// check if the genesis already exist
+			// check if the genesis already exists
 			if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
 				// fetch the information to construct genesis
 				genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
@@ -190,7 +196,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 				return err
 			}
 
-			accountSummary := bytes.NewBufferString("")
+			accountSummary := &bytes.Buffer{}
 
 			// get all chain genesis accounts
 			genesisAccs, err := n.GenesisAccounts(cmd.Context(), launchID)
@@ -238,7 +244,11 @@ func newNetworkChainShowAccounts() *cobra.Command {
 				}
 			}
 			nb.Spinner.Stop()
-			fmt.Print(accountSummary.String())
+			if accountSummary.Len() > 0 {
+				fmt.Print(accountSummary.String())
+			} else {
+				fmt.Printf("%s %s\n", clispinner.Info, "empty chain account list")
+			}
 			return nil
 		},
 	}
@@ -268,12 +278,17 @@ func newNetworkChainShowValidators() *cobra.Command {
 			}
 			validatorEntries := make([][]string, 0)
 			for _, acc := range validators {
+				peer, err := network.PeerAddress(acc.Peer)
+				if err != nil {
+					return err
+				}
 				validatorEntries = append(validatorEntries, []string{
 					acc.Address,
 					acc.SelfDelegation.String(),
-					acc.Peer.GetTcpAddress(),
+					peer,
 				})
 			}
+			nb.Spinner.Stop()
 			if len(validatorEntries) > 0 {
 				if err = entrywriter.MustWrite(
 					validatorSummary,
@@ -282,9 +297,10 @@ func newNetworkChainShowValidators() *cobra.Command {
 				); err != nil {
 					return err
 				}
+				fmt.Print(validatorSummary.String())
+			} else {
+				fmt.Printf("%s %s\n", clispinner.Info, "no account found")
 			}
-			nb.Spinner.Stop()
-			fmt.Print(validatorSummary.String())
 			return nil
 		},
 	}
@@ -313,7 +329,11 @@ func newNetworkChainShowPeers() *cobra.Command {
 
 			peers := make([]string, 0)
 			for _, acc := range genVals {
-				peers = append(peers, acc.Peer.GetTcpAddress())
+				peer, err := network.PeerAddress(acc.Peer)
+				if err != nil {
+					return err
+				}
+				peers = append(peers, peer)
 			}
 			nb.Spinner.Stop()
 			if len(peers) > 0 {

@@ -6,13 +6,14 @@ import (
 	"sort"
 
 	"github.com/iancoleman/strcase"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	swaggercombine "github.com/tendermint/starport/starport/pkg/nodetime/programs/swagger-combine"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 )
 
 var openAPIOut = []string{
-	"--openapiv2_out=logtostderr=true,allow_merge=true,fqn_for_openapi_name=true,simple_operation_ids=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
+	"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,fqn_for_openapi_name=true,simple_operation_ids=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 }
 
 func generateOpenAPISpec(g *generator) error {

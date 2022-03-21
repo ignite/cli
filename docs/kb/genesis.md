@@ -5,7 +5,7 @@ description: Test different scenarios after the blockchain is created.
 
 # Genesis overwrites for development
 
-The `genesis.json` file for all new blockchains is automatically created from the `config.yml` file to define the initial state upon genesis of the blockchain. 
+The `genesis.json` file for all new blockchains is automatically created from the `config.yml` file to define the initial state upon genesis of the blockchain.
 
 In development environments, it is useful to test different scenarios after the blockchain is created. The `genesis.json` file for the blockchain is overwritten by the top-level `genesis` parameter in `config.yml`.
 
@@ -34,7 +34,7 @@ genesis:
 
 ## Genesis file
 
-For genesis file details and field definitions, see [Using Tendermint > Genesis](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#genesis).
+For genesis file details and field definitions, see Cosmos Hub documentation for the [Genesis File](https://hub.cosmos.network/main/resources/genesis.html).
 
 ## Genesis block summary
 

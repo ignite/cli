@@ -8,6 +8,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
 

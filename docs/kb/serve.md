@@ -76,9 +76,16 @@ The `starport chain serve` and `starport chain build` commands compile the sourc
 
 You can customize the binary name in `config.yml`:
 
-```yml
+```yaml
 build:
   binary: "newchaind"
+```
+
+Or also add custom `ldflags` into your app binary:
+
+```yaml
+build:
+  ldflags: [ "-X main.Env=prod", "-X main.Version=1.0.1" ]
 ```
 
 Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/master/run-node/run-node.html).

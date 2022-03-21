@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -22,9 +23,6 @@ func NewNetworkRequestList() *cobra.Command {
 		RunE:  networkRequestListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
@@ -34,10 +32,9 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
@@ -52,7 +49,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
+	nb.Cleanup()
 	return renderRequestSummaries(requests, os.Stdout)
 }
 
@@ -72,8 +69,12 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 				req.GenesisAccount.Coins.String())
 		case *launchtypes.RequestContent_GenesisValidator:
 			requestType = "Add Genesis Validator"
+			peer, err := network.PeerAddress(req.GenesisValidator.Peer)
+			if err != nil {
+				return err
+			}
 			content = fmt.Sprintf("%s, %s, %s",
-				req.GenesisValidator.Peer,
+				peer,
 				req.GenesisValidator.Address,
 				req.GenesisValidator.SelfDelegation.String())
 		case *launchtypes.RequestContent_VestingAccount:

@@ -3,8 +3,9 @@ package cosmosgen
 import (
 	"context"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	gomodmodule "golang.org/x/mod/module"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 )
 
 // generateOptions used to configure code generation.

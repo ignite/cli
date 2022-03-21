@@ -2,13 +2,15 @@ package networkchain
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
+	"os/exec"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"github.com/tendermint/starport/starport/pkg/checksum"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -19,7 +21,8 @@ import (
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
 type Chain struct {
-	id string
+	id       string
+	launchID uint64
 
 	path string
 	home string
@@ -82,6 +85,7 @@ func SourceRemoteHash(url, hash string) SourceOption {
 func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 	return func(c *Chain) {
 		c.id = launch.ChainID
+		c.launchID = launch.ID
 		c.url = launch.SourceURL
 		c.hash = launch.SourceHash
 		c.genesisURL = launch.GenesisURL
@@ -225,8 +229,8 @@ func (c Chain) IsHomeDirExist() (ok bool, err error) {
 	return err == nil, err
 }
 
-// Peer returns the chain peer string `<nodeID>@<host>` of node for others to connect.
-func (c Chain) Peer(ctx context.Context, addr string) (string, error) {
+// NodeID returns the chain node id
+func (c Chain) NodeID(ctx context.Context) (string, error) {
 	chainCmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return "", err
@@ -236,8 +240,59 @@ func (c Chain) Peer(ctx context.Context, addr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return nodeID, nil
+}
 
-	return fmt.Sprintf("%s@%s", nodeID, addr), nil
+// Build builds chain sources, also checks if source was already built
+func (c *Chain) Build(ctx context.Context) (string, error) {
+	// if chain was already published and has launch id check binary cache
+	if c.launchID != 0 {
+		binaryName, err := c.chain.Binary()
+		if err != nil {
+			return "", err
+		}
+		binaryChecksum, err := checksum.Binary(binaryName)
+		if err != nil && !errors.Is(err, exec.ErrNotFound) {
+			return "", err
+		}
+		binaryMatch, err := checkBinaryCacheForLaunchID(c.launchID, binaryChecksum, c.hash)
+		if err != nil {
+			return "", err
+		}
+		if binaryMatch {
+			return binaryName, nil
+		}
+	}
+
+	// build binary
+	binaryName, err := c.chain.Build(ctx, "")
+	if err != nil {
+		return "", err
+	}
+
+	// cache built binary for launch id
+	if c.launchID != 0 {
+		err := c.CacheBinary(c.launchID)
+		if err != nil {
+			return "", nil
+		}
+	}
+
+	return binaryName, nil
+}
+
+// CacheBinary caches last built chain binary associated with launch id
+func (c *Chain) CacheBinary(launchID uint64) error {
+	binaryName, err := c.chain.Binary()
+	if err != nil {
+		return err
+	}
+	binaryChecksum, err := checksum.Binary(binaryName)
+
+	if err != nil {
+		return err
+	}
+	return cacheBinaryForLaunchID(launchID, binaryChecksum, c.hash)
 }
 
 // fetchSource fetches the chain source from url and returns a temporary path where source is saved

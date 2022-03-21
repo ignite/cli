@@ -6,6 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -19,9 +20,6 @@ func NewNetworkRequestShow() *cobra.Command {
 		RunE:  networkRequestShowHandler,
 		Args:  cobra.ExactArgs(2),
 	}
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
@@ -34,7 +32,7 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}

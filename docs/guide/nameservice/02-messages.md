@@ -89,15 +89,13 @@ where:
 
 The `starport scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
 
-```bash
-modify proto/nameservice/tx.proto
-modify x/nameservice/client/cli/tx.go
-create x/nameservice/client/cli/tx_buy_name.go
-modify x/nameservice/handler.go
-create x/nameservice/keeper/msg_server_buy_name.go
-modify x/nameservice/types/codec.go
-create x/nameservice/types/message_buy_name.go
-```
+- modify `proto/nameservice/tx.proto`
+- modify `x/nameservice/client/cli/tx.go`
+- create `x/nameservice/client/cli/tx_buy_name.go`
+- modify `x/nameservice/handler.go`
+- create `x/nameservice/keeper/msg_server_buy_name.go`
+- modify `x/nameservice/types/codec.go`
+- create `x/nameservice/types/message_buy_name.go`
 
 - `proto/nameservice/tx.proto`
     - Adds `MsgBuyName` and `MsgBuyNameResponse` proto messages.
