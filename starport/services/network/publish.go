@@ -119,7 +119,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -168,6 +168,11 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
 		return 0, 0, 0, err
+	}
+
+	if err := c.CacheBinary(createChainRes.LaunchID); err != nil {
+		return 0, 0, 0, err
+
 	}
 
 	// FIXME: get the operator address from the cosmos-sdk

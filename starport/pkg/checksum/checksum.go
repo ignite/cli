@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -38,4 +39,34 @@ func Sum(dirPath, outPath string) error {
 	}
 
 	return os.WriteFile(outPath, b.Bytes(), 0666)
+}
+
+// Binary returns SHA256 hash of executable file, file is searched by name in PATH
+func Binary(binaryName string) (string, error) {
+	// get binary path
+	binaryPath, err := exec.LookPath(binaryName)
+	if err != nil {
+		return "", err
+	}
+	f, err := os.Open(binaryPath)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+// Strings concatenates all inputs and returns SHA256 hash of them
+func Strings(inputs ...string) string {
+	h := sha256.New()
+	for _, input := range inputs {
+		h.Write([]byte(input))
+	}
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
