@@ -113,7 +113,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	campaignID = o.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
-	if _, err := n.Coordinator(ctx, coordinatorAddress); cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if _, err := n.Coordinator(ctx, coordinatorAddress); cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
