@@ -3,6 +3,9 @@ package xstrings
 import (
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // AllOrSomeFilter filters elems out from the list as they  present in filterList and
@@ -65,4 +68,10 @@ func NoNumberPrefix(s string) string {
 		return "_" + s
 	}
 	return s
+}
+
+// Title returns a copy of the string s with all Unicode letters that begin words
+// mapped to their Unicode title case.
+func Title(title string) string {
+	return cases.Title(language.English).String(title)
 }
