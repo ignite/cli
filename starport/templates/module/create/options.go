@@ -2,8 +2,8 @@ package modulecreate
 
 import (
 	"fmt"
-	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/field"
 )
 
@@ -50,7 +50,7 @@ type Dependency struct {
 func NewDependency(name, keeperName string) Dependency {
 	// Default keeper name
 	if keeperName == "" {
-		keeperName = fmt.Sprintf("%sKeeper", strings.Title(name))
+		keeperName = fmt.Sprintf("%sKeeper", xstrings.Title(name))
 	}
 	return Dependency{
 		name,
