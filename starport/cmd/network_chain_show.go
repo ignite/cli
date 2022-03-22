@@ -40,8 +40,6 @@ func NewNetworkChainShow() *cobra.Command {
 		newNetworkChainShowValidators(),
 		newNetworkChainShowPeers(),
 	)
-	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -78,6 +76,12 @@ func newNetworkChainShowInfo() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			reward, err := n.ChainReward(cmd.Context(), launchID)
+			if err != nil && err != network.ErrObjectNotFound {
+				return err
+			}
+			chainLaunch.Reward = reward.RemainingCoins.String()
 
 			var genesis []byte
 			if chainLaunch.GenesisURL != "" {

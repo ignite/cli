@@ -1621,13 +1621,14 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/flutter/v2 v2.0.3 h1:+J3Q6FRdcDTLkrcPQHY306J7wRPEKxfU2K2xCVFJGqs=
 github.com/tendermint/flutter/v2 v2.0.3/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMonsB9EIWP0AGMPw0=
+github.com/tendermint/fundraising v0.1.1 h1:RCPAD1tw8ax5g66CUDCa96WfxrllCLsLkN8P/A2jKFE=
 github.com/tendermint/fundraising v0.1.1/go.mod h1:5QEwrPzpkIqCeGSK9HgI2DxO5RKC5Jk8nXWqowUW0to=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.1.8/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpXuN/42Q=
 github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57/go.mod h1:p4BO8YC6kOKSKqMfySqaLHfwBmuPE/QcLwnnVhh7H9M=
-github.com/tendermint/spn v0.1.1-0.20220309210912-ae38eed8fbee h1:V4aDFMIRRTEqDAOyxg9o1CweDifo8JECJTjwNdWEww4=
-github.com/tendermint/spn v0.1.1-0.20220309210912-ae38eed8fbee/go.mod h1:E1/XLH8W9U3B+E/Lyytly+HXbpkIXqy5nbhdra14paU=
+github.com/tendermint/spn v0.1.1-0.20220317161058-9c1d1492d9eb h1:ZrcjurF0JTHvmwtAHK7lkUviGii0oHNb2aQ+c1676yU=
+github.com/tendermint/spn v0.1.1-0.20220317161058-9c1d1492d9eb/go.mod h1:E1/XLH8W9U3B+E/Lyytly+HXbpkIXqy5nbhdra14paU=
 github.com/tendermint/starport v0.19.3/go.mod h1:1BlPohoDtLl8CFqTHbMSN3rhq5YLBHlTQ9mJhcRuvwI=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
@@ -1643,8 +1644,8 @@ github.com/tendermint/tm-db v0.6.6/go.mod h1:wP8d49A85B7/erz/r4YbKssKw6ylsO/hKtF
 github.com/tendermint/tm-db v0.6.7 h1:fE00Cbl0jayAoqlExN6oyQJ7fR/ZtoVOmvPJ//+shu8=
 github.com/tendermint/tm-db v0.6.7/go.mod h1:byQDzFkZV1syXr/ReXS808NxA2xvyuuVgXOJ/088L6I=
 github.com/tendermint/vue v0.1.58/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
-github.com/tendermint/vue v0.3.0 h1:jllMEhdq3r7pIwLCNh7Aj7CXmOG3mqHCKeRMelohjwQ=
-github.com/tendermint/vue v0.3.0/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
+github.com/tendermint/vue v0.3.5 h1:PTZaW0+7/4lRJyUtuZOxFzMCahNLowTadVoCZns2Wmw=
+github.com/tendermint/vue v0.3.5/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
 github.com/tetafro/godot v1.4.9/go.mod h1:LR3CJpxDVGlYOWn3ZZg1PgNZdTUvzsZWu8xaEohUpn8=
 github.com/tidwall/gjson v1.6.7/go.mod h1:zeFuBCIqD4sN/gmqBzZ4j7Jd6UcA2Fc56x7QFsv+8fI=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=

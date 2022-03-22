@@ -3,11 +3,27 @@
 ## `Unreleased`
 
 ### Features
-- upgraded template to v0.45.0
+- upgraded template to v0.45.1
 - annotated template
 
 ### Fixes
 - Updated golang to v 1.17 in all files
+
+
+## [`v0.19.5`](https://github.com/tendermint/starport/pull/2158/commits)
+
+### Features
+
+- Enable client code and Vuex code generation for query only modules as well.
+- Upgraded the Vue template to `v0.3.5`.
+
+### Fixes:
+- Fixed snake case in code generation.
+- Fixed plugin installations for Go =>v1.18.
+
+### Changes:
+- Dropped transpilation of TS to JS. Code generation now only produces TS files.
+
 ## `v0.19.4`
 
 ### Features

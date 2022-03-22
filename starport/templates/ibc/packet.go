@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/field"
 	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -131,7 +132,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		replacementRecv := fmt.Sprintf(
 			templateRecv,
 			PlaceholderIBCPacketModuleRecv,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
@@ -147,7 +148,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		replacementAck := fmt.Sprintf(
 			templateAck,
 			PlaceholderIBCPacketModuleAck,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
@@ -162,7 +163,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		replacementTimeout := fmt.Sprintf(
 			templateTimeout,
 			PlaceholderIBCPacketModuleTimeout,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleTimeout, replacementTimeout)
