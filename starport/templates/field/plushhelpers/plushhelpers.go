@@ -1,10 +1,9 @@
 package plushhelpers
 
 import (
-	"strings"
-
 	"github.com/gobuffalo/plush"
 
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/field"
 	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
@@ -14,7 +13,7 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("mergeGoImports", mergeGoImports)
 	ctx.Set("mergeProtoImports", mergeProtoImports)
 	ctx.Set("mergeCustomImports", mergeCustomImports)
-	ctx.Set("title", strings.Title)
+	ctx.Set("title", xstrings.Title)
 }
 
 func mergeCustomImports(fields ...field.Fields) []string {
