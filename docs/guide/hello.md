@@ -140,7 +140,7 @@ The `query` command has created and modified several files:
 
 Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Starport uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
 
-### Updates to the query qervice  
+### Updates to the query service
 
 In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Query` service.
 

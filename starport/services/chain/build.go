@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/pkg/errors"
@@ -18,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/goanalysis"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
 const (
@@ -176,7 +176,7 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 
 	ldFlags := config.Build.LDFlags
 	ldFlags = append(ldFlags,
-		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Name=%s", strings.Title(c.app.Name)),
+		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Name=%s", xstrings.Title(c.app.Name)),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.AppName=%sd", c.app.Name),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Version=%s", c.sourceVersion.tag),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Commit=%s", c.sourceVersion.hash),
