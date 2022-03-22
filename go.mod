@@ -52,7 +52,7 @@ require (
 	golang.org/x/mod v0.5.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.44.0
 )
 
@@ -225,7 +225,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
