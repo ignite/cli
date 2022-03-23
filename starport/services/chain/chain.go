@@ -3,7 +3,6 @@ package chain
 import (
 	"context"
 	"io"
-	"math/rand"
 	"os"
 	"path/filepath"
 
@@ -249,13 +248,13 @@ func (c *Chain) ID() (string, error) {
 	return c.app.N(), nil
 }
 
-// ChainID returns the network chain's id with a random network number.
+// ChainID returns the default network chain's id.
 func (c *Chain) ChainID() (string, error) {
 	chainID, err := c.ID()
 	if err != nil {
 		return "", err
 	}
-	return chainid.NewGenesisChainID(chainID, rand.Uint64()), nil
+	return chainid.NewGenesisChainID(chainID, 1), nil
 }
 
 // Name returns the chain's name
