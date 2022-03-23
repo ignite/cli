@@ -1,13 +1,17 @@
-# Technical Setup 
+# Technical setup
 
-To ensure you have a successful experience working with our Developer Tutorials content, Tendermint recommends this technical setup. 
+To ensure you have a successful experience working with our Developer Tutorials content, Tendermint recommends this technical setup.
 
-## Setting Up Visual Studio Code 
+## Setting up Visual Studio Code
 
 1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup/).
-1. Click **Extensions** in the sidebar. 
-1. Install this extension:
+1. Click **Extensions** in the sidebar.
+1. Install these extensions:
     - Go for VS Code The official Go extension for Visual Studio Code
+    - markdownlint
+    - Optional: PlantUML
+    - Optional: Docker
+    - Optional: Markdown All in One
 1. When prompted:
     - `go get -v golang.org/x/tools/gopls`
     - Select `Install all` for all packages
@@ -16,25 +20,25 @@ Be sure to set up [Visual Studio Code](https://code.visualstudio.com/docs/setup/
 
 **Tip** On MacOS, install `code` in $PATH to enable [Launching Visual Studio Code from the command line](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line). Open the Command Palette (Cmd+Shift+P) and type 'shell command'.  
 
-## GitHub Integration
+## GitHub integration
 
 Click the GitHub icon in the sidebar for GitHub integration and follow the prompts.
 
-## Clone the Repos You Work In
+## Clone the repos you work in
 
-- Fork or clone the <https://github.com/tendermint/starport/> repository. 
+- Fork or clone the <https://github.com/tendermint/starport/> repository.
 
-Internal Tendermint users have different permissions, if you're not sure, fork the repo.
+Internal Ignite users have different permissions. If you're not sure, fork the repo.
 
-## Terminal Tips 
+## Terminal tips
 
 Master your terminal to be happy.
 
-### iTerm2 Terminal Emulator
+### iTerm2 terminal emulator
 
-On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 as a replacement for Terminal provides an updated version of the Bash shell that supports useful features like programmable completion.
+On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 provides an updated version of the Bash shell that supports useful features like programmable completion.
 
-### Using ZSH as Your Default Shell
+### Using ZSH as your default shell
 
 The Z shell, also known as zsh, is a UNIX shell that is built on top of the macOS default Bourne shell.
 
@@ -55,14 +59,3 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
     ```
 
 1. Log out and log back in to the terminal to use your new default zsh shell.
-
-
-## Install Go 
-
-This installation method removes existing Go installations, installs Go in `/usr/local/go/bin/go`, and sets the environment variables.
-
-1. Go to <https://golang.org/dl>.
-1. Download the binary release that is suitable for your system. 
-1. Follow the installation instructions.
-
-**Note:** We recommend not using brew to install Go.
