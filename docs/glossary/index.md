@@ -33,6 +33,10 @@ The native staking currency of the Cosmos Hub.
 
 ## B
 
+### Bitcoin
+
+Bitcoin is a cryptocurrency created in 2009 by an unknown person (or people) using the alias Satoshi Nakamoto. 
+
 ### blockchain
 
 Digitally distributed, decentralized, immutable  public ledger that exists across a network. Blockchains facilitate the process of recording transactions and tracking digital assets.
@@ -71,9 +75,13 @@ A decentralized network of independent, scalable, and interoperable blockchains.
 
 A modular framework that simplifies the process of building secure blockchain applications.
 
-### CRUD 
+### CRUD
 
 The four functions that are considered necessary to implement a persistent storage application: create, read, update and delete. Starport scaffold commands create and modify the source code files to add CRUD functionality.
+
+### cryptocurrency
+
+
 
 ### current reward height
 
