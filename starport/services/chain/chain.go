@@ -3,11 +3,13 @@ package chain
 import (
 	"context"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
@@ -247,6 +249,16 @@ func (c *Chain) ID() (string, error) {
 	return c.app.N(), nil
 }
 
+// ChainID returns the network chain's id with a random network number.
+func (c *Chain) ChainID() (string, error) {
+	chainID, err := c.ID()
+	if err != nil {
+		return "", err
+	}
+	return chainid.NewGenesisChainID(chainID, rand.Uint64()), nil
+}
+
+// Name returns the chain's name
 func (c *Chain) Name() string {
 	return c.app.N()
 }

@@ -59,10 +59,18 @@ func ParseGenesisFromPath(genesisPath string) (Genesis, error) {
 	return ParseGenesis(genesisFile)
 }
 
-// ParseGenesis parse ChainGenesis object from a byte slice
-func ParseGenesis(genesisFile []byte) (Genesis, error) {
-	var chainGenesis ChainGenesis
+// ParseChainGenesis parse ChainGenesis object from a byte slice
+func ParseChainGenesis(genesisFile []byte) (chainGenesis ChainGenesis, err error) {
 	if err := json.Unmarshal(genesisFile, &chainGenesis); err != nil {
+		return chainGenesis, errors.New("cannot unmarshal the chain genesis file: " + err.Error())
+	}
+	return chainGenesis, err
+}
+
+// ParseGenesis parse ChainGenesis object from a byte slice into a Genesis object
+func ParseGenesis(genesisFile []byte) (Genesis, error) {
+	chainGenesis, err := ParseChainGenesis(genesisFile)
+	if err != nil {
 		return Genesis{}, errors.New("cannot unmarshal the genesis file: " + err.Error())
 	}
 	genesis := Genesis{StakeDenom: chainGenesis.AppState.Staking.Params.BondDenom}

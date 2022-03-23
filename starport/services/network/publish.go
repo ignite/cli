@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -96,7 +95,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	var (
 		genesisHash string
 		genesisFile []byte
-		genesis     cosmosutil.Genesis
+		genesis     cosmosutil.ChainGenesis
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
@@ -105,19 +104,23 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		if err != nil {
 			return 0, 0, 0, err
 		}
-		genesis, err = cosmosutil.ParseGenesis(genesisFile)
+		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
 		if err != nil {
 			return 0, 0, 0, err
 		}
 	}
 
-	chainID := o.chainID
+	chainID := genesis.ChainID
+	// use chain id flag always in the highest priority.
+	if o.chainID != "" {
+		chainID = o.chainID
+	}
+	// if the chain id is empty, use a default one.
 	if chainID == "" {
-		chainID, err = c.ID()
+		chainID, err = c.ChainID()
 		if err != nil {
 			return 0, 0, 0, err
 		}
-		chainID = fmt.Sprintf("%s-1", chainID)
 	}
 
 	coordinatorAddress := n.account.Address(networktypes.SPN)

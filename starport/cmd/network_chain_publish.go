@@ -5,7 +5,9 @@ import (
 	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/spn/pkg/chainid"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -91,6 +93,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 		if chainID == "" {
 			return fmt.Errorf("%s flag requires the %s flag", flagMainnet, flagChainID)
+		}
+	}
+
+	if chainID != "" {
+		if err := chainid.CheckChainName(chainID); err != nil {
+			return errors.Wrap(err, "invalid chain id")
 		}
 	}
 
