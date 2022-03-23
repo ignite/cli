@@ -116,11 +116,16 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
-	// set the genesis time for the chain
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
+
+	// set chain id
+	if err := cosmosutil.SetChainID(genesisPath, c.id); err != nil {
+		return errors.Wrap(err, "chain id cannot be set")
+	}
+	// set the genesis time for the chain
 	if err := cosmosutil.SetGenesisTime(genesisPath, c.launchTime); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
