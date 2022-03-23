@@ -130,7 +130,7 @@ func (c *Chain) checkGentxFiles() error {
 	if err != nil {
 		return err
 	}
-	if xfilepath.IsEmptyDir(gentxsPath) {
+	if !xfilepath.IsEmptyDir(gentxsPath) {
 		return fmt.Errorf("gentxs folder %s is not empty in the initial genesis", gentxsPath)
 	}
 	return nil
