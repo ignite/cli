@@ -3,9 +3,9 @@ order: 12
 description: IBC oracle integration with BandChain
 ---
 
-# BandChain oracle 
+# BandChain oracle
 
-The BandChain oracle communication module has built-in compliance using IBC protocol that can query data points of various types from BandChain. 
+The BandChain oracle communication module has built-in compliance using IBC protocol that can query data points of various types from BandChain.
 
 Other chains can query this oracle module for real-time information.
 
@@ -28,7 +28,7 @@ starport scaffold band [queryName] --module [moduleName]
 Customize your band oracle with flags:
 
 - --module string - name of the new IBC Module to add the packets to
-- --path string - file path of the app, efault is the current directory (`"."`)
+- --path string - path of the app, default is the current directory (`"."`)
 - --signer string - signer label, default is `creator`
 
 ### Acknowledgement messages
@@ -53,7 +53,7 @@ First, scaffold a chain but don't scaffold a default module:
 starport scaffold chain github.com/cosmonaut/oracle --no-module 
 ```
 
-Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`: 
+Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`:
 
 ```bash
 cd oracle 
@@ -62,7 +62,7 @@ starport scaffold module consuming --ibc
 
 Finally, scaffold a BandChain query oracle that can request real-time data:
 
-```
+```bash
 starport scaffold band coinRates --module consuming
 ```
 
@@ -101,12 +101,13 @@ Keep this terminal window open.
 
 If you previously used the Starport relayer, it is a good idea to remove existing relayer and Starport configurations:
 
-1. Stop your blockchains 
+1. Stop your blockchains.
 2. Delete previous configuration files:
 
     ```bash
     rm -rf ~/.starport/relayer
     ```
+
 3. Restart your blockchains.
 
 In another terminal tab, configure the [Starport relayer](../docs/kb/../../kb/relayer.md):
@@ -198,7 +199,7 @@ oracled query consuming coin-rates-result 101276
 
 ### Multiple oracles
 
-You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters in the proto file `moduleName.proto` and then adapt the request in the  `cli/client/tx_module_name.go` file. 
+You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters in the proto file `moduleName.proto` and then adapt the request in the  `cli/client/tx_module_name.go` file.
 
 To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
 
