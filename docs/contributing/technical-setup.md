@@ -1,6 +1,6 @@
 # Technical setup
 
-To ensure you have a successful experience working with our Developer Tutorials content, Tendermint recommends this technical setup.
+To ensure you have a successful experience working with our technical content, Ignite recommends this technical setup.
 
 ## Setting up Visual Studio Code
 
@@ -59,3 +59,7 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
     ```
 
 1. Log out and log back in to the terminal to use your new default zsh shell.
+
+## Install Starport
+
+Follow the steps in [Install Starport](../guide/install.md) docs to install Starport and Go.
