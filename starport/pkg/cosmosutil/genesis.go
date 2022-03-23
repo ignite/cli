@@ -15,6 +15,7 @@ import (
 )
 
 const genesisTimeField = "genesis_time"
+const chainIDField = "chain_id"
 
 type (
 	// Genesis represents a more readable version of the stargate genesis file
@@ -100,6 +101,26 @@ func SetGenesisTime(genesisPath string, genesisTime int64) error {
 
 	// modify and save the new genesis
 	genesis[genesisTimeField] = &formattedTime
+	genesisBytes, err = json.Marshal(genesis)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(genesisPath, genesisBytes, 0644)
+}
+
+// TODO refactor
+func SetChainID(genesisPath, chainID string) error {
+	genesisBytes, err := os.ReadFile(genesisPath)
+	if err != nil {
+		return err
+	}
+
+	var genesis map[string]interface{}
+	if err := json.Unmarshal(genesisBytes, &genesis); err != nil {
+		return err
+	}
+
+	genesis[chainIDField] = chainID
 	genesisBytes, err = json.Marshal(genesis)
 	if err != nil {
 		return err
