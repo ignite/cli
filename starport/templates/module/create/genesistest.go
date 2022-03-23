@@ -1,13 +1,12 @@
 package modulecreate
 
 import (
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 )
 
@@ -23,7 +22,7 @@ func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool)
 	ctx.Set("modulePath", modulePath)
 	ctx.Set("appName", appName)
 	ctx.Set("isIBC", isIBC)
-	ctx.Set("title", strings.Title)
+	ctx.Set("title", xstrings.Title)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

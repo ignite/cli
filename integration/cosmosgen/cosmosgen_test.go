@@ -7,15 +7,18 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	envtest "github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestCosmosGen(t *testing.T) {
 	var (
-		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		env          = envtest.New(t)
+		path         = env.Scaffold("blog")
+		dirGenerated = filepath.Join(path, "vue/src/store/generated")
 	)
+
 	const (
 		withMsgModuleName    = "withmsg"
 		withoutMsgModuleName = "withoutmsg"
@@ -91,6 +94,8 @@ func TestCosmosGen(t *testing.T) {
 		)),
 	))
 
+	require.NoError(t, os.RemoveAll(dirGenerated))
+
 	env.Must(env.Exec("generate vuex",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -105,7 +110,6 @@ func TestCosmosGen(t *testing.T) {
 
 	var expectedCosmosModules = []string{
 		"cosmos.auth.v1beta1",
-		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
 		"cosmos.base.tendermint.v1beta1",
 		"cosmos.crisis.v1beta1",
@@ -128,7 +132,6 @@ func TestCosmosGen(t *testing.T) {
 		"test.blog.withoutmsg",
 	}
 
-	dirGenerated := filepath.Join(path, "vue/src/store/generated")
 	for _, chainModule := range expectedCustomModules {
 		_, statErr := os.Stat(filepath.Join(dirGenerated, "test/blog", chainModule))
 		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s vuex store should have be generated", chainModule))
