@@ -97,7 +97,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if chainID != "" {
-		if err := chainid.CheckChainName(chainID); err != nil {
+		chainName, _, err := chainid.ParseGenesisChainID(chainID)
+		if err != nil {
+			return errors.Wrap(err, "invalid chain id")
+		}
+		if err := chainid.CheckChainName(chainName); err != nil {
 			return errors.Wrap(err, "invalid chain id")
 		}
 	}
