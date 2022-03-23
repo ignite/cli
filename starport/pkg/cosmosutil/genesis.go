@@ -14,8 +14,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-const genesisTimeField = "genesis_time"
-const chainIDField = "chain_id"
+const (
+	genesisTimeField = "genesis_time"
+	chainIDField     = "chain_id"
+)
 
 type (
 	// Genesis represents a more readable version of the stargate genesis file
