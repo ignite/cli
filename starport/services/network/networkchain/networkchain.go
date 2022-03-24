@@ -173,6 +173,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	return c, nil
 }
 
+func (c Chain) ChainID() (string, error) {
+	return c.chain.ChainID()
+}
+
 func (c Chain) ID() (string, error) {
 	return c.chain.ID()
 }

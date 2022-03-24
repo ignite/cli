@@ -20,6 +20,7 @@ type Network struct {
 
 type Chain interface {
 	ID() (string, error)
+	ChainID() (string, error)
 	Name() string
 	SourceURL() string
 	SourceHash() string
