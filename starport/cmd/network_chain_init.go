@@ -114,7 +114,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.ParseGenesis(genesisPath)
+	genesis, err := cosmosutil.ParseGenesisFromPath(genesisPath)
 	if err != nil {
 		return err
 	}
@@ -124,11 +124,15 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	nb.Spinner.SetText("Generating your Gentx")
+	nb.Spinner.Start()
 
 	gentxPath, err := c.InitAccount(cmd.Context(), v, validatorAccount)
 	if err != nil {
 		return err
 	}
+
+	nb.Spinner.Stop()
 	fmt.Printf("%s Gentx generated: %s\n", clispinner.Bullet, gentxPath)
 
 	return nil

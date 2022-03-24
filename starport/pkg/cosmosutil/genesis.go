@@ -14,8 +14,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-const genesisTimeField = "genesis_time"
-const chainIDField = "chain_id"
+const (
+	genesisTimeField = "genesis_time"
+	chainIDField     = "chain_id"
+)
 
 type (
 	// Genesis represents a more readable version of the stargate genesis file
@@ -25,6 +27,7 @@ type (
 	}
 	// ChainGenesis represents the stargate genesis file
 	ChainGenesis struct {
+		ChainID  string `json:"chain_id"`
 		AppState struct {
 			Auth struct {
 				Accounts []struct {
@@ -50,14 +53,26 @@ func (g Genesis) HasAccount(address string) bool {
 	return false
 }
 
-// ParseGenesis parse ChainGenesis object from a genesis file
-func ParseGenesis(genesisPath string) (Genesis, error) {
+// ParseGenesisFromPath parse ChainGenesis object from a genesis file
+func ParseGenesisFromPath(genesisPath string) (Genesis, error) {
 	genesisFile, err := os.ReadFile(genesisPath)
 	if err != nil {
 		return Genesis{}, errors.Wrap(err, "cannot open genesis file")
 	}
-	var chainGenesis ChainGenesis
-	err = json.Unmarshal(genesisFile, &chainGenesis)
+	return ParseGenesis(genesisFile)
+}
+
+// ParseChainGenesis parse ChainGenesis object from a byte slice
+func ParseChainGenesis(genesisFile []byte) (chainGenesis ChainGenesis, err error) {
+	if err := json.Unmarshal(genesisFile, &chainGenesis); err != nil {
+		return chainGenesis, errors.New("cannot unmarshal the chain genesis file: " + err.Error())
+	}
+	return chainGenesis, err
+}
+
+// ParseGenesis parse ChainGenesis object from a byte slice into a Genesis object
+func ParseGenesis(genesisFile []byte) (Genesis, error) {
+	chainGenesis, err := ParseChainGenesis(genesisFile)
 	if err != nil {
 		return Genesis{}, errors.New("cannot unmarshal the genesis file: " + err.Error())
 	}
@@ -76,7 +91,7 @@ func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 	} else if err != nil {
 		return false, err
 	}
-	genesis, err := ParseGenesis(genesisPath)
+	genesis, err := ParseGenesisFromPath(genesisPath)
 	if err != nil {
 		return false, err
 	}
