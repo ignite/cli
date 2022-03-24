@@ -18,25 +18,32 @@ import (
 )
 
 const (
-	flagGentx = "gentx"
+	flagGentx  = "gentx"
+	flagAmount = "amount"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
 // to a network as a validator.
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "join [launch-id] [amount]",
+		Use:   "join [launch-id]",
 		Short: "Request to join a network as a validator",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainJoinHandler,
 	}
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
+	var (
+		gentxPath, _ = cmd.Flags().GetString(flagGentx)
+		amount, _    = cmd.Flags().GetString(flagAmount)
+	)
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
@@ -48,14 +55,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	// parse the amount.
-	amount, err := sdk.ParseCoinNormalized(args[1])
-	if err != nil {
-		return errors.Wrap(err, "error parsing amount")
-	}
-
-	gentxPath, _ := cmd.Flags().GetString(flagGentx)
 
 	// get the peer public address for the validator.
 	publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
@@ -78,8 +77,20 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	joinOptions := []network.JoinOption{}
+	if amount != "" {
+		// parse the amount.
+		amountCoins, err := sdk.ParseCoinsNormalized(amount)
+		if err != nil {
+			return errors.Wrap(err, "error parsing amount")
+		}
+		joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
+	} else {
+		fmt.Printf("%s %s\n", clispinner.Info, "Account request won't be submitted")
+	}
+
 	// create the message to add the validator.
-	return n.Join(cmd.Context(), c, launchID, amount, publicAddr, gentxPath)
+	return n.Join(cmd.Context(), c, launchID, publicAddr, gentxPath, joinOptions...)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress

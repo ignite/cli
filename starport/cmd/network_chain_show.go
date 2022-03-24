@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,6 +18,8 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
+
+const flagOut = "out"
 
 var (
 	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
@@ -115,11 +116,14 @@ func newNetworkChainShowGenesis() *cobra.Command {
 		Short: "Show the chain genesis file",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			out, _ := cmd.Flags().GetString(flagOut)
+
 			nb, launchID, err := networkChainLaunch(cmd, args)
 			if err != nil {
 				return err
 			}
 			defer nb.Cleanup()
+
 			n, err := nb.Network()
 			if err != nil {
 				return err
@@ -134,6 +138,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			genesisPath, err := c.GenesisPath()
 			if err != nil {
 				return err
@@ -149,8 +154,9 @@ func newNetworkChainShowGenesis() *cobra.Command {
 
 				// create the chain into a temp dir
 				home := filepath.Join(os.TempDir(), "spn/temp", chainLaunch.ChainID)
-				c.SetHome(home)
 				defer os.RemoveAll(home)
+
+				c.SetHome(home)
 
 				err = c.Prepare(cmd.Context(), genesisInformation)
 				if err != nil {
@@ -163,20 +169,22 @@ func newNetworkChainShowGenesis() *cobra.Command {
 					return err
 				}
 			}
-			genesisFile, err := os.ReadFile(genesisPath)
-			if err != nil {
+
+			if err := os.MkdirAll(filepath.Dir(out), 0744); err != nil {
 				return err
 			}
 
-			var prettyJSON bytes.Buffer
-			if err := json.Indent(&prettyJSON, genesisFile, "", "    "); err != nil {
+			if err := os.Rename(genesisPath, out); err != nil {
 				return err
 			}
-			nb.Spinner.Stop()
-			fmt.Printf("Genesis: \n%s", prettyJSON.String())
+			fmt.Printf("%s Genesis generated: %s\n", clispinner.Bullet, out)
+
 			return nil
 		},
 	}
+
+	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
+
 	return c
 }
 
@@ -313,15 +321,19 @@ func newNetworkChainShowPeers() *cobra.Command {
 		Short: "Show peers list of the chain",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			out, _ := cmd.Flags().GetString(flagOut)
+
 			nb, launchID, err := networkChainLaunch(cmd, args)
 			if err != nil {
 				return err
 			}
 			defer nb.Cleanup()
+
 			n, err := nb.Network()
 			if err != nil {
 				return err
 			}
+
 			genVals, err := n.GenesisValidators(cmd.Context(), launchID)
 			if err != nil {
 				return err
@@ -336,13 +348,30 @@ func newNetworkChainShowPeers() *cobra.Command {
 				peers = append(peers, peer)
 			}
 			nb.Spinner.Stop()
-			if len(peers) > 0 {
-				fmt.Printf("Peers: %s\n", strings.Join(peers, ","))
-			} else {
-				fmt.Print("empty peer list")
+
+			if len(peers) == 0 {
+				fmt.Printf("%s %s\n", clispinner.Info, "no peers found")
+				return nil
+
 			}
+
+			if err := os.MkdirAll(filepath.Dir(out), 0744); err != nil {
+				return err
+			}
+
+			b := &bytes.Buffer{}
+			peerList := strings.Join(peers, ",")
+			fmt.Fprintln(b, peerList)
+			if err := os.WriteFile(out, b.Bytes(), 0644); err != nil {
+				return err
+			}
+
+			fmt.Printf("%s Peer list generated: %s\n", clispinner.Bullet, out)
 			return nil
 		},
 	}
+
+	c.Flags().String(flagOut, "./peers.txt", "Path to output peers list")
+
 	return c
 }
