@@ -34,12 +34,12 @@ func (c Chain) ResetGenesisTime() error {
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization
-	chainHome, err := c.chain.Home()
+	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return err
 	}
 
-	_, err = os.Stat(chainHome)
+	_, err = os.Stat(genesisPath)
 
 	switch {
 	case os.IsNotExist(err):
@@ -57,11 +57,9 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		}
 		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
 
-		c.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
 		if err := c.initGenesis(ctx); err != nil {
 			return err
 		}
-		c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
 	}
 
 	if err := c.buildGenesis(ctx, gi); err != nil {

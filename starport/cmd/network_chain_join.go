@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
@@ -35,6 +36,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetYes())
 	return c
 }
 
@@ -86,7 +88,22 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 		joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
 	} else {
+		nb.Spinner.Stop()
+
+		if !getYes(cmd) {
+			label := fmt.Sprintf("You haven't set the --%s flag and therefore an account request won't be submitted. Do you confirm", flagAmount)
+			prompt := promptui.Prompt{
+				Label:     label,
+				IsConfirm: true,
+			}
+			if _, err := prompt.Run(); err != nil {
+				fmt.Println("said no")
+				return nil
+			}
+		}
+
 		fmt.Printf("%s %s\n", clispinner.Info, "Account request won't be submitted")
+		nb.Spinner.Start()
 	}
 
 	// create the message to add the validator.
