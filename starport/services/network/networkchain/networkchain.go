@@ -193,6 +193,10 @@ func (c Chain) Home() (path string, err error) {
 	return c.chain.Home()
 }
 
+func (c Chain) BinaryName() (name string, err error) {
+	return c.chain.Binary()
+}
+
 func (c Chain) GenesisPath() (path string, err error) {
 	return c.chain.GenesisPath()
 }

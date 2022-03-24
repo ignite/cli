@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -71,5 +72,22 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return c.Prepare(cmd.Context(), genesisInformation)
+	if err := c.Prepare(cmd.Context(), genesisInformation); err != nil {
+		return err
+	}
+
+	chainHome, err := c.Home()
+	if err != nil {
+		return err
+	}
+	binaryName, err := c.BinaryName()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
+	fmt.Println("\nYou can start your node by running the following command:")
+	fmt.Printf("\t%s start --home %s\n", binaryName, chainHome)
+
+	return nil
 }
