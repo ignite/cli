@@ -15,15 +15,32 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
+type joinOptions struct {
+	accountAmount sdk.Coins
+}
+
+type JoinOption func(*joinOptions)
+
+func WithAccountRequest(amount sdk.Coins) JoinOption {
+	return func(o *joinOptions) {
+		o.accountAmount = amount
+	}
+}
+
 // Join to the network.
 func (n Network) Join(
 	ctx context.Context,
 	c Chain,
 	launchID uint64,
-	amount sdk.Coin,
-	publicAddress string,
+	publicAddress,
 	gentxPath string,
+	options ...JoinOption,
 ) error {
+	o := joinOptions{}
+	for _, apply := range options {
+		apply(&o)
+	}
+
 	nodeID, err := c.NodeID(ctx)
 	if err != nil {
 		return err
@@ -65,15 +82,17 @@ func (n Network) Join(
 		return err
 	}
 
-	if err := n.sendAccountRequest(
-		ctx,
-		genesisPath,
-		isCustomGentx,
-		launchID,
-		accountAddress,
-		amount,
-	); err != nil {
-		return err
+	if !o.accountAmount.IsZero() {
+		if err := n.sendAccountRequest(
+			ctx,
+			genesisPath,
+			isCustomGentx,
+			launchID,
+			accountAddress,
+			o.accountAmount,
+		); err != nil {
+			return err
+		}
 	}
 
 	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
@@ -86,7 +105,7 @@ func (n Network) sendAccountRequest(
 	isCustomGentx bool,
 	launchID uint64,
 	accountAddress string,
-	amount sdk.Coin,
+	amount sdk.Coins,
 ) (err error) {
 	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
@@ -115,7 +134,7 @@ func (n Network) sendAccountRequest(
 		n.account.Address(networktypes.SPN),
 		launchID,
 		accountAddress,
-		sdk.NewCoins(amount),
+		amount,
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
