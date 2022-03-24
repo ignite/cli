@@ -209,6 +209,9 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	nb.Spinner.SetText("Publishing...")
+	nb.Spinner.Start()
+
 	n, err := nb.Network()
 	if err != nil {
 		return err
