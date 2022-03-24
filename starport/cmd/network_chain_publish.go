@@ -5,7 +5,9 @@ import (
 	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/spn/pkg/chainid"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -80,13 +82,28 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	if campaign != 0 && campaignTotalSupplyStr != "" {
 		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagCampaignTotalSupply)
 	}
-	if isMainnet && campaign == 0 && campaignTotalSupplyStr == "" {
-		return fmt.Errorf(
-			"%s flag requires one of the %s or %s flags to be set",
-			flagMainnet,
-			flagCampaign,
-			flagCampaignTotalSupply,
-		)
+	if isMainnet {
+		if campaign == 0 && campaignTotalSupplyStr == "" {
+			return fmt.Errorf(
+				"%s flag requires one of the %s or %s flags to be set",
+				flagMainnet,
+				flagCampaign,
+				flagCampaignTotalSupply,
+			)
+		}
+		if chainID == "" {
+			return fmt.Errorf("%s flag requires the %s flag", flagMainnet, flagChainID)
+		}
+	}
+
+	if chainID != "" {
+		chainName, _, err := chainid.ParseGenesisChainID(chainID)
+		if err != nil {
+			return errors.Wrapf(err, "invalid chain id: %s", chainID)
+		}
+		if err := chainid.CheckChainName(chainName); err != nil {
+			return errors.Wrapf(err, "invalid chain id name: %s", chainName)
+		}
 	}
 
 	totalShares, err := campaigntypes.NewShares(campaignTotalSharesStr)
