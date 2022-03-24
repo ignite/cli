@@ -50,6 +50,8 @@ func (c *Chain) Init(ctx context.Context) error {
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
 func (c *Chain) initGenesis(ctx context.Context) error {
+	c.ev.Send(events.New(events.StatusOngoing, "Computing the Genesis"))
+
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return err
@@ -73,7 +75,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if c.genesisHash == "" {
 			c.genesisHash = hash
 		} else if hash != c.genesisHash {
-			return fmt.Errorf("genesis from URL %s is invalid. Expected hash %s, actual hash %s", c.genesisURL, c.genesisHash, hash)
+			return fmt.Errorf("genesis from URL %s is invalid. expected hash %s, actual hash %s", c.genesisURL, c.genesisHash, hash)
 		}
 
 		// replace the default genesis with the fetched genesis
@@ -95,7 +97,12 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	}
 
 	// check the genesis is valid
-	return c.checkGenesis(ctx)
+	if err := c.checkGenesis(ctx); err != nil {
+		return err
+	}
+
+	c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+	return nil
 }
 
 // checkGenesis checks the stored genesis is valid

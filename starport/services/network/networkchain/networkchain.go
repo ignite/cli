@@ -173,6 +173,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	return c, nil
 }
 
+func (c Chain) ChainID() (string, error) {
+	return c.chain.ChainID()
+}
+
 func (c Chain) ID() (string, error) {
 	return c.chain.ID()
 }
@@ -187,6 +191,10 @@ func (c Chain) SetHome(home string) {
 
 func (c Chain) Home() (path string, err error) {
 	return c.chain.Home()
+}
+
+func (c Chain) BinaryName() (name string, err error) {
+	return c.chain.Binary()
 }
 
 func (c Chain) GenesisPath() (path string, err error) {
