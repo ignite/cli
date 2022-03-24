@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -35,13 +34,12 @@ func (c Chain) ResetGenesisTime() error {
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization
-	var binaryName string
-	chainHome, err := c.chain.Home()
+	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return err
 	}
 
-	_, err = os.Stat(chainHome)
+	_, err = os.Stat(genesisPath)
 
 	switch {
 	case os.IsNotExist(err):
@@ -49,25 +47,19 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		if err = c.Init(ctx); err != nil {
 			return err
 		}
-		binaryName, err = c.chain.Binary()
-		if err != nil {
-			return err
-		}
 	case err != nil:
 		return err
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
 		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-		if binaryName, err = c.Build(ctx); err != nil {
+		if _, err := c.Build(ctx); err != nil {
 			return err
 		}
 		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
 
-		c.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
 		if err := c.initGenesis(ctx); err != nil {
 			return err
 		}
-		c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
 	}
 
 	if err := c.buildGenesis(ctx, gi); err != nil {
@@ -88,10 +80,6 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	if err := cmd.UnsafeReset(ctx); err != nil {
 		return err
 	}
-
-	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
-	fmt.Println("\nYou can start your node by running the following command:")
-	fmt.Printf("\t%s start --home %s\n", binaryName, chainHome)
 
 	return nil
 }
