@@ -7,16 +7,17 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/checksum"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/goanalysis"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
 const (
@@ -163,13 +164,19 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 }
 
 func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
+	config, err := c.Config()
+	if err != nil {
+		return nil, err
+	}
+
 	chainID, err := c.ID()
 	if err != nil {
 		return nil, err
 	}
 
-	ldflags := gocmd.Ldflags(
-		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Name=%s", strings.Title(c.app.Name)),
+	ldFlags := config.Build.LDFlags
+	ldFlags = append(ldFlags,
+		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Name=%s", xstrings.Title(c.app.Name)),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.AppName=%sd", c.app.Name),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Version=%s", c.sourceVersion.tag),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Commit=%s", c.sourceVersion.hash),
@@ -177,7 +184,7 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 	)
 	buildFlags = []string{
 		gocmd.FlagMod, gocmd.FlagModValueReadOnly,
-		gocmd.FlagLdflags, ldflags,
+		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 
 	fmt.Fprintln(c.stdLog().out, "📦 Installing dependencies...")

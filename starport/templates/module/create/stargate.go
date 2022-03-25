@@ -3,11 +3,11 @@ package modulecreate
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
@@ -119,7 +119,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			module.PlaceholderSgAppKeeperDeclaration,
 			opts.ModuleName,
 			scopedKeeperDeclaration,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
 
@@ -174,7 +174,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			opts.ModuleName,
 			scopedKeeperDefinition,
 			ibcKeeperArgument,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 			depArgs,
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)

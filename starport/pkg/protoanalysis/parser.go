@@ -7,6 +7,7 @@ import (
 
 	"github.com/emicklei/proto"
 	"github.com/pkg/errors"
+
 	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 

@@ -1,9 +1,17 @@
 package starportcmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
+)
+
+const (
+	flagForce = "force"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -15,6 +23,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 		RunE:  networkChainPrepareHandler,
 	}
 
+	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -23,6 +32,8 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
+	force, _ := cmd.Flags().GetBool(flagForce)
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
@@ -30,7 +41,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
@@ -46,6 +57,10 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if !force && !chainLaunch.LaunchTriggered {
+		return fmt.Errorf("chain %d has not launched yet. use --force to prepare anyway", launchID)
+	}
+
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
@@ -57,5 +72,22 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return c.Prepare(cmd.Context(), genesisInformation)
+	if err := c.Prepare(cmd.Context(), genesisInformation); err != nil {
+		return err
+	}
+
+	chainHome, err := c.Home()
+	if err != nil {
+		return err
+	}
+	binaryName, err := c.BinaryName()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
+	fmt.Println("\nYou can start your node by running the following command:")
+	fmt.Printf("\t%s start --home %s\n", binaryName, chainHome)
+
+	return nil
 }

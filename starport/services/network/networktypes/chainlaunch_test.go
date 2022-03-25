@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
@@ -26,13 +27,15 @@ func TestToChainLaunch(t *testing.T) {
 				InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 			},
 			expected: networktypes.ChainLaunch{
-				ID:          1,
-				ChainID:     "foo-1",
-				SourceURL:   "foo.com",
-				SourceHash:  "0xaaa",
-				GenesisURL:  "",
-				GenesisHash: "",
-				CampaignID:  1,
+				ID:              1,
+				ChainID:         "foo-1",
+				SourceURL:       "foo.com",
+				SourceHash:      "0xaaa",
+				GenesisURL:      "",
+				GenesisHash:     "",
+				LaunchTriggered: false,
+				CampaignID:      1,
+				Network:         "testnet",
 			},
 		},
 		{
@@ -50,14 +53,16 @@ func TestToChainLaunch(t *testing.T) {
 				),
 			},
 			expected: networktypes.ChainLaunch{
-				ID:          1,
-				ChainID:     "bar-1",
-				SourceURL:   "bar.com",
-				SourceHash:  "0xbbb",
-				GenesisURL:  "genesisfoo.com",
-				GenesisHash: "0xccc",
-				LaunchTime:  100,
-				CampaignID:  0,
+				ID:              1,
+				ChainID:         "bar-1",
+				SourceURL:       "bar.com",
+				SourceHash:      "0xbbb",
+				GenesisURL:      "genesisfoo.com",
+				GenesisHash:     "0xccc",
+				LaunchTriggered: true,
+				LaunchTime:      100,
+				CampaignID:      0,
+				Network:         "testnet",
 			},
 		},
 	}

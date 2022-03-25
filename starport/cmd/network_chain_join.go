@@ -1,39 +1,51 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
+
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (
-	flagGentx = "gentx"
+	flagGentx  = "gentx"
+	flagAmount = "amount"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
 // to a network as a validator.
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "join [launch-id] [amount]",
+		Use:   "join [launch-id]",
 		Short: "Request to join a network as a validator",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainJoinHandler,
 	}
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetYes())
 	return c
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
+	var (
+		gentxPath, _ = cmd.Flags().GetString(flagGentx)
+		amount, _    = cmd.Flags().GetString(flagAmount)
+	)
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
@@ -41,21 +53,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID.
-	launchID, err := network.ParseLaunchID(args[0])
+	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
 
-	// parse the amount.
-	amount, err := sdk.ParseCoinNormalized(args[1])
-	if err != nil {
-		return errors.Wrap(err, "error parsing amount")
-	}
-
-	gentxPath, _ := cmd.Flags().GetString(flagGentx)
-
 	// get the peer public address for the validator.
-	publicAddr, err := askPublicAddress(nb.Spinner)
+	publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
 	if err != nil {
 		return err
 	}
@@ -75,25 +79,61 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	joinOptions := []network.JoinOption{}
+	if amount != "" {
+		// parse the amount.
+		amountCoins, err := sdk.ParseCoinsNormalized(amount)
+		if err != nil {
+			return errors.Wrap(err, "error parsing amount")
+		}
+		joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
+	} else {
+		nb.Spinner.Stop()
+
+		if !getYes(cmd) {
+			label := fmt.Sprintf("You haven't set the --%s flag and therefore an account request won't be submitted. Do you confirm", flagAmount)
+			prompt := promptui.Prompt{
+				Label:     label,
+				IsConfirm: true,
+			}
+			if _, err := prompt.Run(); err != nil {
+				fmt.Println("said no")
+				return nil
+			}
+		}
+
+		fmt.Printf("%s %s\n", clispinner.Info, "Account request won't be submitted")
+		nb.Spinner.Start()
+	}
+
 	// create the message to add the validator.
-	return n.Join(cmd.Context(), c, launchID, amount, publicAddr, gentxPath)
+	return n.Join(cmd.Context(), c, launchID, publicAddr, gentxPath, joinOptions...)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(s *clispinner.Spinner) (publicAddress string, err error) {
+func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress string, err error) {
 	s.Stop()
 	defer s.Start()
 
 	options := []cliquiz.Option{
 		cliquiz.Required(),
 	}
-	if !xchisel.IsEnabled() {
-		ip, _ := ipify.GetIp()
-		if err == nil {
-			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	if gitpod.IsOnGitpod() {
+		publicAddress, err = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
+		if err != nil {
+			return "", errors.Wrap(err, "cannot read public Gitpod address of the node")
 		}
+		return publicAddress, nil
 	}
+
+	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
+	// just in case if GetIp fails user should enter his address manually
+	ip, err := ipify.GetIp()
+	if err == nil {
+		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	}
+
 	questions := []cliquiz.Question{cliquiz.NewQuestion(
 		"Peer's address",
 		&publicAddress,

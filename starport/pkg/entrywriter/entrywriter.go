@@ -3,10 +3,15 @@ package entrywriter
 import (
 	"fmt"
 	"io"
-	"strings"
 	"text/tabwriter"
 
 	"github.com/pkg/errors"
+
+	"github.com/tendermint/starport/starport/pkg/xstrings"
+)
+
+const (
+	None = "-"
 )
 
 var ErrInvalidFormat = errors.New("invalid entry format")
@@ -28,7 +33,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 	formatLine := func(line []string, title bool) (formatted string) {
 		for _, cell := range line {
 			if title {
-				cell = strings.Title(cell)
+				cell = xstrings.Title(cell)
 			}
 			formatted += fmt.Sprintf("%s \t", cell)
 		}

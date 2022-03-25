@@ -120,7 +120,7 @@ func main() {
 	// instantiate a query client for your `blog` blockchain
 	queryClient := types.NewQueryClient(cosmos.Context)
 
-	// query the blockchain using the client's `PostAll` method to get all posts
+	// query the blockchain using the client's `Posts` method to get all posts
 	// store all posts in queryResp
 	queryResp, err := queryClient.Posts(context.Background(), &types.QueryPostsRequest{})
 	if err != nil {

@@ -15,22 +15,22 @@ func TestVerifyPeerFormat(t *testing.T) {
 	}{
 		{
 			name: "valid peer connection",
-			peer: launchtypes.NewPeerConn("node", "nodeid@peer"),
+			peer: launchtypes.NewPeerConn("node", "peer:port"),
 			want: true,
 		},
 		{
-			name: "peer connection without the node id",
-			peer: launchtypes.NewPeerConn("node", "@peer"),
+			name: "peer connection without port",
+			peer: launchtypes.NewPeerConn("node", "peer"),
 			want: false,
 		},
 		{
 			name: "peer connection without the node address",
-			peer: launchtypes.NewPeerConn("node", "nodeid@"),
+			peer: launchtypes.NewPeerConn("node", ":port"),
 			want: false,
 		},
 		{
 			name: "peer connection without the separator",
-			peer: launchtypes.NewPeerConn("node", "nodeid"),
+			peer: launchtypes.NewPeerConn("node", "peerport"),
 			want: false,
 		},
 		{

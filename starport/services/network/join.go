@@ -6,26 +6,53 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
+
+type joinOptions struct {
+	accountAmount sdk.Coins
+}
+
+type JoinOption func(*joinOptions)
+
+func WithAccountRequest(amount sdk.Coins) JoinOption {
+	return func(o *joinOptions) {
+		o.accountAmount = amount
+	}
+}
 
 // Join to the network.
 func (n Network) Join(
 	ctx context.Context,
 	c Chain,
 	launchID uint64,
-	amount sdk.Coin,
-	publicAddress string,
+	publicAddress,
 	gentxPath string,
+	options ...JoinOption,
 ) error {
-	peerAddress, err := c.Peer(ctx, publicAddress)
+	o := joinOptions{}
+	for _, apply := range options {
+		apply(&o)
+	}
+
+	nodeID, err := c.NodeID(ctx)
 	if err != nil {
 		return err
 	}
-	peer := launchtypes.NewPeerConn(c.Name(), peerAddress)
+
+	var peer launchtypes.Peer
+	if xurl.IsHTTP(publicAddress) {
+		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, publicAddress)
+	} else {
+		peer = launchtypes.NewPeerConn(nodeID, publicAddress)
+
+	}
 
 	isCustomGentx := gentxPath != ""
 
@@ -55,15 +82,17 @@ func (n Network) Join(
 		return err
 	}
 
-	if err := n.sendAccountRequest(
-		ctx,
-		genesisPath,
-		isCustomGentx,
-		launchID,
-		accountAddress,
-		amount,
-	); err != nil {
-		return err
+	if !o.accountAmount.IsZero() {
+		if err := n.sendAccountRequest(
+			ctx,
+			genesisPath,
+			isCustomGentx,
+			launchID,
+			accountAddress,
+			o.accountAmount,
+		); err != nil {
+			return err
+		}
 	}
 
 	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
@@ -76,7 +105,7 @@ func (n Network) sendAccountRequest(
 	isCustomGentx bool,
 	launchID uint64,
 	accountAddress string,
-	amount sdk.Coin,
+	amount sdk.Coins,
 ) (err error) {
 	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
@@ -105,7 +134,7 @@ func (n Network) sendAccountRequest(
 		n.account.Address(networktypes.SPN),
 		launchID,
 		accountAddress,
-		sdk.NewCoins(amount),
+		amount,
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
@@ -187,7 +216,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -201,7 +230,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -211,7 +240,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err

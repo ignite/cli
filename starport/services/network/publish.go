@@ -3,9 +3,11 @@ package network
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
+
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -14,10 +16,14 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL string
-	chainID    string
-	campaignID uint64
-	noCheck    bool
+	genesisURL  string
+	chainID     string
+	campaignID  uint64
+	noCheck     bool
+	metadata    string
+	totalShares campaigntypes.Shares
+	totalSupply sdk.Coins
+	mainnet     bool
 }
 
 // PublishOption configures chain creation.
@@ -51,27 +57,69 @@ func WithCustomGenesis(url string) PublishOption {
 	}
 }
 
+// WithTotalShares provides a campaign total shares
+func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
+	return func(o *publishOptions) {
+		o.totalShares = totalShares
+	}
+}
+
+// WithMetadata provides a meta data proposal to update the campaign.
+func WithMetadata(metadata string) PublishOption {
+	return func(c *publishOptions) {
+		c.metadata = metadata
+	}
+}
+
+// WithTotalSupply provides a total supply proposal to update the campaign.
+func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
+	return func(c *publishOptions) {
+		c.totalSupply = totalSupply
+	}
+}
+
+// Mainnet initialize a published chain into the mainnet
+func Mainnet() PublishOption {
+	return func(o *publishOptions) {
+		o.mainnet = true
+	}
+}
+
 // Publish submits Genesis to SPN to announce a new network.
-func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID uint64, err error) {
+func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID, mainnetID uint64, err error) {
 	o := publishOptions{}
 	for _, apply := range options {
 		apply(&o)
 	}
 
-	var genesisHash string
+	var (
+		genesisHash string
+		genesisFile []byte
+		genesis     cosmosutil.ChainGenesis
+	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
-	if o.noCheck && o.genesisURL != "" {
-		if _, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL); err != nil {
-			return 0, 0, err
+	if o.genesisURL != "" {
+		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
+		if err != nil {
+			return 0, 0, 0, err
 		}
 	}
 
-	chainID := o.chainID
+	chainID := genesis.ChainID
+	// use chain id flag always in the highest priority.
+	if o.chainID != "" {
+		chainID = o.chainID
+	}
+	// if the chain id is empty, use a default one.
 	if chainID == "" {
-		chainID, err = c.ID()
+		chainID, err = c.ChainID()
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 	}
 
@@ -85,7 +133,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrInvalidRequest {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -93,10 +141,10 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			"",
 		)
 		if _, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCoordinator); err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 	} else if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
 	if campaignID != 0 {
@@ -106,24 +154,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				CampaignID: o.campaignID,
 			})
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 	} else {
-		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
-			coordinatorAddress,
-			c.Name(),
-			nil,
-		)
-		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
+		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
-
-		var createCampaignRes campaigntypes.MsgCreateCampaignResponse
-		if err := res.Decode(&createCampaignRes); err != nil {
-			return 0, 0, err
-		}
-		campaignID = createCampaignRes.CampaignID
 	}
 
 	msgCreateChain := launchtypes.NewMsgCreateChain(
@@ -135,16 +172,34 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		genesisHash,
 		true,
 		campaignID,
+		nil,
 	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
-	return createChainRes.LaunchID, campaignID, nil
+	if err := c.CacheBinary(createChainRes.LaunchID); err != nil {
+		return 0, 0, 0, err
+
+	}
+
+	if !o.totalShares.Empty() {
+		if err := n.UpdateCampaign(campaignID, WithCampaignTotalShares(o.totalShares)); err != nil {
+			return 0, 0, 0, err
+		}
+	}
+
+	if o.mainnet {
+		mainnetID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+	}
+	return createChainRes.LaunchID, campaignID, mainnetID, nil
 }

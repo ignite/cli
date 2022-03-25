@@ -3,28 +3,41 @@ order: 12
 description: IBC oracle integration with BandChain
 ---
 
-# BandChain Oracle Scaffold
+# BandChain oracle
 
-BandChain’s Oracle module is a communication module built-in compliance with IBC protocol which can query data points of various types from BandChain. In addition, other chains can ask our Oracle module for real-time information according to their needs.
-BandChain has multiples scripts deployed into the network, and we can request any data using the script id.
+The BandChain oracle communication module has built-in compliance using IBC protocol that can query data points of various types from BandChain.
 
-## IBC Module Packet Scaffold
+Other chains can query this oracle module for real-time information.
+
+BandChain has multiple scripts deployed into the network. You can request any data using the script id.
+
+## High-level overview
+
+Steps to scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module.
+
+## IBC module packet scaffold
 
 BandChain oracle queries can be scaffolded only in IBC modules.
 
-To scaffold an oracle:
+The basic syntax to scaffold a band oracle module is:
 
 ```bash
 starport scaffold band [queryName] --module [moduleName]
 ```
 
-### Acknowledgement
+Customize your band oracle with flags:
 
-The BandChain oracle will return the ack messages with the request's id, and we save the last request id for future queries.
+- --module string - name of the new IBC Module to add the packets to
+- --path string - path of the app, default is the current directory (`"."`)
+- --signer string - signer label, default is `creator`
 
-## Files and Directories
+### Acknowledgement messages
 
-When you scaffold a BandChain oracle, the following files and directories are created and modified:
+The BandChain oracle returns the ack messages with the request id. The last request id is saved for future queries.
+
+## Files and directories
+
+When you scaffold a BandChain oracle module, the following files and directories are created and modified:
 
 - `proto`: oracle request and response data.
 - `x/module_name/keeper`: IBC hooks, gRPC message server.
@@ -32,32 +45,75 @@ When you scaffold a BandChain oracle, the following files and directories are cr
 - `x/module_name/client/cli`: CLI command to broadcast a transaction containing a message with a packet.
 - `x/module_name/oracle.go`: BandChain oracle packet handlers.
 
-## BandChain Oracle Scaffold Example
+## Scaffold a BandChain oracle chain
 
-The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for [coin rates](https://laozi-testnet4.cosmoscan.io/oracle-script/37#bridge) request and result.
+First, scaffold a chain but don't scaffold a default module:
 
-```shell
-$ starport scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
-$ starport scaffold module consuming --ibc
-$ starport scaffold band coinRates --module consuming
+```bash
+starport scaffold chain github.com/cosmonaut/oracle --no-module 
 ```
 
-Note: BandChain module uses version "bandchain-1". Make sure to update the `keys.go` file accordingly.
+Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`:
 
-`x/oracle/types/keys.go`
+```bash
+cd oracle 
+starport scaffold module consuming --ibc
+```
+
+Finally, scaffold a BandChain query oracle that can request real-time data:
+
+```bash
+starport scaffold band coinRates --module consuming
+```
+
+So far, you have scaffolded:
+
+- A new `oracle` chain without a default module
+- A new IBC-enabled `consuming` module
+- A new `coinRates` BandChain query oracle
+
+Now it's time to change the data.
+
+## Update version
+
+The output of the `starport scaffold band coinRates --module consuming` command prompts you to update the `keys.go` file.
+
+In the `x/oracle/types/keys.go` file, update the `Version` variable in the `const` block to the required version that the IBC module supports:
 
 ```go
-const Version = "bandchain-1"
+const (
+    
+    // Version defines the current version the IBC module supports
+    Version = "bandchain-1"
 ```
 
-After scaffold and change the data, run the chain:
+## Start your chain in development
+
+To run the chain from the `oracle` directory:
+
 ```shell
-$ starport chain serve
+starport chain serve
 ```
 
-In another tab, configure and run the starport relayer.
-```shell
-$ starport relayer configure -a \
+Keep this terminal window open.
+
+## Configure and connect the Starport relayer
+
+If you previously used the Starport relayer, it is a good idea to remove existing relayer and Starport configurations:
+
+1. Stop your blockchains.
+2. Delete previous configuration files:
+
+    ```bash
+    rm -rf ~/.starport/relayer
+    ```
+
+3. Restart your blockchains.
+
+In another terminal tab, configure the [Starport relayer](../docs/kb/../../kb/relayer.md):
+
+```bash
+starport relayer configure -a \
 --source-rpc "http://rpc-laozi-testnet4.bandchain.org:80" \
 --source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
@@ -72,36 +128,87 @@ $ starport relayer configure -a \
 --target-gaslimit 300000 \
 --target-prefix "cosmos"  \
 --target-version "bandchain-1"
-            
-$ starport relayer connect
 ```
 
-Open one more terminal tab to make a request transaction, passing the script id.
+When prompted, press Enter to accept the default source and target accounts.
+
+The command output confirms the relayer is successfully configured:
+
+```bash
+? Source Account default
+? Target Account default
+
+🔐  Account on "source" is default(band1dscvlx0mhpys9fazuk7ej9z4cq7qknzn09pjpq)
+
+ |· received coins from a faucet
+ |· (balance: 10000000uband)
+
+🔐  Account on "target" is default(cosmos1dscvlx0mhpys9fazuk7ej9z4cq7qknznk2pseg)
+
+ |· received coins from a faucet
+ |· (balance: 100000stake,5token)
+
+⛓  Configured chains: band-laozi-testnet4-oracle
+```
+
+Connect the relayer:
+
+```bash
+starport relayer connect
+```
+
+You can see the paths of the `oracle` port on the testnet and the `consuming` port on your local oracle module in the relayer connection status that is output to the terminal:
+
+```bash
+------
+Paths
+------
+
+band-laozi-testnet4-oracle:
+    band-laozi-testnet4 > (port: oracle)    (channel: channel-405)
+    oracle              > (port: consuming) (channel: channel-0)
+
+------
+Listening and relaying packets between chains...
+------
+```
+
+Leave this terminal tab open so you can monitor the relayer.
+
+## Make a request transaction
+
+In another terminal tab, use the `oracled` binary to make a request transaction. Because BandChain has multiple scripts already deployed into the network, you can request any data using the BandChain script id. In this case, use script 37 for Coin Rates:
+
 ```shell
 # Coin Rates (script 37 into the testnet)
-$ oracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "BTC,ETH,XRP,BCH" --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
+oracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "BTC,ETH,XRP,BCH" --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
 ```
 
-You can check the last request id returned by ack.
-```shell
-$ oracled query consuming last-coin-rates-id
+You can check the last request id that was returned by ack:
+
+```bash
+oracled query consuming last-coin-rates-id
 request_id: "101276"
 ```
 
-Furthermore, check the data by request id receive the data packet.
-```shell
-$ oracled query consuming coin-rates-result 101276
+Now you can check the data by request id to receive the data packet:
+
+```bash
+oracled query consuming coin-rates-result 101276
 ```
 
 ### Multiple oracles
 
-You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge):
+You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters in the proto file `moduleName.proto` and then adapt the request in the  `cli/client/tx_module_name.go` file.
+
+To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
 
 ```shell
-$ starport scaffold band goldPrice --module consuming
+starport scaffold band goldPrice --module consuming
 ```
 
-`proto/consuming/gold_price.proto`:
+In the `proto/consuming/gold_price.proto` file:
+
 ```protobuf
 syntax = "proto3";
 package cosmonaut.oracle.consuming;
@@ -117,7 +224,8 @@ message GoldPriceResult {
 }
 ```
 
-`x/consuming/cli/client/tx_gold_price.go`:
+In the `x/consuming/cli/client/tx_gold_price.go` file:
+
 ```go
 package cli
 
@@ -231,18 +339,22 @@ func CmdRequestGoldPriceData() *cobra.Command {
 }
 ```
 
-Make the request transaction.
+Make the request transaction:
 
 ```shell
 # Gold Price (script 33 into the testnet)
-$ oracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
+oracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
 ```
 
-Check the last request id returned by ack and the package data.
+Check the last request id that was returned by ack:
 
 ```shell
-$ oracled query consuming last-gold-price-id
+oracled query consuming last-gold-price-id
 request_id: "101290"
+```
 
-$ oracled query consuming gold-price-result 101290
+Request the package data:
+
+```shell
+oracled query consuming gold-price-result 101290
 ```

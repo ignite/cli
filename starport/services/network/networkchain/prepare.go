@@ -6,29 +6,45 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
+// ResetGenesisTime reset the chain genesis time
+func (c Chain) ResetGenesisTime() error {
+	// set the genesis time for the chain
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return errors.Wrap(err, "genesis of the blockchain can't be read")
+	}
+	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
+		return errors.Wrap(err, "genesis time can't be set")
+	}
+	return nil
+}
+
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization
-	chainHome, err := c.chain.Home()
+	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return err
 	}
 
-	_, err = os.Stat(chainHome)
+	_, err = os.Stat(genesisPath)
 
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if err := c.Init(ctx); err != nil {
+		if err = c.Init(ctx); err != nil {
 			return err
 		}
 	case err != nil:
@@ -36,16 +52,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
 		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-		if _, err := c.chain.Build(ctx, ""); err != nil {
+		if _, err := c.Build(ctx); err != nil {
 			return err
 		}
-		c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
+		c.ev.Send(events.New(events.StatusDone, "Blockchain build complete"))
 
-		c.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
 		if err := c.initGenesis(ctx); err != nil {
 			return err
 		}
-		c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
 	}
 
 	if err := c.buildGenesis(ctx, gi); err != nil {
@@ -63,7 +77,11 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	}
 
 	// reset the saved state in case the chain has been started before
-	return cmd.UnsafeReset(ctx)
+	if err := cmd.UnsafeReset(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
@@ -76,21 +94,26 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 	}
 
 	// apply genesis information to the genesis
-	if err := c.applyGenesisAccounts(ctx, gi.GetGenesisAccounts(), addressPrefix); err != nil {
+	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts, addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
-	if err := c.applyVestingAccounts(ctx, gi.GetVestingAccounts(), addressPrefix); err != nil {
+	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts, addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
-	if err := c.applyGenesisValidators(ctx, gi.GetGenesisValidators()); err != nil {
+	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
-	// set the genesis time for the chain
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
+
+	// set chain id
+	if err := cosmosutil.SetChainID(genesisPath, c.id); err != nil {
+		return errors.Wrap(err, "chain id cannot be set")
+	}
+	// set the genesis time for the chain
 	if err := cosmosutil.SetGenesisTime(genesisPath, c.launchTime); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
@@ -204,31 +227,76 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
-	var p2pAddresses []string
-	for _, val := range genesisVals {
-		p2pAddresses = append(p2pAddresses, val.Peer.GetTcpAddress())
+	var (
+		p2pAddresses    []string
+		tunnelAddresses []TunneledPeer
+	)
+	for i, val := range genesisVals {
+		if !cosmosutil.VerifyPeerFormat(val.Peer) {
+			return errors.Errorf("invalid peer: %s", val.Peer.Id)
+		}
+		switch conn := val.Peer.Connection.(type) {
+		case *launchtypes.Peer_TcpAddress:
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@%s", val.Peer.Id, conn.TcpAddress))
+		case *launchtypes.Peer_HttpTunnel:
+			tunneledPeer := TunneledPeer{
+				Name:      conn.HttpTunnel.Name,
+				Address:   conn.HttpTunnel.Address,
+				NodeID:    val.Peer.Id,
+				LocalPort: strconv.Itoa(i + 22000),
+			}
+			tunnelAddresses = append(tunnelAddresses, tunneledPeer)
+			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@127.0.0.1:%s", tunneledPeer.NodeID, tunneledPeer.LocalPort))
+		default:
+			return fmt.Errorf("invalid peer type")
+		}
 	}
 
-	// set persistent peers
-	configPath, err := c.chain.ConfigTOMLPath()
-	if err != nil {
-		return err
-	}
-	configToml, err := toml.LoadFile(configPath)
-	if err != nil {
-		return err
-	}
-	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
-	if err != nil {
-		return err
+	if len(p2pAddresses) > 0 {
+		// set persistent peers
+		configPath, err := c.chain.ConfigTOMLPath()
+		if err != nil {
+			return err
+		}
+		configToml, err := toml.LoadFile(configPath)
+		if err != nil {
+			return err
+		}
+		configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
+		if err != nil {
+			return err
+		}
+
+		// if there are tunneled peers they will be connected with tunnel clients via localhost,
+		// so we need to allow to have few nodes with the same ip
+		if len(tunnelAddresses) > 0 {
+			configToml.Set("p2p.allow_duplicate_ip", true)
+		}
+
+		// save config.toml file
+		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer configTomlFile.Close()
+
+		if _, err = configToml.WriteTo(configTomlFile); err != nil {
+			return err
+		}
 	}
 
-	// save config.toml file
-	configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
+	if len(tunnelAddresses) > 0 {
+		tunneledPeersConfigPath, err := c.SPNConfigPath()
+		if err != nil {
+			return err
+		}
+
+		if err = SetSPNConfig(Config{
+			TunneledPeers: tunnelAddresses,
+		}, tunneledPeersConfigPath); err != nil {
+			return err
+		}
 	}
-	defer configTomlFile.Close()
-	_, err = configToml.WriteTo(configTomlFile)
-	return err
+	return nil
+
 }

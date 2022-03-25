@@ -3,11 +3,11 @@ package modulecreate
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
@@ -188,7 +188,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 
 		// Scoped keeper declaration for the module
 		templateScopedKeeperDeclaration := `Scoped%[1]vKeeper capabilitykeeper.ScopedKeeper`
-		replacementScopedKeeperDeclaration := fmt.Sprintf(templateScopedKeeperDeclaration, strings.Title(opts.ModuleName))
+		replacementScopedKeeperDeclaration := fmt.Sprintf(templateScopedKeeperDeclaration, xstrings.Title(opts.ModuleName))
 		content = replacer.Replace(content, module.PlaceholderIBCAppScopedKeeperDeclaration, replacementScopedKeeperDeclaration)
 
 		// Scoped keeper definition
@@ -196,7 +196,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 app.Scoped%[1]vKeeper = scoped%[1]vKeeper`
 		replacementScopedKeeperDefinition := fmt.Sprintf(
 			templateScopedKeeperDefinition,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 			opts.ModuleName,
 		)
 		content = replacer.Replace(content, module.PlaceholderIBCAppScopedKeeperDefinition, replacementScopedKeeperDefinition)
@@ -207,7 +207,7 @@ app.Scoped%[1]vKeeper = scoped%[1]vKeeper`
 scoped%[1]vKeeper,`
 		replacementKeeperArgument := fmt.Sprintf(
 			templateKeeperArgument,
-			strings.Title(opts.ModuleName),
+			xstrings.Title(opts.ModuleName),
 		)
 		content = replacer.Replace(content, module.PlaceholderIBCAppKeeperArgument, replacementKeeperArgument)
 

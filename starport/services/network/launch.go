@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/tendermint/starport/starport/services/network/networkchain"
+
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xtime"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -29,8 +32,8 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	var (
-		minLaunch = xtime.Seconds(params.MinLaunchTime)
-		maxLaunch = xtime.Seconds(params.MaxLaunchTime)
+		minLaunch = xtime.Seconds(params.LaunchTimeRange.MinLaunchTime)
+		maxLaunch = xtime.Seconds(params.LaunchTimeRange.MaxLaunchTime)
 		address   = n.account.Address(networktypes.SPN)
 	)
 	switch {
@@ -47,7 +50,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 			xtime.NowAfter(maxLaunch))
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, uint64(remainingTime.Seconds()))
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, int64(remainingTime.Seconds()))
 	n.ev.Send(events.New(events.StatusOngoing, "Setting launch time"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
@@ -62,5 +65,28 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	n.ev.Send(events.New(events.StatusDone,
 		fmt.Sprintf("Chain %d will be launched on %s", launchID, xtime.NowAfter(remainingTime)),
 	))
+	return nil
+}
+
+// RevertLaunch reverts a launched chain as a coordinator
+func (n Network) RevertLaunch(launchID uint64, chain *networkchain.Chain) error {
+	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Reverting launched chain %d", launchID)))
+
+	address := n.account.Address(networktypes.SPN)
+	msg := launchtypes.NewMsgRevertLaunch(address, launchID)
+	_, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return err
+	}
+
+	n.ev.Send(events.New(events.StatusDone,
+		fmt.Sprintf("Chain %d launch was reverted", launchID),
+	))
+
+	n.ev.Send(events.New(events.StatusOngoing, "Resetting the genesis time"))
+	if err := chain.ResetGenesisTime(); err != nil {
+		return err
+	}
+	n.ev.Send(events.New(events.StatusDone, "Genesis time was reset"))
 	return nil
 }
