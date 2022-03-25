@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/o"
 )
 
 // Network is network builder.
@@ -33,24 +33,20 @@ type Chain interface {
 	CacheBinary(launchID uint64) error
 }
 
-type Option func(*Network)
-
 // CollectEvents collects events from the network builder.
-func CollectEvents(ev events.Bus) Option {
+func CollectEvents(ev events.Bus) o.Option[Network] {
 	return func(b *Network) {
 		b.ev = ev
 	}
 }
 
 // New creates a Builder.
-func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...Option) (Network, error) {
+func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...o.Option[Network]) (Network, error) {
 	n := Network{
 		cosmos:  cosmos,
 		account: account,
 	}
-	for _, opt := range options {
-		opt(&n)
-	}
+	o.Apply(&n, options...)
 	return n, nil
 }
 

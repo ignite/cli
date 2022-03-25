@@ -16,75 +16,75 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
+	"github.com/tendermint/starport/starport/pkg/o"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
 type Chain struct {
-	id       string
-	launchID uint64
+	Source
 
 	path string
-	home string
-
-	url         string
-	hash        string
-	genesisURL  string
-	genesisHash string
-	launchTime  int64
 
 	keyringBackend chaincmd.KeyringBackend
 
 	isInitialized bool
-
-	ref plumbing.ReferenceName
 
 	chain *chain.Chain
 	ev    events.Bus
 	ar    cosmosaccount.Registry
 }
 
-// SourceOption sets the source for blockchain.
-type SourceOption func(*Chain)
+type Source struct {
+	id       string
+	launchID uint64
 
-// Option sets other initialization options.
-type Option func(*Chain)
+	genesisURL  string
+	genesisHash string
+
+	home       string
+	launchTime int64
+
+	url  string
+	hash string
+	ref  plumbing.ReferenceName
+}
 
 // SourceRemote sets the default branch on a remote as source for the blockchain.
-func SourceRemote(url string) SourceOption {
-	return func(c *Chain) {
+func SourceRemote(url string) o.Option[Source] {
+	return func(c *Source) {
 		c.url = url
 	}
 }
 
 // SourceRemoteBranch sets the branch on a remote as source for the blockchain.
-func SourceRemoteBranch(url, branch string) SourceOption {
-	return func(c *Chain) {
+func SourceRemoteBranch(url, branch string) o.Option[Source] {
+	return func(c *Source) {
 		c.url = url
 		c.ref = plumbing.NewBranchReferenceName(branch)
 	}
 }
 
 // SourceRemoteTag sets the tag on a remote as source for the blockchain.
-func SourceRemoteTag(url, tag string) SourceOption {
-	return func(c *Chain) {
+func SourceRemoteTag(url, tag string) o.Option[Source] {
+	return func(c *Source) {
 		c.url = url
 		c.ref = plumbing.NewTagReferenceName(tag)
 	}
 }
 
 // SourceRemoteHash uses a remote hash as source for the blockchain.
-func SourceRemoteHash(url, hash string) SourceOption {
-	return func(c *Chain) {
+func SourceRemoteHash(url, hash string) o.Option[Source] {
+	return func(c *Source) {
 		c.url = url
 		c.hash = hash
 	}
 }
 
 // SourceLaunch returns a source option for initializing a chain from a launch
-func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
-	return func(c *Chain) {
+func SourceLaunch(launch networktypes.ChainLaunch) o.Option[Source] {
+	return func(c *Source) {
 		c.id = launch.ChainID
 		c.launchID = launch.ID
 		c.url = launch.SourceURL
@@ -97,42 +97,40 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 }
 
 // WithHome provides a specific home path for the blockchain for the initialization.
-func WithHome(path string) Option {
+func WithHome(path string) o.Option[Chain] {
 	return func(c *Chain) {
 		c.home = path
 	}
 }
 
 // WithKeyringBackend provides the keyring backend to use to initialize the blockchain
-func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
+func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) o.Option[Chain] {
 	return func(c *Chain) {
 		c.keyringBackend = keyringBackend
 	}
 }
 
 // WithGenesisFromURL provides a genesis url for the initial genesis of the chain blockchain
-func WithGenesisFromURL(genesisURL string) Option {
+func WithGenesisFromURL(genesisURL string) o.Option[Chain] {
 	return func(c *Chain) {
 		c.genesisURL = genesisURL
 	}
 }
 
 // CollectEvents collects events from the chain.
-func CollectEvents(ev events.Bus) Option {
+func CollectEvents(ev events.Bus) o.Option[Chain] {
 	return func(c *Chain) {
 		c.ev = ev
 	}
 }
 
 // New initializes a network blockchain from source and options.
-func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, options ...Option) (*Chain, error) {
-	c := &Chain{
+func New(ctx context.Context, ar cosmosaccount.Registry, source o.Option[Source], options ...o.Option[Chain]) (*Chain, error) {
+	c := Chain{
 		ar: ar,
 	}
-	source(c)
-	for _, apply := range options {
-		apply(c)
-	}
+	o.Apply(&c.Source, source)
+	o.Apply(&c, options...)
 
 	c.ev.Send(events.New(events.StatusOngoing, "Fetching the source code"))
 
@@ -170,7 +168,7 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	c.chain = chain
 	c.ev.Send(events.New(events.StatusDone, "Blockchain set up"))
 
-	return c, nil
+	return &c, nil
 }
 
 func (c Chain) ChainID() (string, error) {

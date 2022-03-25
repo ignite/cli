@@ -7,15 +7,15 @@ import (
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
-
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/o"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-// publishOptions holds info about how to create a chain.
-type publishOptions struct {
+// PublishOptions holds info about how to create a chain.
+type PublishOptions struct {
 	genesisURL  string
 	chainID     string
 	campaignID  uint64
@@ -26,71 +26,67 @@ type publishOptions struct {
 	mainnet     bool
 }
 
-// PublishOption configures chain creation.
-type PublishOption func(*publishOptions)
-
 // WithCampaign add a campaign id.
-func WithCampaign(id uint64) PublishOption {
-	return func(o *publishOptions) {
+func WithCampaign(id uint64) o.Option[PublishOptions] {
+	return func(o *PublishOptions) {
 		o.campaignID = id
 	}
 }
 
 // WithChainID use a custom chain id.
-func WithChainID(chainID string) PublishOption {
-	return func(o *publishOptions) {
+func WithChainID(chainID string) o.Option[PublishOptions] {
+	return func(o *PublishOptions) {
 		o.chainID = chainID
 	}
 }
 
 // WithNoCheck disables checking integrity of the chain.
-func WithNoCheck() PublishOption {
-	return func(o *publishOptions) {
+func WithNoCheck() o.Option[PublishOptions] {
+	return func(o *PublishOptions) {
 		o.noCheck = true
 	}
 }
 
 // WithCustomGenesis enables using a custom genesis during publish.
-func WithCustomGenesis(url string) PublishOption {
-	return func(o *publishOptions) {
+func WithCustomGenesis(url string) o.Option[PublishOptions] {
+	return func(o *PublishOptions) {
 		o.genesisURL = url
 	}
 }
 
 // WithTotalShares provides a campaign total shares
-func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
-	return func(o *publishOptions) {
+func WithTotalShares(totalShares campaigntypes.Shares) o.Option[PublishOptions] {
+	return func(o *PublishOptions) {
 		o.totalShares = totalShares
 	}
 }
 
 // WithMetadata provides a meta data proposal to update the campaign.
-func WithMetadata(metadata string) PublishOption {
-	return func(c *publishOptions) {
+func WithMetadata(metadata string) o.Option[PublishOptions] {
+	return func(c *PublishOptions) {
 		c.metadata = metadata
 	}
 }
 
 // WithTotalSupply provides a total supply proposal to update the campaign.
-func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
-	return func(c *publishOptions) {
+func WithTotalSupply(totalSupply sdk.Coins) o.Option[PublishOptions] {
+	return func(c *PublishOptions) {
 		c.totalSupply = totalSupply
 	}
 }
 
 // Mainnet initialize a published chain into the mainnet
-func Mainnet() PublishOption {
-	return func(o *publishOptions) {
+func Mainnet() o.Option[PublishOptions] {
+	return func(o *PublishOptions) {
 		o.mainnet = true
 	}
 }
 
 // Publish submits Genesis to SPN to announce a new network.
-func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID, mainnetID uint64, err error) {
-	o := publishOptions{}
-	for _, apply := range options {
-		apply(&o)
-	}
+func (n Network) Publish(ctx context.Context, c Chain, options ...o.Option[PublishOptions]) (launchID, campaignID, mainnetID uint64, err error) {
+	opt := PublishOptions{}
+
+	o.Apply(&opt, options...)
 
 	var (
 		genesisHash string
@@ -99,8 +95,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
-	if o.genesisURL != "" {
-		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+	if opt.genesisURL != "" {
+		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, opt.genesisURL)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -112,8 +108,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	chainID := genesis.ChainID
 	// use chain id flag always in the highest priority.
-	if o.chainID != "" {
-		chainID = o.chainID
+	if opt.chainID != "" {
+		chainID = opt.chainID
 	}
 	// if the chain id is empty, use a default one.
 	if chainID == "" {
@@ -124,7 +120,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	coordinatorAddress := n.account.Address(networktypes.SPN)
-	campaignID = o.campaignID
+	campaignID = opt.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
 
@@ -151,13 +147,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		_, err = campaigntypes.
 			NewQueryClient(n.cosmos.Context).
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
-				CampaignID: o.campaignID,
+				CampaignID: opt.campaignID,
 			})
 		if err != nil {
 			return 0, 0, 0, err
 		}
 	} else {
-		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
+		campaignID, err = n.CreateCampaign(c.Name(), opt.metadata, opt.totalSupply)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -168,7 +164,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		chainID,
 		c.SourceURL(),
 		c.SourceHash(),
-		o.genesisURL,
+		opt.genesisURL,
 		genesisHash,
 		true,
 		campaignID,
@@ -189,13 +185,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	}
 
-	if !o.totalShares.Empty() {
-		if err := n.UpdateCampaign(campaignID, WithCampaignTotalShares(o.totalShares)); err != nil {
+	if !opt.totalShares.Empty() {
+		if err := n.UpdateCampaign(campaignID, WithCampaignTotalShares(opt.totalShares)); err != nil {
 			return 0, 0, 0, err
 		}
 	}
 
-	if o.mainnet {
+	if opt.mainnet {
 		mainnetID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
 		if err != nil {
 			return 0, 0, 0, err

@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
-
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/o"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -111,11 +111,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
-	if err != nil {
-		return err
-	}
-
 	rewardCoins, err := sdk.ParseCoinsNormalized(rewardCoinsStr)
 	if err != nil {
 		return err
@@ -133,7 +128,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// use source from chosen target.
-	var sourceOption networkchain.SourceOption
+	var sourceOption o.Option[networkchain.Source]
 
 	switch {
 	case tag != "":
@@ -146,13 +141,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		sourceOption = networkchain.SourceRemote(source)
 	}
 
-	var initOptions []networkchain.Option
-
-	// use custom genesis from url if given.
-	if genesisURL != "" {
-		initOptions = append(initOptions, networkchain.WithGenesisFromURL(genesisURL))
-	}
-
 	// init in a temp dir.
 	homeDir, err := os.MkdirTemp("", "")
 	if err != nil {
@@ -160,51 +148,41 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer os.RemoveAll(homeDir)
 
-	initOptions = append(initOptions, networkchain.WithHome(homeDir))
+	initOptions := o.Options(
+		networkchain.WithHome(homeDir),
+	).
+		AddC(genesisURL != "", networkchain.WithGenesisFromURL(genesisURL)) // use custom genesis from url if given.
 
 	// init the chain.
-	c, err := nb.Chain(sourceOption, initOptions...)
+	c, err := nb.Chain(sourceOption, initOptions.O()...)
 	if err != nil {
 		return err
 	}
 
-	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
-
-	if genesisURL != "" {
-		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
-	}
+	publishOptions := o.
+		Options(
+			network.WithMetadata(campaignMetadata),
+		).
+		AddC(genesisURL != "", network.WithCustomGenesis(genesisURL)).
+		AddC(chainID != "", network.WithChainID(chainID)). // use custom chain id if given.
+		AddC(isMainnet, network.Mainnet()).
+		AddC(!totalShares.Empty(), network.WithTotalShares(totalShares))
 
 	if campaign != 0 {
-		publishOptions = append(publishOptions, network.WithCampaign(campaign))
+		publishOptions.Add(network.WithCampaign(campaign))
 	} else if campaignTotalSupplyStr != "" {
 		totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
 		if err != nil {
 			return err
 		}
+
 		if !totalSupply.Empty() {
-			publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
+			publishOptions.Add(network.WithTotalSupply(totalSupply))
 		}
 	}
 
-	// use custom chain id if given.
-	if chainID != "" {
-		publishOptions = append(publishOptions, network.WithChainID(chainID))
-	}
-
-	if isMainnet {
-		publishOptions = append(publishOptions, network.Mainnet())
-	}
-
-	if !totalSupply.Empty() {
-		publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
-	}
-
-	if !totalShares.Empty() {
-		publishOptions = append(publishOptions, network.WithTotalShares(totalShares))
-	}
-
 	if noCheck {
-		publishOptions = append(publishOptions, network.WithNoCheck())
+		publishOptions.Add(network.WithNoCheck())
 	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
 		return err
 	}
@@ -217,7 +195,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions.O()...)
 	if err != nil {
 		return err
 	}

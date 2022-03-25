@@ -5,12 +5,12 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
+	"github.com/tendermint/starport/starport/pkg/o"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -104,7 +104,7 @@ func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
 	return n, nil
 }
 
-func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...networkchain.Option) (*networkchain.Chain, error) {
+func (n NetworkBuilder) Chain(source o.Option[networkchain.Source], options ...o.Option[networkchain.Chain]) (*networkchain.Chain, error) {
 	options = append(options, networkchain.CollectEvents(n.ev))
 
 	if home := getHome(n.cmd); home != "" {
@@ -114,7 +114,7 @@ func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...netwo
 	return networkchain.New(n.cmd.Context(), n.AccountRegistry, source, options...)
 }
 
-func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
+func (n NetworkBuilder) Network(options ...o.Option[network.Network]) (network.Network, error) {
 	options = append(options, network.CollectEvents(n.ev))
 
 	var (
@@ -150,13 +150,13 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		spnFaucetAddress = spnFaucetAddressNightly
 	}
 
-	cosmosOptions := []cosmosclient.Option{
+	cosmosOptions := o.Options(
 		cosmosclient.WithHome(cosmosaccount.KeyringHome),
 		cosmosclient.WithNodeAddress(spnNodeAddress),
 		cosmosclient.WithAddressPrefix(networktypes.SPN),
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
-	}
+	)
 
 	keyringBackend := getKeyringBackend(cmd)
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -166,14 +166,12 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	if gitpod.IsOnGitpod() {
 		keyringBackend = cosmosaccount.KeyringTest
 	}
-	if keyringBackend != "" {
-		cosmosOptions = append(cosmosOptions, cosmosclient.WithKeyringBackend(keyringBackend))
-	}
+	cosmosOptions.AddC(keyringBackend != "", cosmosclient.WithKeyringBackend(keyringBackend))
 
 	// init cosmos client only once on start in order to spnclient to
 	// reuse unlocked keyring in the following steps.
 	if cosmos == nil {
-		client, err := cosmosclient.New(cmd.Context(), cosmosOptions...)
+		client, err := cosmosclient.New(cmd.Context(), cosmosOptions.O()...)
 		if err != nil {
 			return cosmosclient.Client{}, err
 		}

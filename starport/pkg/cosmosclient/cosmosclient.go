@@ -29,10 +29,10 @@ import (
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
+	"github.com/tendermint/starport/starport/pkg/o"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
@@ -83,13 +83,10 @@ type Client struct {
 	keyringBackend     cosmosaccount.KeyringBackend
 }
 
-// Option configures your client.
-type Option func(*Client)
-
 // WithHome sets the data dir of your chain. This option is used to access your chain's
 // file based keyring which is only needed when you deal with creating and signing transactions.
 // when it is not provided, your data dir will be assumed as `$HOME/.your-chain-id`.
-func WithHome(path string) Option {
+func WithHome(path string) o.Option[Client] {
 	return func(c *Client) {
 		c.homePath = path
 	}
@@ -97,14 +94,14 @@ func WithHome(path string) Option {
 
 // WithKeyringServiceName used as the keyring's name when you are using OS keyring backend.
 // by default it is `cosmos`.
-func WithKeyringServiceName(name string) Option {
+func WithKeyringServiceName(name string) o.Option[Client] {
 	return func(c *Client) {
 		c.keyringServiceName = name
 	}
 }
 
 // WithKeyringBackend sets your keyring backend. By default, it is `test`.
-func WithKeyringBackend(backend cosmosaccount.KeyringBackend) Option {
+func WithKeyringBackend(backend cosmosaccount.KeyringBackend) o.Option[Client] {
 	return func(c *Client) {
 		c.keyringBackend = backend
 	}
@@ -112,19 +109,19 @@ func WithKeyringBackend(backend cosmosaccount.KeyringBackend) Option {
 
 // WithNodeAddress sets the node address of your chain. When this option is not provided
 // `http://localhost:26657` is used as default.
-func WithNodeAddress(addr string) Option {
+func WithNodeAddress(addr string) o.Option[Client] {
 	return func(c *Client) {
 		c.nodeAddress = addr
 	}
 }
 
-func WithAddressPrefix(prefix string) Option {
+func WithAddressPrefix(prefix string) o.Option[Client] {
 	return func(c *Client) {
 		c.addressPrefix = prefix
 	}
 }
 
-func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
+func WithUseFaucet(faucetAddress, denom string, minAmount uint64) o.Option[Client] {
 	return func(c *Client) {
 		c.useFaucet = true
 		c.faucetAddress = faucetAddress
@@ -138,7 +135,7 @@ func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 }
 
 // New creates a new client with given options.
-func New(ctx context.Context, options ...Option) (Client, error) {
+func New(ctx context.Context, options ...o.Option[Client]) (Client, error) {
 	c := Client{
 		nodeAddress:     defaultNodeAddress,
 		keyringBackend:  cosmosaccount.KeyringTest,
@@ -151,9 +148,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 
 	var err error
 
-	for _, apply := range options {
-		apply(&c)
-	}
+	o.Apply(&c, options...)
 
 	if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
 		return Client{}, err
