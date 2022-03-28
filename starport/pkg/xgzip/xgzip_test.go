@@ -1,9 +1,10 @@
 package xgzip
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadFile(t *testing.T) {
@@ -61,7 +62,7 @@ func TestReadFile(t *testing.T) {
 			err: ErrGzipFileNotFound,
 		},
 		{
-			name: "not found file",
+			name: "invalid file",
 			args: args{
 				source: "testdata/invalid_file",
 				file:   "example.json",
@@ -78,7 +79,7 @@ func TestReadFile(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, tt.want, string(got))
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
