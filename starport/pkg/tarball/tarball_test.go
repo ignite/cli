@@ -1,4 +1,4 @@
-package xgzip
+package tarball
 
 import (
 	"os"
