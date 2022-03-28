@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/network"
@@ -44,11 +43,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
-	// FIXME: total shares cannot be set if the campaign doesn't have dynamic shares.
-	// TODO: we should update the SPN to accept dynamic shares before enabling this flag.
-	// c.Flags().String(flagCampaignTotalShares, "", "Add a total shares to the campaign")
 	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
-	c.Flags().String(flagCampaignTotalShares, "", "Add a shares supply for the campaign")
 	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
@@ -72,7 +67,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaign, _               = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
 		campaignMetadata, _       = cmd.Flags().GetString(flagCampaignMetadata)
-		campaignTotalSharesStr, _ = cmd.Flags().GetString(flagCampaignTotalShares)
 		campaignTotalSupplyStr, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
 		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
@@ -104,11 +98,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		if err := chainid.CheckChainName(chainName); err != nil {
 			return errors.Wrapf(err, "invalid chain id name: %s", chainName)
 		}
-	}
-
-	totalShares, err := campaigntypes.NewShares(campaignTotalSharesStr)
-	if err != nil {
-		return err
 	}
 
 	totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
@@ -197,10 +186,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if !totalSupply.Empty() {
 		publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
-	}
-
-	if !totalShares.Empty() {
-		publishOptions = append(publishOptions, network.WithTotalShares(totalShares))
 	}
 
 	if noCheck {
