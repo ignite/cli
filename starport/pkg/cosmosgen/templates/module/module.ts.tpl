@@ -23,7 +23,7 @@ type {{ camelCase .Name }}Params = {
 
 class Module extends Api<any> {
 	private _client: SigningStargateClient;
-	private _address: string;
+	private _addr: string;
 
   	constructor(baseUrl: string) {
 		super({
@@ -31,18 +31,24 @@ class Module extends Api<any> {
 		})
 	}
 
-	public withSigner(client: SigningStargateClient, address: string) {
+	public withSigner(client: SigningStargateClient, _addr: string) {
 		this._client = client;
-		this._address = address;
+		this._addr = _addr;
 	}
 
 	{{ range .Module.Msgs }}
 	async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
+		if (!this._client) {
+		    throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Signer is not present.')
+		}
+		if (!this._addr) {
+            throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Address is not present.')
+        }
 		try {
 			let msg = this.{{ camelCase .Name }}({ value: {{ .Name }}.fromPartial(value) })
-			return await this._client.signAndBroadcast(this._address, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
+			return await this._client.signAndBroadcast(this._addr, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
 		} catch (e: any) {
-			throw new Error('TxClient:{{ .Name }}:Send Could not broadcast Tx: '+ e.message)
+			throw new Error('TxClient:send{{ .Name }}: Could not broadcast Tx: '+ e.message)
 		}
 	}
 	{{ end }}
@@ -51,11 +57,10 @@ class Module extends Api<any> {
 		try {
 			return { typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( value ) }  
 		} catch (e: any) {
-			throw new Error('TxClient:{{ .Name }}:Create Could not create message: ' + e.message)
+			throw new Error('TxClient:{{ .Name }}: Could not create message: ' + e.message)
 		}
 	}
 	{{ end }}
 };
-
 
 export default Module;
