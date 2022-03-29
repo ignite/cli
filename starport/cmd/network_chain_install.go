@@ -2,10 +2,12 @@ package starportcmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -54,8 +56,11 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	binaryPath := filepath.Join(goenv.Bin(), binaryName)
 
-	fmt.Printf("%s Binary installed: %s\n", clispinner.OK, binaryName)
+	fmt.Printf("%s Binary installed\n", clispinner.OK)
+	fmt.Printf("%s Binary's name: %s\n", clispinner.Info, infoColor(binaryName))
+	fmt.Printf("%s Binary's path: %s\n", clispinner.Info, infoColor(binaryPath))
 
 	return nil
 }
