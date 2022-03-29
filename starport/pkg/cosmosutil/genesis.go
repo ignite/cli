@@ -174,6 +174,9 @@ func GenesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, has
 	return genesis, hexHash, nil
 }
 
+// GenesisFromTarball checks if the genesis file is a tarball
+// If is a tarball, extract and found the genesis file.
+// If isn't a tarball, returns the input genesis again.
 func GenesisFromTarball(genesis []byte) (out []byte, isTarball bool, err error) {
 	err = tarball.IsTarball(genesis)
 	switch {
