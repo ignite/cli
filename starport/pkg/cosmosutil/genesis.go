@@ -11,9 +11,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/tendermint/starport/starport/pkg/tarball"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -58,7 +58,7 @@ func (g Genesis) HasAccount(address string) bool {
 
 // ParseGenesisFromPath parse ChainGenesis object from a genesis file
 func ParseGenesisFromPath(genesisPath string) (Genesis, error) {
-	genesisFile, err := os.ReadFile(genesisPath)
+	genesisFile, err := os.Open(genesisPath)
 	if err != nil {
 		return Genesis{}, errors.Wrap(err, "cannot open genesis file")
 	}
@@ -66,15 +66,15 @@ func ParseGenesisFromPath(genesisPath string) (Genesis, error) {
 }
 
 // ParseChainGenesis parse ChainGenesis object from a byte slice
-func ParseChainGenesis(genesisFile []byte) (chainGenesis ChainGenesis, err error) {
-	if err := json.Unmarshal(genesisFile, &chainGenesis); err != nil {
+func ParseChainGenesis(genesisFile io.Reader) (chainGenesis ChainGenesis, err error) {
+	if err := json.NewDecoder(genesisFile).Decode(&chainGenesis); err != nil {
 		return chainGenesis, errors.New("cannot unmarshal the chain genesis file: " + err.Error())
 	}
 	return chainGenesis, err
 }
 
 // ParseGenesis parse ChainGenesis object from a byte slice into a Genesis object
-func ParseGenesis(genesisFile []byte) (Genesis, error) {
+func ParseGenesis(genesisFile io.Reader) (Genesis, error) {
 	chainGenesis, err := ParseChainGenesis(genesisFile)
 	if err != nil {
 		return Genesis{}, errors.New("cannot unmarshal the genesis file: " + err.Error())
@@ -147,7 +147,7 @@ func SetChainID(genesisPath, chainID string) error {
 }
 
 // GenesisAndHashFromURL fetches the genesis from the given url and returns its content along with the sha256 hash.
-func GenesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, hash string, err error) {
+func GenesisAndHashFromURL(ctx context.Context, url string) (genesis io.Reader, hash string, err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, "", err
@@ -159,13 +159,14 @@ func GenesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, has
 	}
 	defer resp.Body.Close()
 
-	genesis, err = io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, "", err
 	}
+	genesis = bytes.NewReader(body)
 
 	h := sha256.New()
-	if _, err := io.Copy(h, bytes.NewReader(genesis)); err != nil {
+	if _, err := io.Copy(h, genesis); err != nil {
 		return nil, "", err
 	}
 
@@ -174,18 +175,18 @@ func GenesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, has
 	return genesis, hexHash, nil
 }
 
-// GenesisFromTarball checks if the genesis file is a tarball
+// RetrieveGenesis checks if the genesis file is a tarball
 // If is a tarball, extract and found the genesis file.
 // If isn't a tarball, returns the input genesis again.
-func GenesisFromTarball(genesis []byte) (out []byte, isTarball bool, err error) {
-	err = tarball.IsTarball(genesis)
+func RetrieveGenesis(input io.Reader, genesis io.Writer) (genesisPath string, err error) {
+	err = tarball.IsTarball(input)
 	switch {
 	case err == tarball.ErrInvalidGzipFile:
-		return genesis, false, nil
+		_, err := io.Copy(genesis, input)
+		return "", err
 	case err != nil:
-		return genesis, false, err
+		return "", err
 	default:
-		genesis, err = tarball.ReadFile(genesis, genesisFilename)
-		return genesis, true, err
+		return tarball.ExtractFile(input, genesis, genesisFilename)
 	}
 }

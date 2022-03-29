@@ -2,6 +2,8 @@ package network
 
 import (
 	"context"
+	"fmt"
+	"io"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -86,27 +88,31 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	var (
 		genesisHash string
-		genesisFile []byte
+		genesisFile io.ReadWriter
 		genesis     cosmosutil.ChainGenesis
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.genesisURL != "" {
-		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+		genesisFromURL, hash, err := cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
 		if err != nil {
 			return 0, 0, 0, err
 		}
+		genesisHash = hash
 
 		n.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		isTarball := false
-		genesisFile, isTarball, err = cosmosutil.GenesisFromTarball(genesisFile)
+		tarballPath, err := cosmosutil.RetrieveGenesis(genesisFromURL, genesisFile)
 		if err != nil {
 			return 0, 0, 0, err
 		}
-		if isTarball {
-			n.ev.Send(events.New(events.StatusDone, "Custom Genesis from URL tarball extracted"))
+		if tarballPath != "" {
+			n.ev.Send(
+				events.New(events.StatusDone,
+					fmt.Sprintf("Extracted custom Genesis from tarball at %s", tarballPath),
+				),
+			)
 		} else {
-			n.ev.Send(events.New(events.StatusDone, "Custom Genesis from URL fetched"))
+			n.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
 		}
 
 		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)

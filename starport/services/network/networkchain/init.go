@@ -1,6 +1,7 @@
 package networkchain
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -68,15 +69,19 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 
-		isTarball := false
-		genesis, isTarball, err = cosmosutil.GenesisFromTarball(genesis)
+		var buf bytes.Buffer
+		tarballPath, err := cosmosutil.RetrieveGenesis(genesis, &buf)
 		if err != nil {
 			return err
 		}
-		if isTarball {
-			c.ev.Send(events.New(events.StatusDone, "Custom Genesis from URL tarball extracted"))
+		if tarballPath != "" {
+			c.ev.Send(
+				events.New(events.StatusDone,
+					fmt.Sprintf("Extracted custom Genesis from tarball at %s", tarballPath),
+				),
+			)
 		} else {
-			c.ev.Send(events.New(events.StatusDone, "Custom Genesis from URL fetched"))
+			c.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
 		}
 
 		// if the blockchain has been initialized with no genesis hash, we assign the fetched hash to it
@@ -88,7 +93,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		}
 
 		// replace the default genesis with the fetched genesis
-		if err := os.WriteFile(genesisPath, genesis, 0644); err != nil {
+		if err := os.WriteFile(genesisPath, buf.Bytes(), 0644); err != nil {
 			return err
 		}
 	} else {

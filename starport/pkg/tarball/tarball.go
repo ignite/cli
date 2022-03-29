@@ -2,7 +2,6 @@ package tarball
 
 import (
 	"archive/tar"
-	"bytes"
 	"compress/gzip"
 	"errors"
 	"io"
@@ -17,8 +16,8 @@ var (
 )
 
 // IsTarball checks if the file is a tarball
-func IsTarball(tarball []byte) error {
-	r, err := gzip.NewReader(bytes.NewReader(tarball))
+func IsTarball(tarball io.Reader) error {
+	r, err := gzip.NewReader(tarball)
 	if err == io.EOF || err == gzip.ErrHeader {
 		return ErrInvalidGzipFile
 	} else if err != nil {
@@ -27,13 +26,13 @@ func IsTarball(tarball []byte) error {
 	return r.Close()
 }
 
-// ReadFile founds and reads a specific file into a gzip file and folders recursively
-func ReadFile(tarball []byte, file string) ([]byte, error) {
-	archive, err := gzip.NewReader(bytes.NewReader(tarball))
+// ExtractFile founds and reads a specific file into a gzip file and folders recursively
+func ExtractFile(tarball io.Reader, out io.Writer, fileName string) (string, error) {
+	archive, err := gzip.NewReader(tarball)
 	if err == io.EOF || err == gzip.ErrHeader {
-		return nil, ErrInvalidGzipFile
+		return "", ErrInvalidGzipFile
 	} else if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer archive.Close()
 
@@ -41,9 +40,9 @@ func ReadFile(tarball []byte, file string) ([]byte, error) {
 	for {
 		header, err := tarReader.Next()
 		if err == io.EOF {
-			return nil, ErrGzipFileNotFound
+			return header.Name, ErrGzipFileNotFound
 		} else if err != nil {
-			return nil, err
+			return header.Name, err
 		}
 
 		switch header.Typeflag {
@@ -51,12 +50,9 @@ func ReadFile(tarball []byte, file string) ([]byte, error) {
 			continue
 		case tar.TypeReg:
 			name := filepath.Base(header.Name)
-			if file == name {
-				var bout bytes.Buffer
-				if _, err := io.Copy(&bout, tarReader); err != nil {
-					return nil, err
-				}
-				return bout.Bytes(), nil
+			if fileName == name {
+				_, err := io.Copy(out, tarReader)
+				return header.Name, err
 			}
 		default:
 			continue
