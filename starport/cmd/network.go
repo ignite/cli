@@ -31,9 +31,6 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
-	spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
-
 	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
 	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 
@@ -55,8 +52,8 @@ func NewNetwork() *cobra.Command {
 	// configure flags.
 	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
 	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
-	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressAlpha, "SPN node address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN faucet address")
+	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressNightly, "SPN node address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressNightly, "SPN faucet address")
 
 	// add sub commands.
 	c.AddCommand(

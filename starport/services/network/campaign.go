@@ -19,7 +19,6 @@ type (
 	updateProp struct {
 		name        string
 		metadata    []byte
-		totalShares campaigntypes.Shares
 		totalSupply sdk.Coins
 	}
 )
@@ -35,13 +34,6 @@ func WithCampaignName(name string) Prop {
 func WithCampaignMetadata(metadata string) Prop {
 	return func(c *updateProp) {
 		c.metadata = []byte(metadata)
-	}
-}
-
-// WithCampaignTotalShares provides a total shares proposal to update the campaign.
-func WithCampaignTotalShares(totalShares campaigntypes.Shares) Prop {
-	return func(c *updateProp) {
-		c.totalShares = totalShares
 	}
 }
 
@@ -157,13 +149,6 @@ func (n Network) UpdateCampaign(
 			p.name,
 			id,
 			p.metadata,
-		))
-	}
-	if !p.totalShares.Empty() {
-		msgs = append(msgs, campaigntypes.NewMsgUpdateTotalShares(
-			account,
-			id,
-			p.totalShares,
 		))
 	}
 	if !p.totalSupply.Empty() {

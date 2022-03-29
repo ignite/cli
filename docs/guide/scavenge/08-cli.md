@@ -97,7 +97,7 @@ import (
 
 func CmdSubmitScavenge() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-scavenge [solutionHash] [description] [reward]",
+		Use:   "submit-scavenge [solution] [description] [reward]",
 		Short: "Broadcast message submit-scavenge",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
