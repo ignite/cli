@@ -253,11 +253,10 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 }
 
 // Build builds chain sources, also checks if source was already built
-func (c *Chain) Build(ctx context.Context) (string, error) {
+func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
 	// if chain was already published and has launch id check binary cache
 	if c.launchID != 0 {
-		binaryName, err := c.chain.Binary()
-		if err != nil {
+		if binaryName, err = c.chain.Binary(); err != nil {
 			return "", err
 		}
 		binaryChecksum, err := checksum.Binary(binaryName)
@@ -274,15 +273,13 @@ func (c *Chain) Build(ctx context.Context) (string, error) {
 	}
 
 	// build binary
-	binaryName, err := c.chain.Build(ctx, "")
-	if err != nil {
+	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
 		return "", err
 	}
 
 	// cache built binary for launch id
 	if c.launchID != 0 {
-		err := c.CacheBinary(c.launchID)
-		if err != nil {
+		if err := c.CacheBinary(c.launchID); err != nil {
 			return "", nil
 		}
 	}
