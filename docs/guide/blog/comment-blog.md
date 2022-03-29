@@ -34,7 +34,7 @@ To get the useful functions for this tutorial, you use the `starport scaffold li
 2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an array, run:
 
 ```bash
-starport scaffold list comment --no-message creator:string title:string body:string postID:uint createdAt:uint 
+starport scaffold list comment --no-message creator:string title:string body:string postID:uint createdAt:int 
 ```
 
 The `--no-message` flag disables CRUD interaction messages scaffolding because you will write your own messages.
@@ -62,6 +62,20 @@ modify x/blog/types/keys.go
 
 🎉 comment added.
 ```
+
+Make a small modification in proto/blog/comment.proto to change createdAt to int64:
+
+```go
+message Comment {
+  uint64 id = 1;
+  string creator = 2; 
+  string title = 3; 
+  string body = 4; 
+  uint64 postID = 5; 
+  int64 createdAt = 6;  
+}
+```
+
 
 ## Add a comment to a post
 
@@ -300,7 +314,25 @@ create x/blog/types/message_delete_comment.go
 create x/blog/types/message_delete_comment_test.go
 ```
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. Leave `MsgCreateResponse` blank as there is no value returned for it. 
+As always, start your development with a proto file. 
+
+In the `proto/blog/tx.proto` file, edit `MsgDeleteComment` to:
+
+* Add `id`
+* Define the `id` for `message MsgDeleteCommentResponse`:
+
+```go
+message MsgDeleteComment {
+  string creator = 1;
+  uint64 commentID = 2;
+  uint64 postID = 3;
+  uint64 id = 4;
+}
+
+message MsgDeleteCommentResponse {
+  uint64 id = 1;
+}
+```
 
 ## Process messages
 
@@ -372,7 +404,7 @@ message QueryCommentsResponse {
 }
 ```
 
-After the types are defined in proto files, you can implement post querying logic in `x/blog/keeper/grpc_query_comment.go` by registering the `Comments` function:
+After the types are defined in proto files, you can implement post querying logic in `x/blog/keeper/grpc_query_comments.go` by registering the `Comments` function:
 
 ```go
 
