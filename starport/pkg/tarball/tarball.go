@@ -6,30 +6,30 @@ import (
 	"compress/gzip"
 	"errors"
 	"io"
-	"os"
 	"path/filepath"
 )
 
 var (
 	// ErrGzipFileNotFound the file not found in the gzip
 	ErrGzipFileNotFound = errors.New("file not found in the gzip")
-	// ErrFileNotFound the file gzip not found into the folder
-	ErrFileNotFound = errors.New("gzip file not found")
 	// ErrInvalidGzipFile the gzip file is invalid
 	ErrInvalidGzipFile = errors.New("invalid gzip file")
 )
 
-// ReadFile founds and reads a specific file into a gzip file and folders recursively
-func ReadFile(source, file string) ([]byte, error) {
-	reader, err := os.Open(source)
-	if os.IsNotExist(err) {
-		return nil, ErrFileNotFound
+// IsTarball checks if the file is a tarball
+func IsTarball(tarball []byte) error {
+	r, err := gzip.NewReader(bytes.NewReader(tarball))
+	if err == io.EOF {
+		return ErrInvalidGzipFile
 	} else if err != nil {
-		return nil, err
+		return err
 	}
-	defer reader.Close()
+	return r.Close()
+}
 
-	archive, err := gzip.NewReader(reader)
+// ReadFile founds and reads a specific file into a gzip file and folders recursively
+func ReadFile(tarball []byte, file string) ([]byte, error) {
+	archive, err := gzip.NewReader(bytes.NewReader(tarball))
 	if err == io.EOF {
 		return nil, ErrInvalidGzipFile
 	} else if err != nil {

@@ -12,8 +12,8 @@ func TestReadFile(t *testing.T) {
 	require.NoError(t, err)
 
 	type args struct {
-		source string
-		file   string
+		tarballPath string
+		file        string
 	}
 	tests := []struct {
 		name string
@@ -24,55 +24,50 @@ func TestReadFile(t *testing.T) {
 		{
 			name: "simple read",
 			args: args{
-				source: "testdata/example.tar.gz",
-				file:   "example.json",
+				tarballPath: "testdata/example.tar.gz",
+				file:        "example.json",
 			},
 			want: exampleJSON,
 		},
 		{
 			name: "read from root",
 			args: args{
-				source: "testdata/example-root.tar.gz",
-				file:   "example.json",
+				tarballPath: "testdata/example-root.tar.gz",
+				file:        "example.json",
 			},
 			want: exampleJSON,
 		},
 		{
 			name: "read from subfolder",
 			args: args{
-				source: "testdata/example-subfolder.tar.gz",
-				file:   "example.json",
+				tarballPath: "testdata/example-subfolder.tar.gz",
+				file:        "example.json",
 			},
 			want: exampleJSON,
 		},
 		{
-			name: "not found file",
-			args: args{
-				source: "testdata/not-found.tar.gz",
-				file:   "example.json",
-			},
-			err: ErrFileNotFound,
-		},
-		{
 			name: "empty folders",
 			args: args{
-				source: "testdata/example-empty.tar.gz",
-				file:   "example.json",
+				tarballPath: "testdata/example-empty.tar.gz",
+				file:        "example.json",
 			},
 			err: ErrGzipFileNotFound,
 		},
 		{
 			name: "invalid file",
 			args: args{
-				source: "testdata/invalid_file",
-				file:   "example.json",
+				tarballPath: "testdata/invalid_file",
+				file:        "example.json",
 			},
 			err: ErrInvalidGzipFile,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ReadFile(tt.args.source, tt.args.file)
+			tarball, err := os.ReadFile(tt.args.tarballPath)
+			require.NoError(t, err)
+
+			got, err := ReadFile(tarball, tt.args.file)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
@@ -80,6 +75,41 @@ func TestReadFile(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestIsTarball(t *testing.T) {
+	tests := []struct {
+		name        string
+		tarballPath string
+		err         error
+	}{
+		{
+			name:        "simple read",
+			tarballPath: "testdata/example.tar.gz",
+		},
+		{
+			name:        "read from root",
+			tarballPath: "testdata/example-root.tar.gz",
+		},
+		{
+			name:        "read from subfolder",
+			tarballPath: "testdata/example-subfolder.tar.gz",
+		},
+		{
+			name:        "invalid file",
+			tarballPath: "testdata/invalid_file",
+			err:         ErrInvalidGzipFile,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tarball, err := os.ReadFile(tt.tarballPath)
+			require.NoError(t, err)
+
+			err = IsTarball(tarball)
+			require.ErrorIs(t, err, tt.err)
 		})
 	}
 }
