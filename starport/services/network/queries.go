@@ -74,7 +74,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 	}
 	// sort filenames by launch id
 	sort.Slice(chainLaunches, func(i, j int) bool {
-		return chainLaunches[i].ID < chainLaunches[j].ID
+		return chainLaunches[i].ID > chainLaunches[j].ID
 	})
 	return chainLaunches, nil
 }
