@@ -19,7 +19,7 @@ var (
 // IsTarball checks if the file is a tarball
 func IsTarball(tarball []byte) error {
 	r, err := gzip.NewReader(bytes.NewReader(tarball))
-	if err == io.EOF {
+	if err == io.EOF || err == gzip.ErrHeader {
 		return ErrInvalidGzipFile
 	} else if err != nil {
 		return err
@@ -30,7 +30,7 @@ func IsTarball(tarball []byte) error {
 // ReadFile founds and reads a specific file into a gzip file and folders recursively
 func ReadFile(tarball []byte, file string) ([]byte, error) {
 	archive, err := gzip.NewReader(bytes.NewReader(tarball))
-	if err == io.EOF {
+	if err == io.EOF || err == gzip.ErrHeader {
 		return nil, ErrInvalidGzipFile
 	} else if err != nil {
 		return nil, err

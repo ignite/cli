@@ -76,7 +76,9 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 		if isTarball {
-			c.ev.Send(events.New(events.StatusDone, "Extracted custom Genesis from tarball"))
+			c.ev.Send(events.New(events.StatusDone, "Custom Genesis from URL tarball extracted"))
+		} else {
+			c.ev.Send(events.New(events.StatusDone, "Custom Genesis from URL fetched"))
 		}
 
 		// if the blockchain has been initialized with no genesis hash, we assign the fetched hash to it

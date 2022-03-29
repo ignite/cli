@@ -61,6 +61,14 @@ func TestReadFile(t *testing.T) {
 			},
 			err: ErrInvalidGzipFile,
 		},
+		{
+			name: "invalid file extension",
+			args: args{
+				tarballPath: "testdata/example.json",
+				file:        "example.json",
+			},
+			err: ErrInvalidGzipFile,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -100,6 +108,11 @@ func TestIsTarball(t *testing.T) {
 		{
 			name:        "invalid file",
 			tarballPath: "testdata/invalid_file",
+			err:         ErrInvalidGzipFile,
+		},
+		{
+			name:        "invalid file extension",
+			tarballPath: "testdata/example.json",
 			err:         ErrInvalidGzipFile,
 		},
 	}
