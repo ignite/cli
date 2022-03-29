@@ -12,9 +12,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+
+	"github.com/tendermint/starport/starport/pkg/tarball"
 )
 
 const (
+	genesisFilename  = "genesis.json"
 	genesisTimeField = "genesis_time"
 	chainIDField     = "chain_id"
 )
@@ -169,4 +172,17 @@ func GenesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, has
 	hexHash := hex.EncodeToString(h.Sum(nil))
 
 	return genesis, hexHash, nil
+}
+
+func GenesisFromTarball(genesis []byte) (out []byte, isTarball bool, err error) {
+	err = tarball.IsTarball(genesis)
+	switch {
+	case err == tarball.ErrInvalidGzipFile:
+		return genesis, false, nil
+	case err != nil:
+		return genesis, false, err
+	default:
+		genesis, err = tarball.ReadFile(genesis, genesisFilename)
+		return genesis, true, err
+	}
 }

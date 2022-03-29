@@ -104,6 +104,17 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		if err != nil {
 			return 0, 0, 0, err
 		}
+
+		n.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
+		isTarball := false
+		genesisFile, isTarball, err = cosmosutil.GenesisFromTarball(genesisFile)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+		if isTarball {
+			n.ev.Send(events.New(events.StatusDone, "Extracted custom Genesis from tarball"))
+		}
+
 		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
 		if err != nil {
 			return 0, 0, 0, err

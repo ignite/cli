@@ -64,9 +64,19 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
+		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
 		genesis, hash, err := cosmosutil.GenesisAndHashFromURL(ctx, c.genesisURL)
 		if err != nil {
 			return err
+		}
+
+		isTarball := false
+		genesis, isTarball, err = cosmosutil.GenesisFromTarball(genesis)
+		if err != nil {
+			return err
+		}
+		if isTarball {
+			c.ev.Send(events.New(events.StatusDone, "Extracted custom Genesis from tarball"))
 		}
 
 		// if the blockchain has been initialized with no genesis hash, we assign the fetched hash to it

@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var GentxFilename = "gentx.json"
+const GentxFilename = "gentx.json"
 
 type (
 	// PubKey represents the public key in bytes array

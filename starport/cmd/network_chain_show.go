@@ -90,6 +90,11 @@ func newNetworkChainShowInfo() *cobra.Command {
 				if err != nil {
 					return err
 				}
+
+				genesis, _, err = cosmosutil.GenesisFromTarball(genesis)
+				if err != nil {
+					return err
+				}
 			}
 			chainInfo := struct {
 				Chain   networktypes.ChainLaunch `json:"Chain"`
