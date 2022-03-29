@@ -272,10 +272,14 @@ func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
 		}
 	}
 
+	c.ev.Send(events.New(events.StatusOngoing, "Building the chain's binary"))
+
 	// build binary
 	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
 		return "", err
 	}
+
+	c.ev.Send(events.New(events.StatusDone, "Chain's binary built"))
 
 	// cache built binary for launch id
 	if c.launchID != 0 {
