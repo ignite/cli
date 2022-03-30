@@ -556,6 +556,7 @@ func New(
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
+		monitoringptypes.ModuleName,
 		feegrant.ModuleName,
 		monitoringptypes.ModuleName, 
 		paramstypes.ModuleName, 
