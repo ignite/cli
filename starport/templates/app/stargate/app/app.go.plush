@@ -149,9 +149,9 @@ import (
 	// Imports from starport itself for the CLI and API
 	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 	"github.com/tendermint/starport/starport/pkg/openapiconsole"
-	monitoringp "github.com/tendermint/spn/x/monitoringp"
-	monitoringpkeeper "github.com/tendermint/spn/x/monitoringp/keeper"
-	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
+	monitoringp "github.com/tendermint/starport/pkg/monitoringp"
+	monitoringpkeeper "github.com/tendermint/starport/pkg/monitoringp/keeper"
+	monitoringptypes "github.com/tendermint/starport/pkg/monitoringp/types"
 
 
 	"<%= ModulePath %>/docs"
