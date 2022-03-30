@@ -4,18 +4,36 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
-
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+	profiletypes "github.com/tendermint/spn/x/profile/types"
+	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
+//go:generate mockery --name CosmosClient --case underscore
+type CosmosClient interface {
+	Account(accountName string) (cosmosaccount.Account, error)
+	Address(accountName string) (sdktypes.AccAddress, error)
+	GetContext() client.Context
+	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
+	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
+}
+
 // Network is network builder.
 type Network struct {
-	ev      events.Bus
-	cosmos  cosmosclient.Client
-	account cosmosaccount.Account
+	ev            events.Bus
+	cosmos        CosmosClient
+	account       cosmosaccount.Account
+	campaignQuery campaigntypes.QueryClient
+	launchQuery   launchtypes.QueryClient
+	profileQuery  profiletypes.QueryClient
+	rewardQuery   rewardtypes.QueryClient
 }
 
 type Chain interface {
@@ -31,6 +49,7 @@ type Chain interface {
 	ConfigTOMLPath() (string, error)
 	NodeID(ctx context.Context) (string, error)
 	CacheBinary(launchID uint64) error
+	ResetGenesisTime() error
 }
 
 type Option func(*Network)
@@ -43,10 +62,14 @@ func CollectEvents(ev events.Bus) Option {
 }
 
 // New creates a Builder.
-func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...Option) (Network, error) {
+func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) (Network, error) {
 	n := Network{
-		cosmos:  cosmos,
-		account: account,
+		cosmos:        cosmos,
+		account:       account,
+		campaignQuery: campaigntypes.NewQueryClient(cosmos.GetContext()),
+		launchQuery:   launchtypes.NewQueryClient(cosmos.GetContext()),
+		profileQuery:  profiletypes.NewQueryClient(cosmos.GetContext()),
+		rewardQuery:   rewardtypes.NewQueryClient(cosmos.GetContext()),
 	}
 	for _, opt := range options {
 		opt(&n)

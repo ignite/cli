@@ -127,8 +127,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
 
-	_, err = profiletypes.
-		NewQueryClient(n.cosmos.Context).
+	_, err = n.profileQuery.
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
@@ -147,8 +146,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	if campaignID != 0 {
-		_, err = campaigntypes.
-			NewQueryClient(n.cosmos.Context).
+		_, err = n.campaignQuery.
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 				CampaignID: o.campaignID,
 			})

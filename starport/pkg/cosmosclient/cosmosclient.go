@@ -201,12 +201,20 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	return account.Info.GetAddress(), nil
 }
 
+func (c Client) GetContext() client.Context {
+	return c.Context
+}
+
 // Response of your broadcasted transaction.
 type Response struct {
 	codec codec.Codec
 
 	// TxResponse is the underlying tx response.
 	*sdktypes.TxResponse
+}
+
+func (r *Response) SetCodec(cdc codec.Codec) {
+	r.codec = cdc
 }
 
 // Decode decodes the proto func response defined in your Msg service into your message type.

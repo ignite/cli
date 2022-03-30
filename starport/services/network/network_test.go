@@ -5,7 +5,18 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/services/network/mocks"
 )
+
+func NetworkStub() Network {
+	return Network{
+		cosmos:        new(mocks.CosmosClient),
+		profileQuery:  new(mocks.ProfileClient),
+		campaignQuery: new(mocks.CampaignClient),
+		launchQuery:   new(mocks.LaunchClient),
+		rewardQuery:   new(mocks.RewardClient),
+	}
+}
 
 func TestParseID(t *testing.T) {
 	tests := []struct {

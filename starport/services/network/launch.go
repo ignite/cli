@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tendermint/starport/starport/services/network/networkchain"
-
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xtime"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -16,7 +13,7 @@ import (
 
 // LaunchParams fetches the chain launch module params from SPN
 func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
-	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Params(ctx, &launchtypes.QueryParamsRequest{})
+	res, err := n.launchQuery.Params(ctx, &launchtypes.QueryParamsRequest{})
 	if err != nil {
 		return launchtypes.Params{}, err
 	}
@@ -69,7 +66,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 }
 
 // RevertLaunch reverts a launched chain as a coordinator
-func (n Network) RevertLaunch(launchID uint64, chain *networkchain.Chain) error {
+func (n Network) RevertLaunch(launchID uint64, chain Chain) error {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Reverting launched chain %d", launchID)))
 
 	address := n.account.Address(networktypes.SPN)
