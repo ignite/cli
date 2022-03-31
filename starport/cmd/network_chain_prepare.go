@@ -2,10 +2,12 @@ package starportcmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -84,10 +86,12 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	binaryDir := filepath.Dir(filepath.Join(goenv.Bin(), binaryName))
 
 	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
 	fmt.Println("\nYou can start your node by running the following command:")
-	fmt.Printf("\t%s start --home %s\n", binaryName, chainHome)
+	commandStr := fmt.Sprintf("%s start --home %s", binaryName, chainHome)
+	fmt.Printf("\t%s/%s\n", binaryDir, infoColor(commandStr))
 
 	return nil
 }
