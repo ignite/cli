@@ -389,6 +389,8 @@ starport scaffold query comments id:uint --response title,body
 Also in `proto/blog/query.proto`, make these updates:
 
 ```go
+"blog/post.proto";
+
 message QueryCommentsRequest {
 	uint64 id = 1;
     // Adding pagination to request
