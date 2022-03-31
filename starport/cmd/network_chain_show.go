@@ -84,22 +84,16 @@ func newNetworkChainShowInfo() *cobra.Command {
 			}
 			chainLaunch.Reward = reward.RemainingCoins.String()
 
-			genesis := ""
+			var genesis *cosmosutil.GenReader
 			if chainLaunch.GenesisURL != "" {
-				genesisReader, _, err := cosmosutil.GenesisAndHashFromURL(cmd.Context(), chainLaunch.GenesisURL)
+				genesis, err = cosmosutil.GenesisFromURL(cmd.Context(), chainLaunch.GenesisURL)
 				if err != nil {
 					return err
 				}
-
-				var buf bytes.Buffer
-				if _, err = cosmosutil.RetrieveGenesis(genesisReader, &buf); err != nil {
-					return err
-				}
-				genesis = buf.String()
 			}
 			chainInfo := struct {
 				Chain   networktypes.ChainLaunch `json:"Chain"`
-				Genesis string                   `json:"Genesis"`
+				Genesis *cosmosutil.GenReader    `json:"Genesis"`
 			}{
 				Chain:   chainLaunch,
 				Genesis: genesis,

@@ -94,14 +94,17 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.genesisURL != "" {
-		genesisFromURL, hash, err := cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+		genesisReader, err := cosmosutil.GenesisFromURL(ctx, o.genesisURL)
 		if err != nil {
 			return 0, 0, 0, err
 		}
-		genesisHash = hash
+		genesisHash, err = genesisReader.Hash()
+		if err != nil {
+			return 0, 0, 0, err
+		}
 
 		n.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		tarballPath, err := cosmosutil.RetrieveGenesis(genesisFromURL, genesisFile)
+		tarballPath, err := cosmosutil.RetrieveGenesis(genesisReader, genesisFile)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -115,7 +118,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			n.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
 		}
 
-		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
+		genesis, err = genesisReader.ChainGenesis()
 		if err != nil {
 			return 0, 0, 0, err
 		}

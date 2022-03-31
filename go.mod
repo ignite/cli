@@ -31,6 +31,7 @@ require (
 	github.com/iancoleman/strcase v0.2.0
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/chisel v1.7.7
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/otiai10/copy v1.6.0

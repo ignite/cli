@@ -5,21 +5,19 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/tendermint/starport/starport/pkg/tarball"
-
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+
+	"github.com/tendermint/starport/starport/pkg/tarball"
 )
 
 const (
-	genesisFilename  = "genesis.json"
-	genesisTimeField = "genesis_time"
-	chainIDField     = "chain_id"
+	genesisFilename = "genesis.json"
 )
 
 type (
@@ -30,8 +28,9 @@ type (
 	}
 	// ChainGenesis represents the stargate genesis file
 	ChainGenesis struct {
-		ChainID  string `json:"chain_id"`
-		AppState struct {
+		ChainID     string `json:"chain_id"`
+		GenesisTime string `json:"genesis_time"`
+		AppState    struct {
 			Auth struct {
 				Accounts []struct {
 					Address string `json:"address"`
@@ -44,7 +43,78 @@ type (
 			} `json:"staking"`
 		} `json:"app_state"`
 	}
+	// GenReader represents the genesis reader/writer
+	GenReader struct {
+		URL         string
+		TarballPath string
+		FilePath    string
+		io.ReadWriter
+	}
+	// UpdateGenesisOption configures genesis update.
+	UpdateGenesisOption func(*ChainGenesis)
 )
+
+// GenesisReaderFromPath parse GenReader object from path
+func GenesisReaderFromPath(genesisPath string) (*GenReader, error) {
+	genesisFile, err := os.Open(genesisPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot open genesis file")
+	}
+	return &GenReader{
+		FilePath:   genesisPath,
+		ReadWriter: genesisFile,
+	}, nil
+}
+
+// GenesisFromURL fetches the genesis from the given URL and returns its content.
+func GenesisFromURL(ctx context.Context, url string) (genReader *GenReader, err error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	tarballPath, err := RetrieveGenesis(resp.Body, genReader)
+	genReader.URL = url
+	genReader.TarballPath = tarballPath
+	return genReader, err
+}
+
+// RetrieveGenesis checks if the genesis file is a tarball
+// If is a tarball, extract and found the genesis file.
+// If isn't a tarball, returns the input genesis again.
+func RetrieveGenesis(input io.Reader, genesis io.Writer) (genesisPath string, err error) {
+	err = tarball.IsTarball(input)
+	switch {
+	case err == tarball.ErrInvalidGzipFile:
+		_, err = io.Copy(genesis, input)
+		return
+	case err != nil:
+		return
+	default:
+		return tarball.ExtractFile(input, genesis, genesisFilename)
+	}
+}
+
+// CheckGenesisContainsAddress returns true if the address exist into the genesis file
+func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
+	_, err := os.Stat(genesisPath)
+	if os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	genesis, err := GenesisReaderFromPath(genesisPath)
+	if err != nil {
+		return false, err
+	}
+	return genesis.HasAccount(addr), nil
+}
 
 // HasAccount check if account exist into the genesis account
 func (g Genesis) HasAccount(address string) bool {
@@ -56,137 +126,107 @@ func (g Genesis) HasAccount(address string) bool {
 	return false
 }
 
-// ParseGenesisFromPath parse ChainGenesis object from a genesis file
-func ParseGenesisFromPath(genesisPath string) (Genesis, error) {
-	genesisFile, err := os.Open(genesisPath)
-	if err != nil {
-		return Genesis{}, errors.Wrap(err, "cannot open genesis file")
+func applyChanges(g *ChainGenesis, options []UpdateGenesisOption) {
+	for _, applyOption := range options {
+		applyOption(g)
 	}
-	return ParseGenesis(genesisFile)
 }
 
-// ParseChainGenesis parse ChainGenesis object from a byte slice
-func ParseChainGenesis(genesisFile io.Reader) (chainGenesis ChainGenesis, err error) {
-	if err := json.NewDecoder(genesisFile).Decode(&chainGenesis); err != nil {
-		return chainGenesis, errors.New("cannot unmarshal the chain genesis file: " + err.Error())
+// WithChainID update a genesis chaind id
+func WithChainID(chainID string) UpdateGenesisOption {
+	return func(g *ChainGenesis) {
+		g.ChainID = chainID
 	}
-	return chainGenesis, err
 }
 
-// ParseGenesis parse ChainGenesis object from a byte slice into a Genesis object
-func ParseGenesis(genesisFile io.Reader) (Genesis, error) {
-	chainGenesis, err := ParseChainGenesis(genesisFile)
-	if err != nil {
-		return Genesis{}, errors.New("cannot unmarshal the genesis file: " + err.Error())
+// WithGenesisTime update a genesis time
+func WithGenesisTime(genesisTime int64) UpdateGenesisOption {
+	return func(g *ChainGenesis) {
+		g.GenesisTime = time.Unix(genesisTime, 0).UTC().Format(time.RFC3339Nano)
 	}
-	genesis := Genesis{StakeDenom: chainGenesis.AppState.Staking.Params.BondDenom}
-	for _, acc := range chainGenesis.AppState.Auth.Accounts {
-		genesis.Accounts = append(genesis.Accounts, acc.Address)
-	}
-	return genesis, nil
 }
 
-// CheckGenesisContainsAddress returns true if the address exist into the genesis file
-func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
-	_, err := os.Stat(genesisPath)
-	if os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-	genesis, err := ParseGenesisFromPath(genesisPath)
+// UpdateGenesis update the genesis file with options
+func (g *GenReader) UpdateGenesis(options ...UpdateGenesisOption) (genesis ChainGenesis, err error) {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	err = json.NewDecoder(g).Decode(genesis)
 	if err != nil {
-		return false, err
+		return
 	}
-	return genesis.HasAccount(addr), nil
+	applyChanges(&genesis, options)
+	return genesis, json.NewEncoder(g).Encode(genesis)
 }
 
-// SetGenesisTime sets the genesis time inside a genesis file
-func SetGenesisTime(genesisPath string, genesisTime int64) error {
-	// fetch and parse genesis
-	genesisBytes, err := os.ReadFile(genesisPath)
+// HasAccount check if account exist into the genesis account
+func (g *GenReader) HasAccount(address string) bool {
+	genesis, err := g.Genesis()
 	if err != nil {
-		return err
+		return false
 	}
-
-	var genesis map[string]interface{}
-	if err := json.Unmarshal(genesisBytes, &genesis); err != nil {
-		return err
+	for _, account := range genesis.Accounts {
+		if account == address {
+			return true
+		}
 	}
-
-	// check the genesis time with the RFC3339 standard format
-	formattedTime := time.Unix(genesisTime, 0).UTC().Format(time.RFC3339Nano)
-
-	// modify and save the new genesis
-	genesis[genesisTimeField] = &formattedTime
-	genesisBytes, err = json.Marshal(genesis)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(genesisPath, genesisBytes, 0644)
+	return false
 }
 
-// TODO refactor
-func SetChainID(genesisPath, chainID string) error {
-	genesisBytes, err := os.ReadFile(genesisPath)
-	if err != nil {
-		return err
-	}
-
-	var genesis map[string]interface{}
-	if err := json.Unmarshal(genesisBytes, &genesis); err != nil {
-		return err
-	}
-
-	genesis[chainIDField] = chainID
-	genesisBytes, err = json.Marshal(genesis)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(genesisPath, genesisBytes, 0644)
+// StakeDenom returns the chain genesis stake denom
+func (g *GenReader) StakeDenom() (string, error) {
+	var genesis ChainGenesis
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	return genesis.AppState.Staking.Params.BondDenom, json.NewDecoder(g).Decode(genesis)
 }
 
-// GenesisAndHashFromURL fetches the genesis from the given url and returns its content along with the sha256 hash.
-func GenesisAndHashFromURL(ctx context.Context, url string) (genesis io.Reader, hash string, err error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, "", err
-	}
+// ChainGenesis returns the chain genesis form the reader
+func (g *GenReader) ChainGenesis() (genesis ChainGenesis, err error) {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	err = json.NewDecoder(g).Decode(genesis)
+	return
+}
 
-	resp, err := http.DefaultClient.Do(req)
+// Genesis returns the genesis wrapper form the reader
+func (g *GenReader) Genesis() (Genesis, error) {
+	chainGenesis, err := g.ChainGenesis()
 	if err != nil {
-		return nil, "", err
+		return Genesis{}, err
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, "", err
+	accounts := make([]string, len(chainGenesis.AppState.Auth.Accounts))
+	for i, acc := range chainGenesis.AppState.Auth.Accounts {
+		accounts[i] = acc.Address
 	}
-	genesis = bytes.NewReader(body)
+	return Genesis{
+		StakeDenom: chainGenesis.AppState.Staking.Params.BondDenom,
+		Accounts:   accounts,
+	}, nil
+}
 
+func (g *GenReader) Hash() (string, error) {
 	h := sha256.New()
-	if _, err := io.Copy(h, genesis); err != nil {
-		return nil, "", err
+	if _, err := io.Copy(h, g); err != nil {
+		return "", err
 	}
-
-	hexHash := hex.EncodeToString(h.Sum(nil))
-
-	return genesis, hexHash, nil
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// RetrieveGenesis checks if the genesis file is a tarball
-// If is a tarball, extract and found the genesis file.
-// If isn't a tarball, returns the input genesis again.
-func RetrieveGenesis(input io.Reader, genesis io.Writer) (genesisPath string, err error) {
-	err = tarball.IsTarball(input)
-	switch {
-	case err == tarball.ErrInvalidGzipFile:
-		_, err := io.Copy(genesis, input)
+func (g *GenReader) String() (string, error) {
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, g); err != nil {
 		return "", err
-	case err != nil:
-		return "", err
-	default:
-		return tarball.ExtractFile(input, genesis, genesisFilename)
 	}
+	return buf.String(), nil
+}
+
+// Save saves the genesis writer to the file
+func (g *GenReader) Save() error {
+	if g.FilePath == "" {
+		return errors.New("genesis path is empty")
+	}
+	genesisFile, err := os.Create(g.FilePath)
+	if err != nil {
+		return errors.Wrapf(err, "cannot create the genesis file %s", g.FilePath)
+	}
+	defer genesisFile.Close()
+	_, err = genesisFile.ReadFrom(g)
+	return err
 }

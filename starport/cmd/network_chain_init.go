@@ -114,13 +114,17 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.ParseGenesisFromPath(genesisPath)
+	genesis, err := cosmosutil.GenesisReaderFromPath(genesisPath)
+	if err != nil {
+		return err
+	}
+	stakeDenom, err := genesis.StakeDenom()
 	if err != nil {
 		return err
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, genesis.StakeDenom)
+	v, err := askValidatorInfo(cmd, stakeDenom)
 	if err != nil {
 		return err
 	}

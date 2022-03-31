@@ -21,14 +21,22 @@ import (
 // ResetGenesisTime reset the chain genesis time
 func (c Chain) ResetGenesisTime() error {
 	// set the genesis time for the chain
-	genesisPath, err := c.GenesisPath()
+	genesisPath, err := c.chain.GenesisPath()
+	if err != nil {
+		return errors.Wrap(err, "genesis path of the blockchain can't be read")
+	}
+
+	genReader, err := cosmosutil.GenesisReaderFromPath(genesisPath)
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
-	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
-		return errors.Wrap(err, "genesis time can't be set")
+
+	if _, err := genReader.UpdateGenesis(
+		cosmosutil.WithGenesisTime(0),
+	); err != nil {
+		return errors.Wrap(err, "genesis cannot be reset")
 	}
-	return nil
+	return genReader.Save()
 }
 
 // Prepare prepares the chain to be launched from genesis information
@@ -104,20 +112,25 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
+		return errors.Wrap(err, "genesis path of the blockchain can't be read")
+	}
+
+	genReader, err := cosmosutil.GenesisReaderFromPath(genesisPath)
+	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	// set chain id
-	if err := cosmosutil.SetChainID(genesisPath, c.id); err != nil {
-		return errors.Wrap(err, "chain id cannot be set")
-	}
-	// set the genesis time for the chain
-	if err := cosmosutil.SetGenesisTime(genesisPath, c.launchTime); err != nil {
-		return errors.Wrap(err, "genesis time can't be set")
+	if _, err := genReader.UpdateGenesis(
+		cosmosutil.WithChainID(c.id),
+		cosmosutil.WithGenesisTime(c.launchTime),
+	); err != nil {
+		return errors.Wrap(err, "genesis cannot be update")
 	}
 
+	if err := genReader.Save(); err != nil {
+		return err
+	}
 	c.ev.Send(events.New(events.StatusDone, "Genesis built"))
-
 	return nil
 }
 
