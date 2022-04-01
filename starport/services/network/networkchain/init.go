@@ -92,7 +92,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		}
 
 		// replace the default genesis with the fetched genesis
-		if err := genesis.Save(); err != nil {
+		if err := genesis.UpdateGenesis(genesisPath); err != nil {
 			return err
 		}
 	} else {
@@ -106,7 +106,6 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if err := cmd.Init(ctx, "moniker"); err != nil {
 			return err
 		}
-
 	}
 
 	// check the genesis is valid

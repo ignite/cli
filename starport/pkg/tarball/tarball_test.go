@@ -1,6 +1,7 @@
 package tarball
 
 import (
+	"io"
 	"os"
 	"testing"
 
@@ -16,10 +17,11 @@ func TestReadFile(t *testing.T) {
 		file        string
 	}
 	tests := []struct {
-		name string
-		args args
-		want []byte
-		err  error
+		name     string
+		args     args
+		want     []byte
+		wantPath string
+		err      error
 	}{
 		{
 			name: "simple read",
@@ -27,7 +29,8 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/example.tar.gz",
 				file:        "example.json",
 			},
-			want: exampleJSON,
+			want:     exampleJSON,
+			wantPath: "genesis/example.json",
 		},
 		{
 			name: "read from root",
@@ -35,7 +38,8 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/example-root.tar.gz",
 				file:        "example.json",
 			},
-			want: exampleJSON,
+			want:     exampleJSON,
+			wantPath: "example.json",
 		},
 		{
 			name: "read from subfolder",
@@ -43,7 +47,8 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/example-subfolder.tar.gz",
 				file:        "example.json",
 			},
-			want: exampleJSON,
+			want:     exampleJSON,
+			wantPath: "config/genesis/example.json",
 		},
 		{
 			name: "empty folders",
@@ -59,7 +64,7 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/invalid_file",
 				file:        "example.json",
 			},
-			err: ErrInvalidGzipFile,
+			want: []byte{},
 		},
 		{
 			name: "invalid file extension",
@@ -67,62 +72,26 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/example.json",
 				file:        "example.json",
 			},
-			err: ErrInvalidGzipFile,
+			want: []byte{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tarball, err := os.ReadFile(tt.args.tarballPath)
+			tarball, err := os.Open(tt.args.tarballPath)
 			require.NoError(t, err)
 
-			got, err := ReadFile(tarball, tt.args.file)
+			gotReader, gotPath, err := ExtractFile(tarball, tt.args.file)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, tt.want, got)
-		})
-	}
-}
+			require.Equal(t, tt.wantPath, gotPath)
 
-func TestIsTarball(t *testing.T) {
-	tests := []struct {
-		name        string
-		tarballPath string
-		err         error
-	}{
-		{
-			name:        "simple read",
-			tarballPath: "testdata/example.tar.gz",
-		},
-		{
-			name:        "read from root",
-			tarballPath: "testdata/example-root.tar.gz",
-		},
-		{
-			name:        "read from subfolder",
-			tarballPath: "testdata/example-subfolder.tar.gz",
-		},
-		{
-			name:        "invalid file",
-			tarballPath: "testdata/invalid_file",
-			err:         ErrInvalidGzipFile,
-		},
-		{
-			name:        "invalid file extension",
-			tarballPath: "testdata/example.json",
-			err:         ErrInvalidGzipFile,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tarball, err := os.ReadFile(tt.tarballPath)
+			gotReaderBytes, err := io.ReadAll(gotReader)
 			require.NoError(t, err)
-
-			err = IsTarball(tarball)
-			require.ErrorIs(t, err, tt.err)
+			require.Equal(t, tt.want, gotReaderBytes)
 		})
 	}
 }

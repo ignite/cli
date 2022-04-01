@@ -43,12 +43,10 @@ type (
 			} `json:"staking"`
 		} `json:"app_state"`
 	}
-	// GenReader represents the genesis reader/writer
+	// GenReader represents the genesis reader
 	GenReader struct {
-		URL         string
+		io.Reader
 		TarballPath string
-		FilePath    string
-		io.ReadWriter
 	}
 	// UpdateGenesisOption configures genesis update.
 	UpdateGenesisOption func(*ChainGenesis)
@@ -61,13 +59,12 @@ func GenesisReaderFromPath(genesisPath string) (*GenReader, error) {
 		return nil, errors.Wrap(err, "cannot open genesis file")
 	}
 	return &GenReader{
-		FilePath:   genesisPath,
-		ReadWriter: genesisFile,
+		Reader: genesisFile,
 	}, nil
 }
 
 // GenesisFromURL fetches the genesis from the given URL and returns its content.
-func GenesisFromURL(ctx context.Context, url string) (genReader *GenReader, err error) {
+func GenesisFromURL(ctx context.Context, url string) (*GenReader, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -77,28 +74,20 @@ func GenesisFromURL(ctx context.Context, url string) (genReader *GenReader, err 
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
-
-	tarballPath, err := RetrieveGenesis(resp.Body, genReader)
-	genReader.URL = url
-	genReader.TarballPath = tarballPath
-	return genReader, err
-}
-
-// RetrieveGenesis checks if the genesis file is a tarball
-// If is a tarball, extract and found the genesis file.
-// If isn't a tarball, returns the input genesis again.
-func RetrieveGenesis(input io.Reader, genesis io.Writer) (genesisPath string, err error) {
-	err = tarball.IsTarball(input)
-	switch {
-	case err == tarball.ErrInvalidGzipFile:
-		_, err = io.Copy(genesis, input)
-		return
-	case err != nil:
-		return
-	default:
-		return tarball.ExtractFile(input, genesis, genesisFilename)
+	genesis, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
+	reader, tarballPath, err := tarball.ExtractFile(bytes.NewReader(genesis), genesisFilename)
+	if err != nil {
+		return nil, err
+	}
+	return &GenReader{
+		Reader:      reader,
+		TarballPath: tarballPath,
+	}, nil
 }
 
 // CheckGenesisContainsAddress returns true if the address exist into the genesis file
@@ -147,14 +136,21 @@ func WithGenesisTime(genesisTime int64) UpdateGenesisOption {
 }
 
 // UpdateGenesis update the genesis file with options
-func (g *GenReader) UpdateGenesis(options ...UpdateGenesisOption) (genesis ChainGenesis, err error) {
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	err = json.NewDecoder(g).Decode(genesis)
-	if err != nil {
-		return
+func (g *GenReader) UpdateGenesis(filePath string, options ...UpdateGenesisOption) error {
+	var (
+		genesis ChainGenesis
+		json    = jsoniter.ConfigCompatibleWithStandardLibrary
+	)
+	if err := json.NewDecoder(g).Decode(&genesis); err != nil {
+		return err
 	}
 	applyChanges(&genesis, options)
-	return genesis, json.NewEncoder(g).Encode(genesis)
+
+	genesisBytes, err := json.Marshal(genesis)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filePath, genesisBytes, 0644)
 }
 
 // HasAccount check if account exist into the genesis account
@@ -215,18 +211,4 @@ func (g *GenReader) String() (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
-}
-
-// Save saves the genesis writer to the file
-func (g *GenReader) Save() error {
-	if g.FilePath == "" {
-		return errors.New("genesis path is empty")
-	}
-	genesisFile, err := os.Create(g.FilePath)
-	if err != nil {
-		return errors.Wrapf(err, "cannot create the genesis file %s", g.FilePath)
-	}
-	defer genesisFile.Close()
-	_, err = genesisFile.ReadFrom(g)
-	return err
 }

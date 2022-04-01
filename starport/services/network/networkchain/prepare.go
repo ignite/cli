@@ -31,12 +31,7 @@ func (c Chain) ResetGenesisTime() error {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	if _, err := genReader.UpdateGenesis(
-		cosmosutil.WithGenesisTime(0),
-	); err != nil {
-		return errors.Wrap(err, "genesis cannot be reset")
-	}
-	return genReader.Save()
+	return genReader.UpdateGenesis(genesisPath, cosmosutil.WithGenesisTime(0))
 }
 
 // Prepare prepares the chain to be launched from genesis information
@@ -120,16 +115,14 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	if _, err := genReader.UpdateGenesis(
+	if err := genReader.UpdateGenesis(
+		genesisPath,
 		cosmosutil.WithChainID(c.id),
 		cosmosutil.WithGenesisTime(c.launchTime),
 	); err != nil {
 		return errors.Wrap(err, "genesis cannot be update")
 	}
 
-	if err := genReader.Save(); err != nil {
-		return err
-	}
 	c.ev.Send(events.New(events.StatusDone, "Genesis built"))
 	return nil
 }
