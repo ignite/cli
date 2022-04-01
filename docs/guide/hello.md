@@ -178,7 +178,7 @@ message QueryPostsResponse {
 
 ## Posts keeper function
 
-The `x/hello/keeper/grpc_query_posts.go` file contains the `Posts` keeper function that handles the query and returns data.
+The `x/hello/keeper/grpc_query_params.go` file contains the `Posts` keeper function that handles the query and returns data.
 
 ```go
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
