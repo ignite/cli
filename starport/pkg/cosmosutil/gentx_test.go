@@ -26,6 +26,7 @@ func TestParseGentx(t *testing.T) {
 					Denom:  "stake",
 					Amount: sdk.NewInt(95000000),
 				},
+				Memo: "9b1f4adbfb0c0b513040d914bfb717303c0eaa71@192.168.0.148:26656",
 			},
 		}, {
 			name:      "parse gentx file 2",
@@ -37,6 +38,7 @@ func TestParseGentx(t *testing.T) {
 					Denom:  "stake",
 					Amount: sdk.NewInt(95000000),
 				},
+				Memo: "a412c917cb29f73cc3ad0592bbd0152fe0e690bd@192.168.0.148:26656",
 			},
 		}, {
 			name:      "parse invalid file",
