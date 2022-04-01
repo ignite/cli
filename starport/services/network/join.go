@@ -17,6 +17,8 @@ import (
 
 type joinOptions struct {
 	accountAmount sdk.Coins
+	gentxPath     string
+	publicAddress string
 }
 
 type JoinOption func(*joinOptions)
@@ -27,13 +29,24 @@ func WithAccountRequest(amount sdk.Coins) JoinOption {
 	}
 }
 
+// TODO accept struct not file path
+func WithCustomGentxPath(path string) JoinOption {
+	return func(o *joinOptions) {
+		o.gentxPath = path
+	}
+}
+
+func WithPublicAddress(addr string) JoinOption {
+	return func(o *joinOptions) {
+		o.publicAddress = addr
+	}
+}
+
 // Join to the network.
 func (n Network) Join(
 	ctx context.Context,
 	c Chain,
 	launchID uint64,
-	publicAddress,
-	gentxPath string,
 	options ...JoinOption,
 ) error {
 	o := joinOptions{}
@@ -41,37 +54,45 @@ func (n Network) Join(
 		apply(&o)
 	}
 
-	nodeID, err := c.NodeID(ctx)
+	isCustomGentx := o.gentxPath != ""
+	var (
+		nodeID string
+		peer   launchtypes.Peer
+		err    error
+	)
+
+	// if the custom gentx is not provided, get the chain default from the chain home folder.
+	if !isCustomGentx {
+		if nodeID, err = c.NodeID(ctx); err != nil {
+			return err
+		}
+
+		if xurl.IsHTTP(o.publicAddress) {
+			peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
+		} else {
+			peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
+
+		}
+
+		if o.gentxPath, err = c.DefaultGentxPath(); err != nil {
+			return err
+		}
+	}
+
+	// parse the gentx content
+	gentxInfo, gentx, err := cosmosutil.GentxFromPath(o.gentxPath)
 	if err != nil {
 		return err
 	}
 
-	var peer launchtypes.Peer
-	if xurl.IsHTTP(publicAddress) {
-		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, publicAddress)
-	} else {
-		peer = launchtypes.NewPeerConn(nodeID, publicAddress)
-
-	}
-
-	isCustomGentx := gentxPath != ""
-
-	// if the custom gentx is not provided, get the chain default from the chain home folder.
-	if !isCustomGentx {
-		gentxPath, err = c.DefaultGentxPath()
-		if err != nil {
+	if isCustomGentx {
+		if peer, err = ParsePeerAddress(gentxInfo.Memo); err != nil {
 			return err
 		}
 	}
 
 	// get the chain genesis path from the home folder
 	genesisPath, err := c.GenesisPath()
-	if err != nil {
-		return err
-	}
-
-	// parse the gentx content
-	gentxInfo, gentx, err := cosmosutil.GentxFromPath(gentxPath)
 	if err != nil {
 		return err
 	}
