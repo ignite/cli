@@ -2,8 +2,12 @@ builds:
   - main: ./starport/cmd/starport
     ldflags:
       - -s -w -X github.com/tendermint/starport/starport/internal/version.Version={{.Tag}} -X github.com/tendermint/starport/starport/internal/version.Date={{.Date}} -X github.com/tendermint/starport/starport/internal/version.Head={{.FullCommit}}
+    goos:
+      - linux
+      - darwin
     goarch:
       - amd64
+      - arm64
 changelog:
   skip: true
 release:
