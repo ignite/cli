@@ -35,6 +35,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetYes())
 	return c
@@ -58,10 +59,19 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// get the peer public address for the validator.
-	publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
-	if err != nil {
-		return err
+	joinOptions := []network.JoinOption{
+		network.WithCustomGentxPath(gentxPath),
+	}
+
+	// if there is no custom gentx, we need to detect the public address.
+	if gentxPath == "" {
+		// get the peer public address for the validator.
+		publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
+		if err != nil {
+			return err
+		}
+
+		joinOptions = append(joinOptions, network.WithPublicAddress(publicAddr))
 	}
 
 	n, err := nb.Network()
@@ -79,7 +89,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	joinOptions := []network.JoinOption{}
 	if amount != "" {
 		// parse the amount.
 		amountCoins, err := sdk.ParseCoinsNormalized(amount)
@@ -107,7 +116,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create the message to add the validator.
-	return n.Join(cmd.Context(), c, launchID, publicAddr, gentxPath, joinOptions...)
+	return n.Join(cmd.Context(), c, launchID, joinOptions...)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
