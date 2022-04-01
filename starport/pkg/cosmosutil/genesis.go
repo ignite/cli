@@ -74,12 +74,13 @@ func GenesisFromURL(ctx context.Context, url string) (*GenReader, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+
 	genesis, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
+
 	reader, tarballPath, err := tarball.ExtractFile(bytes.NewReader(genesis), genesisFilename)
 	if err != nil {
 		return nil, err
@@ -171,13 +172,13 @@ func (g *GenReader) HasAccount(address string) bool {
 func (g *GenReader) StakeDenom() (string, error) {
 	var genesis ChainGenesis
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	return genesis.AppState.Staking.Params.BondDenom, json.NewDecoder(g).Decode(genesis)
+	return genesis.AppState.Staking.Params.BondDenom, json.NewDecoder(g).Decode(&genesis)
 }
 
 // ChainGenesis returns the chain genesis form the reader
 func (g *GenReader) ChainGenesis() (genesis ChainGenesis, err error) {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	err = json.NewDecoder(g).Decode(genesis)
+	err = json.NewDecoder(g).Decode(&genesis)
 	return
 }
 
