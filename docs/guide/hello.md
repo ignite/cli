@@ -235,9 +235,9 @@ Make the required changes to the `x/hello/module.go` file.
 
     Do not save the file yet, you need to continue with these modifications.
 
-2. Search for `RegisterGRPCGatewayRoutes`.
+1. Search for `RegisterGRPCGatewayRoutes`.
 
-3. Register the query handlers:
+1. Register the query handlers:
 
     ```go
     func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -245,13 +245,7 @@ Make the required changes to the `x/hello/module.go` file.
     }
     ```
 
-5. Now you're ready to start your blockchain (You can skip this step if you already have your blockchain running):
-
-    ```go
-    starport chain serve
-    ```
-
-6. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+1. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
 
     ```go
     {
