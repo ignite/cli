@@ -245,7 +245,7 @@ Make the required changes to the `x/hello/module.go` file.
     }
     ```
 
-5. Now you're ready to start your blockchain:
+5. Now you're ready to start your blockchain (You can skip this step if you already have your blockchain running):
 
     ```go
     starport chain serve
