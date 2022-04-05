@@ -36,6 +36,7 @@ type Network struct {
 	rewardQuery   rewardtypes.QueryClient
 }
 
+//go:generate mockery --name Chain --case underscore
 type Chain interface {
 	ID() (string, error)
 	ChainID() (string, error)
