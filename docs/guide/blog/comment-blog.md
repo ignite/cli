@@ -189,7 +189,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 }
 ```
 
-When the Comment validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by adding error definitions to `x/blog/types/errors.go`:
+When the Comment validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by naviagting to `x/blog/types/errors.go` and replacing what is currently in 'var' with:
 
 ```go
 //...
