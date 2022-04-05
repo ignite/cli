@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Print Help 
-        uses: tendermint/starport/actions/cli@develop
+        uses: ignite-hq/cli/actions/cli@develop
         with:
           args: -h 
 ```
