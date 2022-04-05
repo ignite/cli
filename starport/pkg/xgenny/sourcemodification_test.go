@@ -2,7 +2,7 @@ package xgenny_test
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
 	"testing"
 )
 

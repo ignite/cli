@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/confile"
+	"github.com/ignite-hq/cli/starport/pkg/confile"
 )
 
 const supportVersion = "2"

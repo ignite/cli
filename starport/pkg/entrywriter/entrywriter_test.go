@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"github.com/ignite-hq/cli/starport/pkg/entrywriter"
 )
 
 type WriterWithError struct{}

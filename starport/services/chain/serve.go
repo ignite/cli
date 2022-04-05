@@ -12,15 +12,15 @@ import (
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/chainconfig"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/dirchange"
-	"github.com/tendermint/starport/starport/pkg/localfs"
-	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
-	"github.com/tendermint/starport/starport/pkg/xhttp"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/ignite-hq/cli/starport/chainconfig"
+	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/starport/pkg/dirchange"
+	"github.com/ignite-hq/cli/starport/pkg/localfs"
+	"github.com/ignite-hq/cli/starport/pkg/xexec"
+	"github.com/ignite-hq/cli/starport/pkg/xfilepath"
+	"github.com/ignite-hq/cli/starport/pkg/xhttp"
+	"github.com/ignite-hq/cli/starport/pkg/xurl"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -163,7 +163,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(c.stdLog().out, "see: https://github.com/tendermint/starport#configure")
+						fmt.Fprintln(c.stdLog().out, "see: https://github.com/ignite-hq/cli#configure")
 					}
 
 					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))

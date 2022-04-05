@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/validation"
+	"github.com/ignite-hq/cli/starport/pkg/validation"
 )
 
 var _ validation.Error = (*MissingPlaceholdersError)(nil)

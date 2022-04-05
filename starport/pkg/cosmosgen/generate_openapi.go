@@ -6,9 +6,9 @@ import (
 	"sort"
 
 	"github.com/iancoleman/strcase"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	swaggercombine "github.com/tendermint/starport/starport/pkg/nodetime/programs/swagger-combine"
-	"github.com/tendermint/starport/starport/pkg/protoc"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/module"
+	swaggercombine "github.com/ignite-hq/cli/starport/pkg/nodetime/programs/swagger-combine"
+	"github.com/ignite-hq/cli/starport/pkg/protoc"
 )
 
 var openAPIOut = []string{

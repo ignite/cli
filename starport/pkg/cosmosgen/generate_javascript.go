@@ -7,14 +7,14 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/giturl"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/localfs"
-	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
-	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-proto"
-	"github.com/tendermint/starport/starport/pkg/protoc"
-	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/starport/pkg/giturl"
+	"github.com/ignite-hq/cli/starport/pkg/gomodulepath"
+	"github.com/ignite-hq/cli/starport/pkg/localfs"
+	"github.com/ignite-hq/cli/starport/pkg/nodetime/programs/sta"
+	tsproto "github.com/ignite-hq/cli/starport/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite-hq/cli/starport/pkg/protoc"
+	"github.com/ignite-hq/cli/starport/pkg/xstrings"
 	"golang.org/x/sync/errgroup"
 )
 

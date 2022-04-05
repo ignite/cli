@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 )
 
 func NewAccountDelete() *cobra.Command {

@@ -11,10 +11,10 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/google/go-github/v37/github"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/pkg/xexec"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/exec"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/gitpod"
+	"github.com/ignite-hq/cli/starport/pkg/xexec"
 )
 
 const versionDev = "development"

@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/starport/pkg/events"
 )
 
 // Network is network builder.

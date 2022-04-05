@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/pelletier/go-toml"
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/ignite-hq/cli/starport/chainconfig"
+	"github.com/ignite-hq/cli/starport/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosver"
+	"github.com/ignite-hq/cli/starport/pkg/xurl"
 )
 
 type stargatePlugin struct {

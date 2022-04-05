@@ -7,10 +7,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/imdario/mergo"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	relayerconfig "github.com/tendermint/starport/starport/pkg/relayer/config"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
+	relayerconfig "github.com/ignite-hq/cli/starport/pkg/relayer/config"
 )
 
 const (

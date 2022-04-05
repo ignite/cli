@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/localfs"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
-	"github.com/tendermint/starport/starport/pkg/protoc/data"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/exec"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/localfs"
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/protoc/data"
 )
 
 // Option configures Generate configs.

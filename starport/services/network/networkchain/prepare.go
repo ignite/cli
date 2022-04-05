@@ -10,9 +10,9 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/services/network/networktypes"
 )
 
 // Prepare prepares the chain to be launched from genesis information

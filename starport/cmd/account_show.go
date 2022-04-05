@@ -2,7 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 )
 
 func NewAccountShow() *cobra.Command {

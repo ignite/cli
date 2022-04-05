@@ -1,14 +1,14 @@
 builds:
   - main: ./starport/cmd/starport
     ldflags:
-      - -s -w -X github.com/tendermint/starport/starport/internal/version.Version={{.Tag}} -X github.com/tendermint/starport/starport/internal/version.Date={{.Date}}
+      - -s -w -X github.com/ignite-hq/cli/starport/internal/version.Version={{.Tag}} -X github.com/ignite-hq/cli/starport/internal/version.Date={{.Date}}
     goarch:
       - amd64
 
 brews:
   - name: "starport"
     description: "Friendly CLI tool for developing Cosmos SDK apps."
-    homepage: "https://github.com/tendermint/starport"
+    homepage: "https://github.com/ignite-hq/cli"
     tap:
       owner: "tendermint"
       name: "homebrew-tap"

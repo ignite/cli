@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
 )
 
 const gogoProtoFile = "gogoproto/gogo.proto"

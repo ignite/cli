@@ -2,9 +2,9 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/docs"
-	"github.com/tendermint/starport/starport/pkg/localfs"
-	"github.com/tendermint/starport/starport/pkg/markdownviewer"
+	"github.com/ignite-hq/cli/docs"
+	"github.com/ignite-hq/cli/starport/pkg/localfs"
+	"github.com/ignite-hq/cli/starport/pkg/markdownviewer"
 )
 
 func NewDocs() *cobra.Command {

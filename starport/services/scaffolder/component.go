@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
 )
 
 const (

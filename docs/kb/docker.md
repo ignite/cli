@@ -74,9 +74,9 @@ You can specify which version of Starport to install and run in your Docker cont
 ### Latest Version
 
 - By default, `starport/cli` resolves to `starport/cli:latest`.
-- The `latest` image tag is always the latest stable [Starport release](https://github.com/tendermint/starport/releases).
+- The `latest` image tag is always the latest stable [Starport release](https://github.com/ignite-hq/cli/releases).
 
-For example, if latest release is [v0.15.1](https://github.com/tendermint/starport/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
+For example, if latest release is [v0.15.1](https://github.com/ignite-hq/cli/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
 
 ### Specific Version
 

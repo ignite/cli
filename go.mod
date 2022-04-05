@@ -1,4 +1,4 @@
-module github.com/tendermint/starport
+module github.com/ignite-hq/cli
 
 go 1.16
 

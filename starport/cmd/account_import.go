@@ -7,8 +7,8 @@ import (
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cliquiz"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 )
 
 const flagSecret = "secret"

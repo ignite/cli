@@ -11,12 +11,12 @@ import (
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/checksum"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/goanalysis"
-	"github.com/tendermint/starport/starport/pkg/gocmd"
+	"github.com/ignite-hq/cli/starport/pkg/checksum"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/exec"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/goanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/gocmd"
 )
 
 const (

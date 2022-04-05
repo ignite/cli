@@ -22,7 +22,7 @@ Click the GitHub icon in the sidebar for GitHub integration and follow the promp
 
 ## Clone the Repos You Work In
 
-- Fork or clone the <https://github.com/tendermint/starport/> repository. 
+- Fork or clone the <https://github.com/ignite-hq/cli/> repository. 
 
 Internal Tendermint users have different permissions, if you're not sure, fork the repo.
 

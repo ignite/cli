@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/starport/pkg/xurl"
 )
 
 var (

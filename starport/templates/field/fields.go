@@ -3,8 +3,8 @@ package field
 import (
 	"fmt"
 
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
 )
 
 // Fields represents a Field slice

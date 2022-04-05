@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 )
 
 func TestCosmosGen(t *testing.T) {

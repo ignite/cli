@@ -9,11 +9,11 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/lineprefixer"
-	"github.com/tendermint/starport/starport/pkg/truncatedbuffer"
+	"github.com/ignite-hq/cli/starport/pkg/chaincmd"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/lineprefixer"
+	"github.com/ignite-hq/cli/starport/pkg/truncatedbuffer"
 )
 
 // Runner provides a high level access to a blockchain's commands.

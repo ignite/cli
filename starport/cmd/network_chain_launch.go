@@ -2,7 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/ignite-hq/cli/starport/services/network"
 )
 
 const (

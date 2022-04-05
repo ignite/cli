@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/randstr"
+	"github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/starport/chainconfig"
+	"github.com/ignite-hq/cli/starport/pkg/confile"
+	"github.com/ignite-hq/cli/starport/pkg/randstr"
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {

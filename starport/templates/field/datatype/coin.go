@@ -3,7 +3,7 @@ package datatype
 import (
 	"fmt"
 
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
 )
 
 var (

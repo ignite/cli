@@ -1,6 +1,6 @@
 # Starport CLI
 
-[Starport CLI](https://github.com/tendermint/starport) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Starport is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Starport accelerates chain development by scaffolding everything you need so you can focus on business logic.
+[Starport CLI](https://github.com/ignite-hq/cli) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Starport is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Starport accelerates chain development by scaffolding everything you need so you can focus on business logic.
 
 ## What is Starport?
 

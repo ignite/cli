@@ -2,14 +2,14 @@
 
 If you're willing to create a new PR on Starport, make sure that you read and comply with this document.
 
-Start a new [Discussion](https://github.com/tendermint/starport/discussions/new) if you want to propose changes to this document.
+Start a new [Discussion](https://github.com/ignite-hq/cli/discussions/new) if you want to propose changes to this document.
 
 Thank you for your contribution!
 
 ## Providing Feedback
 
-* Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/tendermint/starport/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
-* To provide feedback or ask a question, create a [GitHub issue](https://github.com/tendermint/starport/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
+* Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/ignite-hq/cli/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
+* To provide feedback or ask a question, create a [GitHub issue](https://github.com/ignite-hq/cli/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
 * We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/starport).
 
 ## Opening pull requests
@@ -42,7 +42,7 @@ When you open a PR for the Starport codebase, you must also update the relevant 
 
 - [Developer Guide](https://docs.starport.network/guide/) tutorials, update content in the `/docs/guide` folder.
 - [Knowledge Base](https://docs.starport.network/kb/), update content in the `/docs/kb` folder.
-- [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), navigate to the `./starport/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
+- [Starport CLI reference](https://github.com/ignite-hq/cli/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), navigate to the `./starport/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
 
 ### Ask for help
 

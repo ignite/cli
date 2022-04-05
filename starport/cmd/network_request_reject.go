@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/numbers"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/ignite-hq/cli/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/starport/pkg/numbers"
+	"github.com/ignite-hq/cli/starport/services/network"
 )
 
 // NewNetworkRequestReject creates a new request reject
