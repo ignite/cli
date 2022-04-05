@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 	"github.com/ignite-hq/cli/starport/pkg/openapiconsole"
+	"github.com/rs/cors"
 )
 
 // ServeHTTP implements http.Handler to expose the functionality of Faucet.Transfer() via HTTP.

@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mattn/go-zglob"
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/starport/pkg/protoc"
 	protocgendart "github.com/ignite-hq/cli/starport/pkg/protoc-gen-dart"
+	"github.com/mattn/go-zglob"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 

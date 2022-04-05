@@ -3,8 +3,6 @@ package starportcmd
 import (
 	"sync"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/clispinner"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosclient"
@@ -12,6 +10,8 @@ import (
 	"github.com/ignite-hq/cli/starport/pkg/gitpod"
 	"github.com/ignite-hq/cli/starport/services/network"
 	"github.com/ignite-hq/cli/starport/services/network/networkchain"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 )
 
 var (

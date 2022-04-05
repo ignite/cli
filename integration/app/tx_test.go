@@ -12,12 +12,12 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/require"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/starport/pkg/randstr"
 	"github.com/ignite-hq/cli/starport/pkg/xurl"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetTxViaGRPCGateway(t *testing.T) {

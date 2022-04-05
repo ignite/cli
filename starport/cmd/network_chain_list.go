@@ -5,10 +5,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/starport/pkg/entrywriter"
 	"github.com/ignite-hq/cli/starport/services/network/networktypes"
+	"github.com/spf13/cobra"
 )
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}

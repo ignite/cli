@@ -3,8 +3,8 @@ package multiformatname_test
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 

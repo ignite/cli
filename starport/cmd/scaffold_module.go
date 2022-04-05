@@ -7,12 +7,12 @@ import (
 	"io"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/clispinner"
 	"github.com/ignite-hq/cli/starport/pkg/placeholder"
 	"github.com/ignite-hq/cli/starport/pkg/validation"
 	"github.com/ignite-hq/cli/starport/services/scaffolder"
 	modulecreate "github.com/ignite-hq/cli/starport/templates/module/create"
+	"github.com/spf13/cobra"
 )
 
 const (

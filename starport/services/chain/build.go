@@ -10,13 +10,13 @@ import (
 	"strings"
 
 	"github.com/docker/docker/pkg/archive"
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/checksum"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/exec"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/starport/pkg/goanalysis"
 	"github.com/ignite-hq/cli/starport/pkg/gocmd"
+	"github.com/pkg/errors"
 )
 
 const (

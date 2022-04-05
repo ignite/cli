@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/gomodule"
+	"github.com/pkg/errors"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 )

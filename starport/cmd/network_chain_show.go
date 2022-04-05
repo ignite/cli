@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/starport/pkg/entrywriter"
 	"github.com/ignite-hq/cli/starport/pkg/yaml"
 	"github.com/ignite-hq/cli/starport/services/network"
 	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	"github.com/ignite-hq/cli/starport/services/network/networktypes"
+	"github.com/spf13/cobra"
 )
 
 var (

@@ -3,11 +3,11 @@ package starportcmd
 import (
 	"os"
 
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
 	"github.com/ignite-hq/cli/starport/pkg/cliquiz"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/starport/pkg/entrywriter"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 const (

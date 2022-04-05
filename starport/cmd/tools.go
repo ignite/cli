@@ -4,11 +4,11 @@ import (
 	"context"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/starport/pkg/nodetime"
 	"github.com/ignite-hq/cli/starport/pkg/protoc"
+	"github.com/spf13/cobra"
 )
 
 // NewTools returns a command where various tools (binaries) are attached as sub commands

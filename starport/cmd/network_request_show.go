@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/yaml"
 	"github.com/ignite-hq/cli/starport/services/network"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 )
 
 // NewNetworkRequestShow creates a new request show command to show

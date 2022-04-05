@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pelletier/go-toml"
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/starport/pkg/events"
 	"github.com/ignite-hq/cli/starport/services/network/networktypes"
+	"github.com/pelletier/go-toml"
+	"github.com/pkg/errors"
 )
 
 // Prepare prepares the chain to be launched from genesis information

@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	envtest "github.com/ignite-hq/cli/integration"
 	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCosmosGen(t *testing.T) {

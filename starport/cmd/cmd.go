@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
 	"github.com/ignite-hq/cli/starport/internal/version"
 	"github.com/ignite-hq/cli/starport/pkg/clispinner"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
@@ -23,6 +21,8 @@ import (
 	"github.com/ignite-hq/cli/starport/pkg/xgenny"
 	"github.com/ignite-hq/cli/starport/services/chain"
 	"github.com/ignite-hq/cli/starport/services/scaffolder"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 const (

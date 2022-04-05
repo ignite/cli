@@ -3,14 +3,14 @@ package starportcmd
 import (
 	"fmt"
 
-	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/cliquiz"
 	"github.com/ignite-hq/cli/starport/pkg/clispinner"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/starport/services/chain"
 	"github.com/ignite-hq/cli/starport/services/network"
 	"github.com/ignite-hq/cli/starport/services/network/networkchain"
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
 )
 
 const (

@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pelletier/go-toml"
 	"github.com/ignite-hq/cli/starport/chainconfig"
 	"github.com/ignite-hq/cli/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosver"
 	"github.com/ignite-hq/cli/starport/pkg/xurl"
+	"github.com/pelletier/go-toml"
 )
 
 type stargatePlugin struct {

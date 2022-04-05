@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/localfs"
+	"github.com/pkg/errors"
 )
 
 const optionGoPkg = "go_package"

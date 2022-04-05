@@ -5,8 +5,8 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/confile"
+	"github.com/pkg/errors"
 )
 
 const supportVersion = "2"

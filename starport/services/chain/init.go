@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/imdario/mergo"
 	"github.com/ignite-hq/cli/starport/chainconfig"
 	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/starport/pkg/confile"
+	"github.com/imdario/mergo"
 )
 
 const (

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis"
+	"github.com/stretchr/testify/require"
 )
 
 var (

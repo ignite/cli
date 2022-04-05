@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/pkg/clispinner"
 	"github.com/ignite-hq/cli/starport/services/network"
 	"github.com/ignite-hq/cli/starport/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 const (

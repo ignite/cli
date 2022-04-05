@@ -7,10 +7,10 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
 	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
 	"github.com/ignite-hq/cli/starport/pkg/xurl"
+	"github.com/pkg/errors"
 )
 
 var (

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
 	"github.com/ignite-hq/cli/starport/templates/field/datatype"
+	"github.com/stretchr/testify/require"
 )
 
 var (

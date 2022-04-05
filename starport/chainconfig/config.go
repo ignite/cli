@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/goccy/go-yaml"
-	"github.com/imdario/mergo"
 	"github.com/ignite-hq/cli/starport/pkg/xfilepath"
+	"github.com/imdario/mergo"
 )
 
 var (

@@ -1,8 +1,8 @@
 package starportcmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/ignite-hq/cli/starport/services/scaffolder"
+	"github.com/spf13/cobra"
 )
 
 // NewScaffoldSingle returns a new command to scaffold a singleton.

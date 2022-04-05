@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/ignite-hq/cli/starport/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/starport/pkg/events"
 	"github.com/ignite-hq/cli/starport/services/network/networkchain"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 // Join to the network.

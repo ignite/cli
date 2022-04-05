@@ -4,10 +4,10 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/starport/pkg/events"
+	"github.com/pkg/errors"
 )
 
 // Network is network builder.

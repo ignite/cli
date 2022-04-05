@@ -10,8 +10,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/otiai10/copy"
-	"github.com/pkg/errors"
 	"github.com/ignite-hq/cli/starport/chainconfig"
 	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
@@ -21,6 +19,8 @@ import (
 	"github.com/ignite-hq/cli/starport/pkg/xfilepath"
 	"github.com/ignite-hq/cli/starport/pkg/xhttp"
 	"github.com/ignite-hq/cli/starport/pkg/xurl"
+	"github.com/otiai10/copy"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
