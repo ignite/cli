@@ -6,10 +6,9 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
-
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
-	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/templates/field/plushhelpers"
+	"github.com/ignite-hq/cli/starport/templates/module"
 )
 
 // NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app

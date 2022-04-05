@@ -3,6 +3,7 @@ package cosmosgen
 import (
 	"context"
 
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/module"
 	gomodmodule "golang.org/x/mod/module"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"

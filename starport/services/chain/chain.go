@@ -8,16 +8,14 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	"github.com/tendermint/spn/pkg/chainid"
-
-	"github.com/tendermint/starport/starport/chainconfig"
-	sperrors "github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/repoversion"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/ignite-hq/cli/starport/chainconfig"
+	sperrors "github.com/ignite-hq/cli/starport/errors"
+	"github.com/ignite-hq/cli/starport/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
+	"github.com/ignite-hq/cli/starport/pkg/confile"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosver"
+	"github.com/ignite-hq/cli/starport/pkg/repoversion"
+	"github.com/ignite-hq/cli/starport/pkg/xurl"
 )
 
 var (

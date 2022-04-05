@@ -16,7 +16,7 @@ To set up your environment for success, follow the [technical setup](technical-s
 
 ## Using this repo
 
-Review existing [Starport issues](https://github.com/tendermint/starport/issues) to see if your question has already been asked and answered.
+Review existing [Starport issues](https://github.com/ignite-hq/cli/issues) to see if your question has already been asked and answered.
 
 - To provide feedback, file an issue and provide generous details to help us understand how we can make it better.
 - To provide a fix, make a direct contribution. If you're not a member or maintainer, fork the repo and then submit a pull request (PR) from your forked repo to the `develop` branch.
@@ -68,7 +68,7 @@ The Tendermint (All in Bits) Developer Experience team is focused on building St
 
 The Tendermint (All in Bits) Ecosystem Development team owns the technical content and tutorials and manages developer onboarding.
 
-Meet the [people behind Starport and contributors](https://github.com/tendermint/starport/graphs/contributors).
+Meet the [people behind Starport and contributors](https://github.com/ignite-hq/cli/graphs/contributors).
 
 ## Viewing tutorial builds
 
@@ -93,7 +93,7 @@ Since the deploy preview doesn't work on Draft PRs, follow these steps to previe
 
     ```bash
     cd ~/github
-    git clone https://github.com/tendermint/starport
+    git clone https://github.com/ignite-hq/cli
     cd starport
     cd docs
     ```

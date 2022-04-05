@@ -3,17 +3,15 @@ package starportcmd
 import (
 	"sync"
 
+	"github.com/ignite-hq/cli/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/pkg/gitpod"
+	"github.com/ignite-hq/cli/starport/services/network"
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 var (

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
 )
 
 // validateField validates the field Name and type, and checks the name is not forbidden by Starport

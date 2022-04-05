@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tendermint/starport/starport/services/network/networkchain"
-
+	"github.com/ignite-hq/cli/starport/pkg/cosmoserror"
+	"github.com/ignite-hq/cli/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/pkg/xtime"
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/xtime"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // LaunchParams fetches the chain launch module params from SPN

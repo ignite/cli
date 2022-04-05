@@ -6,18 +6,17 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
-	"github.com/tendermint/starport/starport/templates/typed"
-	"github.com/tendermint/starport/starport/templates/typed/dry"
-	"github.com/tendermint/starport/starport/templates/typed/list"
-	maptype "github.com/tendermint/starport/starport/templates/typed/map"
-	"github.com/tendermint/starport/starport/templates/typed/singleton"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
+	modulecreate "github.com/ignite-hq/cli/starport/templates/module/create"
+	"github.com/ignite-hq/cli/starport/templates/typed"
+	"github.com/ignite-hq/cli/starport/templates/typed/dry"
+	"github.com/ignite-hq/cli/starport/templates/typed/list"
+	maptype "github.com/ignite-hq/cli/starport/templates/typed/map"
+	"github.com/ignite-hq/cli/starport/templates/typed/singleton"
 )
 
 // AddTypeOption configures options for AddType.

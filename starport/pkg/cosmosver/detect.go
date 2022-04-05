@@ -1,7 +1,7 @@
 package cosmosver
 
 import (
-	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/ignite-hq/cli/starport/pkg/gomodule"
 )
 
 const (

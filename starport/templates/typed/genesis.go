@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
 )
 
 // ProtoGenesisStateMessage is the name of the proto message that represents the genesis state
 const ProtoGenesisStateMessage = "GenesisState"
 
 // PatchGenesisTypeImport patches types/genesis.go content from the issue:
-// https://github.com/tendermint/starport/issues/992
+// https://github.com/ignite-hq/cli/issues/992
 func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) string {
 	patternToCheck := "import ("
 	replacement := fmt.Sprintf(`import (

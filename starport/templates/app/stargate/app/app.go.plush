@@ -88,11 +88,8 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
-	"github.com/tendermint/starport/starport/pkg/openapiconsole"
-	monitoringp "github.com/tendermint/spn/x/monitoringp"
-	monitoringpkeeper "github.com/tendermint/spn/x/monitoringp/keeper"
-	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
+	"github.com/ignite-hq/cli/starport/pkg/cosmoscmd"
+	"github.com/ignite-hq/cli/starport/pkg/openapiconsole"
 
 	"<%= ModulePath %>/docs"
 

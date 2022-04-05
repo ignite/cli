@@ -5,17 +5,14 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/manifoldco/promptui"
+	"github.com/ignite-hq/cli/starport/pkg/cliquiz"
+	"github.com/ignite-hq/cli/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/starport/pkg/xchisel"
+	"github.com/ignite-hq/cli/starport/services/network"
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
-
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/pkg/xchisel"
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (

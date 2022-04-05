@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/giturl"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosgen"
+	"github.com/ignite-hq/cli/starport/pkg/giturl"
 )
 
 const (

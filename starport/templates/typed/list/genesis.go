@@ -5,10 +5,9 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/templates/module"
-	"github.com/tendermint/starport/starport/templates/typed"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/templates/module"
+	"github.com/ignite-hq/cli/starport/templates/typed"
 )
 
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {

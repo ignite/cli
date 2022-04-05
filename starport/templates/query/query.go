@@ -7,8 +7,7 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-
-	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
+	"github.com/ignite-hq/cli/starport/templates/field/plushhelpers"
 )
 
 var (

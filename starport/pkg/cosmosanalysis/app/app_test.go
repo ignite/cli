@@ -5,9 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/app"
 	"github.com/stretchr/testify/require"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 )
 
 var (
@@ -161,8 +160,8 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
-	"github.com/tendermint/starport/starport/pkg/openapiconsole"
+	"github.com/ignite-hq/cli/starport/pkg/cosmoscmd"
+	"github.com/ignite-hq/cli/starport/pkg/openapiconsole"
 
 	"github.com/tendermint/testchain/docs"
 

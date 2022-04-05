@@ -5,10 +5,9 @@ import (
 	"errors"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/starport/pkg/gomodule"
+	"github.com/ignite-hq/cli/starport/pkg/xfilepath"
 	"golang.org/x/mod/module"
-
-	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 
 var (

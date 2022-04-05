@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/ignite-hq/cli/starport/services/chain"
 	"github.com/spf13/cobra"
-
-	"github.com/tendermint/starport/starport/services/chain"
 )
 
 const (

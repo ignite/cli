@@ -9,17 +9,6 @@ description: For chains that were scaffolded with Starport versions lower than v
 
 # Upgrading a blockchain to use Starport v0.19.2
 
-Starport v0.19.2 comes with IBC v2.0.2.
+Starport _v0.19.2_ comes with IBC _v2.0.2_. To migrate your chain scaffold with _v0.19_ or _v0.18_ version of Starport, apply changes introduced in PR [#1975](https://github.com/ignite-hq/cli/pull/1975/files) to your chain.
 
-With Starport v0.19.2, the contents of the deprecated Starport Modules `tendermint/spm` repo are moved to the official Starport repo which introduces breaking changes.
-
-To migrate your chain that was scaffolded with Starport versions lower than v0.19.2: 
-
-1. IBC upgrade: Use the [IBC migration documents](https://github.com/cosmos/ibc-go/blob/main/docs/migrations/v1-to-v2.md)
-   
-2. In your chain's `go.mod` file, remove `tendermint/spm` and add the v0.19.2 version of `tendermint/starport`. If your chain uses these packages, change the import paths as shown: 
-
-    - `github.com/tendermint/spm/ibckeeper` moved to `github.com/tendermint/starport/starport/pkg/cosmosibckeeper`
-    - `github.com/tendermint/spm/cosmoscmd` moved to `github.com/tendermint/starport/starport/pkg/cosmoscmd` 
-    - `github.com/tendermint/spm/openapiconsole` moved to `github.com/tendermint/starport/starport/pkg/openapiconsole`
-    - `github.com/tendermint/spm/testutil/sample` moved to `github.com/tendermint/starport/starport/pkg/cosmostestutil/sample`
+With _v0.19.2_, contents of `tendermint/spm` moved to Starport's own repo. Upgrade your chain's `go.mod` by removing `tendermint/spm` and adding _v0.19.2_ version of `ignite-hq/cli`.

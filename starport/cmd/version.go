@@ -3,9 +3,8 @@ package starportcmd
 import (
 	"fmt"
 
+	"github.com/ignite-hq/cli/starport/internal/version"
 	"github.com/spf13/cobra"
-
-	"github.com/tendermint/starport/starport/internal/version"
 )
 
 // NewVersion creates a new version command to show starport's version.

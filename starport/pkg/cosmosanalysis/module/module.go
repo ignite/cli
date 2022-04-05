@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
-	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/app"
+	"github.com/ignite-hq/cli/starport/pkg/gomodule"
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
 )
 
 // Msgs is a module import path-sdk msgs pair.

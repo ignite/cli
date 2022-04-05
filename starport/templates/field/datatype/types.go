@@ -1,7 +1,7 @@
 package datatype
 
 import (
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
 )
 
 const (

@@ -7,13 +7,12 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
-	"github.com/tendermint/starport/starport/templates/ibc"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/starport/templates/ibc"
 )
 
 const (

@@ -11,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 

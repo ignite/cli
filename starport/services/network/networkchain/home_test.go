@@ -5,10 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	"github.com/stretchr/testify/require"
-
-	"github.com/tendermint/starport/starport/services/network/networkchain"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 func TestChainHome(t *testing.T) {

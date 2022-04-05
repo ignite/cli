@@ -166,7 +166,7 @@ message SellOrderBook {
 }
 ```
 
-Now, use Starport CLI to build the proto files for the `send-create-pair` command:
+Now, use Ignite CLI to build the proto files for the `send-create-pair` command:
 
 ```bash
 starport generate proto-go

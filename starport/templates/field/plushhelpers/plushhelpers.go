@@ -2,10 +2,8 @@ package plushhelpers
 
 import (
 	"github.com/gobuffalo/plush"
-
-	"github.com/tendermint/starport/starport/pkg/xstrings"
-	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
 )
 
 // ExtendPlushContext sets available field helpers on the provided context.

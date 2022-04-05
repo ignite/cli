@@ -9,7 +9,7 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 ## Get started
 
-In the previous chapter you've learned how to install [Starport](https://github.com/tendermint/starport), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
+In the previous chapter you've learned how to install [Starport](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
 This series of tutorials is based on a specific version of Starport, so be sure to install the correct version. For example, to install Starport v0.19.5 use the following command:
 

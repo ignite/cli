@@ -5,12 +5,11 @@ import (
 	"errors"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/query"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/templates/query"
 )
 
 // AddQuery adds a new query to scaffolded app

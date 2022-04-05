@@ -4,8 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
-
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
 	"github.com/stretchr/testify/require"
 )
 

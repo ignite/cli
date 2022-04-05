@@ -1,15 +1,9 @@
 package starportcmd
 
 import (
-	"fmt"
-	"path/filepath"
-
+	"github.com/ignite-hq/cli/starport/services/network"
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	"github.com/spf13/cobra"
-
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/goenv"
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (

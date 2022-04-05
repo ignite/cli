@@ -8,10 +8,9 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/typed"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/templates/typed"
 )
 
 var (

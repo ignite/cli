@@ -9,11 +9,10 @@ import (
 	"io"
 
 	"github.com/gorilla/rpc/v2/json2"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/nodetime"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/nodetime"
 )
 
 // Call calls a method in the ts relayer wrapper lib with args and fills reply from the returned value.

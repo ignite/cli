@@ -7,8 +7,8 @@ import (
 	"go/parser"
 	"go/token"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
-	"github.com/tendermint/starport/starport/pkg/goanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/goanalysis"
 )
 
 var appImplementation = []string{

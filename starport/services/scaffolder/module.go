@@ -11,20 +11,19 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/validation"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/module"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
-	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	appanalysis "github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/app"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosver"
+	"github.com/ignite-hq/cli/starport/pkg/gocmd"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/validation"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/templates/module"
+	modulecreate "github.com/ignite-hq/cli/starport/templates/module/create"
+	moduleimport "github.com/ignite-hq/cli/starport/templates/module/import"
 )
 
 const (

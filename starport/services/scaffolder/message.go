@@ -5,14 +5,13 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
-
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
-	"github.com/tendermint/starport/starport/templates/message"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/starport/templates/message"
+	modulecreate "github.com/ignite-hq/cli/starport/templates/module/create"
 )
 
 // messageOptions represents configuration for the message scaffolding
