@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
 func TestChainGenesis_HasAccount(t *testing.T) {

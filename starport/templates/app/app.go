@@ -6,10 +6,10 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/pkg/xstrings"
-	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
-	"github.com/tendermint/starport/starport/templates/testutil"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/pkg/xstrings"
+	"github.com/ignite-hq/cli/starport/templates/field/plushhelpers"
+	"github.com/ignite-hq/cli/starport/templates/testutil"
 )
 
 var (

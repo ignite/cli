@@ -1,13 +1,13 @@
 ---
-description: Run Starport CLI using a Docker container.
+description: Run Ignite CLI using a Docker container.
 order: 10
 ---
 
 # Run Starport in Docker
 
-You can run Starport CLI inside a Docker container without installing the Starport binary directly on your machine.
+You can run Ignite CLI inside a Docker container without installing the Starport binary directly on your machine.
 
-Running Starport in Docker can be useful for various reasons; isolating your test environment, running Starport on an unsupported operating system, or experimenting with a different version of Starport CLI without installing it.
+Running Starport in Docker can be useful for various reasons; isolating your test environment, running Starport on an unsupported operating system, or experimenting with a different version of Ignite CLI without installing it.
 
 Docker containers are like virtual machines because they provide an isolated environment to programs that runs inside them. In this case, you can run Starport in an isolated environment.
 
@@ -74,9 +74,9 @@ You can specify which version of Starport to install and run in your Docker cont
 ### Latest Version
 
 - By default, `starport/cli` resolves to `starport/cli:latest`.
-- The `latest` image tag is always the latest stable [Starport release](https://github.com/tendermint/starport/releases).
+- The `latest` image tag is always the latest stable [Starport release](https://github.com/ignite-hq/cli/releases).
 
-For example, if latest release is [v0.15.1](https://github.com/tendermint/starport/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
+For example, if latest release is [v0.15.1](https://github.com/ignite-hq/cli/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
 
 ### Specific Version
 

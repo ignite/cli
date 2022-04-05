@@ -1,9 +1,9 @@
 package starportcmd
 
 import (
+	"github.com/ignite-hq/cli/starport/services/network"
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch

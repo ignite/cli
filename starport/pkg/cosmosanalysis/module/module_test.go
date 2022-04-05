@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 var testModule = Module{
@@ -16,19 +16,19 @@ var testModule = Module{
 		Files:        protoanalysis.Files{protoanalysis.File{Path: "testdata/planet/proto/planet/planet.proto", Dependencies: []string{"google/api/annotations.proto"}}},
 		GoImportName: "github.com/tendermint/planet/x/planet/types",
 		Messages: []protoanalysis.Message{
-			protoanalysis.Message{Name: "QueryMyQueryRequest", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 1},
-			protoanalysis.Message{Name: "QueryMyQueryResponse", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 0},
+			{Name: "QueryMyQueryRequest", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 1},
+			{Name: "QueryMyQueryResponse", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 0},
 		},
 		Services: []protoanalysis.Service{
-			protoanalysis.Service{
+			{
 				Name: "Query",
 				RPCFuncs: []protoanalysis.RPCFunc{
-					protoanalysis.RPCFunc{
+					{
 						Name:        "MyQuery",
 						RequestType: "QueryMyQueryRequest",
 						ReturnsType: "QueryMyQueryResponse",
 						HTTPRules: []protoanalysis.HTTPRule{
-							protoanalysis.HTTPRule{
+							{
 								Params:   []string{"mytypefield"},
 								HasQuery: false, HasBody: false},
 						},
@@ -39,11 +39,11 @@ var testModule = Module{
 	},
 	Msgs: []Msg(nil),
 	HTTPQueries: []HTTPQuery{
-		HTTPQuery{
+		{
 			Name:     "MyQuery",
 			FullName: "QueryMyQuery",
 			Rules: []protoanalysis.HTTPRule{
-				protoanalysis.HTTPRule{
+				{
 					Params:   []string{"mytypefield"},
 					HasQuery: false,
 					HasBody:  false},

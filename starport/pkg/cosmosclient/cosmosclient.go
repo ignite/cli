@@ -27,9 +27,9 @@ import (
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 	proto "github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 

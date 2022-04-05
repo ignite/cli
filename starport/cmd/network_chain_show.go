@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/starport/pkg/entrywriter"
+	"github.com/ignite-hq/cli/starport/pkg/yaml"
+	"github.com/ignite-hq/cli/starport/services/network"
+	"github.com/ignite-hq/cli/starport/services/network/networkchain"
+	"github.com/ignite-hq/cli/starport/services/network/networktypes"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/pkg/entrywriter"
-	"github.com/tendermint/starport/starport/pkg/yaml"
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 var (

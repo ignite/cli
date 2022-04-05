@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/starport/pkg/chaincmd"
+	"github.com/ignite-hq/cli/starport/services/chain"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/services/chain"
 )
 
 const (

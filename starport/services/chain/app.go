@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/ignite-hq/cli/starport/pkg/gomodulepath"
 )
 
 // App keeps info about chain.

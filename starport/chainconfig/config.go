@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/goccy/go-yaml"
+	"github.com/ignite-hq/cli/starport/pkg/xfilepath"
 	"github.com/imdario/mergo"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
 	ErrCouldntLocateConfig = errors.New(
 		"could not locate a config.yml in your chain. please follow the link for" +
-			"how-to: https://github.com/tendermint/starport/blob/develop/docs/configure/index.md")
+			"how-to: https://github.com/ignite-hq/cli/blob/develop/docs/configure/index.md")
 )
 
 // DefaultConf holds default configuration.

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/starport/pkg/events"
 )
 
 // Init initializes blockchain by building the binaries and running the init command and
@@ -86,7 +86,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 
-		// TODO: use validator moniker https://github.com/tendermint/starport/issues/1834
+		// TODO: use validator moniker https://github.com/ignite-hq/cli/issues/1834
 		if err := cmd.Init(ctx, "moniker"); err != nil {
 			return err
 		}

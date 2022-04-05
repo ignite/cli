@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 )
 
 func TestCreateMapWithStargate(t *testing.T) {

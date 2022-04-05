@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/ignite-hq/cli/starport/pkg/gomodule"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 )
@@ -17,16 +17,16 @@ import (
 // Path represents a Go module's path.
 type Path struct {
 	// Path is Go module's full path.
-	// e.g.: github.com/tendermint/starport.
+	// e.g.: github.com/ignite-hq/cli.
 	RawPath string
 
 	// Root is the root directory name of Go module.
-	// e.g.: starport for github.com/tendermint/starport.
+	// e.g.: starport for github.com/ignite-hq/cli.
 	Root string
 
 	// Package is the default package name for the Go module that can be used
 	// to host main functionality of the module.
-	// e.g.: starport for github.com/tendermint/starport.
+	// e.g.: starport for github.com/ignite-hq/cli.
 	Package string
 }
 

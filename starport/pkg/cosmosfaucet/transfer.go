@@ -8,7 +8,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
 )
 
 // transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic

@@ -2,8 +2,8 @@ package goanalysis_test
 
 import (
 	"errors"
+	"github.com/ignite-hq/cli/starport/pkg/goanalysis"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/goanalysis"
 	"os"
 	"path/filepath"
 	"testing"

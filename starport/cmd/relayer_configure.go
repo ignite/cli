@@ -5,12 +5,12 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/gookit/color"
+	"github.com/ignite-hq/cli/starport/pkg/cliquiz"
+	"github.com/ignite-hq/cli/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/relayer"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/relayer"
 )
 
 const (

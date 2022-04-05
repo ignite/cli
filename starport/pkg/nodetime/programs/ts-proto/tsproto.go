@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/nodetime"
+	"github.com/ignite-hq/cli/starport/pkg/nodetime"
 )
 
 const pluginName = "protoc-gen-ts_proto"

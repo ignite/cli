@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/starport/starport/pkg/xhttp"
+	"github.com/ignite-hq/cli/starport/pkg/xhttp"
 )
 
 type TransferRequest struct {

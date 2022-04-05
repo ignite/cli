@@ -11,18 +11,18 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/ignite-hq/cli/starport/internal/version"
+	"github.com/ignite-hq/cli/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosver"
+	"github.com/ignite-hq/cli/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/pkg/gitpod"
+	"github.com/ignite-hq/cli/starport/pkg/goenv"
+	"github.com/ignite-hq/cli/starport/pkg/xgenny"
+	"github.com/ignite-hq/cli/starport/services/chain"
+	"github.com/ignite-hq/cli/starport/services/scaffolder"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	"github.com/tendermint/starport/starport/internal/version"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/pkg/goenv"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 const (

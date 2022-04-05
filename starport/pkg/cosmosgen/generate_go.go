@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/starport/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/starport/pkg/protoc"
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
-	"github.com/tendermint/starport/starport/pkg/protoc"
 )
 
 var (

@@ -18,7 +18,7 @@ description: Steps to install Starport on your local computer.
 
 # Install Starport
 
-You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer. 
+You can run [Starport](https://github.com/ignite-hq/cli) in a web-based Gitpod IDE or you can install Starport on your local computer. 
 
 
 ## Prerequisites
@@ -85,7 +85,7 @@ To remove the current Starport installation:
    Depending on your user permissions, run the command with or without `sudo`.
 1. Repeat this step until all `starport` installations are removed from your system.
 
-After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo.
+After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/ignite-hq/cli/blob/develop/changelog.md) in the repo.
 
 ## Installing Starport on macOS with Homebrew
 
@@ -100,7 +100,7 @@ To install Starport on macOS machines with the M1 chip, use the `curl` command a
 ## Build from source
 
 ```bash
-git clone https://github.com/tendermint/starport --depth=1
+git clone https://github.com/ignite-hq/cli --depth=1
 cd starport && make install
 ```
 

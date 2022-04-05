@@ -7,12 +7,12 @@ import (
 	"io"
 	"strings"
 
+	"github.com/ignite-hq/cli/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	"github.com/ignite-hq/cli/starport/pkg/validation"
+	"github.com/ignite-hq/cli/starport/services/scaffolder"
+	modulecreate "github.com/ignite-hq/cli/starport/templates/module/create"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/validation"
-	"github.com/tendermint/starport/starport/services/scaffolder"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
 const (
@@ -142,7 +142,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 // in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 // therefore we must warn the user to manually move the definition if it's the case
-// https://github.com/tendermint/starport/issues/818#issuecomment-865736052
+// https://github.com/ignite-hq/cli/issues/818#issuecomment-865736052
 const govWarning = `⚠️ If your app has been scaffolded with Starport 0.16.x or below
 Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
 

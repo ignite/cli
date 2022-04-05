@@ -19,7 +19,7 @@ message BuyOrderPacketData {
 }
 ```
 
-Now, use Starport CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
+Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
 
 ```bash
 starport generate proto-go

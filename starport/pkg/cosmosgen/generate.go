@@ -4,11 +4,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/protopath"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/starport/pkg/gomodule"
+	"github.com/ignite-hq/cli/starport/pkg/protopath"
 )
 
 const defaultSdkImport = "github.com/cosmos/cosmos-sdk"

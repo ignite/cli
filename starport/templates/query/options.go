@@ -1,8 +1,8 @@
 package query
 
 import (
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/ignite-hq/cli/starport/pkg/multiformatname"
+	"github.com/ignite-hq/cli/starport/templates/field"
 )
 
 // Options ...

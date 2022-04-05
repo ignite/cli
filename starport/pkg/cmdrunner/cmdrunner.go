@@ -7,8 +7,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/goenv"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/goenv"
 	"golang.org/x/sync/errgroup"
 )
 

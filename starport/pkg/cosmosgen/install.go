@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 // InstallDependencies installs protoc dependencies needed by Cosmos ecosystem.

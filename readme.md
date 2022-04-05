@@ -4,12 +4,12 @@
 
 [Starport](https://starport.com) is the all-in-one platform to build, launch, and maintain any crypto application on a sovereign and secured blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
-* [**Build a blockchain with Starport in a web-based IDE** (stable)](https://gitpod.io/#https://github.com/tendermint/starport/tree/master) or use [nightly version](https://gitpod.io/#https://github.com/tendermint/starport/)
-* [Check out the latest features in v0.18](https://medium.com/tendermint/starport-v0-18-cosmos-sdk-updates-and-scaffolding-enhancements-5ea5654bcd0c)
+* [**Build a blockchain with Starport in a web-based IDE** (stable)](https://gitpod.io/#https://github.com/ignite-hq/cli/tree/master) or use [nightly version](https://gitpod.io/#https://github.com/ignite-hq/cli/)
+* [Check out the latest features in v0.18](https://medium.com/ignite-hq/cli-v0-18-cosmos-sdk-updates-and-scaffolding-enhancements-5ea5654bcd0c)
 
 ## Quick start
 
-Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/guide/install.html). Create and start a blockchain:
+Open Starport [in your browser](https://gitpod.io/#https://github.com/ignite-hq/cli/tree/master), or [install it](https://docs.starport.network/guide/install.html). Create and start a blockchain:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/mars

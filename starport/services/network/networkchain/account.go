@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/pkg/randstr"
-	"github.com/tendermint/starport/starport/services/chain"
+	chaincmdrunner "github.com/ignite-hq/cli/starport/pkg/chaincmd/runner"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/starport/pkg/randstr"
+	"github.com/ignite-hq/cli/starport/services/chain"
 )
 
 const (

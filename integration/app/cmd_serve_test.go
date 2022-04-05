@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestServeStargateWithWasm(t *testing.T) {

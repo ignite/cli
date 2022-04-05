@@ -14,17 +14,17 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/goccy/go-yaml"
+	"github.com/ignite-hq/cli/starport/chainconfig"
+	"github.com/ignite-hq/cli/starport/pkg/availableport"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/starport/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/starport/pkg/gocmd"
+	"github.com/ignite-hq/cli/starport/pkg/httpstatuschecker"
+	"github.com/ignite-hq/cli/starport/pkg/xexec"
+	"github.com/ignite-hq/cli/starport/pkg/xurl"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
-	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (

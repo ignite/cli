@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	"github.com/ignite-hq/cli/starport/pkg/placeholder"
+	modulecreate "github.com/ignite-hq/cli/starport/templates/module/create"
 )
 
 // supportSimulation checks if module_simulation.go exists

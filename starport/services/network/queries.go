@@ -3,11 +3,11 @@ package network
 import (
 	"context"
 
+	"github.com/ignite-hq/cli/starport/pkg/cosmoserror"
+	"github.com/ignite-hq/cli/starport/pkg/events"
+	"github.com/ignite-hq/cli/starport/services/network/networktypes"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmoserror"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.

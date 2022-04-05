@@ -7,10 +7,10 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	parsed, err := Parse("http://github.com/tendermint/starport/a/b")
+	parsed, err := Parse("http://github.com/ignite-hq/cli/a/b")
 	require.NoError(t, err)
 	require.Equal(t, "github.com", parsed.Host)
 	require.Equal(t, "tendermint", parsed.User)
 	require.Equal(t, "starport", parsed.Repo)
-	require.Equal(t, "tendermint/starport", parsed.UserAndRepo())
+	require.Equal(t, "ignite-hq/cli", parsed.UserAndRepo())
 }
