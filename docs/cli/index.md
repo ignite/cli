@@ -1,6 +1,6 @@
 ---
 order: 1
-description: Starport CLI docs. 
+description: Ignite CLI docs. 
 parent:
   order: 8
   title: CLI Reference
@@ -8,7 +8,7 @@ parent:
 
 # CLI Reference
 
-Documentation for Starport CLI.
+Documentation for Ignite CLI.
 
 ## starport
 

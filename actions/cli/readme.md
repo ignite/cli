@@ -1,4 +1,4 @@
-# Starport CLI Action
+# Ignite CLI Action
 This action makes the `starport` CLI available as a Github Action.
 
 ## Quick start

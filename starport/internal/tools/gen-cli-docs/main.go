@@ -1,4 +1,4 @@
-// this tool generates Starport CLI docs to be placed in the docs/cli dir and deployed
+// this tool generates Ignite CLI docs to be placed in the docs/cli dir and deployed
 // on docs.starport.network.
 package main
 
@@ -21,7 +21,7 @@ import (
 
 const head = `---
 order: 1
-description: Starport CLI docs. 
+description: Ignite CLI docs. 
 parent:
   order: 8
   title: CLI Reference
@@ -29,11 +29,11 @@ parent:
 
 # CLI Reference
 
-Documentation for Starport CLI.
+Documentation for Ignite CLI.
 `
 
 func main() {
-	outPath := flag.String("out", ".", ".md file path to place Starport CLI docs inside")
+	outPath := flag.String("out", ".", ".md file path to place Ignite CLI docs inside")
 	flag.Parse()
 
 	if err := generate(starportcmd.New(context.Background()), *outPath); err != nil {

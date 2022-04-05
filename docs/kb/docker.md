@@ -1,13 +1,13 @@
 ---
-description: Run Starport CLI using a Docker container.
+description: Run Ignite CLI using a Docker container.
 order: 10
 ---
 
 # Run Starport in Docker
 
-You can run Starport CLI inside a Docker container without installing the Starport binary directly on your machine.
+You can run Ignite CLI inside a Docker container without installing the Starport binary directly on your machine.
 
-Running Starport in Docker can be useful for various reasons; isolating your test environment, running Starport on an unsupported operating system, or experimenting with a different version of Starport CLI without installing it.
+Running Starport in Docker can be useful for various reasons; isolating your test environment, running Starport on an unsupported operating system, or experimenting with a different version of Ignite CLI without installing it.
 
 Docker containers are like virtual machines because they provide an isolated environment to programs that runs inside them. In this case, you can run Starport in an isolated environment.
 
