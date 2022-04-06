@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/Pantani/test"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -11,7 +12,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
@@ -84,16 +84,16 @@ func newNetworkChainShowInfo() *cobra.Command {
 			}
 			chainLaunch.Reward = reward.RemainingCoins.String()
 
-			var genesis *cosmosutil.GenReader
+			var genesis *test.GenReader
 			if chainLaunch.GenesisURL != "" {
-				genesis, err = cosmosutil.GenesisFromURL(cmd.Context(), chainLaunch.GenesisURL)
+				genesis, err = genesis.GenesisFromURL(cmd.Context(), chainLaunch.GenesisURL)
 				if err != nil {
 					return err
 				}
 			}
 			chainInfo := struct {
 				Chain   networktypes.ChainLaunch `json:"Chain"`
-				Genesis *cosmosutil.GenReader    `json:"Genesis"`
+				Genesis *genesis.GenReader       `json:"Genesis"`
 			}{
 				Chain:   chainLaunch,
 				Genesis: genesis,

@@ -3,9 +3,9 @@ package networkchain
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"os"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
@@ -63,7 +63,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
 		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		genesis, err := cosmosutil.GenesisFromURL(ctx, c.genesisURL)
+		genesis, err := genesis.GenesisFromURL(ctx, c.genesisURL)
 		if err != nil {
 			return err
 		}

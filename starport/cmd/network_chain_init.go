@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -9,7 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
@@ -114,7 +114,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.GenesisReaderFromPath(genesisPath)
+	genesis, err := genesis.GenesisReaderFromPath(genesisPath)
 	if err != nil {
 		return err
 	}

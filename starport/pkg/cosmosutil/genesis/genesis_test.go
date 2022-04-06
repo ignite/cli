@@ -1,4 +1,4 @@
-package cosmosutil_test
+package genesis_test
 
 import (
 	"encoding/json"
@@ -76,7 +76,7 @@ func TestChainGenesis_HasAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := cosmosutil.Genesis{Accounts: tt.accounts}
+			g := test.Genesis{Accounts: tt.accounts}
 			got := g.HasAccount(tt.address)
 			require.Equal(t, tt.want, got)
 		})
@@ -84,13 +84,13 @@ func TestChainGenesis_HasAccount(t *testing.T) {
 }
 
 func TestParseChainGenesis(t *testing.T) {
-	genesis1 := cosmosutil.ChainGenesis{ChainID: "earth-1"}
+	genesis1 := test.ChainGenesis{ChainID: "earth-1"}
 	genesis1.AppState.Auth.Accounts = []struct {
 		Address string `json:"address"`
 	}{{Address: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"}}
 	genesis1.AppState.Staking.Params.BondDenom = "stake"
 
-	genesis2 := cosmosutil.ChainGenesis{ChainID: "earth-1"}
+	genesis2 := test.ChainGenesis{ChainID: "earth-1"}
 	genesis2.AppState.Auth.Accounts = []struct {
 		Address string `json:"address"`
 	}{{Address: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"}}
@@ -99,7 +99,7 @@ func TestParseChainGenesis(t *testing.T) {
 	tests := []struct {
 		name        string
 		genesisPath string
-		want        cosmosutil.ChainGenesis
+		want        test.ChainGenesis
 		wantErr     bool
 	}{
 		{
@@ -136,20 +136,20 @@ func TestParseGenesis(t *testing.T) {
 	tests := []struct {
 		name        string
 		genesisPath string
-		want        cosmosutil.Genesis
+		want        test.Genesis
 		wantErr     bool
 	}{
 		{
 			name:        "parse genesis file 1",
 			genesisPath: "testdata/genesis1.json",
-			want: cosmosutil.Genesis{
+			want: test.Genesis{
 				Accounts:   []string{"cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"},
 				StakeDenom: "stake",
 			},
 		}, {
 			name:        "parse genesis file 2",
 			genesisPath: "testdata/genesis2.json",
-			want: cosmosutil.Genesis{
+			want: test.Genesis{
 				Accounts:   []string{"cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"},
 				StakeDenom: "stake",
 			},
@@ -180,20 +180,20 @@ func TestParseGenesisFromPath(t *testing.T) {
 	tests := []struct {
 		name        string
 		genesisPath string
-		want        cosmosutil.Genesis
+		want        test.Genesis
 		wantErr     bool
 	}{
 		{
 			name:        "parse genesis file 1",
 			genesisPath: "testdata/genesis1.json",
-			want: cosmosutil.Genesis{
+			want: test.Genesis{
 				Accounts:   []string{"cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"},
 				StakeDenom: "stake",
 			},
 		}, {
 			name:        "parse genesis file 2",
 			genesisPath: "testdata/genesis2.json",
-			want: cosmosutil.Genesis{
+			want: test.Genesis{
 				Accounts:   []string{"cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"},
 				StakeDenom: "stake",
 			},

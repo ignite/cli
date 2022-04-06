@@ -1,19 +1,12 @@
-package cosmosutil
+package genesis
 
 import (
 	"bytes"
-	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"io"
-	"net/http"
-	"os"
-	"time"
-
 	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
-	"github.com/tendermint/starport/starport/pkg/tarball"
+	"io"
+	"os"
 )
 
 const (
@@ -43,53 +36,7 @@ type (
 			} `json:"staking"`
 		} `json:"app_state"`
 	}
-	// GenReader represents the genesis reader
-	GenReader struct {
-		io.Reader
-		TarballPath string
-	}
-	// UpdateGenesisOption configures genesis update.
-	UpdateGenesisOption func(*ChainGenesis)
 )
-
-// GenesisReaderFromPath parse GenReader object from path
-func GenesisReaderFromPath(genesisPath string) (*GenReader, error) {
-	genesisFile, err := os.Open(genesisPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot open genesis file")
-	}
-	return &GenReader{
-		Reader: genesisFile,
-	}, nil
-}
-
-// GenesisFromURL fetches the genesis from the given URL and returns its content.
-func GenesisFromURL(ctx context.Context, url string) (*GenReader, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	genesis, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	reader, tarballPath, err := tarball.ExtractFile(bytes.NewReader(genesis), genesisFilename)
-	if err != nil {
-		return nil, err
-	}
-	return &GenReader{
-		Reader:      reader,
-		TarballPath: tarballPath,
-	}, nil
-}
 
 // CheckGenesisContainsAddress returns true if the address exist into the genesis file
 func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
@@ -99,7 +46,7 @@ func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 	} else if err != nil {
 		return false, err
 	}
-	genesis, err := GenesisReaderFromPath(genesisPath)
+	genesis, err := FromPath(genesisPath)
 	if err != nil {
 		return false, err
 	}
@@ -114,44 +61,6 @@ func (g Genesis) HasAccount(address string) bool {
 		}
 	}
 	return false
-}
-
-func applyChanges(g *ChainGenesis, options []UpdateGenesisOption) {
-	for _, applyOption := range options {
-		applyOption(g)
-	}
-}
-
-// WithChainID update a genesis chaind id
-func WithChainID(chainID string) UpdateGenesisOption {
-	return func(g *ChainGenesis) {
-		g.ChainID = chainID
-	}
-}
-
-// WithGenesisTime update a genesis time
-func WithGenesisTime(genesisTime int64) UpdateGenesisOption {
-	return func(g *ChainGenesis) {
-		g.GenesisTime = time.Unix(genesisTime, 0).UTC().Format(time.RFC3339Nano)
-	}
-}
-
-// UpdateGenesis update the genesis file with options
-func (g *GenReader) UpdateGenesis(filePath string, options ...UpdateGenesisOption) error {
-	var (
-		genesis ChainGenesis
-		json    = jsoniter.ConfigCompatibleWithStandardLibrary
-	)
-	if err := json.NewDecoder(g).Decode(&genesis); err != nil {
-		return err
-	}
-	applyChanges(&genesis, options)
-
-	genesisBytes, err := json.Marshal(genesis)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(filePath, genesisBytes, 0644)
 }
 
 // HasAccount check if account exist into the genesis account

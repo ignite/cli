@@ -3,6 +3,8 @@ package network
 import (
 	"context"
 	"fmt"
+	"github.com/Pantani/test"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -10,7 +12,6 @@ import (
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -87,12 +88,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	var (
 		genesisHash  string
-		chainGenesis cosmosutil.ChainGenesis
+		chainGenesis test.ChainGenesis
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.genesisURL != "" {
-		genesis, err := cosmosutil.GenesisFromURL(ctx, o.genesisURL)
+		genesis, err := genesis.GenesisFromURL(ctx, o.genesisURL)
 		if err != nil {
 			return 0, 0, 0, err
 		}
