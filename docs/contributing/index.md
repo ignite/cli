@@ -28,7 +28,7 @@ Some of the best content contributions come during the PR review cycles. Follow 
 
 - For in-line suggestions, use the [GitHub suggesting feature](https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request). 
 - The PR owner can merge in your suggested commits one at a time or in batch (preferred).
-- When you providing a more granular extensive review that results in more than 20 in-line suggestions, go ahead and check out the branch and make the changes yourself.
+- When you are providing a more granular extensive review that results in more than 20 in-line suggestions, go ahead and check out the branch and make the changes yourself.
 
 ## Writing and contributing
 
