@@ -1,124 +1,310 @@
 package genesis
 
 import (
-	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	jsoniter "github.com/json-iterator/go"
 	"io"
+	"net/http"
 	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/buger/jsonparser"
+	gojson "github.com/goccy/go-json"
+	"github.com/pkg/errors"
+
+	"github.com/tendermint/starport/starport/pkg/tarball"
 )
 
 const (
+	keySeparator    = "."
 	genesisFilename = "genesis.json"
+	paramStakeDenom = "app_state.staking.params.bond_denom"
+	paramChainID    = "chain_id"
+	paramAccounts   = "app_state.auth.accounts"
 )
 
 type (
-	// Genesis represents a more readable version of the stargate genesis file
+	// Genesis represents the genesis reader
 	Genesis struct {
-		Accounts   []string
-		StakeDenom string
+		file        readWriteSeeker
+		tarballPath string
+		updates     map[string][]byte
 	}
-	// ChainGenesis represents the stargate genesis file
-	ChainGenesis struct {
-		ChainID     string `json:"chain_id"`
-		GenesisTime string `json:"genesis_time"`
-		AppState    struct {
-			Auth struct {
-				Accounts []struct {
-					Address string `json:"address"`
-				} `json:"accounts"`
-			} `json:"auth"`
-			Staking struct {
-				Params struct {
-					BondDenom string `json:"bond_denom"`
-				} `json:"params"`
-			} `json:"staking"`
-		} `json:"app_state"`
+	// UpdateGenesisOption configures genesis update.
+	UpdateGenesisOption func(map[string][]byte)
+
+	writeTruncate interface {
+		Truncate(size int64) error
+	}
+	readWriteSeeker interface {
+		io.ReadWriteSeeker
+		Close() error
+		Sync() error
+	}
+	accounts []struct {
+		Address string `json:"address"`
 	}
 )
 
-// CheckGenesisContainsAddress returns true if the address exist into the genesis file
-func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
-	_, err := os.Stat(genesisPath)
-	if os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, err
+var (
+	ErrParamNotFound    = errors.New("parameter not found")
+	ErrInvalidValueType = errors.New("invalid value type")
+)
+
+// New creates a new Genesis
+func New(file readWriteSeeker) *Genesis {
+	return &Genesis{
+		updates: make(map[string][]byte),
+		file:    file,
 	}
-	genesis, err := FromPath(genesisPath)
+}
+
+// FromPath parse Genesis object from path
+func FromPath(genesisPath string) (*Genesis, error) {
+	file, err := os.OpenFile(genesisPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return false, err
+		return nil, errors.Wrap(err, "cannot open genesis file")
 	}
-	return genesis.HasAccount(addr), nil
+	return New(file), nil
 }
 
-// HasAccount check if account exist into the genesis account
-func (g Genesis) HasAccount(address string) bool {
-	for _, account := range g.Accounts {
-		if account == address {
-			return true
-		}
-	}
-	return false
-}
+// FromURL fetches the genesis from the given URL and returns its content.
+func FromURL(ctx context.Context, url, genesisPath string) (*Genesis, error) {
+	// TODO create a cache system to avoid download genesis with the same hash again
 
-// HasAccount check if account exist into the genesis account
-func (g *GenReader) HasAccount(address string) bool {
-	genesis, err := g.Genesis()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return false
+		return nil, err
 	}
-	for _, account := range genesis.Accounts {
-		if account == address {
-			return true
-		}
-	}
-	return false
-}
 
-// StakeDenom returns the chain genesis stake denom
-func (g *GenReader) StakeDenom() (string, error) {
-	var genesis ChainGenesis
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	return genesis.AppState.Staking.Params.BondDenom, json.NewDecoder(g).Decode(&genesis)
-}
-
-// ChainGenesis returns the chain genesis form the reader
-func (g *GenReader) ChainGenesis() (genesis ChainGenesis, err error) {
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	err = json.NewDecoder(g).Decode(&genesis)
-	return
-}
-
-// Genesis returns the genesis wrapper form the reader
-func (g *GenReader) Genesis() (Genesis, error) {
-	chainGenesis, err := g.ChainGenesis()
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return Genesis{}, err
+		return nil, err
 	}
-	accounts := make([]string, len(chainGenesis.AppState.Auth.Accounts))
-	for i, acc := range chainGenesis.AppState.Auth.Accounts {
-		accounts[i] = acc.Address
+	defer resp.Body.Close()
+
+	file, err := os.OpenFile(genesisPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create the genesis file")
 	}
-	return Genesis{
-		StakeDenom: chainGenesis.AppState.Staking.Params.BondDenom,
-		Accounts:   accounts,
+
+	tarballPath, err := tarball.ExtractFile(resp.Body, file, genesisFilename)
+	if err != nil {
+		return nil, err
+	}
+	return &Genesis{
+		updates:     make(map[string][]byte),
+		file:        file,
+		tarballPath: tarballPath,
 	}, nil
 }
 
-func (g *GenReader) Hash() (string, error) {
+// StakeDenom returns the stake denom from the genesis
+func (g *Genesis) StakeDenom() (denom string, err error) {
+	_, err = g.Param(paramStakeDenom, &denom)
+	return
+}
+
+// ChainID returns the chain id from the genesis
+func (g *Genesis) ChainID() (chainID string, err error) {
+	_, err = g.Param(paramChainID, &chainID)
+	return
+}
+
+// Accounts returns the auth accounts from the genesis
+func (g *Genesis) Accounts() ([]string, error) {
+	var accs accounts
+	_, err := g.Param(paramAccounts, &accs)
+	accountList := make([]string, len(accs))
+	for i, acc := range accs {
+		accountList[i] = acc.Address
+	}
+	return accountList, err
+}
+
+// Param return the param and the position into byte slice from the file reader
+func (g *Genesis) Param(key string, param interface{}) (int64, error) {
+	// TODO find a better way to reset the reader
+	if _, err := g.file.Seek(0, 0); err != nil {
+		return 0, err
+	}
+	dec := gojson.NewDecoder(g.file)
+	keys := strings.Split(key, keySeparator)
+	for {
+		t, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return 0, err
+		}
+		name, ok := t.(string)
+		if !ok {
+			continue
+		}
+		if name == keys[0] {
+			if len(keys) > 1 {
+				keys = keys[1:]
+				continue
+			}
+			err := dec.Decode(&param)
+			if err == nil {
+				return dec.InputOffset(), nil
+			}
+
+			t, err := dec.Token()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return 0, err
+			}
+			switch t := t.(type) {
+			case int:
+				param = strconv.Itoa(t)
+			case string:
+				param = t
+			default:
+				return 0, ErrInvalidValueType
+			}
+			return dec.InputOffset(), nil
+		}
+	}
+	return 0, ErrParamNotFound
+}
+
+// WithKeyValue update a genesis value object by key
+func WithKeyValue(key string, value string) UpdateGenesisOption {
+	return func(update map[string][]byte) {
+		update[key] = []byte(`"` + value + `"`)
+	}
+}
+
+// WithTime update a time value
+func WithTime(key string, t int64) UpdateGenesisOption {
+	return func(update map[string][]byte) {
+		formatted := time.Unix(t, 0).UTC().Format(time.RFC3339Nano)
+		update[key] = []byte(`"` + formatted + `"`)
+	}
+}
+
+// WithKeyIntValue update a genesis int value object by key
+func WithKeyIntValue(key string, value int) UpdateGenesisOption {
+	return func(update map[string][]byte) {
+		update[key] = []byte{byte(value)}
+	}
+}
+
+// Update updates the genesis file with the new parameters by key
+func (g *Genesis) Update(opts ...UpdateGenesisOption) error {
+	for _, opt := range opts {
+		opt(g.updates)
+	}
+	// TODO find a better way to reset the reader
+	if _, err := g.file.Seek(0, 0); err != nil {
+		return err
+	}
+	_, err := io.Copy(g, g.file)
+	return err
+}
+
+// Write implement the write method for io.Writer interface
+func (g *Genesis) Write(p []byte) (int, error) {
+	var err error
+	length := len(p)
+	for key, value := range g.updates {
+		p, err = jsonparser.Set(p, value, strings.Split(key, keySeparator)...)
+		if err != nil {
+			return 0, err
+		}
+		delete(g.updates, key)
+	}
+
+	if length > len(p) {
+		err = truncate(g.file, len(p))
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	// TODO find a better way to reset the writer
+	if _, err := g.file.Seek(0, 0); err != nil {
+		return 0, err
+	}
+	n, err := g.file.Write(p)
+	if err != nil {
+		return n, err
+	}
+
+	if n != len(p) {
+		return n, io.ErrShortWrite
+	}
+
+	// FIXME passing the new byte slice length throws an error
+	// because the reader has less byte length than the writer
+	// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/io/io.go;l=432
+	return length, nil
+}
+
+// truncate remove the current file content
+func truncate(rws io.WriteSeeker, size int) error {
+	t, ok := rws.(writeTruncate)
+	if !ok {
+		return errors.New("truncate: unable to truncate")
+	}
+	return t.Truncate(int64(size))
+}
+
+// Close the file
+func (g *Genesis) Close() error {
+	return g.file.Close()
+}
+
+// Sync save the file
+func (g *Genesis) Sync() error {
+	return g.file.Sync()
+}
+
+// TarballPath returns the tarball path
+func (g *Genesis) TarballPath() string {
+	return g.tarballPath
+}
+
+// Save the genesis file
+func (g *Genesis) Save(path string) error {
+	if g.file != nil {
+		return g.Sync()
+	}
+	reader, err := FromPath(path)
+	if err != nil {
+		return err
+	}
+	g.file = reader.file
+	return nil
+}
+
+// Hash returns the hash of the file
+func (g *Genesis) Hash() (string, error) {
+	// TODO find a better way to reset the writer
+	if _, err := g.file.Seek(0, 0); err != nil {
+		return "", err
+	}
 	h := sha256.New()
-	if _, err := io.Copy(h, g); err != nil {
+	if _, err := io.Copy(h, g.file); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-func (g *GenReader) String() (string, error) {
-	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, g); err != nil {
+// String returns the file string
+func (g *Genesis) String() (string, error) {
+	// TODO find a better way to reset the writer
+	if _, err := g.file.Seek(0, 0); err != nil {
 		return "", err
 	}
-	return buf.String(), nil
+	data, err := io.ReadAll(g.file)
+	return string(data), err
 }

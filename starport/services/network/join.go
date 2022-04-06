@@ -3,7 +3,9 @@ package network
 import (
 	"context"
 	"fmt"
-	"github.com/Pantani/test"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
@@ -113,7 +115,7 @@ func (n Network) sendAccountRequest(
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	var accExist bool
 	if !isCustomGentx {
-		accExist, err = test.CheckGenesisContainsAddress(genesisPath, address)
+		accExist, err = genesis.CheckGenesisContainsAddress(genesisPath, address)
 		if err != nil {
 			return err
 		}

@@ -3,12 +3,13 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
@@ -19,21 +20,10 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-// ResetGenesisTime reset the chain genesis time
-func (c Chain) ResetGenesisTime() error {
-	// set the genesis time for the chain
-	genesisPath, err := c.chain.GenesisPath()
-	if err != nil {
-		return errors.Wrap(err, "genesis path of the blockchain can't be read")
-	}
-
-	genReader, err := genesis.GenesisReaderFromPath(genesisPath)
-	if err != nil {
-		return errors.Wrap(err, "genesis of the blockchain can't be read")
-	}
-
-	return genReader.UpdateGenesis(genesisPath, genesis.WithGenesisTime(0))
-}
+const (
+	paramChainID     = "chain_id"
+	paramGenesisTime = "genesis_time"
+)
 
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
@@ -111,15 +101,14 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "genesis path of the blockchain can't be read")
 	}
 
-	genReader, err := genesis.GenesisReaderFromPath(genesisPath)
+	genReader, err := genesis.FromPath(genesisPath)
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	if err := genReader.UpdateGenesis(
-		genesisPath,
-		genesis.WithChainID(c.id),
-		genesis.WithGenesisTime(c.launchTime),
+	if err := genReader.Update(
+		genesis.WithKeyValue(paramChainID, c.id),
+		genesis.WithTime(paramGenesisTime, c.launchTime),
 	); err != nil {
 		return errors.Wrap(err, "genesis cannot be update")
 	}

@@ -1,7 +1,7 @@
 package tarball
 
 import (
-	"io"
+	"bytes"
 	"os"
 	"testing"
 
@@ -80,7 +80,8 @@ func TestReadFile(t *testing.T) {
 			tarball, err := os.Open(tt.args.tarballPath)
 			require.NoError(t, err)
 
-			gotReader, gotPath, err := ExtractFile(tarball, tt.args.file)
+			var buf bytes.Buffer
+			gotPath, err := ExtractFile(tarball, &buf, tt.args.file)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
@@ -89,9 +90,8 @@ func TestReadFile(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, tt.wantPath, gotPath)
 
-			gotReaderBytes, err := io.ReadAll(gotReader)
 			require.NoError(t, err)
-			require.Equal(t, tt.want, gotReaderBytes)
+			require.Equal(t, tt.want, buf.Bytes())
 		})
 	}
 }

@@ -3,8 +3,9 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"os"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 )
@@ -63,22 +64,22 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
 		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		genesis, err := genesis.GenesisFromURL(ctx, c.genesisURL)
+		gen, err := genesis.FromURL(ctx, c.genesisURL, genesisPath)
 		if err != nil {
 			return err
 		}
 
-		if genesis.TarballPath != "" {
+		if gen.TarballPath() != "" {
 			c.ev.Send(
 				events.New(events.StatusDone,
-					fmt.Sprintf("Extracted custom Genesis from tarball at %s", genesis.TarballPath),
+					fmt.Sprintf("Extracted custom Genesis from tarball at %s", gen.TarballPath()),
 				),
 			)
 		} else {
 			c.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
 		}
 
-		hash, err := genesis.Hash()
+		hash, err := gen.Hash()
 		if err != nil {
 			return err
 		}
@@ -89,11 +90,6 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			c.genesisHash = hash
 		} else if hash != c.genesisHash {
 			return fmt.Errorf("genesis from URL %s is invalid. expected hash %s, actual hash %s", c.genesisURL, c.genesisHash, hash)
-		}
-
-		// replace the default genesis with the fetched genesis
-		if err := genesis.UpdateGenesis(genesisPath); err != nil {
-			return err
 		}
 	} else {
 		// default genesis is used, init CLI command is used to generate it

@@ -7,6 +7,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
+	github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.44.6
@@ -22,6 +23,7 @@ require (
 	github.com/gobuffalo/packd v0.3.0
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
+	github.com/goccy/go-json v0.9.6
 	github.com/goccy/go-yaml v1.9.4
 	github.com/gogo/protobuf v1.3.3
 	github.com/google/go-github/v37 v37.0.0

@@ -3,8 +3,6 @@ package network
 import (
 	"context"
 	"fmt"
-	"github.com/Pantani/test"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -12,6 +10,7 @@ import (
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -87,39 +86,38 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	var (
-		genesisHash  string
-		chainGenesis test.ChainGenesis
+		genesisHash string
+		gen         *genesis.Genesis
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.genesisURL != "" {
-		genesis, err := genesis.GenesisFromURL(ctx, o.genesisURL)
+		gen, err = genesis.FromPath(ctx, o.genesisURL, genesisPath)
 		if err != nil {
 			return 0, 0, 0, err
 		}
-		genesisHash, err = genesis.Hash()
+		genesisHash, err = gen.Hash()
 		if err != nil {
 			return 0, 0, 0, err
 		}
 
 		n.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		if genesis.TarballPath != "" {
+		if gen.TarballPath() != "" {
 			n.ev.Send(
 				events.New(events.StatusDone,
-					fmt.Sprintf("Extracted custom Genesis from tarball at %s", genesis.TarballPath),
+					fmt.Sprintf("Extracted custom Genesis from tarball at %s", gen.TarballPath()),
 				),
 			)
 		} else {
 			n.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
 		}
-
-		chainGenesis, err = genesis.ChainGenesis()
-		if err != nil {
-			return 0, 0, 0, err
-		}
 	}
 
-	chainID := chainGenesis.ChainID
+	chainID, err := gen.ChainID()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
 	// use chain id flag always in the highest priority.
 	if o.chainID != "" {
 		chainID = o.chainID
