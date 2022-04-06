@@ -1,4 +1,4 @@
-package testdata
+package testutil
 
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"

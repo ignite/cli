@@ -1,4 +1,4 @@
-package testdata
+package testutil
 
 import (
 	"encoding/hex"
@@ -7,15 +7,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
+	"google.golang.org/protobuf/runtime/protoiface"
 )
 
-func NewResponse(data codec.ProtoMarshaler) cosmosclient.Response {
+func NewResponse(data protoiface.MessageV1) cosmosclient.Response {
 	marshaler := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 	anyEncoded, _ := prototypes.MarshalAny(data)
-	txData := &sdktypes.TxMsgData{Data: []*sdktypes.MsgData{
+	txData := &sdk.TxMsgData{Data: []*sdk.MsgData{
 		{
 			Data: anyEncoded.Value,
 			//TODO: Find a better way

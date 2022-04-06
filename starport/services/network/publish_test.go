@@ -16,70 +16,43 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/services/network/mocks"
-	"github.com/tendermint/starport/starport/services/network/testdata"
+	"github.com/tendermint/starport/starport/services/network/testutil"
 )
 
-const (
-	TestChainSourceHash = "testhash"
-	TestChainSourceURL  = "http://example.com/test"
-	TestChainName       = "test"
-	TestChainChainID    = "test-1"
-
-	TestLaunchID   = uint64(1)
-	TestCampaignID = uint64(1)
-	TestMainnetID  = uint64(1)
-)
+const ()
 
 func stubNetworkForPublish() Network {
 	profileQueryMock := new(mocks.ProfileClient)
 	profileQueryMock.On("CoordinatorByAddress", mock.Anything, &profiletypes.QueryGetCoordinatorByAddressRequest{
-		Address: testdata.Address,
+		Address: testutil.Address,
 	}).Return(nil, nil)
 	campaignQueryMock := new(mocks.CampaignClient)
 	campaignQueryMock.On("Campaign", mock.Anything, &campaigntypes.QueryGetCampaignRequest{
-		CampaignID: TestCampaignID,
+		CampaignID: testutil.TestCampaignID,
 	}).Return(nil, nil)
 	networkClientMock := new(mocks.CosmosClient)
 	networkClientMock.On("BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		mock.AnythingOfType("*types.MsgCreateChain"),
-	).Return(testdata.NewResponse(&launchtypes.MsgCreateChainResponse{
-		LaunchID: TestLaunchID,
+	).Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
+		LaunchID: testutil.TestLaunchID,
 	}), nil)
 	networkClientMock.On("BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		mock.AnythingOfType("*types.MsgCreateCampaign"),
-	).Return(testdata.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-		CampaignID: TestCampaignID,
+	).Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
+		CampaignID: testutil.TestCampaignID,
 	}), nil)
 	networkClientMock.On("BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		mock.AnythingOfType("*types.MsgCreateCoordinator"),
-	).Return(testdata.NewResponse(&profiletypes.MsgCreateCoordinatorResponse{}), nil)
+	).Return(testutil.NewResponse(&profiletypes.MsgCreateCoordinatorResponse{}), nil)
 	return Network{
 		cosmos:        networkClientMock,
-		account:       testdata.GetTestAccount(),
+		account:       testutil.GetTestAccount(),
 		profileQuery:  profileQueryMock,
 		campaignQuery: campaignQueryMock,
 	}
-}
-
-func newChainMockForPublish(cacheBinaryFail, chainIDFail bool) *mocks.Chain {
-	chainMock := new(mocks.Chain)
-	chainMock.On("SourceHash").Return(TestChainSourceHash)
-	chainMock.On("SourceURL").Return(TestChainSourceURL)
-	chainMock.On("Name").Return(TestChainName)
-	if cacheBinaryFail {
-		chainMock.On("CacheBinary", TestLaunchID).Return(errors.New("failed to cache binary"))
-	} else {
-		chainMock.On("CacheBinary", TestLaunchID).Return(nil)
-	}
-	if chainIDFail {
-		chainMock.On("ChainID").Return("", errors.New("failed to get chainID"))
-	} else {
-		chainMock.On("ChainID").Return(TestChainChainID, nil)
-	}
-	return chainMock
 }
 
 func startGenesisTestServer(genesis cosmosutil.ChainGenesis) *httptest.Server {
@@ -97,11 +70,11 @@ func startNotFoundServer() *httptest.Server {
 
 func TestPublish(t *testing.T) {
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock)
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
 	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 2)
@@ -110,11 +83,11 @@ func TestPublish(t *testing.T) {
 
 func TestPublishWithCampaignID(t *testing.T) {
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, false)
-	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock, WithCampaign(TestCampaignID))
+	chainMock := testutil.NewChainMock()
+	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock, WithCampaign(testutil.TestCampaignID))
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
 	network.campaignQuery.(*mocks.CampaignClient).AssertNumberOfCalls(t, "Campaign", 1)
@@ -125,13 +98,13 @@ func TestPublishWithCampaignID(t *testing.T) {
 func TestPublishWithCustomGenesis(t *testing.T) {
 	var customGenesisChainID string = "test-custom-1"
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	gts := startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
 	defer gts.Close()
 	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock, WithCustomGenesis(gts.URL))
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 0)
 	network.campaignQuery.(*mocks.CampaignClient).AssertNumberOfCalls(t, "Campaign", 0)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
@@ -142,13 +115,13 @@ func TestPublishWithCustomGenesis(t *testing.T) {
 func TestPublishWithCustomChainID(t *testing.T) {
 	var customGenesisChainID string = "test-custom-1"
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	gts := startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
 	defer gts.Close()
-	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock, WithChainID(TestChainChainID))
+	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock, WithChainID(testutil.TestChainChainID))
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 0)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
 	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 2)
@@ -159,23 +132,23 @@ func TestPublishMainnet(t *testing.T) {
 	network := stubNetworkForPublish()
 	network.cosmos.(*mocks.CosmosClient).On(
 		"BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		&campaigntypes.MsgInitializeMainnet{
-			Coordinator:    testdata.Address,
-			CampaignID:     TestCampaignID,
-			SourceURL:      TestChainSourceURL,
-			SourceHash:     TestChainSourceHash,
-			MainnetChainID: TestChainChainID,
+			Coordinator:    testutil.Address,
+			CampaignID:     testutil.TestCampaignID,
+			SourceURL:      testutil.TestChainSourceURL,
+			SourceHash:     testutil.TestChainSourceHash,
+			MainnetChainID: testutil.TestChainChainID,
 		},
-	).Return(testdata.NewResponse(&campaigntypes.MsgInitializeMainnetResponse{
-		MainnetID: TestMainnetID,
+	).Return(testutil.NewResponse(&campaigntypes.MsgInitializeMainnetResponse{
+		MainnetID: testutil.TestMainnetID,
 	}), nil)
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	launchID, campaignID, mainnetID, err := network.Publish(context.Background(), chainMock, Mainnet())
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
-	require.Equal(t, TestMainnetID, mainnetID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestMainnetID, mainnetID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
 	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 3)
@@ -184,7 +157,7 @@ func TestPublishMainnet(t *testing.T) {
 
 func TestPublishWithCustomGenesisAndFailedToFetchIt(t *testing.T) {
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	gts := startNotFoundServer()
 	defer gts.Close()
 	_, _, _, err := network.Publish(context.Background(), chainMock, WithCustomGenesis(gts.URL))
@@ -200,18 +173,18 @@ func TestPublishFailedToInitializeMainnet(t *testing.T) {
 	network := stubNetworkForPublish()
 	network.cosmos.(*mocks.CosmosClient).On(
 		"BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		&campaigntypes.MsgInitializeMainnet{
-			Coordinator:    testdata.Address,
-			CampaignID:     TestCampaignID,
-			SourceURL:      TestChainSourceURL,
-			SourceHash:     TestChainSourceHash,
-			MainnetChainID: TestChainChainID,
+			Coordinator:    testutil.Address,
+			CampaignID:     testutil.TestCampaignID,
+			SourceURL:      testutil.TestChainSourceURL,
+			SourceHash:     testutil.TestChainSourceHash,
+			MainnetChainID: testutil.TestChainChainID,
 		},
-	).Return(testdata.NewResponse(&campaigntypes.MsgInitializeMainnetResponse{
-		MainnetID: TestMainnetID,
+	).Return(testutil.NewResponse(&campaigntypes.MsgInitializeMainnetResponse{
+		MainnetID: testutil.TestMainnetID,
 	}), errors.New("failed to initialize mainnet"))
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	_, _, _, err := network.Publish(context.Background(), chainMock, Mainnet())
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
@@ -223,13 +196,13 @@ func TestPublishFailedToInitializeMainnet(t *testing.T) {
 func TestPublishWithCustomGenesisAndFailedToParseIt(t *testing.T) {
 	var customGenesisChainID string = "test-custom-1"
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	gts := startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
 	defer gts.Close()
 	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock, WithCustomGenesis(gts.URL))
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 0)
 	network.campaignQuery.(*mocks.CampaignClient).AssertNumberOfCalls(t, "Campaign", 0)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
@@ -241,14 +214,14 @@ func TestPublishWithCoordinatorCreation(t *testing.T) {
 	network := stubNetworkForPublish()
 	profileQueryMock := new(mocks.ProfileClient)
 	profileQueryMock.On("CoordinatorByAddress", mock.Anything, &profiletypes.QueryGetCoordinatorByAddressRequest{
-		Address: testdata.Address,
+		Address: testutil.Address,
 	}).Return(nil, cosmoserror.ErrNotFound)
 	network.profileQuery = profileQueryMock
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	launchID, campaignID, _, err := network.Publish(context.Background(), chainMock)
 	require.Nil(t, err)
-	require.Equal(t, TestLaunchID, launchID)
-	require.Equal(t, TestCampaignID, campaignID)
+	require.Equal(t, testutil.TestLaunchID, launchID)
+	require.Equal(t, testutil.TestCampaignID, campaignID)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
 	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 3)
@@ -259,10 +232,10 @@ func TestPublishFailedToFetchCoordinator(t *testing.T) {
 	network := stubNetworkForPublish()
 	profileQueryMock := new(mocks.ProfileClient)
 	profileQueryMock.On("CoordinatorByAddress", mock.Anything, &profiletypes.QueryGetCoordinatorByAddressRequest{
-		Address: testdata.Address,
+		Address: testutil.Address,
 	}).Return(nil, cosmoserror.ErrInternal)
 	network.profileQuery = profileQueryMock
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	_, _, _, err := network.Publish(context.Background(), chainMock)
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
@@ -273,7 +246,7 @@ func TestPublishFailedToFetchCoordinator(t *testing.T) {
 
 func TestPublishFailedToReadChainID(t *testing.T) {
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(false, true)
+	chainMock := testutil.NewChainMock(testutil.WithChainIDFail())
 	_, _, _, err := network.Publish(context.Background(), chainMock)
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
@@ -286,11 +259,11 @@ func TestPublishFailedToQueryCampaign(t *testing.T) {
 	network := stubNetworkForPublish()
 	campaignQueryMock := new(mocks.CampaignClient)
 	campaignQueryMock.On("Campaign", mock.Anything, &campaigntypes.QueryGetCampaignRequest{
-		CampaignID: TestCampaignID,
+		CampaignID: testutil.TestCampaignID,
 	}).Return(nil, cosmoserror.ErrNotFound)
 	network.campaignQuery = campaignQueryMock
-	chainMock := newChainMockForPublish(false, false)
-	_, _, _, err := network.Publish(context.Background(), chainMock, WithCampaign(TestCampaignID))
+	chainMock := testutil.NewChainMock()
+	_, _, _, err := network.Publish(context.Background(), chainMock, WithCampaign(testutil.TestCampaignID))
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
 	network.profileQuery.(*mocks.ProfileClient).AssertNumberOfCalls(t, "CoordinatorByAddress", 1)
@@ -302,13 +275,13 @@ func TestPublishFailedToCreateCampaign(t *testing.T) {
 	network := stubNetworkForPublish()
 	networkClientMock := new(mocks.CosmosClient)
 	networkClientMock.On("BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		mock.AnythingOfType("*types.MsgCreateCampaign"),
-	).Return(testdata.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-		CampaignID: TestCampaignID,
+	).Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
+		CampaignID: testutil.TestCampaignID,
 	}), errors.New("failed to create"))
 	network.cosmos = networkClientMock
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	_, _, _, err := network.Publish(context.Background(), chainMock)
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
@@ -321,19 +294,19 @@ func TestPublishFailedToCreateChain(t *testing.T) {
 	network := stubNetworkForPublish()
 	networkClientMock := new(mocks.CosmosClient)
 	networkClientMock.On("BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		mock.AnythingOfType("*types.MsgCreateChain"),
-	).Return(testdata.NewResponse(&launchtypes.MsgCreateChainResponse{
-		LaunchID: TestLaunchID,
+	).Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
+		LaunchID: testutil.TestLaunchID,
 	}), errors.New("failed to create chain"))
 	networkClientMock.On("BroadcastTx",
-		testdata.AccountName,
+		testutil.AccountName,
 		mock.AnythingOfType("*types.MsgCreateCampaign"),
-	).Return(testdata.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-		CampaignID: TestCampaignID,
+	).Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
+		CampaignID: testutil.TestCampaignID,
 	}), nil)
 	network.cosmos = networkClientMock
-	chainMock := newChainMockForPublish(false, false)
+	chainMock := testutil.NewChainMock()
 	_, _, _, err := network.Publish(context.Background(), chainMock)
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)
@@ -344,7 +317,7 @@ func TestPublishFailedToCreateChain(t *testing.T) {
 
 func TestPublishFailedToCacheBinary(t *testing.T) {
 	network := stubNetworkForPublish()
-	chainMock := newChainMockForPublish(true, false)
+	chainMock := testutil.NewChainMock(testutil.WithCacheBinaryFail())
 	_, _, _, err := network.Publish(context.Background(), chainMock)
 	require.NotNil(t, err)
 	chainMock.AssertNumberOfCalls(t, "ChainID", 1)

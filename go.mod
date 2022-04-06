@@ -54,6 +54,7 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.45.0
+	google.golang.org/protobuf v1.27.1 // indirect
 )
 
 replace (
