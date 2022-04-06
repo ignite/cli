@@ -1,7 +1,7 @@
 # How To [Build/Create/Do Something] in Starport
 
 <!--
-Use this tutorial template as a quick starting point when writing Starport how-to tutorials. 
+Use this tutorial template as a quick starting point when writing Ignite CLI how-to tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 
@@ -62,13 +62,13 @@ To complete this tutorial, you will need:
 
 <!-- Example - uncomment to use
 
-- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../guide/install.md). 
-* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
+- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../guide/install.md). 
+* A text editor like [Visual Studio Code](https://code.visualstudio.com/download).
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
 -->
 
-## Step 1 — Doing Something
+## Step 1 — Doing something
 
 Introduction to the step. What are you going to do and why are you doing it?
 
@@ -80,16 +80,16 @@ Finally...
 
 <!-- When showing a command, explain the command first by talking about what it does. Then show the command. Then show its output in a separate output block: -->
 
-To verify the version of Starport you have installed, run the following command:
+To verify the version of Ignite CLI that is installed, run the following command:
 
 ```sh
-starport --version
+ignite --version
 ```
 
 You'll see release details like the following output:
 
 ```
-starport version v0.18.4 darwin/amd64 -build date: 2021-12-01T18:34:28Z
+ignite version v0.19.6 darwin/amd64 -build date: 2022-04-12T18:34:28Z
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:
@@ -97,7 +97,6 @@ starport version v0.18.4 darwin/amd64 -build date: 2021-12-01T18:34:28Z
 Create the `post.proto` file in your editor.
 
 When showing the contents of a file, try to show only the relevant parts and explain what needs to change. -->
-
 
 Modify the title by changing the contents of the `<title>` tag:
 
@@ -120,10 +119,9 @@ message MsgCreatePost {
 ...
 ```
 
-
 Now transition to the next step by telling the user what's next.
 
-## Step 2 — Title Case
+## Step 2 — Sentence case heading
 
 Another introduction
 
@@ -131,7 +129,7 @@ Your content that guides the user to accomplish a specific step
 
 Transition to the next step.
 
-## Step 3 — Title Case
+## Step 3 — Sentence case
 
 Another introduction
 
