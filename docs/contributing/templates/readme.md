@@ -1,4 +1,4 @@
-# Starport Article Templates
+# Ignite article templates
 
 Use these templates along with our style guide to help you create articles for the Ignite CLI community.
 
