@@ -8,11 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
-
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
