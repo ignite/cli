@@ -23,7 +23,6 @@ require (
 	github.com/gobuffalo/packd v0.3.0
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
-	github.com/goccy/go-json v0.9.6
 	github.com/goccy/go-yaml v1.9.4
 	github.com/gogo/protobuf v1.3.3
 	github.com/google/go-github/v37 v37.0.0

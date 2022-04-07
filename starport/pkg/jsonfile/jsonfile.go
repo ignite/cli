@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -13,7 +14,6 @@ import (
 	"time"
 
 	"github.com/buger/jsonparser"
-	gojson "github.com/goccy/go-json"
 	"github.com/pkg/errors"
 
 	"github.com/tendermint/starport/starport/pkg/tarball"
@@ -121,7 +121,7 @@ func (g *JSONFile) Param(key string, param interface{}) (int64, error) {
 	if err := g.Reset(); err != nil {
 		return 0, err
 	}
-	dec := gojson.NewDecoder(g.file)
+	dec := json.NewDecoder(g.file)
 	keys := strings.Split(key, keySeparator)
 	for {
 		t, err := dec.Token()
