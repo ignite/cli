@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
-
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
