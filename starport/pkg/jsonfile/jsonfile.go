@@ -73,17 +73,18 @@ func FromPath(path string) (*JSONFile, error) {
 func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile, error) {
 	// TODO create a cache system to avoid download genesis with the same hash again
 
+	// Download the file from URL
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
-
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	// Remove the old file if exists and create a new one
 	if err := os.RemoveAll(path); err != nil {
 		return nil, err
 	}
@@ -92,16 +93,19 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 		return nil, errors.Wrap(err, "cannot create the genesis file")
 	}
 
+	// Copy the downloaded file to buffer and the opened file
 	var buf bytes.Buffer
 	if _, err := io.Copy(file, io.TeeReader(resp.Body, &buf)); err != nil {
 		return nil, err
 	}
 
+	// Check if the downloaded file is a tarball and extract only the necessary JSON file
 	var ext bytes.Buffer
 	tarballPath, err := tarball.ExtractFile(&buf, &ext, tarballFileName)
 	if err != nil && err != tarball.ErrNotGzipType {
 		return nil, err
 	} else if err == nil {
+		// Erase the tarball bite code from the file and copy the correct one
 		if err := truncate(file, 0); err != nil {
 			return nil, err
 		}
@@ -118,13 +122,17 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 	}, nil
 }
 
-// Param return the param and the position into byte slice from the file reader
+// Param return the param by key and the position into byte slice from the file reader.
+// Key can be a path to a nested parameter eg: app_state.staking.accounts
 func (g *JSONFile) Param(key string, param interface{}) (int64, error) {
 	if err := g.Reset(); err != nil {
 		return 0, err
 	}
 	dec := json.NewDecoder(g.file)
+	// Split the keys by the separator to find nested JSON parameters eg: app_state.staking.accounts
 	keys := strings.Split(key, keySeparator)
+	// Instead of unmarshal the whole content of a file
+	// this will decode one line/record at a time
 	for {
 		t, err := dec.Token()
 		if err == io.EOF {
@@ -137,16 +145,20 @@ func (g *JSONFile) Param(key string, param interface{}) (int64, error) {
 		if !ok {
 			continue
 		}
+		// If the nested path was found
 		if name == keys[0] {
 			if len(keys) > 1 {
 				keys = keys[1:]
 				continue
 			}
+
+			// Try to decode the all data first
 			err := dec.Decode(&param)
 			if err == nil {
 				return dec.InputOffset(), nil
 			}
 
+			// If not decode, only get the JSON value from the key
 			t, err := dec.Token()
 			if err == io.EOF {
 				break

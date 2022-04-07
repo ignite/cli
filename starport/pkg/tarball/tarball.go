@@ -23,6 +23,7 @@ func ExtractFile(reader io.Reader, out io.Writer, fileName string) (string, erro
 		return "", ErrInvalidFileName
 	}
 	archive, err := gzip.NewReader(reader)
+	// Verify if is a GZIP file
 	if err == io.EOF || err == gzip.ErrHeader {
 		return "", ErrNotGzipType
 	} else if err != nil {
@@ -31,6 +32,7 @@ func ExtractFile(reader io.Reader, out io.Writer, fileName string) (string, erro
 	defer archive.Close()
 
 	tarReader := tar.NewReader(archive)
+	// Read the tarball files and find only the necessary file
 	for {
 		header, err := tarReader.Next()
 		if err == io.EOF {
