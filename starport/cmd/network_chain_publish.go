@@ -196,6 +196,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				return err
 			}
+			defer gen.Close()
 			publishOptions = append(publishOptions, network.WithCustomGenesis(gen))
 		}
 	} else {
@@ -203,6 +204,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		if err != nil { // initialize the chain for checking.
 			return err
 		}
+		defer gen.Close()
 		if genesisURL != "" {
 			publishOptions = append(publishOptions, network.WithCustomGenesis(gen))
 		}

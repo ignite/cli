@@ -52,6 +52,7 @@ func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer genesis.Close()
 	return genesis.HasAccount(addr), nil
 }
 

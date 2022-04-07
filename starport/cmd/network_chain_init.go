@@ -108,6 +108,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	defer gen.Close()
 
 	stakeDenom, err := gen.StakeDenom()
 	if err != nil {

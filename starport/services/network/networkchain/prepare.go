@@ -54,6 +54,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 			return err
 		}
 	}
+	defer gen.Close()
 
 	if err := c.buildGenesis(ctx, gi, gen); err != nil {
 		return err
