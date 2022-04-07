@@ -11,12 +11,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 const flagOut = "out"
@@ -84,26 +82,7 @@ func newNetworkChainShowInfo() *cobra.Command {
 			}
 			chainLaunch.Reward = reward.RemainingCoins.String()
 
-			var genStr string
-			if chainLaunch.GenesisURL != "" {
-				gen, err := genesis.FromURL(cmd.Context(), chainLaunch.GenesisURL, "")
-				if err != nil {
-					return err
-				}
-
-				genStr, err = gen.String()
-				if err != nil {
-					return err
-				}
-			}
-			chainInfo := struct {
-				Chain   networktypes.ChainLaunch `json:"Chain"`
-				Genesis string                   `json:"Genesis"`
-			}{
-				Chain:   chainLaunch,
-				Genesis: genStr,
-			}
-			info, err := yaml.Marshal(cmd.Context(), chainInfo)
+			info, err := yaml.Marshal(cmd.Context(), chainLaunch)
 			if err != nil {
 				return err
 			}
