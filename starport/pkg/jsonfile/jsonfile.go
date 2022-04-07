@@ -45,7 +45,9 @@ type (
 )
 
 var (
-	ErrParamNotFound    = errors.New("parameter not found")
+	// ErrParamNotFound parameter not found into json
+	ErrParamNotFound = errors.New("parameter not found")
+	// ErrInvalidValueType invalid value type
 	ErrInvalidValueType = errors.New("invalid value type")
 )
 
