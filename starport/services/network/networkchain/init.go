@@ -34,10 +34,14 @@ func (c *Chain) Init(ctx context.Context) (gen *genesis.Genesis, err error) {
 		return nil, err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
+	gen, err = c.initGenesis(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	defer func() { c.isInitialized = true }()
-	return c.initGenesis(ctx)
+	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
+	c.isInitialized = true
+	return gen, nil
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
