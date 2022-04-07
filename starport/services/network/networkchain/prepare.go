@@ -33,12 +33,12 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		return err
 	}
 
+	var gen *genesis.Genesis
 	_, err = os.Stat(genesisPath)
-
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if err = c.Init(ctx); err != nil {
+		if gen, err = c.Init(ctx); err != nil {
 			return err
 		}
 	case err != nil:
@@ -49,12 +49,13 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 			return err
 		}
 
-		if err := c.initGenesis(ctx); err != nil {
+		gen, err = c.initGenesis(ctx)
+		if err != nil {
 			return err
 		}
 	}
 
-	if err := c.buildGenesis(ctx, gi); err != nil {
+	if err := c.buildGenesis(ctx, gi, gen); err != nil {
 		return err
 	}
 
@@ -77,7 +78,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
-func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation, gen *genesis.Genesis) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	addressPrefix, err := c.detectPrefix(ctx)
@@ -96,17 +97,7 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
-	genesisPath, err := c.chain.GenesisPath()
-	if err != nil {
-		return errors.Wrap(err, "genesis path of the blockchain can't be read")
-	}
-
-	genReader, err := genesis.FromPath(genesisPath)
-	if err != nil {
-		return errors.Wrap(err, "genesis of the blockchain can't be read")
-	}
-
-	if err := genReader.Update(
+	if err := gen.Update(
 		jsonfile.WithKeyValue(paramChainID, c.id),
 		jsonfile.WithTime(paramGenesisTime, c.launchTime),
 	); err != nil {

@@ -3,8 +3,6 @@ package starportcmd
 import (
 	"fmt"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
@@ -106,19 +104,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Init(cmd.Context()); err != nil {
-		return err
-	}
-
-	genesisPath, err := c.GenesisPath()
+	gen, err := c.Init(cmd.Context())
 	if err != nil {
 		return err
 	}
 
-	gen, err := genesis.FromPath(genesisPath)
-	if err != nil {
-		return err
-	}
 	stakeDenom, err := gen.StakeDenom()
 	if err != nil {
 		return err

@@ -17,7 +17,7 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL  string
+	genesis     *genesis.Genesis
 	chainID     string
 	campaignID  uint64
 	noCheck     bool
@@ -51,9 +51,9 @@ func WithNoCheck() PublishOption {
 }
 
 // WithCustomGenesis enables using a custom genesis during publish.
-func WithCustomGenesis(url string) PublishOption {
+func WithCustomGenesis(gen *genesis.Genesis) PublishOption {
 	return func(o *publishOptions) {
-		o.genesisURL = url
+		o.genesis = gen
 	}
 }
 
@@ -86,36 +86,33 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	var (
+		chainID     string
 		genesisHash string
-		gen         *genesis.Genesis
+		genesisURL  string
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
-	if o.genesisURL != "" {
-		gen, err = genesis.FromPath(ctx, o.genesisURL, genesisPath)
-		if err != nil {
-			return 0, 0, 0, err
-		}
-		genesisHash, err = gen.Hash()
+	if o.genesis != nil {
+		genesisURL = o.genesis.URL()
+		genesisHash, err = o.genesis.Hash()
 		if err != nil {
 			return 0, 0, 0, err
 		}
 
 		n.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		if gen.TarballPath() != "" {
+		if o.genesis.TarballPath() != "" {
 			n.ev.Send(
 				events.New(events.StatusDone,
-					fmt.Sprintf("Extracted custom Genesis from tarball at %s", gen.TarballPath()),
+					fmt.Sprintf("Extracted custom Genesis from tarball at %s", o.genesis.TarballPath()),
 				),
 			)
 		} else {
 			n.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
 		}
-	}
-
-	chainID, err := gen.ChainID()
-	if err != nil {
-		return 0, 0, 0, err
+		chainID, err = o.genesis.ChainID()
+		if err != nil {
+			return 0, 0, 0, err
+		}
 	}
 
 	// use chain id flag always in the highest priority.
@@ -175,7 +172,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		chainID,
 		c.SourceURL(),
 		c.SourceHash(),
-		o.genesisURL,
+		genesisURL,
 		genesisHash,
 		true,
 		campaignID,

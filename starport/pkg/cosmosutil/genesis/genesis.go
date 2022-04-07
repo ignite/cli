@@ -2,6 +2,7 @@ package genesis
 
 import (
 	"context"
+	"os"
 
 	"github.com/tendermint/starport/starport/pkg/jsonfile"
 )
@@ -37,6 +38,35 @@ func FromURL(ctx context.Context, url, path string) (*Genesis, error) {
 	return &Genesis{
 		JSONFile: file,
 	}, err
+}
+
+// CheckGenesisContainsAddress returns true if the address exist into the genesis file
+func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
+	_, err := os.Stat(genesisPath)
+	if os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	genesis, err := FromPath(genesisPath)
+	if err != nil {
+		return false, err
+	}
+	return genesis.HasAccount(addr), nil
+}
+
+// HasAccount check if account exist into the genesis account
+func (g Genesis) HasAccount(address string) bool {
+	accounts, err := g.Accounts()
+	if err != nil {
+		return false
+	}
+	for _, account := range accounts {
+		if account == address {
+			return true
+		}
+	}
+	return false
 }
 
 // StakeDenom returns the stake denom from the genesis

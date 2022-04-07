@@ -28,6 +28,7 @@ type (
 	JSONFile struct {
 		file        readWriteSeeker
 		tarballPath string
+		url         string
 		updates     map[string][]byte
 	}
 	// UpdateFileOption configures file update.
@@ -110,6 +111,7 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 	return &JSONFile{
 		updates:     make(map[string][]byte),
 		file:        file,
+		url:         url,
 		tarballPath: tarballPath,
 	}, nil
 }
@@ -245,6 +247,11 @@ func truncate(rws io.WriteSeeker, size int) error {
 // Close the file
 func (g *JSONFile) Close() error {
 	return g.file.Close()
+}
+
+// URL returns the genesis URL
+func (g *JSONFile) URL() string {
+	return g.url
 }
 
 // TarballPath returns the tarball path

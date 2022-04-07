@@ -85,19 +85,24 @@ func newNetworkChainShowInfo() *cobra.Command {
 			}
 			chainLaunch.Reward = reward.RemainingCoins.String()
 
-			var gen *genesis.Genesis
+			var genStr string
 			if chainLaunch.GenesisURL != "" {
-				gen, err = genesis.FromURL(cmd.Context(), chainLaunch.GenesisURL, "")
+				gen, err := genesis.FromURL(cmd.Context(), chainLaunch.GenesisURL, "")
+				if err != nil {
+					return err
+				}
+
+				genStr, err = gen.String()
 				if err != nil {
 					return err
 				}
 			}
 			chainInfo := struct {
 				Chain   networktypes.ChainLaunch `json:"Chain"`
-				Genesis *genesis.Genesis         `json:"Genesis"`
+				Genesis string                   `json:"Genesis"`
 			}{
 				Chain:   chainLaunch,
-				Genesis: gen,
+				Genesis: genStr,
 			}
 			info, err := yaml.Marshal(cmd.Context(), chainInfo)
 			if err != nil {

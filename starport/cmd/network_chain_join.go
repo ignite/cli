@@ -79,7 +79,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	joinOptions := []network.JoinOption{}
+	joinOptions := make([]network.JoinOption, 0)
 	if amount != "" {
 		// parse the amount.
 		amountCoins, err := sdk.ParseCoinsNormalized(amount)

@@ -10,6 +10,7 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -159,10 +160,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
-	if genesisURL != "" {
-		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
-	}
-
 	if campaign != 0 {
 		publishOptions = append(publishOptions, network.WithCampaign(campaign))
 	} else if campaignTotalSupplyStr != "" {
@@ -190,8 +187,25 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
-		return err
+		if genesisURL != "" {
+			genesisPath, err := c.GenesisPath()
+			if err != nil {
+				return err
+			}
+			gen, err := genesis.FromURL(cmd.Context(), genesisURL, genesisPath)
+			if err != nil {
+				return err
+			}
+			publishOptions = append(publishOptions, network.WithCustomGenesis(gen))
+		}
+	} else {
+		gen, err := c.Init(cmd.Context())
+		if err != nil { // initialize the chain for checking.
+			return err
+		}
+		if genesisURL != "" {
+			publishOptions = append(publishOptions, network.WithCustomGenesis(gen))
+		}
 	}
 
 	nb.Spinner.SetText("Publishing...")
