@@ -14,12 +14,15 @@ const GentxFilename = "gentx.json"
 type (
 	// PubKey represents the public key in bytes array
 	PubKey []byte
+
 	// GentxInfo represents the basic info about gentx file
 	GentxInfo struct {
 		DelegatorAddress string
 		PubKey           PubKey
 		SelfDelegation   sdk.Coin
+		Memo             string
 	}
+
 	// StargateGentx represents the stargate gentx file
 	StargateGentx struct {
 		Body struct {
@@ -34,6 +37,7 @@ type (
 					Amount string `json:"amount"`
 				} `json:"value"`
 			} `json:"messages"`
+			Memo string `json:"memo"`
 		} `json:"body"`
 	}
 )
@@ -58,6 +62,7 @@ func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
 }
 
 // ParseGentx returns GentxInfo and the gentx file in bytes
+// TODO refector. no need to return file, it's already given as gentx in the argument.
 func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 	// Try parsing Stargate gentx
 	var stargateGentx StargateGentx
@@ -73,6 +78,7 @@ func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 		return info, gentx, errors.New("add validator gentx must contain 1 message")
 	}
 
+	info.Memo = stargateGentx.Body.Memo
 	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
 	info.PubKey = []byte(stargateGentx.Body.Messages[0].PubKey.Key)
 
