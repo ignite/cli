@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
-
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil/genesis"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/jsonfile"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
@@ -107,8 +107,8 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 	}
 
 	if err := genReader.Update(
-		genesis.WithKeyValue(paramChainID, c.id),
-		genesis.WithTime(paramGenesisTime, c.launchTime),
+		jsonfile.WithKeyValue(paramChainID, c.id),
+		jsonfile.WithTime(paramGenesisTime, c.launchTime),
 	); err != nil {
 		return errors.Wrap(err, "genesis cannot be update")
 	}

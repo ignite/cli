@@ -64,7 +64,7 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/invalid_file",
 				file:        "example.json",
 			},
-			want: []byte{},
+			err: ErrNotGzipType,
 		},
 		{
 			name: "invalid file extension",
@@ -72,7 +72,7 @@ func TestReadFile(t *testing.T) {
 				tarballPath: "testdata/example.json",
 				file:        "example.json",
 			},
-			want: []byte{},
+			err: ErrNotGzipType,
 		},
 	}
 	for _, tt := range tests {

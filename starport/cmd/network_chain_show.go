@@ -87,7 +87,7 @@ func newNetworkChainShowInfo() *cobra.Command {
 
 			var gen *genesis.Genesis
 			if chainLaunch.GenesisURL != "" {
-				gen, err = genesis.FromURL(cmd.Context(), chainLaunch.GenesisURL, genesisPath)
+				gen, err = genesis.FromURL(cmd.Context(), chainLaunch.GenesisURL, "")
 				if err != nil {
 					return err
 				}

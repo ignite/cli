@@ -11,14 +11,20 @@ import (
 var (
 	// ErrGzipFileNotFound the file not found in the gzip
 	ErrGzipFileNotFound = errors.New("file not found in the gzip")
+	// ErrNotGzipType the file is not a gzip
+	ErrNotGzipType = errors.New("file is not a gzip type")
+	// ErrInvalidFileName the file name is invalid
+	ErrInvalidFileName = errors.New("invalid file name")
 )
 
 // ExtractFile founds and reads a specific file into a gzip file and folders recursively
 func ExtractFile(reader io.Reader, out io.Writer, fileName string) (string, error) {
+	if fileName == "" {
+		return "", ErrInvalidFileName
+	}
 	archive, err := gzip.NewReader(reader)
 	if err == io.EOF || err == gzip.ErrHeader {
-		_, err := io.Copy(out, reader)
-		return "", err
+		return "", ErrNotGzipType
 	} else if err != nil {
 		return "", err
 	}
