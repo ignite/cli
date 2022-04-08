@@ -1,7 +1,7 @@
 #! /usr/bin/make -f
 
 # Project variables.
-PROJECT_NAME = starport
+PROJECT_NAME = ignite 
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 HEAD = $(shell git rev-parse HEAD)
 LD_FLAGS = -X github.com/ignite-hq/cli/ignite/internal/version.Head='$(HEAD)' \
@@ -13,7 +13,7 @@ BUILD_FOLDER = ./dist
 install:
 	@echo Installing Starport...
 	@go install $(BUILD_FLAGS) ./...
-	@starport version
+	@ignite version
 
 ## build: Build the binary.
 build:
@@ -45,7 +45,7 @@ lint:
 ## test-unit: Run the unit tests.
 test-unit:
 	@echo Running unit tests...
-	@go test -race -failfast -v ./starport/...
+	@go test -race -failfast -v ./ignite/...
 
 ## test-integration: Run the integration tests.
 test-integration: install
