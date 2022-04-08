@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"golang.org/x/mod/module"
 )
 
 func TestParse(t *testing.T) {
@@ -33,8 +34,11 @@ func TestParse(t *testing.T) {
 		{
 			name:    "invalid as go.mod module name",
 			rawpath: "github.com/a/b/c@",
-			err: fmt.Errorf("app name is an invalid go module name: %w",
-				errors.New(`malformed module path "github.com/a/b/c@": invalid char '@'`)),
+			err: &module.InvalidPathError{
+				Kind: "module",
+				Path: "github.com/a/b/c@",
+				Err:  fmt.Errorf("invalid char '@'"),
+			},
 		},
 		{
 			name:    "name starting with the letter v",
@@ -62,7 +66,7 @@ func TestParse(t *testing.T) {
 			path, err := Parse(tt.rawpath)
 			if err != nil {
 				require.Error(t, err)
-				require.Equal(t, tt.err, err)
+				require.Equal(t, tt.err, errors.Unwrap(err))
 				return
 			}
 			require.NoError(t, err)
