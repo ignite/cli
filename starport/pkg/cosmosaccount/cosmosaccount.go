@@ -44,6 +44,9 @@ const (
 	// KeyringOS is the OS keyring backend. with this backend, your keys will be
 	// stored in your operating system's secured keyring.
 	KeyringOS KeyringBackend = "os"
+
+	// KeyringMemory is in memory keyring backend, your keys will be stored in application memory.
+	KeyringMemory KeyringBackend = "memory"
 )
 
 // Registry for accounts.
@@ -103,6 +106,14 @@ func NewStandalone(options ...Option) (Registry, error) {
 		append([]Option{
 			WithKeyringServiceName(KeyringServiceName),
 			WithHome(KeyringHome),
+		}, options...)...,
+	)
+}
+
+func NewInMemory(options ...Option) (Registry, error) {
+	return New(
+		append([]Option{
+			WithKeyringBackend(KeyringMemory),
 		}, options...)...,
 	)
 }
