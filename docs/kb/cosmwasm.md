@@ -9,7 +9,7 @@ The `wasm` module allows using WebAssembly code (Wasm) on a Cosmos SDK blockchai
 
 ## Add wasm Module
 
-With Starport, add the wasm module very conveniently with:
+With Ignite CLI, add the wasm module very conveniently with:
 
 ```bash
 starport scaffold wasm

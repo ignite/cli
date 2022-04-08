@@ -158,7 +158,7 @@ message Post {
 
 The contents of the `post.proto` file are fairly standard. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Post`. 
 
-Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Post` type is available.
+Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Ignite CLI, the `Post` type is available.
 
 ### Define Keeper Methods
 
