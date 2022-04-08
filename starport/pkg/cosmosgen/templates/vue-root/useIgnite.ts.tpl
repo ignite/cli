@@ -1,70 +1,56 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 import { OfflineDirectSigner } from '@cosmjs/proto-signing'
 import { SigningStargateClient } from '@cosmjs/stargate'
-import { createIgnite, Ignite, registry, Environment } from '@ignt/client'
-import { reactive, Ref, toRefs, ToRefs } from 'vue'
+import { Ignite, registry } from '../ts-client'
+import { toRefs, ToRefs, reactive, UnwrapNestedRefs } from 'vue'
 
-type State = {
-    ignite: Ref<Ignite>
-}
+type State = UnwrapNestedRefs<Ignite>
 
 type Response = {
-    state: ToRefs<State>
+    ignite: ToRefs<Ignite>
     signIn: (offlineSigner: OfflineDirectSigner) => void
     signOut: () => void
+    inject: (instance: Ignite) => void
 }
 
-type Params = {
-    env: Environment
-    autoConnectWS: boolean
-}
+let _igniteGlobal: State
 
-// singleton state
-const state = reactive({} as State)
-
-export default function (
-    p: Params = {
-        env: {
-            apiURL: 'http://localhost:1317',
-            rpcURL: 'http://localhost:26657',
-            wsURL: 'ws://localhost:26657/websocket',
-            prefix: 'cosmos'
-        },
-        autoConnectWS: true
-    }
-): Response {
-    if (!state.ignite) {
-        if (!p.env) {
-            throw new Error('Ignite: Unable to create instance without env')
-        }
-
-        state.ignite = createIgnite({
-            env: p.env
-        }) as Ignite
-
-        if (p.autoConnectWS) {
-            state.ignite.connectWS()
-        }
-    }
-
+export default function (): Response {
     let signIn = async (offlineSigner: OfflineDirectSigner) => {
         let [acc] = await offlineSigner.getAccounts()
 
         let stargateClient = await SigningStargateClient.connectWithSigner(
-            state.ignite.env.rpcURL,
+            _igniteGlobal.env.rpcURL,
             offlineSigner,
             { registry }
         )
+        let addr = acc.address
 
-        state.ignite.signIn(stargateClient, acc.address)
+        _igniteGlobal.signer.client = stargateClient
+        _igniteGlobal.signer.addr = addr
+
+        {{ range .Modules }}
+            _igniteGlobal.{{ camelCase .Name }}.withSigner(stargateClient, addr)
+        {{ end }}
     }
 
     let signOut = () => {
-        state.ignite.signOut()
+        _igniteGlobal.signer.client = undefined
+        _igniteGlobal.signer.addr = undefined
+
+
+        {{ range .Modules }}
+            _igniteGlobal.{{ camelCase .Name }}.noSigner()
+        {{ end }}
+    }
+
+    let inject = (instance: Ignite) => {
+        _igniteGlobal = reactive<Ignite>(instance)
     }
 
     return {
-        state: toRefs(state),
+        inject,
+        ignite: toRefs(_igniteGlobal as Ignite),
         signIn,
         signOut
     }

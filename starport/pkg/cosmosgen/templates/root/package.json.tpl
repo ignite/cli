@@ -20,8 +20,11 @@
     "@cosmjs/stargate": "0.27.0",
     "axios": "^0.25.0",
     "buffer": "^6.0.3",
-    "events": "^3.3.0",
-    "reconnecting-websocket": "^4.4.0"
+    "reconnecting-websocket": "^4.4.0",
+    "eventemitter3": "4.0.7"
+  },
+  "devDependencies": {
+    "@keplr-wallet/types": "^0.9.10"
   },
   "peerDependencies": {
     "@cosmjs/launchpad": "0.27.0",

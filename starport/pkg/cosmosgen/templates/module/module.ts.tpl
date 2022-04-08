@@ -36,6 +36,11 @@ class Module extends Api<any> {
 		this._addr = _addr;
 	}
 
+	public noSigner() {
+		this._client = undefined;
+		this._addr = undefined;
+	}
+
 	{{ range .Module.Msgs }}
 	async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
 		if (!this._client) {

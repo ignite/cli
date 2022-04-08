@@ -1,7 +1,8 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
-import { Ignite } from "@ignt/client";
-import Module from "@ignt/client/{{ .Module.Pkg.Name }}/module";
+import Module from "../../client/{{ .Module.Pkg.Name }}/module";
+import useIgnite from '../useIgnite'
+import { unref } from 'vue'
 		
 {{ range .Module.Msgs }}type Send{{ .Name }}Type = typeof Module.prototype.send{{ .Name }}
 {{ end }}
@@ -15,11 +16,10 @@ type Response = {
   {{ end }}
 }
 
-type Params = {
-  ignite: Ignite;
-}
+function useModule(): Response {
+  // ignite
+  let { ignite } = useIgnite()
 
-function useModule({ ignite }: Params): Response {
   let {
 	{{ range .Module.Msgs }}
 	send{{ .Name }},
@@ -27,9 +27,9 @@ function useModule({ ignite }: Params): Response {
   {{ range .Module.HTTPQueries }}
   {{ camelCase .FullName }},
   {{ end }}
-  } = ignite.{{ .Module.Name }}
+  } = unref(ignite.{{ camelCase .Module.Name }})
 
-  {{ $ModuleName := .Module.Name }}
+  {{ $ModuleName := camelCase .Module.Name }}
   {{ range .Module.Msgs }}
 	send{{ .Name }} = send{{ .Name }}.bind(ignite.{{ $ModuleName }})
   {{ end }}
