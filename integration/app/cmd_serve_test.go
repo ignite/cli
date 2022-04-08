@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/stretchr/testify/require"
 
 	envtest "github.com/tendermint/starport/integration"

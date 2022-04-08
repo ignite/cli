@@ -6,8 +6,8 @@ package simulation_test
 import (
 	"testing"
 
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppAndSimulate(t *testing.T) {

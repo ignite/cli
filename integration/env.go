@@ -14,6 +14,15 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/goccy/go-yaml"
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/availableport"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
+	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
+	"github.com/ignite-hq/cli/ignite/pkg/xexec"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 

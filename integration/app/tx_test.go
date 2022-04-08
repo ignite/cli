@@ -11,8 +11,10 @@ import (
 	"net/http"
 	"testing"
 
-	envtest "github.com/tendermint/starport/integration"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/randstr"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 

@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/integration"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {
