@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	genesisFilename = "genesis.json"
-	paramStakeDenom = "app_state.staking.params.bond_denom"
-	paramChainID    = "chain_id"
-	paramAccounts   = "app_state.auth.accounts"
+	genesisFilename     = "genesis.json"
+	fieldPathStakeDenom = "app_state.staking.params.bond_denom"
+	fieldPathChainID    = "chain_id"
+	fieldPathAccounts   = "app_state.auth.accounts"
 )
 
 type (
@@ -72,20 +72,20 @@ func (g Genesis) HasAccount(address string) bool {
 
 // StakeDenom returns the stake denom from the genesis
 func (g *Genesis) StakeDenom() (denom string, err error) {
-	_, err = g.Param(paramStakeDenom, &denom)
+	_, err = g.Field(fieldPathStakeDenom, &denom)
 	return
 }
 
 // ChainID returns the chain id from the genesis
 func (g *Genesis) ChainID() (chainID string, err error) {
-	_, err = g.Param(paramChainID, &chainID)
+	_, err = g.Field(fieldPathChainID, &chainID)
 	return
 }
 
 // Accounts returns the auth accounts from the genesis
 func (g *Genesis) Accounts() ([]string, error) {
 	var accs accounts
-	_, err := g.Param(paramAccounts, &accs)
+	_, err := g.Field(fieldPathAccounts, &accs)
 	accountList := make([]string, len(accs))
 	for i, acc := range accs {
 		accountList[i] = acc.Address

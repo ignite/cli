@@ -90,7 +90,7 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 	}
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0600)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create the genesis file")
+		return nil, errors.Wrap(err, "cannot create the file")
 	}
 
 	// Copy the downloaded file to buffer and the opened file
@@ -122,13 +122,13 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 	}, nil
 }
 
-// Param return the param by key and the position into byte slice from the file reader.
+// Field return the param by key and the position into byte slice from the file reader.
 // Key can be a path to a nested parameter eg: app_state.staking.accounts
-func (g *JSONFile) Param(key string, param interface{}) (int64, error) {
-	if err := g.Reset(); err != nil {
+func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
+	if err := f.Reset(); err != nil {
 		return 0, err
 	}
-	dec := json.NewDecoder(g.file)
+	dec := json.NewDecoder(f.file)
 	// Split the keys by the separator to find nested JSON parameters eg: app_state.staking.accounts
 	keys := strings.Split(key, keySeparator)
 	// Instead of unmarshal the whole content of a file
@@ -203,38 +203,38 @@ func WithKeyIntValue(key string, value int) UpdateFileOption {
 }
 
 // Update updates the file file with the new parameters by key
-func (g *JSONFile) Update(opts ...UpdateFileOption) error {
+func (f *JSONFile) Update(opts ...UpdateFileOption) error {
 	for _, opt := range opts {
-		opt(g.updates)
+		opt(f.updates)
 	}
-	if err := g.Reset(); err != nil {
+	if err := f.Reset(); err != nil {
 		return err
 	}
-	_, err := io.Copy(g, g.file)
+	_, err := io.Copy(f, f.file)
 	return err
 }
 
 // Write implement the write method for io.Writer interface
-func (g *JSONFile) Write(p []byte) (int, error) {
+func (f *JSONFile) Write(p []byte) (int, error) {
 	var err error
 	length := len(p)
-	for key, value := range g.updates {
+	for key, value := range f.updates {
 		p, err = jsonparser.Set(p, value, strings.Split(key, keySeparator)...)
 		if err != nil {
 			return 0, err
 		}
-		delete(g.updates, key)
+		delete(f.updates, key)
 	}
 
-	err = truncate(g.file, 0)
+	err = truncate(f.file, 0)
 	if err != nil {
 		return 0, err
 	}
 
-	if err := g.Reset(); err != nil {
+	if err := f.Reset(); err != nil {
 		return 0, err
 	}
-	n, err := g.file.Write(p)
+	n, err := f.file.Write(p)
 	if err != nil {
 		return n, err
 	}
@@ -259,45 +259,45 @@ func truncate(rws io.WriteSeeker, size int) error {
 }
 
 // Close the file
-func (g *JSONFile) Close() error {
-	return g.file.Close()
+func (f *JSONFile) Close() error {
+	return f.file.Close()
 }
 
 // URL returns the genesis URL
-func (g *JSONFile) URL() string {
-	return g.url
+func (f *JSONFile) URL() string {
+	return f.url
 }
 
 // TarballPath returns the tarball path
-func (g *JSONFile) TarballPath() string {
-	return g.tarballPath
+func (f *JSONFile) TarballPath() string {
+	return f.tarballPath
 }
 
 // Hash returns the hash of the file
-func (g *JSONFile) Hash() (string, error) {
-	if err := g.Reset(); err != nil {
+func (f *JSONFile) Hash() (string, error) {
+	if err := f.Reset(); err != nil {
 		return "", err
 	}
 	h := sha256.New()
-	if _, err := io.Copy(h, g.file); err != nil {
+	if _, err := io.Copy(h, f.file); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 // String returns the file string
-func (g *JSONFile) String() (string, error) {
-	if err := g.Reset(); err != nil {
+func (f *JSONFile) String() (string, error) {
+	if err := f.Reset(); err != nil {
 		return "", err
 	}
-	data, err := io.ReadAll(g.file)
+	data, err := io.ReadAll(f.file)
 	return string(data), err
 }
 
 // Reset sets the offset for the next Read or Write to 0
-func (g *JSONFile) Reset() error {
+func (f *JSONFile) Reset() error {
 	// TODO find a better way to reset or create a
 	// read of copy the writer with io.TeeReader
-	_, err := g.file.Seek(0, 0)
+	_, err := f.file.Seek(0, 0)
 	return err
 }
