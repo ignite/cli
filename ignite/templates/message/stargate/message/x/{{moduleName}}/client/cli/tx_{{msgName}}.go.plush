@@ -1,0 +1,44 @@
+package cli
+
+import (
+    "strconv"
+	<%= for (goImport) in mergeGoImports(Fields) { %>
+	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
+	"github.com/spf13/cobra"
+    "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+var _ = strconv.Itoa(0)
+
+func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "<%= MsgName.Kebab %><%= Fields.String() %>",
+		Short: "<%= MsgDesc %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) %>),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+      		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i) %>
+            <% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsg<%= MsgName.UpperCamel %>(
+				clientCtx.GetFromAddress().String(),
+				<%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,
+				<% } %>
+			)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}
