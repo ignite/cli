@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	envtest "github.com/ignite-hq/cli/integration"
-	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppAndSimulate(t *testing.T) {

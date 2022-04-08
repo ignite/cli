@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/ignite-hq/cli/integration"
-	"github.com/ignite-hq/cli/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {
