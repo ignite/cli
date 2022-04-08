@@ -5,7 +5,7 @@ order: 9
 
 # IBC Relayer
 
-A built-in IBC relayer in Starport lets you connect blockchains that run on your local computer to blockchains that run on remote computers. The Starport relayer uses the [TypeScript relayer](https://github.com/confio/ts-relayer).
+A built-in IBC relayer in Ignite CLI lets you connect blockchains that run on your local computer to blockchains that run on remote computers. The Ignite CLI relayer uses the [TypeScript relayer](https://github.com/confio/ts-relayer).
 
 ## Configure Connections
 

@@ -55,7 +55,7 @@ build:
 
 ## `client`
 
-Configures and enables client code generation. To prevent Starport from regenerating the client, remove the `client` property.
+Configures and enables client code generation. To prevent Ignite CLI from regenerating the client, remove the `client` property.
 
 ### `client.vuex`
 

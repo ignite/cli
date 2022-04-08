@@ -3,7 +3,7 @@ order: 6
 description: Reference list of supported types. 
 ---
 
-# Starport Supported Types
+# Ignite CLI Supported Types
 
 Types with CRUD operations are scaffolded with the `starport scaffold` command. 
 

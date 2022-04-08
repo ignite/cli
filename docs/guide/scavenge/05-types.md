@@ -8,7 +8,7 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 A keeper is an abstraction that let's your blockchain app interact with the state. Functions like create, update and delete are defined as keeper methods. In the Scavenge blockchain a `scavenge` and `commit` types need to be defined, along with create and update methods.
 
-Starport has several commands that scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs) and a single element in the state. In this example, both `scavenge` and `commit` will be stored in a map-like data structure.
+Ignite CLI has several commands that scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs) and a single element in the state. In this example, both `scavenge` and `commit` will be stored in a map-like data structure.
 
 ## Scavenge
 

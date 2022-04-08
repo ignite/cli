@@ -11,13 +11,13 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Starport](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Starport, so to install Starport v0.18.0 use the following command:
+This series of tutorials is based on a specific version of Starport, so to install Ignite CLI v0.18.0 use the following command:
 
 ```bash
 curl https://get.starport.network/starport@v0.18.0! | bash
 ```
 
-Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
+Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
 
 One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `starport scaffold chain` command.
 
@@ -69,7 +69,7 @@ You already have a fully-functional blockchain. To start your chain on your deve
 starport chain serve
 ```
 
-This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, Starport uses the name of the repo + `d`. From now on, use this binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
+This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, Ignite CLI uses the name of the repo + `d`. From now on, use this binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
 
 ## HTTP API Console
 
@@ -124,7 +124,7 @@ The `query` command has created and modified several files:
 - modified `x/hello/client/cli/query.go`
 - created `x/hello/client/cli/query_posts.go`
 
-Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Starport uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
+Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Ignite CLI uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
 
 ### Updates to the Query Service  
 

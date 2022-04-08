@@ -137,7 +137,7 @@ func (k msgServer) CancelBuyOrder(goCtx context.Context, msg *types.MsgCancelBuy
 
 You have completed implementing the functions that are required for the `dex` module. In this chapter,  you have implemented the design for cancelling specific buy or sell orders.
 
-To test if your Starport blockchain builds correctly, use the `chain build` command:
+To test if your Ignite CLI blockchain builds correctly, use the `chain build` command:
 
 ```bash
 starport chain build

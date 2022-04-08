@@ -1,6 +1,6 @@
 ---
 order: 2
-description: Use the Starport serve command to start your blockchain.
+description: Use the Ignite CLI serve command to start your blockchain.
 ---
 
 # Start a Blockchain

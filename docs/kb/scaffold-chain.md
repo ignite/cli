@@ -42,7 +42,7 @@ Global changes to your blockchain are defined in files inside the `app` director
 
 ### Configuration
 
-The `config.yml` file contains configuration options that Starport uses to build, initialize, and start your blockchain node in development.
+The `config.yml` file contains configuration options that Ignite CLI uses to build, initialize, and start your blockchain node in development.
 
 ## Address Prefix
 

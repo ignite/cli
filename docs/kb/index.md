@@ -9,4 +9,4 @@ parent:
 
 Knowledge base contains article that cover different aspects of Starport: from scaffolding a chain to starting an IBC relayer.
 
-If you're new to Starport or want to go through a series of tutorials, visit the [Developer Tutorials](/guide/).
+If you're new to Ignite CLI or want to go through a series of tutorials, visit the [Developer Tutorials](/guide/).

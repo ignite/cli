@@ -12,7 +12,7 @@ One of the many goals of blockchain is to make financial instruments available t
 
 With DeFi, end users can quickly and easily access loans without having to submit their passports or background checks like in the traditional banking system.
 
-In this tutorial, you learn about a basic loan system as you use Starport to build a loan module.
+In this tutorial, you learn about a basic loan system as you use Ignite CLI to build a loan module.
 
 **You will learn how to**
 
@@ -74,7 +74,7 @@ A lender can approve a loan request from a borrower.
 
 ## Scaffold the Blockchain
 
-Use Starport to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
+Use Ignite CLI to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/loan --no-module

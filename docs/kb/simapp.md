@@ -6,11 +6,11 @@ description: Test different scenarios for your chain.
 
 # Chain Simulation
 
-The Starport chain simulator can help you to run your chain based in randomized inputs for you can make fuzz testing and also benchmark test for your chain, simulating the messages, blocks, and accounts. You can scaffold a template to perform simulation testing in each module along with a boilerplate simulation methods for each scaffolded message.
+The Ignite CLI chain simulator can help you to run your chain based in randomized inputs for you can make fuzz testing and also benchmark test for your chain, simulating the messages, blocks, and accounts. You can scaffold a template to perform simulation testing in each module along with a boilerplate simulation methods for each scaffolded message.
 
 ## Module Simulation
 
-Every new module that is scaffolded with Starport implements the Cosmos SDK [Module Simulation](https://docs.cosmos.network/master/building-modules/simulator.html). 
+Every new module that is scaffolded with Ignite CLI implements the Cosmos SDK [Module Simulation](https://docs.cosmos.network/master/building-modules/simulator.html). 
 
 - Each new message creates a file with the simulation methods required for the tests. 
 - Scaffolding a `CRUD` like a `list` or `map` creates a simulation file with `create`, `update`, and `delete` simulation methods in the `x/<module>/simulation` folder and registers these methods in `x/<module>/module_simulation.go`. 

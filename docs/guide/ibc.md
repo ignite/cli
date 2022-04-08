@@ -15,14 +15,14 @@ This tutorial builds an understanding of how to create and send packets across b
 **You will learn how to**
 
 - Use IBC to create and send packets between blockchains.
-- Navigate between blockchains using the Cosmos SDK and the Starport Relayer.
+- Navigate between blockchains using the Cosmos SDK and the Ignite CLI Relayer.
 - Create a basic blog post and save the post on another blockchain.
 
 ## What is IBC?
 
 The IBC module in the Cosmos SDK is the standard for the interaction between two blockchains. The IBC module defines how packets and messages are constructed to be interpreted by the sending and the receiving blockchain.
 
-The IBC relayer lets you connect between sets of IBC-enabled chains. This tutorial teaches you how to create two blockchains and then start and use the relayer with Starport to connect two blockchains.
+The IBC relayer lets you connect between sets of IBC-enabled chains. This tutorial teaches you how to create two blockchains and then start and use the relayer with Ignite CLI to connect two blockchains.
 
 This tutorial covers essentials like modules, IBC packets, relayer, and the lifecycle of packets routed through IBC.
 
@@ -48,7 +48,7 @@ After the transaction is acknowledged by the receiving chain, you know that the 
 
 ## Build your Blockchain App
 
-Use Starport to scaffold the blockchain app and the blog module.
+Use Ignite CLI to scaffold the blockchain app and the blog module.
 
 ### Build the new blockchain
 
@@ -63,7 +63,7 @@ A new directory named `planet` is created in your home directory. The `planet` d
 
 ### Scaffold the blog module inside your blockchain
 
-Next, use Starport to scaffold a blog module with IBC capabilities. The blog module contains the logic for creating blog posts and routing them through IBC to the second blockchain.
+Next, use Ignite CLI to scaffold a blog module with IBC capabilities. The blog module contains the logic for creating blog posts and routing them through IBC to the second blockchain.
 
 To scaffold a module named `blog`:
 
@@ -101,7 +101,7 @@ These `starport type` commands create CRUD code for the following transactions:
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
 
-### Starport Scaffold List Command Overview
+### Ignite CLI Scaffold List Command Overview
 
 ```go
 starport scaffold list [typeName] [field1] [field2] ... [flags]
@@ -111,7 +111,7 @@ The first argument of the `starport type [typeName]` command specifies the name 
 
 The next arguments define the fields that are associated with the type. For the blog app, you created `title`, `content`, `postID`, and `chain` fields.
 
-The `--module` flag defines which module the new transaction type is added to. This optional flag lets you manage multiple modules within your Starport app. When the flag is not present, the type is scaffolded in the module that matches the name of the repo.
+The `--module` flag defines which module the new transaction type is added to. This optional flag lets you manage multiple modules within your Ignite CLI app. When the flag is not present, the type is scaffolded in the module that matches the name of the repo.
 
 When a new type is scaffolded, the default behavior is to scaffold messages that can be sent by users for CRUD operations. The `--no-message` flag disables this feature. We provide this option for our app since we want the posts to be created upon reception of IBC packets and not directly from the user's messages.
 
@@ -366,9 +366,9 @@ Open a different terminal window and run the following command to start the `mar
 starport chain serve -c mars.yml
 ```
 
-### Remove Existing Relayer and Starport Configurations
+### Remove Existing Relayer and Ignite CLI Configurations
 
-If you previously used the relayer, follow these steps to remove exiting relayer and Starport configurations:
+If you previously used the relayer, follow these steps to remove exiting relayer and Ignite CLI configurations:
 
 - Stop your blockchains and delete previous configuration files:
 
@@ -380,7 +380,7 @@ If existing configurations do not exist, the command returns `no matches found` 
 
 ### Configure and start the relayer
 
-First, configure the relayer. Use the Starport `configure` command with the `--advanced` option:
+First, configure the relayer. Use the Ignite CLI `configure` command with the `--advanced` option:
 
 ```bash
 starport relayer configure -a \

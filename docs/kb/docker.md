@@ -3,13 +3,13 @@ description: Run Ignite CLI using a Docker container.
 order: 10
 ---
 
-# Run Starport in Docker
+# Run Ignite CLI in Docker
 
-You can run Ignite CLI inside a Docker container without installing the Starport binary directly on your machine.
+You can run Ignite CLI inside a Docker container without installing the Ignite CLI binary directly on your machine.
 
-Running Starport in Docker can be useful for various reasons; isolating your test environment, running Starport on an unsupported operating system, or experimenting with a different version of Ignite CLI without installing it.
+Running Ignite CLI in Docker can be useful for various reasons; isolating your test environment, running Ignite CLI on an unsupported operating system, or experimenting with a different version of Ignite CLI without installing it.
 
-Docker containers are like virtual machines because they provide an isolated environment to programs that runs inside them. In this case, you can run Starport in an isolated environment.
+Docker containers are like virtual machines because they provide an isolated environment to programs that runs inside them. In this case, you can run Ignite CLI in an isolated environment.
 
 Experimentation and file system impact is limited to the Docker instance. The host machine is not impacted by changes to the container.
 
@@ -17,9 +17,9 @@ Experimentation and file system impact is limited to the Docker instance. The ho
 
 Docker must be installed. See [Get Started with Docker](https://www.docker.com/get-started).
 
-## Starport Commands in Docker
+## Ignite CLI Commands in Docker
 
-After you scaffold and start a chain in your Docker container, all Starport commands are available. Just type the commands after `docker run -ti starport/cli`. For example:
+After you scaffold and start a chain in your Docker container, all Ignite CLI commands are available. Just type the commands after `docker run -ti starport/cli`. For example:
 
 ```bash
 docker run -ti starport/cli -h
@@ -40,7 +40,7 @@ docker run -ti -w /app -v $HOME/sdh:/home/tendermint -v $PWD:/app starport/cli:0
 Be patient, this command takes a minute or two to run because it does everything for you:
 
 - Creates a container that runs from the `starport/cli:0.16.0` image.
-- Executes the Starport binary inside the image.
+- Executes the Ignite CLI binary inside the image.
 - `-w /apps` sets the current directory in the container to `/app`
 - `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. Starport, and the chains you serve with Starport, persist some files.
 - `-v $PWD:/app` maps the current directory in the terminal window on the host machine to the `/app` directory in the container. You can optionally specify an absolute path instead of `$PWD`.
@@ -69,12 +69,12 @@ This command does the following:
 
 ## Versioning
 
-You can specify which version of Starport to install and run in your Docker container.
+You can specify which version of Ignite CLI to install and run in your Docker container.
 
 ### Latest Version
 
 - By default, `starport/cli` resolves to `starport/cli:latest`.
-- The `latest` image tag is always the latest stable [Starport release](https://github.com/ignite-hq/cli/releases).
+- The `latest` image tag is always the latest stable [Ignite CLI release](https://github.com/ignite-hq/cli/releases).
 
 For example, if latest release is [v0.15.1](https://github.com/ignite-hq/cli/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
 

@@ -45,7 +45,7 @@ starport scaffold module dex --ibc --ordering unordered --dep bank
 
 Scaffold two types with create, read, update, and delete (CRUD) actions. 
 
-Run the following Starport `type` commands to create `sellOrderBook` and `buyOrderBook` types:
+Run the following Ignite CLI `type` commands to create `sellOrderBook` and `buyOrderBook` types:
 
 ```bash
 starport scaffold map sell-order-book amountDenom priceDenom --no-message --module dex

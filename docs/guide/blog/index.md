@@ -88,7 +88,7 @@ service Msg {
 }
 ```
 
-Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
+Next, look at the `x/blog/handler.go` file. Ignite CLI has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
 
 ```go
 func NewHandler(k keeper.Keeper) sdk.Handler {
@@ -139,7 +139,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 Define the `Post` type and the `AppendPost` keeper method.
 
-When you define the `Post` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
+When you define the `Post` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 

@@ -25,7 +25,7 @@ Change the current directory to `nameservice`:
 cd nameservice
 ```
 
-Inside the `nameservice` project directory you can execute other Starport commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
+Inside the `nameservice` project directory you can execute other Ignite CLI commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
 
 ## Create the Module
 
@@ -39,7 +39,7 @@ starport scaffold module nameservice --dep bank
 
 ## Results
 
-The Starport scaffold command has done all of the work for you!
+The Ignite CLI scaffold command has done all of the work for you!
 
 - The `nameservice` module was created in the `x/nameservice` directory.
 - The `nameservice` module was imported into the blockchain in the `app/app.go` file. 
