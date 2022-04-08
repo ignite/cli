@@ -12,13 +12,13 @@ Ignite CLI has several commands that scaffold the code for CRUD functionality fo
 
 ## Scavenge
 
-Use `starport scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges. The first argument is the name of the type being created (`scavenge`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
+Use `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges. The first argument is the name of the type being created (`scavenge`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
 
 ```bash
-starport scaffold map scavenge solutionHash solution description reward scavenger --no-message
+ignite scaffold map scavenge solutionHash solution description reward scavenger --no-message
 ```
 
-`starport scaffold map` created and mofidied several files:
+`ignite scaffold map` created and mofidied several files:
 
 * `proto/scavenge/scavenge.proto`: the `Scavenge` type defined as a proto message.
 * `proto/scavenge/query.proto`: queries to get data from the blockchain defined as proto messages and registered in the `Query` service.
@@ -41,8 +41,8 @@ starport scaffold map scavenge solutionHash solution description reward scavenge
 
 ## Commit
 
-Use `starport scaffold map` to create the same logic for a `commit` type.
+Use `ignite scaffold map` to create the same logic for a `commit` type.
 
 ```bash
-starport scaffold map commit solutionHash solutionScavengerHash --no-message
+ignite scaffold map commit solutionHash solutionScavengerHash --no-message
 ```

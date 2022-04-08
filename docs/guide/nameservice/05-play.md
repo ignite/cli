@@ -8,7 +8,7 @@ description: Start and experiment with your nameservice blockchain and nameservi
 If you haven't already, start a blockchain node in development:
 
 ```bash
-starport chain serve -r
+ignite chain serve -r
 ```
 
 The optional `-r` flag is useful in development mode since it resets the blockchain's state if it has been started before. 

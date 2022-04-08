@@ -22,7 +22,7 @@ message BuyOrderPacketData {
 Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
 
 ```bash
-starport generate proto-go
+ignite generate proto-go
 ```
 
 ## IBC Message Handling in SendBuyOrder

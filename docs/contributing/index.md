@@ -92,7 +92,7 @@ Since the deploy preview doesn't work on Draft PRs, you can rely on using the pr
     ```bash
     cd ~/github
     git clone https://github.com/ignite-hq/cli
-    cd starport
+    cd ignite
     cd docs
     ```
 

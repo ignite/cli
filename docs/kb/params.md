@@ -14,7 +14,7 @@ You can use Ignite CLI to scaffold parameters to be accessible for the module. P
 To scaffold a module with params using the `--params` flag:
 
 ```shell
-starport scaffold module launch --params minLaunch:uint,maxLaunch:int
+ignite scaffold module launch --params minLaunch:uint,maxLaunch:int
 ```
 
 After the parameters are scaffolded, change the `x/<module>/types/params.go` file to set the default values and validate the field. 

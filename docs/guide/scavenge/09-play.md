@@ -9,7 +9,7 @@ order: 9
 To start your blockchain in development, run the following command:
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
 `serve` will build the chain's binary, initialize a data directory and start a node in development. Keep it running in one terminal window and open another one to execute commands.

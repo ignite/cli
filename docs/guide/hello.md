@@ -14,17 +14,17 @@ In the previous chapter you've learned how to install [Ignite CLI](https://githu
 This series of tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.18.0 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.18.0! | bash
+curl https://get.ignite.network/ignite@v0.18.0! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
 
-One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `starport scaffold chain` command.
+One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `ignite scaffold chain` command.
 
 Are you ready? Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain with the default directory structure, run this command:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/hello
+ignite scaffold chain github.com/cosmonaut/hello
 ```
 
 This command creates a Cosmos SDK blockchain called Hello in a `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
@@ -36,7 +36,7 @@ This new blockchain imports standard Cosmos SDK modules, including:
 - [`gov`](https://docs.cosmos.network/master/modules/gov/) (for on-chain governance)
 - And [other modules](https://docs.cosmos.network/master/modules/)
 
-Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
+Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `ignite scaffold chain --help` command to learn about the command you just used.
 
 ## Blockchain Directory Structure
 
@@ -66,7 +66,7 @@ Now you can get your blockchain up and running locally on a single node.
 You already have a fully-functional blockchain. To start your chain on your development machine, run the following command in the `hello` directory
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
 This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, Ignite CLI uses the name of the repo + `d`. From now on, use this binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
@@ -112,7 +112,7 @@ In terms of workflow, developers typically follow this sequence:
 Create a `posts` query:
 
 ```bash
-starport scaffold query posts --response title,body
+ignite scaffold query posts --response title,body
 ```
 
 `query` accepts a name of the query (in this case, `posts`), an optional list of request parameters (in this case, empty), and an optional comma-separated list of response fields with a `--response` flag (in this case, `body,title`).
@@ -218,7 +218,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 Now you're ready to start your blockchain:
 
 ```go
-starport chain serve
+ignite chain serve
 ```
 
 After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed!

@@ -9,12 +9,12 @@ Scaffold a blockchain and create a `nameservice` module for the nameservice app.
 
 ## Create a Blockchain
 
-Scaffold a new Cosmos SDK blockchain using the `starport scaffold chain` command. The [starport scaffold chain](https://docs.starport.com/cli/#starport-scaffold-chain) command accepts one argument: the Go module path that is used for the project.
+Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command. The [ignite scaffold chain](https://docs.ignite.com/cli/#ignite-scaffold-chain) command accepts one argument: the Go module path that is used for the project.
 
 By default, a chain is scaffolded with a new empty Cosmos SDK module. You want to create the nameservice module without scaffolding a module, so use the `--no-module` flag:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/nameservice --no-module
+ignite scaffold chain github.com/cosmonaut/nameservice --no-module
 ```
 
 This command created a new directory `nameservice` with a brand new Cosmos SDK blockchain. This blockchain doesn't have any application-specific logic yet, but it imports standard Cosmos SDK modules, such as `auth`, `bank`, `mint`, and others.
@@ -34,7 +34,7 @@ Scaffold a new module called `nameservice`. By design, the `nameservice` module 
 To specify `bank` as a dependency, use the optional `--dep` flag:
 
 ```bash
-starport scaffold module nameservice --dep bank
+ignite scaffold module nameservice --dep bank
 ```
 
 ## Results

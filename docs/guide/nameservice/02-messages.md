@@ -68,9 +68,9 @@ Now, you are ready to implement these Cosmos SDK messages to achieve the desired
 - `MsgDeleteName`
 	Allow name owners to delete names that belong to them.
 
-Use the `starport scaffold message` command to scaffold new messages for your module. 
+Use the `ignite scaffold message` command to scaffold new messages for your module. 
 
-- The [`starport scaffold message`](https://docs.starport.com/cli/#starport-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
+- The [`ignite scaffold message`](https://docs.ignite.com/cli/#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
 - By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`. 
 
 ### Add the MsgBuyName Message
@@ -78,7 +78,7 @@ Use the `starport scaffold message` command to scaffold new messages for your mo
 To create the `MsgBuyName` message for the nameservice module:
 
 ```bash
-starport scaffold message buy-name name bid
+ignite scaffold message buy-name name bid
 ```
 
 where:
@@ -87,7 +87,7 @@ where:
 - name defines the name that the user can buy, sell, and delete
 - bid is the price the user bids to buy a name 
 
-The `starport scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
+The `ignite scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
 
 ```bash
 modify proto/nameservice/tx.proto
@@ -109,17 +109,17 @@ create x/nameservice/types/message_buy_name.go
     syntax = "proto3";
     package cosmonaut.nameservice.nameservice;
 
-    // this line is used by starport scaffolding # proto/tx/import
+    // this line is used by ignite scaffolding # proto/tx/import
 
     option go_package = "github.com/cosmonaut/nameservice/x/nameservice/types";
 
     // Msg defines the Msg service.
     service Msg {
-    	// this line is used by starport scaffolding # proto/tx/rpc
+    	// this line is used by ignite scaffolding # proto/tx/rpc
     rpc BuyName(MsgBuyName) returns (MsgBuyNameResponse);
     }
 
-    // this line is used by starport scaffolding # proto/tx/message
+    // this line is used by ignite scaffolding # proto/tx/message
     message MsgBuyName {
     string creator = 1;
     string name = 2;
@@ -160,7 +160,7 @@ create x/nameservice/types/message_buy_name.go
 To create the `MsgSetName` for the nameservice module:
 
 ```bash
-starport scaffold message set-name name value
+ignite scaffold message set-name name value
 ```
 
 where:
@@ -169,7 +169,7 @@ where:
 - name is the name the user sets
 - value is the literal value that the name resolves to
 
-This `starport scaffold message` command modifies and creates the same set of files as the `MsgBuyName` message. 
+This `ignite scaffold message` command modifies and creates the same set of files as the `MsgBuyName` message. 
 
 ### Add The MsgDeleteName Message
 
@@ -179,7 +179,7 @@ To create the `MsgDeleteName` for the nameservice module:
 
 
 ```bash
-starport scaffold message delete-name name
+ignite scaffold message delete-name name
 ```
 
 where:

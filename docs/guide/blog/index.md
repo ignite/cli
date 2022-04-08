@@ -27,7 +27,7 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/blog
+ignite scaffold chain github.com/cosmonaut/blog
 ```
 
 The `blog` directory is created with the default directory structure.
@@ -51,7 +51,7 @@ cd blog
 To create a message type and its handler, use the `message` command:
 
 ```bash
-starport scaffold message createPost title body
+ignite scaffold message createPost title body
 ```
 
 The `message` command accepts message name (`createPost`) and a list of fields (`title` and `body`) as arguments.
@@ -272,7 +272,7 @@ By following these steps, you have implemented all of the code required to creat
 
 ## Create a Post
 
-Try it out! If the chain is yet not started, run `starport chain serve`.
+Try it out! If the chain is yet not started, run `ignite chain serve`.
 
 Create a post:
 
@@ -292,7 +292,7 @@ Now that you have added the functionality to create posts and broadcast them to 
 ## Display Posts
 
 ```bash
-starport scaffold query posts --response title,body
+ignite scaffold query posts --response title,body
 ```
 
 Two components are responsible for querying data:

@@ -15,7 +15,7 @@ BandChain oracle queries can be scaffolded only in IBC modules.
 To scaffold an oracle:
 
 ```bash
-starport scaffold band [queryName] --module [moduleName]
+ignite scaffold band [queryName] --module [moduleName]
 ```
 
 ### Acknowledgement
@@ -34,12 +34,12 @@ When you scaffold a BandChain oracle, the following files and directories are cr
 
 ## BandChain Oracle Scaffold Example
 
-The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for [coin rates](https://laozi-testnet4.cosmoscan.io/oracle-script/37#bridge) request and result.
+The following command scaffolds the IBC-enabled oracle. by default, the ignite scaffold oracle for [coin rates](https://laozi-testnet4.cosmoscan.io/oracle-script/37#bridge) request and result.
 
 ```shell
-$ starport scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
-$ starport scaffold module consuming --ibc
-$ starport scaffold band coinRates --module consuming
+$ ignite scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
+$ ignite scaffold module consuming --ibc
+$ ignite scaffold band coinRates --module consuming
 ```
 
 Note: BandChain module uses version "bandchain-1". Make sure to update the `keys.go` file accordingly.
@@ -52,12 +52,12 @@ const Version = "bandchain-1"
 
 After scaffold and change the data, run the chain:
 ```shell
-$ starport chain serve
+$ ignite chain serve
 ```
 
-In another tab, configure and run the starport relayer.
+In another tab, configure and run the ignite relayer.
 ```shell
-$ starport relayer configure -a \
+$ ignite relayer configure -a \
 --source-rpc "http://rpc-laozi-testnet4.bandchain.org:80" \
 --source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
@@ -73,7 +73,7 @@ $ starport relayer configure -a \
 --target-prefix "cosmos"  \
 --target-version "bandchain-1"
             
-$ starport relayer connect
+$ ignite relayer connect
 ```
 
 Open one more terminal tab to make a request transaction, passing the script id.
@@ -98,7 +98,7 @@ $ oracled query consuming coin-rates-result 101276
 You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge):
 
 ```shell
-$ starport scaffold band goldPrice --module consuming
+$ ignite scaffold band goldPrice --module consuming
 ```
 
 `proto/consuming/gold_price.proto`:

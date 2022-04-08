@@ -20,10 +20,10 @@ Submit scavenge message should contain all the necessary information when creati
 * Solution hash - the scrambled solution.
 * Reward - this is the bounty that is awarded to whoever submits the answer first.
 
-Use the `starport scaffold message` command to scaffold a new Cosmos SDK message for your module. The command accepts message name as the first argument and a list of fields. By default, a message is scaffolded in a module with a name that matches the name of the project, in our case `scavenge` (this behaviour can be overwritten by using a flag).
+Use the `ignite scaffold message` command to scaffold a new Cosmos SDK message for your module. The command accepts message name as the first argument and a list of fields. By default, a message is scaffolded in a module with a name that matches the name of the project, in our case `scavenge` (this behaviour can be overwritten by using a flag).
 
 ```bash
-starport scaffold message submit-scavenge solutionHash description reward
+ignite scaffold message submit-scavenge solutionHash description reward
 ```
 
 The command has created and modified several files.
@@ -50,10 +50,10 @@ Commit solution message needs to contain the following fields:
 * Solution scavenger hash - this is the hash of the combination of the solution and the person who solved it.
 
 ```bash
-starport scaffold message commit-solution solutionHash solutionScavengerHash
+ignite scaffold message commit-solution solutionHash solutionScavengerHash
 ```
 
-As you're using the same `starport scaffold message` command the set of modified and created files are the same.
+As you're using the same `ignite scaffold message` command the set of modified and created files are the same.
 
 ## Reveal Solution Message
 
@@ -62,7 +62,7 @@ Reveal solution message needs only one field:
 * Solution - this is the plain text version of the solution.
 
 ```bash
-starport scaffold message reveal-solution solution
+ignite scaffold message reveal-solution solution
 ```
 
 Information about the scavenger (creator of the message is automatically included) and solution hash can be deterministically derived from the solution string.
