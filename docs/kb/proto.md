@@ -1,5 +1,5 @@
 ---
-description: Protocol buffer file support in Starport
+description: Protocol buffer file support in Ignite CLI
 order: 7
 ---
 
@@ -15,7 +15,7 @@ The `starport chain serve` command automatically generates Go code from proto fi
 
 ## Third-Party Proto Files
 
-Third-party proto files, including those of Cosmos SDK and Tendermint, are bundled with Starport. To import third-party proto files in your custom proto files:
+Third-party proto files, including those of Cosmos SDK and Tendermint, are bundled with Ignite CLI. To import third-party proto files in your custom proto files:
 
 ```proto
 import "cosmos/base/query/v1beta1/pagination.proto";

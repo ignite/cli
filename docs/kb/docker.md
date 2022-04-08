@@ -80,7 +80,7 @@ For example, if latest release is [v0.15.1](https://github.com/ignite-hq/cli/rel
 
 ### Specific Version
 
-You can specify to use a specific version of Starport. All available tags are in the [starport/cli image](https://hub.docker.com/repository/docker/starport/cli/tags?page=1&ordering=last_updated) on Docker Hub.
+You can specify to use a specific version of Ignite CLI. All available tags are in the [starport/cli image](https://hub.docker.com/repository/docker/starport/cli/tags?page=1&ordering=last_updated) on Docker Hub.
 
 For example:
 

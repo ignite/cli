@@ -1,4 +1,4 @@
-# How To [Build/Create/Do Something] in Starport
+# How To [Build/Create/Do Something] in Ignite CLI
 
 <!--
 Use this tutorial template as a quick starting point when writing Ignite CLI how-to tutorials. 

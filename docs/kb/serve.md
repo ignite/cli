@@ -12,7 +12,7 @@ Blockchains are decentralized applications.
 
 ## Start a Blockchain Node in Development
 
-Switch to the directory that contains a blockchain that was scaffolded with Starport. To start the blockchain node, run the following command:
+Switch to the directory that contains a blockchain that was scaffolded with Ignite CLI. To start the blockchain node, run the following command:
 
 ```bash
 starport chain serve

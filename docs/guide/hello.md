@@ -9,7 +9,7 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 ## Get Started
 
-In the previous chapter you've learned how to install [Starport](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
+In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
 This series of tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.18.0 use the following command:
 
@@ -86,9 +86,9 @@ Now that you started your `hello` chain, you can use a web browser to see the hi
 
 When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running.
 
-In the development environment, you don't have to restart the blockchain after you make changes. All changes you make in the `hello` directory files are automatically picked up by Starport.
+In the development environment, you don't have to restart the blockchain after you make changes. All changes you make in the `hello` directory files are automatically picked up by Ignite CLI.
 
-## Say "Hello, Starport"
+## Say "Hello, Ignite CLI"
 
 To get your Cosmos SDK blockchain to say "Hello", you need to make these changes:
 
@@ -124,7 +124,7 @@ The `query` command has created and modified several files:
 - modified `x/hello/client/cli/query.go`
 - created `x/hello/client/cli/query_posts.go`
 
-Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Ignite CLI uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
+Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Ignite CLI uses to scaffold code. Don't delete these placeholders since they are required to continue using Ignite CLI's scaffolding functionality.
 
 ### Updates to the Query Service  
 
@@ -192,7 +192,7 @@ From the `query.proto` file we know that response accepts `title` and `body`, so
 ```go
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
   //...
-  return &types.QueryPostsResponse{Title: "Hello!", Body: "Starport"}, nil
+  return &types.QueryPostsResponse{Title: "Hello!", Body: "Ignite CLI"}, nil
 }
 ```
 
@@ -226,7 +226,7 @@ After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/h
 ```go
 {
   "title": "Hello!",
-  "body": "Starport"
+  "body": "Ignite CLI"
 }
 ```
 

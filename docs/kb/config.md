@@ -152,7 +152,7 @@ init:
 
 ## `host`
 
-Configuration of host names and ports for processes started by Starport:
+Configuration of host names and ports for processes started by Ignite CLI:
 
 **host example**
 

@@ -199,7 +199,7 @@ To identify the blockchain app that a message is originating from and who create
 
 `<portID>-<channelID>-<creatorAddress>`
 
-Finally, the Starport-generated AppendPost function returns the ID of the new appended post. You can return this value to the source chain through acknowledgment.
+Finally, the Ignite CLI-generated AppendPost function returns the ID of the new appended post. You can return this value to the source chain through acknowledgment.
 
 Append the type instance as `PostID` on receiving the packet:
 

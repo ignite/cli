@@ -1,5 +1,5 @@
 ---
-description: Details on the Vue frontend app created by Starport.
+description: Details on the Vue frontend app created by Ignite CLI.
 order: 8
 ---
 

@@ -1,6 +1,6 @@
 ---
 order: 1
-description: Overview of a new Cosmos SDK blockchain project built with Starport.
+description: Overview of a new Cosmos SDK blockchain project built with Ignite CLI.
 ---
 
 # Scaffold a Chain

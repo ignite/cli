@@ -1,5 +1,5 @@
 ---
-description: Loan blockchain using Starport
+description: Loan blockchain using Ignite CLI
 order: 6
 title: "Advanced Module: DeFi Loan"
 ---
