@@ -80,7 +80,7 @@ import (
 	// importing the types package of your blog blockchain
 	"github.com/cosmonaut/blog/x/blog/types"
 	// importing the general purpose Cosmos blockchain client
-	"github.com/ignite-hq/cli/starport/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 )
 
 func main() {
@@ -137,7 +137,7 @@ func main() {
 Read the comments in the code carefully to learn details about each line of code.
 
 To learn more about the `cosmosclient` package, see the Go 
-[cosmosclient](https://pkg.go.dev/github.com/ignite-hq/cli/starport/pkg/cosmosclient) package documentation. Details are provided to learn how to use the `Client` type with `Options` and `KeyringBackend`.
+[cosmosclient](https://pkg.go.dev/github.com/ignite-hq/cli/ignite/pkg/cosmosclient) package documentation. Details are provided to learn how to use the `Client` type with `Options` and `KeyringBackend`.
 
 ## Running the Blockchain and the Client
 

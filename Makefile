@@ -4,8 +4,8 @@
 PROJECT_NAME = starport
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 HEAD = $(shell git rev-parse HEAD)
-LD_FLAGS = -X github.com/ignite-hq/cli/starport/internal/version.Head='$(HEAD)' \
-	-X github.com/ignite-hq/cli/starport/internal/version.Date='$(DATE)'
+LD_FLAGS = -X github.com/ignite-hq/cli/ignite/internal/version.Head='$(HEAD)' \
+	-X github.com/ignite-hq/cli/ignite/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
 
