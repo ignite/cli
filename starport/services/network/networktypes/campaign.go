@@ -7,16 +7,14 @@ import (
 
 // Campaign represents the campaign of a chain on SPN
 type Campaign struct {
-	ID                 uint64               `json:"ID"`
-	Name               string               `json:"Name"`
-	CoordinatorID      uint64               `json:"CoordinatorID"`
-	MainnetID          uint64               `json:"MainnetID"`
-	MainnetInitialized bool                 `json:"MainnetInitialized"`
-	TotalSupply        sdk.Coins            `json:"TotalSupply"`
-	AllocatedShares    string               `json:"AllocatedShares"`
-	DynamicShares      bool                 `json:"DynamicShares"`
-	TotalShares        campaigntypes.Shares `json:"TotalShares"`
-	Metadata           string               `json:"Metadata"`
+	ID                 uint64    `json:"ID"`
+	Name               string    `json:"Name"`
+	CoordinatorID      uint64    `json:"CoordinatorID"`
+	MainnetID          uint64    `json:"MainnetID"`
+	MainnetInitialized bool      `json:"MainnetInitialized"`
+	TotalSupply        sdk.Coins `json:"TotalSupply"`
+	AllocatedShares    string    `json:"AllocatedShares"`
+	Metadata           string    `json:"Metadata"`
 }
 
 // ToCampaign converts a campaign data from SPN and returns a Campaign object
@@ -29,8 +27,6 @@ func ToCampaign(campaign campaigntypes.Campaign) Campaign {
 		MainnetInitialized: campaign.MainnetInitialized,
 		TotalSupply:        campaign.TotalSupply,
 		AllocatedShares:    campaign.AllocatedShares.String(),
-		DynamicShares:      campaign.DynamicShares,
-		TotalShares:        campaign.TotalShares,
 		Metadata:           string(campaign.Metadata),
 	}
 }
