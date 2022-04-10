@@ -25,13 +25,13 @@ By default, relayer configuration is stored in `$HOME/.relayer/`.
 
 ## Remove existing relayers
 
-If you previously used the Starport relayer, follow these steps to remove existing relayer and Starport configurations:
+If you previously used the Ignite CLI relayer, follow these steps to remove existing relayer and Ignite CLI configurations:
 
 1. Stop your blockchain or blockchains.
 2. Delete previous configuration files:
 
     ```bash
-    rm -rf ~/.starport/relayer
+    rm -rf ~/.ignite/relayer
     ```
 
 3. Restart your blockchains.
@@ -46,6 +46,6 @@ ignite relayer configure --advanced --source-rpc "http://0.0.0.0:26657" --source
 
 ## Connect blockchains and watch for IBC packets
 
-The `starport relayer connect` command connects configured blockchains and watches for IBC packets to relay. 
+The `ignite relayer connect` command connects configured blockchains and watches for IBC packets to relay. 
 
-The `ignite relayer connect` command connects configured blockchains and watches for IBC packets to relay.
+**Tip:** You can observe the relayer packets on the terminal window where you connected your relayer.

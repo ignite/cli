@@ -20,7 +20,7 @@ Change the current directory to `scavenge`:
 cd scavenge
 ```
 
-Inside the project directory you can execute other Ignite CLI commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
+Inside the project directory, you can execute other Ignite CLI commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
 
 In a Cosmos SDK blockchain, implement application-specific logic in separate modules. Using modules keeps code easy to understand and reuse.
 

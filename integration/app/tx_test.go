@@ -19,6 +19,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/randstr"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestGetTxViaGRPCGateway(t *testing.T) {
