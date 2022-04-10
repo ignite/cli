@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ignite-hq/cli/integration"
 	"net/http"
 	"testing"
 

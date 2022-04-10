@@ -40,8 +40,16 @@
 
 ### Breaking Changes
 
-- Deprecated `tendermint/spm` and moved its content to this repo under `pkg/`.
-- Updated faucet's HTTP API schema, see changes on the API from [here](https://github.com/ignite-hq/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd).
+- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite-hq/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite-hq/cli/pull/1971/files) 
+ 
+    Updates are required if your chain uses these packages: 
+
+    - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
+    - `spm/cosmoscmd` is now `pkg/cosmoscmd` 
+    - `spm/openapiconsole` is now `pkg/openapiconsole`
+    - `testutil/sample` is now `cosmostestutil/sample`
+
+- Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/ignite-hq/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
 
 ## `v0.19.1`
 

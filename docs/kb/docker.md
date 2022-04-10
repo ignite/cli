@@ -76,7 +76,7 @@ You can specify which version of Ignite CLI to install and run in your Docker co
 - By default, `ignite/cli` resolves to `ignite/cli:latest`.
 - The `latest` image tag is always the latest stable [Ignite CLI release](https://github.com/ignite-hq/cli/releases).
 
-For example, if latest release is [v0.15.1](https://github.com/ignite-hq/cli/releases/tag/v0.15.1), the `latest` tag points to the `0.15.1` tag.
+For example, if latest release is [v0.15.1](https://github.com/ignite-hq/cli/releases/tag/v0.19.2), the `latest` tag points to the `0.19.2` tag.
 
 ### Specific version
 
