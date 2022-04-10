@@ -1,7 +1,7 @@
 #! /usr/bin/make -f
 
 # Project variables.
-PROJECT_NAME = ignite 
+PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go'
 HEAD = $(shell git rev-parse HEAD)
@@ -12,13 +12,13 @@ BUILD_FOLDER = ./dist
 
 ## install: Install de binary.
 install:
-	@echo Installing Starport...
+	@echo Installing Ignite CLI...
 	@go install $(BUILD_FLAGS) ./...
 	@ignite version
 
 ## build: Build the binary.
 build:
-	@echo Building Starport...
+	@echo Building Ignite CLI...
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 

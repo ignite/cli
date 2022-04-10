@@ -19,7 +19,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=starport/cli
+          DOCKER_IMAGE=ignitehq/cli
           VERSION=develop
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           if [[ $GITHUB_REF == refs/tags/* ]]; then
