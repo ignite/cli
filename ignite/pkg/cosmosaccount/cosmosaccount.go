@@ -23,7 +23,7 @@ const (
 )
 
 // KeyringHome used to store account related data.
-var KeyringHome = os.ExpandEnv("$HOME/.starport/accounts")
+var KeyringHome = os.ExpandEnv("$HOME/.ignite/accounts")
 
 var (
 	ErrAccountExists = errors.New("account already exists")

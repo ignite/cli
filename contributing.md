@@ -1,6 +1,14 @@
 # Contributing guidelines
 
-If you're willing to create a new PR on Ignite CLI, make sure that you read and comply with this document.
+- [Contributing guidelines](#contributing-guidelines)
+  - [Providing Feedback](#providing-feedback)
+  - [Opening pull requests (PRs)](#opening-pull-requests-prs)
+    - [Choose a good PR title](#choose-a-good-pr-title)
+    - [Review your own code](#review-your-own-code)
+    - [Do not rebase commits in your branch](#do-not-rebase-commits-in-your-branch)
+  - [Contributing to documentation](#contributing-to-documentation)
+    - [Ask for help](#ask-for-help)
+  - [Prioritizing issues with milestones](#prioritizing-issues-with-milestones)
 
 Before you create a new PR on Starport, make sure that you read and comply with this document.
 
@@ -14,9 +22,9 @@ Thank you for your contribution!
 
 ## Providing Feedback
 
-* Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/ignite-hq/cli/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
-* To provide feedback or ask a question, create a [GitHub issue](https://github.com/ignite-hq/cli/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
-* We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Ignite Discord](https://discord.gg/ignt).
+- Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/ignite-hq/cli/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
+
+- To provide feedback or ask a question, create a [GitHub issue](https://github.com/ignite-hq/cli/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
 
 - We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/ignt).
 

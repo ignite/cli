@@ -3,7 +3,7 @@ order: 1
 description: Steps to install Ignite CLI on your local computer.
 ---
 
-# Install Ignite CLI
+# Install Ignite CLI 
 
 You can run [Ignite CLI](https://github.com/ignite-hq/cli) in a web-based Gitpod IDE or you can install Ignite CLI on your local computer.
 
@@ -44,9 +44,11 @@ curl https://get.ignite.com/cli! | bash
 
 This command invokes `curl` to download the install script and pipes the output to `bash` to perform the installation. The `ignite` binary is installed in `/usr/local/bin`.
 
+To learn more or customize the installation process, see the [installer docs](https://github.com/ignite-hq/installer) on GitHub.
+
 ### Write permission
 
-The Ignite CLI installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
+Ignite CLI installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
 
 ```bash
 curl https://get.ignite.com/cli | bash
@@ -74,14 +76,14 @@ sudo curl https://get.ignite.com/cli! | sudo bash
 
 ## Upgrading your Ignite CLI installation
 
-Before you install a new version, remove all existing  of Ignite CLI installations.
+Before you install a new version of Ignite CLI, remove all existing Ignite CLI installations.
 
-To remove the current installation:
+To remove the current Ignite CLI installation:
 
 1. On your terminal window, press `Ctrl+C` to stop the chain that you started with `ignite chain serve`.
-2. Remove the Ignite binary with `rm $(which ignite)`.
+1. Remove the Ignite CLI binary with `rm $(which ignite)`.
    Depending on your user permissions, run the command with or without `sudo`.
-3. Repeat this step until all `ignite` installations are removed from your system.
+1. Repeat this step until all `ignite` installations are removed from your system.
 
 After all existing Ignite CLI installations are removed, follow the  [Installing Ignite CLI](#installing-ignite-cli) instructions.
 
@@ -92,7 +94,7 @@ For details on version features and changes, see the [changelog.md](https://gith
 To experiment with the source code, you can build from source:
 
 ```bash
-git clone https://github.com/ignite-hq/cli --depth=1
+git clone https://github.com/ignite-hq/ignite --depth=1
 cd ignite && make install
 ```
 

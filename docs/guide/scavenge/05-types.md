@@ -8,17 +8,70 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, update, and delete are defined as keeper methods. In the scavenge blockchain, you need to define the `scavenge` and `commit` types along with create and update methods.
 
-Ignite CLI has several commands that scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs) and a single element in the state. In this example, both `scavenge` and `commit` will be stored in a map-like data structure.
+Several Ignite CLI commands are available to scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs), and a single element in the state. In this example, both `scavenge` and `commit` are stored in a map-like data structure.
 
 ## Scavenge
 
-Use `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges. The first argument is the name of the type being created (`scavenge`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
+Use the `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges.
+
+The first argument is the name of the type to create (`scavenge`), the rest is a list of fields. By default, generic CRUD messages are scaffolded. However, since you already created messages specifically for this scavenge blockchain, use the `--no-message` flag to skip message creation.
 
 ```bash
 ignite scaffold map scavenge solutionHash solution description reward scavenger --no-message
 ```
 
-`ignite scaffold map` created and mofidied several files:
+The `ignite scaffold map` command creates and modifies several files:
+
+```bash
+modify proto/scavenge/genesis.proto
+modify proto/scavenge/query.proto
+create proto/scavenge/scavenge.proto
+modify x/scavenge/client/cli/query.go
+create x/scavenge/client/cli/query_scavenge.go
+create x/scavenge/client/cli/query_scavenge_test.go
+modify x/scavenge/genesis.go
+modify x/scavenge/genesis_test.go
+create x/scavenge/keeper/grpc_query_scavenge.go
+create x/scavenge/keeper/grpc_query_scavenge_test.go
+create x/scavenge/keeper/scavenge.go
+create x/scavenge/keeper/scavenge_test.go
+modify x/scavenge/module.go
+modify x/scavenge/types/genesis.go
+modify x/scavenge/types/genesis_test.go
+create x/scavenge/types/key_scavenge.go
+
+🎉 scavenge added.
+```
+
+The `scaffold map` command does all of these code updates for you:
+
+* `proto/scavenge/scavenge.proto`
+
+  * Defines the `Scavenge` type as a proto message
+
+* `proto/scavenge/query.proto`
+
+  * Defines queries to get data from the blockchain as proto messages and registers the queries in the `Query` service
+
+* `proto/scavenge/genesis.proto`
+
+  * Creates type for exporting the state of the blockchain (for example, during software upgrades)
+
+* `x/scavenge/keeper/grpc_query_scavenge.go`
+
+  * Defines keeper methods to query the blockchain
+
+* `x/scavenge/keeper/grpc_query_scavenge_test.go`
+
+  * Creates tests for query keeper methods
+
+* `x/scavenge/keeper/scavenge.go`
+
+  * Defines keeper methods to get, set, and remove scavenges from the store
+
+* `x/scavenge/keeper/scavenge_test.go`
+
+  * Creates tests for the keeper methods
 
 * `x/scavenge/client/cli/query_scavenge.go`
 

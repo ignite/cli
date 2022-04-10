@@ -12,7 +12,7 @@ import (
 
 const supportVersion = "2"
 
-var configPath = os.ExpandEnv("$HOME/.starport/relayer/config.yml")
+var configPath = os.ExpandEnv("$HOME/.ignite/relayer/config.yml")
 
 var ErrChainCannotBeFound = errors.New("chain cannot be found")
 var ErrPathCannotBeFound = errors.New("path cannot be found")

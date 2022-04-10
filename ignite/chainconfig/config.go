@@ -15,7 +15,7 @@ import (
 
 var (
 	// ConfigDirPath returns the path of configuration directory of Starport.
-	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".starport"))
+	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
 
 	// ConfigFileNames is a list of recognized names as for Starport's config file.
 	ConfigFileNames = []string{"config.yml", "config.yaml"}
