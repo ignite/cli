@@ -1,4 +1,4 @@
-package starportcmd
+package ignitecmd
 
 import (
 	"path/filepath"

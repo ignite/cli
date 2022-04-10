@@ -1,4 +1,4 @@
-package starportcmd
+package ignitecmd
 
 import (
 	"github.com/pkg/errors"

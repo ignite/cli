@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	starportcmd "github.com/ignite-hq/cli/ignite/cmd"
+	ignitecmd "github.com/ignite-hq/cli/ignite/cmd"
 	"github.com/ignite-hq/cli/ignite/pkg/clictx"
 	"github.com/ignite-hq/cli/ignite/pkg/validation"
 )
@@ -14,7 +14,7 @@ import (
 func main() {
 	ctx := clictx.From(context.Background())
 
-	err := starportcmd.New(ctx).ExecuteContext(ctx)
+	err := ignitecmd.New(ctx).ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
