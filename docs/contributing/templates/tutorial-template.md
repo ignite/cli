@@ -63,7 +63,7 @@ To complete this tutorial, you will need:
 <!-- Example - uncomment to use
 
 - A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../guide/install.md). 
-* A text editor like [Visual Studio Code](https://code.visualstudio.com/download).
+* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/).
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
 -->
@@ -89,12 +89,12 @@ ignite --version
 You'll see release details like the following output:
 
 ```bash
-Starport version:	    v0.19.1
+Starport version:	v0.19.1
 Starport build date:	2021-12-18T05:56:36Z
 Starport source hash:	-
-Your OS:		        darwin
-Your arch:		        amd64
-Your go version:	    go version go1.16.4 darwin/amd64
+Your OS:		darwin
+Your arch:		amd64
+Your go version:	go version go1.16.4 darwin/amd64
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:

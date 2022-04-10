@@ -1,17 +1,6 @@
 builds:
   - main: ./ignite/cmd/ignite
     ldflags:
-      - -s -w -X github.com/ignite-hq/cli/ignite/version.Version={{.Tag}} -X github.com/ignite-hq/cli/ignite/version.Date={{.Date}}
+      - -s -w -X github.com/ignite-hq/cli/ignite/version.Version={{.Tag}} -X github.com/ignite-hq/cli/ignite/version.Date={{.Date}} -X github.com/ignite-hq/cli/ignite/version.Head={{.FullCommit}}
     goarch:
       - amd64
-
-brews:
-  - name: "ignite"
-    description: "Friendly CLI tool for developing Cosmos SDK apps."
-    homepage: "https://github.com/ignite-hq/cli"
-    tap:
-      owner: "ignite-hq"
-      name: "homebrew-tap"
-    install: |
-      bin.install "ignite"
-
