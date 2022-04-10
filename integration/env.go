@@ -39,7 +39,7 @@ import (
 
 const (
 	ServeTimeout = time.Minute * 15
-	StarportApp  = "starport"
+	IgniteApp    = "ignite"
 	ConfigYML    = "config.yml"
 )
 
@@ -61,8 +61,8 @@ func New(t *testing.T) Env {
 	}
 	t.Cleanup(cancel)
 
-	if !xexec.IsCommandAvailable(StarportApp) {
-		t.Fatal("starport needs to be installed")
+	if !xexec.IsCommandAvailable(IgniteApp) {
+		t.Fatal("ignite needs to be installed")
 	}
 
 	return e
@@ -179,7 +179,7 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
-				StarportApp,
+				IgniteApp,
 				append([]string{
 					"scaffold",
 					"chain",
@@ -217,7 +217,7 @@ func (e Env) Serve(msg, path, home, configPath string, options ...ExecOption) (o
 
 	return e.Exec(msg,
 		step.NewSteps(step.New(
-			step.Exec(StarportApp, serveCommand...),
+			step.Exec(IgniteApp, serveCommand...),
 			step.Workdir(path),
 		)),
 		options...,
@@ -229,7 +229,7 @@ func (e Env) Simulate(appPath string, numBlocks, blockSize int) {
 	e.Exec("running the simulation tests",
 		step.NewSteps(step.New(
 			step.Exec(
-				StarportApp,
+				IgniteApp,
 				"chain",
 				"simulate",
 				"--numBlocks",

@@ -29,7 +29,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("add custom module with message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
 				withMsgModuleName,
@@ -41,7 +41,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"message",
 				"mymessage",
@@ -57,7 +57,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("add custom module without message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
 				withoutMsgModuleName,
@@ -69,7 +69,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("create a type",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"type",
 				"mytype",
@@ -84,7 +84,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"query",
 				"myQuery",
@@ -101,7 +101,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("generate vuex",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"g",
 				"vuex",
 				"--proto-all-modules",

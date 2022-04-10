@@ -18,14 +18,14 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "foo", "foobar"),
+			step.Exec(envtest.IgniteApp, "s", "list", "foo", "foobar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "baz", "foobar"),
+			step.Exec(envtest.IgniteApp, "s", "single", "baz", "foobar"),
 			step.Workdir(path),
 		)),
 	))
@@ -39,14 +39,14 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "msgFoo", "foobar"),
+			step.Exec(envtest.IgniteApp, "s", "msgFoo", "foobar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("scaffold a new module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "new_module"),
+			step.Exec(envtest.IgniteApp, "s", "module", "new_module"),
 			step.Workdir(path),
 		)),
 	))
@@ -54,7 +54,7 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 	env.Must(env.Exec("create a map",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"map",
 				"bar",
