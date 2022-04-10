@@ -5,7 +5,7 @@ import (
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 )
 
 // VerifyRequest verifies the validity of the request from its content (static check)

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"

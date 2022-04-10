@@ -11,13 +11,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 )
 
 // ErrGoModNotFound returned when go.mod file cannot be found for an app.

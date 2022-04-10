@@ -6,16 +6,12 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/imdario/mergo"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
 	relayerconfig "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
-	"github.com/imdario/mergo"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	relayerconfig "github.com/tendermint/starport/starport/pkg/relayer/config"
 )
 
 const (

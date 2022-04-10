@@ -9,9 +9,11 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
+	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite-hq/cli/ignite/templates/module"

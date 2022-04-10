@@ -7,12 +7,10 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/goenv"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 )
 
 // Runner is an object to run commands

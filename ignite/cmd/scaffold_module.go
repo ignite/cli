@@ -7,18 +7,13 @@ import (
 	"io"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/validation"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
-	"github.com/spf13/cobra"
-
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/validation"
-	"github.com/tendermint/starport/starport/services/scaffolder"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
 const (

@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/entrywriter"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 var CampaignSummaryHeader = []string{

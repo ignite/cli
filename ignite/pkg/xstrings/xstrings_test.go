@@ -1,13 +1,11 @@
 package xstrings_test
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 )
 
 func TestNoDash(t *testing.T) {

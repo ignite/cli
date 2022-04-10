@@ -5,10 +5,9 @@ import (
 	"io"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 )
 
 type WriterWithError struct{}

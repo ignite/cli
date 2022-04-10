@@ -10,6 +10,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/otiai10/copy"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
@@ -19,19 +23,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
 	"github.com/ignite-hq/cli/ignite/pkg/xhttp"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/otiai10/copy"
-	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
-
-	"github.com/tendermint/starport/starport/chainconfig"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/dirchange"
-	"github.com/tendermint/starport/starport/pkg/localfs"
-	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
-	"github.com/tendermint/starport/starport/pkg/xhttp"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (

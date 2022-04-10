@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/tendermint/spn/pkg/chainid"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"

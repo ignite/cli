@@ -5,13 +5,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
-	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/tendermint/starport/starport/pkg/entrywriter"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
+	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
 var requestSummaryHeader = []string{"ID", "Type", "Content"}

@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
 // NewNetworkRewardSet creates a new chain reward set command to
