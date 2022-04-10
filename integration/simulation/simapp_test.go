@@ -32,7 +32,7 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "noSimapp", "foobar", "--no-simulation"),
+			step.Exec(envtest.IgniteApp, "s", "list", "noSimapp", "foobar", "--no-simulation"),
 			step.Workdir(path),
 		)),
 	))

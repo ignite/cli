@@ -37,7 +37,7 @@ const (
 
 var infoColor = color.New(color.FgYellow).SprintFunc()
 
-// New creates a new root command for `starport` with its sub commands.
+// New creates a new root command for `Ignite CLI` with its sub commands.
 func New(ctx context.Context) *cobra.Command {
 	cobra.EnableCommandSorting = false
 
@@ -47,12 +47,12 @@ func New(ctx context.Context) *cobra.Command {
 		Use:   "ignite",
 		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain",
 		Long: `Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
-most popular modular blockchain framework. Starport offers everything you need to scaffold,
+most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-starport scaffold chain github.com/cosmonaut/mars`,
+ignite scaffold chain github.com/cosmonaut/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -213,19 +213,19 @@ func deprecated() []*cobra.Command {
 	return []*cobra.Command{
 		{
 			Use:        "app",
-			Deprecated: "use `starport scaffold chain` instead.",
+			Deprecated: "use `ignite scaffold chain` instead.",
 		},
 		{
 			Use:        "build",
-			Deprecated: "use `starport chain build` instead.",
+			Deprecated: "use `ignite chain build` instead.",
 		},
 		{
 			Use:        "serve",
-			Deprecated: "use `starport chain serve` instead.",
+			Deprecated: "use `ignite chain serve` instead.",
 		},
 		{
 			Use:        "faucet",
-			Deprecated: "use `starport chain faucet` instead.",
+			Deprecated: "use `ignite chain faucet` instead.",
 		},
 	}
 }
@@ -257,9 +257,9 @@ func checkNewVersion(ctx context.Context) {
 	}
 
 	fmt.Printf(`·
-· 🛸 Starport %s is available!
+· 🛸 Ignite CLI %s is available!
 ·
-· To upgrade your Starport version, see the upgrade doc: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
+· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/cli/guide/install.html#upgrading-your-ignite-cli-installation
 ·
 ··
 
@@ -278,7 +278,7 @@ func newApp(appPath string) (scaffolder.Scaffolder, error) {
 			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
 Please, follow the migration guide to upgrade your chain to the latest version:
 
-https://docs.starport.network/migration`, sc.Version.String(),
+https://docs.ignite.com/cli/migration`, sc.Version.String(),
 		)
 	}
 	return sc, nil
