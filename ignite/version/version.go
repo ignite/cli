@@ -41,7 +41,7 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 	latest, _, err := github.
 		NewClient(nil).
 		Repositories.
-		GetLatestRelease(ctx, "tendermint", "starport")
+		GetLatestRelease(ctx, "ignite-hq", "cli")
 
 	if err != nil {
 		return false, "", err
@@ -79,9 +79,9 @@ func Long(ctx context.Context) string {
 
 	w.Init(b, 0, 8, 0, '\t', 0)
 
-	write("Starport version", Version)
-	write("Starport build date", Date)
-	write("Starport source hash", Head)
+	write("Ignite CLI version", Version)
+	write("Ignite CLI build date", Date)
+	write("Ignite CLI source hash", Head)
 
 	write("Your OS", runtime.GOOS)
 	write("Your arch", runtime.GOARCH)
