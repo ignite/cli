@@ -109,17 +109,17 @@ create x/nameservice/types/message_buy_name.go
     syntax = "proto3";
     package cosmonaut.nameservice.nameservice;
 
-    // this line is used by ignite scaffolding # proto/tx/import
+    // this line is used by starport scaffolding # proto/tx/import
 
     option go_package = "github.com/cosmonaut/nameservice/x/nameservice/types";
 
     // Msg defines the Msg service.
     service Msg {
-    	// this line is used by ignite scaffolding # proto/tx/rpc
+    	// this line is used by starport scaffolding # proto/tx/rpc
     rpc BuyName(MsgBuyName) returns (MsgBuyNameResponse);
     }
 
-    // this line is used by ignite scaffolding # proto/tx/message
+    // this line is used by starport scaffolding # proto/tx/message
     message MsgBuyName {
     string creator = 1;
     string name = 2;
