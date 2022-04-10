@@ -20,11 +20,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
-const (
-	// SPN name used as an address prefix and as a home dir for chains to publish.
-	SPN = "spn"
-)
-
 // Chain represents a network blockchain and lets you interact with its source code and binary.
 type Chain struct {
 	id       string

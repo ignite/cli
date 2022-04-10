@@ -84,7 +84,7 @@ You can specify to use a specific version of Ignite CLI. All available tags are 
 
 For example:
 
-- Use `ignite/cli:0.15.1` (without the `v` prefix) to use version 0.15.1.
+- Use `ignite/cli:0.19.2` (without the `v` prefix) to use version 0.15.1.
 - Use `ignite/cli:develop` to use the `develop` branch so you can experiment with the next version.
 
 To get the latest image, run `docker pull`.

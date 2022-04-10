@@ -1,7 +1,7 @@
 builds:
-  - main: ./starport/cmd/starport
+  - main: ./ignite/cmd/ignite
     ldflags:
-      - -s -w -X github.com/tendermint/starport/starport/version.Version={{.Tag}} -X github.com/tendermint/starport/starport/version.Date={{.Date}} -X github.com/tendermint/starport/starport/version.Head={{.FullCommit}}
+      - -s -w -X github.com/ignite-hq/cli/ignite/version.Version={{.Tag}} -X github.com/ignite-hq/cli/ignite/version.Date={{.Date}} -X github.com/ignite-hq/cli/ignite/version.Head={{.FullCommit}}
     goarch:
       - amd64
 changelog:
