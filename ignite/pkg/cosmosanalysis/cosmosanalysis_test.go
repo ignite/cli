@@ -5,10 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
 )
 
 var (

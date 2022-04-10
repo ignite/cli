@@ -9,20 +9,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/ctxticker"
 	tsrelayer "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-relayer"
 	relayerconf "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"golang.org/x/sync/errgroup"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/ctxticker"
-	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-relayer"
-	relayerconf "github.com/tendermint/starport/starport/pkg/relayer/config"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (

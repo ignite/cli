@@ -9,16 +9,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 // ResetGenesisTime reset the chain genesis time

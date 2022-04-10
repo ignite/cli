@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types/simulation"
+
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 )
 

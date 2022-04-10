@@ -5,10 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 )
 
 func NewAccountExport() *cobra.Command {

@@ -14,6 +14,9 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/goccy/go-yaml"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
@@ -23,18 +26,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite-hq/cli/ignite/pkg/xexec"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
-	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (

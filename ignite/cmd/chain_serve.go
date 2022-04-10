@@ -1,10 +1,9 @@
 package starportcmd
 
 import (
-	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/services/chain"
+	"github.com/ignite-hq/cli/ignite/services/chain"
 )
 
 const (

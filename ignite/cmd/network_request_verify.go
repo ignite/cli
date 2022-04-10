@@ -7,11 +7,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/numbers"
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/numbers"
+	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 )
 
 // NewNetworkRequestVerify verify the request and simulate the chain.

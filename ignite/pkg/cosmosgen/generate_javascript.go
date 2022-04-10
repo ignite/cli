@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
@@ -15,16 +17,6 @@ import (
 	tsproto "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-proto"
 	"github.com/ignite-hq/cli/ignite/pkg/protoc"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"golang.org/x/sync/errgroup"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/giturl"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/localfs"
-	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
-	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-proto"
-	"github.com/tendermint/starport/starport/pkg/protoc"
-	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
 var (

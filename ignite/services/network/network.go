@@ -4,14 +4,11 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/pkg/errors"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/pkg/errors"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/events"
 )
 
 // Network is network builder.

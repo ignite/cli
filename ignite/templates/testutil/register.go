@@ -4,6 +4,7 @@ import (
 	"embed"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 )
 

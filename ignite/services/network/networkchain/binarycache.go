@@ -1,10 +1,10 @@
 package networkchain
 
 import (
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/checksum"
-	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/checksum"
+	"github.com/ignite-hq/cli/ignite/pkg/confile"
+	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
 )
 
 const (

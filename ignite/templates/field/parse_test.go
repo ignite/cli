@@ -4,12 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
+	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
+	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
 )
 
 var (

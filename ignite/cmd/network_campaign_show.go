@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/yaml"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/ignite-hq/cli/ignite/pkg/yaml"
+	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
 // NewNetworkCampaignShow returns a new command to show published campaign on Starport Network

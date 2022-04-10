@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/yaml"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/ignite-hq/cli/ignite/pkg/yaml"
+	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
 const (

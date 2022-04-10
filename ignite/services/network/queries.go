@@ -5,18 +5,15 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoserror"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 var (

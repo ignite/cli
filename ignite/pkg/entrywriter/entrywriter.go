@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 )
 
 const (

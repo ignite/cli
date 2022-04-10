@@ -5,10 +5,9 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
 	"github.com/pkg/errors"
 
-	"github.com/tendermint/starport/starport/pkg/confile"
+	"github.com/ignite-hq/cli/ignite/pkg/confile"
 )
 
 const supportVersion = "2"

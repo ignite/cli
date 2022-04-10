@@ -12,11 +12,11 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
-	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/pkg/availableport"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 const (

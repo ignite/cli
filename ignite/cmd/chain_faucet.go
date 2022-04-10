@@ -4,12 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/services/chain"
+	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/services/chain"
 )
 
 // NewChainFaucet creates a new faucet command to send coins to accounts.

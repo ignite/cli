@@ -3,12 +3,10 @@ package starportcmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/services/scaffolder"
+	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 )
 
 // NewScaffoldVue scaffolds a Vue.js app for a chain.

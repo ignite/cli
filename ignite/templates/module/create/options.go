@@ -3,6 +3,7 @@ package modulecreate
 import (
 	"fmt"
 
+	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field"
 )
 

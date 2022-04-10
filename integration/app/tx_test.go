@@ -11,17 +11,13 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/randstr"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/require"
-
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/randstr"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 func TestGetTxViaGRPCGateway(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 	"github.com/ignite-hq/cli/ignite/templates/module"

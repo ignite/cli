@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite-hq/cli/ignite/templates/testutil"

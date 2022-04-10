@@ -14,11 +14,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	starportcmd "github.com/ignite-hq/cli/ignite/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	starportcmd "github.com/tendermint/starport/starport/cmd"
+	starportcmd "github.com/ignite-hq/cli/ignite/cmd"
 )
 
 const head = `---
