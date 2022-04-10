@@ -3,8 +3,8 @@ package starportcmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 )
 
 // NewNetworkChainRevertLaunch creates a new chain revert launch command

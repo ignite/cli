@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 )
 
 const (

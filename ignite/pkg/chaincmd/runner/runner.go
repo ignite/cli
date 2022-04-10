@@ -8,12 +8,13 @@ import (
 	"io"
 
 	"github.com/ghodss/yaml"
+	"github.com/pkg/errors"
+
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/lineprefixer"
 	"github.com/ignite-hq/cli/ignite/pkg/truncatedbuffer"
-	"github.com/pkg/errors"
 )
 
 // Runner provides a high level access to a blockchain's commands.

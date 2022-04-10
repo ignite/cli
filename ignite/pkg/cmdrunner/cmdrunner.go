@@ -7,9 +7,10 @@ import (
 	"os"
 	"os/exec"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
-	"golang.org/x/sync/errgroup"
 )
 
 // Runner is an object to run commands

@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 )
 
 const (

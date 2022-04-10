@@ -3,12 +3,11 @@ package multiformatname_test
 import (
 	"errors"
 	"fmt"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 )
 
 func TestNewMultiFormatName(t *testing.T) {

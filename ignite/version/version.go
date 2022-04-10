@@ -11,6 +11,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/google/go-github/v37/github"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"

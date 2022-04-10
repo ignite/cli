@@ -8,12 +8,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 
-	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 )
 
 // Path represents a Go module's path.

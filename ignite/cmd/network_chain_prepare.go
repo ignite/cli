@@ -1,9 +1,15 @@
 package starportcmd
 
 import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/spf13/cobra"
+
+	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/spf13/cobra"
 )
 
 const (

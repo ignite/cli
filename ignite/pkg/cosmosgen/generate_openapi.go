@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/iancoleman/strcase"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	swaggercombine "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite-hq/cli/ignite/pkg/protoc"

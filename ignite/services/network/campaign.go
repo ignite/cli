@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 type (

@@ -8,13 +8,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/cobra"
+
+	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/spf13/cobra"
 )
 
 const flagOut = "out"

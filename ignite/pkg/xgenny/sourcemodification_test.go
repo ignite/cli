@@ -1,12 +1,11 @@
 package xgenny_test
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 )
 
 var (

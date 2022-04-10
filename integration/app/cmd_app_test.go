@@ -9,9 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite-hq/cli/integration"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestGenerateAnApp(t *testing.T) {

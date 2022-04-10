@@ -4,10 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
+
+	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite-hq/cli/ignite/pkg/protoc"
 )
 
 var (

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	"github.com/spf13/cobra"
 )
 
 // NewScaffoldBandchain creates a new BandChain oracle in the module

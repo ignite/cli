@@ -3,10 +3,12 @@ package starportcmd
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/numbers"
 	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/spf13/cobra"
 )
 
 const (

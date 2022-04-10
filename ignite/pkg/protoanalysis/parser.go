@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/pkg/errors"
+
+	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 )
 
 const optionGoPkg = "go_package"

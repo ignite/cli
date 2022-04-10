@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 )
 
 // IsOnGitpod reports whether if running on Gitpod or not.

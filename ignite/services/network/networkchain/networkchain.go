@@ -8,8 +8,10 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/pkg/checksum"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -21,16 +23,6 @@ import (
 const (
 	// SPN name used as an address prefix and as a home dir for chains to publish.
 	SPN = "spn"
-
-	sperrors "github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/pkg/checksum"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.

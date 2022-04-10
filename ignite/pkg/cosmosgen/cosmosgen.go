@@ -3,10 +3,9 @@ package cosmosgen
 import (
 	"context"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	gomodmodule "golang.org/x/mod/module"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 )
 
 // generateOptions used to configure code generation.

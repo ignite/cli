@@ -8,14 +8,15 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/flutter/v2"
+	"github.com/tendermint/vue"
+
 	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/templates/app"
 	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
-	"github.com/tendermint/flutter/v2"
-	"github.com/tendermint/vue"
 )
 
 var (

@@ -1,8 +1,9 @@
 package starportcmd
 
 import (
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	"github.com/spf13/cobra"
+
+	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 )
 
 // NewScaffoldType returns a new command to scaffold a type.

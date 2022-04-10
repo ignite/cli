@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/tendermint/starport/starport/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 // ChainHome returns the default home dir used for a chain from SPN.

@@ -3,9 +3,10 @@ package starportcmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/spf13/cobra"
 )
 
 func NewGenerateOpenAPI() *cobra.Command {

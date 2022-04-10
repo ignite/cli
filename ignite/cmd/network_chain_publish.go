@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/spn/pkg/chainid"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/spf13/cobra"
 )
 
 const (

@@ -11,7 +11,9 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/ignite-hq/cli/ignite/internal/version"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
@@ -21,8 +23,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
+	"github.com/ignite-hq/cli/ignite/version"
 )
 
 const (
