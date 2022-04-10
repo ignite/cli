@@ -9,8 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/pkg/goanalysis"
-
-	"github.com/stretchr/testify/require"
 )
 
 var (
