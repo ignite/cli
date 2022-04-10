@@ -9,8 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestJoin(t *testing.T) {

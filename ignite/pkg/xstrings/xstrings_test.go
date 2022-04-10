@@ -6,8 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestNoDash(t *testing.T) {
