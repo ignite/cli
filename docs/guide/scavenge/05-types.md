@@ -8,17 +8,17 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 A keeper is an abstraction that let's your blockchain app interact with the state. Functions like create, update and delete are defined as keeper methods. In the Scavenge blockchain a `scavenge` and `commit` types need to be defined, along with create and update methods.
 
-Starport has several commands that scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs) and a single element in the state. In this example, both `scavenge` and `commit` will be stored in a map-like data structure.
+Ignite CLI has several commands that scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs) and a single element in the state. In this example, both `scavenge` and `commit` will be stored in a map-like data structure.
 
 ## Scavenge
 
-Use `starport scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges. The first argument is the name of the type being created (`scavenge`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
+Use `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges. The first argument is the name of the type being created (`scavenge`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
 
 ```bash
-starport scaffold map scavenge solutionHash solution description reward scavenger --no-message
+ignite scaffold map scavenge solutionHash solution description reward scavenger --no-message
 ```
 
-`starport scaffold map` created and mofidied several files:
+`ignite scaffold map` created and mofidied several files:
 
 * `proto/scavenge/scavenge.proto`: the `Scavenge` type defined as a proto message.
 * `proto/scavenge/query.proto`: queries to get data from the blockchain defined as proto messages and registered in the `Query` service.
@@ -41,8 +41,8 @@ starport scaffold map scavenge solutionHash solution description reward scavenge
 
 ## Commit
 
-Use `starport scaffold map` to create the same logic for a `commit` type.
+Use `ignite scaffold map` to create the same logic for a `commit` type.
 
 ```bash
-starport scaffold map commit solutionHash solutionScavengerHash --no-message
+ignite scaffold map commit solutionHash solutionScavengerHash --no-message
 ```

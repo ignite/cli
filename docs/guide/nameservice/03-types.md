@@ -11,7 +11,7 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 For the nameservice blockchain, define a `whois` type and the create and delete methods.
 
-Because Starport does the heavy lifting for you, choose from several [starport scaffold](https://docs.starport.com/cli/#starport-scaffold) commands to create CRUD functionality code for data stored in different ways:
+Because Ignite CLI does the heavy lifting for you, choose from several [ignite scaffold](https://docs.ignite.com/cli/#ignite-scaffold) commands to create CRUD functionality code for data stored in different ways:
 
 - Array, a list-like data structure
 - Map (key-value pairs)
@@ -19,12 +19,12 @@ Because Starport does the heavy lifting for you, choose from several [starport s
 
 ## Add the whois Type
 
-Use the `starport scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names. 
+Use the `ignite scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names. 
 
 In this example, the `whois` type is stored in a map-like data structure:
 
 ```bash
-starport scaffold map whois name value price owner --no-message
+ignite scaffold map whois name value price owner --no-message
 ```
 
 where:
@@ -37,7 +37,7 @@ where:
 
     By default, generic CRUD messages are scaffolded. However, you've already created messages specifically for this blockchain, so you can skip message creation with the `--no-message` flag.
 
-The `starport scaffold map whois name value price --no-message` command created and modified several files:
+The `ignite scaffold map whois name value price --no-message` command created and modified several files:
 
 * `proto/nameservice/whois.proto`
 

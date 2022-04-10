@@ -1,7 +1,7 @@
 # Understanding [Some Concept]
 
 <!--
-Use this article template as a quick starting point when writing Starport conceptual tutorials. 
+Use this article template as a quick starting point when writing Ignite CLI conceptual tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 
@@ -51,11 +51,11 @@ Our tutorials take the reader from a fresh deployment to a working setup, so the
 
 Common requirements for tutorials include:
 
-Local software needed, such as Go and Starport. For example:
+Local software needed, such as Go and Ignite CLI. For example:
 -->
-- [Install Starport](../starport/index.md) v0.17.1 <!--(or whatever version applies)-->
+- [Install Ignite CLI](../../guide/install.md) v0.20.0 <!--(or whatever version applies)-->
 
-## 
+## Describe the goal
 
 Introduction to the concept. What are we going to do and why are we doing it?
 
@@ -65,10 +65,9 @@ Next...
 
 Finally...
 
-
 Now transition to the next section by telling the reader what's next.
 
-## Another Section
+## Another section
 
 Another introduction
 
@@ -89,7 +88,7 @@ In this article you [explored/learned] [something]. Now you can....
 
 This is _italics_ and this is **bold**.
 
-Only use italics and bold for specific things. 
+Use italics and bold sparingly, as emphasis is required only for specific things. 
 
 This is `inline code`. Use it for referencing package names and commands.
 
@@ -109,13 +108,9 @@ Write key presses in ALLCAPS with in-line code formatting: `ENTER`.
 
 Use a plus symbol (+) if keys need to be pressed simultaneously: `CTRL+C`.
 
-<$>[note]
 **Note:** This is a note.
-<$>
 
-<$>[warning]
 **Warning:** This is a warning.
-<$>
 
 See [Notes, cautions, warnings, and other notices](https://developers.google.com/style/notices).
 
