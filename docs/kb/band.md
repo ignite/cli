@@ -47,25 +47,23 @@ When you scaffold a BandChain oracle module, the following files and directories
 
 ## Scaffold a BandChain oracle chain
 
-The following command scaffolds the IBC-enabled oracle. by default, the ignite scaffold oracle for [coin rates](https://laozi-testnet4.cosmoscan.io/oracle-script/37#bridge) request and result.
+First, scaffold a chain but don't scaffold a default module:
 
-```shell
-$ ignite scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
-$ ignite scaffold module consuming --ibc
-$ ignite scaffold band coinRates --module consuming
+```bash
+ignite scaffold chain github.com/cosmonaut/oracle --no-module 
 ```
 
 Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`:
 
 ```bash
 cd oracle 
-starport scaffold module consuming --ibc
+ignite scaffold module consuming --ibc
 ```
 
 Finally, scaffold a BandChain query oracle that can request real-time data:
 
 ```bash
-starport scaffold band coinRates --module consuming
+ignite scaffold band coinRates --module consuming
 ```
 
 So far, you have scaffolded:
@@ -78,7 +76,7 @@ Now it's time to change the data.
 
 ## Update version
 
-The output of the `starport scaffold band coinRates --module consuming` command prompts you to update the `keys.go` file.
+The output of the `ignite scaffold band coinRates --module consuming` command prompts you to update the `keys.go` file.
 
 In the `x/oracle/types/keys.go` file, update the `Version` variable in the `const` block to the required version that the IBC module supports:
 
@@ -94,12 +92,28 @@ const (
 To run the chain from the `oracle` directory:
 
 ```shell
-$ ignite chain serve
+ignite chain serve
 ```
 
-In another tab, configure and run the ignite relayer.
-```shell
-$ ignite relayer configure -a \
+Keep this terminal window open.
+
+## Configure and connect the Ignite CLI relayer
+
+If you previously used the Ignite CLI relayer, it is a good idea to remove existing relayer and Ignite CLI configurations:
+
+1. Stop your blockchains.
+2. Delete previous configuration files:
+
+    ```bash
+    rm -rf ~/.ignite/relayer
+    ```
+
+3. Restart your blockchains.
+
+In another terminal tab, configure the [Ignite CLI relayer](../docs/kb/../../kb/relayer.md):
+
+```bash
+ignite relayer configure -a \
 --source-rpc "http://rpc-laozi-testnet4.bandchain.org:80" \
 --source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
@@ -114,8 +128,6 @@ $ ignite relayer configure -a \
 --target-gaslimit 300000 \
 --target-prefix "cosmos"  \
 --target-version "bandchain-1"
-            
-$ ignite relayer connect
 ```
 
 When prompted, press Enter to accept the default source and target accounts.
@@ -142,7 +154,7 @@ The command output confirms the relayer is successfully configured:
 Connect the relayer:
 
 ```bash
-starport relayer connect
+ignite relayer connect
 ```
 
 You can see the paths of the `oracle` port on the testnet and the `consuming` port on your local oracle module in the relayer connection status that is output to the terminal:
@@ -192,7 +204,7 @@ You can scaffold multiples oracles by module. After scaffold, you must change th
 To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
 
 ```shell
-$ ignite scaffold band goldPrice --module consuming
+ignite scaffold band goldPrice --module consuming
 ```
 
 In the `proto/consuming/gold_price.proto` file:

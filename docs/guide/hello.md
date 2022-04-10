@@ -3,7 +3,7 @@ order: 2
 description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module. 
 ---
 
-# Hello, Starport
+# Hello, Ignite CLI 
 
 This tutorial is a great place to start your journey into the Cosmos ecosystem. Instead of wondering how to build a blockchain, follow these steps to build your first blockchain and your first Cosmos SDK module.
 
@@ -11,15 +11,15 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.18.0 use the following command:
+This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.19.5 use the following command:
 
 ```bash
-curl https://get.ignite.network/ignite@v0.18.0! | bash
+curl https://get.ignite.com/cli@v0.19.5! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
 
-One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `ignite scaffold chain` command.
+First, use Ignite CLI to build the foundation of a fresh Cosmos SDK blockchain. With Ignite CLI, you don't have to write the blockchain code yourself. 
 
 Are you ready? Open a terminal window and navigate to a directory where you have permissions to create files. 
 
@@ -42,7 +42,9 @@ You can get help on any command. Now that you have run your first command, take 
 
 To learn about the command you just used, run:
 
-Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `ignite scaffold chain --help` command to learn about the command you just used.
+```bash
+ignite scaffold --help
+```
 
 ## Blockchain directory structure
 
@@ -76,7 +78,9 @@ You already have a fully-functional blockchain. To start your chain on your deve
 ignite chain serve
 ```
 
-This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, Ignite CLI uses the name of the repo + `d`. From now on, use this binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
+This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, the binary name is the name of the repo + `d`. From now on, use this `hellod` binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
+
+Leave this terminal window open while your chain is running.
 
 ## HTTP API Console
 
@@ -93,11 +97,11 @@ Now that you started your `hello` chain, use a web browser to see the high-level
 
 When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running.
 
-In the development environment, you don't have to restart the blockchain after you make changes. All changes you make in the `hello` directory files are automatically picked up by Ignite CLI.
+In the development environment, you can experiment and instantly see updates. You don't have to restart the blockchain after you make changes. Hot reloading automatically detects all of the changes you make in the `hello` directory files.
 
 ## Say "Hello, Ignite CLI"
 
-To get your blockchain to say `Hello! Starport`, you need to make these changes:
+To get your blockchain to say `Hello! Ignite CLI`, you need to make these changes:
 
 - Modify a protocol buffer file
 - Create a keeper query function that returns data
@@ -231,18 +235,24 @@ Make the required changes to the `x/hello/module.go` file.
 
     Do not save the file yet, you need to continue with these modifications.
 
-```go
-ignite chain serve
-```
+1. Search for `RegisterGRPCGatewayRoutes`.
 
 1. Register the query handlers:
 
-```go
-{
-  "title": "Hello!",
-  "body": "Ignite CLI"
-}
-```
+    ```go
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+      types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
+
+1. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+
+    ```go
+    {
+      "title": "Hello!",
+      "body": "Ignite CLI"
+    }
+    ```
 
 The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 

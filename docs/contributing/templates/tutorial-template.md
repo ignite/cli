@@ -88,8 +88,13 @@ ignite --version
 
 You'll see release details like the following output:
 
-```
-ignite version v0.20.0 darwin/amd64 -build date: 2022...
+```bash
+Starport version:	    v0.19.1
+Starport build date:	2021-12-18T05:56:36Z
+Starport source hash:	-
+Your OS:		        darwin
+Your arch:		        amd64
+Your go version:	    go version go1.16.4 darwin/amd64
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:

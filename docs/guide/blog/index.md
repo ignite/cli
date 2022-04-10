@@ -24,10 +24,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of blog tutorials is based on a specific version of Starport, so to install Starport v0.19.2 use the following command:
+This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.19.2 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.19.2! | bash
+curl https://get.ignite.com/cli@v0.19.2! | bash
 ```
 
 ## Create your blog chain
@@ -183,7 +183,7 @@ The contents of the `post.proto` file are standard. The file defines:
 
 Continue developing your blog chain.
 
-Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Ignite CLI, the `Post` type is available.
+### Define keeper methods
 
 The next step is to define the `AppendPost` keeper method. 
 
@@ -300,7 +300,9 @@ By following these steps, you have implemented all of the code required to creat
 
 Try it out! Start your chain:
 
-Try it out! If the chain is yet not started, run `ignite chain serve`.
+```go
+ignite chain serve
+```
 
 Create a post:
 
