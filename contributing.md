@@ -70,7 +70,7 @@ If you started a PR but couldn't finish it for whatever reason, don't give up. I
 
 Starport follows Git Flow for branch strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>.
 
-- Each Starport release has a milestone, see <https://github.com/tendermint/starport/milestones>.
+- Each Starport release has a milestone, see <https://github.com/ignite-hq/cli/milestones>.
 
 - Issues in each milestone have a **priority/high**, **priority/medium**, or **priority/low** label.
 
@@ -82,8 +82,8 @@ Starport follows Git Flow for branch strategy <https://www.atlassian.com/git/tut
 
   - Issues in the **Next** milestone usually have a lower priority than milestones that are associated with a release version, like **Milestone v0.1.0**.
 
-- A single project board <https://github.com/tendermint/starport/projects/4> shows the issues we are currently working on and what issues we plan to work on. 
+- A single project board <https://github.com/ignite-hq/cli/projects/4> shows the issues we are currently working on and what issues we plan to work on.
 
-Contributors, please check the **To Do** column on the project board <https://github.com/tendermint/starport/projects/4> to find an issue to work on.
+Contributors, please check the **To Do** column on the project board <https://github.com/tendermint/ignite-hq/cli/4> to find an issue to work on.
 
 We appreciate your contribution!

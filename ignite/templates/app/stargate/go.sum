@@ -1510,8 +1510,8 @@ github.com/tendermint/spm v0.1.8/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpX
 github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57/go.mod h1:p4BO8YC6kOKSKqMfySqaLHfwBmuPE/QcLwnnVhh7H9M=
 github.com/tendermint/spn v0.1.1-0.20220407154406-5cfd1bf28150 h1:FJI3e3R0WsSD5rM+z/OUaxk2Qlx0hfyAI9I76F6a7wk=
 github.com/tendermint/spn v0.1.1-0.20220407154406-5cfd1bf28150/go.mod h1:B+KuhkB4Sms4yh0UN1HGsVbbMa3vCypai22QXLudQ3o=
-github.com/tendermint/starport v0.19.5 h1:5mI//Q4xPfpzHksX1JPTUgamTtdhrVLq4o6RIlM6TSg=
-github.com/tendermint/starport v0.19.5/go.mod h1:XdbMpJ5R6QzP1+yrfsoCk44fnp9/52raponbkvjIMQA=
+github.com/ignite-hq/cli v0.19.5 h1:5mI//Q4xPfpzHksX1JPTUgamTtdhrVLq4o6RIlM6TSg=
+github.com/ignite-hq/cli v0.19.5/go.mod h1:XdbMpJ5R6QzP1+yrfsoCk44fnp9/52raponbkvjIMQA=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
 github.com/tendermint/tendermint v0.34.0/go.mod h1:Aj3PIipBFSNO21r+Lq3TtzQ+uKESxkbA3yo/INM4QwQ=

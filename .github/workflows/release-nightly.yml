@@ -9,7 +9,7 @@ jobs:
   release-nightly:
     runs-on: ubuntu-latest
     env:
-      working-directory: go/src/github.com/tendermint/starport
+      working-directory: go/src/github.com/ignite-hq/cli
     
     steps:
       - uses: actions/checkout@v2
