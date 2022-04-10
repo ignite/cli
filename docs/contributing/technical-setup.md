@@ -1,12 +1,12 @@
 # Technical setup
 
-To ensure you have a successful experience working with our technical content, Ignite recommends this technical setup.
+To ensure you have a successful experience working with our Developer Tutorials content, Ignite recommends this technical setup.
 
-## Setting up Visual Studio Code
+## Setting Up Visual Studio Code
 
 1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup/).
 1. Click **Extensions** in the sidebar.
-1. Install these extensions:
+1. Install this extension:
     - Go for VS Code The official Go extension for Visual Studio Code
     - markdownlint
     - Optional: PlantUML
@@ -16,7 +16,7 @@ To ensure you have a successful experience working with our technical content, I
     - `go get -v golang.org/x/tools/gopls`
     - Select `Install all` for all packages
 
-Be sure to set up [Visual Studio Code](https://code.visualstudio.com/docs/setup/setup-overview) for your environment. 
+Be sure to set up [Visual Studio Code](https://code.visualstudio.com/docs/setup/setup-overview) for your environment.
 
 **Tip** On MacOS, install `code` in $PATH to enable [Launching Visual Studio Code from the command line](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line). Open the Command Palette (Cmd+Shift+P) and type 'shell command'.  
 
@@ -24,9 +24,9 @@ Be sure to set up [Visual Studio Code](https://code.visualstudio.com/docs/setup/
 
 Click the GitHub icon in the sidebar for GitHub integration and follow the prompts.
 
-## Clone the repos you work in
+## Clone the repos that you work in
 
-- Fork or clone the <https://github.com/ignite-hq/cli/> repository. 
+- Fork or clone the <https://github.com/ignite-hq/cli/> repository.
 
 Internal Ignite users have different permissions. If you're not sure, fork the repo.
 
@@ -60,6 +60,12 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 1. Log out and log back in to the terminal to use your new default zsh shell.
 
-## Install Starport
+## Install Go
 
-Follow the steps in [Install Starport](../guide/install.md) docs to install Starport and Go.
+This installation method removes existing Go installations, installs Go in `/usr/local/go/bin/go`, and sets the environment variables.
+
+1. Go to <https://golang.org/dl>.
+1. Download the binary release that is suitable for your system.
+1. Follow the installation instructions.
+
+**Note:** We recommend not using brew to install Go.

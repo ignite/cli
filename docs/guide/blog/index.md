@@ -37,7 +37,7 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/blog
+ignite scaffold chain github.com/cosmonaut/blog
 ```
 
 The `blog` directory is created with the default directory structure.
@@ -61,7 +61,7 @@ cd blog
 To create a message type and its handler, use the `message` command:
 
 ```bash
-starport scaffold message createPost title body
+ignite scaffold message createPost title body
 ```
 
 The `message` command accepts message name (`createPost`) and a list of fields (`title` and `body`) as arguments.
@@ -107,7 +107,7 @@ service Msg {
 }
 ```
 
-Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
+Next, look at the `x/blog/handler.go` file. Ignite CLI has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
 
 ```go
 func NewHandler(k keeper.Keeper) sdk.Handler {
@@ -158,7 +158,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 Define the `Post` type and the `AppendPost` keeper method.
 
-When you define the `Post` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
+When you define the `Post` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 
@@ -183,7 +183,7 @@ The contents of the `post.proto` file are standard. The file defines:
 
 Continue developing your blog chain.
 
-### Define keeper methods
+Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Ignite CLI, the `Post` type is available.
 
 The next step is to define the `AppendPost` keeper method. 
 
@@ -300,9 +300,7 @@ By following these steps, you have implemented all of the code required to creat
 
 Try it out! Start your chain:
 
-```go
-starport chain serve
-```
+Try it out! If the chain is yet not started, run `ignite chain serve`.
 
 Create a post:
 
@@ -331,7 +329,7 @@ Now that you have added the functionality to create posts and broadcast them to 
 To display posts, scaffold a query:
 
 ```bash
-starport scaffold query posts --response title,body
+ignite scaffold query posts --response title,body
 ```
 
 Two components are responsible for querying data:

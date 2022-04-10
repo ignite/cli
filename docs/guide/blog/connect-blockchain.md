@@ -39,7 +39,7 @@ The `go.mod` file is created inside your `blogclient` directory.
 Your blockchain client has only two dependencies: 
 
 - The `blog` blockchain `types` for message types and a query client
-- `starport` for the `cosmosclient` blockchain client
+- `ignite` for the `cosmosclient` blockchain client
 
 ```go
 module github.com/cosmonaut/blogclient
@@ -90,7 +90,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// account `alice` was initialized during `starport chain serve`
+	// account `alice` was initialized during `ignite chain serve`
 	accountName := "alice"
 
 	// get account from the keyring by account name and return a bech32 address
@@ -140,7 +140,7 @@ To learn more about the `cosmosclient` package, see the Go
 
 ## Running the Blockchain and the Client
 
-Make sure your blog blockchain is still running with `starport chain serve`.
+Make sure your blog blockchain is still running with `ignite chain serve`.
 
 Install dependencies for your `blogclient`:
 
