@@ -22,7 +22,7 @@ BandChain oracle queries can be scaffolded only in IBC modules.
 The basic syntax to scaffold a band oracle module is:
 
 ```bash
-starport scaffold band [queryName] --module [moduleName]
+ignite scaffold band [queryName] --module [moduleName]
 ```
 
 Customize your band oracle with flags:
@@ -47,10 +47,12 @@ When you scaffold a BandChain oracle module, the following files and directories
 
 ## Scaffold a BandChain oracle chain
 
-First, scaffold a chain but don't scaffold a default module:
+The following command scaffolds the IBC-enabled oracle. by default, the ignite scaffold oracle for [coin rates](https://laozi-testnet4.cosmoscan.io/oracle-script/37#bridge) request and result.
 
-```bash
-starport scaffold chain github.com/cosmonaut/oracle --no-module 
+```shell
+$ ignite scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
+$ ignite scaffold module consuming --ibc
+$ ignite scaffold band coinRates --module consuming
 ```
 
 Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`:
@@ -92,28 +94,12 @@ const (
 To run the chain from the `oracle` directory:
 
 ```shell
-starport chain serve
+$ ignite chain serve
 ```
 
-Keep this terminal window open.
-
-## Configure and connect the Starport relayer
-
-If you previously used the Starport relayer, it is a good idea to remove existing relayer and Starport configurations:
-
-1. Stop your blockchains.
-2. Delete previous configuration files:
-
-    ```bash
-    rm -rf ~/.starport/relayer
-    ```
-
-3. Restart your blockchains.
-
-In another terminal tab, configure the [Starport relayer](../docs/kb/../../kb/relayer.md):
-
-```bash
-starport relayer configure -a \
+In another tab, configure and run the ignite relayer.
+```shell
+$ ignite relayer configure -a \
 --source-rpc "http://rpc-laozi-testnet4.bandchain.org:80" \
 --source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
@@ -128,6 +114,8 @@ starport relayer configure -a \
 --target-gaslimit 300000 \
 --target-prefix "cosmos"  \
 --target-version "bandchain-1"
+            
+$ ignite relayer connect
 ```
 
 When prompted, press Enter to accept the default source and target accounts.
@@ -204,7 +192,7 @@ You can scaffold multiples oracles by module. After scaffold, you must change th
 To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
 
 ```shell
-starport scaffold band goldPrice --module consuming
+$ ignite scaffold band goldPrice --module consuming
 ```
 
 In the `proto/consuming/gold_price.proto` file:

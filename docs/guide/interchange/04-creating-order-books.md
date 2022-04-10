@@ -169,7 +169,7 @@ message SellOrderBook {
 Now, use Starport CLI to build the proto files for the `send-create-pair` command:
 
 ```bash
-starport generate proto-go
+ignite generate proto-go
 ```
 
 Start enhancing the functions for the IBC packets.

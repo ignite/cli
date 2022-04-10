@@ -5,13 +5,13 @@ order: 9
 
 # IBC relayer
 
-A built-in IBC relayer in Starport lets you connect blockchains that run on your local computer to blockchains that run on remote computers. The Starport relayer uses the [TypeScript relayer](https://github.com/confio/ts-relayer).
+A built-in IBC relayer in Ignite CLI lets you connect blockchains that run on your local computer to blockchains that run on remote computers. The Ignite CLI relayer uses the [TypeScript relayer](https://github.com/confio/ts-relayer).
 
 ## Configure connections
 
 The `configure` command configures a connection between two blockchains:
 
-`starport relayer configure`
+`ignite relayer configure`
 
 You are prompted for the required RPC endpoints and optional faucet endpoints. Accounts used by the relayer are created on both blockchains and faucets are used, if available, to automatically fetch tokens.
 
@@ -41,11 +41,11 @@ If you previously used the Starport relayer, follow these steps to remove existi
 All values can be passed with flags.
 
 ```bash
-starport relayer configure --advanced --source-rpc "http://0.0.0.0:26657" --source-faucet "http://0.0.0.0:4500" --source-port "blog" --source-version "blog-1" --target-rpc "http://0.0.0.0:26659" --target-faucet "http://0.0.0.0:4501" --target-port "blog" --target-version "blog-1"
+ignite relayer configure --advanced --source-rpc "http://0.0.0.0:26657" --source-faucet "http://0.0.0.0:4500" --source-port "blog" --source-version "blog-1" --target-rpc "http://0.0.0.0:26659" --target-faucet "http://0.0.0.0:4501" --target-port "blog" --target-version "blog-1"
 ```
 
 ## Connect blockchains and watch for IBC packets
 
 The `starport relayer connect` command connects configured blockchains and watches for IBC packets to relay. 
 
-**Tip:** You can observe the relayer packets on the terminal window where you connected your relayer. 
+The `ignite relayer connect` command connects configured blockchains and watches for IBC packets to relay.
