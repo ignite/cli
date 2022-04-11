@@ -26,7 +26,7 @@ Thank you for your contribution!
 
 - To provide feedback or ask a question, create a [GitHub issue](https://github.com/ignite-hq/cli/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
 
-- We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/ignt).
+- We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/ignite).
 
 ## Opening pull requests (PRs)
 
