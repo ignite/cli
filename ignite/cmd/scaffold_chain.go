@@ -59,9 +59,9 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 👉 Get started with the following commands:
 
  %% cd %[1]v
- %% starport chain serve
+ %% ignite chain serve
 
-Documentation: https://docs.starport.network
+Documentation: https://docs.ignite.com
 `
 	fmt.Printf(message, path)
 

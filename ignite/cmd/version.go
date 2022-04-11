@@ -8,7 +8,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/version"
 )
 
-// NewVersion creates a new version command to show starport's version.
+// NewVersion creates a new version command to show the Ignite CLI version.
 func NewVersion() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "version",
