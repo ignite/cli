@@ -9,15 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
-	"github.com/ignite-hq/cli/ignite/pkg/jsonfile"
-
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/ignite-hq/cli/ignite/pkg/jsonfile"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 

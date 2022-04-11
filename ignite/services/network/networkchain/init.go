@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
-
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 )
 
