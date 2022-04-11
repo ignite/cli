@@ -4,16 +4,16 @@ title: v0.19.2
 parent:
   title: Migration
   order: 3
-description: For chains that were scaffolded with Starport versions lower than v0.19.2, changes are required to use Starport v0.19.2. 
+description: For chains that were scaffolded with Ignite CLI versions lower than v0.19.2, changes are required to use Ignite CLI v0.19.2. 
 ---
 
-# Upgrading a blockchain to use Starport v0.19.2
+# Upgrading a blockchain to use Ignite CLI v0.19.2
 
-Starport v0.19.2 comes with IBC v2.0.2.
+Ignite CLI v0.19.2 comes with IBC v2.0.2.
 
-With Starport v0.19.2, the contents of the deprecated Starport Modules `tendermint/spm` repo are moved to the official Starport repo which introduces breaking changes.
+With Ignite CLI v0.19.2, the contents of the deprecated Ignite CLI Modules `tendermint/spm` repo are moved to the official Ignite CLI repo which introduces breaking changes.
 
-To migrate your chain that was scaffolded with Starport versions lower than v0.19.2: 
+To migrate your chain that was scaffolded with Ignite CLI versions lower than v0.19.2: 
 
 1. IBC upgrade: Use the [IBC migration documents](https://github.com/cosmos/ibc-go/blob/main/docs/migrations/v1-to-v2.md)
    

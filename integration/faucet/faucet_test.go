@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 const (

@@ -34,7 +34,7 @@ module.exports = {
           children: [
             {
               title: "Starport on Github",
-              path: "https://github.com/tendermint/starport",
+              path: "https://github.com/ignite-hq/cli",
             },
             {
               title: "Cosmos SDK Docs",

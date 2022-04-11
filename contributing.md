@@ -12,7 +12,7 @@
 
 Before you create a new PR on Starport, make sure that you read and comply with this document.
 
-Start a new [Discussion](https://github.com/tendermint/starport/discussions/new) if you want to propose changes to this document.
+Start a new [Discussion](https://github.com/ignite-hq/cli/discussions/new) if you want to propose changes to this document.
 
 To prepare for success, see [Set Up Your Starport Development Environment](dev-env-setup.md).
 
@@ -22,11 +22,11 @@ Thank you for your contribution!
 
 ## Providing Feedback
 
-- Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/tendermint/starport/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
+- Before you open an issue, do a web search, and check for [existing open and closed GitHub Issues](https://github.com/ignite-hq/cli/issues) to see if your question has already been asked and answered. If you find a relevant topic, you can comment on that issue.
 
-- To provide feedback or ask a question, create a [GitHub issue](https://github.com/tendermint/starport/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
+- To provide feedback or ask a question, create a [GitHub issue](https://github.com/ignite-hq/cli/issues/new/choose). Be sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
 
-- We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/ignt).
+- We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️ build-chains** channel in the official [Starport Discord](https://discord.gg/ignite).
 
 ## Opening pull requests (PRs)
 
@@ -56,11 +56,11 @@ Don't worry about adding too many commits. The commits are squashed into a singl
 
 ## Contributing to documentation
 
-When you open a PR for the Starport codebase, you must also update the relevant documentation. For changes to:
+When you open a PR for the Ignite CLI codebase, you must also update the relevant documentation. For changes to:
 
-- [Developer Guide](https://docs.starport.network/guide/) tutorials, update content in the `/docs/guide` folder.
-- [Knowledge Base](https://docs.starport.network/kb/), update content in the `/docs/kb` folder.
-- [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), navigate to the `./starport/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
+- [Developer Guide](https://docs.ignite.network/guide/) tutorials, update content in the `/docs/guide` folder.
+- [Knowledge Base](https://docs.ignite.com/kb/), update content in the `/docs/kb` folder.
+- [Ignite CLI reference](https://docs.ignite.com/cli/), navigate to the `./ignite/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
 
 ### Ask for help
 
@@ -70,7 +70,7 @@ If you started a PR but couldn't finish it for whatever reason, don't give up. I
 
 Starport follows Git Flow for branch strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>.
 
-- Each Starport release has a milestone, see <https://github.com/tendermint/starport/milestones>.
+- Each Starport release has a milestone, see <https://github.com/ignite-hq/cli/milestones>.
 
 - Issues in each milestone have a **priority/high**, **priority/medium**, or **priority/low** label.
 
@@ -82,8 +82,8 @@ Starport follows Git Flow for branch strategy <https://www.atlassian.com/git/tut
 
   - Issues in the **Next** milestone usually have a lower priority than milestones that are associated with a release version, like **Milestone v0.1.0**.
 
-- A single project board <https://github.com/tendermint/starport/projects/4> shows the issues we are currently working on and what issues we plan to work on. 
+- A single project board <https://github.com/ignite-hq/cli/projects/4> shows the issues we are currently working on and what issues we plan to work on.
 
-Contributors, please check the **To Do** column on the project board <https://github.com/tendermint/starport/projects/4> to find an issue to work on.
+Contributors, please check the **To Do** column on the project board <https://github.com/tendermint/ignite-hq/cli/4> to find an issue to work on.
 
 We appreciate your contribution!
