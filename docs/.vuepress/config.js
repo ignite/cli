@@ -64,11 +64,11 @@ module.exports = {
         },
         {
           service: "linkedin",
-          url: "https://www.linkedin.com/company/ignt/",
+          url: "https://www.linkedin.com/company/ignite/",
         },
         {
           service: "discord",
-          url: "https://discord.gg/ignt",
+          url: "https://discord.gg/ignite",
         },
         {
           service: "youtube",
@@ -109,7 +109,7 @@ module.exports = {
             },
             {
               title: "Chat",
-              url: "https://discord.gg/ignt",
+              url: "https://discord.gg/ignite",
             },
           ],
         },
