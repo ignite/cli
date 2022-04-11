@@ -225,11 +225,11 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 When you define the `Comment` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
 
-Inside the `proto/blog/comment.proto` file, you can observe, ignite has already added the required fields inside the `Comment` message.
+Inside the `proto/blog/comment.proto` file, you can observe, Ignite CLI has already added the required fields inside the `Comment` message.
 
 The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Comment`. 
 
-Each file save triggers an automatic rebuild.  Now, after you build and start your chain with ignite, the `Comment` type is available.
+Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Ignite CLI, the `Comment` type is available.
 
 Also, make a small modification in `proto/blog/post.proto` to add `createdAt`:
 
