@@ -13,12 +13,12 @@ var testModule = Module{
 	Name: "planet",
 	Pkg: protoanalysis.Package{
 		Name:         "tendermint.planet.planet",
-		Path:         "testutil/planet/proto/planet",
-		Files:        protoanalysis.Files{protoanalysis.File{Path: "testutil/planet/proto/planet/planet.proto", Dependencies: []string{"google/api/annotations.proto"}}},
+		Path:         "testdata/planet/proto/planet",
+		Files:        protoanalysis.Files{protoanalysis.File{Path: "testdata/planet/proto/planet/planet.proto", Dependencies: []string{"google/api/annotations.proto"}}},
 		GoImportName: "github.com/tendermint/planet/x/planet/types",
 		Messages: []protoanalysis.Message{
-			{Name: "QueryMyQueryRequest", Path: "testutil/planet/proto/planet/planet.proto", HighestFieldNumber: 1},
-			{Name: "QueryMyQueryResponse", Path: "testutil/planet/proto/planet/planet.proto", HighestFieldNumber: 0},
+			{Name: "QueryMyQueryRequest", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 1},
+			{Name: "QueryMyQueryResponse", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 0},
 		},
 		Services: []protoanalysis.Service{
 			{
@@ -67,28 +67,28 @@ func TestDiscover(t *testing.T) {
 		{
 			name: "test valid",
 			args: args{
-				sourcePath: "testutil/planet",
+				sourcePath: "testdata/planet",
 				protoDir:   "proto",
 			},
 			want: []Module{testModule},
 		}, {
 			name: "test no proto folder",
 			args: args{
-				sourcePath: "testutil/planet",
+				sourcePath: "testdata/planet",
 				protoDir:   "",
 			},
 			want: []Module{testModule},
 		}, {
 			name: "test invalid proto folder",
 			args: args{
-				sourcePath: "testutil/planet",
+				sourcePath: "testdata/planet",
 				protoDir:   "invalid",
 			},
 			want: []Module{},
 		}, {
 			name: "test invalid folder",
 			args: args{
-				sourcePath: "testutil/invalid",
+				sourcePath: "testdata/invalid",
 				protoDir:   "",
 			},
 			want: []Module{},
@@ -103,7 +103,7 @@ func TestDiscover(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Discover(context.Background(), "testutil/planet", tt.args.sourcePath, tt.args.protoDir)
+			got, err := Discover(context.Background(), "testdata/planet", tt.args.sourcePath, tt.args.protoDir)
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
 		})

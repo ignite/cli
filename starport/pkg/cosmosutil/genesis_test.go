@@ -104,15 +104,15 @@ func TestParseChainGenesis(t *testing.T) {
 	}{
 		{
 			name:        "parse genesis file 1",
-			genesisPath: "testutil/genesis1.json",
+			genesisPath: "testdata/genesis1.json",
 			want:        genesis1,
 		}, {
 			name:        "parse genesis file 2",
-			genesisPath: "testutil/genesis2.json",
+			genesisPath: "testdata/genesis2.json",
 			want:        genesis2,
 		}, {
 			name:        "parse not found file",
-			genesisPath: "testutil/genesis_invalid.json",
+			genesisPath: "testdata/genesis_invalid.json",
 			wantErr:     true,
 		},
 	}
@@ -141,21 +141,21 @@ func TestParseGenesis(t *testing.T) {
 	}{
 		{
 			name:        "parse genesis file 1",
-			genesisPath: "testutil/genesis1.json",
+			genesisPath: "testdata/genesis1.json",
 			want: cosmosutil.Genesis{
 				Accounts:   []string{"cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"},
 				StakeDenom: "stake",
 			},
 		}, {
 			name:        "parse genesis file 2",
-			genesisPath: "testutil/genesis2.json",
+			genesisPath: "testdata/genesis2.json",
 			want: cosmosutil.Genesis{
 				Accounts:   []string{"cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"},
 				StakeDenom: "stake",
 			},
 		}, {
 			name:        "parse not found file",
-			genesisPath: "testutil/genesis_invalid.json",
+			genesisPath: "testdata/genesis_invalid.json",
 			wantErr:     true,
 		},
 	}
@@ -185,21 +185,21 @@ func TestParseGenesisFromPath(t *testing.T) {
 	}{
 		{
 			name:        "parse genesis file 1",
-			genesisPath: "testutil/genesis1.json",
+			genesisPath: "testdata/genesis1.json",
 			want: cosmosutil.Genesis{
 				Accounts:   []string{"cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"},
 				StakeDenom: "stake",
 			},
 		}, {
 			name:        "parse genesis file 2",
-			genesisPath: "testutil/genesis2.json",
+			genesisPath: "testdata/genesis2.json",
 			want: cosmosutil.Genesis{
 				Accounts:   []string{"cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"},
 				StakeDenom: "stake",
 			},
 		}, {
 			name:        "parse not found file",
-			genesisPath: "testutil/genesis_not_found.json",
+			genesisPath: "testdata/genesis_not_found.json",
 			wantErr:     true,
 		},
 	}

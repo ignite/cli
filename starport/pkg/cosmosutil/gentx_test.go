@@ -18,7 +18,7 @@ func TestParseGentx(t *testing.T) {
 	}{
 		{
 			name:      "parse gentx file 1",
-			gentxPath: "testutil/gentx1.json",
+			gentxPath: "testdata/gentx1.json",
 			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
 				PubKey:           []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
@@ -30,7 +30,7 @@ func TestParseGentx(t *testing.T) {
 			},
 		}, {
 			name:      "parse gentx file 2",
-			gentxPath: "testutil/gentx2.json",
+			gentxPath: "testdata/gentx2.json",
 			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa",
 				PubKey:           []byte("OL+EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ="),
@@ -42,11 +42,11 @@ func TestParseGentx(t *testing.T) {
 			},
 		}, {
 			name:      "parse invalid file",
-			gentxPath: "testutil/gentx_invalid.json",
+			gentxPath: "testdata/gentx_invalid.json",
 			wantErr:   true,
 		}, {
 			name:      "not found file",
-			gentxPath: "testutil/gentx_not_found.json",
+			gentxPath: "testdata/gentx_not_found.json",
 			wantErr:   true,
 		},
 	}
