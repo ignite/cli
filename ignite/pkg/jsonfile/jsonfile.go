@@ -45,8 +45,8 @@ type (
 )
 
 var (
-	// ErrParamNotFound parameter not found into json
-	ErrParamNotFound = errors.New("parameter not found")
+	// ErrFieldNotFound parameter not found into json
+	ErrFieldNotFound = errors.New("JSON field not found")
 	// ErrInvalidValueType invalid value type
 	ErrInvalidValueType = errors.New("invalid value type")
 )
@@ -177,7 +177,7 @@ func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
 			return dec.InputOffset(), nil
 		}
 	}
-	return 0, errors.Wrap(ErrParamNotFound, key)
+	return 0, errors.Wrap(ErrFieldNotFound, key)
 }
 
 // WithKeyValue update a file value object by key
