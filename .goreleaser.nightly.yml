@@ -1,3 +1,4 @@
+project_name: ignite
 builds:
   - main: ./ignite/cmd/ignite
     ldflags:
