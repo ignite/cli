@@ -21,25 +21,25 @@ We admire, respect, and rely on these resources:
 Our users must be able to follow the tutorial from beginning to end on their own computer. Before submitting a tutorial for PR review, be sure to test the content by completing all steps from start to finish exactly as they are written. Cut and paste commands from the article into your terminal to make sure that typos are not present in the commands. If you find yourself executing a command that isn't in the article, incorporate that command into the article to make sure the user gets the exact same results. 
 -->
 
-<!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
+<!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
 
 <!-- Use GitHub flavored Markdown, see [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)  -->
 
 <!-- Our articles have a specific structure. How-To tutorials follow this structure:
 
-* Front matter metadata
+* Front Matter Metadata
 * Title
-* Introduction and purpose (Level 2 heading)
+* Introduction and Purpose (Level 2 heading)
 * Prerequisites (Level 2 heading)
-* Step 1 — Doing something (Level 2 heading)
-* Step 2 — Doing something (Level 2 heading)
+* Step 1 — Doing Something (Level 2 heading)
+* Step 2 — Doing Something (Level 2 heading)
 ...
-* Step 5 — Doing something (Level 2 heading)
+* Step 5 — Doing Something (Level 2 heading)
 * Conclusion (Level 2 heading)
 
  -->
 
-### Introduction and purpose
+### Introduction and Purpose
 
 Introductory paragraph about the topic that explains what this topic is about and why the user should care; what problem does the tutorial solve?
 
@@ -63,7 +63,7 @@ To complete this tutorial, you will need:
 <!-- Example - uncomment to use
 
 - A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../guide/install.md). 
-* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/).
+* A text editor like [Visual Studio Code](https://code.visualstudio.com/download).
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
 -->
@@ -88,13 +88,8 @@ ignite --version
 
 You'll see release details like the following output:
 
-```bash
-Starport version:	v0.19.1
-Starport build date:	2021-12-18T05:56:36Z
-Starport source hash:	-
-Your OS:		darwin
-Your arch:		amd64
-Your go version:	go version go1.16.4 darwin/amd64
+```
+ignite version v0.20.0 darwin/amd64 -build date: 2022...
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:
