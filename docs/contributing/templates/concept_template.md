@@ -53,7 +53,7 @@ Common requirements for tutorials include:
 
 Local software needed, such as Go and Ignite CLI. For example:
 -->
-- [Install Ignite CLI](../../guide/install.md) v0.20.0 <!--(or whatever version applies)-->
+- [Install Ignite CLI](../../guide/install.md) v0.19.6 <!--(or whatever version applies)-->
 
 ## Describe the goal
 

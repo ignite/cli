@@ -58,10 +58,4 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 ## Install Go
 
-This installation method removes existing Go installations, installs Go in `/usr/local/go/bin/go`, and sets the environment variables.
-
-1. Go to <https://golang.org/dl>.
-1. Download the binary release that is suitable for your system.
-1. Follow the installation instructions.
-
-**Note:** We recommend not using brew to install Go.
+Follow the steps in [Install Starport](../guide/install.md) docs to install Starport and Go.

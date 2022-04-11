@@ -89,7 +89,7 @@ ignite --version
 You'll see release details like the following output:
 
 ```
-ignite version v0.20.0 darwin/amd64 -build date: 2022...
+ignite version v0.19.6 darwin/amd64 -build date: 2022-04-12T18:34:28Z
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:
