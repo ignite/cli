@@ -13,6 +13,8 @@ const (
 	PlaceholderSgAppKeeperDefinition    = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
 	PlaceholderSgAppAppModule           = "// this line is used by starport scaffolding # stargate/app/appModule"
 	PlaceholderSgAppInitGenesis         = "// this line is used by starport scaffolding # stargate/app/initGenesis"
+	PlaceholderSgAppBeginBlockers       = "// this line is used by starport scaffolding # stargate/app/beginBlockers"
+	PlaceholderSgAppEndBlockers         = "// this line is used by starport scaffolding # stargate/app/endBlockers"
 	PlaceholderSgAppParamSubspace       = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
 	PlaceholderSgAppGovProposalHandlers = "// this line is used by starport scaffolding # stargate/app/govProposalHandlers"
 	PlaceholderSgAppScopedKeeper        = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
@@ -24,7 +26,6 @@ const (
 	PlaceholderSgRootArgument            = "// this line is used by starport scaffolding # root/arguments"
 
 	// Placeholders IBC
-	PlaceholderIBCErrors                     = "// this line is used by starport scaffolding # ibc/errors"
 	PlaceholderIBCKeysName                   = "// this line is used by starport scaffolding # ibc/keys/name"
 	PlaceholderIBCKeysPort                   = "// this line is used by starport scaffolding # ibc/keys/port"
 	PlaceholderIBCAppScopedKeeperDeclaration = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/declaration"

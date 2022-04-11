@@ -9,12 +9,12 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/cosmos/cosmos-sdk v0.44.6
+	github.com/cosmos/cosmos-sdk v0.45.2
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v2 v2.0.3
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
-	github.com/fatih/color v1.12.0
+	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
@@ -38,18 +38,18 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
-	github.com/rs/cors v1.7.0
+	github.com/rs/cors v1.8.2
 	github.com/spf13/cast v1.4.1
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.3
-	github.com/tendermint/spn v0.1.1-0.20220328143529-dd57eb03ff79
-	github.com/tendermint/tendermint v0.34.14
-	github.com/tendermint/tm-db v0.6.4
+	github.com/tendermint/spn v0.1.1-0.20220407154406-5cfd1bf28150
+	github.com/tendermint/tendermint v0.34.16
+	github.com/tendermint/tm-db v0.6.6
 	github.com/tendermint/vue v0.3.5
-	golang.org/x/mod v0.4.2
+	golang.org/x/mod v0.5.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/text v0.3.7
