@@ -14,6 +14,7 @@ const (
 	TestChainChainID    = "test-1"
 	TestPublicAddress   = "1.2.3.4"
 	TestNodeID          = "9b1f4adbfb0c0b513040d914bfb717303c0eaa71"
+	TestPeerAddress     = "9b1f4adbfb0c0b513040d914bfb717303c0eaa71@1.2.3.4"
 )
 
 const (

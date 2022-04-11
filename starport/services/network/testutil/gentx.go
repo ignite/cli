@@ -13,6 +13,7 @@ type (
 
 	Body struct {
 		Messages []Message `json:"messages"`
+		Memo     string    `json:"memo"`
 	}
 
 	Message struct {
@@ -32,8 +33,9 @@ type (
 	}
 )
 
-func NewGentx(address, denom, amount, pubkey string) *Gentx {
+func NewGentx(address, denom, amount, pubkey, memo string) *Gentx {
 	return &Gentx{Body: Body{
+		Memo: memo,
 		Messages: []Message{
 			{
 				DelegatorAddress: address,

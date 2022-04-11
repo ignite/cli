@@ -107,6 +107,66 @@ func (_m *CampaignClient) CampaignChains(ctx context.Context, in *types.QueryGet
 	return r0, r1
 }
 
+// CampaignSummaries provides a mock function with given fields: ctx, in, opts
+func (_m *CampaignClient) CampaignSummaries(ctx context.Context, in *types.QueryCampaignSummariesRequest, opts ...grpc.CallOption) (*types.QueryCampaignSummariesResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QueryCampaignSummariesResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryCampaignSummariesRequest, ...grpc.CallOption) *types.QueryCampaignSummariesResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QueryCampaignSummariesResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryCampaignSummariesRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CampaignSummary provides a mock function with given fields: ctx, in, opts
+func (_m *CampaignClient) CampaignSummary(ctx context.Context, in *types.QueryCampaignSummaryRequest, opts ...grpc.CallOption) (*types.QueryCampaignSummaryResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QueryCampaignSummaryResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryCampaignSummaryRequest, ...grpc.CallOption) *types.QueryCampaignSummaryResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QueryCampaignSummaryResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryCampaignSummaryRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // MainnetAccount provides a mock function with given fields: ctx, in, opts
 func (_m *CampaignClient) MainnetAccount(ctx context.Context, in *types.QueryGetMainnetAccountRequest, opts ...grpc.CallOption) (*types.QueryGetMainnetAccountResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -249,6 +309,36 @@ func (_m *CampaignClient) Params(ctx context.Context, in *types.QueryParamsReque
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryParamsRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TotalShares provides a mock function with given fields: ctx, in, opts
+func (_m *CampaignClient) TotalShares(ctx context.Context, in *types.QueryTotalSharesRequest, opts ...grpc.CallOption) (*types.QueryTotalSharesResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QueryTotalSharesResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryTotalSharesRequest, ...grpc.CallOption) *types.QueryTotalSharesResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QueryTotalSharesResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryTotalSharesRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
