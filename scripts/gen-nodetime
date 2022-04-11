@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# generates static Go files to embed node cli programs into Starport for linux and darwin.
+# generates static Go files to embed node cli programs into Ignite CLI for linux and darwin.
 
 set -e
 
@@ -12,7 +12,7 @@ npm run build
 tar -czvf nodetime-linux-amd64.tar.gz nodetime-linux
 tar -czvf nodetime-darwin-amd64.tar.gz nodetime-macos
 
-mv nodetime-*.tar.gz ../../../starport/pkg/nodetime/data
+mv nodetime-*.tar.gz ../../../ignite/pkg/nodetime/data
 
 rm nodetime-linux nodetime-macos
 rm -rf dist/

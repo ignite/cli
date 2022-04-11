@@ -12,7 +12,7 @@ Developer tutorials provide step-by-step instructions to help you build blockcha
 
 By following these developer tutorials you will learn how to:
 
-* Install Starport CLI on your local machine
+* Install Ignite CLI on your local machine
 * Create a new blockchain and start a node locally for development
 * Make your blockchain say "Hello, World!"
   * Scaffold a Cosmos SDK query
