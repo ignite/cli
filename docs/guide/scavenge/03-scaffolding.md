@@ -2,7 +2,7 @@
 order: 3
 ---
 
-# Scaffold the scavenge chain
+# Scaffolding
 
 Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command.
 
@@ -12,7 +12,7 @@ By default a chain is scaffolded with a new empty Cosmos SDK module. Use the `--
 ignite scaffold chain github.com/cosmonaut/scavenge --no-module
 ```
 
-This command creates a new `scavenge` directory with a brand new Cosmos SDK blockchain. This blockchain doesn't have any application-specific logic yet, but it imports standard Cosmos SDK modules, such as `auth`, `bank`, `mint`, and others.
+This command created a new directory `scavenge` with a brand new Cosmos SDK blockchain. This blockchain doesn't have any application-specific logic yet, but it imports standard Cosmos SDK modules, such as `auth`, `bank`, `mint` and others.
 
 Change the current directory to `scavenge`:
 
@@ -20,29 +20,14 @@ Change the current directory to `scavenge`:
 cd scavenge
 ```
 
-Inside the project directory, you can execute other Ignite CLI commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
+Inside the project directory you can execute other Ignite CLI commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
 
-In a Cosmos SDK blockchain, implement application-specific logic in separate modules. Using modules keeps code easy to understand and reuse.
+In a Cosmos SDK blockchain, application-specific logic is implemented in separate modules. Using modules keeps code easy to understand and reuse.
 
-## Scaffold the scavenge module
-
-Scaffold a new module called `scavenge`. Based on the game design, the `scavenge` module sends tokens between participants. 
-
-- Implement sending tokens in the standard `bank` module.
-- Use the optional `--dep` flag to specify the `bank` module.
+Scaffold a new module called `scavenge`. Based on our design the `scavenge` module will be sending tokens between participants. Sending tokens is implemented in the standard `bank` module. Specify `bank` as a dependency using the optional `--dep` flag.
 
 ```bash
 ignite scaffold module scavenge --dep bank
 ```
 
-This command creates the `x/scavenge` directory and imports the scavenge module into the blockchain in the `app/app.go` directory.
-
-## Save changes
-
-Before you go to the next step, you can store your project in a git commit:
-
-```bash
-git add .
-git commit -m "scaffold scavenge chain and module"
-```
-
+A module has been created in the `x/scavenge` directory and imported into the blockchain in `app/app.go`.

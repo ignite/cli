@@ -4,24 +4,15 @@ order: 8
 
 # CLI
 
-A command line interface (CLI) lets you interact with your app after it is running on a machine somewhere. Each module has its own namespace within the CLI that gives it the ability to create and sign messages that are destined to be handled by that module. 
+A Command Line Interface (CLI) will help you interact with our app once it is running on a machine somewhere. Each Module has it's own namespace within the CLI that gives it the ability to create and sign Messages destined to be handled by that module. It also comes with the ability to query the state of that module. When combined with the rest of the app, the CLI will let you do things like generate keys for a new account or check the status of an interaction you already had with the application.
 
-The CLI also comes with the ability to query the state of that module. When combined with the rest of the app, the CLI lets you do things like generate keys for a new account or check the status of an interaction you already had with the application.
+The CLI for our module is broken into two files called `tx.go` and `query.go` which are located in `./x/scavenge/client/cli/`. One file is for making transactions that contain messages which will ultimately update our state. The other is for making queries which will give us the ability to read information from our state. Both files utilize the [Cobra](https://github.com/spf13/cobra) library.
 
-The CLI for the scavenge module is present in the `tx.go` and `query.go` files in the `./x/scavenge/client/cli/` directory.
+## The tx.go File
 
-- The `tx.go` file is for making transactions that contain messages that will ultimately update the state.
-- The `query.go` file is for making queries let you read information from the state.
+The `tx.go` file contains `GetTxCmd` which is a standard method within the Cosmos SDK. It is referenced later in the `module.go` file which describes exactly which attributes a modules has. This makes it easier to incorporate different modules for different reasons at the level of the actual application. After all, you want to focus on a module at this point, but later you will create an application that utilizes this module as well as other modules which are already available within the Cosmos SDK.
 
-Both files use the [Cobra](https://github.com/spf13/cobra) library.
-
-## The tx.go file
-
-The `tx.go` file contains the `GetTxCmd` standard method that is used in the Cosmos SDK. This method is referenced later in the `module.go` file that describes exactly which attributes a modules has.
-
-This method makes it easier to incorporate different modules for different reasons at the level of the actual application. You are focused on a module now, but later you create an application that uses this module and other modules that are already available within the Cosmos SDK.
-
-## Commit solution
+## Commit Solution
 
 ```go
  // x/scavenge/client/cli/tx_commit_solution.go
@@ -76,9 +67,9 @@ func CmdCommitSolution() *cobra.Command {
 }
 ```
 
-Note that this file makes use of the `sha256` library for hashing the plain text solutions into the scrambled hashes. This activity takes place on the client side so the solutions are never leaked to any public entity that might want to sneak a peak and steal the bounty reward associated with the scavenges. You can also notice that the hashes are converted into hexadecimal representation to make them easy to read as strings. Hashes are ultimately stored as hexadecimal representations in the keeper.
+Note that this file makes use of the `sha256` library for hashing the plain text solutions into the scrambled hashes. This activity takes place on the client side so the solutions are never leaked to any public entity which might want to sneak a peak and steal the bounty reward associated with the scavenges. You can also notice that the hashes are converted into hexadecimal representation to make them easy to read as strings (which is how they are ultimately stored in the keeper).
 
-## Submit scavenge
+## Submit Scavenge
 
 ```go
 // x/scavenge/client/cli/tx_submit_scavenge.go
@@ -97,7 +88,7 @@ import (
 
 func CmdSubmitScavenge() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-scavenge [solution] [description] [reward]",
+		Use:   "submit-scavenge [solutionHash] [description] [reward]",
 		Short: "Broadcast message submit-scavenge",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
