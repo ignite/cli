@@ -1,5 +1,5 @@
 ---
-name: ignite bug report
+name: Ignite CLI bug report
 about: Create a report to help us improve
 title: ''
 labels: report
