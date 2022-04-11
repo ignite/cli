@@ -72,20 +72,20 @@ func (g Genesis) HasAccount(address string) bool {
 
 // StakeDenom returns the stake denom from the genesis
 func (g *Genesis) StakeDenom() (denom string, err error) {
-	_, err = g.Field(fieldPathStakeDenom, &denom)
+	err = g.Field(fieldPathStakeDenom, &denom)
 	return
 }
 
 // ChainID returns the chain id from the genesis
 func (g *Genesis) ChainID() (chainID string, err error) {
-	_, err = g.Field(fieldPathChainID, &chainID)
+	err = g.Field(fieldPathChainID, &chainID)
 	return
 }
 
 // Accounts returns the auth accounts from the genesis
 func (g *Genesis) Accounts() ([]string, error) {
 	var accs accounts
-	_, err := g.Field(fieldPathAccounts, &accs)
+	err := g.Field(fieldPathAccounts, &accs)
 	accountList := make([]string, len(accs))
 	for i, acc := range accs {
 		accountList[i] = acc.Address

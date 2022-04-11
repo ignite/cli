@@ -61,7 +61,7 @@ func New(file readWriteSeeker) *JSONFile {
 
 // FromPath parse JSONFile object from path
 func FromPath(path string) (*JSONFile, error) {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0600)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0600)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot open the file")
@@ -124,9 +124,9 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 
 // Field return the param by key and the position into byte slice from the file reader.
 // Key can be a path to a nested parameter eg: app_state.staking.accounts
-func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
+func (f *JSONFile) Field(key string, param interface{}) error {
 	if err := f.Reset(); err != nil {
-		return 0, err
+		return err
 	}
 	dec := json.NewDecoder(f.file)
 	// Split the keys by the separator to find nested JSON parameters eg: app_state.staking.accounts
@@ -139,7 +139,7 @@ func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
 			break
 		}
 		if err != nil {
-			return 0, err
+			return err
 		}
 		name, ok := t.(string)
 		if !ok {
@@ -155,7 +155,7 @@ func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
 			// Try to decode the all data first
 			err := dec.Decode(&param)
 			if err == nil {
-				return dec.InputOffset(), nil
+				return nil
 			}
 
 			// If not decode, only get the JSON value from the key
@@ -164,7 +164,7 @@ func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
 				break
 			}
 			if err != nil {
-				return 0, err
+				return err
 			}
 			switch t := t.(type) {
 			case int:
@@ -172,12 +172,12 @@ func (f *JSONFile) Field(key string, param interface{}) (int64, error) {
 			case string:
 				param = t
 			default:
-				return 0, ErrInvalidValueType
+				return ErrInvalidValueType
 			}
-			return dec.InputOffset(), nil
+			return nil
 		}
 	}
-	return 0, errors.Wrap(ErrFieldNotFound, key)
+	return errors.Wrap(ErrFieldNotFound, key)
 }
 
 // WithKeyValue update a file value object by key
@@ -198,7 +198,7 @@ func WithTime(key string, t int64) UpdateFileOption {
 // WithKeyIntValue update a file int value object by key
 func WithKeyIntValue(key string, value int) UpdateFileOption {
 	return func(update map[string][]byte) {
-		update[key] = []byte{byte(value)}
+		update[key] = []byte(strconv.Itoa(value))
 	}
 }
 
