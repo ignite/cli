@@ -1,6 +1,6 @@
 module.exports = {
   theme: "cosmos",
-  title: "Starport",
+  title: "Ignite CLI",
   head: [
     [
       "script",
@@ -33,7 +33,7 @@ module.exports = {
           title: "Resources",
           children: [
             {
-              title: "Starport on Github",
+              title: "Ignite CLI on Github",
               path: "https://github.com/ignite-hq/cli",
             },
             {
@@ -51,25 +51,20 @@ module.exports = {
     footer: {
       question: {
         text:
-          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/ignt' target='_blank'>Discord</a>.",
+          "Chat with Ignite CLI developers in <a href='https://discord.gg/ignt' target='_blank'>Discord</a>.",
       },
       logo: "/logo.svg",
       textLink: {
-        text: "starport.com",
-        url: "https://starport.com/",
+        text: "ignite.com",
+        url: "https://ignite.com/",
       },
-      services: [
-        {
-          service: "medium",
-          url: "https://medium.com/tendermint",
-        },
         {
           service: "twitter",
-          url: "https://twitter.com/starportHQ",
+          url: "https://twitter.com/ignite_dev",
         },
         {
           service: "linkedin",
-          url: "https://www.linkedin.com/company/tendermint/",
+          url: "https://www.linkedin.com/company/ignt/",
         },
         {
           service: "discord",
@@ -77,12 +72,12 @@ module.exports = {
         },
         {
           service: "youtube",
-          url: "https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q",
+          url: "https://www.youtube.com/ignitehq",
         },
       ],
 
       smallprint:
-        "This website is maintained by Tendermint Inc. The contents and opinions of this website are those of Tendermint Inc.",
+        "This website is maintained by Ignite. The contents and opinions of this website are those of Ignite.",
       links: [
         {
           title: "Documentation",
