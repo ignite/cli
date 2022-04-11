@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"sort"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -67,7 +68,14 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.Ch
 			return nil
 		})
 	}
-	return chainLaunches, g.Wait()
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+	// sort filenames by launch id
+	sort.Slice(chainLaunches, func(i, j int) bool {
+		return chainLaunches[i].ID > chainLaunches[j].ID
+	})
+	return chainLaunches, nil
 }
 
 // GenesisInformation returns all the information to construct the genesis from a chain ID

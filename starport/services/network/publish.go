@@ -20,7 +20,6 @@ type publishOptions struct {
 	campaignID  uint64
 	noCheck     bool
 	metadata    string
-	totalShares campaigntypes.Shares
 	totalSupply sdk.Coins
 	mainnet     bool
 }
@@ -53,13 +52,6 @@ func WithNoCheck() PublishOption {
 func WithCustomGenesis(url string) PublishOption {
 	return func(o *publishOptions) {
 		o.genesisURL = url
-	}
-}
-
-// WithTotalShares provides a campaign total shares
-func WithTotalShares(totalShares campaigntypes.Shares) PublishOption {
-	return func(o *publishOptions) {
-		o.totalShares = totalShares
 	}
 }
 
@@ -184,12 +176,6 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if err := c.CacheBinary(createChainRes.LaunchID); err != nil {
 		return 0, 0, 0, err
 
-	}
-
-	if !o.totalShares.Empty() {
-		if err := n.UpdateCampaign(campaignID, WithCampaignTotalShares(o.totalShares)); err != nil {
-			return 0, 0, 0, err
-		}
 	}
 
 	if o.mainnet {
