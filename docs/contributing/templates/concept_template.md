@@ -16,7 +16,7 @@ We admire and respect these resources:
 
 -->
 
-<!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
+<!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
 
 <!-- We like the way Digital Ocean explains things, you can learn about the title, introduction, and Goals sections at https://do.co/style#title-introduction-and-goals -->
 
@@ -53,9 +53,9 @@ Common requirements for tutorials include:
 
 Local software needed, such as Go and Ignite CLI. For example:
 -->
-- [Install Ignite CLI](../../guide/install.md) v0.19.6 <!--(or whatever version applies)-->
+- [Install Ignite CLI](../starport/index.md) <!--specific if version applies)-->
 
-## Describe the goal
+## Describe
 
 Introduction to the concept. What are we going to do and why are we doing it?
 
@@ -88,7 +88,7 @@ In this article you [explored/learned] [something]. Now you can....
 
 This is _italics_ and this is **bold**.
 
-Use italics and bold sparingly, as emphasis is required only for specific things. 
+Only use italics and bold for specific things. 
 
 This is `inline code`. Use it for referencing package names and commands.
 
@@ -108,9 +108,13 @@ Write key presses in ALLCAPS with in-line code formatting: `ENTER`.
 
 Use a plus symbol (+) if keys need to be pressed simultaneously: `CTRL+C`.
 
+<$>[note]
 **Note:** This is a note.
+<$>
 
+<$>[warning]
 **Warning:** This is a warning.
+<$>
 
 See [Notes, cautions, warnings, and other notices](https://developers.google.com/style/notices).
 
