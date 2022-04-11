@@ -212,7 +212,7 @@ func TestJSONFile_Hash(t *testing.T) {
 		{
 			name:     "file hash",
 			filepath: "testdata/genesis.json",
-			want:     "f6f6913a1efacc78f61a63041f94672bb903c969ed33c29020f95997f46903dd",
+			want:     "4d685d9cb6f9fb9815a33f10a75cd9970f162bbc6ebc8c5c0e3fd166d1b3ee93",
 		},
 		{
 			name:     "not found file",
