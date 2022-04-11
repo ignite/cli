@@ -13,7 +13,7 @@ const (
 	flagMetadata = "metadata"
 )
 
-// NewNetworkCampaignPublish returns a new command to publish a new campaigns on Starport Network.
+// NewNetworkCampaignPublish returns a new command to publish a new campaigns on Ignite.
 func NewNetworkCampaignPublish() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [name] [total-supply]",

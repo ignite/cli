@@ -18,7 +18,7 @@ var CampaignSummaryHeader = []string{
 	"mainnet id",
 }
 
-// NewNetworkCampaignList returns a new command to list all published campaigns on Starport Network.
+// NewNetworkCampaignList returns a new command to list all published campaigns on Ignite.
 func NewNetworkCampaignList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",

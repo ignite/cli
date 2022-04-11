@@ -119,7 +119,7 @@ Zsh:
 
   To load completions for each session, execute once:
   
-  $ ignite  tools completions zsh > "${fpath[1]}/_starport"
+  $ ignite  tools completions zsh > "${fpath[1]}/_ignite"
 
   You will need to start a new shell for this setup to take effect.
 
