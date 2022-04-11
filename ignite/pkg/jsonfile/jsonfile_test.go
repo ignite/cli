@@ -34,25 +34,25 @@ func TestJSONFile_Field(t *testing.T) {
 	}{
 		{
 			name:     "get string parameter",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			key:      "consensus_params.block.max_bytes",
 			want:     "22020096",
 		},
 		{
 			name:     "get number parameter",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			key:      "consensus_params.block.time_iota_ms",
 			want:     1000,
 		},
 		{
 			name:     "get coins parameter",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			key:      "app_state.bank.balances.coins",
 			want:     sdk.Coins{sdk.NewCoin("stake", sdk.NewInt(95000000))},
 		},
 		{
 			name:     "get custom parameter",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			key:      "consensus_params.evidence",
 			want: evidence{
 				MaxAgeDuration:  "172800000000000",
@@ -62,14 +62,14 @@ func TestJSONFile_Field(t *testing.T) {
 		},
 		{
 			name:     "invalid coins parameter",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			key:      "app_state.bank.balances.coins",
 			want:     invalidStruct{name: "invalid", number: 110},
 			err:      ErrInvalidValueType,
 		},
 		{
 			name:     "invalid path",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			key:      "invalid.field.path",
 			want:     invalidStruct{name: "invalid", number: 110},
 			err:      ErrFieldNotFound,
@@ -101,7 +101,7 @@ func TestJSONFile_Update(t *testing.T) {
 	}{
 		{
 			name:     "update string field",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValue(
 					"consensus_params.block.max_bytes",
@@ -111,7 +111,7 @@ func TestJSONFile_Update(t *testing.T) {
 		},
 		{
 			name:     "update string field to number",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyIntValue(
 					"consensus_params.block.max_bytes",
@@ -121,7 +121,7 @@ func TestJSONFile_Update(t *testing.T) {
 		},
 		{
 			name:     "update number field",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyIntValue(
 					"consensus_params.block.time_iota_ms",
@@ -131,7 +131,7 @@ func TestJSONFile_Update(t *testing.T) {
 		},
 		{
 			name:     "update coin field",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithTime(
 					"genesis_time",
@@ -141,7 +141,7 @@ func TestJSONFile_Update(t *testing.T) {
 		},
 		{
 			name:     "update all values type",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValue(
 					"consensus_params.block.max_bytes",
@@ -159,7 +159,7 @@ func TestJSONFile_Update(t *testing.T) {
 		},
 		{
 			name:     "add non-existing field",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValue(
 					"app_state.auth.params.sig_verify_cost_ed25519",
@@ -211,7 +211,7 @@ func TestJSONFile_Hash(t *testing.T) {
 	}{
 		{
 			name:     "file hash",
-			filepath: "testdata/genesis.json",
+			filepath: "testdata/jsonfile.json",
 			want:     "4d685d9cb6f9fb9815a33f10a75cd9970f162bbc6ebc8c5c0e3fd166d1b3ee93",
 		},
 		{
