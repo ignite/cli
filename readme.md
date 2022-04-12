@@ -9,7 +9,7 @@
 Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite-hq/cli/tree/master) (or open [nightly version](https://gitpod.io/#https://github.com/ignite-hq/cli/)), or [install latest release](https://docs.ignite.com/guide/install.html). Create and start a blockchain:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/mars
+ignite scaffold chain github.com/username/mars
 
 cd mars
 
