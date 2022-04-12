@@ -2,7 +2,7 @@
 
 To ensure you have a successful experience working with our Developer Tutorials content, Ignite recommends this technical setup.
 
-## Setting Up Visual Studio Code
+## Setting up Visual Studio Code
 
 1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup/).
 1. Click **Extensions** in the sidebar.
@@ -58,4 +58,4 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 ## Install Go
 
-Follow the steps in [Install Starport](../guide/install.md) docs to install Starport and Go.
+Follow the steps in [Install Ignite CLI](../guide/install.md) docs to install Ignite CLI and Go.
