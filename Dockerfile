@@ -3,7 +3,7 @@
 
 ## prep the base image.
 #
-FROM golang:1.16.2-buster as base
+FROM golang:1.18.0-buster as base
 
 RUN apt update && \
     apt-get install -y \
