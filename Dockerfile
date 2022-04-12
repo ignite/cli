@@ -41,7 +41,7 @@ COPY --from=builder /go/bin/ignite /usr/bin
 WORKDIR /apps
 
 # see docs for exposed ports:
-#   https://docs.starport.network/kb/config.html#host
+#   https://docs.ignite.com/kb/config.html#host
 EXPOSE 26657
 EXPOSE 26656
 EXPOSE 6060 
