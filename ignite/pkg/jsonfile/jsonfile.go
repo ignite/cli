@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignite-hq/cli/ignite/pkg/tarball"
-
 	"github.com/buger/jsonparser"
 	"github.com/pkg/errors"
+
+	"github.com/ignite-hq/cli/ignite/pkg/tarball"
 )
 
 const (
@@ -49,6 +49,8 @@ var (
 	ErrFieldNotFound = errors.New("JSON field not found")
 	// ErrInvalidValueType invalid value type
 	ErrInvalidValueType = errors.New("invalid value type")
+	// ErrInvalidURL invalid file URL
+	ErrInvalidURL = errors.New("invalid file URL")
 )
 
 // New creates a new JSONFile
@@ -83,6 +85,9 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, ErrInvalidURL
+	}
 
 	// Remove the old file if exists and create a new one
 	if err := os.RemoveAll(path); err != nil {
@@ -102,7 +107,7 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 	// Check if the downloaded file is a tarball and extract only the necessary JSON file
 	var ext bytes.Buffer
 	tarballPath, err := tarball.ExtractFile(&buf, &ext, tarballFileName)
-	if err != nil && err != tarball.ErrNotGzipType {
+	if err != nil && err != tarball.ErrNotGzipType && err != tarball.ErrInvalidFileName {
 		return nil, err
 	} else if err == nil {
 		// Erase the tarball bite code from the file and copy the correct one

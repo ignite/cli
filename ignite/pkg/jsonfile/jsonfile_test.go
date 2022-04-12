@@ -1,15 +1,19 @@
 package jsonfile
 
 import (
+	"context"
+	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/pkg/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/pkg/tarball"
 )
 
 func TestJSONFile_Field(t *testing.T) {
@@ -239,6 +243,69 @@ func TestJSONFile_Hash(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestFromURL(t *testing.T) {
+	type args struct {
+		url             string
+		tarballFileName string
+	}
+	tests := []struct {
+		name        string
+		args        args
+		verifyField string
+		wantField   string
+		err         error
+	}{
+		{
+			name: "JSON URL",
+			args: args{
+				url: "https://raw.githubusercontent.com/ignite-hq/cli/4d4f6b436d15aa3fb8aeca4bf91b6a557f897f9b/ignite/pkg/tarball/testdata/example.json",
+			},
+			verifyField: "chain_id",
+			wantField:   "gaia-1",
+		},
+		{
+			name: "tarball URL",
+			args: args{
+				url:             "https://github.com/ignite-hq/cli/raw/4d4f6b436d15aa3fb8aeca4bf91b6a557f897f9b/ignite/pkg/tarball/testdata/example-subfolder.tar.gz",
+				tarballFileName: "example.json",
+			},
+			verifyField: "chain_id",
+			wantField:   "gaia-1",
+		},
+		{
+			name: "invalid tarball file name",
+			args: args{
+				url:             "https://github.com/ignite-hq/cli/raw/4d4f6b436d15aa3fb8aeca4bf91b6a557f897f9b/ignite/pkg/tarball/testdata/example-subfolder.tar.gz",
+				tarballFileName: "invalid.json",
+			},
+			err: tarball.ErrGzipFileNotFound,
+		},
+		{
+			name: "invalid link",
+			args: args{
+				url: "https://github.com/invalid_example.json",
+			},
+			err: ErrInvalidURL,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filepath := fmt.Sprintf("%s/jsonfile.json", os.TempDir())
+			got, err := FromURL(context.TODO(), tt.args.url, filepath, tt.args.tarballFileName)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			var verificationField string
+			err = got.Field(tt.verifyField, &verificationField)
+			require.NoError(t, err)
+			require.Equal(t, tt.wantField, verificationField)
 		})
 	}
 }
