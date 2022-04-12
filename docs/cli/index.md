@@ -48,7 +48,7 @@ Commands for managing accounts
 **Synopsis**
 
 Commands for managing accounts. An account is a pair of a private key and a public key.
-Ignite CLI uses accounts to interact with the Ignite CLI Network blockchain, use an IBC relayer, and more.
+Ignite CLI uses accounts to interact with the Ignite Blockchain, use an IBC relayer, and more.
 
 **Options**
 
