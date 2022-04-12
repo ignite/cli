@@ -58,6 +58,7 @@ module.exports = {
         text: "ignite.com",
         url: "https://ignite.com/",
       },
+      services: [
         {
           service: "twitter",
           url: "https://twitter.com/ignite_dev",
