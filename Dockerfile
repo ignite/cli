@@ -3,7 +3,7 @@
 
 ## prep the base image.
 #
-FROM golang:1.16.2-buster as base
+FROM golang:1.18.0-buster as base
 
 RUN apt update && \
     apt-get install -y \
@@ -18,7 +18,7 @@ ENV GOPROXY https://proxy.golang.org
 #
 FROM base as builder
 
-WORKDIR /starport
+WORKDIR /ignite
 
 # cache dependencies.
 COPY ./go.mod . 
@@ -36,7 +36,7 @@ FROM base
 RUN useradd -ms /bin/bash tendermint
 USER tendermint
 
-COPY --from=builder /go/bin/starport /usr/bin
+COPY --from=builder /go/bin/ignite /usr/bin
 
 WORKDIR /apps
 
@@ -48,4 +48,4 @@ EXPOSE 6060
 EXPOSE 9090 
 EXPOSE 1317 
 
-ENTRYPOINT ["starport"]
+ENTRYPOINT ["ignite"]

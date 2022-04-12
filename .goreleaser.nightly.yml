@@ -1,0 +1,11 @@
+project_name: ignite
+builds:
+  - main: ./ignite/cmd/ignite
+    ldflags:
+      - -s -w -X github.com/ignite-hq/cli/ignite/version.Version={{.Tag}} -X github.com/ignite-hq/cli/ignite/version.Date={{.Date}} -X github.com/ignite-hq/cli/ignite/version.Head={{.FullCommit}}
+    goarch:
+      - amd64
+changelog:
+  skip: true
+release:
+  prerelease: true

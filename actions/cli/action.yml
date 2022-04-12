@@ -1,5 +1,5 @@
 name: cli 
-description: Starport CLI 
+description: Ignite CLI 
 runs:
   using: docker
   image: Dockerfile

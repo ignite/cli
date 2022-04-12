@@ -1,7 +1,7 @@
 # Understanding [Some Concept]
 
 <!--
-Use this article template as a quick starting point when writing Starport conceptual tutorials. 
+Use this article template as a quick starting point when writing Ignite CLI conceptual tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 
@@ -12,11 +12,11 @@ We admire and respect these resources:
 - Google developer documentation [style guide](https://developers.google.com/style)
 - Digital Ocean style guide [do.co/style](https://do.co/style)
 
-[Create an issue](https://github.com/tendermint/starport/issues/new/choose) to let us know if you have questions. 
+[Create an issue](https://github.com/ignite-hq/cli/issues/new/choose) to let us know if you have questions. 
 
 -->
 
-<!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
+<!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
 
 <!-- We like the way Digital Ocean explains things, you can learn about the title, introduction, and Goals sections at https://do.co/style#title-introduction-and-goals -->
 
@@ -51,11 +51,11 @@ Our tutorials take the reader from a fresh deployment to a working setup, so the
 
 Common requirements for tutorials include:
 
-Local software needed, such as Go and Starport. For example:
+Local software needed, such as Go and Ignite CLI. For example:
 -->
-- [Install Starport](../starport/index.md) v0.17.1 <!--(or whatever version applies)-->
+- [Install Ignite CLI](../starport/index.md) <!--specific if version applies)-->
 
-## 
+## Describe
 
 Introduction to the concept. What are we going to do and why are we doing it?
 
@@ -65,10 +65,9 @@ Next...
 
 Finally...
 
-
 Now transition to the next section by telling the reader what's next.
 
-## Another Section
+## Another section
 
 Another introduction
 

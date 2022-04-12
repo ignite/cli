@@ -14,7 +14,7 @@ In this chapter, you create the basic blockchain module for the interchain excha
 Scaffold a new blockchain called `interchange`:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/interchange --no-module
+ignite scaffold chain github.com/cosmonaut/interchange --no-module
 ```
 
 A new directory named `interchange` is created. 
@@ -38,18 +38,18 @@ Scaffold a module inside your blockchain named `dex` with IBC capabilities.
 The dex module contains the logic to create and maintain order books and route them through IBC to the second blockchain.
 
 ```bash
-starport scaffold module dex --ibc --ordering unordered --dep bank
+ignite scaffold module dex --ibc --ordering unordered --dep bank
 ```
 
 ## Create CRUD logic for Buy and Sell Order Books
 
 Scaffold two types with create, read, update, and delete (CRUD) actions. 
 
-Run the following Starport `type` commands to create `sellOrderBook` and `buyOrderBook` types:
+Run the following Ignite CLI `type` commands to create `sellOrderBook` and `buyOrderBook` types:
 
 ```bash
-starport scaffold map sell-order-book amountDenom priceDenom --no-message --module dex
-starport scaffold map buy-order-book amountDenom priceDenom --no-message --module dex
+ignite scaffold map sell-order-book amountDenom priceDenom --no-message --module dex
+ignite scaffold map buy-order-book amountDenom priceDenom --no-message --module dex
 ```
 
 The values are:
@@ -70,9 +70,9 @@ Create three packets for IBC:
 - A buy order `buyOrder`
 
 ```bash
-starport scaffold packet create-pair sourceDenom targetDenom --module dex
-starport scaffold packet sell-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,gain:int --module dex
-starport scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module dex
+ignite scaffold packet create-pair sourceDenom targetDenom --module dex
+ignite scaffold packet sell-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,gain:int --module dex
+ignite scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module dex
 ```
 
 The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. The value of the `--ack` flag is a comma-separated list of names (no spaces). Append optional types after a colon (`:`).
@@ -84,8 +84,8 @@ Cancelling orders is done locally in the network, there is no packet to send.
 Use the `message` command to create a message to cancel a sell or buy order:
 
 ```go
-starport scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module dex
-starport scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module dex
+ignite scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module dex
+ignite scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module dex
 ```
 
 Use the optional `--desc` flag to define a description of the CLI command that is used to broadcast a transaction with the message.
@@ -102,7 +102,7 @@ The token denoms must have the same behavior as described in the `ibc-transfer` 
 For a `voucher` you store, define the source port ID, source channel ID, and the original denom:
 
 ```go
-starport scaffold map denom-trace port channel origin --no-message --module dex
+ignite scaffold map denom-trace port channel origin --no-message --module dex
 ```
 
 ## Create the Configuration for Two Blockchains
