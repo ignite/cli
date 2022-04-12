@@ -90,6 +90,45 @@ func TestParse(t *testing.T) {
 	}
 }
 
+func TestExtractUserAndRepo(t *testing.T) {
+	cases := []struct {
+		name     string
+		path     string
+		want     string
+		mustFail bool
+	}{
+		{
+			name: "url",
+			path: "github.com/tendermint/starport",
+			want: "tendermint/starport",
+		},
+		{
+			name: "name",
+			path: "starport",
+			want: "starport/starport",
+		},
+		{
+			name:     "invalid url",
+			path:     "github.com/tendermint",
+			mustFail: true,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			path, err := ExtractUserAndRepo(tt.path)
+
+			if tt.mustFail {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tt.want, path)
+		})
+	}
+}
+
 func TestValidateURLPath(t *testing.T) {
 	require.NoError(t, validateURLPath("github.com/tendermint/starport"))
 }

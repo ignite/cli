@@ -12,6 +12,7 @@ import (
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 
+	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 )
 
@@ -71,6 +72,24 @@ func Find(path string) (parsed Path, appPath string, err error) {
 		return parsed, path, err
 	}
 	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
+}
+
+// ExtractUserAndRepo extracts the user and repository names from a path.
+// The names are returned in a single string as "user/repository".
+// Path must be a URL path, e.g. github.com/tendermint/starport, in which case
+// the result is "tendermint/starport", or it can be a single name, e.g. "starport",
+// that will result in "starport/starport".
+func ExtractUserAndRepo(path string) (string, error) {
+	if strings.Contains(path, "/") {
+		g, err := giturl.Parse(path)
+		if err != nil {
+			return "", err
+		}
+
+		return g.UserAndRepo(), nil
+	}
+
+	return fmt.Sprint(path, "/", path), nil
 }
 
 func validateRawPath(path string) error {
