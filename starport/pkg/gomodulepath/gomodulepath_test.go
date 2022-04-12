@@ -60,6 +60,21 @@ func TestParse(t *testing.T) {
 			rawpath: "github.com/a/bC",
 			path:    Path{RawPath: "github.com/a/bC", Root: "bC", Package: "bc"},
 		},
+		{
+			name:    "with a name",
+			rawpath: "a",
+			path:    Path{RawPath: "a", Root: "a", Package: "a"},
+		},
+		{
+			name:    "with a name containing underscore",
+			rawpath: "a_b",
+			path:    Path{RawPath: "a_b", Root: "a_b", Package: "ab"},
+		},
+		{
+			name:    "with a name containing dash",
+			rawpath: "a-b",
+			path:    Path{RawPath: "a-b", Root: "a-b", Package: "ab"},
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,4 +88,20 @@ func TestParse(t *testing.T) {
 			require.Equal(t, tt.path, path)
 		})
 	}
+}
+
+func TestValidateURLPath(t *testing.T) {
+	require.NoError(t, validateURLPath("github.com/tendermint/starport"))
+}
+
+func TestValidateURLPathWithInvalidPath(t *testing.T) {
+	require.Error(t, validateURLPath("github/tendermint/starport"))
+}
+
+func TestValidateNamePath(t *testing.T) {
+	require.NoError(t, validateNamePath("starport"))
+}
+
+func TestValidateNamePathWithInvalidPath(t *testing.T) {
+	require.Error(t, validateNamePath("starport."))
 }

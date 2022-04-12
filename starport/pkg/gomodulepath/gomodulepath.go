@@ -33,7 +33,7 @@ type Path struct {
 
 // Parse parses rawpath into a module Path.
 func Parse(rawpath string) (Path, error) {
-	if err := validateModulePath(rawpath); err != nil {
+	if err := validateRawPath(rawpath); err != nil {
 		return Path{}, err
 	}
 	rootName := root(rawpath)
@@ -73,8 +73,23 @@ func Find(path string) (parsed Path, appPath string, err error) {
 	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
-func validateModulePath(path string) error {
+func validateRawPath(path string) error {
+	// A raw path should be either a URL or otherwise a single name without "/"s
+	if strings.Contains(path, "/") {
+		return validateURLPath(path)
+	}
+	return validateNamePath(path)
+}
+
+func validateURLPath(path string) error {
 	if err := module.CheckPath(path); err != nil {
+		return fmt.Errorf("app name is an invalid go module name: %w", err)
+	}
+	return nil
+}
+
+func validateNamePath(path string) error {
+	if err := module.CheckImportPath(path); err != nil {
 		return fmt.Errorf("app name is an invalid go module name: %w", err)
 	}
 	return nil
