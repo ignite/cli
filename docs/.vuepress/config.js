@@ -65,7 +65,7 @@ module.exports = {
         },
         {
           service: "linkedin",
-          url: "http://linkedin.com/company/ignt/",
+          url: "https://linkedin.com/company/ignt/",
         },
         {
           service: "discord",
