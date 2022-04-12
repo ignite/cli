@@ -1,5 +1,17 @@
 # Changelog
 
+## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.5)
+
+We are rebranding to Ignite!
+
+IMPORTANT! This upgrade renames `starport` command to `ignite`. From now on, use `ignite` command to access the CLI.
+
+### Features
+
+- Upgraded Cosmos SDK version to `v0.45.2`
+- Added support for in memory backend in `pkg/cosmosclient` package
+- Improved our tutorials and documentation
+
 ## [`v0.19.5`](https://github.com/ignite-hq/cli/pull/2158/commits)
 
 ### Features

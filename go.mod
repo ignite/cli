@@ -9,7 +9,7 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/cosmos/cosmos-sdk v0.45.2
+	github.com/cosmos/cosmos-sdk v0.45.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v2 v2.0.3
 	github.com/docker/docker v20.10.7+incompatible
@@ -29,7 +29,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
-	github.com/ignite-hq/cli v0.0.0-00010101000000-000000000000 // AUTO added because, SPN depends on CLI.
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/chisel v1.7.7
 	github.com/manifoldco/promptui v0.9.0
@@ -41,13 +40,13 @@ require (
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rs/cors v1.8.2
 	github.com/spf13/cast v1.4.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.3
 	github.com/tendermint/spn v0.1.1-0.20220407154406-5cfd1bf28150
-	github.com/tendermint/tendermint v0.34.16
+	github.com/tendermint/tendermint v0.34.19
 	github.com/tendermint/tm-db v0.6.6
 	github.com/tendermint/vue v0.3.5
 	golang.org/x/mod v0.5.0

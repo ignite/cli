@@ -29,7 +29,7 @@ Inside the `nameservice` project directory you can execute other Ignite CLI comm
 
 ## Create the Module
 
-Scaffold a new module called `nameservice`. By design, the `nameservice` module must send tokens between participants. The send tokens functionality is implemented in the standard `bank` module. 
+Scaffold a new module called `nameservice`. By design, the `nameservice` module must send tokens between participants. The send tokens functionality is implemented in the standard `bank` module.
 
 To specify `bank` as a dependency, use the optional `--dep` flag:
 
@@ -42,6 +42,6 @@ ignite scaffold module nameservice --dep bank
 The Ignite CLI scaffold command has done all of the work for you!
 
 - The `nameservice` module was created in the `x/nameservice` directory.
-- The `nameservice` module was imported into the blockchain in the `app/app.go` file. 
+- The `nameservice` module was imported into the blockchain in the `app/app.go` file.
 
 Now, define the actions your app can make with messages.

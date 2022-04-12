@@ -259,7 +259,7 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Ignite CLI %s is available!
 ·
-· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/cli/guide/install.html#upgrading-your-ignite-cli-installation
+· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install.html#upgrading-your-ignite-cli-installation
 ·
 ··
 
@@ -278,7 +278,7 @@ func newApp(appPath string) (scaffolder.Scaffolder, error) {
 			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
 Please, follow the migration guide to upgrade your chain to the latest version:
 
-https://docs.ignite.com/cli/migration`, sc.Version.String(),
+https://docs.ignite.com/migration`, sc.Version.String(),
 		)
 	}
 	return sc, nil
