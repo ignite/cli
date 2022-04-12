@@ -31,8 +31,8 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
+	spnNodeAddressNightly   = "https://rpc.nightly.ignite.com:443"
+	spnFaucetAddressNightly = "https://faucet.nightly.ignite.com"
 
 	spnNodeAddressLocal   = "http://0.0.0.0:26657"
 	spnFaucetAddressLocal = "http://0.0.0.0:4500"
@@ -122,7 +122,7 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 	if from != "" {
 		account, err = cosmos.AccountRegistry.GetByName(getFrom(n.cmd))
 		if err != nil {
-			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
+			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'ignite account -h' to manage accounts")
 		}
 	}
 	return network.New(*cosmos, account, options...)

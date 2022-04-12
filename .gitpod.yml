@@ -13,7 +13,7 @@ tasks:
 
     init: |
       ##
-      ## install Starport
+      ## install Ignite CLI
       make -C /workspace/ignite install
 
     command: |

@@ -89,9 +89,9 @@ ignite --version
 You'll see release details like the following output:
 
 ```bash
-Starport version:	v0.19.1
-Starport build date:	2021-12-18T05:56:36Z
-Starport source hash:	-
+Ignite version:	v0.19.6
+Ignite CLI build date:	2021-12-18T05:56:36Z
+Ignite CLI source hash:	-
 Your OS:		darwin
 Your arch:		amd64
 Your go version:	go version go1.16.4 darwin/amd64

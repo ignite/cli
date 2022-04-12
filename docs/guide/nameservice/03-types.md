@@ -11,7 +11,7 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 For the nameservice blockchain, define a `whois` type and the create and delete methods.
 
-Because Ignite CLI does the heavy lifting for you, choose from several [ignite scaffold](https://docs.ignite.com/cli/#ignite-scaffold) commands to create CRUD functionality code for data stored in different ways:
+Because Ignite CLI does the heavy lifting for you, choose from several [ignite scaffold](https://docs.ignite.com/cli#ignite-scaffold) commands to create CRUD functionality code for data stored in different ways:
 
 - Array, a list-like data structure
 - Map (key-value pairs)
@@ -19,7 +19,7 @@ Because Ignite CLI does the heavy lifting for you, choose from several [ignite s
 
 ## Add the whois Type
 
-Use the `ignite scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names. 
+Use the `ignite scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names.
 
 In this example, the `whois` type is stored in a map-like data structure:
 
@@ -45,7 +45,7 @@ The `ignite scaffold map whois name value price --no-message` command created an
 
 * `proto/nameservice/query.proto`
 
-    * Queries to get data from the blockchain. 
+    * Queries to get data from the blockchain.
     * Define queries as proto messages.
     * Register the messages in the `Query` service.
 
@@ -86,7 +86,7 @@ The `ignite scaffold map whois name value price --no-message` command created an
     String prefix in the key to store whois information in the state.
 
 * `x/nameservice/genesis.go`
- 
+
     Logic for exporting the state.
 
 * `x/nameservice/types/genesis.go`
@@ -103,7 +103,7 @@ In the `x/nameservice/keeper/whois.go` file, take at a look at the keeper packag
 
 - `SetWhois` uses a key-value store with a prefix for the `Whois` type and uses a `store.Set` method to write a `Whois` into the store.
 
-<!-- where is this? teach me please 
+<!-- where is this? teach me please
 `Whois-value-` encodes the `Whois` type that is generated from a protocol buffer definition-->
 
 - `GetWhois` selects a store using the `Whois` prefix and uses a `store.Get` method to fetch a `Whois` with a particular index.

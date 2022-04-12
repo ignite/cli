@@ -33,7 +33,7 @@ ignite scaffold chain github.com/cosmonaut/mars
 
 * [ignite account](#ignite-account)	 - Commands for managing accounts
 * [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-* [ignite docs](#ignite-docs)	 - Show Starport docs
+* [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
 * [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
 * [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
@@ -48,7 +48,7 @@ Commands for managing accounts
 **Synopsis**
 
 Commands for managing accounts. An account is a pair of a private key and a public key.
-Starport uses accounts to interact with the Starport Network blockchain, use an IBC relayer, and more.
+Ignite CLI uses accounts to interact with the Ignite blockchain, use an IBC relayer, and more.
 
 **Options**
 
@@ -234,8 +234,8 @@ source. Specify the release targets with GOOS:GOARCH build tags.
 If the optional --release.targets is not specified, a binary is created for your current environment.
 
 Sample usages:
-	- starport chain build
-	- starport chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+	- ignite chain build
+	- ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
 ignite chain build [flags]
@@ -318,7 +318,7 @@ ignite chain serve [flags]
 **Options**
 
 ```
-  -c, --config string       Starport config file (default: ./config.yml)
+  -c, --config string       Ignite config file (default: ./config.yml)
   -f, --force-reset         Force reset of the app state on start and every source change
   -h, --help                help for serve
       --home string         Home directory used for blockchains
@@ -374,7 +374,7 @@ ignite chain simulate [flags]
 
 ## ignite docs
 
-Show Starport docs
+Show Ignite CLI docs
 
 ```
 ignite docs [flags]
@@ -955,15 +955,15 @@ Generate completions script
 
 Bash:
 
-  $ source <(starport  tools completions bash)
+  $ source <(ignite  tools completions bash)
 
   To load completions for every new session, run:
 
   ** Linux **
-  $ starport  tools completions bash > /etc/bash_completion.d/starport
+  $ ignite  tools completions bash > /etc/bash_completion.d/ignite
 
   ** macOS **
-  $ starport  tools completions bash > /usr/local/etc/bash_completion.d/starport
+  $ ignite  tools completions bash > /usr/local/etc/bash_completion.d/ignite
 
 Zsh:
 
@@ -973,25 +973,25 @@ Zsh:
 
   To load completions for each session, execute once:
   
-  $ starport  tools completions zsh > "${fpath[1]}/_starport"
+  $ ignite  tools completions zsh > "${fpath[1]}/_ignite"
 
   You will need to start a new shell for this setup to take effect.
 
 fish:
 
-  $ starport  tools completions fish | source
+  $ ignite  tools completions fish | source
 
   To load completions for each session, execute once:
   
-  $ starport  tools completions fish > ~/.config/fish/completionss/starport.fish
+  $ ignite  tools completions fish > ~/.config/fish/completionss/ignite.fish
 
 PowerShell:
 
-  PS> starport  tools completions powershell | Out-String | Invoke-Expression
+  PS> ignite  tools completions powershell | Out-String | Invoke-Expression
 
   To load completions for every new session, run:
   
-  PS> starport  tools completions powershell > starport.ps1
+  PS> ignite  tools completions powershell > ignite.ps1
   
   and source this file from your PowerShell profile.
 
@@ -1022,7 +1022,7 @@ ignite tools ibc-relayer [--] [...] [flags]
 **Examples**
 
 ```
-starport tools ibc-relayer -- -h
+ignite tools ibc-relayer -- -h
 ```
 
 **Options**
@@ -1047,8 +1047,8 @@ ignite tools ibc-setup [--] [...] [flags]
 **Examples**
 
 ```
-starport tools ibc-setup -- -h
-starport tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
+ignite tools ibc-setup -- -h
+ignite tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 ```
 
 **Options**
@@ -1077,7 +1077,7 @@ ignite tools protoc [--] [...] [flags]
 **Examples**
 
 ```
-starport tools protoc -- --version
+ignite tools protoc -- --version
 ```
 
 **Options**

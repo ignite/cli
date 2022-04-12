@@ -58,17 +58,18 @@ module.exports = {
         text: "ignite.com",
         url: "https://ignite.com/",
       },
+      services: [
         {
           service: "twitter",
           url: "https://twitter.com/ignite_dev",
         },
         {
           service: "linkedin",
-          url: "https://www.linkedin.com/company/ignt/",
+          url: "https://linkedin.com/company/ignt/",
         },
         {
           service: "discord",
-          url: "https://discord.gg/ignt",
+          url: "https://discord.gg/ignite",
         },
         {
           service: "youtube",
@@ -109,7 +110,7 @@ module.exports = {
             },
             {
               title: "Chat",
-              url: "https://discord.gg/ignt",
+              url: "https://discord.gg/ignite",
             },
           ],
         },

@@ -13,7 +13,7 @@ import (
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID", "network", "reward"}
 
-// NewNetworkChainList returns a new command to list all published chains on Starport Network
+// NewNetworkChainList returns a new command to list all published chains on Ignite
 func NewNetworkChainList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",

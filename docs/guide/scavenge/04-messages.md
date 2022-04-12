@@ -122,7 +122,7 @@ The commit solution message requires the following fields:
 ignite scaffold message commit-solution solutionHash solutionScavengerHash
 ```
 
-Because you're using the same `starport scaffold message` command, the set of modified and created files is the same:
+Because you're using the same `ignite scaffold message` command, the set of modified and created files is the same:
 ```bash
 modify proto/scavenge/tx.proto
 modify x/scavenge/client/cli/tx.go
@@ -147,7 +147,7 @@ The reveal solution message requires only one field:
 ignite scaffold message reveal-solution solution
 ```
 
-Again, because you're using the same `starport scaffold message` command, the set of modified and created files is the same for the `reveal-solution` message.
+Again, because you're using the same `ignite scaffold message` command, the set of modified and created files is the same for the `reveal-solution` message.
 
 Information about the scavenger (the creator of the message is automatically included) and the solution hash can be deterministically derived from the solution string.
 

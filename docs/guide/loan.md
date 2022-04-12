@@ -38,9 +38,9 @@ A loan consists of:
 * An `id`
 * The `amount` that is being lent
 * A `fee` as cost for the loan
-* The borrowing party provides a `collateral` to request a loan 
+* The borrowing party provides a `collateral` to request a loan
 * A loan has a `deadline` for repayment, after which the loan can be liquidated
-* A loan has a `state` that describes the status as: 
+* A loan has a `state` that describes the status as:
 
 	* requested
 	* approved
@@ -66,9 +66,9 @@ The borrower must repay the loan amount and the loan fee to the lender by the de
 
 ### The Lender
 
-A lender can approve a loan request from a borrower. 
+A lender can approve a loan request from a borrower.
 
-- After the lender approves the loan, the loan amount is transferred to the borrower. 
+- After the lender approves the loan, the loan amount is transferred to the borrower.
 - If the borrower is unable to pay the loan, the lender can liquidate the loan.
 - Loan liquidation transfers the collateral and the fees to the lender.
 
@@ -113,12 +113,12 @@ The data you store in an array-like data structure are the loans, with these par
 ```proto
 message Loan {
   uint64 id = 1;
-  string amount = 2; 
-  string fee = 3; 
-  string collateral = 4; 
-  string deadline = 5; 
-  string state = 6; 
-  string borrower = 7; 
+  string amount = 2;
+  string fee = 3;
+  string collateral = 4;
+  string deadline = 5;
+  string state = 6;
+  string borrower = 7;
   string lender = 8;  
 }
 ```
@@ -142,7 +142,7 @@ In order to create a loan app, you need the following messages:
 * Liquidate loan
 * Cancel loan
 
-You can use the `ignite scaffold message` command to create each of the messages. 
+You can use the `ignite scaffold message` command to create each of the messages.
 
 You define the details of each message when you scaffold them.
 
@@ -281,7 +281,7 @@ ignite chain serve
 Add your first loan:
 
 ```bash
-loand tx loan request-loan 100token 2token 200token 500 --from alice 
+loand tx loan request-loan 100token 2token 200token 500 --from alice
 ```
 
 Query your loan:
@@ -466,7 +466,7 @@ git commit -m "Add approve loan message"
 
 ### Repay Loan Message
 
-After the loan has been approved, the cosmonaut must be able to repay an approved loan. 
+After the loan has been approved, the cosmonaut must be able to repay an approved loan.
 
 Scaffold the message `repay-loan` that a borrower uses to return tokens that were borrowed from the lender:
 
@@ -635,7 +635,7 @@ ignite scaffold message liquidate-loan id:uint
 ```
 
 * The `liquidate-loan` message must be able to be executed by the `lender`.
-* The status of the loan must be `approved`. 
+* The status of the loan must be `approved`.
 * The `deadline` block height must have passed.
 
 When these properties are valid, the collateral shall be liquidated from the `borrower`.
@@ -786,7 +786,7 @@ git commit -m "Add liquidate-loan message"
 
 ### Cancel Loan Message
 
-After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request. 
+After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request.
 
 Scaffold the message for `cancel-loan`:
 
