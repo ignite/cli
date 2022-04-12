@@ -1,8 +1,8 @@
-# Set up your Starport development environment 
+# Set up your Ignite CLI development environment
 
-To ensure you have a successful experience developing with Starport, make sure that your local system meets these technical requirements.
+To ensure you have a successful experience developing with Ignite CLI, make sure that your local system meets these technical requirements.
 
-Starport is supported for the following operating systems:
+Ignite CLI is supported for the following operating systems:
 
 - GNU/Linux
 - macOS
@@ -20,39 +20,37 @@ This installation method removes existing Go installations, installs Go, and set
 
 **Note:** We recommend not using brew to install Go.
 
-## Add the Go bin directory to your PATH 
+## Add the Go bin directory to your PATH
 
-Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system. Many of the initial problems are related to incorrect environment variables. 
+Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system. Many of the initial problems are related to incorrect environment variables.
 
-1. Edit your `~/.bashrc` file and add `export PATH=$PATH:$(go env GOPATH)/bin`. 
+1. Edit your `~/.bashrc` file and add `export PATH=$PATH:$(go env GOPATH)/bin`.
 2. To apply the changes, run `source ~/.bashrc`.
 
-## Remove existing Starport installations 
+## Remove existing Ignite CLI installations
 
-Before you install a new version of Starport, remove all existing Starport installations. 
+Before you install a new version of Ignite CLI, remove all existing  installations.
 
-1. Remove the Starport binary with `rm $(which starport)`
+1. Remove the Ignite CLI binary with `rm $(which ignite)`
 
    Depending on your user permissions, run the command with or without `sudo`.
 
-2. Repeat this step until all `starport` installations are removed from your system.
+2. Repeat this step until all Ignite CLI installations are removed from your system.
 
-`curl https://get.starport.network/starport! | bash`
+`curl https://get.ignite.com/cli! | bash`
 
-See [Install Starport](docs/install.md).
+See [Install Ignite CLI](docs/install.md).
 
-## Clone the Starport repo
+## Clone the Ignite CLI repo
 
-`git clone --depth=1 git@github.com:tendermint/starport.git`
+`git clone --depth=1 git@github.com:ignite-hq/cli.git`
 
-## Run make install 
+## Run make install
 
-1. After you clone the `starport` repo, change into the root directory `cd starport`.
+1. After you clone the `cli` repo, change into the root directory `cd cli`.
 
 2. Run `make install`.
 
-## Verify Your Starport version 
+## Verify your Ignite CLI version
 
-To verify the version of Starport you have installed, run `starport version`. 
-
-The latest version is `Starport version: development`. 
+To verify the version of Ignite CLI that is installed, run `ignite version`.

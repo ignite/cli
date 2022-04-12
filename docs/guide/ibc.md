@@ -554,5 +554,5 @@ Here's what you accomplished in this tutorial:
 
 - Built two Hello blockchain apps as IBC modules
 - Modified the generated code to add CRUD action logic
-- Configured and used the Starport relayer to connect two blockchains with each other
+- Configured and used the Ignite CLI relayer to connect two blockchains with each other
 - Transferred IBC packets from one blockchain to another

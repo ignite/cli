@@ -6,12 +6,8 @@ To ensure you have a successful experience working with our Developer Tutorials 
 
 1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup/).
 1. Click **Extensions** in the sidebar.
-1. Install these extension:
+1. Install this extension:
     - Go for VS Code The official Go extension for Visual Studio Code
-    - markdownlint
-    - Optional: PlantUML
-    - Optional: Docker
-    - Optional: Markdown All in One
 1. When prompted:
     - `go get -v golang.org/x/tools/gopls`
     - Select `Install all` for all packages
@@ -36,7 +32,7 @@ Master your terminal to be happy.
 
 ### iTerm2 terminal emulator
 
-On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 provides an updated version of the Bash shell that supports useful features like programmable completion.
+On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 as a replacement for Terminal provides an updated version of the Bash shell that supports useful features like programmable completion.
 
 ### Using ZSH as your default shell
 
@@ -60,7 +56,6 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 1. Log out and log back in to the terminal to use your new default zsh shell.
 
-## Install Starport
+## Install Go
 
 Follow the steps in [Install Starport](../guide/install.md) docs to install Starport and Go.
-

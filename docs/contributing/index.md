@@ -52,11 +52,13 @@ Other useful resources:
 
 ## Where can I find the tutorials and docs?
 
-Technical content includes knowledge base articles and interactive tutorials. 
- 
-- Starport Developer Tutorials content is in the `docs/guide` folder. 
-- Knowledge Base content is in the `docs/kb` folder. 
-- Migration content for required action steps required for upgrades to new Starport versions is in the `docs/migration` folder.
+Technical content includes knowledge base articles and interactive tutorials.
+
+- The Ignite CLI Developer Tutorials content is in the `docs/guide` folder.
+- The Knowledge Base content is in the `docs/kb` folder.
+- Upgrade information is in the `docs/migration` folder.
+
+Note: The CLI docs are auto-generated and do not support doc updates.
 
 Locations and folders for other content can vary. Explore the self-describing folders for the content that you are interested in. Some articles and tutorials reside in a single Markdown file while sub-folders might be present for other tutorials.
 

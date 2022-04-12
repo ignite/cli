@@ -27,5 +27,5 @@ func handleRelayerAccountErr(err error) error {
 		return err
 	}
 
-	return errors.Wrap(accountErr, `make sure to create or import your account through "starport account" commands`)
+	return errors.Wrap(accountErr, `make sure to create or import your account through "ignite account" commands`)
 }

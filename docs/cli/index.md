@@ -48,7 +48,7 @@ Commands for managing accounts
 **Synopsis**
 
 Commands for managing accounts. An account is a pair of a private key and a public key.
-Starport uses accounts to interact with the Starport Network blockchain, use an IBC relayer, and more.
+Ignite CLI uses accounts to interact with the Ignite Blockchain, use an IBC relayer, and more.
 
 **Options**
 
@@ -234,8 +234,8 @@ source. Specify the release targets with GOOS:GOARCH build tags.
 If the optional --release.targets is not specified, a binary is created for your current environment.
 
 Sample usages:
-	- starport chain build
-	- starport chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+	- ignite chain build
+	- ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
 ignite chain build [flags]
@@ -318,7 +318,7 @@ ignite chain serve [flags]
 **Options**
 
 ```
-  -c, --config string       Starport config file (default: ./config.yml)
+  -c, --config string       ignite config file (default: ./config.yml)
   -f, --force-reset         Force reset of the app state on start and every source change
   -h, --help                help for serve
       --home string         Home directory used for blockchains
@@ -374,7 +374,7 @@ ignite chain simulate [flags]
 
 ## ignite docs
 
-Show Starport docs
+Show Ignite CLI docs
 
 ```
 ignite docs [flags]
