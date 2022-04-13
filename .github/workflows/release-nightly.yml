@@ -17,7 +17,7 @@ jobs:
       - name: Delete the nightly release
         uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
-          tag_name: nightly
+          tag_name: v0.0.0-nightly
           delete_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +26,7 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: nightly
+          custom_tag: v0.0.0-nightly
           tag_prefix: ""
 
       - name: Upsert the nightly release
