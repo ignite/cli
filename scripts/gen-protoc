@@ -33,8 +33,8 @@ fname=protoc-$kernelname-$arch
 
 # Check dir else create save dir
 if [[ $(basename "${setdir}") = "scripts" ]] ; then
-    if [[ $(basename "$(dirname "${setdir}")") = "starport" ]] ; then
-        [[ -d $(dirname "${setdir}/pkg/protoc/data") ]] || mkdir -p "$(dirname "${setdir}")/starport/pkg/protoc/data"
+    if [[ $(basename "$(dirname "${setdir}")") = "cli" ]] ; then
+        [[ -d $(dirname "${setdir}/pkg/protoc/data") ]] || mkdir -p "$(dirname "${setdir}")/ignite/pkg/protoc/data"
     else
         echo "Attention: you are running the script out of the starport project please run it this script in: https://github.com/tendermint/starport"
         exit 1
@@ -76,7 +76,7 @@ make clean
 make -j$(nproc)
 make install
 
-cp "$outputdir"/bin/protoc "$(dirname "${setdir}")/starport/pkg/protoc/data/${fname}"
+cp "$outputdir"/bin/protoc "$(dirname "${setdir}")/ignite/pkg/protoc/data/${fname}"
 echo "$newest_version" > "$version_file" #Update version file so we don't have to rebuild this
 
 rm -rf "$tmpdir"
