@@ -64,7 +64,7 @@ The `blogclient` will eventually have only two files:
 - `main.go` for the main logic of the client
 - `go.mod` for specifying dependencies.
 
-### Main logic of the client in main.go
+### Main logic of the client in `main.go`
 
 Add the following code to your `main.go` file to make a connection to your blockchain from a separate app.
 
