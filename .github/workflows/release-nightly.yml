@@ -52,10 +52,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           workdir: ${{ env.working-directory }}
-          # never versions always requires semver even with the use of --skip-validate flag.
-          # we need to avoid semver since nightly release updated everytime there is chance on develop branch.
-          # by avoiding semver, we prevent GOPROXY and pkg.go.dev to cache this tag.
-          version: v0.157.0
+          version: v1.7.0
           args: release --rm-dist --skip-validate -f .goreleaser.nightly.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
