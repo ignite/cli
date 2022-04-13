@@ -1,5 +1,5 @@
 ---
-name: Starport bug report
+name: Ignite CLI bug report
 about: Create a report to help us improve
 title: ''
 labels: report
@@ -15,5 +15,5 @@ Steps to reproduce the behavior:
 1. 
 
 **Please provide the version output**
- - `starport version`:
+ - `ignite version`:
  

@@ -11,8 +11,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestServeStargateWithWasm(t *testing.T) {
@@ -26,7 +26,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm"),
 			step.Workdir(apath),
 		)),
 	))

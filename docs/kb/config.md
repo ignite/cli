@@ -57,7 +57,7 @@ build:
 
 ## client
 
-Configures and enables client code generation. To prevent regenerating the client, remove the `client` property.
+Configures and enables client code generation. To prevent Ignite CLI from regenerating the client, remove the `client` property.
 
 ### client.vuex
 
@@ -154,7 +154,7 @@ init:
 
 ## host
 
-Configuration of host names and ports for processes started by Starport.
+Configuration of host names and ports for processes started by Ignite CLI:
 
 **host example**
 
