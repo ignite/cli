@@ -5,10 +5,10 @@ builds:
       - -s -w -X github.com/ignite-hq/cli/ignite/version.Version={{.Tag}} -X github.com/ignite-hq/cli/ignite/version.Date={{.Date}} -X github.com/ignite-hq/cli/ignite/version.Head={{.FullCommit}}
     goos:
       - linux
-      - darwin
+     #  - darwin
     goarch:
       - amd64
-      - arm64
+      # - arm64
 changelog:
   skip: true
 release:
