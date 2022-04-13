@@ -6,13 +6,19 @@ set -e
 
 cd ./scripts/data/gen-nodetime
 
-npm i 
+npm ci # Faster in ci + stops package-lock changes (this should happen in commits anyway)
 npm run build
 
-tar -czvf nodetime-linux-amd64.tar.gz nodetime-linux
-tar -czvf nodetime-darwin-amd64.tar.gz nodetime-macos
+# The sorting, owner, group and mtime is to ensure md5 equality of the tar output
+# From: https://stackoverflow.com/questions/32997526/how-to-create-a-tar-file-that-omits-timestamps-for-its-contents
+# piping into gzip with --no-name is to ensure md5 equality of the compressed tar ball (if not you get different hash every time).
+# From: https://stackoverflow.com/questions/36464358/why-do-the-md5-hashes-of-two-tarballs-of-the-same-file-differ
+tar --sort=name --owner=root:0 --group=root:0 --mtime='UTC 2019-01-01' -cvf - nodetime-linux-x64 | gzip --no-name > nodetime-linux-amd64.tar.gz
+tar --sort=name --owner=root:0 --group=root:0 --mtime='UTC 2019-01-01' -cvf - nodetime-linux-arm64 | gzip --no-name > nodetime-linux-arm64.tar.gz
+tar --sort=name --owner=root:0 --group=root:0 --mtime='UTC 2019-01-01' -cvf - nodetime-macos-x64 | gzip --no-name > nodetime-darwin-amd64.tar.gz
+tar --sort=name --owner=root:0 --group=root:0 --mtime='UTC 2019-01-01' -cvf - nodetime-macos-arm64 | gzip --no-name > nodetime-darwin-arm64.tar.gz
 
 mv nodetime-*.tar.gz ../../../ignite/pkg/nodetime/data
 
-rm nodetime-linux nodetime-macos
+rm nodetime-linux-x64 nodetime-linux-arm64 nodetime-macos-x64 nodetime-macos-arm64
 rm -rf dist/

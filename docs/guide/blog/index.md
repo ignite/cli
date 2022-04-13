@@ -24,10 +24,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.19.2 use the following command:
+This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.20.0 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.19.2! | bash
+curl https://get.ignite.com/cli@v0.20.0! | bash
 ```
 
 ## Create your blog chain
@@ -37,7 +37,7 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/blog
+ignite scaffold chain github.com/username/blog
 ```
 
 The `blog` directory is created with the default directory structure.
@@ -164,8 +164,8 @@ Create the `proto/blog/post.proto` file and define the `Post` message:
 
 ```go
 syntax = "proto3";
-package cosmonaut.blog.blog;
-option go_package = "github.com/cosmonaut/blog/x/blog/types";
+package username.blog.blog;
+option go_package = "github.com/username/blog/x/blog/types";
 
 message Post {
   string creator = 1;
@@ -177,8 +177,8 @@ message Post {
 
 The contents of the `post.proto` file are standard. The file defines:
 
-- A package name `cosmonaut.blog.blog` that is used to identify messages
-- The Go package `go_package = "github.com/cosmonaut/blog/x/blog/types"` where new files are generated 
+- A package name `username.blog.blog` that is used to identify messages
+- The Go package `go_package = "github.com/username/blog/x/blog/types"` where new files are generated 
 - The message `message Post`
 
 Continue developing your blog chain.
@@ -266,7 +266,7 @@ package keeper
 
 import (
   "encoding/binary"
-  "github.com/cosmonaut/blog/x/blog/types"
+  "github.com/username/blog/x/blog/types"
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -313,7 +313,7 @@ blogd tx blog create-post foo bar --from alice
 The command output shows the transaction and asks you to sign the transaction:
 
 ```bash
-"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+"body":{"messages":[{"@type":"/username.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
@@ -377,7 +377,7 @@ package keeper
 import (
   "context"
 
-  "github.com/cosmonaut/blog/x/blog/types"
+  "github.com/username/blog/x/blog/types"
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
   "github.com/cosmos/cosmos-sdk/types/query"  
@@ -453,7 +453,7 @@ blogd tx blog create-post foo bar --from alice
 The transaction is output to the terminal. You are prompted to confirm the transaction:
 
 ```bash
-{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/username.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
