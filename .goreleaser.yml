@@ -3,5 +3,9 @@ builds:
   - main: ./ignite/cmd/ignite
     ldflags:
       - -s -w -X github.com/ignite-hq/cli/ignite/version.Version={{.Tag}} -X github.com/ignite-hq/cli/ignite/version.Date={{.Date}} -X github.com/ignite-hq/cli/ignite/version.Head={{.FullCommit}}
+    goos:
+      - linux
+      - darwin
     goarch:
       - amd64
+      - arm64
