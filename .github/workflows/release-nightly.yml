@@ -32,7 +32,7 @@ jobs:
       - name: Upsert the nightly release
         uses: ncipollo/release-action@v1
         with:
-          tag: nightly
+          tag: v0.0.0-nightly
           name: nightly
           body: "Install and move to bin: `curl https://get.ignite.com/cli@nightly! | bash`"
           prerelease: true
