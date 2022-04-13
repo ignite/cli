@@ -1,6 +1,12 @@
 # Changelog
 
-## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.5)
+## [`v0.20.1`](https://github.com/ignite-hq/cli/releases/tag/v0.20.1)
+
+### Features
+
+- Release the CLI with Linux ARM and native M1 binaries
+
+## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.0)
 
 Our new name is **Ignite CLI**!
 
