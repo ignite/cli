@@ -12,10 +12,22 @@
 protobuf_src="https://github.com/google/protobuf.dart/archive/refs/tags/protoc_plugin-v20.0.0.tar.gz"
 setdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)" # this line powered by stackoverflow
 kernelname="$(uname -s | tr '[:upper:]' '[:lower:]' || { echo 'kernel name can not definied' ; exit 1 ;})"
+machinetype=$(uname -m)
+
+case $machinetype in
+  "x86_64") arch="amd64"
+    ;;
+  "aarch64") arch="arm64"
+    ;;
+  "arm64") arch="arm64"
+    ;;
+  *) echo "$machinetype is not supported"; exit 1;
+    ;;
+esac
 
 # Defaults
 setfile="protoc_plugin/bin/protoc_plugin.dart"
-save_file="protoc-gen-dart_${kernelname}_amd64"
+save_file="protoc-gen-dart_${kernelname}_${arch}"
 
 # Check dir else create save dir
 if [[ $(basename ${setdir}) = "scripts" ]] ; then
