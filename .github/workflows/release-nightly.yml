@@ -34,7 +34,7 @@ jobs:
         with:
           tag: v0.0.0-nightly
           name: nightly
-          body: "Install and move to bin: `curl https://get.ignite.com/cli@nightly! | bash`"
+          body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@v0.0.0-nightly! | bash`"
           prerelease: true
 
       - name: Set up Go
@@ -52,7 +52,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           workdir: ${{ env.working-directory }}
-          version: v1.7.0
           args: release --rm-dist --skip-validate -f .goreleaser.nightly.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
