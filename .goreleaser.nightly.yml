@@ -8,7 +8,7 @@ builds:
       - darwin
     goarch:
       - amd64
-      # - arm64
+      - arm64
 changelog:
   skip: true
 release:
