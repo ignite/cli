@@ -75,9 +75,9 @@ A new directory with the code for an IBC module is created in `planet/x/blog`. M
 
 Next, create the CRUD actions for the blog module types.
 
-Use the `ignite list` command to scaffold the boilerplate code for the create, read, update, and delete (CRUD) actions.
+Use the `ignite scaffold list` command to scaffold the boilerplate code for the create, read, update, and delete (CRUD) actions.
 
-These `ignite list` commands create CRUD code for the following transactions:
+These `ignite scaffold list` commands create CRUD code for the following transactions:
 
 - Creating blog posts
 
@@ -105,7 +105,7 @@ The scaffolded code includes proto files for defining data structures, messages,
 ignite scaffold list [typeName] [field1] [field2] ... [flags]
 ```
 
-The first argument of the `ignite list [typeName]` command specifies the name of the type being created. For the blog app, you created `post`, `sentPost`, and `timedoutPost` types.
+The first argument of the `ignite scaffold list [typeName]` command specifies the name of the type being created. For the blog app, you created `post`, `sentPost`, and `timedoutPost` types.
 
 The next arguments define the fields that are associated with the type. For the blog app, you created `title`, `content`, `postID`, and `chain` fields.
 
