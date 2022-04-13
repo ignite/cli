@@ -11,10 +11,10 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.19.5 use the following command:
+This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.20.0 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.19.5! | bash
+curl https://get.ignite.com/cli@v0.20.0! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
@@ -26,7 +26,7 @@ Are you ready? Open a terminal window and navigate to a directory where you have
 To create your blockchain with the default directory structure, run this command:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/hello
+ignite scaffold chain github.com/username/hello
 ```
 
 This command creates a Cosmos SDK blockchain called hello in a `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
@@ -148,7 +148,7 @@ In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Qu
 ```proto
 service Query {
   rpc Posts(QueryPostsRequest) returns (QueryPostsResponse) {
-    option (google.api.http).get = "/cosmonaut/hello/hello/posts";
+    option (google.api.http).get = "/username/hello/hello/posts";
   }
 }
 ```
@@ -215,7 +215,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 ```
 
 - Save the file to restart your chain. 
-- In a web browser, visit the posts endpoint [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts).
+- In a web browser, visit the posts endpoint [http://localhost:1317/username/hello/hello/posts](http://localhost:1317/username/hello/hello/posts).
 
   Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
 
@@ -245,7 +245,7 @@ Make the required changes to the `x/hello/module.go` file.
     }
     ```
 
-1. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+1. After the chain has been started, visit [http://localhost:1317/username/hello/hello/posts](http://localhost:1317/username/hello/hello/posts) and see your text displayed:
 
     ```go
     {
