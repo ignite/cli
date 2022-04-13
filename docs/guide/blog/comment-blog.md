@@ -175,7 +175,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 	}
 
 	// Check if the Post Exists for which a comment is being created
-	if msg.PostID > postId && msg.PostID == postId {
+	if msg.PostID != postId {
 		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
 	}
 
