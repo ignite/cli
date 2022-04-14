@@ -11,7 +11,7 @@ Now that you have made the required updates to you new chain, it's time to test 
 To start your blockchain in development, run the following command:
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
 The `serve` command builds the chain binary file, initializes a data directory, and starts a node in development. 

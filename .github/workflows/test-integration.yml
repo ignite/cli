@@ -48,8 +48,8 @@ jobs:
       - uses: actions/setup-go@v2
         if: env.GIT_DIFF
         with:
-          go-version: 1.16
-      - name: Install Starport
+          go-version: 1.18
+      - name: Install Ignite CLI
         if: env.GIT_DIFF
         run: go install ./...
       - name: Run Integration Tests

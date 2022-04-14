@@ -1,5 +1,5 @@
 ---
-description: Loan blockchain using Starport
+description: Loan blockchain using Ignite CLI
 order: 6
 title: "Advanced Module: DeFi Loan"
 ---
@@ -12,7 +12,7 @@ One of the many goals of blockchain is to make financial instruments available t
 
 With DeFi, end users can quickly and easily access loans without having to submit their passports or background checks like in the traditional banking system.
 
-In this tutorial, you learn about a basic loan system as you use Starport to build a loan module.
+In this tutorial, you learn about a basic loan system as you use Ignite CLI to build a loan module.
 
 **You will learn how to**
 
@@ -38,9 +38,9 @@ A loan consists of:
 * An `id`
 * The `amount` that is being lent
 * A `fee` as cost for the loan
-* The borrowing party provides a `collateral` to request a loan 
+* The borrowing party provides a `collateral` to request a loan
 * A loan has a `deadline` for repayment, after which the loan can be liquidated
-* A loan has a `state` that describes the status as: 
+* A loan has a `state` that describes the status as:
 
 	* requested
 	* approved
@@ -66,18 +66,18 @@ The borrower must repay the loan amount and the loan fee to the lender by the de
 
 ### The Lender
 
-A lender can approve a loan request from a borrower. 
+A lender can approve a loan request from a borrower.
 
-- After the lender approves the loan, the loan amount is transferred to the borrower. 
+- After the lender approves the loan, the loan amount is transferred to the borrower.
 - If the borrower is unable to pay the loan, the lender can liquidate the loan.
 - Loan liquidation transfers the collateral and the fees to the lender.
 
 ## Scaffold the Blockchain
 
-Use Starport to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
+Use Ignite CLI to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/loan --no-module
+ignite scaffold chain github.com/cosmonaut/loan --no-module
 ```
 
 The `--no-module` flag prevents scaffolding a default module. Don't worry, you will add the loan module later.
@@ -93,17 +93,17 @@ cd loan
 Scaffold the module to create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded inside the `x` directory:
 
 ```bash
-starport scaffold module loan --dep bank
+ignite scaffold module loan --dep bank
 ```
 
 Use the `--dep` flag to specify that this module depends on and is going to interact with the Cosmos SDK `bank` module.
 
 ## Scaffold a List
 
-Use the [scaffold list](https://docs.starport.com/cli/#starport-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
+Use the [scaffold list](https://docs.ignite.com/cli/#ignite-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
 
 ```bash
-starport scaffold list loan amount fee collateral deadline state borrower lender --no-message
+ignite scaffold list loan amount fee collateral deadline state borrower lender --no-message
 ```
 
 Use the `--no-message` flag to disable CRUD messages in the scaffold.
@@ -113,12 +113,12 @@ The data you store in an array-like data structure are the loans, with these par
 ```proto
 message Loan {
   uint64 id = 1;
-  string amount = 2; 
-  string fee = 3; 
-  string collateral = 4; 
-  string deadline = 5; 
-  string state = 6; 
-  string borrower = 7; 
+  string amount = 2;
+  string fee = 3;
+  string collateral = 4;
+  string deadline = 5;
+  string state = 6;
+  string borrower = 7;
   string lender = 8;  
 }
 ```
@@ -142,7 +142,7 @@ In order to create a loan app, you need the following messages:
 * Liquidate loan
 * Cancel loan
 
-You can use the `starport scaffold message` command to create each of the messages. 
+You can use the `ignite scaffold message` command to create each of the messages.
 
 You define the details of each message when you scaffold them.
 
@@ -162,7 +162,7 @@ The first message is the `request-loan` message that  requires these input param
 * `deadline`
 
 ```bash
-starport scaffold message request-loan amount fee collateral deadline
+ignite scaffold message request-loan amount fee collateral deadline
 ```
 
 For the sake of simplicity, define every parameter as a string.
@@ -275,13 +275,13 @@ You can run the chain and test your first message.
 Start the blockchain:
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
 Add your first loan:
 
 ```bash
-loand tx loan request-loan 100token 2token 200token 500 --from alice 
+loand tx loan request-loan 100token 2token 200token 500 --from alice
 ```
 
 Query your loan:
@@ -321,7 +321,7 @@ The message `approve-loan` has one parameter, the `id`.
 Specify the type of `id` as `uint`. By default, ids are stored as `uint`.
 
 ```bash
-starport scaffold message approve-loan id:uint
+ignite scaffold message approve-loan id:uint
 ```
 
 This message must be available for all loan types that are in `"requested"` status.
@@ -409,7 +409,7 @@ var (
 Start the blockchain and use the two commands you already have available:
 
 ```bash
-starport chain serve -r
+ignite chain serve -r
 ```
 
 Use the `-r` flag to reset the blockchain state and start with a new database.
@@ -466,12 +466,12 @@ git commit -m "Add approve loan message"
 
 ### Repay Loan Message
 
-After the loan has been approved, the cosmonaut must be able to repay an approved loan. 
+After the loan has been approved, the cosmonaut must be able to repay an approved loan.
 
 Scaffold the message `repay-loan` that a borrower uses to return tokens that were borrowed from the lender:
 
 ```bash
-starport scaffold message repay-loan id:uint
+ignite scaffold message repay-loan id:uint
 ```
 
 Repaying a loan requires that the loan is in `"approved"` status.
@@ -562,7 +562,7 @@ type BankKeeper interface {
 Start the blockchain and use the two commands you already have available:
 
 ```bash
-starport chain serve -r
+ignite chain serve -r
 ```
 
 Use the `-r` flag to reset the blockchain state and start with a new database:
@@ -631,11 +631,11 @@ git commit -m "Add repay-loan message"
 After the deadline is passed, a lender can liquidate a loan when the borrower does not repay the tokens. The message to `liquidate-loan` refers to the loan `id`:
 
 ```bash
-starport scaffold message liquidate-loan id:uint
+ignite scaffold message liquidate-loan id:uint
 ```
 
 * The `liquidate-loan` message must be able to be executed by the `lender`.
-* The status of the loan must be `approved`. 
+* The status of the loan must be `approved`.
 * The `deadline` block height must have passed.
 
 When these properties are valid, the collateral shall be liquidated from the `borrower`.
@@ -716,7 +716,7 @@ These changes are required for the `liquidate-loan` message.
 You can test the liquidation message now. Start your chain and reset the state of the app:
 
 ```bash
-starport chain serve -r
+ignite chain serve -r
 ```
 
 Set the deadline for the loan request to 1 block:
@@ -786,12 +786,12 @@ git commit -m "Add liquidate-loan message"
 
 ### Cancel Loan Message
 
-After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request. 
+After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request.
 
 Scaffold the message for `cancel-loan`:
 
 ```bash
-starport s message cancel-loan id:uint
+ignite s message cancel-loan id:uint
 ```
 
 * Only the `borrower` can cancel a loan request.
@@ -843,7 +843,7 @@ func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (
 Test the changes for cancelling a loan request:
 
 ```bash
-starport chain serve -r
+ignite chain serve -r
 ```
 
 ```bash

@@ -1,5 +1,5 @@
 ---
-description: Details on the Vue frontend app created by Starport.
+description: Details on the Vue frontend app created by Ignite CLI.
 order: 8
 ---
 
@@ -7,7 +7,7 @@ order: 8
 
 A Vue frontend app is created in the `vue` directory when a blockchain is scaffolded. To start the frontend app run `npm i && npm run serve` in the `vue` directory.
 
-The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. For details, see the [monorepo for Starport front-end development](https://github.com/tendermint/vue).
+The frontend app is built using the `@ignt/vue` and `@ignt/vuex` packages. For details, see the [monorepo for Ignite CLI front-end development](https://github.com/ignite-hq/vue).
 
 ## Client code generation
 
@@ -29,8 +29,8 @@ By default, the filesystem is watched and the clients are regenerated automatica
 
 To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
 
-`starport generate vuex`
+`ignite generate vuex`
 
-## Preventing client code regeneration
+## Preventing client code regeneration	
 
-To prevent regenerating the client, remove the `client` property from `config.yml`.
+To prevent regenerating the client, remove the `client` property from `config.yml`.	
