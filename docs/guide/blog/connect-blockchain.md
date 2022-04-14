@@ -30,7 +30,7 @@ Create your `blogclient` directory first, change your current working directory,
 ```bash
 mkdir blogclient
 cd blogclient
-go mod init github.com/cosmonaut/blogclient
+go mod init github.com/username/blogclient
 touch main.go
 ```
 
@@ -42,16 +42,16 @@ Your blockchain client has only two dependencies:
 - `ignite` for the `cosmosclient` blockchain client
 
 ```go
-module github.com/cosmonaut/blogclient
+module github.com/username/blogclient
 
-go 1.17
+go 1.18
 
 require (
-	github.com/cosmonaut/blog v0.0.0-00010101000000-000000000000
-	github.com/ignite-hq/cli v0.19.2 
+	github.com/username/blog v0.0.0-00010101000000-000000000000
+	github.com/ignite-hq/cli v0.20.0
 )
 
-replace github.com/cosmonaut/blog => ../blog
+replace github.com/username/blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
@@ -77,7 +77,7 @@ import (
 	"log"
 
 	// importing the types package of your blog blockchain
-	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/username/blog/x/blog/types"
 	// importing the general purpose Cosmos blockchain client
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 )
