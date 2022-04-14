@@ -1,3 +1,8 @@
+// Package gomodulepath implements functions for the manipulation of Go module paths.
+// A module’s path is the prefix for package paths within a module.
+// Paths are typically defined as a domain name and a path containing the user and
+// repository names, e.g. "github.com/username/reponame", but Go also allows other module
+// names like "domain.com/reponame", "reponame", "reponame/pkgname", or similar variants.
 package gomodulepath
 
 import (
@@ -49,6 +54,7 @@ func Parse(rawpath string) (Path, error) {
 		Root:    rootName,
 		Package: packageName,
 	}
+
 	return p, nil
 }
 
@@ -74,27 +80,48 @@ func Find(path string) (parsed Path, appPath string, err error) {
 	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
-// ExtractUserAndRepo extracts the user and repository names from a path.
-// The names are returned in a single string as "user/repository".
-// Path must be a URL path, e.g. github.com/tendermint/starport, in which case
-// the result is "tendermint/starport", or it can be a single name, e.g. "starport",
-// that will result in "starport/starport".
-func ExtractUserAndRepo(path string) (string, error) {
-	if strings.Contains(path, "/") {
-		g, err := giturl.Parse(path)
-		if err != nil {
-			return "", err
-		}
-
-		return g.UserAndRepo(), nil
+// HasDomainNamePrefix checks is a Go module path has a domain name as prefix.
+// The first path element is assumed to be a domain when it contains a ".".
+func HasDomainNamePrefix(path string) bool {
+	if path == "" {
+		return false
 	}
 
-	return fmt.Sprint(path, "/", path), nil
+	// TODO: should we use a regexp instead of the simplistic check ?
+	name, _, _ := strings.Cut(path, "/")
+	return strings.Contains(name, ".")
+}
+
+// ExtractUserAndRepoNames extracts the user and repository names from a go module path.
+// Path must be a URL path, e.g. github.com/tendermint/starport, in which case the user
+// value is "tendermint" and the repo name is "starport", or it can be a local path,
+// e.g. "starport" or "starport/x" which results in the same "starport" value for the
+// user and repo names.
+func ExtractUserAndRepoNames(path string) (string, string, error) {
+	if HasDomainNamePrefix(path) {
+		// Use the path element as user and repo names when the path
+		// contains a short URL as value, e.g. domain.com/starport
+		if v := strings.SplitN(path, "/", 3); len(v) == 2 {
+			return v[1], v[1], nil
+		}
+
+		g, err := giturl.Parse(path)
+		if err != nil {
+			return "", "", err
+		}
+
+		return g.User, g.Repo, nil
+	}
+
+	// The first path element defines the user and repository names
+	name, _, _ := strings.Cut(path, "/")
+
+	return name, name, nil
 }
 
 func validateRawPath(path string) error {
-	// A raw path should be either a URL or otherwise a single name without "/"s
-	if strings.Contains(path, "/") {
+	// A raw path should be either a URL, a single name or a path
+	if HasDomainNamePrefix(path) {
 		return validateURLPath(path)
 	}
 	return validateNamePath(path)

@@ -27,6 +27,21 @@ func TestParse(t *testing.T) {
 			path:    Path{RawPath: "github.com/a/b-c", Root: "b-c", Package: "bc"},
 		},
 		{
+			name:    "short",
+			rawpath: "github.com/a",
+			path:    Path{RawPath: "github.com/a", Root: "a", Package: "a"},
+		},
+		{
+			name:    "short with dash",
+			rawpath: "github.com/a-c",
+			path:    Path{RawPath: "github.com/a-c", Root: "a-c", Package: "ac"},
+		},
+		{
+			name:    "short with version",
+			rawpath: "github.com/a/v2",
+			path:    Path{RawPath: "github.com/a/v2", Root: "a", Package: "a"},
+		},
+		{
 			name:    "long",
 			rawpath: "github.com/a/b/c",
 			path:    Path{RawPath: "github.com/a/b/c", Root: "c", Package: "c"},
@@ -75,6 +90,21 @@ func TestParse(t *testing.T) {
 			rawpath: "a-b",
 			path:    Path{RawPath: "a-b", Root: "a-b", Package: "ab"},
 		},
+		{
+			name:    "with a path",
+			rawpath: "a/b/c",
+			path:    Path{RawPath: "a/b/c", Root: "c", Package: "c"},
+		},
+		{
+			name:    "with a path containing underscore",
+			rawpath: "a/b_c",
+			path:    Path{RawPath: "a/b_c", Root: "b_c", Package: "bc"},
+		},
+		{
+			name:    "with a path containing dash",
+			rawpath: "a/b-c",
+			path:    Path{RawPath: "a/b-c", Root: "b-c", Package: "bc"},
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -90,41 +120,40 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestExtractUserAndRepo(t *testing.T) {
+func TestExtractUserAndRepoNames(t *testing.T) {
 	cases := []struct {
-		name     string
-		path     string
-		want     string
-		mustFail bool
+		name string
+		path string
+		want []string
 	}{
 		{
-			name: "url",
+			name: "github url",
 			path: "github.com/tendermint/starport",
-			want: "tendermint/starport",
+			want: []string{"tendermint", "starport"},
+		},
+		{
+			name: "short url",
+			path: "domain.com/tendermint",
+			want: []string{"tendermint", "tendermint"},
 		},
 		{
 			name: "name",
 			path: "starport",
-			want: "starport/starport",
+			want: []string{"starport", "starport"},
 		},
 		{
-			name:     "invalid url",
-			path:     "github.com/tendermint",
-			mustFail: true,
+			name: "path",
+			path: "tendermint/starport",
+			want: []string{"tendermint", "tendermint"},
 		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			path, err := ExtractUserAndRepo(tt.path)
+			user, repo, err := ExtractUserAndRepoNames(tt.path)
 
-			if tt.mustFail {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-			}
-
-			require.Equal(t, tt.want, path)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, []string{user, repo})
 		})
 	}
 }
@@ -142,5 +171,5 @@ func TestValidateNamePath(t *testing.T) {
 }
 
 func TestValidateNamePathWithInvalidPath(t *testing.T) {
-	require.Error(t, validateNamePath("starport."))
+	require.Error(t, validateNamePath("starport@"))
 }
