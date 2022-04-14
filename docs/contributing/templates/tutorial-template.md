@@ -1,7 +1,7 @@
-# How to [build/create/do something] in Starport
+# How To [Build/Create/Do Something] in Ignite CLI
 
 <!--
-Use this tutorial template as a quick starting point when writing Starport how-to tutorials. 
+Use this tutorial template as a quick starting point when writing Ignite CLI how-to tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 
@@ -12,7 +12,7 @@ We admire, respect, and rely on these resources:
 - Google developer documentation [style guide](https://developers.google.com/style)
 - Digital Ocean style guide [do.co/style](https://do.co/style)
 
-[Create an issue](https://github.com/tendermint/starport/issues/new/choose) to let us know if you have questions. 
+[Create an issue](https://github.com/ignite-hq/cli/issues/new/choose) to let us know if you have questions. 
 
 -->
 
@@ -62,8 +62,8 @@ To complete this tutorial, you will need:
 
 <!-- Example - uncomment to use
 
-- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../guide/install.md). 
-* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
+- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../guide/install.md). 
+* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/).
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
 -->
@@ -80,18 +80,18 @@ Finally...
 
 <!-- When showing a command, explain the command first by talking about what it does. Then show the command. Then show its output in a separate output block: -->
 
-To verify the version of Starport you have installed, run the following command:
+To verify the version of Ignite CLI that is installed, run the following command:
 
 ```sh
-starport --version
+ignite --version
 ```
 
 You'll see release details like the following output:
 
 ```bash
-Starport version:	v0.19.1
-Starport build date:	2021-12-18T05:56:36Z
-Starport source hash:	-
+Ignite version:	v0.19.6
+Ignite CLI build date:	2021-12-18T05:56:36Z
+Ignite CLI source hash:	-
 Your OS:		darwin
 Your arch:		amd64
 Your go version:	go version go1.16.4 darwin/amd64
@@ -102,7 +102,6 @@ Your go version:	go version go1.16.4 darwin/amd64
 Create the `post.proto` file in your editor.
 
 When showing the contents of a file, try to show only the relevant parts and explain what needs to change. -->
-
 
 Modify the title by changing the contents of the `<title>` tag:
 
@@ -125,10 +124,9 @@ message MsgCreatePost {
 ...
 ```
 
-
 Now transition to the next step by telling the user what's next.
 
-## Step 2 — Next step in sentence case
+## Step 2 — Sentence case heading
 
 Another introduction
 
@@ -136,7 +134,7 @@ Your content that guides the user to accomplish a specific step
 
 Transition to the next step.
 
-## Step 3 — Next step in sentence case
+## Step 3 — Sentence case
 
 Another introduction
 

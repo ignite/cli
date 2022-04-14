@@ -8,19 +8,19 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, update, and delete are defined as keeper methods. In the scavenge blockchain, you need to define the `scavenge` and `commit` types along with create and update methods.
 
-Several Starport commands are available to scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs), and a single element in the state. In this example, both `scavenge` and `commit` are stored in a map-like data structure.
+Several Ignite CLI commands are available to scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs), and a single element in the state. In this example, both `scavenge` and `commit` are stored in a map-like data structure.
 
 ## Scavenge
 
-Use the `starport scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges.
+Use the `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges.
 
 The first argument is the name of the type to create (`scavenge`), the rest is a list of fields. By default, generic CRUD messages are scaffolded. However, since you already created messages specifically for this scavenge blockchain, use the `--no-message` flag to skip message creation.
 
 ```bash
-starport scaffold map scavenge solutionHash solution description reward scavenger --no-message
+ignite scaffold map scavenge solutionHash solution description reward scavenger --no-message
 ```
 
-The `starport scaffold map` command creates and modifies several files:
+The `ignite scaffold map` command creates and modifies several files:
 
 ```bash
 modify proto/scavenge/genesis.proto
@@ -118,10 +118,10 @@ Review the update for `GetScavenge` that selects a store using the scavenge pref
 
 ## Commit
 
-Use `starport scaffold map` to create the same logic for a `commit` type.
+Use `ignite scaffold map` to create the same logic for a `commit` type.
 
 ```bash
-starport scaffold map commit solutionHash solutionScavengerHash --no-message
+ignite scaffold map commit solutionHash solutionScavengerHash --no-message
 ```
 
 ## Save changes
