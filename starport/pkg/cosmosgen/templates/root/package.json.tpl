@@ -15,7 +15,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@ignt/plugins": "0.0.12-alpha",
+    "@ignt/plugins": "0.0.13-alpha",
     "@cosmjs/launchpad": "0.27.0",
     "@cosmjs/proto-signing": "0.27.0",
     "@cosmjs/stargate": "0.27.0",
