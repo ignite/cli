@@ -50,7 +50,7 @@ When you scaffold a BandChain oracle module, the following files and directories
 First, scaffold a chain but don't scaffold a default module:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/oracle --no-module 
+ignite scaffold chain github.com/username/oracle --no-module 
 ```
 
 Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`:
@@ -211,9 +211,9 @@ In the `proto/consuming/gold_price.proto` file:
 
 ```protobuf
 syntax = "proto3";
-package cosmonaut.oracle.consuming;
+package username.oracle.consuming;
 
-option go_package = "github.com/cosmonaut/oracle/x/consuming/types";
+option go_package = "github.com/username/oracle/x/consuming/types";
 
 message GoldPriceCallData {
   uint64 multiplier = 2;
@@ -234,7 +234,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmonaut/oracle/x/consuming/types"
+	"github.com/username/oracle/x/consuming/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"

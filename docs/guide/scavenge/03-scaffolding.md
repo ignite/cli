@@ -9,7 +9,7 @@ Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command.
 By default a chain is scaffolded with a new empty Cosmos SDK module. Use the `--no-module` flag to skip module scaffolding.
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/scavenge --no-module
+ignite scaffold chain github.com/username/scavenge --no-module
 ```
 
 This command creates a new `scavenge` directory with a brand new Cosmos SDK blockchain. This blockchain doesn't have any application-specific logic yet, but it imports standard Cosmos SDK modules, such as `auth`, `bank`, `mint`, and others.
