@@ -50,9 +50,11 @@ require (
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tendermint/vue v0.3.4
 	golang.org/x/mod v0.4.2
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
-	google.golang.org/grpc v1.43.0
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	google.golang.org/genproto v0.0.0-20220314164441-57ef72a4c106 // indirect
+	google.golang.org/grpc v1.45.0
 )
 
 replace (
