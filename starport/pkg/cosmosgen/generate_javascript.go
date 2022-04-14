@@ -10,7 +10,6 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
@@ -164,7 +163,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	chainURL, err := giturl.Parse(chainPath.RawPath)
+	user, repo, err := gomodulepath.ExtractUserAndRepoNames(chainPath.RawPath)
 	if err != nil {
 		return err
 	}
@@ -181,8 +180,8 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		User    string
 		Repo    string
 	}{
-		User: chainURL.User,
-		Repo: chainURL.Repo,
+		User: user,
+		Repo: repo,
 	}
 
 	for _, path := range modulePaths {
