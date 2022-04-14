@@ -207,14 +207,10 @@ func (c Client) GetContext() client.Context {
 
 // Response of your broadcasted transaction.
 type Response struct {
-	codec codec.Codec
+	Codec codec.Codec
 
 	// TxResponse is the underlying tx response.
 	*sdktypes.TxResponse
-}
-
-func (r *Response) SetCodec(cdc codec.Codec) {
-	r.codec = cdc
 }
 
 // Decode decodes the proto func response defined in your Msg service into your message type.
@@ -234,7 +230,7 @@ func (r Response) Decode(message proto.Message) error {
 	}
 
 	var txMsgData sdktypes.TxMsgData
-	if err := r.codec.Unmarshal(data, &txMsgData); err != nil {
+	if err := r.Codec.Unmarshal(data, &txMsgData); err != nil {
 		return err
 	}
 
@@ -322,7 +318,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		}
 
 		return Response{
-			codec:      ctx.Codec,
+			Codec:      ctx.Codec,
 			TxResponse: resp,
 		}, handleBroadcastResult(resp, err)
 	}, nil

@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type (
@@ -38,15 +41,16 @@ func NewGenesis(chainID string) *Genesis {
 	return &Genesis{ChainID: chainID}
 }
 
-func (g *Genesis) AddAccount(address string) {
+func (g *Genesis) AddAccount(address string) *Genesis {
 	g.AppState.Auth.Accounts = append(g.AppState.Auth.Accounts, GenesisAccount{Address: address})
+	return g
 }
 
-func (g *Genesis) SaveTo(dir string) (string, error) {
+func (g *Genesis) SaveTo(t *testing.T, dir string) string {
 	encoded, err := json.Marshal(g)
-	if err != nil {
-		return "", err
-	}
+	assert.Nil(t, err)
 	savePath := filepath.Join(dir, "genesis.json")
-	return savePath, os.WriteFile(savePath, encoded, 0666)
+	err = os.WriteFile(savePath, encoded, 0666)
+	assert.Nil(t, err)
+	return savePath
 }

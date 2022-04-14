@@ -7,12 +7,8 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/services/network/mocks"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"github.com/tendermint/starport/starport/services/network/testutil"
 )
@@ -23,104 +19,136 @@ const (
 	TestRevertDelay      = 3600
 )
 
-func stubNetworkForTriggerLaunch(account cosmosaccount.Account) Network {
-	launchQueryMock := new(mocks.LaunchClient)
-	launchQueryMock.On("Params", mock.Anything, &launchtypes.QueryParamsRequest{}).
-		Return(&launchtypes.QueryParamsResponse{
-			Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
-		}, nil)
-	networkClientMock := new(mocks.CosmosClient)
-	networkClientMock.On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-		Coordinator:   account.Address(networktypes.SPN),
-		LaunchID:      testutil.TestLaunchID,
-		RemainingTime: TestMaxRemainingTime,
-	}).Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunchResponse{}), nil)
-	return Network{
-		cosmos:      networkClientMock,
-		account:     account,
-		launchQuery: launchQueryMock,
-	}
-}
-
 func TestTriggerLaunch(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("successfully launch a chain", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
 
-	network := stubNetworkForTriggerLaunch(account)
-	err = network.TriggerLaunch(context.Background(), testutil.TestLaunchID, TestMaxRemainingTime*time.Second)
-	require.Nil(t, err)
-}
+		suite.LaunchQueryMock.
+			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
+			Return(&launchtypes.QueryParamsResponse{
+				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+			}, nil).
+			Once()
+		suite.CosmosClientMock.
+			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
+				Coordinator:   account.Address(networktypes.SPN),
+				LaunchID:      testutil.LaunchID,
+				RemainingTime: TestMaxRemainingTime,
+			}).
+			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunchResponse{}), nil).
+			Once()
 
-func TestTriggerLaunchRemainingTimeLowerThanAllowed(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-
-	network := stubNetworkForTriggerLaunch(account)
-	err = network.TriggerLaunch(context.Background(), testutil.TestLaunchID, (TestMinRemainingTime-60)*time.Second)
-	require.NotNil(t, err)
-}
-
-func TestTriggerLaunchRemainingTimeGreaterThanAllowed(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-
-	network := stubNetworkForTriggerLaunch(account)
-	err = network.TriggerLaunch(context.Background(), testutil.TestLaunchID, (TestMaxRemainingTime+60)*time.Hour)
-	require.NotNil(t, err)
-}
-
-func TestTriggerLaunchBroadcastFailure(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-
-	network := stubNetworkForTriggerLaunch(account)
-	networkClientMock := new(mocks.CosmosClient)
-	networkClientMock.On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-		Coordinator:   account.Address(networktypes.SPN),
-		LaunchID:      testutil.TestLaunchID,
-		RemainingTime: TestMaxRemainingTime,
-	}).Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunch{}), errors.New("Failed to fetch"))
-	network.cosmos = networkClientMock
-	err = network.TriggerLaunch(context.Background(), testutil.TestLaunchID, TestMaxRemainingTime*time.Second)
-	require.NotNil(t, err)
-	networkClientMock.AssertCalled(t, "BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-		Coordinator:   account.Address(networktypes.SPN),
-		LaunchID:      testutil.TestLaunchID,
-		RemainingTime: TestMaxRemainingTime,
+		err := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		require.NoError(t, err)
+		suite.AssertAllMocks(t)
 	})
-}
 
-func TestTriggerLaunchBadTriggerLaunchResponse(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("failed to launch a chain, remaining time is lower than allowed", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
 
-	network := stubNetworkForTriggerLaunch(account)
-	networkClientMock := new(mocks.CosmosClient)
-	networkClientMock.On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-		Coordinator:   account.Address(networktypes.SPN),
-		LaunchID:      testutil.TestLaunchID,
-		RemainingTime: TestMaxRemainingTime,
-	}).Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{}), errors.New("failed to fetch"))
-	network.cosmos = networkClientMock
-	err = network.TriggerLaunch(context.Background(), testutil.TestLaunchID, TestMaxRemainingTime*time.Second)
-	require.NotNil(t, err)
-	networkClientMock.AssertCalled(t, "BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-		Coordinator:   account.Address(networktypes.SPN),
-		LaunchID:      testutil.TestLaunchID,
-		RemainingTime: TestMaxRemainingTime,
+		suite.LaunchQueryMock.
+			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
+			Return(&launchtypes.QueryParamsResponse{
+				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+			}, nil).
+			Once()
+
+		err := network.TriggerLaunch(context.Background(), testutil.LaunchID, (TestMinRemainingTime-60)*time.Second)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
 	})
-}
 
-func TestTriggerLaunchFailedToQueryChainParams(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-	network := stubNetworkForTriggerLaunch(account)
-	launchQueryMock := new(mocks.LaunchClient)
-	launchQueryMock.On("Params", mock.Anything, &launchtypes.QueryParamsRequest{}).
-		Return(&launchtypes.QueryParamsResponse{
-			Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
-		}, errors.New("failed to fetch"))
-	network.launchQuery = launchQueryMock
-	err = network.TriggerLaunch(context.Background(), testutil.TestLaunchID, (TestMaxRemainingTime+60)*time.Second)
-	require.NotNil(t, err)
+	t.Run("failed to launch a chain, remaining time is greater than allowed", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.LaunchQueryMock.
+			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
+			Return(&launchtypes.QueryParamsResponse{
+				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+			}, nil).
+			Once()
+
+		err := network.TriggerLaunch(context.Background(), testutil.LaunchID, (TestMaxRemainingTime+60)*time.Hour)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
+	})
+
+	t.Run("failed to launch a chain, failed to broadcast the launch tx", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.LaunchQueryMock.
+			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
+			Return(&launchtypes.QueryParamsResponse{
+				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+			}, nil).
+			Once()
+		suite.CosmosClientMock.
+			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
+				Coordinator:   account.Address(networktypes.SPN),
+				LaunchID:      testutil.LaunchID,
+				RemainingTime: TestMaxRemainingTime,
+			}).
+			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunch{}), errors.New("Failed to fetch")).
+			Once()
+
+		err := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
+	})
+
+	t.Run("failed to launch a chain, invalid response from chain", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.LaunchQueryMock.
+			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
+			Return(&launchtypes.QueryParamsResponse{
+				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+			}, nil).
+			Once()
+		suite.CosmosClientMock.
+			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
+				Coordinator:   account.Address(networktypes.SPN),
+				LaunchID:      testutil.LaunchID,
+				RemainingTime: TestMaxRemainingTime,
+			}).
+			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{}), errors.New("failed to fetch")).
+			Once()
+
+		err := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
+	})
+
+	t.Run("failed to launch a chain, failed to fetch chain params", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.LaunchQueryMock.
+			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
+			Return(&launchtypes.QueryParamsResponse{
+				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+			}, errors.New("failed to fetch")).
+			Once()
+
+		err := network.TriggerLaunch(context.Background(), testutil.LaunchID, (TestMaxRemainingTime+60)*time.Second)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
+	})
 }

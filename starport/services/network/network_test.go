@@ -5,17 +5,20 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/services/network/mocks"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/services/network/testutil"
 )
 
-func NetworkStub() Network {
-	return Network{
-		cosmos:        new(mocks.CosmosClient),
-		profileQuery:  new(mocks.ProfileClient),
-		campaignQuery: new(mocks.CampaignClient),
-		launchQuery:   new(mocks.LaunchClient),
-		rewardQuery:   new(mocks.RewardClient),
-	}
+func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
+	suite := testutil.NewSuite(account)
+	return suite, New(
+		suite.CosmosClientMock,
+		account,
+		WithCampaignQueryClient(suite.CampaignQueryMock),
+		WithLaunchQueryClient(suite.LaunchQueryMock),
+		WithProfileQueryClient(suite.ProfileQueryMock),
+		WithRewardQueryClient(suite.RewardClient),
+	)
 }
 
 func TestParseID(t *testing.T) {

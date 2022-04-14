@@ -5,7 +5,10 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+	profiletypes "github.com/tendermint/spn/x/profile/types"
+	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
@@ -112,8 +115,6 @@ func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...netwo
 }
 
 func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
-	options = append(options, network.CollectEvents(n.ev))
-
 	var (
 		err     error
 		from    = getFrom(n.cmd)
@@ -125,7 +126,14 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
 		}
 	}
-	return network.New(*cosmos, account, options...)
+
+	options = append(options, network.CollectEvents(n.ev))
+	options = append(options, network.WithCampaignQueryClient(campaigntypes.NewQueryClient(cosmos.GetContext())))
+	options = append(options, network.WithLaunchQueryClient(launchtypes.NewQueryClient(cosmos.GetContext())))
+	options = append(options, network.WithProfileQueryClient(profiletypes.NewQueryClient(cosmos.GetContext())))
+	options = append(options, network.WithRewardQueryClient(rewardtypes.NewQueryClient(cosmos.GetContext())))
+
+	return network.New(*cosmos, account, options...), nil
 }
 
 func (n NetworkBuilder) Cleanup() {

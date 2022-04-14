@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type (
@@ -46,14 +49,17 @@ func NewGentx(address, denom, amount, pubkey, memo string) *Gentx {
 	}}
 }
 
-func (g *Gentx) SaveTo(dir string) (string, error) {
+func (g *Gentx) SaveTo(t *testing.T, dir string) string {
 	encoded, err := json.Marshal(g)
-	if err != nil {
-		return "", err
-	}
+	assert.Nil(t, err)
 	savePath := filepath.Join(dir, "gentx0.json")
-	return savePath, os.WriteFile(savePath, encoded, 0666)
+	err = os.WriteFile(savePath, encoded, 0666)
+	assert.Nil(t, err)
+	return savePath
 }
-func (g *Gentx) JSON() ([]byte, error) {
-	return json.Marshal(g)
+
+func (g *Gentx) JSON(t *testing.T) []byte {
+	data, err := json.Marshal(g)
+	assert.Nil(t, err)
+	return data
 }

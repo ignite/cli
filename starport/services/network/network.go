@@ -55,27 +55,47 @@ type Chain interface {
 
 type Option func(*Network)
 
+func WithCampaignQueryClient(client campaigntypes.QueryClient) Option {
+	return func(n *Network) {
+		n.campaignQuery = client
+	}
+}
+
+func WithProfileQueryClient(client profiletypes.QueryClient) Option {
+	return func(n *Network) {
+		n.profileQuery = client
+	}
+}
+
+func WithLaunchQueryClient(client launchtypes.QueryClient) Option {
+	return func(n *Network) {
+		n.launchQuery = client
+	}
+}
+
+func WithRewardQueryClient(client rewardtypes.QueryClient) Option {
+	return func(n *Network) {
+		n.rewardQuery = client
+	}
+}
+
 // CollectEvents collects events from the network builder.
 func CollectEvents(ev events.Bus) Option {
-	return func(b *Network) {
-		b.ev = ev
+	return func(n *Network) {
+		n.ev = ev
 	}
 }
 
 // New creates a Builder.
-func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) (Network, error) {
+func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
 	n := Network{
-		cosmos:        cosmos,
-		account:       account,
-		campaignQuery: campaigntypes.NewQueryClient(cosmos.GetContext()),
-		launchQuery:   launchtypes.NewQueryClient(cosmos.GetContext()),
-		profileQuery:  profiletypes.NewQueryClient(cosmos.GetContext()),
-		rewardQuery:   rewardtypes.NewQueryClient(cosmos.GetContext()),
+		cosmos:  cosmos,
+		account: account,
 	}
 	for _, opt := range options {
 		opt(&n)
 	}
-	return n, nil
+	return n
 }
 
 func ParseID(id string) (uint64, error) {

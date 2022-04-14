@@ -6,438 +6,524 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
-	"github.com/tendermint/starport/starport/services/network/mocks"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"github.com/tendermint/starport/starport/services/network/testutil"
 )
 
 const (
-	TestDenom        = "stake"
-	TestAmountString = "95000000"
-	TestAmountInt    = int64(95000000)
-
+	TestDenom                     = "stake"
+	TestAmountString              = "95000000"
+	TestAmountInt                 = int64(95000000)
 	TestAccountRequestID          = uint64(1)
 	TestGenesisValidatorRequestID = uint64(2)
 )
 
-func stubNetworkForJoin(account cosmosaccount.Account) Network {
-	launchQueryMock := new(mocks.LaunchClient)
-	launchQueryMock.On("GenesisValidator", mock.Anything, &launchtypes.QueryGetGenesisValidatorRequest{
-		Address:  account.Address(networktypes.SPN),
-		LaunchID: testutil.TestLaunchID,
-	}).Return(nil, cosmoserror.ErrNotFound)
-	launchQueryMock.On("VestingAccount", mock.Anything, &launchtypes.QueryGetVestingAccountRequest{
-		Address:  account.Address(networktypes.SPN),
-		LaunchID: testutil.TestLaunchID,
-	}).Return(nil, cosmoserror.ErrNotFound)
-	launchQueryMock.On("GenesisAccount", mock.Anything, &launchtypes.QueryGetGenesisAccountRequest{
-		Address:  account.Address(networktypes.SPN),
-		LaunchID: testutil.TestLaunchID,
-	}).Return(nil, cosmoserror.ErrNotFound)
-	networkClientMock := new(mocks.CosmosClient)
-	networkClientMock.On(
-		"BroadcastTx",
-		account.Name,
-		mock.AnythingOfType("*types.MsgRequestAddValidator"),
-	).Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
-		RequestID:    TestGenesisValidatorRequestID,
-		AutoApproved: false,
-	}), nil)
-	networkClientMock.On(
-		"BroadcastTx",
-		account.Name,
-		mock.AnythingOfType("*types.MsgRequestAddAccount"),
-	).Return(testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{
-		RequestID:    TestAccountRequestID,
-		AutoApproved: false,
-	}), nil)
-	return Network{
-		cosmos:      networkClientMock,
-		account:     account,
-		launchQuery: launchQueryMock,
-	}
-}
-
 func TestJoin(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("successfully send join request", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
-
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
-
-	joinErr := network.Join(context.Background(), chain, testutil.TestLaunchID, WithPublicAddress(testutil.TestPublicAddress))
-	require.Nil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 1)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 1)
-}
-
-func TestJoinWithCustomGentx(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxJson, err := gentx.JSON()
-	assert.Nil(t, err)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
-
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath))
-
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithCustomGentxPath(gentxPath),
-	)
-	require.Nil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 0)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 0)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 1)
-	network.cosmos.(*mocks.CosmosClient).AssertCalled(t,
-		"BroadcastTx",
-		mock.Anything,
-		&launchtypes.MsgRequestAddValidator{
-			Creator:        account.Address(networktypes.SPN),
-			LaunchID:       testutil.TestLaunchID,
-			ValAddress:     account.Address(networktypes.SPN),
-			GenTx:          gentxJson,
-			ConsPubKey:     []byte{},
-			SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
-			Peer: launchtypes.Peer{
-				Id: testutil.TestNodeID,
-				Connection: &launchtypes.Peer_TcpAddress{
-					TcpAddress: testutil.TestPublicAddress,
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.LaunchQueryMock.
+			On(
+				"GenesisValidator",
+				context.Background(),
+				&launchtypes.QueryGetGenesisValidatorRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
 				},
-			},
-		},
-	)
-}
+			).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgRequestAddValidator{
+					Creator:        account.Address(networktypes.SPN),
+					LaunchID:       testutil.LaunchID,
+					ValAddress:     account.Address(networktypes.SPN),
+					GenTx:          gentx.JSON(t),
+					ConsPubKey:     []byte{},
+					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					Peer: launchtypes.Peer{
+						Id: testutil.NodeID,
+						Connection: &launchtypes.Peer_TcpAddress{
+							TcpAddress: testutil.TCPAddress,
+						},
+					},
+				},
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
+				RequestID:    TestGenesisValidatorRequestID,
+				AutoApproved: false,
+			}), nil).
+			Once()
 
-func TestJoinValidatorAlreadyExists(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.NoError(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
+	t.Run("successfully send join request with custom gentx", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.LaunchQueryMock.
+			On(
+				"GenesisValidator",
+				context.Background(),
+				&launchtypes.QueryGetGenesisValidatorRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				},
+			).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgRequestAddValidator{
+					Creator:        account.Address(networktypes.SPN),
+					LaunchID:       testutil.LaunchID,
+					ValAddress:     account.Address(networktypes.SPN),
+					GenTx:          gentx.JSON(t),
+					ConsPubKey:     []byte{},
+					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					Peer: launchtypes.Peer{
+						Id: testutil.NodeID,
+						Connection: &launchtypes.Peer_TcpAddress{
+							TcpAddress: testutil.TCPAddress,
+						},
+					},
+				},
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
+				RequestID:    TestGenesisValidatorRequestID,
+				AutoApproved: false,
+			}), nil).
+			Once()
 
-	network := stubNetworkForJoin(account)
-	launchQueryMock := new(mocks.LaunchClient)
-	launchQueryMock.On("GenesisValidator", mock.Anything, &launchtypes.QueryGetGenesisValidatorRequest{
-		Address:  account.Address(networktypes.SPN),
-		LaunchID: testutil.TestLaunchID,
-	}).Return(nil, nil)
-	network.launchQuery = launchQueryMock
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithCustomGentxPath(gentxPath))
+		require.NoError(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-	)
-	require.NotNil(t, joinErr)
-	require.Errorf(t, joinErr, "validator %s already exist", account.Address(networktypes.SPN))
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 1)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-}
+	t.Run("failed to send join request, validator already exists", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-func TestJoinValidatorExistenceCheckFailed(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+		suite.LaunchQueryMock.
+			On(
+				"GenesisValidator",
+				context.Background(),
+				&launchtypes.QueryGetGenesisValidatorRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				},
+			).
+			Return(nil, nil).
+			Once()
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	network := stubNetworkForJoin(account)
-	launchQueryMock := new(mocks.LaunchClient)
-	launchQueryMock.On("GenesisValidator", mock.Anything, &launchtypes.QueryGetGenesisValidatorRequest{
-		Address:  account.Address(networktypes.SPN),
-		LaunchID: testutil.TestLaunchID,
-	}).Return(nil, errors.New("failed to get validator"))
-	network.launchQuery = launchQueryMock
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
+	t.Run("failed to send join request, failed to check validator existence", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 1)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-}
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+		suite.LaunchQueryMock.
+			On(
+				"GenesisValidator",
+				context.Background(),
+				&launchtypes.QueryGetGenesisValidatorRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				},
+			).
+			Return(nil, errors.New("failed to perform request")).
+			Once()
 
-func TestJoinAddValidatorTxFailed(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
+	t.Run("failed to send join request, failed to broadcast join tx", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	network := stubNetworkForJoin(account)
-	networkClientMock := new(mocks.CosmosClient)
-	networkClientMock.On(
-		"BroadcastTx",
-		testutil.TestAccountName,
-		mock.AnythingOfType("*types.MsgRequestAddValidator"),
-	).Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{}), errors.New("failed to add validator"))
-	network.cosmos = networkClientMock
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+		suite.LaunchQueryMock.
+			On(
+				"GenesisValidator",
+				context.Background(),
+				&launchtypes.QueryGetGenesisValidatorRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				},
+			).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgRequestAddValidator{
+					Creator:        account.Address(networktypes.SPN),
+					LaunchID:       testutil.LaunchID,
+					ValAddress:     account.Address(networktypes.SPN),
+					GenTx:          gentx.JSON(t),
+					ConsPubKey:     []byte{},
+					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					Peer: launchtypes.Peer{
+						Id: testutil.NodeID,
+						Connection: &launchtypes.Peer_TcpAddress{
+							TcpAddress: testutil.TCPAddress,
+						},
+					},
+				},
+			).
+			Return(
+				testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{}),
+				errors.New("failed to add validator"),
+			).
+			Once()
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 1)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 1)
-}
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-func TestJoinWithAccountRequest(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("successfully send join request with account request", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+		suite.LaunchQueryMock.
+			On(
+				"GenesisValidator",
+				context.Background(),
+				&launchtypes.QueryGetGenesisValidatorRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				},
+			).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.LaunchQueryMock.
+			On(
+				"VestingAccount",
+				context.Background(),
+				&launchtypes.QueryGetVestingAccountRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				}).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgRequestAddValidator{
+					Creator:        account.Address(networktypes.SPN),
+					LaunchID:       testutil.LaunchID,
+					ValAddress:     account.Address(networktypes.SPN),
+					GenTx:          gentx.JSON(t),
+					ConsPubKey:     []byte{},
+					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					Peer: launchtypes.Peer{
+						Id: testutil.NodeID,
+						Connection: &launchtypes.Peer_TcpAddress{
+							TcpAddress: testutil.TCPAddress,
+						},
+					},
+				},
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
+				RequestID:    TestGenesisValidatorRequestID,
+				AutoApproved: false,
+			}), nil).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgRequestAddAccount{
+					Creator:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+					Address:  account.Address(networktypes.SPN),
+					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))),
+				},
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{
+				RequestID:    TestAccountRequestID,
+				AutoApproved: false,
+			}), nil).
+			Once()
 
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
+			WithPublicAddress(testutil.TCPAddress),
+		)
+		require.NoError(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	coin := sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))
+	t.Run("failed to send join request with account request, account exists in genesis", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesis        = testutil.NewGenesis(testutil.ChainID).AddAccount(account.Address(networktypes.SPN))
+			genesisPath    = genesis.SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-		WithAccountRequest(sdk.NewCoins(coin)),
-	)
-	require.Nil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 1)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 2)
-}
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
 
-func TestJoinWithAccountRequestAndAccountExistsInGenesis(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
+			WithPublicAddress(testutil.TCPAddress),
+		)
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesis.AddAccount(account.Address(networktypes.SPN))
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
+	t.Run("failed to send join request with account request, failed to broadcast account tx", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
 
-	coin := sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))
+		suite.LaunchQueryMock.
+			On(
+				"VestingAccount",
+				context.Background(),
+				&launchtypes.QueryGetVestingAccountRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				}).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgRequestAddAccount{
+					Creator:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+					Address:  account.Address(networktypes.SPN),
+					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))),
+				},
+			).
+			Return(
+				testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{}),
+				errors.New("failed to create account"),
+			).
+			Once()
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-		WithAccountRequest(sdk.NewCoins(coin)),
-	)
-	require.NotNil(t, joinErr)
-	require.Errorf(t, joinErr, "account %s already exist", account.Address(networktypes.SPN))
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 0)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-}
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
+			WithPublicAddress(testutil.TCPAddress),
+		)
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-func TestJoinWithAccountRequestFailedToCreateAccount(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("failed to send join request, failed to read node id", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+		suite.ChainMock.
+			On("NodeID", mock.Anything).
+			Return("", errors.New("failed to get node id")).
+			Once()
 
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-	network := stubNetworkForJoin(account)
-	networkClientMock := new(mocks.CosmosClient)
-	networkClientMock.On(
-		"BroadcastTx",
-		testutil.TestAccountName,
-		mock.AnythingOfType("*types.MsgRequestAddAccount"),
-	).Return(testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{}), errors.New("failed to create account"))
-	network.cosmos = networkClientMock
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath), testutil.WithDefaultGentxPath(gentxPath))
+	t.Run("failed to send join request, failed to read default gentx", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
 
-	coin := sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.
+			On("DefaultGentxPath").
+			Return("", errors.New("failed to get default gentx path")).
+			Once()
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-		WithAccountRequest(sdk.NewCoins(coin)),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 0)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 1)
-}
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-func TestJoinFailedToReadNodeID(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("failed to send join request, failed to read genesis", func(t *testing.T) {
+		var (
+			account = testutil.NewTestAccount(t, testutil.TestAccountName)
+			tmp     = t.TempDir()
+			gentx   = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				testutil.PeerAddress,
+			)
+			gentxPath      = gentx.SaveTo(t, tmp)
+			suite, network = newSuite(account)
+		)
 
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithNodeIDFail())
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+		suite.ChainMock.
+			On("GenesisPath").
+			Return("", errors.New("failed to get genesis path")).
+			Once()
 
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 0)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-}
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		require.Error(t, joinErr)
+		suite.AssertAllMocks(t)
+	})
 
-func TestJoinFailedToReadDefaultGentxPath(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
+	t.Run("failed to send join request, failed to read custom genesis", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			gentxPath      = "invalid/path"
+			suite, network = newSuite(account)
+		)
 
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithDefaultGentxPathFail())
-
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 0)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 0)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-}
-
-func TestJoinFailedToReadGenesis(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-
-	tmp := t.TempDir()
-	gentx := testutil.NewGentx(account.Address(networktypes.SPN), TestDenom, TestAmountString, "", testutil.TestPeerAddress)
-	gentxPath, err := gentx.SaveTo(tmp)
-	assert.Nil(t, err)
-
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithGenesisPathFail(), testutil.WithDefaultGentxPath(gentxPath))
-
-	joinErr := network.Join(
-		context.Background(),
-		chain, testutil.TestLaunchID,
-		WithPublicAddress(testutil.TestPublicAddress),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 1)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 1)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 1)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 0)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-}
-
-func TestJoinFailedToReadCustomGentx(t *testing.T) {
-	account, err := testutil.NewTestAccount(testutil.TestAccountName)
-	assert.Nil(t, err)
-
-	gentxPath := "invalid/path"
-
-	tmp := t.TempDir()
-	genesis := testutil.NewGenesis(testutil.TestChainChainID)
-	genesisPath, err := genesis.SaveTo(tmp)
-	assert.Nil(t, err)
-
-	network := stubNetworkForJoin(account)
-	chain := testutil.NewChainMock(testutil.WithGenesisPath(genesisPath))
-
-	joinErr := network.Join(
-		context.Background(),
-		chain,
-		testutil.TestLaunchID,
-		WithCustomGentxPath(gentxPath),
-	)
-	require.NotNil(t, joinErr)
-	chain.AssertNumberOfCalls(t, "NodeID", 0)
-	chain.AssertNumberOfCalls(t, "GenesisPath", 0)
-	chain.AssertNumberOfCalls(t, "DefaultGentxPath", 0)
-	network.launchQuery.(*mocks.LaunchClient).AssertNumberOfCalls(t, "GenesisValidator", 0)
-	network.cosmos.(*mocks.CosmosClient).AssertNumberOfCalls(t, "BroadcastTx", 0)
-
+		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithCustomGentxPath(gentxPath))
+		require.Error(t, joinErr)
+		suite.ChainMock.AssertNumberOfCalls(t, "NodeID", 0)
+		suite.ChainMock.AssertNumberOfCalls(t, "GenesisPath", 0)
+		suite.ChainMock.AssertNumberOfCalls(t, "DefaultGentxPath", 0)
+	})
 }

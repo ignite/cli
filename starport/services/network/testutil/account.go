@@ -1,16 +1,20 @@
 package testutil
 
-import "github.com/tendermint/starport/starport/pkg/cosmosaccount"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+)
 
 const (
 	TestAccountName = "test"
 )
 
-func NewTestAccount(name string) (cosmosaccount.Account, error) {
+func NewTestAccount(t *testing.T, name string) cosmosaccount.Account {
 	r, err := cosmosaccount.NewInMemory()
-	if err != nil {
-		return cosmosaccount.Account{}, err
-	}
+	assert.NoError(t, err)
 	account, _, err := r.Create(name)
-	return account, err
+	assert.NoError(t, err)
+	return account
 }

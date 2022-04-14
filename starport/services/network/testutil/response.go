@@ -24,10 +24,10 @@ func NewResponse(data protoiface.MessageV1) cosmosclient.Response {
 	}}
 	encodedTxData, _ := marshaler.Marshal(txData)
 	resp := cosmosclient.Response{
+		Codec: marshaler,
 		TxResponse: &sdk.TxResponse{
 			Data: hex.EncodeToString(encodedTxData),
 		},
 	}
-	resp.SetCodec(marshaler)
 	return resp
 }
