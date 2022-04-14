@@ -43,7 +43,7 @@ Here is what an unsigned transaction looks like:
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.nameservice.nameservice.MsgBuyName",
+        "@type": "/username.nameservice.nameservice.MsgBuyName",
         "creator": "cosmos1p0fprxtpk497jvczexp96sy2w43hupeph9km5d",
         "name": "foo",
         "bid": "20token"
