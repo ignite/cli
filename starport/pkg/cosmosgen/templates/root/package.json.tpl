@@ -15,16 +15,11 @@
     "access": "public"
   },
   "dependencies": {
+    "@ignt/plugins": "0.0.12-alpha",
     "@cosmjs/launchpad": "0.27.0",
     "@cosmjs/proto-signing": "0.27.0",
     "@cosmjs/stargate": "0.27.0",
-    "axios": "^0.25.0",
-    "buffer": "^6.0.3",
-    "reconnecting-websocket": "^4.4.0",
-    "eventemitter3": "4.0.7"
-  },
-  "devDependencies": {
-    "@keplr-wallet/types": "^0.9.10"
+    "buffer": "^6.0.3"
   },
   "peerDependencies": {
     "@cosmjs/launchpad": "0.27.0",

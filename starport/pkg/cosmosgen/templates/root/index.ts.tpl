@@ -1,64 +1,64 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
-
 import { Registry } from '@cosmjs/proto-signing'
 
-import { plugEnv, plugKeplr, plugSigner, plugWebsocket } from './plugins'
-
-{{ range .Modules }}import { Module as {{ .Name }}, msgTypes as {{ .Name }}MsgTypes } from './{{ .Path }}'
+import {
+    plugEnv,
+    plugKeplr,
+    plugSigner,
+    plugWebSocket,
+    Env
+} from '@ignt/plugins'
+{{ range .Modules }}import { Module as {{ camelCaseUpperSta .Pkg.Name }}, msgTypes as {{ camelCaseUpperSta .Pkg.Name }}MsgTypes } from './{{ .Pkg.Name }}'
 {{ end }}
 
 const registry = new Registry([
-  {{ range .Modules }}...{{ .Name }}MsgTypes,
+  {{ range .Modules }}...{{ camelCaseUpperSta .Pkg.Name }}MsgTypes,
   {{ end }}
 ])
 
-type Environment = ReturnType<typeof plugEnv>['env']
-
 {{ range .Modules }}
-function plug{{ .Name }}(env: Environment): {
-    {{ camelCase .Name }}: {{ .Name }}
+function plug{{ camelCaseUpperSta .Pkg.Name }}(env: Env): {
+    {{ camelCaseLowerSta .Pkg.Name }}: {{ camelCaseUpperSta .Pkg.Name }}
 } {
     return {
-        {{ camelCase .Name }}: new {{ .Name }}(env.apiURL)
+        {{ camelCaseLowerSta .Pkg.Name }}: new {{ camelCaseUpperSta .Pkg.Name }}(env.apiURL)
     }
 }
 {{ end }}
 
-type Ignite = {{ range .Modules }}ReturnType<typeof plug{{ .Name }}> & {{ end }}
-
+type {{ capitalCase .Repo }} = {{ range .Modules }}ReturnType<typeof plug{{ camelCaseUpperSta .Pkg.Name }}> & {{ end }}
 ReturnType<typeof plugSigner> &
 ReturnType<typeof plugKeplr> &
-ReturnType<typeof plugWebsocket> &
+ReturnType<typeof plugWebSocket> &
 ReturnType<typeof plugEnv>
 
-let createIgnite = (p: { env: Environment }) => _use(
-{
+function create{{ capitalCase .Repo }}(p: { env: Env }) {
+    return _use({
+
     {{ range .Modules }}
-        ...plug{{ .Name }}(p.env),
+        ...plug{{ camelCaseUpperSta .Pkg.Name }}(p.env),
     {{ end }}
         ...plugSigner(),
 
         ...plugKeplr(),
 
-        ...plugWebsocket(p.env),
+        ...plugWebSocket(p.env),
 
         ...plugEnv(p.env)
 
-    }
-)
+    })
+}
 
 function _use<T>(elements: T): { [K in keyof T]: T[K] } {
     return Object.assign({}, elements)
 }
 
-export * from './plugins'
 export {
     {{ range .Modules }}
-        plug{{ .Name }},
+        plug{{ camelCaseUpperSta .Pkg.Name }},
     {{ end }}
-    createIgnite,
-    Environment,
+    create{{ capitalCase .Repo }},
     registry,
-    Ignite,
+    {{ capitalCase .Repo }},
     _use
 }

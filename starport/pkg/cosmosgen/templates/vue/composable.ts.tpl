@@ -1,8 +1,7 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
-
-import Module from "../../client/{{ .Module.Pkg.Name }}/module";
-import useIgnite from '../useIgnite'
 import { unref } from 'vue'
+import Module from "{{ .User }}-{{ .Repo }}-ts-client/{{ .Module.Pkg.Name }}/module";
+import use{{ capitalCase .Repo }} from '../use'
 		
 {{ range .Module.Msgs }}type Send{{ .Name }}Type = typeof Module.prototype.send{{ .Name }}
 {{ end }}
@@ -17,8 +16,7 @@ type Response = {
 }
 
 function useModule(): Response {
-  // ignite
-  let { ignite } = useIgnite()
+  let { {{ .Repo }} } = use{{ capitalCase .Repo }}()
 
   let {
 	{{ range .Module.Msgs }}
@@ -27,14 +25,15 @@ function useModule(): Response {
   {{ range .Module.HTTPQueries }}
   {{ camelCase .FullName }},
   {{ end }}
-  } = unref(ignite.{{ camelCase .Module.Name }})
+  } = unref({{ .Repo }}.{{ camelCaseLowerSta .Module.Pkg.Name }})
 
-  {{ $ModuleName := camelCase .Module.Name }}
+  {{ $ModuleName := camelCaseLowerSta .Module.Pkg.Name }}
+  {{ $Repo := .Repo }}
   {{ range .Module.Msgs }}
-	send{{ .Name }} = send{{ .Name }}.bind(ignite.{{ $ModuleName }})
+	send{{ .Name }} = send{{ .Name }}.bind({{ $Repo }}.{{ $ModuleName }})
   {{ end }}
   {{ range .Module.HTTPQueries }}
-  {{ camelCase .FullName }} = {{ camelCase .FullName }}.bind(ignite.{{ $ModuleName }})
+  {{ camelCase .FullName }} = {{ camelCase .FullName }}.bind({{ $Repo }}.{{ $ModuleName }})
   {{ end }}
 
   return {

@@ -1,4 +1,4 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
-{{ range .Modules }}export { useModule as use{{ .Name }} } from './{{ .Path }}'
+{{ range .Modules }}export { useModule as use{{ camelCaseUpperSta .Pkg.Name }} } from './{{ .Pkg.Name }}'
 {{ end }}
-export { default as useIgnite } from './useIgnite'
+export { default as use{{ capitalCase .Repo }} } from './use'
