@@ -51,11 +51,11 @@ func (g *generator) generateTS() error {
 		return err
 	}
 
-	var data generatePayload
-	data.User = chainInfo.User
-	data.Repo = chainInfo.Repo
-
-	data.Modules = g.appModules
+	data := generatePayload{
+		Modules: g.appModules,
+		User:    chainInfo.User,
+		Repo:    chainInfo.Repo,
+	}
 
 	if g.o.jsIncludeThirdParty {
 		for _, modules := range g.thirdModules {
