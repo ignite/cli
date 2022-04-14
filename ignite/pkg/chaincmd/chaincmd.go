@@ -19,7 +19,7 @@ const (
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
-	commandUnsafeReset       = "unsafe-reset-all"
+	commandUnsafeReset       = "tendermint unsafe-reset-all"
 	commandExport            = "export"
 
 	optionHome                             = "--home"
