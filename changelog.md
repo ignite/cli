@@ -1,5 +1,17 @@
 # Changelog
 
+## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
+
+### Fixes
+
+- Use latest version of CLI in templates to fix Linux ARM support _(It's now possible to develop chains in Linux ARM machines and since the chain depends on the CLI in its go.mod, it needs to use the latest version that support ARM targets)_
+
+## [`v0.20.2`](https://github.com/ignite-hq/cli/releases/tag/v0.20.2)
+
+### Fixes
+
+- Use `unsafe-reset-all` cmd under `tendermint` cmd for chains that use `=> v0.45.3` version of Cosmos SDK
+
 ## [`v0.20.1`](https://github.com/ignite-hq/cli/releases/tag/v0.20.1)
 
 ### Features
