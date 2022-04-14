@@ -48,9 +48,13 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 	}
 
 	funcs := template.FuncMap{
-		"camelCase": strcase.ToLowerCamel,
-		"camelCaseSta": func(word string) string {
+		"camelCase":   strcase.ToLowerCamel,
+		"capitalCase": strings.Title,
+		"camelCaseLowerSta": func(word string) string {
 			return gocase.Revert(strcase.ToLowerCamel(word))
+		},
+		"camelCaseUpperSta": func(word string) string {
+			return gocase.Revert(strcase.ToCamel(word))
 		},
 		"resolveFile": func(fullPath string) string {
 			rel, _ := filepath.Rel(protoPath, fullPath)
