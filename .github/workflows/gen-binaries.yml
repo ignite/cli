@@ -57,7 +57,7 @@ jobs:
             arch: arm64
           - runs-on: macos-10.15 # building it at the latest version breaks compability for older versions
             os: darwin
-            defaults-shell: bash
+            defaults-shell: /bin/bash -l {0}
             arch: amd64
           - runs-on: [ self-hosted, macOS ]
             os: darwin
