@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/tendermint/flutter/v2"
 	"github.com/tendermint/vue"
 
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -66,7 +66,7 @@ func generate(
 	absRoot string,
 	noDefaultModule bool,
 ) error {
-	gu, err := giturl.Parse(pathInfo.RawPath)
+	user, repo, err := gomodulepath.ExtractUserAndRepoNames(pathInfo.RawPath)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func generate(
 		AppName:          pathInfo.Package,
 		AppPath:          absRoot,
 		OwnerName:        owner(pathInfo.RawPath),
-		OwnerAndRepoName: gu.UserAndRepo(),
+		OwnerAndRepoName: fmt.Sprint(user, "/", repo),
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 	})

@@ -6,7 +6,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
@@ -16,7 +15,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -72,7 +70,8 @@ func App(path string) (Scaffolder, error) {
 }
 
 func owner(modulePath string) string {
-	return strings.Split(modulePath, "/")[1]
+	user, _, _ := gomodulepath.ExtractUserAndRepoNames(modulePath)
+	return user
 }
 
 func finish(path, gomodPath string) error {
@@ -112,8 +111,8 @@ func protoc(projectPath, gomodPath string) error {
 			cosmosgen.WithVuexGeneration(
 				false,
 				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
+					user, repo, _ := gomodulepath.ExtractUserAndRepoNames(m.Pkg.GoImportName)
+					return filepath.Join(storeRootPath, user, repo, m.Pkg.Name, "module")
 				},
 				storeRootPath,
 			),
