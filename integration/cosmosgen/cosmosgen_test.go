@@ -16,7 +16,7 @@ func TestCosmosGen(t *testing.T) {
 	var (
 		env          = envtest.New(t)
 		path         = env.Scaffold("blog")
-		dirGenerated = filepath.Join(path, "vue/src/generated")
+		dirGenerated = filepath.Join(path, "vue/src/generated/client")
 	)
 
 	const (
@@ -143,8 +143,4 @@ func TestCosmosGen(t *testing.T) {
 		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", cosmosModule))
 		require.NoError(t, statErr)
 	}
-
-	chainDir, err := os.ReadDir(filepath.Join(dirGenerated))
-	require.Equal(t, len(expectedCustomModules)+len(expectedCosmosModules), len(chainDir), "no extra modules should have been generated")
-	require.NoError(t, err)
 }
