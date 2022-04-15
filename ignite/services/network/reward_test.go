@@ -20,6 +20,7 @@ func TestSetReward(t *testing.T) {
 			coins           = sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))
 			lastRewarHeight = int64(10)
 		)
+
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
@@ -38,6 +39,7 @@ func TestSetReward(t *testing.T) {
 				NewLastRewardHeight:      lastRewarHeight,
 			}), nil).
 			Once()
+
 		setRewardError := network.SetReward(testutil.LaunchID, lastRewarHeight, coins)
 		require.NoError(t, setRewardError)
 		suite.AssertAllMocks(t)
@@ -48,6 +50,7 @@ func TestSetReward(t *testing.T) {
 			suite, network  = newSuite(account)
 			coins           = sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))
 			lastRewarHeight = int64(10)
+			expectedErr     = errors.New("failed to set reward")
 		)
 		suite.CosmosClientMock.
 			On(
@@ -60,10 +63,11 @@ func TestSetReward(t *testing.T) {
 					LastRewardHeight: lastRewarHeight,
 				},
 			).
-			Return(testutil.NewResponse(&rewardtypes.MsgSetRewardsResponse{}), errors.New("failed to set reward")).
+			Return(testutil.NewResponse(&rewardtypes.MsgSetRewardsResponse{}), expectedErr).
 			Once()
 		setRewardError := network.SetReward(testutil.LaunchID, lastRewarHeight, coins)
 		require.Error(t, setRewardError)
+		require.Equal(t, expectedErr, setRewardError)
 		suite.AssertAllMocks(t)
 	})
 }

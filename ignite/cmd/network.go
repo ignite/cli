@@ -127,11 +127,13 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 		}
 	}
 
-	options = append(options, network.CollectEvents(n.ev))
-	options = append(options, network.WithCampaignQueryClient(campaigntypes.NewQueryClient(cosmos.Context())))
-	options = append(options, network.WithLaunchQueryClient(launchtypes.NewQueryClient(cosmos.Context())))
-	options = append(options, network.WithProfileQueryClient(profiletypes.NewQueryClient(cosmos.Context())))
-	options = append(options, network.WithRewardQueryClient(rewardtypes.NewQueryClient(cosmos.Context())))
+	options = append(options,
+		network.CollectEvents(n.ev),
+		network.WithCampaignQueryClient(campaigntypes.NewQueryClient(cosmos.Context())),
+		network.WithLaunchQueryClient(launchtypes.NewQueryClient(cosmos.Context())),
+		network.WithProfileQueryClient(profiletypes.NewQueryClient(cosmos.Context())),
+		network.WithRewardQueryClient(rewardtypes.NewQueryClient(cosmos.Context())),
+	)
 
 	return network.New(*cosmos, account, options...), nil
 }

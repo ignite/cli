@@ -98,6 +98,7 @@ func TestJoin(t *testing.T) {
 			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
 		)
+
 		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
 		suite.LaunchQueryMock.
 			On(
@@ -172,7 +173,7 @@ func TestJoin(t *testing.T) {
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
-		require.Error(t, joinErr)
+		require.Errorf(t, joinErr, "validator %s already exist", account.Address(networktypes.SPN))
 		suite.AssertAllMocks(t)
 	})
 
@@ -190,6 +191,7 @@ func TestJoin(t *testing.T) {
 			gentxPath      = gentx.SaveTo(t, tmp)
 			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to perform request")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
@@ -204,11 +206,12 @@ func TestJoin(t *testing.T) {
 					LaunchID: testutil.LaunchID,
 				},
 			).
-			Return(nil, errors.New("failed to perform request")).
+			Return(nil, expectedError).
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
 	})
 
@@ -226,6 +229,7 @@ func TestJoin(t *testing.T) {
 			gentxPath      = gentx.SaveTo(t, tmp)
 			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to add validator")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
@@ -263,12 +267,13 @@ func TestJoin(t *testing.T) {
 			).
 			Return(
 				testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{}),
-				errors.New("failed to add validator"),
+				expectedError,
 			).
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
 	})
 
@@ -392,7 +397,7 @@ func TestJoin(t *testing.T) {
 			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
 			WithPublicAddress(testutil.TCPAddress),
 		)
-		require.Error(t, joinErr)
+		require.Errorf(t, joinErr, "account %s already exist", account.Address(networktypes.SPN))
 		suite.AssertAllMocks(t)
 	})
 
@@ -410,6 +415,7 @@ func TestJoin(t *testing.T) {
 			gentxPath      = gentx.SaveTo(t, tmp)
 			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to create account")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
@@ -439,7 +445,7 @@ func TestJoin(t *testing.T) {
 			).
 			Return(
 				testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{}),
-				errors.New("failed to create account"),
+				expectedError,
 			).
 			Once()
 
@@ -451,6 +457,7 @@ func TestJoin(t *testing.T) {
 			WithPublicAddress(testutil.TCPAddress),
 		)
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
 	})
 
@@ -458,14 +465,16 @@ func TestJoin(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to get node id")
 		)
 		suite.ChainMock.
 			On("NodeID", mock.Anything).
-			Return("", errors.New("failed to get node id")).
+			Return("", expectedError).
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
 	})
 
@@ -473,16 +482,18 @@ func TestJoin(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to get default gentx path")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
 		suite.ChainMock.
 			On("DefaultGentxPath").
-			Return("", errors.New("failed to get default gentx path")).
+			Return("", expectedError).
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
 	})
 
@@ -499,17 +510,19 @@ func TestJoin(t *testing.T) {
 			)
 			gentxPath      = gentx.SaveTo(t, tmp)
 			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to get genesis path")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
 		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
 		suite.ChainMock.
 			On("GenesisPath").
-			Return("", errors.New("failed to get genesis path")).
+			Return("", expectedError).
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
 	})
 
@@ -518,10 +531,12 @@ func TestJoin(t *testing.T) {
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			gentxPath      = "invalid/path"
 			suite, network = newSuite(account)
+			expectedError  = errors.New("chain home folder is not initialized yet: invalid/path")
 		)
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithCustomGentxPath(gentxPath))
 		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
 		suite.ChainMock.AssertNumberOfCalls(t, "NodeID", 0)
 		suite.ChainMock.AssertNumberOfCalls(t, "GenesisPath", 0)
 		suite.ChainMock.AssertNumberOfCalls(t, "DefaultGentxPath", 0)
