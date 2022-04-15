@@ -14,7 +14,7 @@ In this chapter, you create the basic blockchain module for the interchain excha
 Scaffold a new blockchain called `interchange`:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/interchange --no-module
+ignite scaffold chain github.com/username/interchange --no-module
 ```
 
 A new directory named `interchange` is created. 

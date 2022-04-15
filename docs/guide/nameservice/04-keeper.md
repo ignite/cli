@@ -25,7 +25,7 @@ To define the keeper for the buy name transaction, add this code to the `msg_ser
 // x/nameservice/keeper/msg_server_buy_name.go
 import (
 	"context"
-	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	"github.com/username/nameservice/x/nameservice/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -102,7 +102,7 @@ To define the keeper for the set name transaction, add this code to the `msg_ser
 // x/nameservice/keeper/msg_server_set_name.go
 import (
 	"context"
-	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	"github.com/username/nameservice/x/nameservice/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -137,7 +137,7 @@ To define the keeper for the delete name transaction, add this code to the `msg_
 // x/nameservice/keeper/msg_server_delete_name.go
 import (
 	"context"
-	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	"github.com/username/nameservice/x/nameservice/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )

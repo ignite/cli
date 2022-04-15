@@ -77,7 +77,7 @@ A lender can approve a loan request from a borrower.
 Use Ignite CLI to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/loan --no-module
+ignite scaffold chain github.com/username/loan --no-module
 ```
 
 The `--no-module` flag prevents scaffolding a default module. Don't worry, you will add the loan module later.
@@ -150,9 +150,9 @@ Create the messages one at a time with the according application logic.
 
 ### Request Loan Message
 
-For a loan, the initial message handles the transaction when a cosmonaut requests a loan.
+For a loan, the initial message handles the transaction when a username requests a loan.
 
-The cosmonaut wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks the time when the loan has to be repaid.
+The username wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks the time when the loan has to be repaid.
 
 The first message is the `request-loan` message that  requires these input parameters:
 
@@ -175,7 +175,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/cosmonaut/loan/x/loan/types"
+	"github.com/username/loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -337,7 +337,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cosmonaut/loan/x/loan/types"
+	"github.com/username/loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -466,7 +466,7 @@ git commit -m "Add approve loan message"
 
 ### Repay Loan Message
 
-After the loan has been approved, the cosmonaut must be able to repay an approved loan.
+After the loan has been approved, the username must be able to repay an approved loan.
 
 Scaffold the message `repay-loan` that a borrower uses to return tokens that were borrowed from the lender:
 
@@ -491,7 +491,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cosmonaut/loan/x/loan/types"
+	"github.com/username/loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -650,7 +650,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cosmonaut/loan/x/loan/types"
+	"github.com/username/loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -807,7 +807,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cosmonaut/loan/x/loan/types"
+	"github.com/username/loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
