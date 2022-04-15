@@ -7,51 +7,51 @@ import { toRefs, ToRefs, reactive, UnwrapNestedRefs } from 'vue'
 type State = UnwrapNestedRefs<{{ capitalCase .Repo }}>
 
 type Response = {
-    {{ .Repo }}: ToRefs<{{ capitalCase .Repo }}>
+    {{ camelCaseLowerSta .Repo }}: ToRefs<{{ capitalCase .Repo }}>
     signIn: (offlineSigner: OfflineDirectSigner) => void
     signOut: () => void
     inject: (instance: {{ capitalCase .Repo }}) => void
 }
 
-let _{{ .Repo }}Global: State
+let _{{ camelCaseLowerSta .Repo }}Global: State
 
 export default function (): Response {
     let signIn = async (offlineSigner: OfflineDirectSigner) => {
         let [acc] = await offlineSigner.getAccounts()
 
         let stargateClient = await SigningStargateClient.connectWithSigner(
-            _{{ .Repo }}Global.env.rpcURL,
+            _{{ camelCaseLowerSta .Repo }}Global.env.rpcURL,
             offlineSigner,
             { registry }
         )
         let addr = acc.address
 
-        _{{ .Repo }}Global.signer.client = stargateClient
-        _{{ .Repo }}Global.signer.addr = addr
+        _{{ camelCaseLowerSta .Repo }}Global.signer.client = stargateClient
+        _{{ camelCaseLowerSta .Repo }}Global.signer.addr = addr
 
-        {{ $Repo := .Repo }}
+        {{ $Repo := camelCaseLowerSta .Repo }}
         {{ range .Modules }}
         _{{ $Repo }}Global.{{ camelCaseLowerSta .Pkg.Name }}.withSigner(stargateClient, addr)
         {{ end }}
     }
 
     let signOut = () => {
-        _{{ .Repo }}Global.signer.client = undefined
-        _{{ .Repo }}Global.signer.addr = undefined
+        _{{ camelCaseLowerSta .Repo }}Global.signer.client = undefined
+        _{{ camelCaseLowerSta .Repo }}Global.signer.addr = undefined
 
-        {{ $Repo := .Repo }}
+        {{ $Repo := camelCaseLowerSta .Repo }}
         {{ range .Modules }}
         _{{ $Repo }}Global.{{ camelCaseLowerSta .Pkg.Name }}.noSigner()
         {{ end }}
     }
 
     let inject = (instance: {{ capitalCase .Repo }}) => {
-        _{{ .Repo }}Global = reactive<{{ capitalCase .Repo }}>(instance)
+        _{{ camelCaseLowerSta .Repo }}Global = reactive<{{ capitalCase .Repo }}>(instance)
     }
 
     return {
         inject,
-        {{ .Repo }}: toRefs(_{{ .Repo }}Global as {{ capitalCase .Repo }}),
+        {{ camelCaseLowerSta .Repo }}: toRefs(_{{ camelCaseLowerSta .Repo }}Global as {{ capitalCase .Repo }}),
         signIn,
         signOut
     }

@@ -16,7 +16,7 @@ type Response = {
 }
 
 function useModule(): Response {
-  let { {{ .Repo }} } = use{{ capitalCase .Repo }}()
+  let { {{ camelCaseLowerSta .Repo }} } = use{{ capitalCase .Repo }}()
 
   let {
 	{{ range .Module.Msgs }}
@@ -25,10 +25,10 @@ function useModule(): Response {
   {{ range .Module.HTTPQueries }}
   {{ camelCase .FullName }},
   {{ end }}
-  } = unref({{ .Repo }}.{{ camelCaseLowerSta .Module.Pkg.Name }})
+  } = unref({{ camelCaseLowerSta .Repo }}.{{ camelCaseLowerSta .Module.Pkg.Name }})
 
   {{ $ModuleName := camelCaseLowerSta .Module.Pkg.Name }}
-  {{ $Repo := .Repo }}
+  {{ $Repo := camelCaseLowerSta .Repo }}
   {{ range .Module.Msgs }}
 	send{{ .Name }} = send{{ .Name }}.bind({{ $Repo }}.{{ $ModuleName }})
   {{ end }}

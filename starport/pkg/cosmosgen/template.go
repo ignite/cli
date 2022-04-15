@@ -8,7 +8,6 @@ import (
 	"text/template"
 
 	"github.com/iancoleman/strcase"
-	"github.com/takuoki/gocase"
 )
 
 var (
@@ -48,13 +47,21 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 	}
 
 	funcs := template.FuncMap{
-		"camelCase":   strcase.ToLowerCamel,
-		"capitalCase": strings.Title,
+		"camelCase": strcase.ToLowerCamel,
+		"capitalCase": func(word string) string {
+			replacer := strings.NewReplacer("-", "_", ".", "_")
+
+			return strings.Title(strcase.ToCamel(replacer.Replace(word)))
+		},
 		"camelCaseLowerSta": func(word string) string {
-			return gocase.Revert(strcase.ToLowerCamel(word))
+			replacer := strings.NewReplacer("-", "_", ".", "_")
+
+			return strcase.ToLowerCamel(replacer.Replace(word))
 		},
 		"camelCaseUpperSta": func(word string) string {
-			return gocase.Revert(strcase.ToCamel(word))
+			replacer := strings.NewReplacer("-", "_", ".", "_")
+
+			return strcase.ToCamel(replacer.Replace(word))
 		},
 		"resolveFile": func(fullPath string) string {
 			rel, _ := filepath.Rel(protoPath, fullPath)
