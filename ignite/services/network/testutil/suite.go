@@ -19,11 +19,11 @@ type Suite struct {
 
 func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.ChainMock.AssertExpectations(t)
+	s.ProfileQueryMock.AssertExpectations(t)
 	s.LaunchQueryMock.AssertExpectations(t)
 	s.CosmosClientMock.AssertExpectations(t)
 	s.CampaignQueryMock.AssertExpectations(t)
 	s.RewardClient.AssertExpectations(t)
-	s.CosmosClientMock.AssertExpectations(t)
 }
 
 func NewSuite(account cosmosaccount.Account) Suite {

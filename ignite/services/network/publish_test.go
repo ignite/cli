@@ -560,13 +560,6 @@ func TestPublish(t *testing.T) {
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
 		)
-
-		suite.ProfileQueryMock.
-			On("CoordinatorByAddress", mock.Anything, &profiletypes.QueryGetCoordinatorByAddressRequest{
-				Address: account.Address(networktypes.SPN),
-			}).
-			Return(nil, cosmoserror.ErrInternal).
-			Once()
 		suite.ChainMock.
 			On("ChainID").
 			Return("", errors.New("failed to get chainID")).
