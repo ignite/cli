@@ -1,5 +1,12 @@
 # Changelog
 
+## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
+
+### Fixes
+
+- Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
+
+
 ## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
 
 ### Fixes

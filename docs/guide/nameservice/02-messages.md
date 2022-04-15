@@ -105,11 +105,11 @@ The `ignite scaffold message buy-name name bid` command creates and modifies sev
 
     ```go
     syntax = "proto3";
-    package cosmonaut.nameservice.nameservice;
+    package username.nameservice.nameservice;
 
     // this line is used by starport scaffolding # proto/tx/import
 
-    option go_package = "github.com/cosmonaut/nameservice/x/nameservice/types";
+    option go_package = "github.com/username/nameservice/x/nameservice/types";
 
     // Msg defines the Msg service.
     service Msg {

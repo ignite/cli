@@ -21,7 +21,7 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-ignite scaffold chain github.com/cosmonaut/mars
+ignite scaffold chain github.com/username/mars
 
 **Options**
 

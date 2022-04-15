@@ -33,7 +33,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/username/scavenge/x/scavenge/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -89,7 +89,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/username/scavenge/x/scavenge/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
