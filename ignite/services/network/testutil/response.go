@@ -8,7 +8,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	prototypes "github.com/gogo/protobuf/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"google.golang.org/protobuf/runtime/protoiface"
 )
 

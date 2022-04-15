@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/services/network/testutil"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/services/network/testutil"
 )
 
 func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {

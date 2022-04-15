@@ -61,7 +61,7 @@ type Client struct {
 	Factory tx.Factory
 
 	// context is a Cosmos SDK client context.
-	Context client.Context
+	context client.Context
 
 	// AccountRegistry is the retistry to access accounts.
 	AccountRegistry cosmosaccount.Registry
@@ -182,8 +182,8 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		return Client{}, err
 	}
 
-	c.Context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
-	c.Factory = newFactory(c.Context)
+	c.context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
+	c.Factory = newFactory(c.context)
 
 	return c, nil
 }
@@ -201,8 +201,8 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	return account.Info.GetAddress(), nil
 }
 
-func (c Client) GetContext() client.Context {
-	return c.Context
+func (c Client) Context() client.Context {
+	return c.context
 }
 
 // Response of your broadcasted transaction.
@@ -273,7 +273,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		return 0, nil, err
 	}
 
-	ctx := c.Context.
+	ctx := c.context.
 		WithFromName(accountName).
 		WithFromAddress(accountAddress)
 
@@ -376,7 +376,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 }
 
 func (c *Client) checkAccountBalance(ctx context.Context, address string) error {
-	resp, err := banktypes.NewQueryClient(c.Context).Balance(ctx, &banktypes.QueryBalanceRequest{
+	resp, err := banktypes.NewQueryClient(c.context).Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   c.faucetDenom,
 	})

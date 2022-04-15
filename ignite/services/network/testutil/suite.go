@@ -3,8 +3,8 @@ package testutil
 import (
 	"testing"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/services/network/mocks"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/services/network/mocks"
 )
 
 type Suite struct {

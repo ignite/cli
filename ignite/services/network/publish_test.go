@@ -8,15 +8,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/services/network/testutil"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
-	"github.com/tendermint/starport/starport/pkg/cosmoserror"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
-	"github.com/tendermint/starport/starport/services/network/testutil"
 )
 
 func startGenesisTestServer(genesis cosmosutil.ChainGenesis) *httptest.Server {

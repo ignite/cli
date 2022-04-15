@@ -20,7 +20,7 @@ import (
 type CosmosClient interface {
 	Account(accountName string) (cosmosaccount.Account, error)
 	Address(accountName string) (sdktypes.AccAddress, error)
-	GetContext() client.Context
+	Context() client.Context
 	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
 }

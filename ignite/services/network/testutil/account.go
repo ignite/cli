@@ -3,8 +3,8 @@ package testutil
 import (
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/stretchr/testify/assert"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
 const (
