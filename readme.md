@@ -34,6 +34,7 @@ Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosm
 
 | Ignite CLI | Cosmos SDK | IBC                  | Notes                                            |
 | -------- | ---------- | -------------------- | ------------------------------------------------ |
+| v0.20.4  | v0.45.2    | v3.0.0               | |
 | v0.19.2  | v0.44.5    | v2.0.2               | |
 | v0.19    | v0.44      | v1.2.2               | |
 | v0.18    | v0.44      | v1.2.2               | `ignite chain serve` works with v0.44.x chains |
@@ -56,7 +57,7 @@ Ignite CLI is a free and open source product maintained by [Ignite](https://igni
 - [ignite.com website](https://ignite.com)
 - [@ignite_dev on Twitter](https://twitter.com/ignite_dev)
 - [ignite.com/blog](https://ignite.com/blog/)
-- [Ignite Discord](https://discord.com/ignite)
+- [Ignite Discord](https://discord.com/invite/ignite)
 - [Ignite YouTube](https://www.youtube.com/channel/ignitehq)
 - [Ignite docs](https://docs.ignite.com/)
 - [Ignite jobs](https://ignite.com/careers)
