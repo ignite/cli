@@ -1,19 +1,19 @@
 ---
-description: Blockchain Client in Go
-order: 2
+description: Blockchain client in Go
+order: 3
 ---
 
-# Create a Blockchain Client in Go
+# Create a blockchain client in Go
 
 Learn how to connect your blockchain to an independent application with RPC.
 
 After creating the blog blockchain in this tutorial you will learn how to connect to your blockchain from a separate client.
 
-## Use the Blog Blockchain
+## Use the blog blockchain
 
 Navigate to a separate directory right next to the `blog` blockchain you built in the [Build a Blog](index.md) tutorial.
 
-## Creating a Blockchain Client
+## Creating a blockchain client
 
 Create a new directory called `blogclient` on the same level as `blog` directory. As the name suggests, `blogclient` will contain a standalone Go program that acts as a client to your `blog` blockchain.
 
@@ -30,7 +30,7 @@ Create your `blogclient` directory first, change your current working directory,
 ```bash
 mkdir blogclient
 cd blogclient
-go mod init github.com/cosmonaut/blogclient
+go mod init github.com/username/blogclient
 touch main.go
 ```
 
@@ -39,19 +39,19 @@ The `go.mod` file is created inside your `blogclient` directory.
 Your blockchain client has only two dependencies: 
 
 - The `blog` blockchain `types` for message types and a query client
-- `starport` for the `cosmosclient` blockchain client
+- `ignite` for the `cosmosclient` blockchain client
 
 ```go
-module github.com/cosmonaut/blogclient
+module github.com/username/blogclient
 
 go 1.17
 
 require (
-	github.com/cosmonaut/blog v0.0.0-00010101000000-000000000000
-	github.com/tendermint/starport v0.19.2
+	github.com/username/blog v0.0.0-00010101000000-000000000000
+	github.com/ignite-hq/cli v0.19.2 
 )
 
-replace github.com/cosmonaut/blog => ../blog
+replace github.com/username/blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
@@ -64,7 +64,7 @@ The `blogclient` will eventually have only two files:
 - `main.go` for the main logic of the client
 - `go.mod` for specifying dependencies.
 
-### Main Logic of the Client in main.go
+### Main logic of the client in `main.go`
 
 Add the following code to your `main.go` file to make a connection to your blockchain from a separate app.
 
@@ -77,9 +77,9 @@ import (
 	"log"
 
 	// importing the types package of your blog blockchain
-	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/username/blog/x/blog/types"
 	// importing the general purpose Cosmos blockchain client
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 )
 
 func main() {
@@ -90,7 +90,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// account `alice` was initialized during `starport chain serve`
+	// account `alice` was initialized during `ignite chain serve`
 	accountName := "alice"
 
 	// get account from the keyring by account name and return a bech32 address
@@ -120,7 +120,7 @@ func main() {
 	// instantiate a query client for your `blog` blockchain
 	queryClient := types.NewQueryClient(cosmos.Context)
 
-	// query the blockchain using the client's `PostAll` method to get all posts
+	// query the blockchain using the client's `Posts` method to get all posts
 	// store all posts in queryResp
 	queryResp, err := queryClient.Posts(context.Background(), &types.QueryPostsRequest{})
 	if err != nil {
@@ -136,11 +136,11 @@ func main() {
 Read the comments in the code carefully to learn details about each line of code.
 
 To learn more about the `cosmosclient` package, see the Go 
-[cosmosclient](https://pkg.go.dev/github.com/tendermint/starport/starport/pkg/cosmosclient) package documentation. Details are provided to learn how to use the `Client` type with `Options` and `KeyringBackend`.
+[cosmosclient](https://pkg.go.dev/github.com/ignite-hq/cli/ignite/pkg/cosmosclient) package documentation. Details are provided to learn how to use the `Client` type with `Options` and `KeyringBackend`.
 
-## Running the Blockchain and the Client
+## Run the blockchain and the client
 
-Make sure your blog blockchain is still running with `starport chain serve`.
+Make sure your blog blockchain is still running with `ignite chain serve`.
 
 Install dependencies for your `blogclient`:
 

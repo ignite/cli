@@ -3,47 +3,47 @@ order: 2
 description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module. 
 ---
 
-# Hello, Starport
+# Hello, Ignite CLI 
 
 This tutorial is a great place to start your journey into the Cosmos ecosystem. Instead of wondering how to build a blockchain, follow these steps to build your first blockchain and your first Cosmos SDK module.
 
 ## Get started
 
-In the previous chapter you've learned how to install [Starport](https://github.com/tendermint/starport), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
+In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Starport, so to install Starport v0.19.2 use the following command:
-
-```bash
-curl https://get.starport.network/starport@v0.19.2! | bash
-```
-
-Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
-
-One of these tasks is a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself. To build your blockchain foundation, use the `starport scaffold chain` command.
-
-Are you ready? Open a terminal and navigate to a directory where you have permissions to create files. 
-
-To create your Cosmos SDK blockchain with the default directory structure, run this command:
+This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.20.0 use the following command:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/hello
+curl https://get.ignite.com/cli@v0.20.0! | bash
 ```
 
-This command creates a Cosmos SDK blockchain called Hello in a `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
+Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
+
+First, use Ignite CLI to build the foundation of a fresh Cosmos SDK blockchain. With Ignite CLI, you don't have to write the blockchain code yourself. 
+
+Are you ready? Open a terminal window and navigate to a directory where you have permissions to create files. 
+
+To create your blockchain with the default directory structure, run this command:
+
+```bash
+ignite scaffold chain github.com/username/hello
+```
+
+This command creates a Cosmos SDK blockchain called hello in a `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
 
 This new blockchain imports standard Cosmos SDK modules, including:
 
-- [`staking`](https://docs.cosmos.network/master/modules/staking/) (for delegated proof of stake)
-- [`bank`](https://docs.cosmos.network/master/modules/bank/) (for fungible token transfers between accounts)
-- [`gov`](https://docs.cosmos.network/master/modules/gov/) (for on-chain governance)
-- And other Cosmos SDK [modules](https://docs.cosmos.network/master/modules/)
+- [`staking`](https://docs.cosmos.network/master/modules/staking/) for delegated Proof-of-Stake (PoS) consensus mechanism
+- [`bank`](https://docs.cosmos.network/master/modules/bank/) for fungible token transfers between accounts
+- [`gov`](https://docs.cosmos.network/master/modules/gov/) for on-chain governance
+- And other Cosmos SDK [modules](https://docs.cosmos.network/master/modules/) that provide the benefits of the extensive Cosmos SDK framework 
 
-You can use `--help` on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
+You can get help on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
 
 To learn about the command you just used, run:
 
 ```bash
-starport scaffold --help
+ignite scaffold --help
 ```
 
 ## Blockchain directory structure
@@ -66,6 +66,7 @@ The `hello` directory contains a number of generated files and directories that 
 | vue/           | A Vue 3 web app template.                                                                                                                                               |
 | x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
 | config.yml     | A configuration file for customizing a chain in development.                                                                                                            |
+| readme.md      | A readme file for your sovereign application-specific blockchain project.                                                                                                            |
 
 Now you can get your blockchain up and running locally on a single node.
 
@@ -74,12 +75,12 @@ Now you can get your blockchain up and running locally on a single node.
 You already have a fully-functional blockchain. To start your chain on your development machine, run the following command in the `hello` directory
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
 This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, the binary name is the name of the repo + `d`. From now on, use this `hellod` binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
 
-Leave this terminal window open.
+Leave this terminal window open while your chain is running.
 
 ## HTTP API Console
 
@@ -88,19 +89,19 @@ By default, a validator node exposes two API endpoints:
 - [http://localhost:26657](http://localhost:26657) for the low-level Tendermint API
 - [http://localhost:1317](http://localhost:1317) for the high-level blockchain API
 
-Now that you started your `hello` chain, you can use a web browser to see the high-level `hello` blockchain API:
+Now that you started your `hello` chain, use a web browser to see the high-level `hello` blockchain API:
 
 ![./images/api.png](./images/api.png)
 
 ## Stop a blockchain
 
-When you want to stop your blockchain, press control+C in the terminal window where it's running.
+When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running.
 
-In the development environment, you don't have to restart the blockchain after you make changes. Because Starport server hot reloads, all changes you make in the `hello` directory files are automatically detected.
+In the development environment, you can experiment and instantly see updates. You don't have to restart the blockchain after you make changes. Hot reloading automatically detects all of the changes you make in the `hello` directory files.
 
-## Say "Hello, Starport"
+## Say "Hello, Ignite CLI"
 
-To get your Cosmos SDK blockchain to say `Hello! Starport`, you need to make these changes:
+To get your blockchain to say `Hello! Ignite CLI`, you need to make these changes:
 
 - Modify a protocol buffer file
 - Create a keeper query function that returns data
@@ -110,7 +111,7 @@ Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and
 
 For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/master/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
 
-In terms of workflow, developers typically follow this sequence:
+A typical blockchain developer workflow looks something like this:
 
 - Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/master/building-modules/msg-services.html)
 - Define and register [queries](https://docs.cosmos.network/master/building-modules/query-services.html)
@@ -119,14 +120,14 @@ In terms of workflow, developers typically follow this sequence:
 
 ## Create a query
 
-For all subsequent commands, you use a terminal window that is different from the window you started the chain in. 
+For all subsequent commands, use a terminal window that is different from the window you started the chain in. 
 
-In a different terminal window, navigate to your `hello` directory.
+In a different terminal window, run the commands in your `hello` directory.
 
 Create a `posts` query:
 
 ```bash
-starport scaffold query posts --response title,body
+ignite scaffold query posts --response title,body
 ```
 
 `query` accepts a name of the query (in this case, `posts`), an optional list of request parameters (in this case, empty), and an optional comma-separated list of response fields with a `--response` flag (in this case, `body,title`).
@@ -138,16 +139,16 @@ The `query` command has created and modified several files:
 - modified `x/hello/client/cli/query.go`
 - created `x/hello/client/cli/query_posts.go`
 
-Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Starport uses to scaffold code. Don't delete these placeholders since they are required to continue using Starport's scaffolding functionality.
+Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Ignite CLI uses to scaffold code. Don't delete these placeholders since they are required to continue using Ignite CLI's scaffolding functionality.
 
-### Updates to the query qervice  
+### Updates to the query service
 
 In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Query` service.
 
 ```proto
 service Query {
   rpc Posts(QueryPostsRequest) returns (QueryPostsResponse) {
-    option (google.api.http).get = "/cosmonaut/hello/hello/posts";
+    option (google.api.http).get = "/username/hello/hello/posts";
   }
 }
 ```
@@ -209,12 +210,12 @@ In the `query.proto` file, the response accepts `title` and `body`.
 ```go
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
   //...
-  return &types.QueryPostsResponse{Title: "Hello!", Body: "Starport"}, nil
+  return &types.QueryPostsResponse{Title: "Hello!", Body: "Ignite CLI"}, nil
 }
 ```
 
 - Save the file to restart your chain. 
-- In a web browser, visit the posts endpoint [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts).
+- In a web browser, visit the posts endpoint [http://localhost:1317/username/hello/hello/posts](http://localhost:1317/username/hello/hello/posts).
 
   Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
 
@@ -234,9 +235,9 @@ Make the required changes to the `x/hello/module.go` file.
 
     Do not save the file yet, you need to continue with these modifications.
 
-2. Search for `RegisterGRPCGatewayRoutes`.
+1. Search for `RegisterGRPCGatewayRoutes`.
 
-3. Register the query handlers:
+1. Register the query handlers:
 
     ```go
     func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -244,18 +245,12 @@ Make the required changes to the `x/hello/module.go` file.
     }
     ```
 
-5. Now you're ready to start your blockchain:
-
-    ```go
-    starport chain serve
-    ```
-
-6. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+1. After the chain has been started, visit [http://localhost:1317/username/hello/hello/posts](http://localhost:1317/username/hello/hello/posts) and see your text displayed:
 
     ```go
     {
       "title": "Hello!",
-      "body": "Starport"
+      "body": "Ignite CLI"
     }
     ```
 

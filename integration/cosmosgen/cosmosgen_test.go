@@ -7,15 +7,18 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestCosmosGen(t *testing.T) {
 	var (
-		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		env          = envtest.New(t)
+		path         = env.Scaffold("blog")
+		dirGenerated = filepath.Join(path, "vue/src/store/generated")
 	)
+
 	const (
 		withMsgModuleName    = "withmsg"
 		withoutMsgModuleName = "withoutmsg"
@@ -24,7 +27,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("add custom module with message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
 				withMsgModuleName,
@@ -36,7 +39,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"message",
 				"mymessage",
@@ -52,7 +55,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("add custom module without message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
 				withoutMsgModuleName,
@@ -64,7 +67,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("create a type",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"type",
 				"mytype",
@@ -79,7 +82,7 @@ func TestCosmosGen(t *testing.T) {
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"query",
 				"myQuery",
@@ -91,12 +94,14 @@ func TestCosmosGen(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("generate vuex",
+	require.NoError(t, os.RemoveAll(dirGenerated))
+
+	env.Must(env.Exec("generate typescript",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"g",
-				"vuex",
+				"typescript",
 				"--proto-all-modules",
 			),
 			step.Workdir(path),
@@ -105,7 +110,6 @@ func TestCosmosGen(t *testing.T) {
 
 	var expectedCosmosModules = []string{
 		"cosmos.auth.v1beta1",
-		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
 		"cosmos.base.tendermint.v1beta1",
 		"cosmos.crisis.v1beta1",
@@ -128,10 +132,9 @@ func TestCosmosGen(t *testing.T) {
 		"test.blog.withoutmsg",
 	}
 
-	dirGenerated := filepath.Join(path, "vue/src/store/generated")
 	for _, chainModule := range expectedCustomModules {
 		_, statErr := os.Stat(filepath.Join(dirGenerated, "test/blog", chainModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s vuex store should have be generated", chainModule))
+		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s typescript store should have be generated", chainModule))
 		require.NoError(t, statErr)
 	}
 

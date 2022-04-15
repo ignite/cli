@@ -1,0 +1,138 @@
+name: Generate embedded binaries
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  gen-nodetime:
+    name: "Generate nodetime binaries"
+    runs-on: ubuntu-latest
+    concurrency: gen-nodetime
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - uses: MOZGIII/install-ldid-action@v1
+        with:
+          tag: v2.1.5-procursus2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - run: ./scripts/gen-nodetime
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: "feat(nodetime): update binaries"
+          commit-message: "feat(nodetime): update binaries"
+          body: ""
+          branch: feat/gen-nodetime
+
+  gen-protoc:
+    name: "Generate protoc binaries"
+    runs-on: ${{ matrix.runner.runs-on }}
+    concurrency: gen-protoc-${{ matrix.runner.os }}-${{ matrix.runner.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - runs-on: ubuntu-latest
+            os: linux
+            defaults-shell: bash
+            arch: amd64
+          - runs-on: [ self-hosted, linux, arm64 ]
+            os: linux
+            defaults-shell: bash
+            arch: arm64
+          - runs-on: macos-10.15 # building it at the latest version breaks compability for older versions
+            os: darwin
+            defaults-shell: /bin/bash -l {0}
+            arch: amd64
+          - runs-on: [ self-hosted, macOS ]
+            os: darwin
+            defaults-shell: /usr/bin/arch -arch arm64e /bin/bash -l {0}
+            arch: arm64
+    defaults:
+      run:
+        shell: ${{ matrix.runner.defaults-shell }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: |
+          if [[ "${{ matrix.runner.os }}" == "darwin" ]]; then
+            brew install jq autoconf automake libtool
+          else
+            sudo apt install -y jq autoconf automake libtool curl make g++ unzip
+          fi
+
+      - name: Build protoc files
+        run: ./scripts/gen-protoc
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: "feat(protoc): update binaries ${{ matrix.runner.os }}-${{ matrix.runner.arch }}"
+          commit-message: "feat(protoc): update binaries ${{ matrix.runner.os }}-${{ matrix.runner.arch }}"
+          body: ""
+          branch: feat/gen-protoc-${{ matrix.runner.os }}-${{ matrix.runner.arch }}
+
+
+  gen-protoc-gen-dart:
+    name: "Generate protoc dart binaries"
+    runs-on: ${{ matrix.runner.runs-on }}
+    concurrency: gen-protoc-gen-dart-${{ matrix.runner.os }}-${{ matrix.runner.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - runs-on: ubuntu-latest
+            dart-arch: x64
+            arch: amd64
+            os: linux
+            defaults-shell: bash
+          - runs-on: [self-hosted, linux, arm64]
+            dart-arch: arm64
+            arch: arm64
+            os: linux
+            defaults-shell: bash
+          - runs-on: [self-hosted, macOS]
+            dart-arch: arm64
+            arch: arm64
+            defaults-shell: /usr/bin/arch -arch arm64e /bin/bash -l {0}
+            os: darwin
+          - runs-on: [self-hosted, macOS]
+            dart-arch: x64
+            arch: amd64
+            defaults-shell: /usr/bin/arch -arch x86_64 /bin/bash -l {0}
+            os: darwin
+    defaults:
+      run:
+        shell: ${{ matrix.runner.defaults-shell }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          architecture: ${{ matrix.runner.dart-arch }}
+
+      - name: Generate Dart files
+        run: ./scripts/gen-protoc-gen-dart
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: "feat(protoc-gen-dart): update binaries ${{ matrix.runner.os }}-${{ matrix.runner.arch }}"
+          commit-message: "feat(protoc-gen-dart): update binaries ${{ matrix.runner.os }}-${{ matrix.runner.arch }}"
+          body: ""
+          branch: feat/gen-protoc-gen-dart-${{ matrix.runner.os }}-${{ matrix.runner.arch }}
