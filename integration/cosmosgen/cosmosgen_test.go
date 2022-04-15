@@ -16,7 +16,7 @@ func TestCosmosGen(t *testing.T) {
 	var (
 		env          = envtest.New(t)
 		path         = env.Scaffold("blog")
-		dirGenerated = filepath.Join(path, "vue/src/store/generated")
+		dirGenerated = filepath.Join(path, "vue/src/generated")
 	)
 
 	const (
