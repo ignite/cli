@@ -132,23 +132,19 @@ func TestCosmosGen(t *testing.T) {
 		"test.blog.withoutmsg",
 	}
 
-	for _, chainModule := range expectedCustomModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, "test/blog", chainModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s typescript store should have be generated", chainModule))
+	for _, customModule := range expectedCustomModules {
+		_, statErr := os.Stat(filepath.Join(dirGenerated, customModule))
+		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", customModule))
 		require.NoError(t, statErr)
 	}
-
-	chainDir, err := os.ReadDir(filepath.Join(dirGenerated, "test/blog"))
-	require.Equal(t, len(expectedCustomModules), len(chainDir), "no extra modules should have been generated for test/blog")
-	require.NoError(t, err)
 
 	for _, cosmosModule := range expectedCosmosModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, "cosmos/cosmos-sdk", cosmosModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s code generation for module should have be made", cosmosModule))
+		_, statErr := os.Stat(filepath.Join(dirGenerated, cosmosModule))
+		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", cosmosModule))
 		require.NoError(t, statErr)
 	}
 
-	cosmosDirs, err := os.ReadDir(filepath.Join(dirGenerated, "cosmos/cosmos-sdk"))
-	require.Equal(t, len(expectedCosmosModules), len(cosmosDirs), "no extra modules should have been generated for cosmos/cosmos-sdk")
+	chainDir, err := os.ReadDir(filepath.Join(dirGenerated))
+	require.Equal(t, len(expectedCustomModules)+len(expectedCosmosModules), len(chainDir), "no extra modules should have been generated")
 	require.NoError(t, err)
 }
