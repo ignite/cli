@@ -152,3 +152,71 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.AssertAllMocks(t)
 	})
 }
+
+func TestRevertLaunch(t *testing.T) {
+	t.Run("successfully revert launch", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
+		suite.CosmosClientMock.
+			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
+				Coordinator: account.Address(networktypes.SPN),
+				LaunchID:    testutil.LaunchID,
+			}).
+			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
+			Once()
+
+		err := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
+		require.NoError(t, err)
+		suite.AssertAllMocks(t)
+	})
+
+	t.Run("failed to revert launch, failed to broadcast revert launch tx", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.CosmosClientMock.
+			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
+				Coordinator: account.Address(networktypes.SPN),
+				LaunchID:    testutil.LaunchID,
+			}).
+			Return(
+				testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}),
+				errors.New("failed to revert launch"),
+			).
+			Once()
+
+		err := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
+	})
+
+	t.Run("failed to revert launch, failed to reset chain genesis time", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.ChainMock.
+			On("ResetGenesisTime").
+			Return(errors.New("failed to reset genesis time")).
+			Once()
+		suite.CosmosClientMock.
+			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
+				Coordinator: account.Address(networktypes.SPN),
+				LaunchID:    testutil.LaunchID,
+			}).
+			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
+			Once()
+
+		err := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
+		require.Error(t, err)
+		suite.AssertAllMocks(t)
+	})
+
+}
