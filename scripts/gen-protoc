@@ -7,7 +7,6 @@ set -e
 [[ $(command -v curl) ]] || { echo "'curl' not found!" ; dep_check="false" ;}
 [[ $(command -v wget) ]] || { echo "'wget' not found!" ; dep_check="false" ;}
 [[ $(command -v unzip) ]] || { echo "'unzip' not found!" ; dep_check="false" ;}
-[[ $(command -v jq) ]] || { echo "'jq' not found!" ; dep_check="false" ;}
 
 # Build tools
 [[ $(command -v make) ]] || { echo "'make' not found!" ; dep_check="false" ;}
@@ -47,7 +46,8 @@ fi
 
 # Check if we have the newest version already
 version_file=$(dirname "${setdir}")/scripts/data/gen-protoc/version-"$kernelname"-"$arch"
-newest_version=$(curl -s $gh_protoc_release_url | jq --raw-output '.tag_name')
+newest_version="v3.20.0"
+download_url="https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-all-3.20.0.tar.gz"
 current_version=$(cat "$version_file")
 
 if [[ "$newest_version" == "$current_version" ]] ; then
@@ -64,8 +64,6 @@ mkdir "$outputdir"
 mkdir protobuf # Where we will build
 
 # Fetch releases, go through assets (release artifacts) and find the relevant one
-download_url=$(curl -s $gh_protoc_release_url \
-              | jq --raw-output '.assets[] | select(.name | test("protobuf-all.*\\.tar\\.gz")) | .browser_download_url')
 wget -c "$download_url" -O - | tar xzC protobuf --strip-components=1 #skipping first folder
 
 # Ok, let's build!
