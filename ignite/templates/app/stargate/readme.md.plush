@@ -23,7 +23,7 @@ npm install
 npm run serve
 ```
 
-The frontend app is built using the `@ignt/vue`, `@ignt/client` and `@ignt/plugins` packages. For details, see the [monorepo for Starport front-end development](https://github.com/tendermint/vue).
+The frontend app is built using the `@ignt/vue`, `@ignt/client` and `@ignt/plugins` packages. For details, see the [monorepo for Starport front-end development](https://github.com/ignite-hq/web).
 
 ## Release
 To release a new version of your blockchain, create and push a new tag with `v` prefix. A new draft release with the configured targets will be created.
