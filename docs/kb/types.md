@@ -3,7 +3,7 @@ order: 6
 description: Reference list of supported types. 
 ---
 
-# Ignite CLI Supported Types
+# Ignite CLI supported types
 
 Types with CRUD operations are scaffolded with the `ignite scaffold` command. 
 

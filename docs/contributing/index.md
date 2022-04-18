@@ -4,6 +4,7 @@
   - [Using this repo](#using-this-repo)
   - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
+  - [Commands in documentation](#commands-in-documentation)
   - [Where can I find the tutorials and docs?](#where-can-i-find-the-tutorials-and-docs)
   - [Who works on the tutorials?](#who-works-on-the-tutorials)
   - [Viewing tutorial builds](#viewing-tutorial-builds)
@@ -49,6 +50,35 @@ Other useful resources:
 
 - [Google Technical Writing Courses](https://developers.google.com/tech-writing)
 - [GitHub Guides Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
+
+## Commands in documentation
+
+When showing a command in docs:
+
+1. Explain the command and describe what the command does.
+2. Show the command in a standard Markdown code fence.
+3. When the command includes parameters, be sure to describe the parameters in a where statement with a list item for each parameter.
+4. Finally, show the results and the command output in a separate block.
+
+For example, a fully documented `scaffold chain` command looks like this.
+
+To scaffold the blog chain:
+
+```bash
+ignite scaffold chain github.com/username/blog
+```
+
+where:
+
+* github.com represents a local development repository
+* username is a placeholder, be sure to replace username with your name
+* blog is the name of your chain
+
+After the chain is scaffolded, the command output is:
+
+```bash
+⭐️ Successfully created a new blockchain 'blog'
+```
 
 ## Where can I find the tutorials and docs?
 

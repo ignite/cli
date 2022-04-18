@@ -17,7 +17,7 @@ Experimentation and file system impact is limited to the Docker instance. The ho
 
 Docker must be installed. See [Get Started with Docker](https://www.docker.com/get-started).
 
-## Ignite CLI Commands in Docker
+## Ignite CLI commands in docker
 
 After you scaffold and start a chain in your Docker container, all Ignite CLI commands are available. Just type the commands after `docker run -ti ignite/cli`. For example:
 

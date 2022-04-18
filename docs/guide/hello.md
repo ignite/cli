@@ -11,10 +11,10 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite-hq/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.20.0 use the following command:
+This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.20.4 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.20.0! | bash
+curl https://get.ignite.com/cli@v0.20.4! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
@@ -28,8 +28,13 @@ To create your blockchain with the default directory structure, run this command
 ```bash
 ignite scaffold chain github.com/username/hello
 ```
+where:
 
-This command creates a Cosmos SDK blockchain called hello in a `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
+* github.com represents a local development repository
+* username is a placeholder, be sure to replace username with your name
+* blog is the name of your chain
+
+This command creates a Cosmos SDK blockchain called `hello` in the `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
 
 This new blockchain imports standard Cosmos SDK modules, including:
 
@@ -95,9 +100,9 @@ Now that you started your `hello` chain, use a web browser to see the high-level
 
 ## Stop a blockchain
 
-When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running.
+To stop your blockchain, press Ctrl+C in the terminal window where it's running.
 
-In the development environment, you can experiment and instantly see updates. You don't have to restart the blockchain after you make changes. Hot reloading automatically detects all of the changes you make in the `hello` directory files.
+In the development environment, you can experiment and instantly see updates. Hot reloading automatically detects all of the changes you make in the `hello` directory files so you don't have to stop and restart the blockchain after you make changes.
 
 ## Say "Hello, Ignite CLI"
 
@@ -130,7 +135,7 @@ Create a `posts` query:
 ignite scaffold query posts --response title,body
 ```
 
-`query` accepts a name of the query (in this case, `posts`), an optional list of request parameters (in this case, empty), and an optional comma-separated list of response fields with a `--response` flag (in this case, `body,title`).
+Where `query` accepts a name of the query (in this case, `posts`), an optional list of request parameters (in this case, empty), and an optional comma-separated list of response fields with a `--response` flag (in this case, `body,title`).
 
 The `query` command has created and modified several files:
 

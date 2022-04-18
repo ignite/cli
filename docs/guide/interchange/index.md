@@ -5,11 +5,11 @@ parent:
   title: "Advanced Module: Interchange"
 ---
 
-# Introduction 
+# Interchain exchange module 
 
-The Interchain Exchange is a module to create buy and sell orders between blockchains.
+The interchain exchange is a module to create buy and sell orders between blockchains.
 
-In this tutorial, you learn how to create a Cosmos SDK module that can create order pairs, buy orders, and sell orders. You create order books and buy and sell orders across blockchains, which in turn enables you to swap token from one blockchain to another.
+In this tutorial, you learn how to create a Cosmos SDK module that can create order pairs, buy orders, and sell orders. You create order books and buy and sell orders across blockchains, which in turn enables you to swap tokens from one blockchain to another.
 
 **Note:** The code in this tutorial is written specifically for this tutorial and is intended only for educational purposes. This tutorial code is not intended to be used in production.
 
@@ -36,6 +36,6 @@ The market is unidirectional:
 - The token sold on the source chain cannot be bought back as it is
 - The token bought from the target chain cannot be sold back using the same pair. 
 
-If a token on a source chain is sold, it can only be bought back by creating a new pair on the order book. This workflow is due to the nature of the Inter-Blockchain Communication protocol (IBC) which creates a `voucher` token on the target blockchain. There is a difference of a native blockchain token and a `voucher` token that is minted on another blockchain. You must create a second order book pair in order to receive the native token back.
+If a token on a source chain is sold, it can only be bought back by creating a new pair on the order book. This workflow is due to the nature of the Inter-Blockchain Communication protocol (IBC) that creates a `voucher` token on the target blockchain. There is a difference of a native blockchain token and a `voucher` token that is minted on another blockchain. You must create a second order book pair in order to receive the native token back.
 
 In the next chapter, you learn details about the design of the interblockchain exchange.

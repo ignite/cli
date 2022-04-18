@@ -4,9 +4,9 @@ order: 6
 title: "Advanced Module: DeFi Loan"
 ---
 
-# Loan Module
+# Loan module
 
-As a rapidly growing industry in the blockchain ecosystem, (decentralized finance) DeFi is spurring innovation and revolution in spending, sending, locking, and loaning cryptocurrency tokens.
+As a rapidly growing industry in the blockchain ecosystem, DeFi (decentralized finance) is spurring innovation and revolution in spending, sending, locking, and loaning cryptocurrency tokens.
 
 One of the many goals of blockchain is to make financial instruments available to everyone. A loan in blockchain DeFi can be used in combination with lending, borrowing, spot trading, margin trading, and flash loans.
 
@@ -31,7 +31,7 @@ In this tutorial, you learn about a basic loan system as you use Ignite CLI to b
 
 **Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
 
-## Module Design
+## Module design
 
 A loan consists of:
 
@@ -53,7 +53,7 @@ The two accounts involved in the loan are:
 * `borrower`
 * `lender`
 
-### The Borrower
+### The borrower
 
 A borrower posts a loan request with loan information such as:
 
@@ -64,7 +64,7 @@ A borrower posts a loan request with loan information such as:
 
 The borrower must repay the loan amount and the loan fee to the lender by the deadline risk losing the collateral.
 
-### The Lender
+### The lender
 
 A lender can approve a loan request from a borrower.
 
@@ -72,7 +72,7 @@ A lender can approve a loan request from a borrower.
 - If the borrower is unable to pay the loan, the lender can liquidate the loan.
 - Loan liquidation transfers the collateral and the fees to the lender.
 
-## Scaffold the Blockchain
+## Scaffold the blockchain
 
 Use Ignite CLI to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
 
@@ -80,7 +80,12 @@ Use Ignite CLI to scaffold a fully functional Cosmos SDK blockchain app named `l
 ignite scaffold chain github.com/username/loan --no-module
 ```
 
-The `--no-module` flag prevents scaffolding a default module. Don't worry, you will add the loan module later.
+where:
+
+* github.com represents a local development repository
+* username is a placeholder, be sure to replace username with your name
+* blog is the name of your chain
+* --no-module is a flag that prevents scaffolding a default module; don't worry, you will add the loan module later
 
 Change into the newly created `loan` directory:
 
@@ -88,17 +93,20 @@ Change into the newly created `loan` directory:
 cd loan
 ```
 
-## Scaffold the Module
+## Scaffold the loan module
 
-Scaffold the module to create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded inside the `x` directory:
+Create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded inside the `x` directory:
 
 ```bash
 ignite scaffold module loan --dep bank
 ```
 
-Use the `--dep` flag to specify that this module depends on and is going to interact with the Cosmos SDK `bank` module.
+where:
 
-## Scaffold a List
+* loan is the name of the new module
+* --dep bank is the flag to specify that this module depends on and is going to interact with the Cosmos SDK `bank` module
+
+## Scaffold a list
 
 Use the [scaffold list](https://docs.ignite.com/cli/#ignite-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
 
@@ -106,7 +114,7 @@ Use the [scaffold list](https://docs.ignite.com/cli/#ignite-scaffold-list) comma
 ignite scaffold list loan amount fee collateral deadline state borrower lender --no-message
 ```
 
-Use the `--no-message` flag to disable CRUD messages in the scaffold.
+The `--no-message` flag disables CRUD messages in the scaffold.
 
 The data you store in an array-like data structure are the loans, with these parameters that are defined in the `Loan` message in `proto/loan/loan.proto`:
 
@@ -132,9 +140,9 @@ git add .
 git commit -m "Scaffold loan module and loan list"
 ```
 
-## Scaffold the Messages
+## Scaffold the messages
 
-In order to create a loan app, you need the following messages:
+To create a loan app, you need the following messages:
 
 * Request loan
 * Approve loan
@@ -148,7 +156,7 @@ You define the details of each message when you scaffold them.
 
 Create the messages one at a time with the according application logic.
 
-### Request Loan Message
+### Request loan message
 
 For a loan, the initial message handles the transaction when a username requests a loan.
 
@@ -313,7 +321,7 @@ git add .
 git commit -m "Add request-loan message"
 ```
 
-### Approve Loan Message
+### Approve loan message
 
 After a loan request has been published, another account can approve the loan and agree to the terms of the borrower.
 
@@ -464,9 +472,9 @@ git add .
 git commit -m "Add approve loan message"
 ```
 
-### Repay Loan Message
+### Repay loan message
 
-After the loan has been approved, the username must be able to repay an approved loan.
+After the loan has been approved, the borrower must be able to repay an approved loan.
 
 Scaffold the message `repay-loan` that a borrower uses to return tokens that were borrowed from the lender:
 
@@ -626,7 +634,7 @@ git add .
 git commit -m "Add repay-loan message"
 ```
 
-### Liquidate Loan Message
+### Liquidate loan message
 
 After the deadline is passed, a lender can liquidate a loan when the borrower does not repay the tokens. The message to `liquidate-loan` refers to the loan `id`:
 
@@ -784,9 +792,9 @@ git add .
 git commit -m "Add liquidate-loan message"
 ```
 
-### Cancel Loan Message
+### Cancel loan message
 
-After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request.
+After a loan request has been made and not been approved, the borrower must be able to cancel a loan request.
 
 Scaffold the message for `cancel-loan`:
 

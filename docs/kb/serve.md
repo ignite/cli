@@ -22,9 +22,9 @@ This command initializes a chain, builds the code, starts a single validator nod
 
 Whenever a file is changed, the chain is automatically reinitialized, rebuilt, and started again. The chain's state is preserved if the changes to the source code are compatible with the previous state. This state preservation is beneficial for development purposes.
 
-Because the `ignite chain serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production.
+Because the `ignite chain serve` command is a development tool, do not use this command in a production environment. 
 
-## The Magic of `ignite chain serve`
+## The magic of `ignite chain serve`
 
 The `ignite chain serve` command starts a fully operational blockchain.
 
