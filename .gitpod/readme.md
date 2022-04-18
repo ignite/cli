@@ -2,7 +2,7 @@
 
 Ignite CLI is an easy-to-use CLI tool for creating sovereign blockchains. Blockchains created with Ignite CLI use Cosmos SDK, the world's most widely used blockchain application framework.
 
-In this browser-based development environment, the terminal window is in the lower part of the window. The `ignite` binary is pre-installed and ready to use on the command line.
+In this browser-based development environment, the terminal window is in the lower part of the window. The `ignite` binary is preinstalled and ready to use on the command line.
 
 ## Quick start
 
@@ -20,7 +20,7 @@ where:
 
 * github.com represents a local development repository
 * username is a placeholder, be sure to replace username with your name
-* blog is the name of your chain
+* mars is the name of your chain
 
 ## Next steps
 
@@ -39,20 +39,16 @@ where:
 * Scaffold modules, messages, types with CRUD operations, IBC packets, and more
 * Start a blockchain node in development with live reloading
 * Connect to other blockchains with a built-in IBC relayer
-* Use automatically generated TypeScript/Vuex clients to interact with your blockchain
-* Use the Vue.js web app template with a set of components and Vuex modules
+* Use automatically generated TypeScript clients to interact with your blockchain
+* Use the Vue 3 web app template to build your custom web application
 
 ## Install Ignite CLI locally
 
-```
+```bash
 curl https://get.ignite.com/cli! | bash
 ```
 
 The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/guide/install.html).
-
-## Stay in touch
-
-Ignite CLI is a free and open source product maintained by [Ignite](https://ignite.com). Follow us on [Twitter](https://twitter.com/ignite_dev) to get the latest updates.
 
 ## Community
 
@@ -61,7 +57,7 @@ Ignite CLI is a free and open source product maintained by [Ignite](https://igni
 * [ignite.com website](https://ignite.com)
 * [@ignite_dev on Twitter](https://twitter.com/ignite_dev)
 * [ignite.com/blog](https://ignite.com/blog/)
-* [Ignite Discord](https://discord.com/ignite)
+* [Ignite Discord](https://discord.gg/ignite)
 * [Ignite YouTube](https://www.youtube.com/channel/ignitehq)
 * [Ignite docs](https://docs.ignite.com/)
 * [Ignite jobs](https://ignite.com/careers)

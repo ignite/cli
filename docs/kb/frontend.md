@@ -7,11 +7,11 @@ order: 8
 
 A Vue frontend app is created in the `vue` directory when a blockchain is scaffolded. To start the frontend app run `npm i && npm run serve` in the `vue` directory.
 
-The frontend app is built using the `@ignt/vue` and `@ignt/vuex` packages. For details, see the [monorepo for Ignite CLI front-end development](https://github.com/ignite-hq/vue).
+The frontend app is built using the `@ignt/vue` and `@ignt/vuex` packages. For details, see the [monorepo for Ignite CLI front-end development](https://github.com/ignite-hq/web).
 
 ## Client code generation
 
-JavaScript (JS), TypeScript (TS), and Vuex clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules.
+TypeScript (TS) clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules.
 
 To enable client code generation, add the `client` entries to `config.yml`:
 
@@ -21,7 +21,7 @@ client:
     path: "js"
 ```
 
-A Vuex client is generated in the `js` directory. JS and TS clients are also generated because they are dependencies of the Vuex client.
+A TypeScript client is generated in the `ts` directory. TS clients are also generated because they are dependencies of the TypeScript client.
 
 ## Client code regeneration
 
@@ -29,8 +29,8 @@ By default, the filesystem is watched and the clients are regenerated automatica
 
 To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
 
-`ignite generate vuex`
+`ignite generate vuex` 
 
-## Preventing client code regeneration	
+## Preventing client code regeneration
 
-To prevent regenerating the client, remove the `client` property from `config.yml`.	
+To prevent regenerating the client, remove the `client` property from `config.yml`.

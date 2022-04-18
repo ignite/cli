@@ -8,7 +8,7 @@ title: config.yml reference
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment for your blockchain.
 
-Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to the `config.yml` file.
+Only a default set of parameters is provided. If more nuanced configuration is required, you can add and update these parameters in the `config.yml` file.
 
 ## accounts
 
@@ -67,7 +67,7 @@ client:
     path: "vue/src/store"
 ```
 
-Generates TypeScript Vuex client for the blockchain in `path` on `serve` and `build` commands.
+Generates a TypeScript client for the blockchain in `path` on `serve` and `build` commands.
 
 ### client.openapi
 

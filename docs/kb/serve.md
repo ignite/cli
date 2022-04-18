@@ -33,7 +33,7 @@ The `ignite chain serve` command performs the following tasks:
 - Installs dependencies
 - Imports state, if possible
 - Builds protocol buffer files
-- Optionally generates JavaScript (JS), TypeScript (TS), and Vuex clients
+- Optionally generates TypeScript (TS) clients
 - Builds a compiled blockchain binary
 - Creates accounts
 - Initializes a blockchain node
@@ -88,4 +88,4 @@ build:
   ldflags: [ "-X main.Env=prod", "-X main.Version=1.0.1" ]
 ```
 
-Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/master/run-node/run-node.html).
+To learn more about how to use the binary to run your chain in production, see the [Running a Node](https://docs.cosmos.network/master/run-node/run-node.html) in the Cosmos SDK documentation.
