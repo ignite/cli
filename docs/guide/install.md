@@ -26,6 +26,32 @@ Ignite CLI is written in the Go programming language. To use Ignite CLI on a loc
 - Install [Go](https://golang.org/doc/install) (**version 1.16** or higher)
 - Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
 
+### Verify the /usr/local/bin directory
+
+The Ignite CLI installation requires a writable `/usr/local/bin` directory. On new machines, the `/usr/local/bin` directory doesn’t exist so you must create the directory and change the permissions.
+
+If your machine does not have a writable `/usr/local/bin` directory:
+
+1. Create the directory:
+
+   ```bash
+   sudo mkdir /usr/local/bin
+   ```
+
+1. Grant the required write permissions to the directory:
+
+   ```bash
+   sudo chown -R $(whoami) /usr/local/bin
+   ```
+
+If a writable directory does not exist, the installation results in this error:
+
+   ```bash
+   “Error: output directory missing: /usr/local/bin”
+   ```
+
+See [Write permission](#write-permission).
+
 ## Verify your Ignite CLI version
 
 To verify the version of Ignite CLI you have installed, run the following command:
@@ -48,7 +74,9 @@ To learn more or customize the installation process, see the [installer docs](ht
 
 ### Write permission
 
-Ignite CLI installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
+Ignite CLI installation requires write permission to the `/usr/local/bin/` directory. See [Verify the /usr/local/bin directory](#verify-the-usrlocalbin-directory). 
+
+If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
 
 ```bash
 curl https://get.ignite.com/cli | bash
