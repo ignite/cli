@@ -496,7 +496,7 @@ ignite generate proto-go [flags]
 
 ## ignite generate typescript
 
-Generate Typescript client for you chain's frontend from your config.yml
+Generate Typescript client for your chain's frontend from the `config.yml` file
 
 ```
 ignite generate typescript [flags]
