@@ -165,6 +165,10 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 
 func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 	config, err := c.Config()
+	if err != nil {
+		return nil, err
+	}
+	
 	chainID, err := c.ID()
 	if err != nil {
 		return nil, err
