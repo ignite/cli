@@ -40,6 +40,12 @@ Open a terminal and navigate to a directory where you have permissions to create
 ignite scaffold chain github.com/username/blog
 ```
 
+where:
+
+* github.com represents a local development repository
+* username is a placeholder, be sure to replace username with your name
+* blog is the name of your chain
+
 The `blog` directory is created with the default directory structure.
 
 ## High-level transaction review
