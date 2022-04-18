@@ -12,7 +12,7 @@ import (
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "typescript",
-		Short: "Generate Typescript Client for you chain's frontend from your config.yml",
+		Short: "Generate Typescript client for your chain's frontend from your `config.yml` file",
 		RunE:  generateTSClientHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
