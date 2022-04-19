@@ -537,8 +537,6 @@ func TestJoin(t *testing.T) {
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithCustomGentxPath(gentxPath))
 		require.Error(t, joinErr)
 		require.Equal(t, expectedError, joinErr)
-		suite.ChainMock.AssertNumberOfCalls(t, "NodeID", 0)
-		suite.ChainMock.AssertNumberOfCalls(t, "GenesisPath", 0)
-		suite.ChainMock.AssertNumberOfCalls(t, "DefaultGentxPath", 0)
+		suite.AssertAllMocks(t)
 	})
 }

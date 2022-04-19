@@ -37,20 +37,23 @@ type (
 	}
 )
 
+// NewGenesis creates easily modifiable genesis object for testing purposes
 func NewGenesis(chainID string) *Genesis {
 	return &Genesis{ChainID: chainID}
 }
 
+// AddAccount adds account to the genesis
 func (g *Genesis) AddAccount(address string) *Genesis {
 	g.AppState.Auth.Accounts = append(g.AppState.Auth.Accounts, GenesisAccount{Address: address})
 	return g
 }
 
+// SaveTo saves genesis json representation to the specified directory and returns full path
 func (g *Genesis) SaveTo(t *testing.T, dir string) string {
 	encoded, err := json.Marshal(g)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	savePath := filepath.Join(dir, "genesis.json")
 	err = os.WriteFile(savePath, encoded, 0666)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	return savePath
 }

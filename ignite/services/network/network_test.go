@@ -10,7 +10,7 @@ import (
 )
 
 func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
-	suite := testutil.NewSuite(account)
+	suite := testutil.NewSuite()
 	return suite, New(
 		suite.CosmosClientMock,
 		account,

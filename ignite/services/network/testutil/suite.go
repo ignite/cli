@@ -3,12 +3,11 @@ package testutil
 import (
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/services/network/mocks"
 )
 
+// Suite is a mocks container, used to write less code for tests setup
 type Suite struct {
-	Account           cosmosaccount.Account
 	ChainMock         *mocks.Chain
 	CosmosClientMock  *mocks.CosmosClient
 	LaunchQueryMock   *mocks.LaunchClient
@@ -17,6 +16,7 @@ type Suite struct {
 	RewardClient      *mocks.RewardClient
 }
 
+// AssertAllMocks asserts all suite mocks expectations
 func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.ChainMock.AssertExpectations(t)
 	s.ProfileQueryMock.AssertExpectations(t)
@@ -26,9 +26,9 @@ func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.RewardClient.AssertExpectations(t)
 }
 
-func NewSuite(account cosmosaccount.Account) Suite {
+// NewSuite creates new suite with mocks
+func NewSuite() Suite {
 	return Suite{
-		Account:           account,
 		ChainMock:         new(mocks.Chain),
 		CosmosClientMock:  new(mocks.CosmosClient),
 		LaunchQueryMock:   new(mocks.LaunchClient),

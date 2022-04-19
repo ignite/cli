@@ -36,6 +36,7 @@ type (
 	}
 )
 
+// // NewGenesis creates easily modifiable gentx object for testing purposes
 func NewGentx(address, denom, amount, pubkey, memo string) *Gentx {
 	return &Gentx{Body: Body{
 		Memo: memo,
@@ -49,17 +50,19 @@ func NewGentx(address, denom, amount, pubkey, memo string) *Gentx {
 	}}
 }
 
+// SaveTo saves gentx json representation to the specified directory and returns full path
 func (g *Gentx) SaveTo(t *testing.T, dir string) string {
 	encoded, err := json.Marshal(g)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	savePath := filepath.Join(dir, "gentx0.json")
 	err = os.WriteFile(savePath, encoded, 0666)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	return savePath
 }
 
+// JSON returns json representation of the gentx
 func (g *Gentx) JSON(t *testing.T) []byte {
 	data, err := json.Marshal(g)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	return data
 }
