@@ -4,14 +4,13 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-	profiletypes "github.com/tendermint/spn/x/profile/types"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+	profiletypes "github.com/tendermint/spn/x/profile/types"
 )
 
 // publishOptions holds info about how to create a chain.
@@ -120,8 +119,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
 
-	_, err = profiletypes.
-		NewQueryClient(n.cosmos.Context).
+	_, err = n.profileQuery.
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
@@ -140,8 +138,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	if campaignID != 0 {
-		_, err = campaigntypes.
-			NewQueryClient(n.cosmos.Context).
+		_, err = n.campaignQuery.
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 				CampaignID: o.campaignID,
 			})

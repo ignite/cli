@@ -28,11 +28,10 @@ import (
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
-	"github.com/pkg/errors"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
+	"github.com/pkg/errors"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
@@ -62,7 +61,7 @@ type Client struct {
 	Factory tx.Factory
 
 	// context is a Cosmos SDK client context.
-	Context client.Context
+	context client.Context
 
 	// AccountRegistry is the retistry to access accounts.
 	AccountRegistry cosmosaccount.Registry
@@ -183,8 +182,8 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		return Client{}, err
 	}
 
-	c.Context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
-	c.Factory = newFactory(c.Context)
+	c.context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
+	c.Factory = newFactory(c.context)
 
 	return c, nil
 }
@@ -202,9 +201,13 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	return account.Info.GetAddress(), nil
 }
 
+func (c Client) Context() client.Context {
+	return c.context
+}
+
 // Response of your broadcasted transaction.
 type Response struct {
-	codec codec.Codec
+	Codec codec.Codec
 
 	// TxResponse is the underlying tx response.
 	*sdktypes.TxResponse
@@ -227,7 +230,7 @@ func (r Response) Decode(message proto.Message) error {
 	}
 
 	var txMsgData sdktypes.TxMsgData
-	if err := r.codec.Unmarshal(data, &txMsgData); err != nil {
+	if err := r.Codec.Unmarshal(data, &txMsgData); err != nil {
 		return err
 	}
 
@@ -270,7 +273,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		return 0, nil, err
 	}
 
-	ctx := c.Context.
+	ctx := c.context.
 		WithFromName(accountName).
 		WithFromAddress(accountAddress)
 
@@ -315,7 +318,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		}
 
 		return Response{
-			codec:      ctx.Codec,
+			Codec:      ctx.Codec,
 			TxResponse: resp,
 		}, handleBroadcastResult(resp, err)
 	}, nil
@@ -373,7 +376,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 }
 
 func (c *Client) checkAccountBalance(ctx context.Context, address string) error {
-	resp, err := banktypes.NewQueryClient(c.Context).Balance(ctx, &banktypes.QueryBalanceRequest{
+	resp, err := banktypes.NewQueryClient(c.context).Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   c.faucetDenom,
 	})
