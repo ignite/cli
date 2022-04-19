@@ -3,6 +3,9 @@ package jsonfile
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -249,6 +252,7 @@ func TestJSONFile_Hash(t *testing.T) {
 func TestFromURL(t *testing.T) {
 	type args struct {
 		url             string
+		filepath        string
 		tarballFileName string
 	}
 	tests := []struct {
@@ -261,15 +265,15 @@ func TestFromURL(t *testing.T) {
 		{
 			name: "JSON URL",
 			args: args{
-				url: "https://raw.githubusercontent.com/ignite-hq/cli/4d4f6b436d15aa3fb8aeca4bf91b6a557f897f9b/ignite/pkg/tarball/testdata/example.json",
+				filepath: "testdata/jsonfile.json",
 			},
 			verifyField: "chain_id",
-			wantField:   "gaia-1",
+			wantField:   "earth-1",
 		},
 		{
 			name: "tarball URL",
 			args: args{
-				url:             "https://github.com/ignite-hq/cli/raw/4d4f6b436d15aa3fb8aeca4bf91b6a557f897f9b/ignite/pkg/tarball/testdata/example-subfolder.tar.gz",
+				filepath:        "testdata/example.tar.gz",
 				tarballFileName: "example.json",
 			},
 			verifyField: "chain_id",
@@ -278,7 +282,7 @@ func TestFromURL(t *testing.T) {
 		{
 			name: "invalid tarball file name",
 			args: args{
-				url:             "https://github.com/ignite-hq/cli/raw/4d4f6b436d15aa3fb8aeca4bf91b6a557f897f9b/ignite/pkg/tarball/testdata/example-subfolder.tar.gz",
+				filepath:        "testdata/example.tar.gz",
 				tarballFileName: "invalid.json",
 			},
 			err: tarball.ErrGzipFileNotFound,
@@ -293,8 +297,19 @@ func TestFromURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			url := tt.args.url
+			if url == "" {
+				ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					file, err := os.ReadFile(tt.args.filepath)
+					require.NoError(t, err)
+					_, err = w.Write(file)
+					require.NoError(t, err)
+				}))
+				url = ts.URL
+			}
+
 			filepath := fmt.Sprintf("%s/jsonfile.json", t.TempDir())
-			got, err := FromURL(context.TODO(), tt.args.url, filepath, tt.args.tarballFileName)
+			got, err := FromURL(context.TODO(), url, filepath, tt.args.tarballFileName)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
