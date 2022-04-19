@@ -12,7 +12,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
-var requestSummaryHeader = []string{"ID", "Type", "Content"}
+var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
 
 // NewNetworkRequestList creates a new request list command to list
 // requests for a chain
@@ -57,10 +57,12 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error {
 	requestEntries := make([][]string, 0)
 	for _, request := range requests {
-		id := fmt.Sprintf("%d", request.RequestID)
-		requestType := "Unknown"
-		content := ""
-
+		var (
+			id          = fmt.Sprintf("%d", request.RequestID)
+			requestType = "Unknown"
+			content     = ""
+			status      = launchtypes.Request_Status_name[int32(request.Status)]
+		)
 		switch req := request.Content.Content.(type) {
 		case *launchtypes.RequestContent_GenesisAccount:
 			requestType = "Add Genesis Account"
@@ -102,6 +104,7 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 
 		requestEntries = append(requestEntries, []string{
 			id,
+			status,
 			requestType,
 			content,
 		})
