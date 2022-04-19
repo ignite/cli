@@ -3,9 +3,6 @@ package ignitecmd
 import (
 	"sync"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
@@ -14,6 +11,8 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -112,8 +111,6 @@ func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...netwo
 }
 
 func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
-	options = append(options, network.CollectEvents(n.ev))
-
 	var (
 		err     error
 		from    = getFrom(n.cmd)
@@ -125,7 +122,10 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'ignite account -h' to manage accounts")
 		}
 	}
-	return network.New(*cosmos, account, options...)
+
+	options = append(options, network.CollectEvents(n.ev))
+
+	return network.New(*cosmos, account, options...), nil
 }
 
 func (n NetworkBuilder) Cleanup() {

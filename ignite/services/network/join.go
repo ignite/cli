@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
@@ -14,6 +12,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 type joinOptions struct {
@@ -233,7 +232,7 @@ func (n Network) sendValidatorRequest(
 
 // hasValidator verify if the validator already exist into the SPN store
 func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := launchtypes.NewQueryClient(n.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
+	_, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -247,7 +246,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 
 // hasAccount verify if the account already exist into the SPN store
 func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := launchtypes.NewQueryClient(n.cosmos.Context).VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
+	_, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -257,7 +256,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		return false, err
 	}
 
-	_, err = launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
+	_, err = n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
