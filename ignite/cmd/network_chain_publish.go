@@ -11,6 +11,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 )
@@ -59,7 +60,7 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source                    = args[0]
+		source                    = xurl.HTTPS(args[0])
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
 		hash, _                   = cmd.Flags().GetString(flagHash)

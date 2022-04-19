@@ -14,7 +14,7 @@ Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command. 
 By default, a chain is scaffolded with a new empty Cosmos SDK module. You want to create the nameservice module without scaffolding a module, so use the `--no-module` flag:
 
 ```bash
-ignite scaffold chain github.com/cosmonaut/nameservice --no-module
+ignite scaffold chain github.com/username/nameservice --no-module
 ```
 
 This command created a new directory `nameservice` with a brand new Cosmos SDK blockchain. This blockchain doesn't have any application-specific logic yet, but it imports standard Cosmos SDK modules, such as `auth`, `bank`, `mint`, and others.

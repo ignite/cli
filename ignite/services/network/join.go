@@ -126,10 +126,9 @@ func (n Network) sendAccountRequest(
 	genesisPath string,
 	isCustomGentx bool,
 	launchID uint64,
-	accountAddress string,
+	address string,
 	amount sdk.Coins,
 ) (err error) {
-	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
@@ -155,7 +154,7 @@ func (n Network) sendAccountRequest(
 	msg := launchtypes.NewMsgRequestAddAccount(
 		n.account.Address(networktypes.SPN),
 		launchID,
-		accountAddress,
+		address,
 		amount,
 	)
 

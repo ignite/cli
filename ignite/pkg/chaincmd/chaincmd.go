@@ -21,6 +21,7 @@ const (
 	commandQuery             = "query"
 	commandUnsafeReset       = "unsafe-reset-all"
 	commandExport            = "export"
+	commandTendermint        = "tendermint"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -487,9 +488,14 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 
 // UnsafeResetCommand returns the command to reset the blockchain database
 func (c ChainCmd) UnsafeResetCommand() step.Option {
-	command := []string{
-		commandUnsafeReset,
+	var command []string
+
+	if c.sdkVersion.GTE(cosmosver.StargateFortyFiveThreeVersion) {
+		command = append(command, commandTendermint)
 	}
+
+	command = append(command, commandUnsafeReset)
+
 	return c.daemonCommand(command)
 }
 

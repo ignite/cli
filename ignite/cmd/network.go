@@ -31,8 +31,8 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.ignite.com:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.ignite.com"
+	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
+	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 
 	spnNodeAddressLocal   = "http://0.0.0.0:26657"
 	spnFaucetAddressLocal = "http://0.0.0.0:4500"
