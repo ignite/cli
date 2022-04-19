@@ -3,6 +3,9 @@ package ignitecmd
 import (
 	"sync"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
@@ -11,8 +14,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
 var (
