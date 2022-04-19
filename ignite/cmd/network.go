@@ -13,10 +13,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-	profiletypes "github.com/tendermint/spn/x/profile/types"
-	rewardtypes "github.com/tendermint/spn/x/reward/types"
 )
 
 var (
@@ -127,13 +123,7 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 		}
 	}
 
-	options = append(options,
-		network.CollectEvents(n.ev),
-		network.WithCampaignQueryClient(campaigntypes.NewQueryClient(cosmos.Context())),
-		network.WithLaunchQueryClient(launchtypes.NewQueryClient(cosmos.Context())),
-		network.WithProfileQueryClient(profiletypes.NewQueryClient(cosmos.Context())),
-		network.WithRewardQueryClient(rewardtypes.NewQueryClient(cosmos.Context())),
-	)
+	options = append(options, network.CollectEvents(n.ev))
 
 	return network.New(*cosmos, account, options...), nil
 }

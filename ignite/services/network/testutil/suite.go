@@ -3,6 +3,7 @@ package testutil
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/ignite-hq/cli/ignite/services/network/mocks"
 )
 
@@ -28,9 +29,11 @@ func (s *Suite) AssertAllMocks(t *testing.T) {
 
 // NewSuite creates new suite with mocks
 func NewSuite() Suite {
+	cosmos := new(mocks.CosmosClient)
+	cosmos.On("Context").Return(client.Context{})
 	return Suite{
 		ChainMock:         new(mocks.Chain),
-		CosmosClientMock:  new(mocks.CosmosClient),
+		CosmosClientMock:  cosmos,
 		LaunchQueryMock:   new(mocks.LaunchClient),
 		CampaignQueryMock: new(mocks.CampaignClient),
 		ProfileQueryMock:  new(mocks.ProfileClient),

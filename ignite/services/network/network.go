@@ -89,8 +89,12 @@ func CollectEvents(ev events.Bus) Option {
 // New creates a Builder.
 func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
 	n := Network{
-		cosmos:  cosmos,
-		account: account,
+		cosmos:        cosmos,
+		account:       account,
+		campaignQuery: campaigntypes.NewQueryClient(cosmos.Context()),
+		launchQuery:   launchtypes.NewQueryClient(cosmos.Context()),
+		profileQuery:  profiletypes.NewQueryClient(cosmos.Context()),
+		rewardQuery:   rewardtypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
 		opt(&n)
