@@ -20,7 +20,7 @@ Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.g
 import (
   "context"
 
-  "github.com/cosmonaut/scavenge/x/scavenge/types"
+  "github.com/username/scavenge/x/scavenge/types"
   sdk "github.com/cosmos/cosmos-sdk/types"
   sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
   "github.com/tendermint/tendermint/crypto"
@@ -95,7 +95,7 @@ Make the required changes in the `x/scavenge/keeper/msg_server_commit_solution.g
 import (
 	"context"
 
-	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/username/scavenge/x/scavenge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -137,7 +137,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/username/scavenge/x/scavenge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/crypto"

@@ -1,6 +1,43 @@
 # Changelog
 
-## [`v0.19.5`](https://github.com/tendermint/starport/pull/2158/commits)
+## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
+
+### Fixes
+
+- Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
+
+
+## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
+
+### Fixes
+
+- Use latest version of CLI in templates to fix Linux ARM support _(It's now possible to develop chains in Linux ARM machines and since the chain depends on the CLI in its go.mod, it needs to use the latest version that support ARM targets)_
+
+## [`v0.20.2`](https://github.com/ignite-hq/cli/releases/tag/v0.20.2)
+
+### Fixes
+
+- Use `unsafe-reset-all` cmd under `tendermint` cmd for chains that use `=> v0.45.3` version of Cosmos SDK
+
+## [`v0.20.1`](https://github.com/ignite-hq/cli/releases/tag/v0.20.1)
+
+### Features
+
+- Release the CLI with Linux ARM and native M1 binaries
+
+## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.0)
+
+Our new name is **Ignite CLI**!
+
+**IMPORTANT!** This upgrade renames `starport` command to `ignite`. From now on, use `ignite` command to access the CLI.
+
+### Features
+
+- Upgraded Cosmos SDK version to `v0.45.2`
+- Added support for in memory backend in `pkg/cosmosclient` package
+- Improved our tutorials and documentation
+
+## [`v0.19.5`](https://github.com/ignite-hq/cli/pull/2158/commits)
 
 ### Features
 
@@ -26,7 +63,7 @@
 
 - Upgraded Flutter template to `v2.0.3`
 
-## [`v0.19.2`](https://github.com/tendermint/starport/milestone/14)
+## [`v0.19.2`](https://github.com/ignite-hq/cli/milestone/14)
 
 ### Fixes
 
@@ -40,7 +77,7 @@
 
 ### Breaking Changes
 
-- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Starport repo [`starport/pkg/`](https://github.com/tendermint/starport/tree/develop/starport/pkg/) in [PR 1971](https://github.com/tendermint/starport/pull/1971/files) 
+- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite-hq/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite-hq/cli/pull/1971/files) 
  
     Updates are required if your chain uses these packages: 
 
@@ -49,7 +86,7 @@
     - `spm/openapiconsole` is now `pkg/openapiconsole`
     - `testutil/sample` is now `cosmostestutil/sample`
 
-- Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/tendermint/starport/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
+- Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/ignite-hq/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
 
 ## `v0.19.1`
 
@@ -177,7 +214,7 @@
 
 - The new `join` flag adds the ability to pass a `--genesis` file and `--peers` address list with `starport network chain join`
 - The new `show` flag adds the ability to show `--genesis` and `--peers` list with `starport network chain show`
-- `protoc` is now bundled with Starport CLI so you don't need to install it anymore
+- `protoc` is now bundled with Ignite CLI. You don't need to install it anymore.
 - Starport is now published automatically on the Docker Hub
 - `starport relayer` `configure` and `connect` commands now use the [confio/ts-relayer](https://github.com/confio/ts-relayer) under the hood. Also, checkout the new `starport relayer lowlevel` command
 - An OpenAPI spec for your chain is now automatically generated with `serve` and `build` commands: a console is available at `localhost:1317` and spec at `localhost:1317/static/openapi.yml` by default for the newly scaffolded chains
@@ -232,7 +269,7 @@
 
 - Chain state persistence between `starport serve` launches
 - Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
-- Integrated third-party proto-files used by Cosmos SDK modules into Starport CLI
+- Integrated third-party proto-files used by Cosmos SDK modules into Ignite CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
 - Added ability to change path to home directory with `
 .home` in `config.yml`

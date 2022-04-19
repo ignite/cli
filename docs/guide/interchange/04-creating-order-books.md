@@ -119,9 +119,9 @@ Create a new `order.proto` file in the `proto/dex` directory and add the content
 ```proto
 // proto/dex/order.proto
 syntax = "proto3";
-package cosmonaut.interchange.dex;
+package username.interchange.dex;
 
-option go_package = "github.com/cosmonaut/interchange/x/dex/types";
+option go_package = "github.com/username/interchange/x/dex/types";
 
 message OrderBook {
   int32 idCount = 1;
@@ -166,10 +166,10 @@ message SellOrderBook {
 }
 ```
 
-Now, use Starport CLI to build the proto files for the `send-create-pair` command:
+Now, use Ignite CLI to build the proto files for the `send-create-pair` command:
 
 ```bash
-starport generate proto-go
+ignite generate proto-go
 ```
 
 Start enhancing the functions for the IBC packets.
