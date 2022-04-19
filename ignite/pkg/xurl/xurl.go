@@ -1,41 +1,62 @@
 package xurl
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
 )
 
 // TCP unsures that s url contains TCP protocol identifier.
-func TCP(s string) string {
-	if strings.HasPrefix(s, "tcp") {
-		return s
+func TCP(s string) (string, error) {
+	u, err := parseURL(s)
+	if err != nil {
+		return "", err
 	}
-	return "tcp://" + Address(s)
+
+	if u.Scheme != "tcp" {
+		u.Scheme = "tcp"
+	}
+	return u.String(), nil
 }
 
 // HTTP unsures that s url contains HTTP protocol identifier.
-func HTTP(s string) string {
-	if strings.HasPrefix(s, "http") {
-		return s
+func HTTP(s string) (string, error) {
+	u, err := parseURL(s)
+	if err != nil {
+		return "", err
 	}
-	return "http://" + Address(s)
+
+	if u.Scheme != "http" {
+		u.Scheme = "http"
+	}
+	return u.String(), nil
 }
 
 // HTTPS unsures that s url contains HTTPS protocol identifier.
-func HTTPS(s string) string {
-	if strings.HasPrefix(s, "https") {
-		return s
+func HTTPS(s string) (string, error) {
+	u, err := parseURL(s)
+	if err != nil {
+		return "", err
 	}
-	return "https://" + Address(s)
+
+	if u.Scheme != "https" {
+		u.Scheme = "https"
+	}
+	return u.String(), nil
 }
 
 // WS unsures that s url contains WS protocol identifier.
-func WS(s string) string {
-	if strings.HasPrefix(s, "ws") {
-		return s
+func WS(s string) (string, error) {
+	u, err := parseURL(s)
+	if err != nil {
+		return "", err
 	}
-	return "ws://" + Address(s)
+
+	if u.Scheme != "ws" {
+		u.Scheme = "ws"
+	}
+	return u.String(), nil
 }
 
 // HTTPEnsurePort ensures that url has a port number suits with the connection type.
@@ -92,4 +113,12 @@ func IsLocalPath(address string) bool {
 
 func IsHTTP(address string) bool {
 	return strings.HasPrefix(address, "http")
+}
+
+func parseURL(s string) (*url.URL, error) {
+	if s == "" {
+		return nil, errors.New("url is empty")
+	}
+
+	return url.Parse(Address(s))
 }
