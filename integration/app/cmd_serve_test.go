@@ -5,6 +5,7 @@ package app_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -114,6 +115,51 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
 	env.Must(env.Serve("should serve with Stargate version", apath, "", newConfigPath, envtest.ExecCtx(ctx)))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+}
+
+// TestServeStargateWithName tests serving a new chain scaffolded using a local name instead of a GitHub URI.
+func TestServeStargateWithName(t *testing.T) {
+	var (
+		env     = envtest.New(t)
+		appName = "sgblog5"
+		root 		= env.TmpDir()
+	)
+
+	env.Exec("scaffold an app",
+		step.NewSteps(step.New(
+			step.Exec(
+				envtest.IgniteApp,
+				"scaffold",
+				"chain",
+				appName,
+			),
+			step.Workdir(root),
+		)),
+	)
+
+	// Remove the files that were generated during the test when the integration test ends
+	env.SetCleanup(func() {
+		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
+	})
+
+	appPath := filepath.Join(root, appName)
+
+	env.SetRandomHomeConfig(appPath, "")
+
+	servers := env.RandomizeServerPorts(appPath, "")
+	ctx, cancel := context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+
+	var isBackendAliveErr error
+
+	go func() {
+		defer cancel()
+
+		isBackendAliveErr = env.IsAppServed(ctx, servers)
+	}()
+
+	env.Must(env.Serve("should serve with Stargate version", appPath, "", "", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
