@@ -6,12 +6,13 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/ignite-hq/cli/ignite/services/network/testutil"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite-hq/cli/ignite/services/network/testutil"
 )
 
 const (

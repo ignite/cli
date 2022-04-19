@@ -8,8 +8,9 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	prototypes "github.com/gogo/protobuf/types"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"google.golang.org/protobuf/runtime/protoiface"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 )
 
 // NewResponse creates cosmosclient.Response object from proto struct
