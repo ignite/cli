@@ -33,31 +33,35 @@ func RejectRequest(requestID uint64) Reviewal {
 }
 
 // Requests fetches all the chain requests from SPN by launch id
-func (n Network) Requests(ctx context.Context, launchID uint64) ([]launchtypes.Request, error) {
+func (n Network) Requests(ctx context.Context, launchID uint64) ([]networktypes.Request, error) {
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
 		LaunchID: launchID,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return res.Request, nil
+	requests := make([]networktypes.Request, len(res.Request))
+	for i, req := range res.Request {
+		requests[i] = networktypes.ToRequest(req)
+	}
+	return requests, nil
 }
 
 // Request fetches the chain request from SPN by launch and request id
-func (n Network) Request(ctx context.Context, launchID, requestID uint64) (launchtypes.Request, error) {
+func (n Network) Request(ctx context.Context, launchID, requestID uint64) (networktypes.Request, error) {
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Request(ctx, &launchtypes.QueryGetRequestRequest{
 		LaunchID:  launchID,
 		RequestID: requestID,
 	})
 	if err != nil {
-		return launchtypes.Request{}, err
+		return networktypes.Request{}, err
 	}
-	return res.Request, nil
+	return networktypes.ToRequest(res.Request), nil
 }
 
 // RequestFromIDs fetches the chain requested from SPN by launch and provided request IDs
 // TODO: once implemented, use the SPN query from https://github.com/tendermint/spn/issues/420
-func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs ...uint64) (reqs []launchtypes.Request, err error) {
+func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs ...uint64) (reqs []networktypes.Request, err error) {
 	for _, id := range requestIDs {
 		req, err := n.Request(ctx, launchID, id)
 		if err != nil {

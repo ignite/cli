@@ -10,6 +10,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
@@ -54,14 +55,13 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 }
 
 // renderRequestSummaries writes into the provided out, the list of summarized requests
-func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error {
+func renderRequestSummaries(requests []networktypes.Request, out io.Writer) error {
 	requestEntries := make([][]string, 0)
 	for _, request := range requests {
 		var (
 			id          = fmt.Sprintf("%d", request.RequestID)
 			requestType = "Unknown"
 			content     = ""
-			status      = launchtypes.Request_Status_name[int32(request.Status)]
 		)
 		switch req := request.Content.Content.(type) {
 		case *launchtypes.RequestContent_GenesisAccount:
@@ -104,7 +104,7 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 
 		requestEntries = append(requestEntries, []string{
 			id,
-			status,
+			request.Status,
 			requestType,
 			content,
 		})
