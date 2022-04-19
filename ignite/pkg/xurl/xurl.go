@@ -22,6 +22,14 @@ func HTTP(s string) string {
 	return "http://" + Address(s)
 }
 
+// HTTPS unsures that s url contains HTTPS protocol identifier.
+func HTTPS(s string) string {
+	if strings.HasPrefix(s, "https") {
+		return s
+	}
+	return "https://" + Address(s)
+}
+
 // WS unsures that s url contains WS protocol identifier.
 func WS(s string) string {
 	if strings.HasPrefix(s, "ws") {
