@@ -8,17 +8,31 @@ import (
 
 func TestHTTPEnsurePort(t *testing.T) {
 	cases := []struct {
-		addr    string
-		ensured string
+		name string
+		addr string
+		want string
 	}{
-		{"http://localhost", "http://localhost:80"},
-		{"https://localhost", "https://localhost:443"},
-		{"http://localhost:4000", "http://localhost:4000"},
+		{
+			name: "http",
+			addr: "http://localhost",
+			want: "http://localhost:80",
+		},
+		{
+			name: "https",
+			addr: "https://localhost",
+			want: "https://localhost:443",
+		},
+		{
+			name: "custom",
+			addr: "http://localhost:4000",
+			want: "http://localhost:4000",
+		},
 	}
+
 	for _, tt := range cases {
-		t.Run(tt.addr, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			addr := HTTPEnsurePort(tt.addr)
-			require.Equal(t, tt.ensured, addr)
+			require.Equal(t, tt.want, addr)
 		})
 	}
 }
