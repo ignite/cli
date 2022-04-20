@@ -51,7 +51,6 @@ type Chain interface {
 	ConfigTOMLPath() (string, error)
 	NodeID(ctx context.Context) (string, error)
 	CacheBinary(launchID uint64) error
-	ResetGenesisTime() error
 }
 
 type Option func(*Network)

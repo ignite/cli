@@ -182,7 +182,6 @@ func TestRevertLaunch(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
-		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
 				Coordinator: account.Address(networktypes.SPN),
@@ -219,30 +218,4 @@ func TestRevertLaunch(t *testing.T) {
 		require.Equal(t, expectedError, revertError)
 		suite.AssertAllMocks(t)
 	})
-
-	t.Run("failed to revert launch, failed to reset chain genesis time", func(t *testing.T) {
-		var (
-			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
-			suite, network = newSuite(account)
-			expectedError  = errors.New("failed to reset genesis time")
-		)
-
-		suite.ChainMock.
-			On("ResetGenesisTime").
-			Return(expectedError).
-			Once()
-		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
-				LaunchID:    testutil.LaunchID,
-			}).
-			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
-			Once()
-
-		revertError := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
-		require.Error(t, revertError)
-		require.Equal(t, expectedError, revertError)
-		suite.AssertAllMocks(t)
-	})
-
 }
