@@ -48,7 +48,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -110,7 +115,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CampaignQueryMock.
 			On(
@@ -171,7 +181,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -232,7 +247,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -296,7 +316,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -376,7 +401,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -575,7 +605,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CampaignQueryMock.
 			On("Campaign", mock.Anything, &campaigntypes.QueryGetCampaignRequest{
@@ -606,7 +641,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -646,7 +686,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -707,7 +752,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
