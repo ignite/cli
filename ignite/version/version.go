@@ -18,7 +18,11 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xexec"
 )
 
-const versionDev = "development"
+const (
+	versionDev     = "development"
+	versionNightly = "v0.0.0-nightly"
+)
+
 const prefix = "v"
 
 var (
@@ -34,7 +38,7 @@ var (
 
 // CheckNext checks whether there is a new version of Starport.
 func CheckNext(ctx context.Context) (isAvailable bool, version string, err error) {
-	if Version == versionDev {
+	if Version == versionDev || Version == versionNightly {
 		return false, "", nil
 	}
 
