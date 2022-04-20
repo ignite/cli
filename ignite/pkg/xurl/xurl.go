@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+const (
+	schemeTCP = "tcp"
+	schemeHTTP = "http"
+	schemeHTTPS = "https"
+	schemeWS = "ws"
+)
+
 // TCP unsures that s url contains TCP protocol identifier.
 func TCP(s string) (string, error) {
 	u, err := parseURL(s)
@@ -14,8 +21,8 @@ func TCP(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != "tcp" {
-		u.Scheme = "tcp"
+	if u.Scheme != schemeTCP {
+		u.Scheme = schemeTCP
 	}
 	return u.String(), nil
 }
@@ -27,8 +34,8 @@ func HTTP(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != "http" {
-		u.Scheme = "http"
+	if u.Scheme != schemeHTTP {
+		u.Scheme = schemeHTTP
 	}
 	return u.String(), nil
 }
@@ -40,8 +47,8 @@ func HTTPS(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != "https" {
-		u.Scheme = "https"
+	if u.Scheme != schemeHTTPS {
+		u.Scheme = schemeHTTPS
 	}
 	return u.String(), nil
 }
@@ -53,8 +60,8 @@ func WS(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != "ws" {
-		u.Scheme = "ws"
+	if u.Scheme != schemeWS {
+		u.Scheme = schemeWS
 	}
 	return u.String(), nil
 }
@@ -68,7 +75,7 @@ func HTTPEnsurePort(s string) string {
 
 	port := "80"
 
-	if u.Scheme == "https" {
+	if u.Scheme == schemeHTTPS {
 		port = "443"
 	}
 
