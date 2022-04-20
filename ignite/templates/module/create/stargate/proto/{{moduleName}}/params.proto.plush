@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= formatOwnerName(ownerName) %>.<%= appName %>.<%= moduleName %>;
+package <%= formatPackageName(formatOwnerName(ownerName), appName, moduleName) %>;
 
 import "gogoproto/gogo.proto";
 

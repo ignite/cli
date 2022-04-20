@@ -78,6 +78,7 @@ func ResolveDependencyPaths(ctx context.Context, src string, versions []module.V
 // FormatPackageName formats a protocol buffer package name by removing
 // duplicated elements from the path.
 // Duplicated elements are removed when they match with their parent.
+// TODO: Move to a better location ?
 func FormatPackageName(path ...string) string {
 	var (
 		parent   string
