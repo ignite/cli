@@ -409,7 +409,7 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 
 	// set the app as being served
 	c.served = true
-	
+
 	// note: address format errors are handled by the
 	// error group, so they can be safely ignored here
 	rpcAddr, _ := xurl.HTTP(config.Host.RPC)

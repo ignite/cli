@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	schemeTCP = "tcp"
-	schemeHTTP = "http"
+	schemeTCP   = "tcp"
+	schemeHTTP  = "http"
 	schemeHTTPS = "https"
-	schemeWS = "ws"
+	schemeWS    = "ws"
 )
 
 // TCP unsures that s url contains TCP protocol identifier.
