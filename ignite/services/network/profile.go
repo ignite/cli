@@ -115,7 +115,7 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 		}
 	}
 
-	var p interface{}
+	var p networktypes.IProfile
 	p, err = n.Validator(ctx, address)
 	if err == ErrObjectNotFound {
 		p, err = n.Coordinator(ctx, address)
@@ -125,5 +125,5 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 	} else if err != nil {
 		return networktypes.Profile{}, err
 	}
-	return networktypes.ToProfile(p, campaignID, vouchers, shares, vestingShares), err
+	return p.ToProfile(campaignID, vouchers, shares, vestingShares), err
 }

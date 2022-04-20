@@ -17,6 +17,21 @@ type Validator struct {
 	SecurityContact   string   `json:"SecurityContact"`
 }
 
+func (c Validator) ToProfile(campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile {
+	return Profile{
+		Address:         c.Address,
+		Identity:        c.Identity,
+		Website:         c.Website,
+		Details:         c.Details,
+		Moniker:         c.Moniker,
+		SecurityContact: c.SecurityContact,
+		Vouchers:        vouchers,
+		Shares:          shares,
+		VestingShares:   vestingShares,
+		CampaignID:      campaignID,
+	}
+}
+
 // ToValidator converts a Validator data from SPN and returns a Validator object
 func ToValidator(val profiletypes.Validator) Validator {
 	return Validator{
@@ -40,6 +55,19 @@ type Coordinator struct {
 	Details       string `json:"Details"`
 }
 
+func (c Coordinator) ToProfile(campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile {
+	return Profile{
+		Address:       c.Address,
+		Identity:      c.Identity,
+		Website:       c.Website,
+		Details:       c.Details,
+		Vouchers:      vouchers,
+		Shares:        shares,
+		VestingShares: vestingShares,
+		CampaignID:    campaignID,
+	}
+}
+
 // ToCoordinator converts a Coordinator data from SPN and returns a Coordinator object
 func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 	return Coordinator{
@@ -52,41 +80,21 @@ func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 	}
 }
 
-// Profile represents the address profile on SPN
-type Profile struct {
-	Address         string               `json:"Address"`
-	CampaignID      uint64               `json:"CampaignID,omitempty"`
-	Identity        string               `json:"Identity,omitempty"`
-	Website         string               `json:"Website,omitempty"`
-	Details         string               `json:"Details,omitempty"`
-	Moniker         string               `json:"Moniker,omitempty"`
-	SecurityContact string               `json:"SecurityContact,omitempty"`
-	Vouchers        sdk.Coins            `json:"Vouchers,omitempty"`
-	Shares          campaigntypes.Shares `json:"Shares,omitempty"`
-	VestingShares   campaigntypes.Shares `json:"VestingShares,omitempty"`
-}
-
-// ToProfile fetches all address data from SPN and returns a Profile object
-func ToProfile(obj interface{}, campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile {
-	profile := Profile{
-		Vouchers:      vouchers,
-		Shares:        shares,
-		VestingShares: vestingShares,
-		CampaignID:    campaignID,
+type (
+	// Profile represents the address profile on SPN
+	Profile struct {
+		Address         string               `json:"Address"`
+		CampaignID      uint64               `json:"CampaignID,omitempty"`
+		Identity        string               `json:"Identity,omitempty"`
+		Website         string               `json:"Website,omitempty"`
+		Details         string               `json:"Details,omitempty"`
+		Moniker         string               `json:"Moniker,omitempty"`
+		SecurityContact string               `json:"SecurityContact,omitempty"`
+		Vouchers        sdk.Coins            `json:"Vouchers,omitempty"`
+		Shares          campaigntypes.Shares `json:"Shares,omitempty"`
+		VestingShares   campaigntypes.Shares `json:"VestingShares,omitempty"`
 	}
-	switch p := obj.(type) {
-	case Coordinator:
-		profile.Address = p.Address
-		profile.Identity = p.Identity
-		profile.Website = p.Website
-		profile.Details = p.Details
-	case Validator:
-		profile.Address = p.Address
-		profile.Identity = p.Identity
-		profile.Website = p.Website
-		profile.Details = p.Details
-		profile.Moniker = p.Moniker
-		profile.SecurityContact = p.SecurityContact
+	IProfile interface {
+		ToProfile(campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile
 	}
-	return profile
-}
+)
