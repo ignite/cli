@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
+
 	"github.com/ignite-hq/cli/ignite/services/network/mocks"
 	"testing"
 )
