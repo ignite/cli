@@ -28,12 +28,12 @@ type Path struct {
 	RawPath string
 
 	// Root is the root directory name of Go module.
-	// e.g.: starport for github.com/ignite-hq/cli.
+	// e.g.: cli for github.com/ignite-hq/cli.
 	Root string
 
 	// Package is the default package name for the Go module that can be used
 	// to host main functionality of the module.
-	// e.g.: starport for github.com/ignite-hq/cli.
+	// e.g.: cli for github.com/ignite-hq/cli.
 	Package string
 }
 
