@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= formatPackageName(formatOwnerName(ownerName), appName, moduleName) %>;
+package <%= formatPackageName(formatOwnerName(ownerName), moduleName) %>;
 
 // this line is used by starport scaffolding # proto/packet/import
 
