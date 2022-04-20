@@ -157,7 +157,7 @@ func TestPublish(t *testing.T) {
 		var (
 			account              = testutil.NewTestAccount(t, testutil.TestAccountName)
 			customGenesisChainID = "test-custom-1"
-			customGenesisHash    = "d4ecd98aae9006940b7f350f57873bb6e56689cbeb73769f5d169bde8d001a92"
+			customGenesisHash    = "86167654c1af18c801837d443563fd98b3fe5e8d337e70faad181cdf2100da52"
 			gts                  = startGenesisTestServer("mocks/data/genesis.json")
 			suite, network       = newSuite(account)
 		)
