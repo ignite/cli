@@ -40,7 +40,7 @@ where:
 * Start a blockchain node in development with live reloading
 * Connect to other blockchains with a built-in IBC relayer
 * Use automatically generated TypeScript client to interact with your blockchain
-* Use the Vue.js web app template with a set of UI components
+* Use the Vue 3 web app template with a set of UI components to build your custom web application
 
 ## Install Ignite CLI locally
 
