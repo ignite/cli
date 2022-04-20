@@ -1,9 +1,11 @@
 package testutil
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/ignite-hq/cli/ignite/services/network/mocks"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/client"
+
+	"github.com/ignite-hq/cli/ignite/services/network/mocks"
 )
 
 // Suite is a mocks container, used to write less code for tests setup
