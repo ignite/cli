@@ -101,7 +101,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 }
 
 func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Client, accAddr string, coins []string) {
-	resp, err := banktypes.NewQueryClient(c.Context).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+	resp, err := banktypes.NewQueryClient(c.Context()).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
 		Address: accAddr,
 	})
 	require.NoError(t, err)

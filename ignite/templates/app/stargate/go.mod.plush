@@ -13,7 +13,7 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
     github.com/tendermint/spn v0.1.1-0.20220407154406-5cfd1bf28150
-	github.com/ignite-hq/cli v0.20.0
+	github.com/ignite-hq/cli v0.20.3
     github.com/tendermint/tendermint v0.34.16
     github.com/tendermint/tm-db v0.6.6
     google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e
