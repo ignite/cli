@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/plushgen"
 
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite-hq/cli/ignite/templates/testutil"
 )
@@ -34,9 +33,6 @@ func New(opts *Options) (*genny.Generator, error) {
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
-
-	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
