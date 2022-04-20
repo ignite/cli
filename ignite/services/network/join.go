@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
@@ -12,7 +14,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 type joinOptions struct {

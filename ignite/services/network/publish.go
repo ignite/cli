@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+	profiletypes "github.com/tendermint/spn/x/profile/types"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-	profiletypes "github.com/tendermint/spn/x/profile/types"
 )
 
 // publishOptions holds info about how to create a chain.

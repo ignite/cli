@@ -6,14 +6,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
 )
 
 //go:generate mockery --name CosmosClient --case underscore

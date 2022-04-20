@@ -7,9 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	rewardtypes "github.com/tendermint/spn/x/reward/types"
+
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 	"github.com/ignite-hq/cli/ignite/services/network/testutil"
-	rewardtypes "github.com/tendermint/spn/x/reward/types"
 )
 
 func TestSetReward(t *testing.T) {
