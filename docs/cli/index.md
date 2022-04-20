@@ -1,6 +1,6 @@
 ---
 order: 1
-description: Starport CLI docs. 
+description: Ignite CLI docs. 
 parent:
   order: 8
   title: CLI Reference
@@ -8,48 +8,47 @@ parent:
 
 # CLI Reference
 
-Documentation for Starport CLI.
+Documentation for Ignite CLI.
+## ignite
 
-## starport
-
-Starport offers everything you need to scaffold, test, build, and launch your blockchain
+Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 **Synopsis**
 
-Starport is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
-most popular modular blockchain framework. Starport offers everything you need to scaffold,
+Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-starport scaffold chain github.com/cosmonaut/mars
+ignite scaffold chain github.com/username/mars
 
 **Options**
 
 ```
-  -h, --help   help for starport
+  -h, --help   help for ignite
 ```
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
-* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-* [starport docs](#starport-docs)	 - Show Starport docs
-* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
-* [starport relayer](#starport-relayer)	 - Connect blockchains by using IBC protocol
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-* [starport tools](#starport-tools)	 - Tools for advanced users
-* [starport version](#starport-version)	 - Print the current build information
+* [ignite account](#ignite-account)	 - Commands for managing accounts
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+* [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
+* [ignite version](#ignite-version)	 - Print the current build information
 
 
-## starport account
+## ignite account
 
 Commands for managing accounts
 
 **Synopsis**
 
 Commands for managing accounts. An account is a pair of a private key and a public key.
-Starport uses accounts to interact with the Starport Network blockchain, use an IBC relayer, and more.
+Ignite CLI uses accounts to interact with the Ignite blockchain, use an IBC relayer, and more.
 
 **Options**
 
@@ -59,21 +58,21 @@ Starport uses accounts to interact with the Starport Network blockchain, use an 
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
-* [starport account create](#starport-account-create)	 - Create a new account
-* [starport account delete](#starport-account-delete)	 - Delete an account by name
-* [starport account export](#starport-account-export)	 - Export an account as a private key
-* [starport account import](#starport-account-import)	 - Import an account by using a mnemonic or a private key
-* [starport account list](#starport-account-list)	 - Show a list of all accounts
-* [starport account show](#starport-account-show)	 - Show detailed information about a particular account
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite account create](#ignite-account-create)	 - Create a new account
+* [ignite account delete](#ignite-account-delete)	 - Delete an account by name
+* [ignite account export](#ignite-account-export)	 - Export an account as a private key
+* [ignite account import](#ignite-account-import)	 - Import an account by using a mnemonic or a private key
+* [ignite account list](#ignite-account-list)	 - Show a list of all accounts
+* [ignite account show](#ignite-account-show)	 - Show detailed information about a particular account
 
 
-## starport account create
+## ignite account create
 
 Create a new account
 
 ```
-starport account create [name] [flags]
+ignite account create [name] [flags]
 ```
 
 **Options**
@@ -85,15 +84,15 @@ starport account create [name] [flags]
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
+* [ignite account](#ignite-account)	 - Commands for managing accounts
 
 
-## starport account delete
+## ignite account delete
 
 Delete an account by name
 
 ```
-starport account delete [name] [flags]
+ignite account delete [name] [flags]
 ```
 
 **Options**
@@ -105,15 +104,15 @@ starport account delete [name] [flags]
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
+* [ignite account](#ignite-account)	 - Commands for managing accounts
 
 
-## starport account export
+## ignite account export
 
 Export an account as a private key
 
 ```
-starport account export [name] [flags]
+ignite account export [name] [flags]
 ```
 
 **Options**
@@ -128,15 +127,15 @@ starport account export [name] [flags]
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
+* [ignite account](#ignite-account)	 - Commands for managing accounts
 
 
-## starport account import
+## ignite account import
 
 Import an account by using a mnemonic or a private key
 
 ```
-starport account import [name] [flags]
+ignite account import [name] [flags]
 ```
 
 **Options**
@@ -151,15 +150,15 @@ starport account import [name] [flags]
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
+* [ignite account](#ignite-account)	 - Commands for managing accounts
 
 
-## starport account list
+## ignite account list
 
 Show a list of all accounts
 
 ```
-starport account list [flags]
+ignite account list [flags]
 ```
 
 **Options**
@@ -172,15 +171,15 @@ starport account list [flags]
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
+* [ignite account](#ignite-account)	 - Commands for managing accounts
 
 
-## starport account show
+## ignite account show
 
 Show detailed information about a particular account
 
 ```
-starport account show [name] [flags]
+ignite account show [name] [flags]
 ```
 
 **Options**
@@ -193,10 +192,10 @@ starport account show [name] [flags]
 
 **SEE ALSO**
 
-* [starport account](#starport-account)	 - Commands for managing accounts
+* [ignite account](#ignite-account)	 - Commands for managing accounts
 
 
-## starport chain
+## ignite chain
 
 Build, initialize and start a blockchain node or perform other actions on the blockchain
 
@@ -207,20 +206,20 @@ Build, initialize and start a blockchain node or perform other actions on the bl
 **Options**
 
 ```
-  -h, --help          help for chain
-  -p, --path string   path of the app (default ".")
+  -h, --help   help for chain
 ```
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
-* [starport chain build](#starport-chain-build)	 - Build a node binary
-* [starport chain faucet](#starport-chain-faucet)	 - Send coins to an account
-* [starport chain init](#starport-chain-init)	 - Initialize your chain
-* [starport chain serve](#starport-chain-serve)	 - Start a blockchain node in development
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite chain build](#ignite-chain-build)	 - Build a node binary
+* [ignite chain faucet](#ignite-chain-faucet)	 - Send coins to an account
+* [ignite chain init](#ignite-chain-init)	 - Initialize your chain
+* [ignite chain serve](#ignite-chain-serve)	 - Start a blockchain node in development
+* [ignite chain simulate](#ignite-chain-simulate)	 - Run simulation testing for the blockchain
 
 
-## starport chain build
+## ignite chain build
 
 Build a node binary
 
@@ -235,11 +234,11 @@ source. Specify the release targets with GOOS:GOARCH build tags.
 If the optional --release.targets is not specified, a binary is created for your current environment.
 
 Sample usages:
-	- starport chain build
-	- starport chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+	- ignite chain build
+	- ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
-starport chain build [flags]
+ignite chain build [flags]
 ```
 
 **Options**
@@ -248,6 +247,7 @@ starport chain build [flags]
   -h, --help                      help for build
       --home string               Home directory used for blockchains
   -o, --output string             binary output path
+  -p, --path string               path of the app (default ".")
       --proto-all-modules         Enables proto code generation for 3rd party modules used in your chain. Available only without the --release flag
       --release                   build for a release
       --release.prefix string     tarball prefix for each release target. Available only with --release flag
@@ -255,23 +255,17 @@ starport chain build [flags]
   -v, --verbose                   Verbose output
 ```
 
-**Options inherited from parent commands**
-
-```
-  -p, --path string   path of the app (default ".")
-```
-
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
-## starport chain faucet
+## ignite chain faucet
 
 Send coins to an account
 
 ```
-starport chain faucet [address] [coin<,...>] [flags]
+ignite chain faucet [address] [coin<,...>] [flags]
 ```
 
 **Options**
@@ -279,26 +273,21 @@ starport chain faucet [address] [coin<,...>] [flags]
 ```
   -h, --help          help for faucet
       --home string   Home directory used for blockchains
-  -v, --verbose       Verbose output
-```
-
-**Options inherited from parent commands**
-
-```
   -p, --path string   path of the app (default ".")
+  -v, --verbose       Verbose output
 ```
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
-## starport chain init
+## ignite chain init
 
 Initialize your chain
 
 ```
-starport chain init [flags]
+ignite chain init [flags]
 ```
 
 **Options**
@@ -306,20 +295,15 @@ starport chain init [flags]
 ```
   -h, --help          help for init
       --home string   Home directory used for blockchains
-```
-
-**Options inherited from parent commands**
-
-```
   -p, --path string   path of the app (default ".")
 ```
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
-## starport chain serve
+## ignite chain serve
 
 Start a blockchain node in development
 
@@ -328,38 +312,72 @@ Start a blockchain node in development
 Start a blockchain node with automatic reloading
 
 ```
-starport chain serve [flags]
+ignite chain serve [flags]
 ```
 
 **Options**
 
 ```
-  -c, --config string       Starport config file (default: ./config.yml)
+  -c, --config string       Ignite config file (default: ./config.yml)
   -f, --force-reset         Force reset of the app state on start and every source change
   -h, --help                help for serve
       --home string         Home directory used for blockchains
+  -p, --path string         path of the app (default ".")
       --proto-all-modules   Enables proto code generation for 3rd party modules used in your chain
   -r, --reset-once          Reset of the app state on first start
   -v, --verbose             Verbose output
 ```
 
-**Options inherited from parent commands**
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+
+
+## ignite chain simulate
+
+Run simulation testing for the blockchain
+
+**Synopsis**
+
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
 
 ```
-  -p, --path string   path of the app (default ".")
+ignite chain simulate [flags]
+```
+
+**Options**
+
+```
+      --blockSize int             operations per block (default 30)
+      --exportParamsHeight int    height to which export the randomly generated params
+      --exportParamsPath string   custom file path to save the exported params JSON
+      --exportStatePath string    custom file path to save the exported app state JSON
+      --exportStatsPath string    custom file path to save the exported simulation statistics JSON
+      --genesis string            custom simulation genesis file; cannot be used with params file
+      --genesisTime int           override genesis UNIX time instead of using a random UNIX time
+  -h, --help                      help for simulate
+      --initialBlockHeight int    initial block to start the simulation (default 1)
+      --lean                      lean simulation log output
+      --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
+      --params string             custom simulation params file which overrides any random params; cannot be used with genesis
+      --period uint               run slow invariants only once every period assertions
+      --printAllInvariants        print all invariants if a broken invariant is found
+      --seed int                  simulation random seed (default 42)
+      --simulateEveryOperation    run slow invariants every operation
+  -v, --verbose                   verbose log output
 ```
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
-## starport docs
+## ignite docs
 
-Show Starport docs
+Show Ignite CLI docs
 
 ```
-starport docs [flags]
+ignite docs [flags]
 ```
 
 **Options**
@@ -370,10 +388,10 @@ starport docs [flags]
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 
-## starport generate
+## ignite generate
 
 Generate clients, API docs from source code
 
@@ -394,18 +412,44 @@ Produced source code can be regenerated by running a command again and is not me
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
-* [starport generate openapi](#starport-generate-openapi)	 - Generate generates an OpenAPI spec for your chain from your config.yml
-* [starport generate proto-go](#starport-generate-proto-go)	 - Generate proto based Go code needed for the app's source code
-* [starport generate vuex](#starport-generate-vuex)	 - Generate Vuex store for you chain's frontend from your config.yml
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite generate dart](#ignite-generate-dart)	 - Generate a Dart client
+* [ignite generate openapi](#ignite-generate-openapi)	 - Generate generates an OpenAPI spec for your chain from your config.yml
+* [ignite generate proto-go](#ignite-generate-proto-go)	 - Generate proto based Go code needed for the app's source code
+* [ignite generate vuex](#ignite-generate-vuex)	 - Generate Vuex store for you chain's frontend from your config.yml
 
 
-## starport generate openapi
+## ignite generate dart
+
+Generate a Dart client
+
+```
+ignite generate dart [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for dart
+```
+
+**Options inherited from parent commands**
+
+```
+  -p, --path string   path of the app (default ".")
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+
+
+## ignite generate openapi
 
 Generate generates an OpenAPI spec for your chain from your config.yml
 
 ```
-starport generate openapi [flags]
+ignite generate openapi [flags]
 ```
 
 **Options**
@@ -422,15 +466,15 @@ starport generate openapi [flags]
 
 **SEE ALSO**
 
-* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
-## starport generate proto-go
+## ignite generate proto-go
 
 Generate proto based Go code needed for the app's source code
 
 ```
-starport generate proto-go [flags]
+ignite generate proto-go [flags]
 ```
 
 **Options**
@@ -447,15 +491,15 @@ starport generate proto-go [flags]
 
 **SEE ALSO**
 
-* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
-## starport generate vuex
+## ignite generate vuex
 
 Generate Vuex store for you chain's frontend from your config.yml
 
 ```
-starport generate vuex [flags]
+ignite generate vuex [flags]
 ```
 
 **Options**
@@ -473,10 +517,10 @@ starport generate vuex [flags]
 
 **SEE ALSO**
 
-* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
-## starport relayer
+## ignite relayer
 
 Connect blockchains by using IBC protocol
 
@@ -488,17 +532,17 @@ Connect blockchains by using IBC protocol
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
-* [starport relayer configure](#starport-relayer-configure)	 - Configure source and target chains for relaying
-* [starport relayer connect](#starport-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite relayer configure](#ignite-relayer-configure)	 - Configure source and target chains for relaying
+* [ignite relayer connect](#ignite-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
 
 
-## starport relayer configure
+## ignite relayer configure
 
 Configure source and target chains for relaying
 
 ```
-starport relayer configure [flags]
+ignite relayer configure [flags]
 ```
 
 **Options**
@@ -528,15 +572,15 @@ starport relayer configure [flags]
 
 **SEE ALSO**
 
-* [starport relayer](#starport-relayer)	 - Connect blockchains by using IBC protocol
+* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
 
 
-## starport relayer connect
+## ignite relayer connect
 
 Link chains associated with paths and start relaying tx packets in between
 
 ```
-starport relayer connect [<path>,...] [flags]
+ignite relayer connect [<path>,...] [flags]
 ```
 
 **Options**
@@ -548,10 +592,10 @@ starport relayer connect [<path>,...] [flags]
 
 **SEE ALSO**
 
-* [starport relayer](#starport-relayer)	 - Connect blockchains by using IBC protocol
+* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
 
 
-## starport scaffold
+## ignite scaffold
 
 Scaffold a new blockchain, module, message, query, and more
 
@@ -569,21 +613,22 @@ CRUD stands for "create, read, update, delete".
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
-* [starport scaffold band](#starport-scaffold-band)	 - Scaffold an IBC BandChain query oracle to request real-time data
-* [starport scaffold chain](#starport-scaffold-chain)	 - Fully-featured Cosmos SDK blockchain
-* [starport scaffold list](#starport-scaffold-list)	 - CRUD for data stored as an array
-* [starport scaffold map](#starport-scaffold-map)	 - CRUD for data stored as key-value pairs
-* [starport scaffold message](#starport-scaffold-message)	 - Message to perform state transition on the blockchain
-* [starport scaffold module](#starport-scaffold-module)	 - Scaffold a Cosmos SDK module
-* [starport scaffold packet](#starport-scaffold-packet)	 - Message for sending an IBC packet
-* [starport scaffold query](#starport-scaffold-query)	 - Query to get data from the blockchain
-* [starport scaffold single](#starport-scaffold-single)	 - CRUD for data stored in a single location
-* [starport scaffold type](#starport-scaffold-type)	 - Scaffold only a type definition
-* [starport scaffold vue](#starport-scaffold-vue)	 - Vue 3 web app template
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite scaffold band](#ignite-scaffold-band)	 - Scaffold an IBC BandChain query oracle to request real-time data
+* [ignite scaffold chain](#ignite-scaffold-chain)	 - Fully-featured Cosmos SDK blockchain
+* [ignite scaffold flutter](#ignite-scaffold-flutter)	 - A Flutter app for your chain
+* [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
+* [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
+* [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
+* [ignite scaffold module](#ignite-scaffold-module)	 - Scaffold a Cosmos SDK module
+* [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
+* [ignite scaffold query](#ignite-scaffold-query)	 - Query to get data from the blockchain
+* [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
+* [ignite scaffold type](#ignite-scaffold-type)	 - Scaffold only a type definition
+* [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
 
-## starport scaffold band
+## ignite scaffold band
 
 Scaffold an IBC BandChain query oracle to request real-time data
 
@@ -592,7 +637,7 @@ Scaffold an IBC BandChain query oracle to request real-time data
 Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module
 
 ```
-starport scaffold band [queryName] --module [moduleName] [flags]
+ignite scaffold band [queryName] --module [moduleName] [flags]
 ```
 
 **Options**
@@ -606,10 +651,10 @@ starport scaffold band [queryName] --module [moduleName] [flags]
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold chain
+## ignite scaffold chain
 
 Fully-featured Cosmos SDK blockchain
 
@@ -618,7 +663,7 @@ Fully-featured Cosmos SDK blockchain
 Scaffold a new Cosmos SDK blockchain with a default directory structure
 
 ```
-starport scaffold chain [github.com/org/repo] [flags]
+ignite scaffold chain [github.com/org/repo] [flags]
 ```
 
 **Options**
@@ -632,15 +677,35 @@ starport scaffold chain [github.com/org/repo] [flags]
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold list
+## ignite scaffold flutter
+
+A Flutter app for your chain
+
+```
+ignite scaffold flutter [flags]
+```
+
+**Options**
+
+```
+  -h, --help          help for flutter
+  -p, --path string   path to scaffold content of the Flutter app (default "./flutter")
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## ignite scaffold list
 
 CRUD for data stored as an array
 
 ```
-starport scaffold list NAME [field]... [flags]
+ignite scaffold list NAME [field]... [flags]
 ```
 
 **Options**
@@ -649,21 +714,22 @@ starport scaffold list NAME [field]... [flags]
   -h, --help            help for list
       --module string   Module to add into. Default is app's main module
       --no-message      Disable CRUD interaction messages scaffolding
+      --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
 ```
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold map
+## ignite scaffold map
 
 CRUD for data stored as key-value pairs
 
 ```
-starport scaffold map NAME [field]... [flags]
+ignite scaffold map NAME [field]... [flags]
 ```
 
 **Options**
@@ -673,21 +739,22 @@ starport scaffold map NAME [field]... [flags]
       --index strings   fields that index the value (default [index])
       --module string   Module to add into. Default is app's main module
       --no-message      Disable CRUD interaction messages scaffolding
+      --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
 ```
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold message
+## ignite scaffold message
 
 Message to perform state transition on the blockchain
 
 ```
-starport scaffold message [name] [field1] [field2] ... [flags]
+ignite scaffold message [name] [field1] [field2] ... [flags]
 ```
 
 **Options**
@@ -696,6 +763,7 @@ starport scaffold message [name] [field1] [field2] ... [flags]
   -d, --desc string        Description of the command
   -h, --help               help for message
       --module string      Module to add the message into. Default: app's main module
+      --no-simulation      Disable CRUD simulation scaffolding
   -p, --path string        path of the app (default ".")
   -r, --response strings   Response fields
       --signer string      Label for the message signer (default: creator)
@@ -703,10 +771,10 @@ starport scaffold message [name] [field1] [field2] ... [flags]
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold module
+## ignite scaffold module
 
 Scaffold a Cosmos SDK module
 
@@ -715,7 +783,7 @@ Scaffold a Cosmos SDK module
 Scaffold a new Cosmos SDK module in the `x` directory
 
 ```
-starport scaffold module [name] [flags]
+ignite scaffold module [name] [flags]
 ```
 
 **Options**
@@ -725,16 +793,17 @@ starport scaffold module [name] [flags]
   -h, --help                   help for module
       --ibc                    scaffold an IBC module
       --ordering string        channel ordering of the IBC module [none|ordered|unordered] (default "none")
+      --params strings         scaffold module params
   -p, --path string            path of the app (default ".")
       --require-registration   if true command will fail if module can't be registered
 ```
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold packet
+## ignite scaffold packet
 
 Message for sending an IBC packet
 
@@ -743,7 +812,7 @@ Message for sending an IBC packet
 Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module
 
 ```
-starport scaffold packet [packetName] [field1] [field2] ... --module [moduleName] [flags]
+ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] [flags]
 ```
 
 **Options**
@@ -759,15 +828,15 @@ starport scaffold packet [packetName] [field1] [field2] ... --module [moduleName
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold query
+## ignite scaffold query
 
 Query to get data from the blockchain
 
 ```
-starport scaffold query [name] [request_field1] [request_field2] ... [flags]
+ignite scaffold query [name] [request_field1] [request_field2] ... [flags]
 ```
 
 **Options**
@@ -783,15 +852,15 @@ starport scaffold query [name] [request_field1] [request_field2] ... [flags]
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold single
+## ignite scaffold single
 
 CRUD for data stored in a single location
 
 ```
-starport scaffold single NAME [field]... [flags]
+ignite scaffold single NAME [field]... [flags]
 ```
 
 **Options**
@@ -800,21 +869,22 @@ starport scaffold single NAME [field]... [flags]
   -h, --help            help for single
       --module string   Module to add into. Default is app's main module
       --no-message      Disable CRUD interaction messages scaffolding
+      --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
 ```
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold type
+## ignite scaffold type
 
 Scaffold only a type definition
 
 ```
-starport scaffold type NAME [field]... [flags]
+ignite scaffold type NAME [field]... [flags]
 ```
 
 **Options**
@@ -823,21 +893,22 @@ starport scaffold type NAME [field]... [flags]
   -h, --help            help for type
       --module string   Module to add into. Default is app's main module
       --no-message      Disable CRUD interaction messages scaffolding
+      --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
 ```
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport scaffold vue
+## ignite scaffold vue
 
 Vue 3 web app template
 
 ```
-starport scaffold vue [flags]
+ignite scaffold vue [flags]
 ```
 
 **Options**
@@ -849,10 +920,10 @@ starport scaffold vue [flags]
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
-## starport tools
+## ignite tools
 
 Tools for advanced users
 
@@ -864,14 +935,14 @@ Tools for advanced users
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
-* [starport tools completions](#starport-tools-completions)	 - Generate completions script
-* [starport tools ibc-relayer](#starport-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
-* [starport tools ibc-setup](#starport-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
-* [starport tools protoc](#starport-tools-protoc)	 - Execute the protoc command
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite tools completions](#ignite-tools-completions)	 - Generate completions script
+* [ignite tools ibc-relayer](#ignite-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
+* [ignite tools ibc-setup](#ignite-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
+* [ignite tools protoc](#ignite-tools-protoc)	 - Execute the protoc command
 
 
-## starport tools completions
+## ignite tools completions
 
 Generate completions script
 
@@ -884,15 +955,15 @@ Generate completions script
 
 Bash:
 
-  $ source <(starport  tools completions bash)
+  $ source <(ignite  tools completions bash)
 
   To load completions for every new session, run:
 
   ** Linux **
-  $ starport  tools completions bash > /etc/bash_completion.d/starport
+  $ ignite  tools completions bash > /etc/bash_completion.d/ignite
 
   ** macOS **
-  $ starport  tools completions bash > /usr/local/etc/bash_completion.d/starport
+  $ ignite  tools completions bash > /usr/local/etc/bash_completion.d/ignite
 
 Zsh:
 
@@ -902,31 +973,31 @@ Zsh:
 
   To load completions for each session, execute once:
   
-  $ starport  tools completions zsh > "${fpath[1]}/_starport"
+  $ ignite  tools completions zsh > "${fpath[1]}/_ignite"
 
   You will need to start a new shell for this setup to take effect.
 
 fish:
 
-  $ starport  tools completions fish | source
+  $ ignite  tools completions fish | source
 
   To load completions for each session, execute once:
   
-  $ starport  tools completions fish > ~/.config/fish/completionss/starport.fish
+  $ ignite  tools completions fish > ~/.config/fish/completionss/ignite.fish
 
 PowerShell:
 
-  PS> starport  tools completions powershell | Out-String | Invoke-Expression
+  PS> ignite  tools completions powershell | Out-String | Invoke-Expression
 
   To load completions for every new session, run:
   
-  PS> starport  tools completions powershell > starport.ps1
+  PS> ignite  tools completions powershell > ignite.ps1
   
   and source this file from your PowerShell profile.
 
 
 ```
-starport tools completions
+ignite tools completions
 ```
 
 **Options**
@@ -937,21 +1008,21 @@ starport tools completions
 
 **SEE ALSO**
 
-* [starport tools](#starport-tools)	 - Tools for advanced users
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
 
 
-## starport tools ibc-relayer
+## ignite tools ibc-relayer
 
 Typescript implementation of an IBC relayer
 
 ```
-starport tools ibc-relayer [--] [...] [flags]
+ignite tools ibc-relayer [--] [...] [flags]
 ```
 
 **Examples**
 
 ```
-starport tools ibc-relayer -- -h
+ignite tools ibc-relayer -- -h
 ```
 
 **Options**
@@ -962,22 +1033,22 @@ starport tools ibc-relayer -- -h
 
 **SEE ALSO**
 
-* [starport tools](#starport-tools)	 - Tools for advanced users
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
 
 
-## starport tools ibc-setup
+## ignite tools ibc-setup
 
 Collection of commands to quickly setup a relayer
 
 ```
-starport tools ibc-setup [--] [...] [flags]
+ignite tools ibc-setup [--] [...] [flags]
 ```
 
 **Examples**
 
 ```
-starport tools ibc-setup -- -h
-starport tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
+ignite tools ibc-setup -- -h
+ignite tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 ```
 
 **Options**
@@ -988,10 +1059,10 @@ starport tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 
 **SEE ALSO**
 
-* [starport tools](#starport-tools)	 - Tools for advanced users
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
 
 
-## starport tools protoc
+## ignite tools protoc
 
 Execute the protoc command
 
@@ -1000,13 +1071,13 @@ Execute the protoc command
 The protoc command. You don't need to setup the global protoc include folder with -I, it's automatically handled
 
 ```
-starport tools protoc [--] [...] [flags]
+ignite tools protoc [--] [...] [flags]
 ```
 
 **Examples**
 
 ```
-starport tools protoc -- --version
+ignite tools protoc -- --version
 ```
 
 **Options**
@@ -1017,15 +1088,15 @@ starport tools protoc -- --version
 
 **SEE ALSO**
 
-* [starport tools](#starport-tools)	 - Tools for advanced users
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
 
 
-## starport version
+## ignite version
 
 Print the current build information
 
 ```
-starport version [flags]
+ignite version [flags]
 ```
 
 **Options**
@@ -1036,5 +1107,5 @@ starport version [flags]
 
 **SEE ALSO**
 
-* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
