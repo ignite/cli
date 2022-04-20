@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"strings"
 
 	"golang.org/x/mod/module"
 
@@ -72,4 +73,23 @@ func ResolveDependencyPaths(ctx context.Context, src string, versions []module.V
 	}
 
 	return paths, nil
+}
+
+// FormatPackageName formats a protocol buffer package name by removing
+// duplicated elements from the path.
+// Duplicated elements are removed when they match with their parent.
+func FormatPackageName(path ...string) string {
+	var (
+		parent   string
+		elements []string
+	)
+
+	for _, e := range path {
+		if e != parent {
+			elements = append(elements, e)
+			parent = e
+		}
+	}
+
+	return strings.Join(elements, ".")
 }
