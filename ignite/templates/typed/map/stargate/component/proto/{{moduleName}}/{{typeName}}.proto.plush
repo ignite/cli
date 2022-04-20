@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
+package <%= formatPackageName(formatOwnerName(OwnerName), AppName, ModuleName) %>;
 
 option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";<%= for (importName) in mergeCustomImports(Fields, Indexes) { %>
 import "<%= ModuleName %>/<%= importName %>.proto"; <% } %><%= for (importName) in mergeProtoImports(Fields, Indexes) { %>
