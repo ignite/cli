@@ -4,8 +4,10 @@ package events
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/gookit/color"
+	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 )
 
 type (
@@ -34,6 +36,7 @@ type (
 const (
 	StatusOngoing Status = iota
 	StatusDone
+	StatusInfo
 )
 
 // TextColor sets the text color
@@ -64,6 +67,11 @@ func (e Event) IsOngoing() bool {
 	return e.Status == StatusOngoing
 }
 
+// IsInfo checks if event is not state changing.
+func (e Event) IsInfo() bool {
+	return e.Status == StatusInfo
+}
+
 // Text returns the text state of event.
 func (e Event) Text() string {
 	text := e.Description
@@ -71,6 +79,20 @@ func (e Event) Text() string {
 		text = fmt.Sprintf("%s...", e.Description)
 	}
 	return e.TextColor.Render(text)
+}
+
+// PrintTo writes event to the provided io.Writer
+func (e Event) PrintTo(out io.Writer) error {
+	var err error
+	if e.IsInfo() {
+		_, err = fmt.Fprintf(out, "%s\n", e.Text())
+	} else {
+		if e.Icon == "" {
+			e.Icon = clispinner.OK
+		}
+		_, err = fmt.Fprintf(out, "%s %s\n", e.Icon, e.Text())
+	}
+	return err
 }
 
 // Bus is a send/receive event bus.

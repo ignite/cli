@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -88,10 +87,17 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	}
 	binaryDir := filepath.Dir(filepath.Join(goenv.Bin(), binaryName))
 
-	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
-	fmt.Println("\nYou can start your node by running the following command:")
+	nb.EventBus.Send(events.New(events.StatusDone, fmt.Sprintf("Chain is prepared for launch")))
 	commandStr := fmt.Sprintf("%s start --home %s", binaryName, chainHome)
-	fmt.Printf("\t%s/%s\n", binaryDir, infoColor(commandStr))
-
+	nb.EventBus.Send(
+		events.New(
+			events.StatusInfo,
+			fmt.Sprintf(
+				"You can start your node by running the following command:\n\t%s/%s",
+				binaryDir,
+				infoColor(commandStr),
+			),
+		),
+	)
 	return nil
 }

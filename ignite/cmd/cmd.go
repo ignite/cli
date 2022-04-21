@@ -84,6 +84,7 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 
 func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 	defer wg.Done()
+	infoEventsQueue := make([]events.Event, 0)
 
 	for event := range bus {
 		switch event.Status {
@@ -91,12 +92,22 @@ func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 			s.SetText(event.Text())
 			s.Start()
 		case events.StatusDone:
-			icon := event.Icon
-			if icon == "" {
-				icon = clispinner.OK
+			if event.Icon == "" {
+				event.Icon = clispinner.OK
 			}
 			s.Stop()
-			fmt.Printf("%s %s\n", icon, event.Text())
+			event.PrintTo(os.Stdout)
+			// print all queued info events and clear the queue
+			for _, e := range infoEventsQueue {
+				e.PrintTo(os.Stdout)
+			}
+			infoEventsQueue = nil
+		case events.StatusInfo:
+			if !s.IsActive() {
+				event.PrintTo(os.Stdout)
+			} else {
+				infoEventsQueue = append(infoEventsQueue, event)
+			}
 		}
 	}
 }

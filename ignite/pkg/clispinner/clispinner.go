@@ -33,6 +33,9 @@ func (s *Spinner) SetText(text string) *Spinner {
 	s.sp.Unlock()
 	return s
 }
+func (s *Spinner) IsActive() bool {
+	return s.sp.Active()
+}
 
 // SetPrefix sets the prefix for spinner.
 func (s *Spinner) SetPrefix(text string) *Spinner {

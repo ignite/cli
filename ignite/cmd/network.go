@@ -72,24 +72,24 @@ type NetworkBuilder struct {
 	AccountRegistry cosmosaccount.Registry
 	Spinner         *clispinner.Spinner
 
-	ev  events.Bus
-	wg  *sync.WaitGroup
-	cmd *cobra.Command
-	cc  cosmosclient.Client
+	EventBus events.Bus
+	wg       *sync.WaitGroup
+	cmd      *cobra.Command
+	cc       cosmosclient.Client
 }
 
 func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
 	var err error
 
 	n := NetworkBuilder{
-		Spinner: clispinner.New(),
-		ev:      events.NewBus(),
-		wg:      &sync.WaitGroup{},
-		cmd:     cmd,
+		Spinner:  clispinner.New(),
+		EventBus: events.NewBus(),
+		wg:       &sync.WaitGroup{},
+		cmd:      cmd,
 	}
 
 	n.wg.Add(1)
-	go printEvents(n.wg, n.ev, n.Spinner)
+	go printEvents(n.wg, n.EventBus, n.Spinner)
 
 	if n.cc, err = getNetworkCosmosClient(cmd); err != nil {
 		n.Cleanup()
@@ -102,7 +102,7 @@ func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
 }
 
 func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...networkchain.Option) (*networkchain.Chain, error) {
-	options = append(options, networkchain.CollectEvents(n.ev))
+	options = append(options, networkchain.CollectEvents(n.EventBus))
 
 	if home := getHome(n.cmd); home != "" {
 		options = append(options, networkchain.WithHome(home))
@@ -124,14 +124,14 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 		}
 	}
 
-	options = append(options, network.CollectEvents(n.ev))
+	options = append(options, network.CollectEvents(n.EventBus))
 
 	return network.New(*cosmos, account, options...), nil
 }
 
 func (n NetworkBuilder) Cleanup() {
 	n.Spinner.Stop()
-	n.ev.Shutdown()
+	n.EventBus.Shutdown()
 	n.wg.Wait()
 }
 
