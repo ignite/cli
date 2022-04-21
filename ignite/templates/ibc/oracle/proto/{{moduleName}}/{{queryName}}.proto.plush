@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= formatPackageName(formatOwnerName(ownerName), moduleName) %>;
+package <%= formatPackageName(ownerName, appName, moduleName) %>;
 
 option go_package = "<%= ModulePath %>/x/<%= moduleName %>/types";
 
