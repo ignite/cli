@@ -3,6 +3,7 @@ package modulecreate
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
@@ -47,6 +48,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
@@ -55,11 +57,10 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("params", opts.Params)
 	ctx.Set("isIBC", opts.IsIBC)
+	ctx.Set("apiPath", formatAPIPath(opts.OwnerName, opts.AppName, opts.ModuleName))
 
 	// Used for proto package name
 	ctx.Set("formatPackageName", protopath.FormatPackageName)
-	// TODO: formatOwnerName can be removed once the API query path is refactored
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
@@ -207,4 +208,15 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
+}
+
+func formatAPIPath(ownerName, appName, moduleName string) string {
+	path := []string{"", ownerName}
+	if appName != ownerName {
+		path = append(path, appName)
+	}
+
+	path = append(path, moduleName)
+
+	return strings.Join(path, "/")
 }

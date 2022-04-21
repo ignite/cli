@@ -13,7 +13,7 @@ option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/<%= formatOwnerName(ownerName) %>/<%= appName %>/<%= moduleName %>/params";
+    option (google.api.http).get = "<%= apiPath %>/params";
   }
   // this line is used by starport scaffolding # 2
 }
