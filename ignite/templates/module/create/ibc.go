@@ -41,7 +41,6 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 	ctx.Set("formatPackageName", protopath.FormatPackageName)
 
 	plushhelpers.ExtendPlushContext(ctx)

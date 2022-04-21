@@ -11,7 +11,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/protopath"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite-hq/cli/ignite/templates/module"
 	"github.com/ignite-hq/cli/ignite/templates/typed"
@@ -40,7 +39,6 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 	ctx.Set("ownerName", opts.OwnerName)
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 	ctx.Set("formatPackageName", protopath.FormatPackageName)
 
 	plushhelpers.ExtendPlushContext(ctx)

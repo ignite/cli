@@ -57,8 +57,9 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("isIBC", opts.IsIBC)
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 	ctx.Set("formatPackageName", protopath.FormatPackageName)
+	// TODO: formatOwnerName can be removed once the API query path is refactored
+	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
