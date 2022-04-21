@@ -70,7 +70,7 @@ func App(path string) (Scaffolder, error) {
 }
 
 func owner(modulePath string) string {
-	user, _, _ := gomodulepath.ExtractUserAndRepoNames(modulePath)
+	user, _, _ := gomodulepath.ExtractUserRepoNames(modulePath)
 	return user
 }
 
@@ -111,7 +111,7 @@ func protoc(projectPath, gomodPath string) error {
 			cosmosgen.WithVuexGeneration(
 				false,
 				func(m module.Module) string {
-					user, repo, _ := gomodulepath.ExtractUserAndRepoNames(m.Pkg.GoImportName)
+					user, repo, _ := gomodulepath.ExtractUserRepoNames(m.Pkg.GoImportName)
 					return filepath.Join(storeRootPath, user, repo, m.Pkg.Name, "module")
 				},
 				storeRootPath,

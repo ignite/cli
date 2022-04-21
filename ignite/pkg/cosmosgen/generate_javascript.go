@@ -163,7 +163,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	user, repo, err := gomodulepath.ExtractUserAndRepoNames(chainPath.RawPath)
+	user, repo, err := gomodulepath.ExtractUserRepoNames(chainPath.RawPath)
 	if err != nil {
 		return err
 	}

@@ -66,7 +66,7 @@ func generate(
 	absRoot string,
 	noDefaultModule bool,
 ) error {
-	user, repo, err := gomodulepath.ExtractUserAndRepoNames(pathInfo.RawPath)
+	user, repo, err := gomodulepath.ExtractUserRepoNames(pathInfo.RawPath)
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,6 @@ import (
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 )
 
@@ -80,9 +79,34 @@ func Find(path string) (parsed Path, appPath string, err error) {
 	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
-// HasDomainNamePrefix checks is a Go module path has a domain name as prefix.
-// The first path element is assumed to be a domain when it contains a ".".
-func HasDomainNamePrefix(path string) bool {
+// ExtractUserRepoNames extracts the user and repository names from a go module path.
+func ExtractUserRepoNames(path string) (user string, repo string, err error) {
+	if path == "" {
+		return "", "", errors.New("module path is empty")
+	}
+
+	items := strings.Split(path, "/")
+
+	// Remove the first path item if it is assumed to be a domain name
+	if len(items) > 1 && strings.Contains(items[0], ".") {
+		items = items[1:]
+	}
+
+	count := len(items)
+	if count == 1 {
+		// The path is a single name that its used as user and repository name
+		user = items[0]
+		repo = user
+	} else {
+		// The last two items in the path define the user and repository names
+		user = items[count-2]
+		repo = items[count-1]
+	}
+
+	return user, repo, nil
+}
+
+func hasDomainNamePrefix(path string) bool {
 	if path == "" {
 		return false
 	}
@@ -92,36 +116,9 @@ func HasDomainNamePrefix(path string) bool {
 	return strings.Contains(name, ".")
 }
 
-// ExtractUserAndRepoNames extracts the user and repository names from a go module path.
-// Path must be a URL path, e.g. github.com/tendermint/starport, in which case the user
-// value is "tendermint" and the repo name is "starport", or it can be a local path,
-// e.g. "starport" or "starport/x" which results in the same "starport" value for the
-// user and repo names.
-func ExtractUserAndRepoNames(path string) (string, string, error) {
-	if HasDomainNamePrefix(path) {
-		// Use the path element as user and repo names when the path
-		// contains a short URL as value, e.g. domain.com/starport
-		if v := strings.SplitN(path, "/", 3); len(v) == 2 {
-			return v[1], v[1], nil
-		}
-
-		g, err := giturl.Parse(path)
-		if err != nil {
-			return "", "", err
-		}
-
-		return g.User, g.Repo, nil
-	}
-
-	// The first path element defines the user and repository names
-	name, _, _ := strings.Cut(path, "/")
-
-	return name, name, nil
-}
-
 func validateRawPath(path string) error {
 	// A raw path should be either a URL, a single name or a path
-	if HasDomainNamePrefix(path) {
+	if hasDomainNamePrefix(path) {
 		return validateURLPath(path)
 	}
 	return validateNamePath(path)
