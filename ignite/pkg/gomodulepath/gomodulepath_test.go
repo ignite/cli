@@ -173,12 +173,12 @@ func TestExtractUserRepoNamesWithEmptyPath(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestValidateURLPath(t *testing.T) {
-	require.NoError(t, validateURLPath("github.com/ignite-hq/cli"))
+func TestValidateURIPath(t *testing.T) {
+	require.NoError(t, validateURIPath("github.com/ignite-hq/cli"))
 }
 
-func TestValidateURLPathWithInvalidPath(t *testing.T) {
-	require.Error(t, validateURLPath("github/ignite-hq/cli"))
+func TestValidateURIPathWithInvalidPath(t *testing.T) {
+	require.Error(t, validateURIPath("github/ignite-hq/cli"))
 }
 
 func TestValidateNamePath(t *testing.T) {

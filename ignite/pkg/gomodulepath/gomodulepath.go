@@ -117,14 +117,14 @@ func hasDomainNamePrefix(path string) bool {
 }
 
 func validateRawPath(path string) error {
-	// A raw path should be either a URL, a single name or a path
+	// A raw path should be either a URI, a single name or a path
 	if hasDomainNamePrefix(path) {
-		return validateURLPath(path)
+		return validateURIPath(path)
 	}
 	return validateNamePath(path)
 }
 
-func validateURLPath(path string) error {
+func validateURIPath(path string) error {
 	if err := module.CheckPath(path); err != nil {
 		return fmt.Errorf("app name is an invalid go module name: %w", err)
 	}
