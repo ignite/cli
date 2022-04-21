@@ -10,6 +10,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
+	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 )
 
 var (
@@ -75,22 +76,14 @@ func ResolveDependencyPaths(ctx context.Context, src string, versions []module.V
 	return paths, nil
 }
 
-// FormatPackageName formats a protocol buffer package name by removing
-// duplicated elements from the path.
-// Duplicated elements are removed when they match with their parent.
-// TODO: Move to a better location ?
-func FormatPackageName(path ...string) string {
-	var (
-		parent   string
-		elements []string
-	)
-
-	for _, e := range path {
-		if e != parent {
-			elements = append(elements, e)
-			parent = e
-		}
+// FormatPackageName formats a protocol buffer package name from a module path.
+func FormatPackageName(ownerName, appName, moduleName string) string {
+	path := []string{xstrings.FormatUsername(ownerName)}
+	if appName != ownerName {
+		path = append(path, appName)
 	}
 
-	return strings.Join(elements, ".")
+	path = append(path, moduleName)
+
+	return strings.Join(path, ".")
 }

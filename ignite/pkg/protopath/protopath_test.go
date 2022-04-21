@@ -8,50 +8,59 @@ import (
 
 func TestFormatPackageName(t *testing.T) {
 	cases := []struct {
-		name string
-		path []string
-		want string
+		name   string
+		owner  string
+		app    string
+		module string
+		want   string
 	}{
 		{
-			name: "full",
-			path: []string{"a", "b", "c"},
-			want: "a.b.c",
+			name:   "main",
+			owner:  "ignite",
+			app:    "cli",
+			module: "cli",
+			want:   "ignite.cli.cli",
 		},
 		{
-			name: "short",
-			path: []string{"a", "b"},
-			want: "a.b",
+			name:   "main with same owner and app names",
+			owner:  "ignite",
+			app:    "ignite",
+			module: "cli",
+			want:   "ignite.cli",
 		},
 		{
-			name: "single",
-			path: []string{"a"},
-			want: "a",
+			name:   "main with dash",
+			owner:  "ignite-hq",
+			app:    "cli",
+			module: "cli",
+			want:   "ignitehq.cli.cli",
 		},
 		{
-			name: "triplicated",
-			path: []string{"a", "a", "a"},
-			want: "a",
+			name:   "main with number prefix",
+			owner:  "0ignite",
+			app:    "cli",
+			module: "cli",
+			want:   "_0ignite.cli.cli",
 		},
 		{
-			name: "duplicated prefix",
-			path: []string{"a", "a", "b"},
-			want: "a.b",
+			name:   "main with number prefix and dash",
+			owner:  "0ignite-hq",
+			app:    "cli",
+			module: "cli",
+			want:   "_0ignitehq.cli.cli",
 		},
 		{
-			name: "duplicated suffix",
-			path: []string{"a", "b", "b"},
-			want: "a.b",
-		},
-		{
-			name: "empty",
-			path: []string{},
-			want: "",
+			name:   "module",
+			owner:  "ignite",
+			app:    "cli",
+			module: "bank",
+			want:   "ignite.cli.bank",
 		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.want, FormatPackageName(tt.path...))
+			require.Equal(t, tt.want, FormatPackageName(tt.owner, tt.app, tt.module))
 		})
 	}
 }
