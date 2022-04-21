@@ -124,7 +124,7 @@ func TestServeStargateWithName(t *testing.T) {
 	var (
 		env     = envtest.New(t)
 		appName = "sgblog5"
-		root 		= env.TmpDir()
+		root    = env.TmpDir()
 	)
 
 	env.Exec("scaffold an app",
