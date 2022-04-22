@@ -11,7 +11,7 @@ Now that you have made the required updates to you new chain, it's time to test 
 To start your blockchain in development, run the following command:
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
 The `serve` command builds the chain binary file, initializes a data directory, and starts a node in development. 
@@ -41,7 +41,7 @@ The results:
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.scavenge.scavenge.MsgSubmitScavenge",
+        "@type": "/username.scavenge.scavenge.MsgSubmitScavenge",
         "creator": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh",
         "solutionHash": "2f9457a6e8fb202f9e10389a143a383106268c460743dd59d723c0f82d9ba906",
         "description": "What's brown and sticky?",
@@ -165,7 +165,7 @@ The results:
     "body": {
       "messages": [
         {
-          "@type": "/cosmonaut.scavenge.scavenge.MsgSubmitScavenge",
+          "@type": "/username.scavenge.scavenge.MsgSubmitScavenge",
           "creator": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh",
           "solutionHash": "2f9457a6e8fb202f9e10389a143a383106268c460743dd59d723c0f82d9ba906",
           "description": "What's brown and sticky?",
@@ -238,7 +238,7 @@ The results:
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.scavenge.scavenge.MsgCommitSolution",
+        "@type": "/username.scavenge.scavenge.MsgCommitSolution",
         "creator": "cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p",
         "solutionHash": "2f9457a6e8fb202f9e10389a143a383106268c460743dd59d723c0f82d9ba906",
         "solutionScavengerHash": "461d54ec0bbb1d696a79af80d7f63e4c6df262d76309423da37189453eaec127"
@@ -296,7 +296,7 @@ The results:
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.scavenge.scavenge.MsgRevealSolution",
+        "@type": "/username.scavenge.scavenge.MsgRevealSolution",
         "creator": "cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p",
         "solution": "A stick"
       }

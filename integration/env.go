@@ -17,20 +17,20 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
-	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/availableport"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
+	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
+	"github.com/ignite-hq/cli/ignite/pkg/xexec"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 )
 
 const (
 	ServeTimeout = time.Minute * 15
-	StarportApp  = "starport"
+	IgniteApp    = "ignite"
 	ConfigYML    = "config.yml"
 )
 
@@ -52,8 +52,8 @@ func New(t *testing.T) Env {
 	}
 	t.Cleanup(cancel)
 
-	if !xexec.IsCommandAvailable(StarportApp) {
-		t.Fatal("starport needs to be installed")
+	if !xexec.IsCommandAvailable(IgniteApp) {
+		t.Fatal("ignite needs to be installed")
 	}
 
 	return e
@@ -170,7 +170,7 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
-				StarportApp,
+				IgniteApp,
 				append([]string{
 					"scaffold",
 					"chain",
@@ -208,7 +208,7 @@ func (e Env) Serve(msg, path, home, configPath string, options ...ExecOption) (o
 
 	return e.Exec(msg,
 		step.NewSteps(step.New(
-			step.Exec(StarportApp, serveCommand...),
+			step.Exec(IgniteApp, serveCommand...),
 			step.Workdir(path),
 		)),
 		options...,
@@ -220,7 +220,7 @@ func (e Env) Simulate(appPath string, numBlocks, blockSize int) {
 	e.Exec("running the simulation tests",
 		step.NewSteps(step.New(
 			step.Exec(
-				StarportApp,
+				IgniteApp,
 				"chain",
 				"simulate",
 				"--numBlocks",

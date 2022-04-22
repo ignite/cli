@@ -25,7 +25,7 @@ To define the keeper for the buy name transaction, add this code to the `msg_ser
 // x/nameservice/keeper/msg_server_buy_name.go
 import (
 	"context"
-	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	"github.com/username/nameservice/x/nameservice/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -78,9 +78,9 @@ When you scaffolded the `nameservice` module you used `--dep bank` to specify a 
 
 This dependency automatically created an `expected_keepers.go` file with a `BankKeeper` interface. 
 
-The `BuyName` transaction uses `SendCoins` and `SubtractCoins` methods from the `bank` module. 
+The `BuyName` transaction uses `SendCoins` and `SendCoinsFromAccountToModule` methods from the `bank` module. 
 
-Edit the `expected_keepers.go` file to add `SendCoins` and `SubtractCoins` to be able to use it in the keeper methods of the `nameservice` module.
+Edit the `expected_keepers.go` file to add `SendCoins` and `SendCoinsFromAccountToModule` to be able to use it in the keeper methods of the `nameservice` module.
 
 ```go
 // x/nameservice/types/expected_keepers.go
@@ -90,7 +90,7 @@ import (
 
 type BankKeeper interface {
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-  SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 ```
 
@@ -102,7 +102,7 @@ To define the keeper for the set name transaction, add this code to the `msg_ser
 // x/nameservice/keeper/msg_server_set_name.go
 import (
 	"context"
-	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	"github.com/username/nameservice/x/nameservice/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -137,7 +137,7 @@ To define the keeper for the delete name transaction, add this code to the `msg_
 // x/nameservice/keeper/msg_server_delete_name.go
 import (
 	"context"
-	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	"github.com/username/nameservice/x/nameservice/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
