@@ -92,7 +92,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					return errors.New("expected alice and bob accounts to be created")
 				}
 
-				nodeAddr, err := xurl.TCP(host.RPC) 
+				nodeAddr, err := xurl.TCP(host.RPC)
 				if err != nil {
 					return err
 				}

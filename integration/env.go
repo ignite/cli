@@ -347,7 +347,7 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
-	
+
 	addr, err := xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
 	require.NoError(e.t, err)
 
