@@ -83,7 +83,7 @@ func (n Node) Info(ctx context.Context) (Info, error) {
 	validators := make([]spntypes.Validator, len(header.ValidatorSet.Validators))
 	for i, validator := range header.ValidatorSet.Validators {
 		validators[i] = spntypes.NewValidator(
-			validator.PubKey.String(),
+			base64.StdEncoding.EncodeToString(validator.PubKey.GetEd25519()),
 			validator.ProposerPriority,
 			validator.VotingPower,
 		)

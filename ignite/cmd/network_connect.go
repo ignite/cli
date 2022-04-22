@@ -7,7 +7,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/node"
+	"github.com/ignite-hq/cli/ignite/services/network/node"
 )
 
 // NewNetworkConnect connects the monitoring modules of launched chains with SPN
@@ -18,6 +18,8 @@ func NewNetworkConnect() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkConnectHandler,
 	}
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
