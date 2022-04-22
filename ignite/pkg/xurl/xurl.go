@@ -3,6 +3,7 @@ package xurl
 import (
 	"errors"
 	"fmt"
+	"net"
 	"net/url"
 	"strings"
 )
@@ -14,7 +15,7 @@ const (
 	schemeWS    = "ws"
 )
 
-// TCP unsures that s url contains TCP protocol identifier.
+// TCP unsures that a URL contains a TCP protocol identifier.
 func TCP(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -27,7 +28,7 @@ func TCP(s string) (string, error) {
 	return u.String(), nil
 }
 
-// HTTP unsures that s url contains HTTP protocol identifier.
+// HTTP unsures that a URL contains an HTTP protocol identifier.
 func HTTP(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -40,7 +41,7 @@ func HTTP(s string) (string, error) {
 	return u.String(), nil
 }
 
-// HTTPS unsures that s url contains HTTPS protocol identifier.
+// HTTPS unsures that a URL contains an HTTPS protocol identifier.
 func HTTPS(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -53,7 +54,7 @@ func HTTPS(s string) (string, error) {
 	return u.String(), nil
 }
 
-// WS unsures that s url contains WS protocol identifier.
+// WS unsures that a URL contains a WS protocol identifier.
 func WS(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -127,5 +128,24 @@ func parseURL(s string) (*url.URL, error) {
 		return nil, errors.New("url is empty")
 	}
 
+	// Handle the case where the URI is an IP:PORT or HOST:PORT
+	// without scheme prefix because that case can't be URL parsed
+	if isAddressPort(s) {
+		return &url.URL{Host: s}, nil
+	}
+
 	return url.Parse(Address(s))
+}
+
+func isAddressPort(s string) bool {
+	// Check that the value doesn't contain a URI path
+	if strings.Index(s, "/") != -1 {
+		return false
+	}
+
+	// Use the net split function to support IPv6 addresses
+	if _, _, err := net.SplitHostPort(s); err != nil {
+		return false
+	}
+	return true
 }

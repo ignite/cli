@@ -60,6 +60,16 @@ func TestTCP(t *testing.T) {
 			want: "tcp://github.com/ignite-hq/cli",
 		},
 		{
+			name: "with ip and port",
+			addr: "0.0.0.0:4500",
+			want: "tcp://0.0.0.0:4500",
+		},
+		{
+			name: "with localhost and port",
+			addr: "localhost:4500",
+			want: "tcp://localhost:4500",
+		},
+		{
 			name:  "with invalid url",
 			addr:  "tcp://github.com:x",
 			error: true,
@@ -105,6 +115,16 @@ func TestHTTP(t *testing.T) {
 			name: "with invalid scheme",
 			addr: "ftp://github.com/ignite-hq/cli",
 			want: "http://github.com/ignite-hq/cli",
+		},
+		{
+			name: "with ip and port",
+			addr: "0.0.0.0:4500",
+			want: "http://0.0.0.0:4500",
+		},
+		{
+			name: "with localhost and port",
+			addr: "localhost:4500",
+			want: "http://localhost:4500",
 		},
 		{
 			name:  "with invalid url",
@@ -154,6 +174,16 @@ func TestHTTPS(t *testing.T) {
 			want: "https://github.com/ignite-hq/cli",
 		},
 		{
+			name: "with ip and port",
+			addr: "0.0.0.0:4500",
+			want: "https://0.0.0.0:4500",
+		},
+		{
+			name: "with localhost and port",
+			addr: "localhost:4500",
+			want: "https://localhost:4500",
+		},
+		{
 			name:  "with invalid url",
 			addr:  "https://github.com:x",
 			error: true,
@@ -199,6 +229,16 @@ func TestWS(t *testing.T) {
 			name: "with invalid scheme",
 			addr: "ftp://github.com/ignite-hq/cli",
 			want: "ws://github.com/ignite-hq/cli",
+		},
+		{
+			name: "with ip and port",
+			addr: "0.0.0.0:4500",
+			want: "ws://0.0.0.0:4500",
+		},
+		{
+			name: "with localhost and port",
+			addr: "localhost:4500",
+			want: "ws://localhost:4500",
 		},
 		{
 			name:  "with invalid url",
