@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -99,16 +98,6 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, 0, err
 		}
 
-		n.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
-		if o.genesis.TarballPath() != "" {
-			n.ev.Send(
-				events.New(events.StatusDone,
-					fmt.Sprintf("Extracted custom Genesis from tarball at %s", o.genesis.TarballPath()),
-				),
-			)
-		} else {
-			n.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
-		}
 		chainID, err = o.genesis.ChainID()
 		if err != nil {
 			return 0, 0, 0, err
