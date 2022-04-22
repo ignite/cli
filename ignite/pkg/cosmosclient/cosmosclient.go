@@ -30,6 +30,7 @@ import (
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
@@ -243,6 +244,11 @@ func (r Response) Decode(message proto.Message) error {
 		TypeUrl: resData.MsgType + "Response",
 		Value:   resData.Data,
 	}, message)
+}
+
+// Status returns the node status
+func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
+	return c.RPC.Status(ctx)
 }
 
 // BroadcastTx creates and broadcasts a tx with given messages for account.
