@@ -3,6 +3,7 @@ package cosmosclient
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -26,11 +27,14 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v2/modules/core/23-commitment/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	"github.com/tendermint/tendermint/libs/bytes"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
@@ -54,35 +58,45 @@ const (
 	defaultFaucetMinAmount = 100
 )
 
-// Client is a client to access your chain by querying and broadcasting transactions.
-type Client struct {
-	// RPC is Tendermint RPC.
-	RPC *rpchttp.HTTP
+type (
+	// Client is a client to access your chain by querying and broadcasting transactions.
+	Client struct {
+		// RPC is Tendermint RPC.
+		RPC *rpchttp.HTTP
 
-	// Factory is a Cosmos SDK tx factory.
-	Factory tx.Factory
+		// Factory is a Cosmos SDK tx factory.
+		Factory tx.Factory
 
-	// context is a Cosmos SDK client context.
-	context client.Context
+		// context is a Cosmos SDK client context.
+		context client.Context
 
-	// AccountRegistry is the retistry to access accounts.
-	AccountRegistry cosmosaccount.Registry
+		// AccountRegistry is the retistry to access accounts.
+		AccountRegistry cosmosaccount.Registry
 
-	addressPrefix string
+		addressPrefix string
 
-	nodeAddress string
-	out         io.Writer
-	chainID     string
+		nodeAddress string
+		out         io.Writer
+		chainID     string
 
-	useFaucet       bool
-	faucetAddress   string
-	faucetDenom     string
-	faucetMinAmount uint64
+		useFaucet       bool
+		faucetAddress   string
+		faucetDenom     string
+		faucetMinAmount uint64
 
-	homePath           string
-	keyringServiceName string
-	keyringBackend     cosmosaccount.KeyringBackend
-}
+		homePath           string
+		keyringServiceName string
+		keyringBackend     cosmosaccount.KeyringBackend
+	}
+
+	// IBC is the validator consensus info
+	IBC struct {
+		Timestamp          string                `json:"Timestamp"`
+		Root               string                `json:"Root"`
+		NextValidatorsHash string                `json:"NextValidatorsHash"`
+		ValidatorSet       *tmtypes.ValidatorSet `json:"ValidatorSet"`
+	}
+)
 
 // Option configures your client.
 type Option func(*Client)
@@ -244,6 +258,45 @@ func (r Response) Decode(message proto.Message) error {
 		TypeUrl: resData.MsgType + "Response",
 		Value:   resData.Data,
 	}, message)
+}
+
+// IBCInfo returns the appropriate tendermint consensus state by given height
+// and the validator set for the next height
+func (c Client) IBCInfo(height int64) (*IBC, error) {
+	node, err := c.Context().GetNode()
+	if err != nil {
+		return nil, err
+	}
+
+	commit, err := node.Commit(context.Background(), &height)
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		page  = 1
+		count = 10_000
+	)
+	validators, err := node.Validators(context.Background(), &height, &page, &count)
+	if err != nil {
+		return nil, err
+	}
+	validatorSet := tmtypes.NewValidatorSet(validators.Validators)
+
+	nextHeight := height + 1
+	nextVals, err := node.Validators(context.Background(), &nextHeight, &page, &count)
+	if err != nil {
+		return nil, err
+	}
+
+	hash := tmtypes.NewValidatorSet(nextVals.Validators).Hash()
+	root := commitmenttypes.NewMerkleRoot(commit.AppHash)
+	return &IBC{
+		Timestamp:          commit.Time.Format(time.RFC3339Nano),
+		NextValidatorsHash: bytes.HexBytes(hash).String(),
+		Root:               base64.StdEncoding.EncodeToString(root.Hash),
+		ValidatorSet:       validatorSet,
+	}, nil
 }
 
 // Status returns the node status

@@ -7,7 +7,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/node"
 )
 
 // NewNetworkConnect connects the monitoring modules of launched chains with SPN
@@ -37,12 +36,12 @@ func networkConnectHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	nodeAPI := args[1]
-	node, err := node.New(cmd.Context(), nodeAPI)
+	node, err := network.NewNode(cmd.Context(), nodeAPI)
 	if err != nil {
 		return err
 	}
 
-	nodeInfo, err := node.Info(cmd.Context())
+	ibcInfo, err := node.IBCInfo(cmd.Context())
 	if err != nil {
 		return err
 	}
@@ -54,10 +53,10 @@ func networkConnectHandler(cmd *cobra.Command, args []string) error {
 
 	clientID, err := n.CreateClient(
 		launchID,
-		nodeInfo.ConsensusState,
-		nodeInfo.ValidatorSet,
-		nodeInfo.UnbondingTime,
-		nodeInfo.Height,
+		ibcInfo.ConsensusState,
+		ibcInfo.ValidatorSet,
+		ibcInfo.UnbondingTime,
+		ibcInfo.Height,
 	)
 	if err != nil {
 		return err

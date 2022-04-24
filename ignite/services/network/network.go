@@ -27,6 +27,7 @@ type CosmosClient interface {
 	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
+	IBCInfo(height int64) (*cosmosclient.IBC, error)
 }
 
 // Network is network builder.
