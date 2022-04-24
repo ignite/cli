@@ -9,20 +9,20 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
-// NewNetworkConnect connects the monitoring modules of launched chains with SPN
-func NewNetworkConnect() *cobra.Command {
+// NewNetworkClientCreate connects the monitoring modules of launched chains with SPN
+func NewNetworkClientCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "connect [launch-id] [node-api-url]",
+		Use:   "create [launch-id] [node-api-url]",
 		Short: "Connect the monitoring modules of launched chains with SPN",
 		Args:  cobra.ExactArgs(2),
-		RunE:  networkConnectHandler,
+		RunE:  networkClientCreateHandler,
 	}
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
-func networkConnectHandler(cmd *cobra.Command, args []string) error {
+func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
