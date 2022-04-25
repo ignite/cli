@@ -1,8 +1,12 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
+	"path/filepath"
 
+	"github.com/go-git/go-git/v5"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
@@ -33,17 +37,17 @@ CRUD stands for "create, read, update, delete".`,
 	}
 
 	c.AddCommand(NewScaffoldChain())
-	c.AddCommand(NewScaffoldModule())
-	c.AddCommand(NewScaffoldList())
-	c.AddCommand(NewScaffoldMap())
-	c.AddCommand(NewScaffoldSingle())
-	c.AddCommand(NewScaffoldType())
-	c.AddCommand(NewScaffoldMessage())
-	c.AddCommand(NewScaffoldQuery())
-	c.AddCommand(NewScaffoldPacket())
-	c.AddCommand(NewScaffoldBandchain())
-	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldFlutter())
+	c.AddCommand(addGitChangesVerifier(NewScaffoldModule()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldList()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldMap()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldSingle()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldType()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldMessage()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldQuery()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldPacket()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldBandchain()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldVue()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldFlutter()))
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
@@ -107,6 +111,51 @@ func scaffoldType(
 	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil
+}
+
+func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
+	cmd.Flags().AddFlagSet(flagSetYes())
+
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		appPath := flagGetPath(cmd)
+
+		gitStatus, _ := getGitStatus(appPath)
+
+		if !getYes(cmd) && !gitStatus.IsClean() {
+			prompt := promptui.Prompt{
+				Label:     "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
+				IsConfirm: true,
+			}
+			if _, err := prompt.Run(); err != nil {
+				return errors.New("said no")
+			}
+		}
+		return nil
+	}
+	return cmd
+}
+
+func getGitStatus(appPath string) (git.Status, error) {
+	appPath, err := filepath.Abs(appPath)
+	if err != nil {
+		return nil, err
+	}
+
+	repository, err := git.PlainOpen(appPath)
+	if err != nil {
+		return nil, err
+	}
+
+	w, err := repository.Worktree()
+	if err != nil {
+		return nil, err
+	}
+
+	ws, err := w.Status()
+	if err != nil {
+		return nil, err
+	}
+	return ws, nil
 }
 
 func flagSetScaffoldType() *flag.FlagSet {
