@@ -34,7 +34,7 @@ func RejectRequest(requestID uint64) Reviewal {
 
 // Requests fetches all the chain requests from SPN by launch id
 func (n Network) Requests(ctx context.Context, launchID uint64) ([]launchtypes.Request, error) {
-	res, err := launchtypes.NewQueryClient(n.cosmos.Context).RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
+	res, err := n.launchQuery.RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
 		LaunchID: launchID,
 	})
 	if err != nil {
@@ -45,7 +45,7 @@ func (n Network) Requests(ctx context.Context, launchID uint64) ([]launchtypes.R
 
 // Request fetches the chain request from SPN by launch and request id
 func (n Network) Request(ctx context.Context, launchID, requestID uint64) (launchtypes.Request, error) {
-	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Request(ctx, &launchtypes.QueryGetRequestRequest{
+	res, err := n.launchQuery.Request(ctx, &launchtypes.QueryGetRequestRequest{
 		LaunchID:  launchID,
 		RequestID: requestID,
 	})

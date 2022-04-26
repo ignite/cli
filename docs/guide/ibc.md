@@ -82,19 +82,19 @@ These `ignite scaffold list` commands create CRUD code for the following transac
 - Creating blog posts
 
   ```go
-  ignite scaffold list post title content --no-message --module blog
+  ignite scaffold list post title content creator --no-message --module blog
   ```
 
 - Processing acknowledgments for sent posts
 
   ```go
-  ignite scaffold list sentPost postID title chain --no-message --module blog
+  ignite scaffold list sentPost postID title chain creator --no-message --module blog
   ```
 
 - Managing post timeouts
 
   ```go
-  ignite scaffold list timedoutPost title chain --no-message --module blog
+  ignite scaffold list timedoutPost title chain creator --no-message --module blog
   ```
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
