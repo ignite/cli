@@ -57,6 +57,7 @@ The values are:
 - `amountDenom`: the token to be sold and in which quantity
 - `priceDenom`: the token selling price
 
+The `--module dex` flag specifies to scaffold the type in the `dex` module.
 
 ## Create the IBC Packets
 
