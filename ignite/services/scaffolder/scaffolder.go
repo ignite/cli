@@ -12,7 +12,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
@@ -110,10 +109,7 @@ func protoc(projectPath, gomodPath string) error {
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				func(m module.Module) string {
-					user, repo, _ := gomodulepath.ExtractUserRepoNames(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, user, repo, m.Pkg.Name, "module")
-				},
+				cosmosgen.VuexStoreModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
