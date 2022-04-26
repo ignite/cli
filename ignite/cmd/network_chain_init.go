@@ -2,17 +2,16 @@ package ignitecmd
 
 import (
 	"fmt"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 
-	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -50,12 +49,13 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
-
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
@@ -76,21 +76,17 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !getYes(cmd) && exist {
-		prompt := promptui.Prompt{
-			Label: fmt.Sprintf("The chain has already been initialized under: %s. Would you like to overwrite the home directory",
-				chainHome,
-			),
-			IsConfirm: true,
-		}
-		nb.Spinner.Stop()
-		if _, err := prompt.Run(); err != nil {
+		question := fmt.Sprintf(
+			"The chain has already been initialized under: %s. Would you like to overwrite the home directory",
+			chainHome,
+		)
+		if err := session.AskConfirm(question); err != nil {
 			fmt.Println("said no")
 			return nil
 		}
-		nb.Spinner.Start()
 	}
 
-	n, err := nb.Network()
+	n, err := nb.Network(network.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -100,7 +96,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkchain.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -120,26 +116,25 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, genesis.StakeDenom)
+	v, err := askValidatorInfo(cmd, session, genesis.StakeDenom)
 	if err != nil {
 		return err
 	}
-	nb.Spinner.SetText("Generating your Gentx")
-	nb.Spinner.Start()
+	session.StartSpinner("Generating your Gentx")
 
 	gentxPath, err := c.InitAccount(cmd.Context(), v, validatorAccount)
 	if err != nil {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Gentx generated: %s\n", clispinner.Bullet, gentxPath)
+	session.StopSpinner()
+	session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 
 	return nil
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(cmd *cobra.Command, stakeDenom string) (chain.Validator, error) {
+func askValidatorInfo(cmd *cobra.Command, session cliui.Session, stakeDenom string) (chain.Validator, error) {
 	var (
 		account, _         = cmd.Flags().GetString(flagValidatorAccount)
 		website, _         = cmd.Flags().GetString(flagValidatorWebsite)
@@ -186,5 +181,5 @@ func askValidatorInfo(cmd *cobra.Command, stakeDenom string) (chain.Validator, e
 			cliquiz.Required(),
 		),
 	)
-	return v, cliquiz.Ask(questions...)
+	return v, session.Ask(questions...)
 }

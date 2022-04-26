@@ -4,6 +4,7 @@ package events
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/gookit/color"
 )
@@ -34,6 +35,7 @@ type (
 const (
 	StatusOngoing Status = iota
 	StatusDone
+	StatusNeutral
 )
 
 // TextColor sets the text color
@@ -59,6 +61,21 @@ func New(status Status, description string, options ...Option) Event {
 	return ev
 }
 
+// NewOngoing creates a new StatusOngoing event
+func NewOngoing(description string) Event {
+	return New(StatusOngoing, description)
+}
+
+// NewNeutral creates a new StatusNeutral event
+func NewNeutral(description string) Event {
+	return New(StatusNeutral, description)
+}
+
+// NewDone creates a new StatusDone event
+func NewDone(description, icon string) Event {
+	return New(StatusDone, description, Icon(icon))
+}
+
 // IsOngoing checks if state change that triggered this event is still ongoing.
 func (e Event) IsOngoing() bool {
 	return e.Status == StatusOngoing
@@ -74,25 +91,53 @@ func (e Event) Text() string {
 }
 
 // Bus is a send/receive event bus.
-type Bus chan Event
+type (
+	Bus struct {
+		evchan chan Event
+		buswg  *sync.WaitGroup
+	}
+
+	BusOption func(*Bus)
+)
+
+func WithWaitGroup(wg *sync.WaitGroup) BusOption {
+	return func(bus *Bus) {
+		bus.buswg = wg
+	}
+}
 
 // NewBus creates a new event bus to send/receive events.
-func NewBus() Bus {
-	return make(Bus)
+func NewBus(options ...BusOption) *Bus {
+	bus := &Bus{
+		evchan: make(chan Event),
+	}
+
+	for _, apply := range options {
+		apply(bus)
+	}
+
+	return bus
 }
 
 // Send sends a new event to bus.
-func (b Bus) Send(e Event) {
-	if b == nil {
+func (b *Bus) Send(e Event) {
+	if b == nil || b.evchan == nil {
 		return
 	}
-	b <- e
+	if b.buswg != nil {
+		b.buswg.Add(1)
+	}
+	b.evchan <- e
+}
+
+func (b *Bus) Events() <-chan Event {
+	return b.evchan
 }
 
 // Shutdown shutdowns event bus.
-func (b Bus) Shutdown() {
-	if b == nil {
+func (b *Bus) Shutdown() {
+	if b.evchan == nil {
 		return
 	}
-	close(b)
+	close(b.evchan)
 }

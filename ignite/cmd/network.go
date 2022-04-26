@@ -1,12 +1,12 @@
 package ignitecmd
 
 import (
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -72,27 +72,20 @@ type NetworkBuilder struct {
 	AccountRegistry cosmosaccount.Registry
 	Spinner         *clispinner.Spinner
 
-	ev  events.Bus
+	ev  *events.Bus
 	wg  *sync.WaitGroup
 	cmd *cobra.Command
 	cc  cosmosclient.Client
 }
 
 func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
-	var err error
-
-	n := NetworkBuilder{
-		Spinner: clispinner.New(),
-		ev:      events.NewBus(),
-		wg:      &sync.WaitGroup{},
-		cmd:     cmd,
-	}
-
-	n.wg.Add(1)
-	go printEvents(n.wg, n.ev, n.Spinner)
+	var (
+		err error
+		n   = NetworkBuilder{cmd: cmd}
+	)
 
 	if n.cc, err = getNetworkCosmosClient(cmd); err != nil {
-		n.Cleanup()
+		//n.Cleanup()
 		return NetworkBuilder{}, err
 	}
 
@@ -102,8 +95,6 @@ func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
 }
 
 func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...networkchain.Option) (*networkchain.Chain, error) {
-	options = append(options, networkchain.CollectEvents(n.ev))
-
 	if home := getHome(n.cmd); home != "" {
 		options = append(options, networkchain.WithHome(home))
 	}
@@ -124,15 +115,7 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 		}
 	}
 
-	options = append(options, network.CollectEvents(n.ev))
-
 	return network.New(*cosmos, account, options...), nil
-}
-
-func (n NetworkBuilder) Cleanup() {
-	n.Spinner.Stop()
-	n.ev.Shutdown()
-	n.wg.Wait()
 }
 
 func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {

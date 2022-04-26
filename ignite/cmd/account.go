@@ -3,12 +3,11 @@ package ignitecmd
 import (
 	"os"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-
-	"github.com/ignite-hq/cli/ignite/pkg/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 )
 
 const (

@@ -8,15 +8,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/spf13/cobra"
 )
 
 const flagOut = "out"
@@ -67,7 +66,7 @@ func newNetworkChainShowInfo() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer nb.Cleanup()
+			//defer nb.Cleanup()
 			n, err := nb.Network()
 			if err != nil {
 				return err
@@ -122,7 +121,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer nb.Cleanup()
+			//defer nb.Cleanup()
 
 			n, err := nb.Network()
 			if err != nil {
@@ -177,7 +176,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			if err := os.Rename(genesisPath, out); err != nil {
 				return err
 			}
-			fmt.Printf("%s Genesis generated: %s\n", clispinner.Bullet, out)
+			fmt.Printf("%s Genesis generated: %s\n", icons.Bullet, out)
 
 			return nil
 		},
@@ -198,7 +197,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer nb.Cleanup()
+			//defer nb.Cleanup()
 			n, err := nb.Network()
 			if err != nil {
 				return err
@@ -255,7 +254,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 			if accountSummary.Len() > 0 {
 				fmt.Print(accountSummary.String())
 			} else {
-				fmt.Printf("%s %s\n", clispinner.Info, "empty chain account list")
+				fmt.Printf("%s %s\n", icons.Info, "empty chain account list")
 			}
 			return nil
 		},
@@ -273,7 +272,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer nb.Cleanup()
+			//defer nb.Cleanup()
 			n, err := nb.Network()
 			if err != nil {
 				return err
@@ -307,7 +306,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 				}
 				fmt.Print(validatorSummary.String())
 			} else {
-				fmt.Printf("%s %s\n", clispinner.Info, "no account found")
+				fmt.Printf("%s %s\n", icons.Info, "no account found")
 			}
 			return nil
 		},
@@ -327,7 +326,7 @@ func newNetworkChainShowPeers() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer nb.Cleanup()
+			//defer nb.Cleanup()
 
 			n, err := nb.Network()
 			if err != nil {
@@ -350,7 +349,7 @@ func newNetworkChainShowPeers() *cobra.Command {
 			nb.Spinner.Stop()
 
 			if len(peers) == 0 {
-				fmt.Printf("%s %s\n", clispinner.Info, "no peers found")
+				fmt.Printf("%s %s\n", icons.Info, "no peers found")
 				return nil
 
 			}
@@ -366,7 +365,7 @@ func newNetworkChainShowPeers() *cobra.Command {
 				return err
 			}
 
-			fmt.Printf("%s Peer list generated: %s\n", clispinner.Bullet, out)
+			fmt.Printf("%s Peer list generated: %s\n", icons.Bullet, out)
 			return nil
 		},
 	}

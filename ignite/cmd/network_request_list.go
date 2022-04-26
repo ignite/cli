@@ -5,11 +5,10 @@ import (
 	"io"
 	"os"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
-	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
 var requestSummaryHeader = []string{"ID", "Type", "Content"}
@@ -49,7 +48,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Cleanup()
+	//nb.Cleanup()
 	return renderRequestSummaries(requests, os.Stdout)
 }
 

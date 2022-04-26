@@ -3,11 +3,10 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/numbers"
 	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/spf13/cobra"
 )
 
 // NewNetworkRequestReject creates a new request reject
@@ -32,7 +31,7 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -61,6 +60,6 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s rejected\n", clispinner.OK, numbers.List(ids, "#"))
+	fmt.Printf("%s Request(s) %s rejected\n", icons.OK, numbers.List(ids, "#"))
 	return nil
 }

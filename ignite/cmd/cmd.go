@@ -11,10 +11,8 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -24,6 +22,8 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	"github.com/ignite-hq/cli/ignite/version"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 const (
@@ -82,10 +82,10 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 	return chain.LogRegular
 }
 
-func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
+func printEvents(wg *sync.WaitGroup, bus *events.Bus, s *clispinner.Spinner) {
 	defer wg.Done()
 
-	for event := range bus {
+	for event := range bus.Events() {
 		switch event.Status {
 		case events.StatusOngoing:
 			s.SetText(event.Text())
@@ -93,7 +93,7 @@ func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
 		case events.StatusDone:
 			icon := event.Icon
 			if icon == "" {
-				icon = clispinner.OK
+				icon = icons.OK
 			}
 			s.Stop()
 			fmt.Printf("%s %s\n", icon, event.Text())

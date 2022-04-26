@@ -3,10 +3,9 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/spf13/cobra"
 )
 
 // NewScaffoldFlutter scaffolds a Flutter app for a chain.

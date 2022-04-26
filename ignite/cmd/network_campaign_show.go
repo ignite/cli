@@ -31,7 +31,7 @@ func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	n, err := nb.Network()
 	if err != nil {

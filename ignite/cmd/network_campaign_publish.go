@@ -4,9 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 )
 
 const (
@@ -33,7 +32,7 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// parse launch ID
 	totalSupply, err := sdk.ParseCoinsNormalized(args[1])
@@ -53,6 +52,6 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
+	fmt.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	return nil
 }

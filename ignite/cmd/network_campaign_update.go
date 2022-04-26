@@ -47,7 +47,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// parse campaign ID
 	campaignID, err := network.ParseID(args[0])

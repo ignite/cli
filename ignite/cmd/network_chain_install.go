@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 // NewNetworkChainInstall returns a new command to install a chain's binary by the launch id.
@@ -29,7 +28,7 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -58,9 +57,9 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	}
 	binaryPath := filepath.Join(goenv.Bin(), binaryName)
 
-	fmt.Printf("%s Binary installed\n", clispinner.OK)
-	fmt.Printf("%s Binary's name: %s\n", clispinner.Info, infoColor(binaryName))
-	fmt.Printf("%s Binary's path: %s\n", clispinner.Info, infoColor(binaryPath))
+	fmt.Printf("%s Binary installed\n", icons.OK)
+	fmt.Printf("%s Binary's name: %s\n", icons.Info, infoColor(binaryName))
+	fmt.Printf("%s Binary's path: %s\n", icons.Info, infoColor(binaryPath))
 
 	return nil
 }

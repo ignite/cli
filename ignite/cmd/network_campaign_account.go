@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"strconv"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -48,7 +48,7 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	n, err := nb.Network()
 	if err != nil {
@@ -103,7 +103,7 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	if accountSummary.Len() > 0 {
 		fmt.Print(accountSummary.String())
 	} else {
-		fmt.Printf("%s %s\n", clispinner.Info, "no campaign account found")
+		fmt.Printf("%s %s\n", icons.Info, "no campaign account found")
 	}
 	return nil
 }

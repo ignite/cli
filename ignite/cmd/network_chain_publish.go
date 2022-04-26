@@ -5,14 +5,13 @@ import (
 	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-	"github.com/tendermint/spn/pkg/chainid"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/spn/pkg/chainid"
 )
 
 const (
@@ -120,7 +119,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// use source from chosen target.
 	var sourceOption networkchain.SourceOption
@@ -216,11 +215,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	nb.Spinner.Stop()
 
-	fmt.Printf("%s Network published \n", clispinner.OK)
-	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
-	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
+	fmt.Printf("%s Network published \n", icons.OK)
+	fmt.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
+	fmt.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		fmt.Printf("%s Mainnet ID: %d \n", clispinner.Bullet, mainnetID)
+		fmt.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
 	}
 
 	return nil

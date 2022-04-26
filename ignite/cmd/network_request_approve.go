@@ -3,12 +3,11 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/numbers"
 	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -38,7 +37,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -68,7 +67,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 		if err := verifyRequest(cmd.Context(), nb, launchID, ids...); err != nil {
 			return errors.Wrap(err, "request(s) not valid")
 		}
-		fmt.Printf("%s Request(s) %s verified\n", clispinner.OK, numbers.List(ids, "#"))
+		fmt.Printf("%s Request(s) %s verified\n", icons.OK, numbers.List(ids, "#"))
 	}
 
 	// Submit the approved requests
@@ -81,6 +80,6 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s approved\n", clispinner.OK, numbers.List(ids, "#"))
+	fmt.Printf("%s Request(s) %s approved\n", icons.OK, numbers.List(ids, "#"))
 	return nil
 }

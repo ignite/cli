@@ -41,7 +41,7 @@ type Chain struct {
 	ref plumbing.ReferenceName
 
 	chain *chain.Chain
-	ev    events.Bus
+	ev    *events.Bus
 	ar    cosmosaccount.Registry
 }
 
@@ -118,7 +118,7 @@ func WithGenesisFromURL(genesisURL string) Option {
 }
 
 // CollectEvents collects events from the chain.
-func CollectEvents(ev events.Bus) Option {
+func CollectEvents(ev *events.Bus) Option {
 	return func(c *Chain) {
 		c.ev = ev
 	}

@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/numbers"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 // NewNetworkRequestVerify verify the request and simulate the chain.
@@ -34,7 +33,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
+	//defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -50,12 +49,12 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 
 	// verify the requests
 	if err := verifyRequest(cmd.Context(), nb, launchID, ids...); err != nil {
-		fmt.Printf("%s Request(s) %s not valid\n", clispinner.NotOK, numbers.List(ids, "#"))
+		fmt.Printf("%s Request(s) %s not valid\n", icons.NotOK, numbers.List(ids, "#"))
 		return err
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s verified\n", clispinner.OK, numbers.List(ids, "#"))
+	fmt.Printf("%s Request(s) %s verified\n", icons.OK, numbers.List(ids, "#"))
 	return nil
 }
 
