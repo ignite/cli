@@ -10,8 +10,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestServeStargateWithWasm(t *testing.T) {
@@ -25,7 +26,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm"),
 			step.Workdir(apath),
 		)),
 	))
@@ -87,9 +88,7 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 }
 
 func TestServeStargateWithCustomConfigFile(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "starporttest")
-	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	tmpDir := t.TempDir()
 
 	var (
 		env   = envtest.New(t)
@@ -98,7 +97,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	// Move config
 	newConfig := "new_config.yml"
 	newConfigPath := filepath.Join(tmpDir, newConfig)
-	err = os.Rename(filepath.Join(apath, "config.yml"), newConfigPath)
+	err := os.Rename(filepath.Join(apath, "config.yml"), newConfigPath)
 	require.NoError(t, err)
 
 	servers := env.RandomizeServerPorts(tmpDir, newConfig)

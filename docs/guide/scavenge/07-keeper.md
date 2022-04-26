@@ -4,12 +4,14 @@ order: 7
 
 # Keeper
 
-## Create Scavenge
+Keepers are a Cosmos SDK abstraction whose role is to manage access to the subset of the state defined by various modules.
 
-Create scavenge method should do the following:
+## Create scavenge
+
+Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.go` file so the create scavenge method can manage the following:
 
 * Check that a scavenge with a given solution hash doesn't exist
-* Send tokens from scavenge creator account to a module account
+* Send tokens from the scavenge creator account to a module account
 * Write the scavenge to the store
 
 ```go
@@ -18,7 +20,7 @@ Create scavenge method should do the following:
 import (
   "context"
 
-  "github.com/cosmonaut/scavenge/x/scavenge/types"
+  "github.com/username/scavenge/x/scavenge/types"
   sdk "github.com/cosmos/cosmos-sdk/types"
   sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
   "github.com/tendermint/tendermint/crypto"
@@ -30,7 +32,6 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
   // create a new scavenge from the data in the MsgSubmitScavenge message
 	var scavenge = types.Scavenge{
 		Index:        msg.SolutionHash,
-		Scavenger:    msg.Creator,
 		Description:  msg.Description,
 		SolutionHash: msg.SolutionHash,
 		Reward:       msg.Reward,
@@ -64,9 +65,11 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
 }
 ```
 
-Notice the use of `moduleAcct`. This account is not controlled by a public key pair, but is a reference to an account that is owned by this actual module. It is used to hold the bounty reward that is attached to a scavenge until that scavenge has been solved, at which point the bounty is paid to the account who solved the scavenge.
+Notice the use of `moduleAcct`. This account is not controlled by a public key pair, but is a reference to an account that is owned by this actual module. `moduleAcct` is used to hold the bounty reward that is attached to a scavenge until that scavenge has been solved, at which point the bounty is paid to the account who solved the scavenge.
 
-`SubmitScavenge` uses `SendCoins` method from the `bank` module. In the beginning when scaffolding a module you used `--dep bank` to specify a dependency between the `scavenge` and `bank` modules. This created an `expected_keepers.go` file with a `BankKeeper` interface. Add `SendCoins` to be able to use it in the keeper methods of the `scavenge` module.
+`SubmitScavenge` uses the `SendCoins` method from the `bank` module. When you scaffolded the scavenge module, you used `--dep bank` to specify a dependency between the `scavenge` and `bank` modules. This dependency automatically created an `expected_keepers.go` file with a `BankKeeper` interface.
+
+To use the `BankKeeper` interface in the keeper methods of the `scavenge` module, add `SendCoins` to the `x/scavenge/types/expected_keepers.go` file:
 
 ```go
 // x/scavenge/types/expected_keepers.go
@@ -81,7 +84,7 @@ type BankKeeper interface {
 
 ## Commit Solution
 
-Commit solution method should do the following:
+Make the required changes in the `x/scavenge/keeper/msg_server_commit_solution.go` file so the commit solution method can manage the following:
 
 * Check that commit with a given hash doesn't exist in the store
 * Write a new commit to the store
@@ -92,7 +95,7 @@ Commit solution method should do the following:
 import (
 	"context"
 
-	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/username/scavenge/x/scavenge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -119,7 +122,7 @@ func (k msgServer) CommitSolution(goCtx context.Context, msg *types.MsgCommitSol
 
 ## Reveal Solution
 
-Reveal solution method should do the following:
+Make the required changes in the `x/scavenge/keeper/msg_server_reveal_solution.go` file so the reveal solution method can manage the following:
 
 * Check that a commit with a given hash exists in the store
 * Check that a scavenge with a given solution hash exists in the store
@@ -134,7 +137,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/username/scavenge/x/scavenge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/crypto"

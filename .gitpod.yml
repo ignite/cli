@@ -1,9 +1,9 @@
 image:
   file: .gitpod.Dockerfile
 
-checkoutLocation: "starport"
+checkoutLocation: "ignite"
 
-workspaceLocation: "./starport/.gitpod"
+workspaceLocation: "./ignite/.gitpod"
 
 tasks:
   - name: Open the Readme
@@ -13,8 +13,8 @@ tasks:
 
     init: |
       ##
-      ## install Starport
-      make -C /workspace/starport install
+      ## install Ignite CLI
+      make -C /workspace/ignite install
 
     command: |
       ##
@@ -40,7 +40,7 @@ tasks:
       # print a welcome message.
       clear && printf '\e[3J'
       echo -e "
-      This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
+      This terminal has the \033[1mignite\033[0m binary already installed and ready to go.
 
       "
 

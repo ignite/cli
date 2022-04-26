@@ -1,3 +1,3 @@
-FROM starport/cli:develop
+FROM ignitehq/cli:develop
 
 USER root

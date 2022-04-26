@@ -14,12 +14,6 @@ There is a lot to learn from this `dex` module implementation:
 
 This implementation can teach you how to use various interactions with module accounts or minting, locking or burning tokens.
 
-There is a lot to learn from this implementation. 
-
-- You work with the `bank` keeper and use several methods it offers.
-- You interact with another module and use the module account to lock tokens.
-
-This implementation teaches you how to use various interactions with module accounts or minting, locking, or burning tokens.
 
 ## Create the SafeBurn Function to Burn Vouchers or Lock Tokens
 
@@ -35,7 +29,7 @@ import (
   "fmt"
   sdk "github.com/cosmos/cosmos-sdk/types"
   ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-  "github.com/cosmonaut/interchange/x/dex/types"
+  "github.com/username/interchange/x/dex/types"
   "strings"
 )
 

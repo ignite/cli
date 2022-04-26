@@ -8,7 +8,7 @@ description: Start and experiment with your nameservice blockchain and nameservi
 If you haven't already, start a blockchain node in development:
 
 ```bash
-starport chain serve -r
+ignite chain serve -r
 ```
 
 The optional `-r` flag is useful in development mode since it resets the blockchain's state if it has been started before. 
@@ -43,7 +43,7 @@ Here is what an unsigned transaction looks like:
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.nameservice.nameservice.MsgBuyName",
+        "@type": "/username.nameservice.nameservice.MsgBuyName",
         "creator": "cosmos1p0fprxtpk497jvczexp96sy2w43hupeph9km5d",
         "name": "foo",
         "bid": "20token"
