@@ -13,6 +13,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
 const (
@@ -21,6 +22,7 @@ const (
 	flagHash         = "hash"
 	flagGenesis      = "genesis"
 	flagCampaign     = "campaign"
+	flagShares       = "shares"
 	flagNoCheck      = "no-check"
 	flagChainID      = "chain-id"
 	flagMainnet      = "mainnet"
@@ -46,6 +48,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
 	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
+	c.Flags().String(flagShares, "", "Add shares for the campaign")
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
 	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
@@ -69,6 +72,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
 		campaignMetadata, _       = cmd.Flags().GetString(flagCampaignMetadata)
 		campaignTotalSupplyStr, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
+		sharesStr, _              = cmd.Flags().GetString(flagShares)
 		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
@@ -187,6 +191,15 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if !totalSupply.Empty() {
 		publishOptions = append(publishOptions, network.WithTotalSupply(totalSupply))
+	}
+
+	if sharesStr != "" {
+		shares, err := campaigntypes.NewShares(sharesStr)
+		if err != nil {
+			return err
+		}
+
+		publishOptions = append(publishOptions, network.WithShares(shares))
 	}
 
 	if noCheck {
