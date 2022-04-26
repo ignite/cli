@@ -48,7 +48,7 @@ go 1.18
 
 require (
 	github.com/username/blog v0.0.0-00010101000000-000000000000
-	github.com/ignite-hq/cli v0.20.0
+	github.com/ignite-hq/cli v0.20.3
 )
 
 replace github.com/username/blog => ../blog
