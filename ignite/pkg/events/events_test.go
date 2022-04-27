@@ -15,7 +15,7 @@ func TestBusSend(t *testing.T) {
 	}{
 		{
 			name: "send status ongoing event",
-			bus:  make(Bus),
+			bus:  Bus{evchan: make(chan Event)},
 			event: Event{
 				Status:      StatusOngoing,
 				Description: "description",
@@ -23,15 +23,23 @@ func TestBusSend(t *testing.T) {
 		},
 		{
 			name: "send status done event",
-			bus:  make(Bus),
+			bus:  Bus{evchan: make(chan Event)},
 			event: Event{
 				Status:      StatusDone,
 				Description: "description",
 			},
 		},
 		{
+			name: "send status neutral event",
+			bus:  Bus{evchan: make(chan Event)},
+			event: Event{
+				Status:      StatusNeutral,
+				Description: "description",
+			},
+		},
+		{
 			name: "send event on nil bus",
-			bus:  nil,
+			bus:  Bus{},
 			event: Event{
 				Status:      StatusDone,
 				Description: "description",
@@ -41,8 +49,8 @@ func TestBusSend(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			go tt.bus.Send(tt.event)
-			if tt.bus != nil {
-				require.Equal(t, tt.event, <-tt.bus)
+			if tt.bus.Events() != nil {
+				require.Equal(t, tt.event, <-tt.bus.Events())
 			}
 			tt.bus.Shutdown()
 		})
@@ -56,15 +64,15 @@ func TestBusShutdown(t *testing.T) {
 	}{
 		{
 			name: "shutdown nil bus",
-			bus:  nil,
+			bus:  Bus{},
 		},
 		{
 			name: "shutdown bus correctly",
-			bus:  make(Bus),
+			bus:  Bus{evchan: make(chan Event)},
 		},
 		{
 			name: "shutdown bus with size correctly",
-			bus:  make(Bus, 1),
+			bus:  Bus{evchan: make(chan Event, 1)},
 		},
 	}
 	for _, tt := range tests {
@@ -186,7 +194,7 @@ func TestNewBus(t *testing.T) {
 			defer bus.Shutdown()
 			for i := 0; i < 10; i++ {
 				go bus.Send(tt.event)
-				require.Equal(t, tt.event, <-bus)
+				require.Equal(t, tt.event, <-bus.Events())
 			}
 		})
 	}
