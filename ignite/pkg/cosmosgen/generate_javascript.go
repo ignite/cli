@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -163,10 +164,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	user, repo, err := gomodulepath.ExtractUserRepoNames(chainPath.RawPath)
-	if err != nil {
-		return err
-	}
+	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 
 	type module struct {
 		Name     string
@@ -176,12 +174,10 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 	}
 
 	data := struct {
-		Modules []module
-		User    string
-		Repo    string
+		Modules     []module
+		PackageName string
 	}{
-		User: user,
-		Repo: repo,
+		PackageName: fmt.Sprintf("%s-js", strings.ReplaceAll(appModulePath, "/", "-")),
 	}
 
 	for _, path := range modulePaths {

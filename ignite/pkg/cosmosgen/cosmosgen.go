@@ -152,7 +152,7 @@ func Generate(ctx context.Context, appPath, protoDir string, options ...Option) 
 // The root path is used as prefix for the generated paths.
 func VuexStoreModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
-		user, repo, _ := gomodulepath.ExtractUserRepoNames(m.GoModulePath)
-		return filepath.Join(rootPath, user, repo, m.Pkg.Name, "module")
+		appModulePath := gomodulepath.ExtractAppPath(m.GoModulePath)
+		return filepath.Join(rootPath, appModulePath, m.Pkg.Name, "module")
 	}
 }
