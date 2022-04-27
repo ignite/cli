@@ -18,7 +18,7 @@ import (
 func TestGenerateAnApp(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
@@ -97,7 +97,7 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog", "--no-module")
+		path = env.Scaffold("github.com/test/blog", "--no-module")
 	)
 
 	defer env.EnsureAppIsSteady(path)
@@ -115,7 +115,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("add Wasm module",
@@ -139,7 +139,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a module",

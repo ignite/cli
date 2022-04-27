@@ -25,7 +25,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
-		path        = env.Scaffold(appname)
+		path        = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
 		host        = env.RandomizeServerPorts(path, "")
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)

@@ -18,7 +18,7 @@ go test -v -timeout 120m ./integration/list
 ```go
 var (
     env  = envtest.New(t)
-    path = env.Scaffold("blog")
+    path = env.Scaffold("github.com/test/blog")
 )
 ```
 

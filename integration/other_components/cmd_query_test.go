@@ -14,7 +14,7 @@ import (
 func TestGenerateAnAppWithQuery(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a query",

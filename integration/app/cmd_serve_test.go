@@ -21,7 +21,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("sgblog")
+		apath   = env.Scaffold("github.com/test/sgblog")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
 
@@ -48,7 +48,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 func TestServeStargateWithCustomHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("sgblog2")
+		apath   = env.Scaffold("github.com/test/sgblog2")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
 
@@ -68,7 +68,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 func TestServeStargateWithConfigHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("sgblog3")
+		apath   = env.Scaffold("github.com/test/sgblog3")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
 
@@ -93,7 +93,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 
 	var (
 		env   = envtest.New(t)
-		apath = env.Scaffold("sgblog4")
+		apath = env.Scaffold("github.com/test/sgblog4")
 	)
 	// Move config
 	newConfig := "new_config.yml"
