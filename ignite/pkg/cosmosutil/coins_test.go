@@ -28,6 +28,18 @@ func TestValidateCoinsStrWithPercentage(t *testing.T) {
 			sdk.NewCoins(sdk.NewInt64Coin("nova", 20), sdk.NewInt64Coin("baz", 50)),
 			errors.New("amount for 20nova has to have a % after the number"),
 		},
+		{
+			"wrong format with percentage in the beginning",
+			"%20nova",
+			sdk.NewCoins(sdk.NewInt64Coin("nova", 20)),
+			errors.New("amount for 20nova has to have a % after the number"),
+		},
+		{
+			"wrong format with multiple percentages",
+			"%20%nova",
+			sdk.NewCoins(sdk.NewInt64Coin("nova", 20)),
+			errors.New("amount for 20nova has to have a % after the number"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
