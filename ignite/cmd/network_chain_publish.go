@@ -73,7 +73,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
 	)
 
-	source, err := xurl.HTTPS(args[0])
+	source, err := xurl.MightHTTPS(args[0])
 	if err != nil {
 		return fmt.Errorf("invalid source url format: %w", err)
 	}
