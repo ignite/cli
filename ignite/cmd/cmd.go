@@ -7,15 +7,11 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
@@ -80,25 +76,6 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 		return chain.LogVerbose
 	}
 	return chain.LogRegular
-}
-
-func printEvents(wg *sync.WaitGroup, bus *events.Bus, s *clispinner.Spinner) {
-	defer wg.Done()
-
-	for event := range bus.Events() {
-		switch event.Status {
-		case events.StatusOngoing:
-			s.SetText(event.Text())
-			s.Start()
-		case events.StatusDone:
-			icon := event.Icon
-			if icon == "" {
-				icon = icons.OK
-			}
-			s.Stop()
-			fmt.Printf("%s %s\n", icon, event.Text())
-		}
-	}
 }
 
 func flagSetPath(cmd *cobra.Command) {

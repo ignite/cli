@@ -46,9 +46,9 @@ func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error 
 			peer,
 		})
 	}
-	if len(validatorEntries) > 0 {
-		return session.PrintTable(chainGenesisValSummaryHeader, validatorEntries...)
-	} else {
+	if len(validatorEntries) == 0 {
 		return session.Printf("%s %s\n", icons.Info, "no account found")
 	}
+
+	return session.PrintTable(chainGenesisValSummaryHeader, validatorEntries...)
 }

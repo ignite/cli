@@ -2,6 +2,8 @@ package ignitecmd
 
 import (
 	"fmt"
+	"os"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
@@ -11,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
-	"os"
 )
 
 const (
