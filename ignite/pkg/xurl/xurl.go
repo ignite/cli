@@ -15,7 +15,7 @@ const (
 	schemeWS    = "ws"
 )
 
-// TCP unsures that a URL contains a TCP protocol identifier.
+// TCP ensures that a URL contains a TCP scheme.
 func TCP(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -27,7 +27,7 @@ func TCP(s string) (string, error) {
 	return u.String(), nil
 }
 
-// HTTP unsures that a URL contains an HTTP protocol identifier.
+// HTTP ensures that a URL contains an HTTP scheme.
 func HTTP(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -39,7 +39,7 @@ func HTTP(s string) (string, error) {
 	return u.String(), nil
 }
 
-// HTTPS unsures that a URL contains an HTTPS protocol identifier.
+// HTTPS ensures that a URL contains an HTTPS scheme.
 func HTTPS(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -51,7 +51,17 @@ func HTTPS(s string) (string, error) {
 	return u.String(), nil
 }
 
-// WS unsures that a URL contains a WS protocol identifier.
+// MightHTTPS ensures that a URL contains an HTTPS scheme when the current scheme is not HTTP.
+// When the URL contains an HTTP scheme it is not modified.
+func MightHTTPS(s string) (string, error) {
+	if strings.HasPrefix(strings.ToLower(s), "http://") {
+		return s, nil
+	}
+
+	return HTTPS(s)
+}
+
+// WS ensures that a URL contains a WS scheme.
 func WS(s string) (string, error) {
 	u, err := parseURL(s)
 	if err != nil {
@@ -93,7 +103,7 @@ func CleanPath(s string) string {
 	return u.String()
 }
 
-// Address unsures that address contains localhost as host if non specified.
+// Address ensures that address contains localhost as host if non specified.
 func Address(address string) string {
 	if strings.HasPrefix(address, ":") {
 		return "localhost" + address

@@ -264,3 +264,65 @@ func TestWS(t *testing.T) {
 		})
 	}
 }
+
+func TestMightHTTPS(t *testing.T) {
+	cases := []struct {
+		name  string
+		addr  string
+		want  string
+		error bool
+	}{
+		{
+			name: "with http scheme",
+			addr: "http://github.com/ignite-hq/cli",
+			want: "http://github.com/ignite-hq/cli",
+		},
+		{
+			name: "with https scheme",
+			addr: "https://github.com/ignite-hq/cli",
+			want: "https://github.com/ignite-hq/cli",
+		},
+		{
+			name: "without scheme",
+			addr: "github.com/ignite-hq/cli",
+			want: "https://github.com/ignite-hq/cli",
+		},
+		{
+			name: "with invalid scheme",
+			addr: "ftp://github.com/ignite-hq/cli",
+			want: "https://github.com/ignite-hq/cli",
+		},
+		{
+			name: "with ip and port",
+			addr: "0.0.0.0:4500",
+			want: "https://0.0.0.0:4500",
+		},
+		{
+			name: "with localhost and port",
+			addr: "localhost:4500",
+			want: "https://localhost:4500",
+		},
+		{
+			name:  "with invalid url",
+			addr:  "https://github.com:x",
+			error: true,
+		},
+		{
+			name:  "empty",
+			addr:  "",
+			error: true,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			addr, err := MightHTTPS(tt.addr)
+			if tt.error {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.want, addr)
+			}
+		})
+	}
+}
