@@ -32,7 +32,7 @@ func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -67,5 +67,5 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, session cliui.Se
 		})
 	}
 
-	return session.Table(CampaignSummaryHeader, campaignEntries...)
+	return session.PrintTable(CampaignSummaryHeader, campaignEntries...)
 }

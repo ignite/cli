@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
@@ -48,7 +49,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		name    = args[0]
 		appPath = flagGetPath(cmd)
 	)
-	s := clispinner.New().SetText("Scaffolding...")
+	s := clispinner.New(os.Stdout).SetText("Scaffolding...")
 	defer s.Stop()
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)

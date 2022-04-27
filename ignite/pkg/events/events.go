@@ -45,7 +45,7 @@ func TextColor(c color.Color) Option {
 	}
 }
 
-// Icon sets the text icon prefix
+// Icon sets the text icon prefix.
 func Icon(icon string) Option {
 	return func(e *Event) {
 		e.Icon = icon
@@ -61,17 +61,17 @@ func New(status Status, description string, options ...Option) Event {
 	return ev
 }
 
-// NewOngoing creates a new StatusOngoing event
+// NewOngoing creates a new StatusOngoing event.
 func NewOngoing(description string) Event {
 	return New(StatusOngoing, description)
 }
 
-// NewNeutral creates a new StatusNeutral event
+// NewNeutral creates a new StatusNeutral event.
 func NewNeutral(description string) Event {
 	return New(StatusNeutral, description)
 }
 
-// NewDone creates a new StatusDone event
+// NewDone creates a new StatusDone event.
 func NewDone(description, icon string) Event {
 	return New(StatusDone, description, Icon(icon))
 }
@@ -100,6 +100,7 @@ type (
 	BusOption func(*Bus)
 )
 
+// WithWaitGroup sets wait group which is blocked if events bus is not empty.
 func WithWaitGroup(wg *sync.WaitGroup) BusOption {
 	return func(bus *Bus) {
 		bus.buswg = wg
@@ -107,21 +108,21 @@ func WithWaitGroup(wg *sync.WaitGroup) BusOption {
 }
 
 // NewBus creates a new event bus to send/receive events.
-func NewBus(options ...BusOption) *Bus {
-	bus := &Bus{
+func NewBus(options ...BusOption) Bus {
+	bus := Bus{
 		evchan: make(chan Event),
 	}
 
 	for _, apply := range options {
-		apply(bus)
+		apply(&bus)
 	}
 
 	return bus
 }
 
 // Send sends a new event to bus.
-func (b *Bus) Send(e Event) {
-	if b == nil || b.evchan == nil {
+func (b Bus) Send(e Event) {
+	if b.evchan == nil {
 		return
 	}
 	if b.buswg != nil {
@@ -130,12 +131,13 @@ func (b *Bus) Send(e Event) {
 	b.evchan <- e
 }
 
+// Events returns go channel with Event accessible only for read.
 func (b *Bus) Events() <-chan Event {
 	return b.evchan
 }
 
 // Shutdown shutdowns event bus.
-func (b *Bus) Shutdown() {
+func (b Bus) Shutdown() {
 	if b.evchan == nil {
 		return
 	}

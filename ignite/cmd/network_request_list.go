@@ -2,10 +2,8 @@ package ignitecmd
 
 import (
 	"fmt"
-	"io"
-	"os"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -26,8 +24,10 @@ func NewNetworkRequestList() *cobra.Command {
 }
 
 func networkRequestListHandler(cmd *cobra.Command, args []string) error {
-	// initialize network common methods
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -48,12 +48,11 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	//nb.Cleanup()
-	return renderRequestSummaries(requests, os.Stdout)
+	return renderRequestSummaries(requests, session)
 }
 
 // renderRequestSummaries writes into the provided out, the list of summarized requests
-func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error {
+func renderRequestSummaries(requests []launchtypes.Request, session cliui.Session) error {
 	requestEntries := make([][]string, 0)
 	for _, request := range requests {
 		id := fmt.Sprintf("%d", request.RequestID)
@@ -105,5 +104,5 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 			content,
 		})
 	}
-	return entrywriter.MustWrite(out, requestSummaryHeader, requestEntries...)
+	return session.PrintTable(requestSummaryHeader, requestEntries...)
 }

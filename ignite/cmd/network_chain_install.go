@@ -1,9 +1,9 @@
 package ignitecmd
 
 import (
-	"fmt"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
@@ -24,11 +24,13 @@ func NewNetworkChainInstall() *cobra.Command {
 }
 
 func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	//defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -57,9 +59,9 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	}
 	binaryPath := filepath.Join(goenv.Bin(), binaryName)
 
-	fmt.Printf("%s Binary installed\n", icons.OK)
-	fmt.Printf("%s Binary's name: %s\n", icons.Info, infoColor(binaryName))
-	fmt.Printf("%s Binary's path: %s\n", icons.Info, infoColor(binaryPath))
+	session.Printf("%s Binary installed\n", icons.OK)
+	session.Printf("%s Binary's name: %s\n", icons.Info, infoColor(binaryName))
+	session.Printf("%s Binary's path: %s\n", icons.Info, infoColor(binaryPath))
 
 	return nil
 }

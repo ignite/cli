@@ -28,7 +28,7 @@ type CosmosClient interface {
 
 // Network is network builder.
 type Network struct {
-	ev            *events.Bus
+	ev            events.Bus
 	cosmos        CosmosClient
 	account       cosmosaccount.Account
 	campaignQuery campaigntypes.QueryClient
@@ -81,7 +81,7 @@ func WithRewardQueryClient(client rewardtypes.QueryClient) Option {
 }
 
 // CollectEvents collects events from the network builder.
-func CollectEvents(ev *events.Bus) Option {
+func CollectEvents(ev events.Bus) Option {
 	return func(n *Network) {
 		n.ev = ev
 	}

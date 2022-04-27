@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
@@ -31,7 +32,7 @@ func NewScaffoldChain() *cobra.Command {
 }
 
 func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
+	s := clispinner.New(os.Stdout).SetText("Scaffolding...")
 	defer s.Stop()
 
 	var (

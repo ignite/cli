@@ -1,12 +1,11 @@
 package ignitecmd
 
 import (
-	"bytes"
 	"context"
-	"fmt"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"strconv"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -44,18 +43,17 @@ func newNetworkCampaignAccountList() *cobra.Command {
 }
 
 func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) error {
-	nb, campaignID, err := networkChainLaunch(cmd, args)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, campaignID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {
 		return err
 	}
-	//defer nb.Cleanup()
-
 	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
-
-	accountSummary := &bytes.Buffer{}
 
 	// get all campaign accounts
 	mainnetAccs, vestingAccs, err := getAccounts(cmd.Context(), n, campaignID)
@@ -71,11 +69,7 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 		})
 	}
 	if len(mainnetAccEntries) > 0 {
-		if err = entrywriter.MustWrite(
-			accountSummary,
-			campaignMainnetsAccSummaryHeader,
-			mainnetAccEntries...,
-		); err != nil {
+		if err = session.PrintTable(campaignMainnetsAccSummaryHeader, mainnetAccEntries...); err != nil {
 			return err
 		}
 	}
@@ -90,21 +84,15 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 		})
 	}
 	if len(mainnetVestingAccEntries) > 0 {
-		if err = entrywriter.MustWrite(
-			accountSummary,
-			campaignVestingAccSummaryHeader,
-			mainnetVestingAccEntries...,
-		); err != nil {
+		if err = session.PrintTable(campaignVestingAccSummaryHeader, mainnetVestingAccEntries...); err != nil {
 			return err
 		}
 	}
 
-	nb.Spinner.Stop()
-	if accountSummary.Len() > 0 {
-		fmt.Print(accountSummary.String())
-	} else {
-		fmt.Printf("%s %s\n", icons.Info, "no campaign account found")
+	if len(mainnetVestingAccEntries)+len(mainnetAccEntries) == 0 {
+		return session.Printf("%s %s\n", icons.Info, "no campaign account found")
 	}
+
 	return nil
 }
 

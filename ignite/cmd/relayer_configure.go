@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/briandowns/spinner"
 	"github.com/gookit/color"
@@ -97,7 +98,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	s := clispinner.New().Stop()
+	s := clispinner.New(os.Stdout).Start()
 	defer s.Stop()
 
 	printSection("Setting up chains")

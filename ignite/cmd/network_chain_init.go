@@ -2,8 +2,8 @@ package ignitecmd
 
 import (
 	"fmt"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
@@ -52,10 +52,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
+
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
@@ -127,10 +128,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-	session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
-
-	return nil
+	return session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 }
 
 // askValidatorInfo prompts to the user questions to query validator information

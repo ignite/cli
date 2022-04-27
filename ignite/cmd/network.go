@@ -1,9 +1,6 @@
 package ignitecmd
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"sync"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -68,29 +65,39 @@ func NewNetwork() *cobra.Command {
 
 var cosmos *cosmosclient.Client
 
-type NetworkBuilder struct {
-	AccountRegistry cosmosaccount.Registry
-	Spinner         *clispinner.Spinner
+type (
+	NetworkBuilderOption func(builder *NetworkBuilder)
 
-	ev  *events.Bus
-	wg  *sync.WaitGroup
-	cmd *cobra.Command
-	cc  cosmosclient.Client
+	NetworkBuilder struct {
+		AccountRegistry cosmosaccount.Registry
+
+		ev  events.Bus
+		cmd *cobra.Command
+		cc  cosmosclient.Client
+	}
+)
+
+func CollectEvents(ev events.Bus) NetworkBuilderOption {
+	return func(builder *NetworkBuilder) {
+		builder.ev = ev
+	}
 }
 
-func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
+func newNetworkBuilder(cmd *cobra.Command, options ...NetworkBuilderOption) (NetworkBuilder, error) {
 	var (
 		err error
 		n   = NetworkBuilder{cmd: cmd}
 	)
 
 	if n.cc, err = getNetworkCosmosClient(cmd); err != nil {
-		//n.Cleanup()
 		return NetworkBuilder{}, err
 	}
 
 	n.AccountRegistry = n.cc.AccountRegistry
 
+	for _, apply := range options {
+		apply(&n)
+	}
 	return n, nil
 }
 
@@ -98,6 +105,8 @@ func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...netwo
 	if home := getHome(n.cmd); home != "" {
 		options = append(options, networkchain.WithHome(home))
 	}
+
+	options = append(options, networkchain.CollectEvents(n.ev))
 
 	return networkchain.New(n.cmd.Context(), n.AccountRegistry, source, options...)
 }
@@ -114,6 +123,8 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'ignite account -h' to manage accounts")
 		}
 	}
+
+	options = append(options, network.CollectEvents(n.ev))
 
 	return network.New(*cosmos, account, options...), nil
 }

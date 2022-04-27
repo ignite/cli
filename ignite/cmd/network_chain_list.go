@@ -23,11 +23,11 @@ func NewNetworkChainList() *cobra.Command {
 	return c
 }
 
-func networkChainListHandler(cmd *cobra.Command, args []string) error {
+func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -68,5 +68,5 @@ func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session cli
 		})
 	}
 
-	return session.Table(LaunchSummaryHeader, launchEntries...)
+	return session.PrintTable(LaunchSummaryHeader, launchEntries...)
 }

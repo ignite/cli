@@ -1,6 +1,7 @@
 package clispinner
 
 import (
+	"io"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -17,8 +18,8 @@ type Spinner struct {
 }
 
 // New creates a new spinner.
-func New() *Spinner {
-	sp := spinner.New(charset, refreshRate)
+func New(w io.Writer) *Spinner {
+	sp := spinner.New(charset, refreshRate, spinner.WithWriter(w))
 	sp.Color(spinnerColor)
 	s := &Spinner{
 		sp: sp,
@@ -68,4 +69,8 @@ func (s *Spinner) Stop() *Spinner {
 	s.sp.UpdateCharSet(charset)
 	s.sp.Stop()
 	return s
+}
+
+func (s *Spinner) IsActive() bool {
+	return s.sp.Active()
 }

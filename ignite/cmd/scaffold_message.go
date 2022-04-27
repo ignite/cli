@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
@@ -40,7 +41,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		withoutSimulation = flagGetNoSimulation(cmd)
 	)
 
-	s := clispinner.New().SetText("Scaffolding...")
+	s := clispinner.New(os.Stdout).SetText("Scaffolding...")
 	defer s.Stop()
 
 	var options []scaffolder.MessageOption

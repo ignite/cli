@@ -1,9 +1,8 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/spf13/cobra"
 )
@@ -28,13 +27,14 @@ func NewNetworkCampaignPublish() *cobra.Command {
 }
 
 func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	//defer nb.Cleanup()
 
-	// parse launch ID
 	totalSupply, err := sdk.ParseCoinsNormalized(args[1])
 	if err != nil {
 		return err
@@ -51,7 +51,5 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
-	return nil
+	return session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 }

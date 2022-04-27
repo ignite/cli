@@ -1,9 +1,7 @@
 package cliui
 
 import (
-	"errors"
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"io"
 	"os"
 	"sync"
@@ -13,14 +11,15 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/manifoldco/promptui"
 )
 
+// Session controls command line interaction with users.
 type Session struct {
-	ev       *events.Bus
+	ev       events.Bus
 	eventsWg *sync.WaitGroup
 
-	spinner          *clispinner.Spinner
-	spinnerWasPaused bool
+	spinner *clispinner.Spinner
 
 	in          io.Reader
 	out         io.Writer
@@ -29,22 +28,24 @@ type Session struct {
 
 type Option func(s *Session)
 
+// WithOutput sets output stream for a session.
 func WithOutput(output io.Writer) Option {
 	return func(s *Session) {
 		s.out = output
 	}
 }
 
+// WithInput sets input stream for a session.
 func WithInput(input io.Reader) Option {
 	return func(s *Session) {
 		s.in = input
 	}
 }
 
+// New creates new Session.
 func New(options ...Option) Session {
 	wg := &sync.WaitGroup{}
 	session := Session{
-		spinner:     clispinner.New(),
 		ev:          events.NewBus(events.WithWaitGroup(wg)),
 		in:          os.Stdin,
 		out:         os.Stdout,
@@ -54,66 +55,74 @@ func New(options ...Option) Session {
 	for _, apply := range options {
 		apply(&session)
 	}
+	session.spinner = clispinner.New(session.out)
 	session.printLoopWg.Add(1)
 	go session.printLoop()
 	return session
 }
 
-func (s Session) EventBus() *events.Bus {
+// StopSpinner returns session's event bus.
+func (s Session) EventBus() events.Bus {
 	return s.ev
 }
 
+// StartSpinner starts spinner.
 func (s Session) StartSpinner(text string) {
 	s.spinner.SetText(text).Start()
 }
 
+// StopSpinner stops spinner.
 func (s Session) StopSpinner() {
-	s.spinnerWasPaused = false
 	s.spinner.Stop()
 }
 
-func (s Session) PauseSpinner() {
-	s.spinner.Stop()
-	s.spinnerWasPaused = true
-}
-
-func (s Session) UnpauseSpinner() {
-	if s.spinnerWasPaused {
-		s.spinner.Start()
-		s.spinnerWasPaused = false
+// PauseSpinner pauses spinner, returns resume function to start paused spinner again.
+func (s Session) PauseSpinner() func() {
+	isActive := s.spinner.IsActive()
+	f := func() {
+		if isActive {
+			s.spinner.Start()
+		}
 	}
+	s.spinner.Stop()
+	return f
 }
 
+// Printf prints formatted arbitrary message.
 func (s Session) Printf(format string, a ...interface{}) error {
-	s.eventsWg.Wait()
-	s.PauseSpinner()
-	defer s.UnpauseSpinner()
+	s.Wait()
+	defer s.PauseSpinner()()
 	_, err := fmt.Fprintf(s.out, format, a...)
 	return err
 }
 
+// Println prints arbitrary message with line break.
 func (s Session) Println(messages ...interface{}) error {
-	s.eventsWg.Wait()
-	s.PauseSpinner()
-	defer s.UnpauseSpinner()
+	s.Wait()
+	defer s.PauseSpinner()()
 	_, err := fmt.Fprintln(s.out, messages...)
 	return err
 }
 
+// Println prints arbitrary message
+func (s Session) Print(messages ...interface{}) error {
+	s.Wait()
+	defer s.PauseSpinner()()
+	_, err := fmt.Fprint(s.out, messages...)
+	return err
+}
+
+// Ask asks questions in the terminal and collect answers.
 func (s Session) Ask(questions ...cliquiz.Question) error {
-	s.eventsWg.Wait()
-	s.PauseSpinner()
-	defer s.UnpauseSpinner()
-	if s.in != os.Stdin && s.out != os.Stdout {
-		return errors.New("cannot use quiz with customized io")
-	}
+	s.Wait()
+	defer s.PauseSpinner()()
 	return cliquiz.Ask(questions...)
 }
 
+// AskConfirm asks yes/no question in the terminal.
 func (s Session) AskConfirm(message string) error {
-	s.eventsWg.Wait()
-	s.PauseSpinner()
-	defer s.UnpauseSpinner()
+	s.Wait()
+	defer s.PauseSpinner()()
 	prompt := promptui.Prompt{
 		Label:     message,
 		IsConfirm: true,
@@ -122,38 +131,43 @@ func (s Session) AskConfirm(message string) error {
 	return err
 }
 
-func (s Session) Table(header []string, entries ...[]string) error {
-	s.eventsWg.Wait()
-	s.PauseSpinner()
-	defer s.UnpauseSpinner()
+// PrintTable prints table data.
+func (s Session) PrintTable(header []string, entries ...[]string) error {
+	s.Wait()
+	defer s.PauseSpinner()()
 	return entrywriter.MustWrite(s.out, header, entries...)
 }
 
+// Wait blocks until all queued events are handled.
 func (s Session) Wait() {
 	s.eventsWg.Wait()
 }
 
+// Cleanup ensure spinner is stopped and printLoop exited correctly.
 func (s Session) Cleanup() {
 	s.StopSpinner()
 	s.ev.Shutdown()
 	s.printLoopWg.Wait()
 }
 
+// printLoop handles events.
 func (s Session) printLoop() {
 	for event := range s.ev.Events() {
 		switch event.Status {
 		case events.StatusOngoing:
 			s.StartSpinner(event.Text())
+
 		case events.StatusDone:
 			if event.Icon == "" {
 				event.Icon = icons.OK
 			}
 			s.StopSpinner()
 			fmt.Fprintf(s.out, "%s %s\n", event.Icon, event.Text())
+
 		case events.StatusNeutral:
-			s.PauseSpinner()
+			resume := s.PauseSpinner()
 			fmt.Fprintf(s.out, event.Text())
-			s.UnpauseSpinner()
+			resume()
 		}
 
 		s.eventsWg.Done()

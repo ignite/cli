@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
@@ -34,7 +35,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		signer  = flagGetSigner(cmd)
 	)
 
-	s := clispinner.New().SetText("Scaffolding...")
+	s := clispinner.New(os.Stdout).SetText("Scaffolding...")
 	defer s.Stop()
 
 	module, err := cmd.Flags().GetString(flagModule)
