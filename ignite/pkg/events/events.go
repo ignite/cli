@@ -107,6 +107,13 @@ func WithWaitGroup(wg *sync.WaitGroup) BusOption {
 	}
 }
 
+// WithCustomBufferSize configures buffer size of underlying bus channel
+func WithCustomBufferSize(size int) BusOption {
+	return func(bus *Bus) {
+		bus.evchan = make(chan Event, size)
+	}
+}
+
 // NewBus creates a new event bus to send/receive events.
 func NewBus(options ...BusOption) Bus {
 	bus := Bus{
