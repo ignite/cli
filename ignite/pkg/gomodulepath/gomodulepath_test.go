@@ -120,57 +120,54 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestExtractUserRepoNames(t *testing.T) {
+func TestExtractAppPath(t *testing.T) {
 	cases := []struct {
 		name string
 		path string
-		want []string
+		want string
 	}{
 		{
 			name: "github uri",
 			path: "github.com/ignite-hq/cli",
-			want: []string{"ignite-hq", "cli"},
+			want: "ignite-hq/cli",
 		},
 		{
 			name: "short uri",
 			path: "domain.com/ignite-hq",
-			want: []string{"ignite-hq", "ignite-hq"},
+			want: "ignite-hq",
 		},
 		{
 			name: "long uri",
 			path: "domain.com/a/b/c/ignite-hq/cli",
-			want: []string{"ignite-hq", "cli"},
+			want: "ignite-hq/cli",
 		},
 		{
 			name: "name",
 			path: "cli",
-			want: []string{"cli", "cli"},
+			want: "cli",
 		},
 		{
 			name: "path",
 			path: "ignite-hq/cli",
-			want: []string{"ignite-hq", "cli"},
+			want: "ignite-hq/cli",
 		},
 		{
 			name: "long path",
 			path: "a/b/c/ignite-hq/cli",
-			want: []string{"ignite-hq", "cli"},
+			want: "ignite-hq/cli",
+		},
+		{
+			name: "empty",
+			path: "",
+			want: "",
 		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			user, repo, err := ExtractUserRepoNames(tt.path)
-
-			require.NoError(t, err)
-			require.Equal(t, tt.want, []string{user, repo})
+			require.Equal(t, tt.want, ExtractAppPath(tt.path))
 		})
 	}
-}
-
-func TestExtractUserRepoNamesWithEmptyPath(t *testing.T) {
-	_, _, err := ExtractUserRepoNames("")
-	require.Error(t, err)
 }
 
 func TestValidateURIPath(t *testing.T) {

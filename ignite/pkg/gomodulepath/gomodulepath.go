@@ -1,8 +1,7 @@
 // Package gomodulepath implements functions for the manipulation of Go module paths.
-// A module’s path is the prefix for package paths within a module.
 // Paths are typically defined as a domain name and a path containing the user and
 // repository names, e.g. "github.com/username/reponame", but Go also allows other module
-// names like "domain.com/reponame", "reponame", "reponame/pkgname", or similar variants.
+// names like "domain.com/name", "name", "namespace/name", or similar variants.
 package gomodulepath
 
 import (
@@ -79,10 +78,10 @@ func Find(path string) (parsed Path, appPath string, err error) {
 	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
-// ExtractUserRepoNames extracts the user and repository names from a go module path.
-func ExtractUserRepoNames(path string) (user, repo string, err error) {
+// ExtractAppPath extracts the app module path from a Go module path.
+func ExtractAppPath(path string) string {
 	if path == "" {
-		return "", "", errors.New("module path is empty")
+		return ""
 	}
 
 	items := strings.Split(path, "/")
@@ -94,16 +93,12 @@ func ExtractUserRepoNames(path string) (user, repo string, err error) {
 
 	count := len(items)
 	if count == 1 {
-		// The path is a single name that its used as user and repository name
-		user = items[0]
-		repo = user
-	} else {
-		// The last two items in the path define the user and repository names
-		user = items[count-2]
-		repo = items[count-1]
+		// The Go module path is a single name
+		return items[0]
 	}
 
-	return user, repo, nil
+	// The last two items in the path define the namespace and app name
+	return strings.Join(items[count-2:], "/")
 }
 
 func hasDomainNamePrefix(path string) bool {
