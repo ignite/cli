@@ -2,15 +2,17 @@ package ignitecmd
 
 import (
 	"fmt"
+
 	"github.com/briandowns/spinner"
 	"github.com/gookit/color"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
 const (

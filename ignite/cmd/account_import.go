@@ -6,9 +6,10 @@ import (
 	"os"
 
 	"github.com/cosmos/go-bip39"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/spf13/cobra"
 )
 
 const flagSecret = "secret"

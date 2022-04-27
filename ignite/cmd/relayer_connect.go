@@ -5,10 +5,11 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
-	"github.com/spf13/cobra"
 )
 
 // NewRelayerConnect returns a new relayer connect command to link all or some relayer paths and start
