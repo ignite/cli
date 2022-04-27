@@ -8,6 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	chainGenesisAccSummaryHeader = []string{"Genesis Account", "Coins"}
+	chainVestingAccSummaryHeader = []string{"Vesting Account", "Total Balance", "Vesting", "EndTime"}
+)
+
 func newNetworkChainShowAccounts() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "accounts [launch-id]",
@@ -32,28 +37,22 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// get all chain genesis accounts
 	genesisAccs, err := n.GenesisAccounts(cmd.Context(), launchID)
 	if err != nil {
 		return err
 	}
-	genesisAccEntries := make([][]string, 0)
-	for _, acc := range genesisAccs {
-		genesisAccEntries = append(genesisAccEntries, []string{
-			acc.Address,
-			acc.Coins,
-		})
-	}
-	if len(genesisAccEntries) > 0 {
-		if err = session.PrintTable(chainGenesisAccSummaryHeader, genesisAccEntries...); err != nil {
-			return err
-		}
-	}
-
-	// get all chain vesting accounts
 	vestingAccs, err := n.VestingAccounts(cmd.Context(), launchID)
 	if err != nil {
 		return err
+	}
+	if len(genesisAccs)+len(vestingAccs) == 0 {
+		session.StopSpinner()
+		return session.Printf("%s %s\n", icons.Info, "empty chain account list")
+	}
+
+	genesisAccEntries := make([][]string, 0)
+	for _, acc := range genesisAccs {
+		genesisAccEntries = append(genesisAccEntries, []string{acc.Address, acc.Coins})
 	}
 	genesisVestingAccEntries := make([][]string, 0)
 	for _, acc := range vestingAccs {
@@ -64,14 +63,17 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 			strconv.FormatInt(acc.EndTime, 10),
 		})
 	}
+
+	session.StopSpinner()
+	if len(genesisAccEntries) > 0 {
+		if err = session.PrintTable(chainGenesisAccSummaryHeader, genesisAccEntries...); err != nil {
+			return err
+		}
+	}
 	if len(genesisVestingAccEntries) > 0 {
 		if err = session.PrintTable(chainVestingAccSummaryHeader, genesisVestingAccEntries...); err != nil {
 			return err
 		}
-	}
-
-	if len(genesisVestingAccEntries)+len(genesisAccEntries) == 0 {
-		return session.Printf("%s %s\n", icons.Info, "empty chain account list")
 	}
 
 	return nil

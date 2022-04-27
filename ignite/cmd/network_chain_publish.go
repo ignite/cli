@@ -231,7 +231,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	session.StopSpinner()
-
 	session.Printf("%s Network published \n", icons.OK)
 	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
 	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)

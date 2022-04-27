@@ -79,5 +79,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	session.StopSpinner()
+
 	return session.Printf("%s Request(s) %s approved\n", icons.OK, numbers.List(ids, "#"))
 }

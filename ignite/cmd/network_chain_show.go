@@ -8,12 +8,6 @@ import (
 
 const flagOut = "out"
 
-var (
-	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
-	chainGenesisAccSummaryHeader = []string{"Genesis Account", "Coins"}
-	chainVestingAccSummaryHeader = []string{"Vesting Account", "Total Balance", "Vesting", "EndTime"}
-)
-
 // NewNetworkChainShow creates a new chain show
 // command to show a chain details on SPN.
 func NewNetworkChainShow() *cobra.Command {

@@ -59,5 +59,7 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	session.StopSpinner()
+
 	return session.Printf("%s Request(s) %s rejected\n", icons.OK, numbers.List(ids, "#"))
 }

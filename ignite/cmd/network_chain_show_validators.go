@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
+)
+
 func newNetworkChainShowValidators() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "validators [launch-id]",
@@ -49,6 +53,8 @@ func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error 
 	if len(validatorEntries) == 0 {
 		return session.Printf("%s %s\n", icons.Info, "no account found")
 	}
+
+	session.StopSpinner()
 
 	return session.PrintTable(chainGenesisValSummaryHeader, validatorEntries...)
 }

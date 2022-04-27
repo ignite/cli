@@ -128,6 +128,8 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	session.StopSpinner()
+
 	return session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 }
 

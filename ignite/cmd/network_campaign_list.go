@@ -67,5 +67,7 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, session cliui.Se
 		})
 	}
 
+	session.StopSpinner()
+
 	return session.PrintTable(CampaignSummaryHeader, campaignEntries...)
 }

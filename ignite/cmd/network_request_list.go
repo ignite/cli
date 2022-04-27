@@ -48,6 +48,8 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	session.StopSpinner()
+
 	return renderRequestSummaries(requests, session)
 }
 

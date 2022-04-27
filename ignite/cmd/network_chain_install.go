@@ -59,6 +59,7 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	}
 	binaryPath := filepath.Join(goenv.Bin(), binaryName)
 
+	session.StopSpinner()
 	session.Printf("%s Binary installed\n", icons.OK)
 	session.Printf("%s Binary's name: %s\n", icons.Info, infoColor(binaryName))
 	session.Printf("%s Binary's path: %s\n", icons.Info, infoColor(binaryPath))

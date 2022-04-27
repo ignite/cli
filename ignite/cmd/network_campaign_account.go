@@ -6,12 +6,10 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-
-	"github.com/spf13/cobra"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -61,19 +59,15 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 		return err
 	}
 
-	mainnetAccEntries := make([][]string, 0)
-	for _, acc := range mainnetAccs {
-		mainnetAccEntries = append(mainnetAccEntries, []string{
-			acc.Address,
-			acc.Shares.String(),
-		})
-	}
-	if len(mainnetAccEntries) > 0 {
-		if err = session.PrintTable(campaignMainnetsAccSummaryHeader, mainnetAccEntries...); err != nil {
-			return err
-		}
+	if len(mainnetAccs)+len(vestingAccs) == 0 {
+		session.StopSpinner()
+		return session.Printf("%s %s\n", icons.Info, "no campaign account found")
 	}
 
+	mainnetAccEntries := make([][]string, 0)
+	for _, acc := range mainnetAccs {
+		mainnetAccEntries = append(mainnetAccEntries, []string{acc.Address, acc.Shares.String()})
+	}
 	mainnetVestingAccEntries := make([][]string, 0)
 	for _, acc := range vestingAccs {
 		mainnetVestingAccEntries = append(mainnetVestingAccEntries, []string{
@@ -83,14 +77,17 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 			strconv.FormatInt(acc.EndTime, 10),
 		})
 	}
+
+	session.StopSpinner()
+	if len(mainnetAccEntries) > 0 {
+		if err = session.PrintTable(campaignMainnetsAccSummaryHeader, mainnetAccEntries...); err != nil {
+			return err
+		}
+	}
 	if len(mainnetVestingAccEntries) > 0 {
 		if err = session.PrintTable(campaignVestingAccSummaryHeader, mainnetVestingAccEntries...); err != nil {
 			return err
 		}
-	}
-
-	if len(mainnetVestingAccEntries)+len(mainnetAccEntries) == 0 {
-		return session.Printf("%s %s\n", icons.Info, "no campaign account found")
 	}
 
 	return nil

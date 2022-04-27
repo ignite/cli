@@ -90,6 +90,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	}
 	binaryDir := filepath.Dir(filepath.Join(goenv.Bin(), binaryName))
 
+	session.StopSpinner()
 	session.Printf("%s Chain is prepared for launch\n", icons.OK)
 	session.Println("\nYou can start your node by running the following command:")
 	commandStr := fmt.Sprintf("%s start --home %s", binaryName, chainHome)
