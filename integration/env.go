@@ -174,7 +174,7 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 				append([]string{
 					"scaffold",
 					"chain",
-					fmt.Sprintf("github.com/test/%s", appName),
+					appName,
 				}, flags...)...,
 			),
 			step.Workdir(root),
