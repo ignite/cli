@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/chain"
@@ -19,7 +18,7 @@ func NewGenerateDart() *cobra.Command {
 }
 
 func generateDartHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New(os.Stdout).SetText("Generating...")
+	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
 	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())

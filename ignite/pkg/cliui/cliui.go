@@ -55,7 +55,7 @@ func New(options ...Option) Session {
 	for _, apply := range options {
 		apply(&session)
 	}
-	session.spinner = clispinner.New(session.out)
+	session.spinner = clispinner.New(clispinner.WithWriter(session.out))
 	session.printLoopWg.Add(1)
 	go session.printLoop()
 	return session

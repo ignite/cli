@@ -2,8 +2,6 @@ package ignitecmd
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/spf13/cobra"
@@ -26,7 +24,7 @@ func NewScaffoldWasm() *cobra.Command {
 func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 
-	s := clispinner.New(os.Stdout).SetText("Scaffolding...")
+	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
 	sc, err := newApp(appPath)

@@ -2,8 +2,6 @@ package ignitecmd
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/spf13/cobra"
@@ -34,7 +32,7 @@ func NewScaffoldQuery() *cobra.Command {
 func queryHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 
-	s := clispinner.New(os.Stdout).SetText("Scaffolding...")
+	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
 	// Get the module to add the type into

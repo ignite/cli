@@ -17,9 +17,35 @@ type Spinner struct {
 	sp *spinner.Spinner
 }
 
+type (
+	Option func(*Options)
+
+	Options struct {
+		writer io.Writer
+	}
+)
+
+// WithWriter configures an output for a spinner
+func WithWriter(w io.Writer) Option {
+	return func(options *Options) {
+		options.writer = w
+	}
+}
+
 // New creates a new spinner.
-func New(w io.Writer) *Spinner {
-	sp := spinner.New(charset, refreshRate, spinner.WithWriter(w))
+func New(options ...Option) *Spinner {
+	o := Options{}
+	for _, apply := range options {
+		apply(&o)
+	}
+
+	underlyingSpinnerOptions := []spinner.Option{}
+	if o.writer != nil {
+		underlyingSpinnerOptions = append(underlyingSpinnerOptions, spinner.WithWriter(o.writer))
+	}
+
+	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
+
 	sp.Color(spinnerColor)
 	s := &Spinner{
 		sp: sp,

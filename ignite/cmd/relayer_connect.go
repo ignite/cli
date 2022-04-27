@@ -44,7 +44,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	ids := args
 
-	s := clispinner.New(os.Stdout)
+	s := clispinner.New()
 	defer s.Stop()
 
 	var use []string
