@@ -50,7 +50,7 @@ func Parse(gitURL string) (GitURL, error) {
 	} else {
 		// URL parses the domain name as part of the path when the git URL has no scheme
 		// so the first path element is assumed to be a domain name when it contains a "."
-		// TODO: should we use a regexp or the simplistic check is enough ?
+		// TODO: should we use a regexp or the simplistic check is enough?
 		if len(p) < 3 || !strings.Contains(p[0], ".") {
 			return GitURL{}, ErrInvalidURL
 		}

@@ -80,7 +80,7 @@ func Find(path string) (parsed Path, appPath string, err error) {
 }
 
 // ExtractUserRepoNames extracts the user and repository names from a go module path.
-func ExtractUserRepoNames(path string) (user string, repo string, err error) {
+func ExtractUserRepoNames(path string) (user, repo string, err error) {
 	if path == "" {
 		return "", "", errors.New("module path is empty")
 	}
