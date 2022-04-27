@@ -2,18 +2,21 @@ package cosmosutil
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ParseCoinsNormalizedWithPercentage parses coins with percentage prefix.
-// format: %20foo,%50staking
-func ParseCoinsNormalizedWithPercentage(coins string) (sdk.Coins, error) {
+var rePercentageRequired = regexp.MustCompile(`[0-9]+%`)
+
+// ParseCoinsNormalizedWithPercentageRequired parses coins by requiring percentages.
+// format: 20%foo,50%staking
+func ParseCoinsNormalizedWithPercentageRequired(coins string) (sdk.Coins, error) {
 	s := strings.Split(coins, ",")
 	for _, ss := range s {
-		if !strings.HasPrefix(ss, "%") {
-			return nil, fmt.Errorf("amount for %s has to have a %% prefix", ss)
+		if len(rePercentageRequired.FindStringIndex(ss)) == 0 {
+			return nil, fmt.Errorf("amount for %s has to have a %% after the number", ss)
 		}
 	}
 	trimmedCoins := strings.ReplaceAll(coins, "%", "")
