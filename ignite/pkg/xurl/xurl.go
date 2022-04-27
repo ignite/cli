@@ -22,9 +22,8 @@ func TCP(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != schemeTCP {
-		u.Scheme = schemeTCP
-	}
+	u.Scheme = schemeTCP
+
 	return u.String(), nil
 }
 
@@ -35,9 +34,8 @@ func HTTP(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != schemeHTTP {
-		u.Scheme = schemeHTTP
-	}
+	u.Scheme = schemeHTTP
+
 	return u.String(), nil
 }
 
@@ -48,9 +46,8 @@ func HTTPS(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != schemeHTTPS {
-		u.Scheme = schemeHTTPS
-	}
+	u.Scheme = schemeHTTPS
+
 	return u.String(), nil
 }
 
@@ -61,9 +58,8 @@ func WS(s string) (string, error) {
 		return "", err
 	}
 
-	if u.Scheme != schemeWS {
-		u.Scheme = schemeWS
-	}
+	u.Scheme = schemeWS
+
 	return u.String(), nil
 }
 
@@ -129,7 +125,9 @@ func parseURL(s string) (*url.URL, error) {
 	}
 
 	// Handle the case where the URI is an IP:PORT or HOST:PORT
-	// without scheme prefix because that case can't be URL parsed
+	// without scheme prefix because that case can't be URL parsed.
+	// When the URI has not scheme it is parsed as a path by "url.Parse"
+	// placing the colon within the path, which is invalid.
 	if isAddressPort(s) {
 		return &url.URL{Host: s}, nil
 	}
