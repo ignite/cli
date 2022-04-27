@@ -4,7 +4,6 @@
 package app_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -42,30 +41,9 @@ func TestGenerateAnAppWithName(t *testing.T) {
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
-		env     = envtest.New(t)
-		appName = "blog"
+		env  = envtest.New(t)
+		path = env.Scaffold("github.com/test/blog", "--no-module")
 	)
-
-	root := env.TmpDir()
-	env.Exec("scaffold an app",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"scaffold",
-				"chain",
-				fmt.Sprintf("github.com/test/%s", appName),
-				"--no-module",
-			),
-			step.Workdir(root),
-		)),
-	)
-
-	// Cleanup the home directory of the app
-	env.SetCleanup(func() {
-		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
-	})
-
-	path := filepath.Join(root, appName)
 
 	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
 	require.True(t, os.IsNotExist(statErr), "the default module should not be scaffolded")
