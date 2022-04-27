@@ -10,6 +10,7 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
@@ -194,12 +195,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		shares, err := campaigntypes.NewShares(sharesStr)
+		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentage(sharesStr)
 		if err != nil {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithShares(shares))
+		publishOptions = append(publishOptions, network.WithShares(campaigntypes.Shares(coins)))
 	}
 
 	if noCheck {
