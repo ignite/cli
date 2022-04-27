@@ -157,12 +157,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	initOptions = append(initOptions, networkchain.WithHome(homeDir))
 
-	// init the chain.
-	c, err := nb.Chain(sourceOption, initOptions...)
-	if err != nil {
-		return err
-	}
-
+	// prepare publish options
 	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
 	if genesisURL != "" {
@@ -200,7 +195,13 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithShares(campaigntypes.Shares(coins)))
+		publishOptions = append(publishOptions, network.WithShares(campaigntypes.NewSharesFromCoins(coins)))
+	}
+
+	// init the chain.
+	c, err := nb.Chain(sourceOption, initOptions...)
+	if err != nil {
+		return err
 	}
 
 	if noCheck {
