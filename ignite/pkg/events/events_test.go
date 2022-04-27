@@ -38,6 +38,13 @@ func TestBusSend(t *testing.T) {
 				Description: "description",
 			},
 		},
+		{
+			name: "send event on nil bus",
+			bus:  events.Bus{},
+			event: events.Event{
+				Status: events.StatusDone,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -55,6 +62,10 @@ func TestBusShutdown(t *testing.T) {
 		name string
 		bus  events.Bus
 	}{
+		{
+			name: "shutdown nil bus",
+			bus:  events.Bus{},
+		},
 		{
 			name: "shutdown bus correctly",
 			bus:  events.NewBus(),

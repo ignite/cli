@@ -129,6 +129,9 @@ func NewBus(options ...BusOption) Bus {
 
 // Send sends a new event to bus.
 func (b Bus) Send(e Event) {
+	if b.evchan == nil {
+		return
+	}
 	if b.buswg != nil {
 		b.buswg.Add(1)
 	}
