@@ -30,30 +30,9 @@ func TestGenerateAnApp(t *testing.T) {
 // TestGenerateAnAppWithName tests scaffolding a new chain using a local name instead of a GitHub URI.
 func TestGenerateAnAppWithName(t *testing.T) {
 	var (
-		env     = envtest.New(t)
-		appName = "blog"
-		root    = env.TmpDir()
+		env  = envtest.New(t)
+		path = env.Scaffold("blog")
 	)
-
-	// TODO: Change Env.Scaffold to avoid prefixing app names with GitHub URLs to avoid explicit scaffolding ?
-	env.Exec("scaffold an app",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"scaffold",
-				"chain",
-				appName,
-			),
-			step.Workdir(root),
-		)),
-	)
-
-	// Remove the files that were generated during the test when the integration test ends
-	env.SetCleanup(func() {
-		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
-	})
-
-	path := filepath.Join(root, appName)
 
 	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
 	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
