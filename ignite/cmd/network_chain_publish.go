@@ -195,7 +195,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentage(sharesStr)
+		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentageRequired(sharesStr)
 		if err != nil {
 			return err
 		}
