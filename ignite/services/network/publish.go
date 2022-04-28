@@ -22,6 +22,7 @@ type publishOptions struct {
 	noCheck     bool
 	metadata    string
 	totalSupply sdk.Coins
+	shares      campaigntypes.Shares
 	mainnet     bool
 }
 
@@ -67,6 +68,13 @@ func WithMetadata(metadata string) PublishOption {
 func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 	return func(c *publishOptions) {
 		c.totalSupply = totalSupply
+	}
+}
+
+// WithShares enables minting vouchers for shares.
+func WithShares(shares campaigntypes.Shares) PublishOption {
+	return func(c *publishOptions) {
+		c.shares = shares
 	}
 }
 
@@ -165,7 +173,22 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		campaignID,
 		nil,
 	)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
+
+	msgs := []sdk.Msg{msgCreateChain}
+
+	if !o.shares.Empty() {
+		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
+		// It is better to send multiple message in a single tx too.
+		// consider ways to refactor to accomplish a better API and efficiency.
+		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
+			n.account.Address(networktypes.SPN),
+			campaignID,
+			o.shares,
+		)
+		msgs = append(msgs, msgMintVouchers)
+	}
+
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msgs...)
 	if err != nil {
 		return 0, 0, 0, err
 	}
