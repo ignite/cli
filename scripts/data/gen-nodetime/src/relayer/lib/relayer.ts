@@ -142,7 +142,7 @@ export default class Relayer {
      * @param clientIdA
      * @param clientIdB
      */
-    public async createWithClient(
+    private async createWithClient(
         nodeA: IbcClient,
         nodeB: IbcClient,
         clientIdA: string,
