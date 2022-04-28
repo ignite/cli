@@ -3,15 +3,14 @@ package ignitecmd
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
 
-	"github.com/go-git/go-git/v5"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
+	"github.com/ignite-hq/cli/ignite/pkg/xgit"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 )
 
@@ -116,12 +115,20 @@ func scaffoldType(
 func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
 	cmd.Flags().AddFlagSet(flagSetYes())
 
+	preRunFun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+
+		if preRunFun != nil {
+			if err := preRunFun(cmd, args); err != nil {
+				return err
+			}
+		}
+
 		appPath := flagGetPath(cmd)
 
-		gitStatus, _ := getGitStatus(appPath)
+		changesCommitted, _ := xgit.AreChangesCommitted(appPath)
 
-		if !getYes(cmd) && !gitStatus.IsClean() {
+		if !getYes(cmd) && !changesCommitted {
 			prompt := promptui.Prompt{
 				Label:     "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
 				IsConfirm: true,
@@ -133,29 +140,6 @@ func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
 		return nil
 	}
 	return cmd
-}
-
-func getGitStatus(appPath string) (git.Status, error) {
-	appPath, err := filepath.Abs(appPath)
-	if err != nil {
-		return nil, err
-	}
-
-	repository, err := git.PlainOpen(appPath)
-	if err != nil {
-		return nil, err
-	}
-
-	w, err := repository.Worktree()
-	if err != nil {
-		return nil, err
-	}
-
-	ws, err := w.Status()
-	if err != nil {
-		return nil, err
-	}
-	return ws, nil
 }
 
 func flagSetScaffoldType() *flag.FlagSet {
