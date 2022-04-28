@@ -117,7 +117,6 @@ func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
 
 	preRunFun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-
 		if preRunFun != nil {
 			if err := preRunFun(cmd, args); err != nil {
 				return err
@@ -126,7 +125,10 @@ func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
 
 		appPath := flagGetPath(cmd)
 
-		changesCommitted, _ := xgit.AreChangesCommitted(appPath)
+		changesCommitted, err := xgit.AreChangesCommitted(appPath)
+		if err != nil {
+			return err
+		}
 
 		if !getYes(cmd) && !changesCommitted {
 			prompt := promptui.Prompt{
