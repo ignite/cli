@@ -10,7 +10,6 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -25,7 +24,7 @@ const (
 )
 
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
-func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []launchtypes.Request) (err error) {
+func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []networktypes.Request) (err error) {
 	c.ev.Send(events.New(events.StatusOngoing, "Verifying requests format"))
 	for _, req := range reqs {
 		// static verification of the request

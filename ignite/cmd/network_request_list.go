@@ -5,11 +5,12 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
-var requestSummaryHeader = []string{"ID", "Type", "Content"}
+var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
 
 // NewNetworkRequestList creates a new request list command to list
 // requests for a chain
@@ -54,13 +55,14 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 }
 
 // renderRequestSummaries writes into the provided out, the list of summarized requests
-func renderRequestSummaries(requests []launchtypes.Request, session cliui.Session) error {
+func renderRequestSummaries(requests []networktypes.Request, session cliui.Session) error {
 	requestEntries := make([][]string, 0)
 	for _, request := range requests {
-		id := fmt.Sprintf("%d", request.RequestID)
-		requestType := "Unknown"
-		content := ""
-
+		var (
+			id          = fmt.Sprintf("%d", request.RequestID)
+			requestType = "Unknown"
+			content     = ""
+		)
 		switch req := request.Content.Content.(type) {
 		case *launchtypes.RequestContent_GenesisAccount:
 			requestType = "Add Genesis Account"
@@ -102,6 +104,7 @@ func renderRequestSummaries(requests []launchtypes.Request, session cliui.Sessio
 
 		requestEntries = append(requestEntries, []string{
 			id,
+			request.Status,
 			requestType,
 			content,
 		})
