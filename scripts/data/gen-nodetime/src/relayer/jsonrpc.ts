@@ -6,7 +6,9 @@ type Handler = [string, SimpleJSONRPCMethod];
 // run exposes the JSON-RPC server for given handlers through the standard streams.
 export default async function run(handlers: Handler[]) {
   // init the rpc server.
-  const server = new JSONRPCServer();
+  const server = new JSONRPCServer({
+
+  });
 
   // attach methods to the rpc server.
   for (const [name, func] of handlers) {
@@ -27,3 +29,4 @@ export default async function run(handlers: Handler[]) {
 
   console.log(response);
 }
+
