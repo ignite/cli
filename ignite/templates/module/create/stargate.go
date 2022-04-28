@@ -3,14 +3,13 @@ package modulecreate
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
+	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/protopath"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
@@ -49,18 +48,17 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 		return g, err
 	}
 
+	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
-	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("params", opts.Params)
 	ctx.Set("isIBC", opts.IsIBC)
-	ctx.Set("apiPath", formatAPIPath(opts.OwnerName, opts.AppName, opts.ModuleName))
-
-	// Used for proto package name
-	ctx.Set("formatPackageName", protopath.FormatPackageName)
+	ctx.Set("apiPath", fmt.Sprintf("/%s/%s", appModulePath, opts.ModuleName))
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
@@ -208,15 +206,4 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
-}
-
-func formatAPIPath(ownerName, appName, moduleName string) string {
-	path := []string{"", ownerName}
-	if appName != ownerName {
-		path = append(path, appName)
-	}
-
-	path = append(path, moduleName)
-
-	return strings.Join(path, "/")
 }

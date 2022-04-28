@@ -8,8 +8,8 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
+	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/protopath"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
@@ -32,16 +32,16 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	if err := g.Box(template); err != nil {
 		return g, err
 	}
+
+	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
-	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("ibcOrdering", opts.IBCOrdering)
 	ctx.Set("dependencies", opts.Dependencies)
-
-	// Used for proto package name
-	ctx.Set("formatPackageName", protopath.FormatPackageName)
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

@@ -10,11 +10,12 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
+	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/protopath"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite-hq/cli/ignite/templates/module"
 	"github.com/ignite-hq/cli/ignite/templates/testutil"
 )
 
@@ -29,7 +30,6 @@ type OracleOptions struct {
 	AppPath    string
 	ModuleName string
 	ModulePath string
-	OwnerName  string
 	QueryName  multiformatname.Name
 	MsgSigner  multiformatname.Name
 }
@@ -48,16 +48,15 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g.RunFn(clientCliTxOracleModify(replacer, opts))
 	g.RunFn(codecOracleModify(replacer, opts))
 
+	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
-	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("queryName", opts.QueryName)
 	ctx.Set("MsgSigner", opts.MsgSigner)
-
-	// Used for proto package name
-	ctx.Set("formatPackageName", protopath.FormatPackageName)
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

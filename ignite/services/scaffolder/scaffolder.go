@@ -68,11 +68,6 @@ func App(path string) (Scaffolder, error) {
 	return s, nil
 }
 
-func owner(modulePath string) string {
-	user, _, _ := gomodulepath.ExtractUserRepoNames(modulePath)
-	return user
-}
-
 func finish(path, gomodPath string) error {
 	if err := protoc(path, gomodPath); err != nil {
 		return err
