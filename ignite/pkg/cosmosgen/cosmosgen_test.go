@@ -27,7 +27,7 @@ func TestVuexStoreModulePath(t *testing.T) {
 			name:         "short uri",
 			goModulePath: "domain.com/app",
 			protoPkgName: "app.module",
-			want:         "prefix/app/app/app.module/module",
+			want:         "prefix/app/app.module/module",
 		},
 		{
 			name:         "path",
@@ -39,7 +39,7 @@ func TestVuexStoreModulePath(t *testing.T) {
 			name:         "name",
 			goModulePath: "app",
 			protoPkgName: "app.module",
-			want:         "prefix/app/app/app.module/module",
+			want:         "prefix/app/app.module/module",
 		},
 	}
 
