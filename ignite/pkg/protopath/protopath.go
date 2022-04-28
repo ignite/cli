@@ -4,13 +4,11 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
-	"strings"
 
 	"golang.org/x/mod/module"
 
 	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
 )
 
 var (
@@ -74,16 +72,4 @@ func ResolveDependencyPaths(ctx context.Context, src string, versions []module.V
 	}
 
 	return paths, nil
-}
-
-// FormatPackageName formats a protocol buffer package name from a module path.
-func FormatPackageName(ownerName, appName, moduleName string) string {
-	path := []string{xstrings.FormatUsername(ownerName)}
-	if appName != ownerName {
-		path = append(path, appName)
-	}
-
-	path = append(path, moduleName)
-
-	return strings.Join(path, ".")
 }
