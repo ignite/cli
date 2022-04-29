@@ -45,7 +45,7 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request.
 
-To reward your participation, we're starting a bounty program for Ignite CLI. You can keep track of the Ignite CLI issues using the [project page](https://github.com/ignite-hq/cli/projects/5). Join the #bounty channel on [Discord](https://discord.com/invite/ignite) for more information and queries.
+Our Ignite CLI bounty program provides incentives for your participation and pays rewards. Track new, in-progress, and completed bounties on the [Bounty board](https://github.com/ignite-hq/cli/projects/5) in GitHub. Details in the #bounty channel in [Discord](https://discord.com/invite/ignite).
 
 **Important** Before you start implementing a new Ignite CLI feature, the first step is to create an issue on Github that describes the proposed changes.
 
