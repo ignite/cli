@@ -82,12 +82,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			chainHome,
 		)
 		if err := session.AskConfirm(question); err != nil {
-			fmt.Println("said no")
-			return nil
+			return session.PrintSaidNo()
 		}
 	}
 
-	n, err := nb.Network(network.CollectEvents(session.EventBus()))
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
@@ -97,7 +96,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkchain.CollectEvents(session.EventBus()))
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
 	}

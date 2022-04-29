@@ -5,7 +5,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +36,7 @@ func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	n, err := nb.Network(network.CollectEvents(session.EventBus()))
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}

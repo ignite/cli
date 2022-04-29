@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
@@ -94,7 +95,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session.Printf("%s Chain is prepared for launch\n", icons.OK)
 	session.Println("\nYou can start your node by running the following command:")
 	commandStr := fmt.Sprintf("%s start --home %s", binaryName, chainHome)
-	session.Printf("\t%s/%s\n", binaryDir, infoColor(commandStr))
+	session.Printf("\t%s/%s\n", binaryDir, colors.Info(commandStr))
 
 	return nil
 }

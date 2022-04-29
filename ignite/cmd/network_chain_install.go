@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
@@ -61,8 +62,8 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 
 	session.StopSpinner()
 	session.Printf("%s Binary installed\n", icons.OK)
-	session.Printf("%s Binary's name: %s\n", icons.Info, infoColor(binaryName))
-	session.Printf("%s Binary's path: %s\n", icons.Info, infoColor(binaryPath))
+	session.Printf("%s Binary's name: %s\n", icons.Info, colors.Info(binaryName))
+	session.Printf("%s Binary's path: %s\n", icons.Info, colors.Info(binaryPath))
 
 	return nil
 }

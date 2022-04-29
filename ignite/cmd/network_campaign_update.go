@@ -92,7 +92,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	session.Println("")
+	session.Println()
 
 	info, err := yaml.Marshal(cmd.Context(), campaign)
 	if err != nil {

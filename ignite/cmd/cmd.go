@@ -31,8 +31,6 @@ const (
 	checkVersionTimeout = time.Millisecond * 600
 )
 
-var infoColor = color.New(color.FgYellow).SprintFunc()
-
 // New creates a new root command for `Ignite CLI` with its sub commands.
 func New(ctx context.Context) *cobra.Command {
 	cobra.EnableCommandSorting = false

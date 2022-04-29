@@ -104,8 +104,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 				flagAmount,
 			)
 			if err := session.AskConfirm(question); err != nil {
-				session.Println("said no")
-				return nil
+				return session.PrintSaidNo()
 			}
 		}
 

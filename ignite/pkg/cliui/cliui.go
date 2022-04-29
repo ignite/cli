@@ -77,7 +77,7 @@ func (s Session) StopSpinner() {
 }
 
 // PauseSpinner pauses spinner, returns resume function to start paused spinner again.
-func (s Session) PauseSpinner() func() {
+func (s Session) PauseSpinner() (mightResume func()) {
 	isActive := s.spinner.IsActive()
 	f := func() {
 		if isActive {
@@ -102,6 +102,11 @@ func (s Session) Println(messages ...interface{}) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprintln(s.out, messages...)
 	return err
+}
+
+// PrintSaidNo prints message informing negative was given in a confirmation prompt
+func (s Session) PrintSaidNo() error {
+	return s.Println("said no")
 }
 
 // Println prints arbitrary message
