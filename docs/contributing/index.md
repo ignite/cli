@@ -62,7 +62,7 @@ Meet the [people behind Ignite CLI and our contributors](https://github.com/igni
 
 ## Viewing docs builds
 
-There are two ways to see what your changes will look like in production before the updated pages are published.
+Use a preview to see what your changes will look like in production before the updated pages are published.
 
-- When a PR is ready for review, you can see a `Docs Deploy Preview / build_and_deploy (pull_request)` preview on a GitHub actions URL that is unique for that PR.
 - While a PR is in draft mode, you can rely on using the preview feature in Markdown.
+- After the PR moves from **Draft** to **Ready for review**, the CI status checks generate a deploy preview. This preview stays up to date as you continue to work and commit new changes to the same branch. A `Docs Deploy Preview / build_and_deploy (pull_request)` preview on a GitHub actions URL is unique for that PR.
