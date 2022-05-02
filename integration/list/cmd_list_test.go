@@ -19,14 +19,14 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "user", "email"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a list with custom path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "AppPath", "email", "--path", "blog"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "AppPath", "email", "--path", "blog"),
 			step.Workdir(filepath.Dir(path)),
 		)),
 	))
@@ -36,6 +36,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 			step.Exec(envtest.IgniteApp,
 				"s",
 				"list",
+				"--yes",
 				"employee",
 				"numInt:int",
 				"numsInt:array.int",
@@ -57,21 +58,21 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("create a list with bool",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "document", "signed:bool"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "document", "signed:bool"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a list with custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "custom", "document:Document"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "custom", "document:Document"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a list with duplicated fields",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "company", "name", "name"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "company", "name", "name"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -79,7 +80,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a list with unrecognized field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "employee", "level:itn"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "employee", "level:itn"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -87,7 +88,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating an existing list",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "user", "email"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -95,7 +96,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a list whose name is a reserved word",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "map", "size:int"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "map", "size:int"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -103,7 +104,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a list containing a field with a reserved word",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "document", "type:int"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "document", "type:int"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -111,7 +112,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("create a list with no interaction message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "nomessage", "email", "--no-message"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "nomessage", "email", "--no-message"),
 			step.Workdir(path),
 		)),
 	))
@@ -127,28 +128,28 @@ func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "user", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a list in the app's module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "user", "email"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a list in a non existent module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "user", "email", "--module", "idontexist"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "idontexist"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -156,7 +157,7 @@ func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating an existing list",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "user", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),

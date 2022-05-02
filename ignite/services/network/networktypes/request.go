@@ -6,10 +6,36 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/ignite/pkg/xtime"
 )
 
+type (
+	// Request represents the launch Request of a chain on SPN
+	Request struct {
+		LaunchID  uint64                     `json:"LaunchID"`
+		RequestID uint64                     `json:"RequestID"`
+		Creator   string                     `json:"Creator"`
+		CreatedAt string                     `json:"CreatedAt"`
+		Content   launchtypes.RequestContent `json:"Content"`
+		Status    string                     `json:"Status"`
+	}
+)
+
+// ToRequest converts a request data from SPN and returns a Request object
+func ToRequest(request launchtypes.Request) Request {
+
+	return Request{
+		LaunchID:  request.LaunchID,
+		RequestID: request.RequestID,
+		Creator:   request.Creator,
+		CreatedAt: xtime.FormatUnixInt(request.CreatedAt),
+		Content:   request.Content,
+		Status:    launchtypes.Request_Status_name[int32(request.Status)],
+	}
+}
+
 // VerifyRequest verifies the validity of the request from its content (static check)
-func VerifyRequest(request launchtypes.Request) error {
+func VerifyRequest(request Request) error {
 	req, ok := request.Content.Content.(*launchtypes.RequestContent_GenesisValidator)
 	if ok {
 		err := VerifyAddValidatorRequest(req)

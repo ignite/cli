@@ -442,11 +442,16 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
+	nodeAddr, err := xurl.TCP(config.Host.RPC)
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
 	chainCommandOptions := []chaincmd.Option{
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
-		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
+		chaincmd.WithNodeAddress(nodeAddr),
 		chaincmd.WithKeyringBackend(backend),
 	}
 
