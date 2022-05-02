@@ -150,13 +150,13 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 	tests := []struct {
 		name           string
 		gi             networktypes.GenesisInformation
-		r              launchtypes.Request
+		r              networktypes.Request
 		invalidRequest bool
 	}{
 		{
 			name: "genesis account request",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewGenesisAccount(
 					0,
 					"spn1sgphx4vxt63xhvgp9wpewajyxeqt04twfj7gcc",
@@ -167,7 +167,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "vesting account request",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewVestingAccount(
 					0,
 					"spn19klee4szqpeu0laqze5srhdxtp6fuhcztdrh7c",
@@ -182,7 +182,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "genesis validator request",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewGenesisValidator(
 					0,
 					"spn1xnn9w76mf42t249486ss65lvga7gqs02erpw24",
@@ -196,7 +196,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "genesis account: existing genesis account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewGenesisAccount(
 					0,
 					"spn1g50xher44l9hjuatjdfxgv254jh2wgzfs55yu3",
@@ -208,7 +208,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "genesis account: existing vesting account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewGenesisAccount(
 					0,
 					"spn1gkzf4e0x6wr4djfd8h82v6cy507gy5v4spaus3",
@@ -220,7 +220,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "vesting account: existing genesis account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewVestingAccount(
 					0,
 					"spn1g50xher44l9hjuatjdfxgv254jh2wgzfs55yu3",
@@ -236,7 +236,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "vesting account: existing vesting account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewVestingAccount(
 					0,
 					"spn1gkzf4e0x6wr4djfd8h82v6cy507gy5v4spaus3",
@@ -252,7 +252,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "existing genesis validator",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewGenesisValidator(
 					0,
 					"spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6",
@@ -267,28 +267,28 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "remove genesis account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewAccountRemoval("spn1g50xher44l9hjuatjdfxgv254jh2wgzfs55yu3"),
 			},
 		},
 		{
 			name: "remove vesting account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewAccountRemoval("spn1gkzf4e0x6wr4djfd8h82v6cy507gy5v4spaus3"),
 			},
 		},
 		{
 			name: "remove genesis validator",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewValidatorRemoval("spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6"),
 			},
 		},
 		{
 			name: "remove account: non-existent account",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewAccountRemoval("spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6"),
 			},
 			invalidRequest: true,
@@ -296,7 +296,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		{
 			name: "remove account: non-existent genesis validator",
 			gi:   genesisInformation,
-			r: launchtypes.Request{
+			r: networktypes.Request{
 				Content: launchtypes.NewValidatorRemoval("spn1g50xher44l9hjuatjdfxgv254jh2wgzfs55yu3"),
 			},
 			invalidRequest: true,

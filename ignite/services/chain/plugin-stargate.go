@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -63,17 +64,25 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	if err != nil {
 		return err
 	}
+
+	apiAddr, err := xurl.TCP(conf.Host.API)
+	if err != nil {
+		return fmt.Errorf("invalid api address format %s: %w", conf.Host.API, err)
+	}
+
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("api.address", xurl.TCP(conf.Host.API))
+	config.Set("api.address", apiAddr)
 	config.Set("grpc.address", conf.Host.GRPC)
 	config.Set("grpc-web.address", conf.Host.GRPCWeb)
+
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
+
 	_, err = config.WriteTo(file)
 	return err
 }
@@ -85,17 +94,30 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 	if err != nil {
 		return err
 	}
+
+	rpcAddr, err := xurl.TCP(conf.Host.RPC)
+	if err != nil {
+		return fmt.Errorf("invalid rpc address format %s: %w", conf.Host.RPC, err)
+	}
+
+	p2pAddr, err := xurl.TCP(conf.Host.P2P)
+	if err != nil {
+		return fmt.Errorf("invalid p2p address format %s: %w", conf.Host.P2P, err)
+	}
+
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")
-	config.Set("rpc.laddr", xurl.TCP(conf.Host.RPC))
-	config.Set("p2p.laddr", xurl.TCP(conf.Host.P2P))
+	config.Set("rpc.laddr", rpcAddr)
+	config.Set("p2p.laddr", p2pAddr)
 	config.Set("rpc.pprof_laddr", conf.Host.Prof)
+
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
+
 	_, err = config.WriteTo(file)
 	return err
 }
