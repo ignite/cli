@@ -96,6 +96,77 @@ func TestPublish(t *testing.T) {
 		suite.AssertAllMocks(t)
 	})
 
+	t.Run("publish chain with shares", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+		shares, err := campaigntypes.NewShares("20foo,50staking")
+		require.NoError(t, err)
+
+		suite.ProfileQueryMock.
+			On(
+				"CoordinatorByAddress",
+				context.Background(),
+				&profiletypes.QueryGetCoordinatorByAddressRequest{
+					Address: account.Address(networktypes.SPN),
+				},
+			).
+			Return(nil, nil).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgCreateChain{
+					Coordinator:    account.Address(networktypes.SPN),
+					GenesisChainID: testutil.ChainID,
+					SourceURL:      testutil.ChainSourceURL,
+					SourceHash:     testutil.ChainSourceHash,
+					GenesisURL:     "",
+					GenesisHash:    "",
+					HasCampaign:    true,
+					CampaignID:     testutil.CampaignID,
+				},
+				campaigntypes.NewMsgMintVouchers(
+					account.Address(networktypes.SPN),
+					testutil.CampaignID,
+					shares,
+				),
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
+				LaunchID: testutil.LaunchID,
+			}), nil).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&campaigntypes.MsgCreateCampaign{
+					Coordinator:  account.Address(networktypes.SPN),
+					CampaignName: testutil.ChainName,
+					Metadata:     []byte{},
+				},
+			).
+			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
+				CampaignID: testutil.CampaignID,
+			}), nil).
+			Once()
+		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
+		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
+		suite.ChainMock.On("Name").Return(testutil.ChainName).Once()
+		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
+		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
+
+		launchID, campaignID, _, publishError := network.Publish(context.Background(), suite.ChainMock,
+			WithShares(shares),
+		)
+		require.NoError(t, publishError)
+		require.Equal(t, testutil.LaunchID, launchID)
+		require.Equal(t, testutil.CampaignID, campaignID)
+		suite.AssertAllMocks(t)
+	})
+
 	t.Run("publish chain with pre created campaign", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
