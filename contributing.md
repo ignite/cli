@@ -84,6 +84,6 @@ Ignite CLI follows Git Flow for branch strategy <https://www.atlassian.com/git/t
 
 - A single project board <https://github.com/ignite-hq/cli/projects/4> shows the issues we are currently working on and what issues we plan to work on.
 
-Contributors, please check the **To Do** column on the project board <https://github.com/tendermint/ignite-hq/cli/4> to find an issue to work on.
+Contributors, check the **To Do** column on the project board <https://github.com/ignite-hq/cli/projects/4> to find an issue to work on. See 
 
 We appreciate your contribution!
