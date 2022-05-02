@@ -8,13 +8,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
 const (

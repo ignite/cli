@@ -6,13 +6,11 @@ import (
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
-
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 )
 
 type (
-	// IBC is node client info.
-	IBC struct {
+	// IBCInfo is node client info.
+	IBCInfo struct {
 		ConsensusState spntypes.ConsensusState
 		ValidatorSet   spntypes.ValidatorSet
 		UnbondingTime  int64
@@ -26,28 +24,24 @@ type (
 	}
 )
 
-func NewNode(ctx context.Context, nodeAPI string) (*Node, error) {
-	c, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(nodeAPI))
-	if err != nil {
-		return nil, err
-	}
+func NewNode(cosmos CosmosClient) (*Node, error) {
 	return &Node{
-		cosmos:       c,
-		stakingQuery: stakingtypes.NewQueryClient(c.Context()),
+		cosmos:       cosmos,
+		stakingQuery: stakingtypes.NewQueryClient(cosmos.Context()),
 	}, nil
 }
 
 // IBCInfo Fetches the consensus state, validator set and the staking parameters
-func (n Node) IBCInfo(ctx context.Context) (IBC, error) {
+func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
 	status, err := n.cosmos.Status(ctx)
 	if err != nil {
-		return IBC{}, err
+		return IBCInfo{}, err
 	}
 	lastBlockHeight := status.SyncInfo.LatestBlockHeight
 
-	consensusState, err := n.cosmos.IBCInfo(lastBlockHeight)
+	consensusState, err := n.cosmos.IBCInfo(ctx, lastBlockHeight)
 	if err != nil {
-		return IBC{}, err
+		return IBCInfo{}, err
 	}
 	spnConsensusStatue := spntypes.NewConsensusState(
 		consensusState.Timestamp,
@@ -66,10 +60,10 @@ func (n Node) IBCInfo(ctx context.Context) (IBC, error) {
 
 	stakingParams, err := n.StakingParams(ctx)
 	if err != nil {
-		return IBC{}, err
+		return IBCInfo{}, err
 	}
 
-	return IBC{
+	return IBCInfo{
 		ConsensusState: spnConsensusStatue,
 		ValidatorSet:   spntypes.NewValidatorSet(validators...),
 		UnbondingTime:  int64(stakingParams.UnbondingTime.Seconds()),

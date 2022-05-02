@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
@@ -23,20 +24,23 @@ func NewNetworkClientCreate() *cobra.Command {
 }
 
 func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
+	launchID, err := network.ParseID(args[0])
+	if err != nil {
+		return err
+	}
+	nodeAPI := args[1]
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
 	defer nb.Cleanup()
 
-	// parse launch ID.
-	launchID, err := network.ParseID(args[0])
+	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
 		return err
 	}
-
-	nodeAPI := args[1]
-	node, err := network.NewNode(cmd.Context(), nodeAPI)
+	node, err := network.NewNode(nodeClient)
 	if err != nil {
 		return err
 	}
@@ -51,13 +55,7 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	clientID, err := n.CreateClient(
-		launchID,
-		ibcInfo.ConsensusState,
-		ibcInfo.ValidatorSet,
-		ibcInfo.UnbondingTime,
-		ibcInfo.Height,
-	)
+	clientID, err := n.CreateClient(launchID, ibcInfo)
 	if err != nil {
 		return err
 	}

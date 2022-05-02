@@ -1,7 +1,6 @@
 package network
 
 import (
-	spntypes "github.com/tendermint/spn/pkg/types"
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
 
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
@@ -9,18 +8,15 @@ import (
 
 func (n Network) CreateClient(
 	launchID uint64,
-	consensusState spntypes.ConsensusState,
-	validatorSet spntypes.ValidatorSet,
-	unbondingTime int64,
-	height uint64,
+	ibcInfo IBCInfo,
 ) (string, error) {
 	msgCreateClient := monitoringctypes.NewMsgCreateClient(
 		n.account.Address(networktypes.SPN),
 		launchID,
-		consensusState,
-		validatorSet,
-		unbondingTime,
-		height,
+		ibcInfo.ConsensusState,
+		ibcInfo.ValidatorSet,
+		ibcInfo.UnbondingTime,
+		ibcInfo.Height,
 	)
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateClient)

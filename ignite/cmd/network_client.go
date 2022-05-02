@@ -9,7 +9,7 @@ import (
 func NewNetworkClient() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "client",
-		Short: "Connect networks",
+		Short: "Connect your network with SPN",
 	}
 
 	c.AddCommand(
