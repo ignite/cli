@@ -112,8 +112,6 @@ func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...netwo
 }
 
 func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
-	options = append(options, network.CollectEvents(n.ev))
-
 	var (
 		err     error
 		from    = getFrom(n.cmd)
@@ -125,7 +123,10 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'ignite account -h' to manage accounts")
 		}
 	}
-	return network.New(*cosmos, account, options...)
+
+	options = append(options, network.CollectEvents(n.ev))
+
+	return network.New(*cosmos, account, options...), nil
 }
 
 func (n NetworkBuilder) Cleanup() {

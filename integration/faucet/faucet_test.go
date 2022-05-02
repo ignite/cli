@@ -60,7 +60,10 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	// error "account doesn't have any balances" occurs if a sleep is not included
 	time.Sleep(time.Second * 1)
 
-	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(xurl.HTTP(servers.RPC)))
+	nodeAddr, err := xurl.HTTP(servers.RPC)
+	require.NoError(t, err)
+
+	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(nodeAddr))
 	require.NoError(t, err)
 
 	// the faucet sends the default faucet coins value when not specified
@@ -101,7 +104,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 }
 
 func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Client, accAddr string, coins []string) {
-	resp, err := banktypes.NewQueryClient(c.Context).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+	resp, err := banktypes.NewQueryClient(c.Context()).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
 		Address: accAddr,
 	})
 	require.NoError(t, err)

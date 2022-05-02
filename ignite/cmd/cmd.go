@@ -129,7 +129,7 @@ func getHome(cmd *cobra.Command) (home string) {
 
 func flagSetYes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagYes, false, "Answers interactive yes/no questions with yes")
+	fs.BoolP(flagYes, "y", false, "Answers interactive yes/no questions with yes")
 	return fs
 }
 

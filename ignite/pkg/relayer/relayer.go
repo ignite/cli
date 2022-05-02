@@ -206,7 +206,7 @@ func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix
 
 	addr := acc.Address(addressPrefix)
 
-	queryClient := banktypes.NewQueryClient(client.Context)
+	queryClient := banktypes.NewQueryClient(client.Context())
 	res, err := queryClient.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{Address: addr})
 	if err != nil {
 		return nil, err
