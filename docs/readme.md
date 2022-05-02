@@ -23,6 +23,10 @@ To install the `ignite` binary in `/usr/local/bin` run the following command:
 curl https://get.ignite.com/cli! | bash
 ```
 
+## Bounty program
+
+Our [Ignite CLI bounty program](bounty/index.md) provides incentives for your participation and pays rewards.
+
 ## Projects using Tendermint and Cosmos SDK
 
 Many projects already showcase the Tendermint BFT consensus engine and the Cosmos SDK. Explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
