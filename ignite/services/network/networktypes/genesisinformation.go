@@ -150,7 +150,7 @@ func (gi *GenesisInformation) RemoveGenesisValidator(address string) {
 }
 
 // ApplyRequest applies to the genesisInformation the changes implied by the approval of a request
-func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisInformation, error) {
+func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, error) {
 	switch requestContent := request.Content.Content.(type) {
 	case *launchtypes.RequestContent_GenesisAccount:
 		// new genesis account in the genesis
