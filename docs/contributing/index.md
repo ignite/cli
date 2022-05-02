@@ -1,15 +1,5 @@
 # Contributing to Ignite CLI docs
 
-- [Contributing to Ignite CLI docs](#contributing-to-ignite-cli-docs)
-  - [Using this repo](#using-this-repo)
-  - [Reviewing technical content PRs](#reviewing-technical-content-prs)
-  - [Writing and contributing](#writing-and-contributing)
-  - [Where can I find the tutorials and docs?](#where-can-i-find-the-tutorials-and-docs)
-  - [Who works on the tutorials?](#who-works-on-the-tutorials)
-  - [Viewing tutorial builds](#viewing-tutorial-builds)
-    - [Preview PRs on a deployed preview](#preview-prs-on-a-deployed-preview)
-    - [Preview draft PRs on a local web browser](#preview-draft-prs-on-a-local-web-browser)
-  
 Thank you for visiting our repository and considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
 
 To set up your environment for success, follow the [technical setup](technical-setup.md) guidelines.
@@ -70,52 +60,9 @@ The Ignite product team developers are focused on building Ignite CLI and improv
 
 Meet the [people behind Ignite CLI and our contributors](https://github.com/ignite-hq/cli/graphs/contributors).
 
-## Viewing tutorial builds
+## Viewing docs builds
 
 There are two ways to see what your changes will look like in production before the updated pages are published.
 
-- When a PR is ready for review, you can see a deployed preview on a URL that is unique for that PR.
-- While a PR is in draft mode, you can preview a local build.
-
-### Preview PRs on a deployed preview
-
-After the PR moves from **Draft** to **Ready for review**, the CI status checks generate a CloudFlare deploy preview. This preview stays up to date as you continue to work and commit new changes to the same branch.
-
-To view a deployed preview on a **Ready for review** PR, click the CloudFlare Pages **Preview URL** link.
-
-### Preview draft PRs on a local web browser
-
-Since the deploy preview doesn't work on Draft PRs, you can rely on using the preview in Markdown or for more complex content updates you can follow these steps to preview a tutorial and docs build on a local web browser.
-
-1. If you haven't already, clone the tutorials repo to your local machine and change to that directory. For example:
-
-    ```bash
-    cd ~/github
-    git clone https://github.com/ignite-hq/cli
-    cd ignite
-    cd docs
-    ```
-
-2. Local tutorials require JavaScript. If needed, install [npm](https://docs.npmjs.com/cli/v6/commands/npm-install).
-
-3. For each branch you work in, install the npm packages for the  tutorials:
-
-    ```bash
-    npm install
-    ```
-
-4. Start the local instance of the tutorial build:
-
-    ```bash
-    npm run serve
-    ```
-
-    A successful client compile looks like:
-
-    ```bash
-    > VuePress dev server listening at http://localhost:8080/ ✔ Client Compiled successfully in 280.71ms success [12:06:28] Build 03d41f finished in 283 ms! ( http://localhost:8080/ )
-    ```
-
-5. You can now view the docs build on a local web browser. Isn't this fun?
-
-    Tip: On a Mac, press the command key and click `http://localhost:8080/` in the terminal window for quick access to the local preview. If you are already using port 8080 on your local machine, the preview increments to the next available port 8081, and so on.
+- When a PR is ready for review, you can see a `Docs Deploy Preview / build_and_deploy (pull_request)` preview on a GitHub actions URL that is unique for that PR.
+- While a PR is in draft mode, you can rely on using the preview feature in Markdown.
