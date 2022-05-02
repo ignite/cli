@@ -63,7 +63,6 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source                    = xurl.HTTPS(args[0])
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
 		hash, _                   = cmd.Flags().GetString(flagHash)
@@ -78,6 +77,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
 	)
+
+	source, err := xurl.MightHTTPS(args[0])
+	if err != nil {
+		return fmt.Errorf("invalid source url format: %w", err)
+	}
 
 	if campaign != 0 && campaignTotalSupplyStr != "" {
 		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagCampaignTotalSupply)
