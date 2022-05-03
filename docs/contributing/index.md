@@ -1,3 +1,4 @@
+---
 parent:
   order: 6
   title: Contributing to Ignite CLI docs
