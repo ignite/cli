@@ -1,3 +1,11 @@
+---
+order: 1
+description: Ignite CLI bounty program incentives and rewards. 
+parent:
+  order: 7
+  title: Bounty program
+---
+
 # Bounty program
 
 Our Ignite CLI bounty program provides incentives for your participation and pays rewards. If you're interested in blockchain and know Golang, follow the bounty issues, write code, close issues, and get rewarded.

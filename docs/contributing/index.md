@@ -1,3 +1,8 @@
+parent:
+  order: 6
+  title: Contributing to Ignite CLI docs
+---
+
 # Contributing to Ignite CLI docs
 
 Thank you for visiting our repository and considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
