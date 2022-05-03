@@ -146,8 +146,8 @@ func (n Network) UpdateCampaign(
 	if p.name != "" || len(p.metadata) > 0 {
 		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(
 			account,
-			p.name,
 			id,
+			p.name,
 			p.metadata,
 		))
 	}
