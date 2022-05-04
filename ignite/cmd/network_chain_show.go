@@ -153,10 +153,13 @@ func newNetworkChainShowGenesis() *cobra.Command {
 				}
 
 				// create the chain into a temp dir
-				home := filepath.Join(os.TempDir(), "spn/temp", chainLaunch.ChainID)
-				defer os.RemoveAll(home)
+				tmpHome, err := os.MkdirTemp("", "*-spn")
+				if err != nil {
+					return err
+				}
+				defer os.RemoveAll(tmpHome)
 
-				c.SetHome(home)
+				c.SetHome(tmpHome)
 
 				err = c.Prepare(cmd.Context(), genesisInformation)
 				if err != nil {
