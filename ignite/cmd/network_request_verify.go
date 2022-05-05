@@ -2,16 +2,15 @@ package ignitecmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/numbers"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 // NewNetworkRequestVerify verify the request and simulate the chain.
@@ -29,12 +28,13 @@ func NewNetworkRequestVerify() *cobra.Command {
 }
 
 func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
-	// initialize network common methods
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -50,13 +50,11 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 
 	// verify the requests
 	if err := verifyRequest(cmd.Context(), nb, launchID, ids...); err != nil {
-		fmt.Printf("%s Request(s) %s not valid\n", clispinner.NotOK, numbers.List(ids, "#"))
+		session.Printf("%s Request(s) %s not valid\n", icons.NotOK, numbers.List(ids, "#"))
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s verified\n", clispinner.OK, numbers.List(ids, "#"))
-	return nil
+	return session.Printf("%s Request(s) %s verified\n", icons.OK, numbers.List(ids, "#"))
 }
 
 // verifyRequest initialize the chain from the launch ID in a temporary directory
