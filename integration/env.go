@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"testing"
@@ -399,6 +400,30 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+}
+
+// InstallClientDep installs the Vue boilerplate dependencies.
+func (e Env) InstallClientDep(path string) {
+	npm, err := exec.LookPath("npm")
+	require.NoError(e.t, err, "npm binary not found")
+
+	var output bytes.Buffer
+
+	e.Must(e.Exec("install client dependencies", step.NewSteps(
+		step.New(
+			step.Workdir(fmt.Sprintf("%s/vue", path)),
+			step.Stdout(&output),
+			step.Exec(npm, "install"),
+			step.PostExec(func(err error) error {
+				// Print the npm output when there is an error
+				if err != nil {
+					e.t.Log("\n", output.String())
+				}
+
+				return err
+			}),
+		),
+	)))
 }
 
 // Must fails the immediately if not ok.
