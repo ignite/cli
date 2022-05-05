@@ -91,38 +91,12 @@ func HTTPEnsurePort(s string) string {
 	return u.String()
 }
 
-// CleanPath cleans path from the url.
-func CleanPath(s string) string {
-	u, err := url.Parse(s)
-	if err != nil {
-		return s
-	}
-
-	u.Path = ""
-
-	return u.String()
-}
-
 // Address ensures that address contains localhost as host if non specified.
 func Address(address string) string {
 	if strings.HasPrefix(address, ":") {
 		return "localhost" + address
 	}
 	return address
-}
-
-// IsLocalPath checks if given address is a local fs path or a URL.
-func IsLocalPath(address string) bool {
-	for _, pattern := range []string{
-		"http://",
-		"https://",
-		"git@",
-	} {
-		if strings.HasPrefix(address, pattern) {
-			return false
-		}
-	}
-	return true
 }
 
 func IsHTTP(address string) bool {
