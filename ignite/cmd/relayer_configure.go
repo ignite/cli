@@ -8,10 +8,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
 )
 
@@ -98,7 +98,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	s := clispinner.New().Stop()
+	s := clispinner.New().Start()
 	defer s.Stop()
 
 	printSection("Setting up chains")

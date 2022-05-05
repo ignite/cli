@@ -19,3 +19,8 @@ func NowAfter(unix time.Duration) string {
 func FormatUnix(date time.Time) string {
 	return date.Format(time.UnixDate)
 }
+
+// FormatUnixInt formats the int timestamp to unix date string
+func FormatUnixInt(unix int64) string {
+	return FormatUnix(time.Unix(unix, 0))
+}
