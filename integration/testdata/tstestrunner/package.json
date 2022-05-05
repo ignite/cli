@@ -1,0 +1,14 @@
+{
+  "name": "tstestrunner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test Runner for the TS Client",
+  "license": "ISC",
+  "scripts": {
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.31",
+    "vitest": "^0.10.2"
+  }
+}
