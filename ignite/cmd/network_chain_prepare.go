@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -34,13 +35,15 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	force, _ := cmd.Flags().GetBool(flagForce)
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -88,10 +91,11 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	}
 	binaryDir := filepath.Dir(filepath.Join(goenv.Bin(), binaryName))
 
-	fmt.Printf("%s Chain is prepared for launch\n", clispinner.OK)
-	fmt.Println("\nYou can start your node by running the following command:")
+	session.StopSpinner()
+	session.Printf("%s Chain is prepared for launch\n", icons.OK)
+	session.Println("\nYou can start your node by running the following command:")
 	commandStr := fmt.Sprintf("%s start --home %s", binaryName, chainHome)
-	fmt.Printf("\t%s/%s\n", binaryDir, infoColor(commandStr))
+	session.Printf("\t%s/%s\n", binaryDir, colors.Info(commandStr))
 
 	return nil
 }
