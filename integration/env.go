@@ -36,6 +36,9 @@ const (
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
 
+// ConfigUpdateFunc defines a function type to update config file values.
+type ConfigUpdateFunc func(*chainconfig.Config) error
+
 // Env provides an isolated testing environment and what's needed to
 // make it possible.
 type Env struct {
@@ -352,6 +355,29 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 	require.NoError(e.t, err)
 
 	return addr
+}
+
+// UpdateConfig updates config.yml file values.
+func (e Env) UpdateConfig(path, configFile string, update ConfigUpdateFunc) {
+	if configFile == "" {
+		configFile = ConfigYML
+	}
+
+	f, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	require.NoError(e.t, err)
+
+	defer f.Close()
+
+	var cfg chainconfig.Config
+
+	require.NoError(e.t, yaml.NewDecoder(f).Decode(&cfg))
+	require.NoError(e.t, update(&cfg))
+	require.NoError(e.t, f.Truncate(0))
+
+	_, err = f.Seek(0, 0)
+
+	require.NoError(e.t, err)
+	require.NoError(e.t, yaml.NewEncoder(f).Encode(cfg))
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
