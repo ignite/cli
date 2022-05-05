@@ -3,6 +3,8 @@ package ignitecmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
@@ -11,7 +13,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/spf13/cobra"
 )
 
 const (

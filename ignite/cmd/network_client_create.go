@@ -1,11 +1,10 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
@@ -24,6 +23,9 @@ func NewNetworkClientCreate() *cobra.Command {
 }
 
 func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
@@ -34,7 +36,6 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
@@ -60,7 +61,7 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Client created: %s\n", clispinner.Info, clientID)
+	session.StopSpinner()
+	session.Printf("%s Client created: %s\n", icons.Info, clientID)
 	return nil
 }
