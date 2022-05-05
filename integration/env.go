@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -114,6 +115,37 @@ func ExecStderr(w io.Writer) ExecOption {
 func ExecRetry() ExecOption {
 	return func(o *execOptions) {
 		o.shouldRetry = true
+	}
+}
+
+type clientOptions struct {
+	env              map[string]string
+	pattern, rootDir string
+}
+
+// ClientOption defines options for the TS client test runner.
+type ClientOption func(*clientOptions)
+
+// ClientEnv option defines environment values for the tests.
+func ClientEnv(env map[string]string) ClientOption {
+	return func(o *clientOptions) {
+		for k, v := range env {
+			o.env[k] = v
+		}
+	}
+}
+
+// ClientTestName options defines a pattern to match the test(s) that should be run.
+func ClientTestName(pattern string) ClientOption {
+	return func(o *clientOptions) {
+		o.pattern = pattern
+	}
+}
+
+// ClientTestDir options defines a root directory where to look for tests.
+func ClientTestDir(dir string) ClientOption {
+	return func(o *clientOptions) {
+		o.rootDir = dir
 	}
 }
 
@@ -419,6 +451,90 @@ func (e Env) InstallClientDep(path string) {
 				if err != nil {
 					e.t.Log("\n", output.String())
 				}
+
+				return err
+			}),
+		),
+	)))
+}
+
+// RunClientTests runs the Typescript client tests.
+func (e Env) RunClientTests(path string, options ...ClientOption) {
+	npm, err := exec.LookPath("npm")
+	require.NoError(e.t, err, "npm binary not found")
+
+	cwd, err := os.Getwd()
+	require.NoError(e.t, err)
+
+	// The filename of this module is required to be able to define the location
+	// of the TS client test runner package to be used as working directory when
+	// running the tests.
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		e.t.Fatal("failed to read file name")
+	}
+
+	opts := clientOptions{
+		rootDir: "testdata",
+		env: map[string]string{
+			"TSC_CHAIN_PATH": path,
+		},
+	}
+	for _, o := range options {
+		o(&opts)
+	}
+
+	var (
+		output bytes.Buffer
+		env    []string
+	)
+
+	// The root dir for the tests must be an absolute path
+	absRootDir := filepath.Join(cwd, opts.rootDir)
+
+	args := []string{"run", "test", "--", "--dir", absRootDir}
+	if opts.pattern != "" {
+		args = append(args, "-t", opts.pattern)
+	}
+
+	for k, v := range opts.env {
+		env = append(env, cmdrunner.Env(k, v))
+	}
+
+	// The tests are run from the TS client test runner package directory
+	runnerDir := filepath.Join(filepath.Dir(filename), "testdata", "tstestrunner")
+
+	// TODO: Ignore stderr (errors are already displayed with traceback in the stdout) ?
+	e.Must(e.Exec("run client tests", step.NewSteps(
+		// Make sure the test runner dependencies are installed
+		step.New(
+			step.Workdir(runnerDir),
+			step.Stdout(&output),
+			step.Exec(npm, "install"),
+			step.PostExec(func(err error) error {
+				// Print the npm output when there is an error
+				if err != nil {
+					e.t.Log("\n", output.String())
+				}
+
+				return err
+			}),
+		),
+		// Run the TS client tests
+		step.New(
+			step.Workdir(runnerDir),
+			step.Stdout(&output),
+			step.Env(env...),
+			step.PreExec(func() error {
+				// Clear the output from the previous step
+				output.Reset()
+
+				return nil
+			}),
+			step.Exec(npm, args...),
+			step.PostExec(func(err error) error {
+				// Always print tests output to be available on errors or when verbose is enabled
+				e.t.Log("\n", output.String())
 
 				return err
 			}),
