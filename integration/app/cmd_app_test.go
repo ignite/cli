@@ -50,6 +50,7 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	// Cleanup the home directory of the app
 	env.SetCleanup(func() {
 		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
+		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".ignite/cache/%s", appName)))
 	})
 
 	path := filepath.Join(root, appName)

@@ -27,6 +27,7 @@ const (
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
+	flagClearCache    = "clear-cache"
 
 	checkVersionTimeout = time.Millisecond * 600
 )
@@ -128,6 +129,15 @@ func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
 	return isEnabled
+}
+
+func flagSetClearCache(cmd *cobra.Command) {
+	cmd.PersistentFlags().Bool(flagClearCache, false, "clears the cache")
+}
+
+func flagGetClearCache(cmd *cobra.Command) bool {
+	clearCache, _ := cmd.Flags().GetBool(flagClearCache)
+	return clearCache
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {

@@ -23,6 +23,7 @@ func NewScaffoldQuery() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
@@ -67,6 +68,12 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	sc, err := newApp(appPath)
 	if err != nil {
 		return err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := sc.CacheStorage.Clear(); err != nil {
+			return err
+		}
 	}
 
 	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)

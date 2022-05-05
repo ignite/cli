@@ -9,20 +9,22 @@ import (
 	"runtime"
 
 	"github.com/docker/docker/pkg/archive"
-	"github.com/pkg/errors"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/checksum"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
 	"github.com/ignite-hq/cli/ignite/pkg/goanalysis"
 	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"github.com/pkg/errors"
 )
 
 const (
-	releaseDir  = "release"
-	checksumTxt = "checksum.txt"
+	releaseDir         = "release"
+	releaseChecksumKey = "release_checksum"
+	modChecksumKey     = "go_mod_checksum"
 )
 
 // Build builds and installs app binaries.
@@ -157,7 +159,7 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 		tarf.Close()
 	}
 
-	checksumPath := filepath.Join(releasePath, checksumTxt)
+	checksumPath := filepath.Join(releasePath, releaseChecksumKey)
 
 	// create a checksum.txt and return with the path to release dir.
 	return releasePath, checksum.Sum(releasePath, checksumPath)
@@ -189,11 +191,26 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 
 	fmt.Fprintln(c.stdLog().out, "📦 Installing dependencies...")
 
+	// We do mod tidy before checking for checksum changes, because go.mod gets modified often
+	// and the mod verify command is the expensive one anyway
 	if err := gocmd.ModTidy(ctx, c.app.Path); err != nil {
 		return nil, err
 	}
-	if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
+
+	dirCache := cache.New[[]byte](c.CacheStorage, "build.dircache")
+	modChanged, err := dirchange.HasDirChecksumChanged(c.app.Path, []string{"go.mod"}, dirCache, modChecksumKey)
+	if err != nil {
 		return nil, err
+	}
+
+	if modChanged {
+		if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
+			return nil, err
+		}
+
+		if err := dirchange.SaveDirChecksum(c.app.Path, []string{"go.mod"}, dirCache, modChecksumKey); err != nil {
+			return nil, err
+		}
 	}
 
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")

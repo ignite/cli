@@ -168,7 +168,7 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
+	if err := cosmosgen.Generate(ctx, c.CacheStorage, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

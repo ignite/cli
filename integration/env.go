@@ -181,9 +181,10 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 		)),
 	)
 
-	// Cleanup the home directory of the app
+	// Cleanup the home directory and cache of the app
 	e.t.Cleanup(func() {
 		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
+		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".ignite/cache/%s", appName)))
 	})
 
 	return filepath.Join(root, appName)

@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -39,6 +38,7 @@ Sample usages:
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().Bool(flagRelease, false, "build for a release")
@@ -70,6 +70,12 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := c.CacheStorage.Clear(); err != nil {
+			return err
+		}
 	}
 
 	if isRelease {

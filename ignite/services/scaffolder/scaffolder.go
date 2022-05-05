@@ -10,6 +10,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
@@ -32,6 +33,9 @@ type Scaffolder struct {
 
 	// Version of the chain
 	Version cosmosver.Version
+
+	// CacheStorage is used for caching build steps
+	CacheStorage cache.Storage
 }
 
 // App creates a new scaffolder for an existent app.
@@ -53,6 +57,11 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, err
 	}
 
+	cacheStorage, err := cache.NewChainStorage(modpath.Root)
+	if err != nil {
+		return Scaffolder{}, err
+	}
+
 	version, err := cosmosver.Detect(path)
 	if err != nil {
 		return Scaffolder{}, err
@@ -63,9 +72,10 @@ func App(path string) (Scaffolder, error) {
 	}
 
 	s := Scaffolder{
-		path:    path,
-		modpath: modpath,
-		Version: version,
+		path:         path,
+		modpath:      modpath,
+		Version:      version,
+		CacheStorage: cacheStorage,
 	}
 
 	return s, nil
@@ -75,8 +85,8 @@ func owner(modulePath string) string {
 	return strings.Split(modulePath, "/")[1]
 }
 
-func finish(path, gomodPath string) error {
-	if err := protoc(path, gomodPath); err != nil {
+func finish(path, gomodPath string, cacheStore cache.Storage) error {
+	if err := protoc(path, gomodPath, cacheStore); err != nil {
 		return err
 	}
 	if err := tidy(path); err != nil {
@@ -85,7 +95,7 @@ func finish(path, gomodPath string) error {
 	return fmtProject(path)
 }
 
-func protoc(projectPath, gomodPath string) error {
+func protoc(projectPath, gomodPath string, cacheStore cache.Storage) error {
 	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
 		return err
 	}
@@ -123,7 +133,7 @@ func protoc(projectPath, gomodPath string) error {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
 
-	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
+	return cosmosgen.Generate(context.Background(), cacheStore, projectPath, conf.Build.Proto.Path, options...)
 }
 
 func tidy(path string) error {

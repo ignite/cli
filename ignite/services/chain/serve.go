@@ -10,11 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/otiai10/copy"
-	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
@@ -23,20 +20,23 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
 	"github.com/ignite-hq/cli/ignite/pkg/xhttp"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/otiai10/copy"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
-	// sourceChecksum is the file containing the checksum to detect source modification
-	sourceChecksum = "source_checksum.txt"
+	// sourceChecksumKey is the cache key for the checksum to detect source modification
+	sourceChecksumKey = "source_checksum"
 
-	// binaryChecksum is the file containing the checksum to detect binary modification
-	binaryChecksum = "binary_checksum.txt"
+	// binaryChecksumKey is the cache key for the checksum to detect binary modification
+	binaryChecksumKey = "binary_checksum"
 
-	// configChecksum is the file containing the checksum to detect config modification
-	configChecksum = "config_checksum.txt"
+	// configChecksumKey is the cache key for containing the checksum to detect config modification
+	configChecksumKey = "config_checksum"
 )
 
 var (
@@ -253,13 +253,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
-	saveDir, err := c.chainSavePath()
-	if err != nil {
-		return err
-	}
-
 	// isInit determines if the app is initialized
 	var isInit bool
+
+	dirCache := cache.New[[]byte](c.CacheStorage, "serve.dircache")
 
 	// determine if the app must reset the state
 	// if the state must be reset, then we consider the chain as being not initialized
@@ -270,7 +267,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if isInit {
 		configModified := false
 		if c.ConfigPath() != "" {
-			configModified, err = dirchange.HasDirChecksumChanged(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum)
+			configModified, err = dirchange.HasDirChecksumChanged(c.app.Path, []string{c.ConfigPath()}, dirCache, configChecksumKey)
 			if err != nil {
 				return err
 			}
@@ -285,7 +282,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// check if source has been modified since last serve
 	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
-	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum)
+	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendSourceWatchPaths, dirCache, sourceChecksumKey)
 	if err != nil {
 		return err
 	}
@@ -303,7 +300,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 		binaryModified = true
 	} else {
-		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, saveDir, binaryChecksum)
+		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, dirCache, binaryChecksumKey)
 		if err != nil {
 			return err
 		}
@@ -357,18 +354,18 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// save checksums
 	if c.ConfigPath() != "" {
-		if err := dirchange.SaveDirChecksum(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum); err != nil {
+		if err := dirchange.SaveDirChecksum(c.app.Path, []string{c.ConfigPath()}, dirCache, configChecksumKey); err != nil {
 			return err
 		}
 	}
-	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, dirCache, sourceChecksumKey); err != nil {
 		return err
 	}
 	binaryPath, err = exec.LookPath(binaryName)
 	if err != nil {
 		return err
 	}
-	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, saveDir, binaryChecksum); err != nil {
+	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, dirCache, binaryChecksumKey); err != nil {
 		return err
 	}
 

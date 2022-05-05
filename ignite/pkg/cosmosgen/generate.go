@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
@@ -12,6 +13,11 @@ import (
 )
 
 const defaultSdkImport = "github.com/cosmos/cosmos-sdk"
+
+type ModulesInPath struct {
+	Path    string
+	Modules []module.Module
+}
 
 func (g *generator) setup() (err error) {
 	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
@@ -67,16 +73,34 @@ func (g *generator) setup() (err error) {
 	//
 	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
 	// at some point, it is a nice to have.
+	moduleCache := cache.New[ModulesInPath](g.cacheStorage, "generate.setup")
 	for _, dep := range g.deps {
-		path, err := gomodule.LocatePath(g.ctx, g.appPath, dep)
+		cacheKey := dep.Path + dep.Version
+		modulesInPath, found, err := moduleCache.Get(cacheKey)
 		if err != nil {
 			return err
 		}
-		modules, err := g.discoverModules(path, "")
-		if err != nil {
-			return err
+
+		if !found {
+			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
+			if err != nil {
+				return err
+			}
+			modules, err := g.discoverModules(path, "")
+			if err != nil {
+				return err
+			}
+
+			modulesInPath = ModulesInPath{
+				Path:    path,
+				Modules: modules,
+			}
+			if err := moduleCache.Put(cacheKey, modulesInPath); err != nil {
+				return err
+			}
 		}
-		g.thirdModules[path] = append(g.thirdModules[path], modules...)
+
+		g.thirdModules[modulesInPath.Path] = append(g.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
 	}
 
 	return nil
@@ -88,7 +112,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 		paths = append(paths, filepath.Join(path, p))
 	}
 
-	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.appPath, g.deps,
+	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.cacheStorage, g.appPath, g.deps,
 		protopath.NewModule(g.sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
 	if err != nil {
 		return nil, err

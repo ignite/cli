@@ -26,6 +26,12 @@ func generateOpenAPIHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if flagGetClearCache(cmd) {
+		if err := c.CacheStorage.Clear(); err != nil {
+			return err
+		}
+	}
+
 	if err := c.Generate(cmd.Context(), chain.GenerateOpenAPI()); err != nil {
 		return err
 	}

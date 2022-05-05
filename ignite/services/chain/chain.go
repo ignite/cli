@@ -8,16 +8,16 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	"github.com/tendermint/spn/pkg/chainid"
-
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/confile"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/repoversion"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/tendermint/spn/pkg/chainid"
 )
 
 var (
@@ -66,6 +66,8 @@ type Chain struct {
 	protoBuiltAtLeastOnce bool
 
 	stdout, stderr io.Writer
+
+	CacheStorage cache.Storage
 }
 
 // chainOptions holds user given options that overwrites chain's defaults.
@@ -140,12 +142,17 @@ func New(path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
+	cacheStorage, err := cache.NewChainStorage(app.Name)
+	if err != nil {
+		return nil, err
+	}
 	c := &Chain{
 		app:            app,
 		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         io.Discard,
 		stderr:         io.Discard,
+		CacheStorage:   cacheStorage,
 	}
 
 	// Apply the options

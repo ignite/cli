@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"golang.org/x/sync/errgroup"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
 	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
@@ -17,6 +17,7 @@ import (
 	tsproto "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-proto"
 	"github.com/ignite-hq/cli/ignite/pkg/protoc"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -60,10 +61,27 @@ func (g *jsGenerator) generateModules() error {
 
 	gg := &errgroup.Group{}
 
+	dirCache := cache.New[[]byte](g.g.cacheStorage, "generate.javascript.dirchange")
 	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
 			m := m
-			gg.Go(func() error { return g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m) })
+			gg.Go(func() error {
+				cacheKey := m.Pkg.Path
+				changed, err := dirchange.HasDirChecksumChanged(sourcePath, []string{m.Pkg.Path, g.g.o.jsOut(m)}, dirCache, cacheKey)
+				if err != nil {
+					return err
+				}
+
+				if !changed {
+					return nil
+				}
+
+				if err := g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m); err != nil {
+					return err
+				}
+
+				return dirchange.SaveDirChecksum(sourcePath, []string{m.Pkg.Path, g.g.o.jsOut(m)}, dirCache, cacheKey)
+			})
 		}
 	}
 

@@ -11,11 +11,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"golang.org/x/mod/modfile"
-	"golang.org/x/mod/module"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"golang.org/x/mod/modfile"
+	"golang.org/x/mod/module"
 )
 
 // ErrGoModNotFound returned when go.mod file cannot be found for an app.
@@ -77,13 +77,24 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 }
 
 // LocatePath locates pkg's absolute path managed by 'go mod' on the local filesystem.
-func LocatePath(ctx context.Context, src string, pkg module.Version) (path string, err error) {
+func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg module.Version) (path string, err error) {
 	// can be a local package.
 	if pkg.Version == "" { // indicates that this is a local package.
 		if filepath.IsAbs(pkg.Path) {
 			return pkg.Path, nil
 		}
 		return filepath.Join(src, pkg.Path), nil
+	}
+
+	pathCache := cache.New[string](cacheStorage, "gomodule.path")
+	cacheKey := fmt.Sprintf("%s_%s", pkg.Path, pkg.Version)
+	path, found, err := pathCache.Get(cacheKey)
+	if err != nil {
+		return "", err
+	}
+
+	if found {
+		return path, nil
 	}
 
 	// otherwise, it is hosted.
@@ -112,6 +123,9 @@ func LocatePath(ctx context.Context, src string, pkg module.Version) (path strin
 			return "", err
 		}
 		if module.Path == pkg.Path && module.Version == pkg.Version {
+			if err := pathCache.Put(cacheKey, module.Dir); err != nil {
+				return "", err
+			}
 			return module.Dir, nil
 		}
 	}

@@ -22,6 +22,7 @@ func NewScaffoldBandchain() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
@@ -54,6 +55,12 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	sc, err := newApp(appPath)
 	if err != nil {
 		return err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := sc.CacheStorage.Clear(); err != nil {
+			return err
+		}
 	}
 
 	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
