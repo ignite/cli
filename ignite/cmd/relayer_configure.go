@@ -357,8 +357,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	}
+
 	session.StartSpinner("Fetching chain info...")
 
+	session.Println()
 	r := relayer.New(ca)
 
 	// initialize the chains
