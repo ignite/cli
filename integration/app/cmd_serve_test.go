@@ -26,7 +26,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
 			step.Workdir(apath),
 		)),
 	))

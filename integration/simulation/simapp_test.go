@@ -18,35 +18,35 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "foo", "foobar"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "foo", "foobar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "baz", "foobar"),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "baz", "foobar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "noSimapp", "foobar", "--no-simulation"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "noSimapp", "foobar", "--no-simulation"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "msgFoo", "foobar"),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "msgFoo", "foobar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("scaffold a new module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "new_module"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "new_module"),
 			step.Workdir(path),
 		)),
 	))
@@ -57,6 +57,7 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"map",
+				"--yes",
 				"bar",
 				"foobar",
 				"--module",

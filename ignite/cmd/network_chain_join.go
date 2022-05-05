@@ -5,17 +5,16 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/manifoldco/promptui"
-	"github.com/pkg/errors"
-	"github.com/rdegges/go-ipify"
-	"github.com/spf13/cobra"
-
-	"github.com/ignite-hq/cli/ignite/pkg/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
 	"github.com/ignite-hq/cli/ignite/pkg/xchisel"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/pkg/errors"
+	"github.com/rdegges/go-ipify"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -42,16 +41,18 @@ func NewNetworkChainJoin() *cobra.Command {
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	var (
 		gentxPath, _ = cmd.Flags().GetString(flagGentx)
 		amount, _    = cmd.Flags().GetString(flagAmount)
 	)
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID.
 	launchID, err := network.ParseID(args[0])
@@ -66,7 +67,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	// if there is no custom gentx, we need to detect the public address.
 	if gentxPath == "" {
 		// get the peer public address for the validator.
-		publicAddr, err := askPublicAddress(cmd.Context(), nb.Spinner)
+		publicAddr, err := askPublicAddress(cmd.Context(), session)
 		if err != nil {
 			return err
 		}
@@ -97,22 +98,17 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 		joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
 	} else {
-		nb.Spinner.Stop()
-
 		if !getYes(cmd) {
-			label := fmt.Sprintf("You haven't set the --%s flag and therefore an account request won't be submitted. Do you confirm", flagAmount)
-			prompt := promptui.Prompt{
-				Label:     label,
-				IsConfirm: true,
-			}
-			if _, err := prompt.Run(); err != nil {
-				fmt.Println("said no")
-				return nil
+			question := fmt.Sprintf(
+				"You haven't set the --%s flag and therefore an account request won't be submitted. Do you confirm",
+				flagAmount,
+			)
+			if err := session.AskConfirm(question); err != nil {
+				return session.PrintSaidNo()
 			}
 		}
 
-		fmt.Printf("%s %s\n", clispinner.Info, "Account request won't be submitted")
-		nb.Spinner.Start()
+		session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
 	}
 
 	// create the message to add the validator.
@@ -121,10 +117,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress string, err error) {
-	s.Stop()
-	defer s.Start()
-
+func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress string, err error) {
 	options := []cliquiz.Option{
 		cliquiz.Required(),
 	}
@@ -148,5 +141,5 @@ func askPublicAddress(ctx context.Context, s *clispinner.Spinner) (publicAddress
 		&publicAddress,
 		options...,
 	)}
-	return publicAddress, cliquiz.Ask(questions...)
+	return publicAddress, session.Ask(questions...)
 }

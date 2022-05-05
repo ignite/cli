@@ -62,10 +62,15 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		apiAddress = envAPIAddress
 	}
 
+	apiAddress, err = xurl.HTTP(apiAddress)
+	if err != nil {
+		return cosmosfaucet.Faucet{}, fmt.Errorf("invalid host api address format: %w", err)
+	}
+
 	faucetOptions := []cosmosfaucet.Option{
 		cosmosfaucet.Account(*conf.Faucet.Name, "", ""),
 		cosmosfaucet.ChainID(id),
-		cosmosfaucet.OpenAPI(xurl.HTTP(apiAddress)),
+		cosmosfaucet.OpenAPI(apiAddress),
 	}
 
 	// parse coins to pass to the faucet as coins.

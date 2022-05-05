@@ -61,7 +61,7 @@ func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 
 	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "first_module"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "first_module"),
 			step.Workdir(path),
 		)),
 	))
@@ -77,14 +77,14 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should not add Wasm module second time",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -101,14 +101,14 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -116,7 +116,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with an invalid name",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "example1", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example1", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -124,7 +124,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with a reserved name",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "tx", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "tx", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -132,7 +132,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with a forbidden prefix",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "ibcfoo", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "ibcfoo", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -140,7 +140,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module prefixed with an existing module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "examplefoo", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "examplefoo", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -152,6 +152,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				"with_dep",
 				"--dep",
 				"account,bank,staking,slashing,example",
@@ -167,6 +168,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				"with_wrong_dep",
 				"--dep",
 				"dup,dup",
@@ -183,6 +185,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				"with_no_dep",
 				"--dep",
 				"inexistent",
