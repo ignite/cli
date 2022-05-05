@@ -6,12 +6,13 @@ import (
 	"os"
 	"sync"
 
+	"github.com/manifoldco/promptui"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/manifoldco/promptui"
 )
 
 // Session controls command line interaction with users.

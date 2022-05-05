@@ -1,15 +1,12 @@
 package ignitecmd
 
 import (
-	"fmt"
-
-	"github.com/briandowns/spinner"
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
@@ -87,6 +84,9 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
+	session := cliui.New()
+	defer session.Cleanup()
+
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
 	)
@@ -98,10 +98,9 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	s := clispinner.New().Start()
-	defer s.Stop()
-
-	printSection("Setting up chains")
+	if err := printSection(session, "Setting up chains"); err != nil {
+		return err
+	}
 
 	// basic configuration
 	var (
@@ -352,22 +351,21 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
+	session.PauseSpinner()
 	if len(questions) > 0 {
-		if err := cliquiz.Ask(questions...); err != nil {
+		if err := session.Ask(questions...); err != nil {
 			return err
 		}
 	}
+	session.StartSpinner("Fetching chain info...")
 
 	r := relayer.New(ca)
-
-	fmt.Println()
-	s.SetText("Fetching chain info...")
 
 	// initialize the chains
 	sourceChain, err := initChain(
 		cmd,
 		r,
-		s,
+		session,
 		relayerSource,
 		sourceAccount,
 		sourceRPCAddress,
@@ -383,7 +381,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	targetChain, err := initChain(
 		cmd,
 		r,
-		s,
+		session,
 		relayerTarget,
 		targetAccount,
 		targetRPCAddress,
@@ -396,7 +394,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	s.SetText("Configuring...").Start()
+	session.StartSpinner("Configuring...")
 
 	// sets advanced channel options
 	var channelOptions []relayer.ChannelOption
@@ -419,9 +417,8 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	s.Stop()
-
-	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
+	session.StopSpinner()
+	session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 
 	return nil
 }
@@ -430,7 +427,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 func initChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
-	s *clispinner.Spinner,
+	session cliui.Session,
 	name,
 	accountName,
 	rpcAddr,
@@ -439,8 +436,8 @@ func initChain(
 	gasLimit int64,
 	addressPrefix string,
 ) (*relayer.Chain, error) {
-	defer s.Stop()
-	s.SetText("Initializing chain...").Start()
+	defer session.StopSpinner()
+	session.StartSpinner("Initializing chain...")
 
 	c, account, err := r.NewChain(
 		cmd.Context(),
@@ -455,33 +452,28 @@ func initChain(
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
-	s.Stop()
+	session.StopSpinner()
 
 	accountAddr := account.Address(addressPrefix)
 
-	fmt.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)
-	s.
-		SetCharset(spinner.CharSets[9]).
-		SetColor("white").
-		SetPrefix(" |·").
-		SetText(color.Yellow.Sprintf("trying to receive tokens from a faucet...")).
-		Start()
+	session.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)
+	session.StartSpinner(color.Yellow.Sprintf("trying to receive tokens from a faucet..."))
 
 	coins, err := c.TryRetrieve(cmd.Context())
-	s.Stop()
+	session.StopSpinner()
 
-	fmt.Print(" |· ")
+	session.Print(" |· ")
 	if err != nil {
-		fmt.Println(color.Yellow.Sprintf(err.Error()))
+		session.Println(color.Yellow.Sprintf(err.Error()))
 	} else {
-		fmt.Println(color.Green.Sprintf("received coins from a faucet"))
+		session.Println(color.Green.Sprintf("received coins from a faucet"))
 	}
 
 	balance := coins.String()
 	if balance == "" {
 		balance = entrywriter.None
 	}
-	fmt.Printf(" |· (balance: %s)\n\n", balance)
+	session.Printf(" |· (balance: %s)\n\n", balance)
 
 	return c, nil
 }
