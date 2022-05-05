@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/spf13/cobra"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/spf13/cobra"
 )
 
 // NewNetworkRewardSet creates a new chain reward set command to
@@ -26,11 +26,13 @@ func NewNetworkRewardSet() *cobra.Command {
 }
 
 func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
