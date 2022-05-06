@@ -1,4 +1,4 @@
-// Package scaffolder initializes Starport apps and modifies existing ones
+// Package scaffolder initializes Ignite CLI apps and modifies existing ones
 // to add more features in a later time.
 package scaffolder
 
@@ -22,7 +22,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 )
 
-// Scaffolder is Starport app scaffolder.
+// Scaffolder is Ignite CLI app scaffolder.
 type Scaffolder struct {
 	// path of the app.
 	path string
