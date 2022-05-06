@@ -2,21 +2,23 @@ package scaffolder
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
+	"github.com/tendermint/flutter/v2"
+	"github.com/tendermint/vue"
+
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/templates/app"
 	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
-	"github.com/tendermint/flutter/v2"
-	"github.com/tendermint/vue"
 )
 
 var (
@@ -70,9 +72,10 @@ func generate(
 	absRoot string,
 	noDefaultModule bool,
 ) error {
-	gu, err := giturl.Parse(pathInfo.RawPath)
-	if err != nil {
-		return err
+	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
+	if !strings.Contains(githubPath, "/") {
+		// A username must be added when the app module path has a single element
+		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
 	g, err := app.New(&app.Options{
@@ -80,8 +83,7 @@ func generate(
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		AppPath:          absRoot,
-		OwnerName:        owner(pathInfo.RawPath),
-		OwnerAndRepoName: gu.UserAndRepo(),
+		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 	})
@@ -105,7 +107,6 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
-			OwnerName:  owner(pathInfo.RawPath),
 			IsIBC:      false,
 		}
 		g, err = modulecreate.NewStargate(opts)

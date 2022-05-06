@@ -11,7 +11,6 @@ type Options struct {
 	AppPath      string
 	ModuleName   string
 	ModulePath   string
-	OwnerName    string
 	TypeName     multiformatname.Name
 	MsgSigner    multiformatname.Name
 	Fields       field.Fields

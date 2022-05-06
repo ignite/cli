@@ -175,7 +175,6 @@ func (s Scaffolder) AddType(
 			AppPath:      s.path,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
-			OwnerName:    owner(s.modpath.RawPath),
 			TypeName:     name,
 			Fields:       tFields,
 			NoMessage:    o.withoutMessage,
@@ -195,7 +194,6 @@ func (s Scaffolder) AddType(
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
-			OwnerName:  opts.OwnerName,
 		},
 	)
 	if err != nil {

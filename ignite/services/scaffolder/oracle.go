@@ -94,7 +94,6 @@ func (s *Scaffolder) AddOracle(
 			AppPath:    s.path,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.modpath.RawPath),
 			QueryName:  name,
 			MsgSigner:  mfSigner,
 		}

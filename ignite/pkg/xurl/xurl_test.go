@@ -326,3 +326,53 @@ func TestMightHTTPS(t *testing.T) {
 		})
 	}
 }
+
+func Test_addressPort(t *testing.T) {
+	tests := []struct {
+		name     string
+		arg      string
+		wantHost string
+		want     bool
+	}{
+		{
+			name: "URI path",
+			arg:  "/test/false",
+			want: false,
+		},
+		{
+			name: "invalid address",
+			arg:  "aeihf3/aef/f..//",
+			want: false,
+		},
+		{
+			name:     "host and port",
+			arg:      "102.33.3.43:10000",
+			wantHost: "102.33.3.43:10000",
+			want:     true,
+		},
+		{
+			name:     "local port",
+			arg:      "0.0.0.0:10000",
+			wantHost: "0.0.0.0:10000",
+			want:     true,
+		},
+		{
+			name:     "only port",
+			arg:      ":10000",
+			wantHost: "0.0.0.0:10000",
+			want:     true,
+		},
+		{
+			name: "only host",
+			arg:  "102.33.3.43",
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotHost, got := addressPort(tt.arg)
+			require.Equal(t, tt.want, got)
+			require.Equal(t, tt.wantHost, gotHost)
+		})
+	}
+}

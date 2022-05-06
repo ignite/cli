@@ -119,7 +119,6 @@ func (s Scaffolder) AddMessage(
 			AppPath:      s.path,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
-			OwnerName:    owner(s.modpath.RawPath),
 			MsgName:      name,
 			Fields:       parsedMsgFields,
 			ResFields:    parsedResFields,
@@ -140,7 +139,6 @@ func (s Scaffolder) AddMessage(
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
-			OwnerName:  opts.OwnerName,
 		},
 	)
 	if err != nil {

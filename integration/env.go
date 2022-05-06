@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"testing"
@@ -165,7 +166,7 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
+func (e Env) Scaffold(name string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
@@ -174,20 +175,22 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 				append([]string{
 					"scaffold",
 					"chain",
-					fmt.Sprintf("github.com/test/%s", appName),
+					name,
 				}, flags...)...,
 			),
 			step.Workdir(root),
 		)),
 	)
 
+	appDir := path.Base(name)
+
 	// Cleanup the home directory and cache of the app
 	e.t.Cleanup(func() {
-		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
-		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".ignite/cache/%s", appName)))
+		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appDir)))
+		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".ignite/cache/%s", appDir)))
 	})
 
-	return filepath.Join(root, appName)
+	return filepath.Join(root, appDir)
 }
 
 // Serve serves an application lives under path with options where msg describes the

@@ -126,7 +126,6 @@ func (s Scaffolder) AddPacket(
 			AppPath:    s.path,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.modpath.RawPath),
 			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,

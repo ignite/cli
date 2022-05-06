@@ -14,7 +14,7 @@ import (
 func TestCliWithCaching(t *testing.T) {
 	var (
 		env               = envtest.New(t)
-		path              = env.Scaffold("cacheblog")
+		path              = env.Scaffold("github.com/test/cacheblog")
 		vueGenerated      = filepath.Join(path, "vue/src/store/generated")
 		openapiGenerated  = filepath.Join(path, "docs/static/openapi.yml")
 		typesDir          = filepath.Join(path, "x/cacheblog/types")

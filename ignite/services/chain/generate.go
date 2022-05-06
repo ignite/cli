@@ -8,7 +8,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 )
 
 const (
@@ -126,10 +125,7 @@ func (c *Chain) Generate(
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
+				cosmosgen.VuexStoreModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)

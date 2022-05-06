@@ -6,7 +6,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
@@ -14,10 +13,8 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
@@ -81,10 +78,6 @@ func App(path string) (Scaffolder, error) {
 	return s, nil
 }
 
-func owner(modulePath string) string {
-	return strings.Split(modulePath, "/")[1]
-}
-
 func finish(path, gomodPath string, cacheStore cache.Storage) error {
 	if err := protoc(path, gomodPath, cacheStore); err != nil {
 		return err
@@ -121,10 +114,7 @@ func protoc(projectPath, gomodPath string, cacheStore cache.Storage) error {
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
+				cosmosgen.VuexStoreModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
