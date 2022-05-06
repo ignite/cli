@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,7 +11,6 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/sta"
@@ -164,10 +164,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	chainURL, err := giturl.Parse(chainPath.RawPath)
-	if err != nil {
-		return err
-	}
+	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 
 	type module struct {
 		Name     string
@@ -177,12 +174,10 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 	}
 
 	data := struct {
-		Modules []module
-		User    string
-		Repo    string
+		Modules     []module
+		PackageName string
 	}{
-		User: chainURL.User,
-		Repo: chainURL.Repo,
+		PackageName: fmt.Sprintf("%s-js", strings.ReplaceAll(appModulePath, "/", "-")),
 	}
 
 	for _, path := range modulePaths {
