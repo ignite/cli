@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -201,7 +202,7 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
+func (e Env) Scaffold(name string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
@@ -210,19 +211,21 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 				append([]string{
 					"scaffold",
 					"chain",
-					fmt.Sprintf("github.com/test/%s", appName),
+					name,
 				}, flags...)...,
 			),
 			step.Workdir(root),
 		)),
 	)
 
+	appDir := path.Base(name)
+
 	// Cleanup the home directory of the app
 	e.t.Cleanup(func() {
-		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
+		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appDir)))
 	})
 
-	return filepath.Join(root, appName)
+	return filepath.Join(root, appDir)
 }
 
 // Serve serves an application lives under path with options where msg describes the
