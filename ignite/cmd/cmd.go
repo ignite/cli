@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
@@ -260,6 +262,6 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(title string) {
-	fmt.Printf("------\n%s\n------\n\n", title)
+func printSection(session cliui.Session, title string) error {
+	return session.Printf("------\n%s\n------\n\n", title)
 }
