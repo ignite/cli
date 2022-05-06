@@ -68,7 +68,6 @@ func (s Scaffolder) AddQuery(
 			AppPath:     s.path,
 			ModulePath:  s.modpath.RawPath,
 			ModuleName:  moduleName,
-			OwnerName:   owner(s.modpath.RawPath),
 			QueryName:   name,
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,

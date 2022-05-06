@@ -1,12 +1,12 @@
 package ignitecmd
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
@@ -24,12 +24,13 @@ func NewNetworkRequestShow() *cobra.Command {
 }
 
 func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
-	// initialize network common methods
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -63,7 +64,7 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Println(requestYaml)
-	return nil
+	session.StopSpinner()
+
+	return session.Println(requestYaml)
 }

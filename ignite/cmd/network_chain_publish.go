@@ -10,7 +10,8 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
@@ -62,6 +63,9 @@ func NewNetworkChainPublish() *cobra.Command {
 }
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	var (
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
@@ -125,11 +129,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%s and %s flags must be provided together", flagRewardCoins, flagRewardHeight)
 	}
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// use source from chosen target.
 	var sourceOption networkchain.SourceOption
@@ -214,8 +217,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.SetText("Publishing...")
-	nb.Spinner.Start()
+	session.StartSpinner("Publishing...")
 
 	n, err := nb.Network()
 	if err != nil {
@@ -233,13 +235,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	nb.Spinner.Stop()
-
-	fmt.Printf("%s Network published \n", clispinner.OK)
-	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
-	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
+	session.StopSpinner()
+	session.Printf("%s Network published \n", icons.OK)
+	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
+	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		fmt.Printf("%s Mainnet ID: %d \n", clispinner.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
 	}
 
 	return nil
