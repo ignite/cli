@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.31",
+    "isomorphic-unfetch": "^3.1.0",
     "vitest": "^0.10.2"
   }
 }

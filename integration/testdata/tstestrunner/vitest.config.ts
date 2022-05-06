@@ -17,7 +17,7 @@ const collectModuleAliases = (alias: Alias, modulesPath: string) => {
 }
 
 // Absolute path to the blockchain app directory
-const chainPath = process.env.TSC_CHAIN_PATH
+const chainPath = process.env.TEST_CHAIN_PATH
 
 // The module aliases are used to be able to import generated code within the tests
 const alias: Alias = {}
@@ -31,9 +31,10 @@ collectModuleAliases(alias, `${chainPath}/vue/src/store/generated/cosmos/ibc-go`
 
 export default defineConfig({
   test: {
-    include: ['**/*_test.ts']
+    include: ['**/*_test.ts'],
+    setupFiles: 'setupTest.ts'
   },
   resolve: {
     alias
-  },
+  }
 })
