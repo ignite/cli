@@ -61,7 +61,7 @@ func NoDash(s string) string {
 }
 
 // NoNumberPrefix adds a underscore at the beginning of the string if it stars with a number
-// this is used for package of proto files template because the package name can't start with a string
+// this is used for package of proto files template because the package name can't start with a number.
 func NoNumberPrefix(s string) string {
 	// Check if it starts with a digit
 	if unicode.IsDigit(rune(s[0])) {

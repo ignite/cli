@@ -11,7 +11,6 @@ type Options struct {
 	AppPath     string
 	ModuleName  string
 	ModulePath  string
-	OwnerName   string
 	QueryName   multiformatname.Name
 	Description string
 	ResFields   field.Fields
