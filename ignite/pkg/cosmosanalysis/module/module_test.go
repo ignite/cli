@@ -10,7 +10,8 @@ import (
 )
 
 var testModule = Module{
-	Name: "planet",
+	Name:         "planet",
+	GoModulePath: "github.com/tendermint/planet",
 	Pkg: protoanalysis.Package{
 		Name:         "tendermint.planet.planet",
 		Path:         "testdata/planet/proto/planet",

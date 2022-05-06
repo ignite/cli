@@ -13,7 +13,6 @@ type CreateOptions struct {
 	ModulePath string
 	AppName    string
 	AppPath    string
-	OwnerName  string
 	Params     field.Fields
 
 	// True if the module should implement the IBC module interface
@@ -32,7 +31,6 @@ type MsgServerOptions struct {
 	ModulePath string
 	AppName    string
 	AppPath    string
-	OwnerName  string
 }
 
 // Validate that options are usable
