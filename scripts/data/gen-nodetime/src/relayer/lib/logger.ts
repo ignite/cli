@@ -16,22 +16,22 @@ export default class ConsoleLogger {
 	public readonly debug: LogMethod;
 
 	constructor() {
-		this.error = (msg) => {
+		this.error = () => {
 			return this;
 		};
-		this.warn = (msg) => {
+		this.warn = () => {
 			return this;
 		};
 		this.info = (msg) => {
-			if (msg.indexOf("Relay") == 0 && msg.indexOf("Relay 0") == -1) {
+			if (msg.indexOf('Relay') == 0 && msg.indexOf('Relay 0') == -1) {
 				console.log(msg);
 			}
 			return this;
 		};
-		this.verbose = (msg) => {
+		this.verbose = () => {
 			return this;
 		};
-		this.debug = (msg) => {
+		this.debug = () => {
 			return this;
 		};
 	}

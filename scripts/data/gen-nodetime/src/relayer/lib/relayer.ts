@@ -8,7 +8,20 @@ import {prepareConnectionHandshake} from "@confio/relayer/build/lib/ibcclient";
 import {orderFromJSON} from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
 
 // local imports.
-import ConsoleLogger from "./logger";
+import ConsoleLogger from './logger';
+
+const calcGasLimits = (limit: number) => ({
+    initClient: 150000,
+    updateClient: 600000,
+    initConnection: 150000,
+    connectionHandshake: limit,
+    initChannel: 150000,
+    channelHandshake: limit,
+    receivePacket: limit,
+    ackPacket: limit,
+    timeoutPacket: limit,
+    transfer: 180000
+});
 
 type Chain = {
     id: string;
@@ -32,12 +45,12 @@ type PathEnd = {
     channel_id: string;
     port_id: string;
     version: string;
-    packet_height: number;
-    ack_height: number;
+    packet_height?: number;
+    ack_height?: number;
 };
 
 export default class Relayer {
-    private defaultMaxAge: number = 86400;
+    private defaultMaxAge = 86400;
 
     public async link([
                           path,
@@ -46,10 +59,10 @@ export default class Relayer {
                           srcKey,
                           dstKey,
                           clientIdA,
-                          clientIdB,
+                          clientIdB
                       ]: [Path, Chain, Chain, string, string, string?, string?]): Promise<Path> {
-        const srcClient = await this.getIBCClient(srcChain, srcKey);
-        const dstClient = await this.getIBCClient(dstChain, dstKey);
+        const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
+        const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
 
         let link;
         if (typeof clientIdA !== 'undefined' && typeof clientIdB !== 'undefined') {
@@ -59,11 +72,11 @@ export default class Relayer {
         }
 
         const channels = await link.createChannel(
-            "A",
+            'A',
             path.src.port_id,
             path.dst.port_id,
             orderFromJSON(path.ordering),
-            path.dst.version,
+            path.dst.version
         );
 
         path.src.channel_id = channels.src.channelId;
@@ -79,17 +92,17 @@ export default class Relayer {
                            srcChain,
                            dstChain,
                            srcKey,
-                           dstKey,
+                           dstKey
                        ]: [Path, Chain, Chain, string, string]): Promise<Path> {
-        const srcClient = await this.getIBCClient(srcChain, srcKey);
-        const dstClient = await this.getIBCClient(dstChain, dstKey);
+        const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
+        const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
 
         const link = await Link.createWithExistingConnections(
             srcClient,
             dstClient,
             path.src.connection_id,
             path.dst.connection_id,
-            new ConsoleLogger(),
+            new ConsoleLogger()
         );
 
         const heights = await link.checkAndRelayPacketsAndAcks(
@@ -97,14 +110,14 @@ export default class Relayer {
                 packetHeightA: path.src.packet_height,
                 packetHeightB: path.dst.packet_height,
                 ackHeightA: path.src.ack_height,
-                ackHeightB: path.dst.ack_height,
+                ackHeightB: path.dst.ack_height
             } ?? {},
             2,
             6
         );
 
-        await link.updateClientIfStale("A", this.defaultMaxAge);
-        await link.updateClientIfStale("B", this.defaultMaxAge);
+        await link.updateClientIfStale('A', this.defaultMaxAge);
+        await link.updateClientIfStale('B', this.defaultMaxAge);
 
         path.src.packet_height = heights.packetHeightA;
         path.dst.packet_height = heights.packetHeightB;
@@ -114,45 +127,35 @@ export default class Relayer {
         return path;
     }
 
-    private async getIBCClient(chain: Chain, key: string): Promise<IbcClient> {
-        let chainGP = GasPrice.fromString(chain.gas_price);
-        let signer = await DirectSecp256k1Wallet.fromKey(fromHex(key), chain.address_prefix);
+    private static async getIBCClient(chain: Chain, key: string): Promise<IbcClient> {
+        const chainGP = GasPrice.fromString(chain.gas_price);
+        const signer = await DirectSecp256k1Wallet.fromKey(fromHex(key), chain.address_prefix);
 
         const [account] = await signer.getAccounts();
 
-        const client = await IbcClient.connectWithSigner(
+        return await IbcClient.connectWithSigner(
             chain.rpc_address,
             signer,
             account.address,
             {
                 prefix: chain.address_prefix,
                 gasPrice: chainGP,
+                gasLimits: calcGasLimits(chain.gas_limit)
             }
         );
-
-        return client;
     }
 
-    /**
-     * createConnection will always create a Connection between the two sides
-     * if an existing clients
-     *
-     * @param nodeA
-     * @param nodeB
-     * @param clientIdA
-     * @param clientIdB
-     */
     public async createWithClient(
         nodeA: IbcClient,
         nodeB: IbcClient,
         clientIdA: string,
-        clientIdB: string,
+        clientIdB: string
     ): Promise<Link> {
         // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
-        await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()]);
+        await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()])
 
         // connectionInit on nodeA
-        const {connectionId: connIdA} = await nodeA.connOpenInit(
+        const { connectionId: connIdA } = await nodeA.connOpenInit(
             clientIdA,
             clientIdB
         );
@@ -165,7 +168,7 @@ export default class Relayer {
             clientIdB,
             connIdA
         );
-        const {connectionId: connIdB} = await nodeB.connOpenTry(clientIdB, proof);
+        const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
 
         // connectionAck on nodeA
         const proofAck = await prepareConnectionHandshake(
