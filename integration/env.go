@@ -434,8 +434,8 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 }
 
-// InstallClientDep installs the Vue boilerplate dependencies.
-func (e Env) InstallClientDep(path string) {
+// InstallClientVueDeps installs the Vue boilerplate dependencies.
+func (e Env) InstallClientVueDeps(path string) {
 	npm, err := exec.LookPath("npm")
 	require.NoError(e.t, err, "npm binary not found")
 
@@ -474,10 +474,12 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 		e.t.Fatal("failed to read file name")
 	}
 
+	// TODO: Should we allow *_test.ts files to live at the same level as *_test.go ?
+	//       It would make their relation clearer.
 	opts := clientOptions{
-		rootDir: "testdata",
+		rootDir: "testdata", // by default search for test inside the testdata dir
 		env: map[string]string{
-			"TSC_CHAIN_PATH": path,
+			"TEST_CHAIN_PATH": path,
 		},
 	}
 	for _, o := range options {
@@ -504,7 +506,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 	// The tests are run from the TS client test runner package directory
 	runnerDir := filepath.Join(filepath.Dir(filename), "testdata", "tstestrunner")
 
-	// TODO: Ignore stderr (errors are already displayed with traceback in the stdout) ?
+	// TODO: Ignore stderr ? Errors are already displayed with traceback in the stdout
 	e.Must(e.Exec("run client tests", step.NewSteps(
 		// Make sure the test runner dependencies are installed
 		step.New(
