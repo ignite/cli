@@ -6,7 +6,6 @@ import (
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
-	ce "github.com/tendermint/tendermint/crypto/encoding"
 )
 
 type (
@@ -52,12 +51,8 @@ func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
 
 	validators := make([]spntypes.Validator, len(consensusState.ValidatorSet.Validators))
 	for i, validator := range consensusState.ValidatorSet.Validators {
-		pk, err := ce.PubKeyToProto(validator.PubKey)
-		if err != nil {
-			return IBCInfo{}, err
-		}
 		validators[i] = spntypes.NewValidator(
-			base64.StdEncoding.EncodeToString(pk.GetEd25519()),
+			base64.StdEncoding.EncodeToString(validator.PubKey.GetEd25519()),
 			validator.ProposerPriority,
 			validator.VotingPower,
 		)

@@ -32,6 +32,7 @@ import (
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/libs/bytes"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -94,7 +95,7 @@ type (
 		Timestamp          string                `json:"Timestamp"`
 		Root               string                `json:"Root"`
 		NextValidatorsHash string                `json:"NextValidatorsHash"`
-		ValidatorSet       *tmtypes.ValidatorSet `json:"ValidatorSet"`
+		ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
 	}
 )
 
@@ -282,10 +283,12 @@ func (c Client) IBCInfo(ctx context.Context, height int64) (*IBCInfo, error) {
 		return nil, err
 	}
 
-	var (
-		validatorSet = tmtypes.NewValidatorSet(validators.Validators)
-		heightNext   = height + 1
-	)
+	protoValset, err := tmtypes.NewValidatorSet(validators.Validators).ToProto()
+	if err != nil {
+		return nil, err
+	}
+
+	heightNext := height + 1
 	validatorsNext, err := node.Validators(ctx, &heightNext, &page, &count)
 	if err != nil {
 		return nil, err
@@ -299,7 +302,7 @@ func (c Client) IBCInfo(ctx context.Context, height int64) (*IBCInfo, error) {
 		Timestamp:          commit.Time.Format(time.RFC3339Nano),
 		NextValidatorsHash: bytes.HexBytes(hash).String(),
 		Root:               base64.StdEncoding.EncodeToString(root.Hash),
-		ValidatorSet:       validatorSet,
+		ValidatorSet:       protoValset,
 	}, nil
 }
 
