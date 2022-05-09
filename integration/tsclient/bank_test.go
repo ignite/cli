@@ -56,8 +56,6 @@ func TestClientBank(t *testing.T) {
 		),
 	)))
 
-	env.InstallClientVueDeps(path)
-
 	ctx, cancel := context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 	defer cancel()
 
@@ -69,12 +67,12 @@ func TestClientBank(t *testing.T) {
 	err = env.IsAppServed(ctx, host)
 	require.NoError(t, err)
 
-	env.RunClientTests(
+	env.Must(env.RunClientTests(
 		path,
 		envtest.ClientTestName("Bank"),
 		envtest.ClientEnv(map[string]string{
 			"TEST_QUERY_API": queryAPI,
 			"TEST_TX_API":    txAPI,
 		}),
-	)
+	))
 }

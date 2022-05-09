@@ -437,32 +437,8 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 }
 
-// InstallClientVueDeps installs the Vue boilerplate dependencies.
-func (e Env) InstallClientVueDeps(path string) {
-	npm, err := exec.LookPath("npm")
-	require.NoError(e.t, err, "npm binary not found")
-
-	var output bytes.Buffer
-
-	e.Must(e.Exec("install client dependencies", step.NewSteps(
-		step.New(
-			step.Workdir(fmt.Sprintf("%s/vue", path)),
-			step.Stdout(&output),
-			step.Exec(npm, "install"),
-			step.PostExec(func(err error) error {
-				// Print the npm output when there is an error
-				if err != nil {
-					e.t.Log("\n", output.String())
-				}
-
-				return err
-			}),
-		),
-	)))
-}
-
 // RunClientTests runs the Typescript client tests.
-func (e Env) RunClientTests(path string, options ...ClientOption) {
+func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	npm, err := exec.LookPath("npm")
 	require.NoError(e.t, err, "npm binary not found")
 
@@ -492,6 +468,28 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 		env    []string
 	)
 
+	//  Install the dependencies needed to run TS client tests
+	ok = e.Exec("install client dependencies", step.NewSteps(
+		step.New(
+			step.Workdir(fmt.Sprintf("%s/vue", path)),
+			step.Stdout(&output),
+			step.Exec(npm, "install"),
+			step.PostExec(func(err error) error {
+				// Print the npm output when there is an error
+				if err != nil {
+					e.t.Log("\n", output.String())
+				}
+
+				return err
+			}),
+		),
+	))
+	if !ok {
+		return false
+	}
+
+	output.Reset()
+
 	// The root dir for the tests must be an absolute path
 	absRootDir := filepath.Join(cwd, opts.rootDir)
 
@@ -508,7 +506,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 	runnerDir := filepath.Join(filepath.Dir(filename), "testdata", "tstestrunner")
 
 	// TODO: Ignore stderr ? Errors are already displayed with traceback in the stdout
-	e.Must(e.Exec("run client tests", step.NewSteps(
+	return e.Exec("run client tests", step.NewSteps(
 		// Make sure the test runner dependencies are installed
 		step.New(
 			step.Workdir(runnerDir),
@@ -542,7 +540,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 				return err
 			}),
 		),
-	)))
+	))
 }
 
 // Must fails the immediately if not ok.
