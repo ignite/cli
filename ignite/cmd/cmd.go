@@ -9,7 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+
 	"github.com/fatih/color"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
@@ -18,8 +23,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	"github.com/ignite-hq/cli/ignite/version"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
 )
 
 const (
@@ -259,6 +262,6 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(title string) {
-	fmt.Printf("------\n%s\n------\n\n", title)
+func printSection(session cliui.Session, title string) error {
+	return session.Printf("------\n%s\n------\n\n", title)
 }

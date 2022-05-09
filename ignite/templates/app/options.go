@@ -4,8 +4,7 @@ package app
 type Options struct {
 	AppName          string
 	AppPath          string
-	OwnerName        string
-	OwnerAndRepoName string
+	GitHubPath       string
 	BinaryNamePrefix string
 	ModulePath       string
 	AddressPrefix    string

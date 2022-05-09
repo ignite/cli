@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 
+	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
 	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
@@ -145,20 +146,20 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		// Add the service
 		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v/%[7]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 	// Queries a list of %[2]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v";
 	}
 
 %[1]v`
+		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		replacementService := fmt.Sprintf(templateService,
 			typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.OwnerName,
-			opts.AppName,
+			appModulePath,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 			indexPath,

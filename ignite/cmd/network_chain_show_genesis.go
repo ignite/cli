@@ -4,10 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/spf13/cobra"
 )
 
 func newNetworkChainShowGenesis() *cobra.Command {
@@ -62,10 +63,13 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		}
 
 		// create the chain in a temp dir
-		home := filepath.Join(os.TempDir(), "spn/temp", chainLaunch.ChainID)
-		defer os.RemoveAll(home)
+		tmpHome, err := os.MkdirTemp("", "*-spn")
+		if err != nil {
+			return err
+		}
+		defer os.RemoveAll(tmpHome)
 
-		c.SetHome(home)
+		c.SetHome(tmpHome)
 
 		err = c.Prepare(cmd.Context(), genesisInformation)
 		if err != nil {

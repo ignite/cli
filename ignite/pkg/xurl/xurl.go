@@ -91,38 +91,12 @@ func HTTPEnsurePort(s string) string {
 	return u.String()
 }
 
-// CleanPath cleans path from the url.
-func CleanPath(s string) string {
-	u, err := url.Parse(s)
-	if err != nil {
-		return s
-	}
-
-	u.Path = ""
-
-	return u.String()
-}
-
 // Address ensures that address contains localhost as host if non specified.
 func Address(address string) string {
 	if strings.HasPrefix(address, ":") {
 		return "localhost" + address
 	}
 	return address
-}
-
-// IsLocalPath checks if given address is a local fs path or a URL.
-func IsLocalPath(address string) bool {
-	for _, pattern := range []string{
-		"http://",
-		"https://",
-		"git@",
-	} {
-		if strings.HasPrefix(address, pattern) {
-			return false
-		}
-	}
-	return true
 }
 
 func IsHTTP(address string) bool {
@@ -138,22 +112,27 @@ func parseURL(s string) (*url.URL, error) {
 	// without scheme prefix because that case can't be URL parsed.
 	// When the URI has not scheme it is parsed as a path by "url.Parse"
 	// placing the colon within the path, which is invalid.
-	if isAddressPort(s) {
-		return &url.URL{Host: s}, nil
+	if host, isAddrPort := addressPort(s); isAddrPort {
+		return &url.URL{Host: host}, nil
 	}
 
-	return url.Parse(Address(s))
+	p, err := url.Parse(Address(s))
+	return p, err
 }
 
-func isAddressPort(s string) bool {
+func addressPort(s string) (string, bool) {
 	// Check that the value doesn't contain a URI path
 	if strings.Index(s, "/") != -1 {
-		return false
+		return "", false
 	}
 
 	// Use the net split function to support IPv6 addresses
-	if _, _, err := net.SplitHostPort(s); err != nil {
-		return false
+	host, port, err := net.SplitHostPort(s)
+	if err != nil {
+		return "", false
 	}
-	return true
+	if host == "" {
+		host = "0.0.0.0"
+	}
+	return net.JoinHostPort(host, port), true
 }
