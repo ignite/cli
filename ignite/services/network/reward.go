@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -42,7 +42,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 		n.ev.Send(events.New(
 			events.StatusDone,
 			"The reward pool was empty",
-			events.Icon(clispinner.Info),
+			events.Icon(icons.Info),
 		))
 	} else {
 		n.ev.Send(events.New(events.StatusDone,
@@ -51,7 +51,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 				coins.String(),
 				lastRewardHeight,
 			),
-			events.Icon(clispinner.Info),
+			events.Icon(icons.Info),
 		))
 	}
 

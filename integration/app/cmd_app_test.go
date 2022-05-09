@@ -4,7 +4,6 @@
 package app_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -18,6 +17,19 @@ import (
 func TestGenerateAnApp(t *testing.T) {
 	var (
 		env  = envtest.New(t)
+		path = env.Scaffold("github.com/test/blog")
+	)
+
+	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	env.EnsureAppIsSteady(path)
+}
+
+// TestGenerateAnAppWithName tests scaffolding a new chain using a local name instead of a GitHub URI.
+func TestGenerateAnAppWithName(t *testing.T) {
+	var (
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -29,30 +41,9 @@ func TestGenerateAnApp(t *testing.T) {
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
-		env     = envtest.New(t)
-		appName = "blog"
+		env  = envtest.New(t)
+		path = env.Scaffold("github.com/test/blog", "--no-module")
 	)
-
-	root := env.TmpDir()
-	env.Exec("scaffold an app",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"scaffold",
-				"chain",
-				fmt.Sprintf("github.com/test/%s", appName),
-				"--no-module",
-			),
-			step.Workdir(root),
-		)),
-	)
-
-	// Cleanup the home directory of the app
-	env.SetCleanup(func() {
-		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
-	})
-
-	path := filepath.Join(root, appName)
 
 	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
 	require.True(t, os.IsNotExist(statErr), "the default module should not be scaffolded")
@@ -63,7 +54,7 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog", "--no-module")
+		path = env.Scaffold("github.com/test/blog", "--no-module")
 	)
 
 	defer env.EnsureAppIsSteady(path)
@@ -81,7 +72,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("add Wasm module",
@@ -105,7 +96,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a module",

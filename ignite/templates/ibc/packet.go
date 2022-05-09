@@ -34,7 +34,6 @@ type PacketOptions struct {
 	AppPath    string
 	ModuleName string
 	ModulePath string
-	OwnerName  string
 	PacketName multiformatname.Name
 	MsgSigner  multiformatname.Name
 	Fields     field.Fields
@@ -84,7 +83,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("packetName", opts.PacketName)
 	ctx.Set("MsgSigner", opts.MsgSigner)
-	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
 

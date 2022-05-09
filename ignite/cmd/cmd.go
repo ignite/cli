@@ -7,17 +7,16 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 	"time"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
@@ -34,8 +33,6 @@ const (
 
 	checkVersionTimeout = time.Millisecond * 600
 )
-
-var infoColor = color.New(color.FgYellow).SprintFunc()
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 func New(ctx context.Context) *cobra.Command {
@@ -80,25 +77,6 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 		return chain.LogVerbose
 	}
 	return chain.LogRegular
-}
-
-func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
-	defer wg.Done()
-
-	for event := range bus {
-		switch event.Status {
-		case events.StatusOngoing:
-			s.SetText(event.Text())
-			s.Start()
-		case events.StatusDone:
-			icon := event.Icon
-			if icon == "" {
-				icon = clispinner.OK
-			}
-			s.Stop()
-			fmt.Printf("%s %s\n", icon, event.Text())
-		}
-	}
 }
 
 func flagSetPath(cmd *cobra.Command) {
@@ -284,6 +262,6 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(title string) {
-	fmt.Printf("------\n%s\n------\n\n", title)
+func printSection(session cliui.Session, title string) error {
+	return session.Printf("------\n%s\n------\n\n", title)
 }
