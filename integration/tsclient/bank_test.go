@@ -1,4 +1,4 @@
-package cosmosgen
+package tsclient_test
 
 import (
 	"context"

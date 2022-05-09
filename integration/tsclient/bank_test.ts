@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { isDeliverTxSuccess } from '@cosmjs/stargate'
 
@@ -16,7 +16,7 @@ describe('Bank', () => {
     expect(queryApi, 'TEST_QUERY_API is required').not.toEqual('')
   })
 
-  test('transfers to two different addresses', async () => {
+  it('transfers to two different addresses', async () => {
     const denom = 'token'
     const toAddresses = [
       'cosmos19yy9sf00k00cjcwh532haeq8s63uhdy7qs5m2n',

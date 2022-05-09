@@ -478,7 +478,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 	}
 
 	opts := clientOptions{
-		rootDir: "testdata", // by default search for test inside the testdata dir
+		rootDir: "",
 		env: map[string]string{
 			"TEST_CHAIN_PATH": path,
 		},
