@@ -24,7 +24,7 @@ type (
 	}
 )
 
-func NewNode(cosmos CosmosClient) (*Node, error) {
+func NewNodeClient(cosmos CosmosClient) (*Node, error) {
 	return &Node{
 		cosmos:       cosmos,
 		stakingQuery: stakingtypes.NewQueryClient(cosmos.Context()),
