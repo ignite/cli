@@ -12,11 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
-	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 const (
@@ -31,7 +32,7 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		apath        = env.Scaffold("faucet")
+		apath        = env.Scaffold("github.com/test/faucet")
 		servers      = env.RandomizeServerPorts(apath, "")
 		faucetURL    = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -59,7 +60,10 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	// error "account doesn't have any balances" occurs if a sleep is not included
 	time.Sleep(time.Second * 1)
 
-	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(xurl.HTTP(servers.RPC)))
+	nodeAddr, err := xurl.HTTP(servers.RPC)
+	require.NoError(t, err)
+
+	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(nodeAddr))
 	require.NoError(t, err)
 
 	// the faucet sends the default faucet coins value when not specified
@@ -100,7 +104,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 }
 
 func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Client, accAddr string, coins []string) {
-	resp, err := banktypes.NewQueryClient(c.Context).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+	resp, err := banktypes.NewQueryClient(c.Context()).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
 		Address: accAddr,
 	})
 	require.NoError(t, err)

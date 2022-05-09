@@ -17,7 +17,7 @@ If you want to see the end result, see the example implementation in the [interc
 
 **You will learn how to:**
 
-- Create a blockchain with Starport
+- Create a blockchain with Ignite CLI
 - Create a Cosmos SDK IBC module
 - Create an order book that hosts buy and sell orders with a module
 - Send IBC packets from one blockchain to another

@@ -7,61 +7,61 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestCreateSingletonWithStargate(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "user", "email"),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "user", "email"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type with custom path",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "appPath", "email", "--path", path),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "appPath", "email", "--path", path),
 			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type with no message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "no-message", "email", "--no-message"),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "no-message", "email", "--no-message"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create another type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create another type with a custom field type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "user-detail", "user:User", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user-detail", "user:User", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an singleton type with a typename that already exist",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "user", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -69,7 +69,7 @@ func TestCreateSingletonWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create an singleton type in a custom module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "singleuser", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleuser", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))

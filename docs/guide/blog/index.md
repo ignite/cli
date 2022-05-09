@@ -24,10 +24,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of blog tutorials is based on a specific version of Starport, so to install Starport v0.19.2 use the following command:
+This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.20.0 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.19.2! | bash
+curl https://get.ignite.com/cli@v0.20.0! | bash
 ```
 
 ## Create your blog chain
@@ -37,7 +37,7 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-starport scaffold chain github.com/cosmonaut/blog
+ignite scaffold chain github.com/username/blog
 ```
 
 The `blog` directory is created with the default directory structure.
@@ -61,7 +61,7 @@ cd blog
 To create a message type and its handler, use the `message` command:
 
 ```bash
-starport scaffold message createPost title body
+ignite scaffold message createPost title body
 ```
 
 The `message` command accepts message name (`createPost`) and a list of fields (`title` and `body`) as arguments.
@@ -107,7 +107,7 @@ service Msg {
 }
 ```
 
-Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
+Next, look at the `x/blog/handler.go` file. Ignite CLI has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
 
 ```go
 func NewHandler(k keeper.Keeper) sdk.Handler {
@@ -158,14 +158,14 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 Define the `Post` type and the `AppendPost` keeper method.
 
-When you define the `Post` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
+When you define the `Post` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 
 ```go
 syntax = "proto3";
-package cosmonaut.blog.blog;
-option go_package = "github.com/cosmonaut/blog/x/blog/types";
+package username.blog.blog;
+option go_package = "github.com/username/blog/x/blog/types";
 
 message Post {
   string creator = 1;
@@ -177,8 +177,8 @@ message Post {
 
 The contents of the `post.proto` file are standard. The file defines:
 
-- A package name `cosmonaut.blog.blog` that is used to identify messages
-- The Go package `go_package = "github.com/cosmonaut/blog/x/blog/types"` where new files are generated 
+- A package name `username.blog.blog` that is used to identify messages
+- The Go package `go_package = "github.com/username/blog/x/blog/types"` where new files are generated 
 - The message `message Post`
 
 Continue developing your blog chain.
@@ -266,10 +266,9 @@ package keeper
 
 import (
   "encoding/binary"
-  "github.com/cosmonaut/blog/x/blog/types"
+  "github.com/username/blog/x/blog/types"
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
-  "strconv"
 )
 
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
@@ -302,7 +301,7 @@ By following these steps, you have implemented all of the code required to creat
 Try it out! Start your chain:
 
 ```go
-starport chain serve
+ignite chain serve
 ```
 
 Create a post:
@@ -314,7 +313,7 @@ blogd tx blog create-post foo bar --from alice
 The command output shows the transaction and asks you to sign the transaction:
 
 ```bash
-"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+"body":{"messages":[{"@type":"/username.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
@@ -332,7 +331,7 @@ Now that you have added the functionality to create posts and broadcast them to 
 To display posts, scaffold a query:
 
 ```bash
-starport scaffold query posts --response title,body
+ignite scaffold query posts --response title,body
 ```
 
 Two components are responsible for querying data:
@@ -378,7 +377,7 @@ package keeper
 import (
   "context"
 
-  "github.com/cosmonaut/blog/x/blog/types"
+  "github.com/username/blog/x/blog/types"
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
   "github.com/cosmos/cosmos-sdk/types/query"  
@@ -454,7 +453,7 @@ blogd tx blog create-post foo bar --from alice
 The transaction is output to the terminal. You are prompted to confirm the transaction:
 
 ```bash
-{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/username.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```

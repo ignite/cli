@@ -2,36 +2,46 @@
 order: 9
 ---
 
-# Play With Your Blockchain
+# Play with your blockchain
 
-## Starting the Blockchain
+Now that you have made the required updates to you new chain, it's time to test it.
+
+## Start the blockchain
 
 To start your blockchain in development, run the following command:
 
 ```bash
-starport chain serve
+ignite chain serve
 ```
 
-`serve` will build the chain's binary, initialize a data directory and start a node in development. Keep it running in one terminal window and open another one to execute commands.
+The `serve` command builds the chain binary file, initializes a data directory, and starts a node in development. 
 
-## Creating a Scavenge
+For all subsequent commands, you use a terminal window that is different from the window you started the chain in.
 
-Let's follow the instructions and submit a new scavenge. The first parameter you need is the `solution`, but probably you should also know what the actual question is that your solution solves (the `description`). How about the challenge question be something family friendly like: `What's brown and sticky?`. Of course the only solution to this question is: `A stick`.
+## Create a scavenge
 
-Next you should specify the `reward`. Let's give away `100token` as a reward for solving the scavenge.
+Follow the instructions and submit a new scavenge. 
 
-Now you have all the pieces needed to create our message. Piece them all together, adding the flag `--from` so the CLI knows who is sending it:
+The first parameter is the `solution`, but you should also know what the actual question is that your solution solves (the `description`).
+
+You can make the challenge question something family-friendly like `What's brown and sticky?`. Of course, the only solution to this question is `A stick`.
+
+Next, you must specify the `reward`. Give away `100token` as a reward for solving the scavenge.
+
+Now you have all the pieces needed to create your message. Piece them all together in the command and add the flag `--from` so the CLI knows who is sending it:
 
 ```bash
 scavenged tx scavenge submit-scavenge "A stick" "What's brown and sticky?" 100token --from alice
 ```
+
+The results:
 
 ```json
 {
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.scavenge.scavenge.MsgSubmitScavenge",
+        "@type": "/username.scavenge.scavenge.MsgSubmitScavenge",
         "creator": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh",
         "solutionHash": "2f9457a6e8fb202f9e10389a143a383106268c460743dd59d723c0f82d9ba906",
         "description": "What's brown and sticky?",
@@ -99,11 +109,13 @@ scavenged tx scavenge submit-scavenge "A stick" "What's brown and sticky?" 100to
 }
 ```
 
-Replace the `txhash` with your `txhash` from the previous output.
+Replace the `txhash` with your `txhash` from the previous output:
 
 ```bash
 scavenged q tx CE401E1F95FC583355BF6ABB823A4655185E2983CACE7C430E22CC7B573152DD --output json
 ```
+
+The results:
 
 ```json
 {
@@ -153,7 +165,7 @@ scavenged q tx CE401E1F95FC583355BF6ABB823A4655185E2983CACE7C430E22CC7B573152DD 
     "body": {
       "messages": [
         {
-          "@type": "/cosmonaut.scavenge.scavenge.MsgSubmitScavenge",
+          "@type": "/username.scavenge.scavenge.MsgSubmitScavenge",
           "creator": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh",
           "solutionHash": "2f9457a6e8fb202f9e10389a143a383106268c460743dd59d723c0f82d9ba906",
           "description": "What's brown and sticky?",
@@ -186,11 +198,13 @@ scavenged q tx CE401E1F95FC583355BF6ABB823A4655185E2983CACE7C430E22CC7B573152DD 
 }
 ```
 
-## Querying For a List of Scavenges
+## Query for a list of scavenges
 
 ```bash
 scavenged q scavenge list-scavenge --output json
 ```
+
+The results:
 
 ```json
 {
@@ -209,7 +223,7 @@ scavenged q scavenge list-scavenge --output json
 }
 ```
 
-## Committing a solution
+## Commit a solution
 
 Follow the instructions and submit the answer as a commit on behalf of `bob`:
 
@@ -217,12 +231,14 @@ Follow the instructions and submit the answer as a commit on behalf of `bob`:
 scavenged tx scavenge commit-solution "A stick" --from bob
 ```
 
+The results:
+
 ```json
 {
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.scavenge.scavenge.MsgCommitSolution",
+        "@type": "/username.scavenge.scavenge.MsgCommitSolution",
         "creator": "cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p",
         "solutionHash": "2f9457a6e8fb202f9e10389a143a383106268c460743dd59d723c0f82d9ba906",
         "solutionScavengerHash": "461d54ec0bbb1d696a79af80d7f63e4c6df262d76309423da37189453eaec127"
@@ -241,11 +257,13 @@ scavenged tx scavenge commit-solution "A stick" --from bob
 }
 ```
 
-## Querying For a List of Commits
+## Query for a list of commits
 
 ```bash
 scavenged q scavenge list-commit --output json
 ```
+
+The results:
 
 ```json
 {
@@ -263,20 +281,22 @@ scavenged q scavenge list-commit --output json
 
 You don't need to put the `solutionHash` because it can be generated by hashing the actual solution.
 
-Since all you need is the solution again, send and confirm the final message:
+Since all you need is the solution again, you can send and confirm the final message:
 
-## Revealing a Solution
+## Reveal a solution
 
 ```bash
 scavenged tx scavenge reveal-solution "A stick" --from bob
 ```
+
+The results:
 
 ```json
 {
   "body": {
     "messages": [
       {
-        "@type": "/cosmonaut.scavenge.scavenge.MsgRevealSolution",
+        "@type": "/username.scavenge.scavenge.MsgRevealSolution",
         "creator": "cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p",
         "solution": "A stick"
       }
@@ -294,11 +314,13 @@ scavenged tx scavenge reveal-solution "A stick" --from bob
 }
 ```
 
-## Querying For a List of solved Scavenges
+## Query for a list of solved scavenges
 
 ```bash
 scavenged q scavenge list-scavenge --output json
 ```
+
+The results:
 
 ```json
 {
@@ -317,11 +339,13 @@ scavenged q scavenge list-scavenge --output json
 }
 ```
 
-## Committing a Solution Again, Expect To Get an Error
+## Commit a solution again, expect to get an error
 
 ```bash
 scavenged tx scavenge commit-solution "A stick" --from bob
 ```
+
+The results:
 
 ```json
 {
@@ -340,4 +364,4 @@ scavenged tx scavenge commit-solution "A stick" --from bob
 }
 ```
 
-Congratulations! You have built a scavenge hunt blockchain!
+Congratulations, you have built and tested a scavenge hunt blockchain!

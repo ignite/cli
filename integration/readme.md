@@ -18,7 +18,7 @@ go test -v -timeout 120m ./integration/list
 ```go
 var (
     env  = envtest.New(t)
-    path = env.Scaffold("blog")
+    path = env.Scaffold("github.com/test/blog")
 )
 ```
 
@@ -26,7 +26,7 @@ var (
 ```go
 env.Must(env.Exec("create a list with bool",
     step.NewSteps(step.New(
-        step.Exec("starport", "s", "list", "document", "signed:bool"),
+        step.Exec(envtest.IgniteApp, "s", "list", "--yes", "document", "signed:bool"),
         step.Workdir(path),
     )),
 ))
@@ -37,7 +37,7 @@ env.EnsureAppIsSteady(path)
 ```go
 env.Must(env.Exec("should prevent creating a list with duplicated fields",
     step.NewSteps(step.New(
-        step.Exec("starport", "s", "list", "company", "name", "name"),
+        step.Exec(envtest.IgniteApp, "s", "list", "--yes", "company", "name", "name"),
         step.Workdir(path),
     )),
     envtest.ExecShouldError(),

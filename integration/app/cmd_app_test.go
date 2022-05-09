@@ -4,17 +4,30 @@
 package app_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestGenerateAnApp(t *testing.T) {
+	var (
+		env  = envtest.New(t)
+		path = env.Scaffold("github.com/test/blog")
+	)
+
+	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	env.EnsureAppIsSteady(path)
+}
+
+// TestGenerateAnAppWithName tests scaffolding a new chain using a local name instead of a GitHub URI.
+func TestGenerateAnAppWithName(t *testing.T) {
 	var (
 		env  = envtest.New(t)
 		path = env.Scaffold("blog")
@@ -28,30 +41,9 @@ func TestGenerateAnApp(t *testing.T) {
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
-		env     = envtest.New(t)
-		appName = "blog"
+		env  = envtest.New(t)
+		path = env.Scaffold("github.com/test/blog", "--no-module")
 	)
-
-	root := env.TmpDir()
-	env.Exec("scaffold an app",
-		step.NewSteps(step.New(
-			step.Exec(
-				"starport",
-				"scaffold",
-				"chain",
-				fmt.Sprintf("github.com/test/%s", appName),
-				"--no-module",
-			),
-			step.Workdir(root),
-		)),
-	)
-
-	// Cleanup the home directory of the app
-	env.SetCleanup(func() {
-		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
-	})
-
-	path := filepath.Join(root, appName)
 
 	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
 	require.True(t, os.IsNotExist(statErr), "the default module should not be scaffolded")
@@ -62,14 +54,14 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog", "--no-module")
+		path = env.Scaffold("github.com/test/blog", "--no-module")
 	)
 
 	defer env.EnsureAppIsSteady(path)
 
 	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "first_module"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "first_module"),
 			step.Workdir(path),
 		)),
 	))
@@ -80,19 +72,19 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should not add Wasm module second time",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "wasm"),
+			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -104,19 +96,19 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -124,7 +116,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with an invalid name",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "example1", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example1", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -132,7 +124,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with a reserved name",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "tx", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "tx", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -140,7 +132,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with a forbidden prefix",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "ibcfoo", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "ibcfoo", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -148,7 +140,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module prefixed with an existing module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "examplefoo", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "examplefoo", "--require-registration"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -157,9 +149,10 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("create a module with dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				"with_dep",
 				"--dep",
 				"account,bank,staking,slashing,example",
@@ -172,9 +165,10 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("should prevent creating a module with invalid dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				"with_wrong_dep",
 				"--dep",
 				"dup,dup",
@@ -188,9 +182,10 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("should prevent creating a module with a non registered dependency",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				"with_no_dep",
 				"--dep",
 				"inexistent",

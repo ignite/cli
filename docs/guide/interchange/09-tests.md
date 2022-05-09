@@ -30,7 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/cosmonaut/interchange/x/dex/types"
+	"github.com/username/interchange/x/dex/types"
 )
 
 func GenString(n int) string {
@@ -146,7 +146,7 @@ import (
 	"sort"
 
 	"github.com/stretchr/testify/require"
-	"github.com/cosmonaut/interchange/x/dex/types"
+	"github.com/username/interchange/x/dex/types"
 )
 
 func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
@@ -718,5 +718,5 @@ func TestFillBuyOrder(t *testing.T) {
 When the tests are successful, your output is:
 
 ```go
-ok      github.com/cosmonaut/interchange/x/dex/types       0.550s
+ok      github.com/username/interchange/x/dex/types       0.550s
 ```

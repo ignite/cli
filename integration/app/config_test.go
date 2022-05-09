@@ -5,21 +5,23 @@ package app_test
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/randstr"
+
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/confile"
+	"github.com/ignite-hq/cli/ignite/pkg/randstr"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	var (
 		env               = envtest.New(t)
 		appname           = randstr.Runes(10)
-		path              = env.Scaffold(appname)
+		path              = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
 		servers           = env.RandomizeServerPorts(path, "")
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error

@@ -1,21 +1,21 @@
 ---
 order: 2
-description: Add messages to define actions for the nameservice module. 
+description: Add messages to define actions for the nameservice module.
 ---
 
 # Messages for the Nameservice Module
 
-Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a name that belongs to them. 
+Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a name that belongs to them.
 
 With this design in mind for the `nameservice` module, it's time to create these messages to define the actions. End users can send these messages to interact with the application state:
 
-- `BuyName` 
+- `BuyName`
 - `SetName`
 - `DeleteName`
 
 ## Message Type
 
-Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the network. Because the Cosmos SDK wraps and unwraps messages from transactions, as an app developer, you only have to define messages. 
+Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the network. Because the Cosmos SDK wraps and unwraps messages from transactions, as an app developer, you only have to define messages.
 
 Messages must satisfy the following interface:
 
@@ -23,7 +23,7 @@ Messages must satisfy the following interface:
 // Transactions messages must fulfill the Msg
 type Msg interface {
   proto.Message
-  
+
 	// ValidateBasic does a simple validation check that
 	// doesn't require access to any other information.
 	ValidateBasic() error
@@ -41,14 +41,14 @@ type Msg interface {
 
 The `Msg` type extends `proto.Message` and contains these methods along with the legacy methods (`Type`, `Route`, and `GetSignBytes`):
 
-- `ValidateBasic` 
-	
-  - Called early in the processing of the message to discard obviously invalid messages. 
+- `ValidateBasic`
+
+  - Called early in the processing of the message to discard obviously invalid messages.
 	- Includes only checks that do not require access to the state. For example, check that the `amount` of tokens is a positive value.
 
-- `GetSigners` 
-	
-  - Returns the list of signers. 
+- `GetSigners`
+
+  - Returns the list of signers.
   - The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that is returned by this method.
 
 ## Handlers
@@ -68,26 +68,26 @@ Now, you are ready to implement these Cosmos SDK messages to achieve the desired
 - `MsgDeleteName`
 	Allow name owners to delete names that belong to them.
 
-Use the `starport scaffold message` command to scaffold new messages for your module. 
+Use the `ignite scaffold message` command to scaffold new messages for your module.
 
-- The [`starport scaffold message`](https://docs.starport.com/cli/#starport-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
-- By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`. 
+- The [`ignite scaffold message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
+- By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`.
 
 ### Add the MsgBuyName Message
 
 To create the `MsgBuyName` message for the nameservice module:
 
 ```bash
-starport scaffold message buy-name name bid
+ignite scaffold message buy-name name bid
 ```
 
 where:
 
 - buy-name is the message name
 - name defines the name that the user can buy, sell, and delete
-- bid is the price the user bids to buy a name 
+- bid is the price the user bids to buy a name
 
-The `starport scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
+The `ignite scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
 
 - modify `proto/nameservice/tx.proto`
 - modify `x/nameservice/client/cli/tx.go`
@@ -105,11 +105,11 @@ The `starport scaffold message buy-name name bid` command creates and modifies s
 
     ```go
     syntax = "proto3";
-    package cosmonaut.nameservice.nameservice;
+    package username.nameservice.nameservice;
 
     // this line is used by starport scaffolding # proto/tx/import
 
-    option go_package = "github.com/cosmonaut/nameservice/x/nameservice/types";
+    option go_package = "github.com/username/nameservice/x/nameservice/types";
 
     // Msg defines the Msg service.
     service Msg {
@@ -129,27 +129,27 @@ The `starport scaffold message buy-name name bid` command creates and modifies s
     ```
 
 - `x/nameservice/client/cli/tx.go`
-	
+
     Registers the CLI command.
 
 - `x/nameservice/types/message_buy_name.go`
-  
+
     Defines methods to satisfy the `Msg` interface.
 
 - `x/nameservice/handler.go`
-  
+
     Registers the `MsgBuyName` message in the module message handler.
 
 - `x/nameservice/keeper/msg_server_buy_name.go`
-	
+
     Defines the `BuyName` keeper method. You can notice that the message follows the `Msg` interface. The message `struct` contains all the  information required when buying a name: `Name`, `Bid`, and `Creator`. This struct was added automatically.
 
 - `x/nameservice/client/cli/tx_buy_name.go`
-  
-  	Adds the CLI command to broadcast a transaction with a message. 
+
+  	Adds the CLI command to broadcast a transaction with a message.
 
 - `x/nameservice/types/codec.go`
-  
+
     Registers the codecs.
 
 
@@ -158,7 +158,7 @@ The `starport scaffold message buy-name name bid` command creates and modifies s
 To create the `MsgSetName` for the nameservice module:
 
 ```bash
-starport scaffold message set-name name value
+ignite scaffold message set-name name value
 ```
 
 where:
@@ -167,16 +167,16 @@ where:
 - name is the name the user sets
 - value is the literal value that the name resolves to
 
-This `starport scaffold message` command modifies and creates the same set of files as the `MsgBuyName` message. 
+This `ignite scaffold message` command modifies and creates the same set of files as the `MsgBuyName` message.
 
 ### Add The MsgDeleteName Message
 
-You need a message so that an end user can delete a name that belongs to them. 
+You need a message so that an end user can delete a name that belongs to them.
 
 To create the `MsgDeleteName` for the nameservice module:
 
 ```bash
-starport scaffold message delete-name name
+ignite scaffold message delete-name name
 ```
 
 where:

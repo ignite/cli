@@ -8,23 +8,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/tendermint/starport/integration"
 	"net/http"
 	"testing"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/randstr"
-	"github.com/tendermint/starport/starport/pkg/xurl"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/randstr"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
-		path        = env.Scaffold(appname)
+		path        = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
 		host        = env.RandomizeServerPorts(path, "")
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
@@ -91,6 +92,11 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					return errors.New("expected alice and bob accounts to be created")
 				}
 
+				nodeAddr, err := xurl.TCP(host.RPC)
+				if err != nil {
+					return err
+				}
+
 				// send some tokens from alice to bob and confirm the corresponding tx via gRPC gateway
 				// endpoint by asserting denom and amount.
 				return cmdrunner.New().Run(ctx, step.New(
@@ -104,7 +110,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						"10token",
 						"--keyring-backend", "test",
 						"--chain-id", appname,
-						"--node", xurl.TCP(host.RPC),
+						"--node", nodeAddr,
 						"--yes",
 					),
 					step.PreExec(func() error {
@@ -123,7 +129,12 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 							return err
 						}
 
-						addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(host.API), tx.Hash)
+						apiAddr, err := xurl.HTTP(host.API)
+						if err != nil {
+							return err
+						}
+
+						addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", apiAddr, tx.Hash)
 						req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
 						if err != nil {
 							return errors.Wrap(err, "call to get tx via gRPC gateway")
