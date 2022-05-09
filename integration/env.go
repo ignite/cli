@@ -503,7 +503,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	}
 
 	// The tests are run from the TS client test runner package directory
-	runnerDir := filepath.Join(filepath.Dir(filename), "testdata", "tstestrunner")
+	runnerDir := filepath.Join(filepath.Dir(filename), "tsclient/testdata/tstestrunner")
 
 	// TODO: Ignore stderr ? Errors are already displayed with traceback in the stdout
 	return e.Exec("run client tests", step.NewSteps(
