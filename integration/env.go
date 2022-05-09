@@ -477,8 +477,6 @@ func (e Env) RunClientTests(path string, options ...ClientOption) {
 		e.t.Fatal("failed to read file name")
 	}
 
-	// TODO: Should we allow *_test.ts files to live at the same level as *_test.go ?
-	//       It would make their relation clearer.
 	opts := clientOptions{
 		rootDir: "testdata", // by default search for test inside the testdata dir
 		env: map[string]string{

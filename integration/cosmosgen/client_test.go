@@ -59,14 +59,15 @@ func TestClientBank(t *testing.T) {
 	env.InstallClientVueDeps(path)
 
 	ctx, cancel := context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+	defer cancel()
 
 	go func() {
-		defer cancel()
-		err = env.IsAppServed(ctx, host)
+		env.Serve("should serve app", path, "", "", envtest.ExecCtx(ctx))
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
-	require.NoError(t, err, "app cannot get online in time")
+	// Wait for the server to be up before running the client tests
+	err = env.IsAppServed(ctx, host)
+	require.NoError(t, err)
 
 	env.RunClientTests(
 		path,
