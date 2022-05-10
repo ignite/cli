@@ -134,6 +134,27 @@ func (_m *CosmosClient) BroadcastTxWithProvision(accountName string, msgs ...typ
 	return r0, r1, r2
 }
 
+// ConsensusInfo provides a mock function with given fields: ctx, height
+func (_m *CosmosClient) ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error) {
+	ret := _m.Called(ctx, height)
+
+	var r0 cosmosclient.ConsensusInfo
+	if rf, ok := ret.Get(0).(func(context.Context, int64) cosmosclient.ConsensusInfo); ok {
+		r0 = rf(ctx, height)
+	} else {
+		r0 = ret.Get(0).(cosmosclient.ConsensusInfo)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, height)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Context provides a mock function with given fields:
 func (_m *CosmosClient) Context() client.Context {
 	ret := _m.Called()
@@ -146,29 +167,6 @@ func (_m *CosmosClient) Context() client.Context {
 	}
 
 	return r0
-}
-
-// IBCInfo provides a mock function with given fields: ctx, height
-func (_m *CosmosClient) IBCInfo(ctx context.Context, height int64) (*cosmosclient.IBCInfo, error) {
-	ret := _m.Called(ctx, height)
-
-	var r0 *cosmosclient.IBCInfo
-	if rf, ok := ret.Get(0).(func(context.Context, int64) *cosmosclient.IBCInfo); ok {
-		r0 = rf(ctx, height)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*cosmosclient.IBCInfo)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
-		r1 = rf(ctx, height)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
 }
 
 // Status provides a mock function with given fields: ctx

@@ -59,45 +59,35 @@ const (
 	defaultFaucetMinAmount = 100
 )
 
-type (
-	// Client is a client to access your chain by querying and broadcasting transactions.
-	Client struct {
-		// RPC is Tendermint RPC.
-		RPC *rpchttp.HTTP
+// Client is a client to access your chain by querying and broadcasting transactions.
+type Client struct {
+	// RPC is Tendermint RPC.
+	RPC *rpchttp.HTTP
 
-		// Factory is a Cosmos SDK tx factory.
-		Factory tx.Factory
+	// Factory is a Cosmos SDK tx factory.
+	Factory tx.Factory
 
-		// context is a Cosmos SDK client context.
-		context client.Context
+	// context is a Cosmos SDK client context.
+	context client.Context
 
-		// AccountRegistry is the retistry to access accounts.
-		AccountRegistry cosmosaccount.Registry
+	// AccountRegistry is the retistry to access accounts.
+	AccountRegistry cosmosaccount.Registry
 
-		addressPrefix string
+	addressPrefix string
 
-		nodeAddress string
-		out         io.Writer
-		chainID     string
+	nodeAddress string
+	out         io.Writer
+	chainID     string
 
-		useFaucet       bool
-		faucetAddress   string
-		faucetDenom     string
-		faucetMinAmount uint64
+	useFaucet       bool
+	faucetAddress   string
+	faucetDenom     string
+	faucetMinAmount uint64
 
-		homePath           string
-		keyringServiceName string
-		keyringBackend     cosmosaccount.KeyringBackend
-	}
-
-	// IBCInfo is the validator consensus info
-	IBCInfo struct {
-		Timestamp          string                `json:"Timestamp"`
-		Root               string                `json:"Root"`
-		NextValidatorsHash string                `json:"NextValidatorsHash"`
-		ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
-	}
-)
+	homePath           string
+	keyringServiceName string
+	keyringBackend     cosmosaccount.KeyringBackend
+}
 
 // Option configures your client.
 type Option func(*Client)
@@ -261,17 +251,25 @@ func (r Response) Decode(message proto.Message) error {
 	}, message)
 }
 
-// IBCInfo returns the appropriate tendermint consensus state by given height
+// ConsensusInfo is the validator consensus info
+type ConsensusInfo struct {
+	Timestamp          string                `json:"Timestamp"`
+	Root               string                `json:"Root"`
+	NextValidatorsHash string                `json:"NextValidatorsHash"`
+	ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
+}
+
+// ConsensusInfo returns the appropriate tendermint consensus state by given height
 // and the validator set for the next height
-func (c Client) IBCInfo(ctx context.Context, height int64) (IBCInfo, error) {
+func (c Client) ConsensusInfo(ctx context.Context, height int64) (ConsensusInfo, error) {
 	node, err := c.Context().GetNode()
 	if err != nil {
-		return nil, err
+		return ConsensusInfo{}, err
 	}
 
 	commit, err := node.Commit(ctx, &height)
 	if err != nil {
-		return nil, err
+		return ConsensusInfo{}, err
 	}
 
 	var (
@@ -280,25 +278,26 @@ func (c Client) IBCInfo(ctx context.Context, height int64) (IBCInfo, error) {
 	)
 	validators, err := node.Validators(ctx, &height, &page, &count)
 	if err != nil {
-		return nil, err
+		return ConsensusInfo{}, err
 	}
 
 	protoValset, err := tmtypes.NewValidatorSet(validators.Validators).ToProto()
 	if err != nil {
-		return nil, err
+		return ConsensusInfo{}, err
 	}
 
 	heightNext := height + 1
 	validatorsNext, err := node.Validators(ctx, &heightNext, &page, &count)
 	if err != nil {
-		return nil, err
+		return ConsensusInfo{}, err
 	}
 
 	var (
 		hash = tmtypes.NewValidatorSet(validatorsNext.Validators).Hash()
 		root = commitmenttypes.NewMerkleRoot(commit.AppHash)
 	)
-	return IBCInfo{
+
+	return ConsensusInfo{
 		Timestamp:          commit.Time.Format(time.RFC3339Nano),
 		NextValidatorsHash: bytes.HexBytes(hash).String(),
 		Root:               base64.StdEncoding.EncodeToString(root.Hash),

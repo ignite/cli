@@ -8,21 +8,19 @@ import (
 	spntypes "github.com/tendermint/spn/pkg/types"
 )
 
-type (
-	// IBCInfo is node client info.
-	IBCInfo struct {
-		ConsensusState spntypes.ConsensusState
-		ValidatorSet   spntypes.ValidatorSet
-		UnbondingTime  int64
-		Height         uint64
-	}
+// Node is node builder.
+type Node struct {
+	cosmos       CosmosClient
+	stakingQuery stakingtypes.QueryClient
+}
 
-	// Node is node builder.
-	Node struct {
-		cosmos       CosmosClient
-		stakingQuery stakingtypes.QueryClient
-	}
-)
+// IBCInfo is node client info.
+type IBCInfo struct {
+	ConsensusState spntypes.ConsensusState
+	ValidatorSet   spntypes.ValidatorSet
+	UnbondingTime  int64
+	Height         uint64
+}
 
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
 	return Node{
@@ -39,7 +37,7 @@ func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
 	}
 	lastBlockHeight := status.SyncInfo.LatestBlockHeight
 
-	consensusState, err := n.cosmos.IBCInfo(ctx, lastBlockHeight)
+	consensusState, err := n.cosmos.ConsensusInfo(ctx, lastBlockHeight)
 	if err != nil {
 		return IBCInfo{}, err
 	}
