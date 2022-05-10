@@ -1,11 +1,17 @@
 # Changelog
 
+## [`v0.21.0`](https://github.com/ignite-hq/cli/releases/tag/v0.21.0)
+
+### Features 
+
+- Support simple app names when scaffolding chains. e.g.: `ignite scaffold chain mars`
+- Ask confirmation when scaffolding over changes that are not committed yet 
+
 ## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
 
 ### Fixes
 
 - Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
-
 
 ## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
 

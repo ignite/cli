@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 )
 
@@ -23,7 +24,7 @@ func NewChainInit() *cobra.Command {
 	return c
 }
 
-func chainInitHandler(cmd *cobra.Command, args []string) error {
+func chainInitHandler(cmd *cobra.Command, _ []string) error {
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
@@ -47,7 +48,7 @@ func chainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", infoColor(home))
+	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 
 	return nil
 }

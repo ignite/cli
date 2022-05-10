@@ -94,8 +94,8 @@ For details on version features and changes, see the [changelog.md](https://gith
 To experiment with the source code, you can build from source:
 
 ```bash
-git clone https://github.com/ignite-hq/ignite --depth=1
-cd ignite && make install
+git clone https://github.com/ignite-hq/cli --depth=1
+cd cli && make install
 ```
 
 ## Summary

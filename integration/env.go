@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"testing"
@@ -165,7 +166,7 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
+func (e Env) Scaffold(name string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
@@ -174,19 +175,21 @@ func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 				append([]string{
 					"scaffold",
 					"chain",
-					fmt.Sprintf("github.com/test/%s", appName),
+					name,
 				}, flags...)...,
 			),
 			step.Workdir(root),
 		)),
 	)
 
+	appDir := path.Base(name)
+
 	// Cleanup the home directory of the app
 	e.t.Cleanup(func() {
-		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
+		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appDir)))
 	})
 
-	return filepath.Join(root, appName)
+	return filepath.Join(root, appDir)
 }
 
 // Serve serves an application lives under path with options where msg describes the
@@ -251,7 +254,12 @@ func (e Env) EnsureAppIsSteady(appPath string) {
 // before ctx canceled.
 func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
+		addr, err := xurl.HTTP(host.API)
+		if err != nil {
+			return err
+		}
+
+		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/node_info", addr))
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}
@@ -343,7 +351,10 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 	require.NoError(e.t, err)
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 
-	return xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
+	addr, err := xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
+	require.NoError(e.t, err)
+
+	return addr
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories

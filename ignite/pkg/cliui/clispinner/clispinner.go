@@ -1,6 +1,7 @@
 package clispinner
 
 import (
+	"io"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -16,9 +17,35 @@ type Spinner struct {
 	sp *spinner.Spinner
 }
 
+type (
+	Option func(*Options)
+
+	Options struct {
+		writer io.Writer
+	}
+)
+
+// WithWriter configures an output for a spinner
+func WithWriter(w io.Writer) Option {
+	return func(options *Options) {
+		options.writer = w
+	}
+}
+
 // New creates a new spinner.
-func New() *Spinner {
-	sp := spinner.New(charset, refreshRate)
+func New(options ...Option) *Spinner {
+	o := Options{}
+	for _, apply := range options {
+		apply(&o)
+	}
+
+	underlyingSpinnerOptions := []spinner.Option{}
+	if o.writer != nil {
+		underlyingSpinnerOptions = append(underlyingSpinnerOptions, spinner.WithWriter(o.writer))
+	}
+
+	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
+
 	sp.Color(spinnerColor)
 	s := &Spinner{
 		sp: sp,
@@ -68,4 +95,8 @@ func (s *Spinner) Stop() *Spinner {
 	s.sp.UpdateCharSet(charset)
 	s.sp.Stop()
 	return s
+}
+
+func (s *Spinner) IsActive() bool {
+	return s.sp.Active()
 }

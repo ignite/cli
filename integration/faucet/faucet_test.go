@@ -32,7 +32,7 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		apath        = env.Scaffold("faucet")
+		apath        = env.Scaffold("github.com/test/faucet")
 		servers      = env.RandomizeServerPorts(apath, "")
 		faucetURL    = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -60,7 +60,10 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	// error "account doesn't have any balances" occurs if a sleep is not included
 	time.Sleep(time.Second * 1)
 
-	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(xurl.HTTP(servers.RPC)))
+	nodeAddr, err := xurl.HTTP(servers.RPC)
+	require.NoError(t, err)
+
+	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(nodeAddr))
 	require.NoError(t, err)
 
 	// the faucet sends the default faucet coins value when not specified

@@ -14,7 +14,7 @@ import (
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a message",
@@ -23,6 +23,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"do-foo",
 				"text",
 				"vote:int",
@@ -40,6 +41,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"app-path",
 				"text",
 				"vote:int",
@@ -56,7 +58,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating an existing message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "do-foo", "bar"),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-foo", "bar"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -64,7 +66,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a message with a custom signer name",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "do-bar", "bar", "--signer", "bar-doer"),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-bar", "bar", "--signer", "bar-doer"),
 			step.Workdir(path),
 		)),
 	))
@@ -74,6 +76,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 			step.Exec(envtest.IgniteApp,
 				"s",
 				"type",
+				"--yes",
 				"custom-type",
 				"numInt:int",
 				"numsInt:array.int",
@@ -94,14 +97,14 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a message with the custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "foo-baz", "customField:CustomType"),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "foo-baz", "customField:CustomType"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "foo", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -112,6 +115,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"do-foo",
 				"text",
 				"userIds:array.uint",
