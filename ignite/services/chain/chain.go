@@ -142,7 +142,11 @@ func New(path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
-	cacheStorage, err := cache.NewChainStorage(app.Name)
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return nil, err
+	}
+	cacheStorage, err := cache.NewNamespacedStorage(cacheRootDir, app.Name)
 	if err != nil {
 		return nil, err
 	}

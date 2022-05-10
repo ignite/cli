@@ -22,9 +22,10 @@ import (
 )
 
 const (
-	releaseDir         = "release"
-	releaseChecksumKey = "release_checksum"
-	modChecksumKey     = "go_mod_checksum"
+	releaseDir                   = "release"
+	releaseChecksumKey           = "release_checksum"
+	modChecksumKey               = "go_mod_checksum"
+	buildDirchangeCacheNamespace = "build.dirchange"
 )
 
 // Build builds and installs app binaries.
@@ -197,8 +198,8 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 		return nil, err
 	}
 
-	dirCache := cache.New[[]byte](c.CacheStorage, "build.dircache")
-	modChanged, err := dirchange.HasDirChecksumChanged(c.app.Path, []string{"go.mod"}, dirCache, modChecksumKey)
+	dirCache := cache.New[[]byte](c.CacheStorage, buildDirchangeCacheNamespace)
+	modChanged, err := dirchange.HasDirChecksumChanged(dirCache, modChecksumKey, c.app.Path, "go.mod")
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +209,7 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 			return nil, err
 		}
 
-		if err := dirchange.SaveDirChecksum(c.app.Path, []string{"go.mod"}, dirCache, modChecksumKey); err != nil {
+		if err := dirchange.SaveDirChecksum(dirCache, modChecksumKey, c.app.Path, "go.mod"); err != nil {
 			return nil, err
 		}
 	}

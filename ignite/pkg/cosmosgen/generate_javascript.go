@@ -30,7 +30,10 @@ var (
 	}
 )
 
-const vuexRootMarker = "vuex-root"
+const (
+	vuexRootMarker          = "vuex-root"
+	dirchangeCacheNamespace = "generate.javascript.dirchange"
+)
 
 type jsGenerator struct {
 	g *generator
@@ -61,13 +64,14 @@ func (g *jsGenerator) generateModules() error {
 
 	gg := &errgroup.Group{}
 
-	dirCache := cache.New[[]byte](g.g.cacheStorage, "generate.javascript.dirchange")
+	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
 	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
 			m := m
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
-				changed, err := dirchange.HasDirChecksumChanged(sourcePath, []string{m.Pkg.Path, g.g.o.jsOut(m)}, dirCache, cacheKey)
+				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
+				changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
 				if err != nil {
 					return err
 				}
@@ -80,7 +84,7 @@ func (g *jsGenerator) generateModules() error {
 					return err
 				}
 
-				return dirchange.SaveDirChecksum(sourcePath, []string{m.Pkg.Path, g.g.o.jsOut(m)}, dirCache, cacheKey)
+				return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
 			})
 		}
 	}

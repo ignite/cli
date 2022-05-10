@@ -2,13 +2,14 @@ package app_test
 
 import (
 	"context"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite-hq/cli/integration"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCliWithCaching(t *testing.T) {
@@ -93,11 +94,13 @@ func TestCliWithCaching(t *testing.T) {
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-func deleteCachedFiles(t *testing.T, vueGenerated string, openapiGenerated string, typesDir string) {
+func deleteCachedFiles(t *testing.T, vueGenerated, openapiGenerated, typesDir string) {
 	require.NoError(t, os.RemoveAll(vueGenerated))
 	require.NoError(t, os.Remove(openapiGenerated))
+
 	typesDirEntries, err := os.ReadDir(typesDir)
 	require.NoError(t, err)
+
 	for _, v := range typesDirEntries {
 		if v.IsDir() {
 			continue

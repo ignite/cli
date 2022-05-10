@@ -18,6 +18,8 @@ import (
 	"golang.org/x/mod/module"
 )
 
+const pathCacheNamespace = "gomodule.path"
+
 // ErrGoModNotFound returned when go.mod file cannot be found for an app.
 var ErrGoModNotFound = errors.New("go.mod not found")
 
@@ -86,14 +88,13 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 		return filepath.Join(src, pkg.Path), nil
 	}
 
-	pathCache := cache.New[string](cacheStorage, "gomodule.path")
-	cacheKey := fmt.Sprintf("%s_%s", pkg.Path, pkg.Version)
-	path, found, err := pathCache.Get(cacheKey)
-	if err != nil {
+	pathCache := cache.New[string](cacheStorage, pathCacheNamespace)
+	cacheKey := fmt.Sprintf("%s%s", pkg.Path, pkg.Version)
+	path, err = pathCache.Get(cacheKey)
+	if err != nil && err != cache.ErrorNotFound {
 		return "", err
 	}
-
-	if found {
+	if err != cache.ErrorNotFound {
 		return path, nil
 	}
 

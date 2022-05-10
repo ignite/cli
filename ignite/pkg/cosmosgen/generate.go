@@ -12,7 +12,10 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/protopath"
 )
 
-const defaultSdkImport = "github.com/cosmos/cosmos-sdk"
+const (
+	defaultSdkImport     = "github.com/cosmos/cosmos-sdk"
+	moduleCacheNamespace = "generate.setup.module"
+)
 
 type ModulesInPath struct {
 	Path    string
@@ -73,15 +76,15 @@ func (g *generator) setup() (err error) {
 	//
 	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
 	// at some point, it is a nice to have.
-	moduleCache := cache.New[ModulesInPath](g.cacheStorage, "generate.setup")
+	moduleCache := cache.New[ModulesInPath](g.cacheStorage, moduleCacheNamespace)
 	for _, dep := range g.deps {
 		cacheKey := dep.Path + dep.Version
-		modulesInPath, found, err := moduleCache.Get(cacheKey)
-		if err != nil {
+		modulesInPath, err := moduleCache.Get(cacheKey)
+		if err != nil && err != cache.ErrorNotFound {
 			return err
 		}
 
-		if !found {
+		if err == cache.ErrorNotFound {
 			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
 			if err != nil {
 				return err

@@ -37,6 +37,9 @@ const (
 
 	// configChecksumKey is the cache key for containing the checksum to detect config modification
 	configChecksumKey = "config_checksum"
+
+	// serveDirchangeCacheNamespace is the name of the cache namespace for detecting changes in directories
+	serveDirchangeCacheNamespace = "serve.dirchange"
 )
 
 var (
@@ -256,7 +259,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// isInit determines if the app is initialized
 	var isInit bool
 
-	dirCache := cache.New[[]byte](c.CacheStorage, "serve.dircache")
+	dirCache := cache.New[[]byte](c.CacheStorage, serveDirchangeCacheNamespace)
 
 	// determine if the app must reset the state
 	// if the state must be reset, then we consider the chain as being not initialized
@@ -267,7 +270,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if isInit {
 		configModified := false
 		if c.ConfigPath() != "" {
-			configModified, err = dirchange.HasDirChecksumChanged(c.app.Path, []string{c.ConfigPath()}, dirCache, configChecksumKey)
+			configModified, err = dirchange.HasDirChecksumChanged(dirCache, configChecksumKey, c.app.Path, c.ConfigPath())
 			if err != nil {
 				return err
 			}
@@ -282,7 +285,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// check if source has been modified since last serve
 	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
-	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendSourceWatchPaths, dirCache, sourceChecksumKey)
+	sourceModified, err := dirchange.HasDirChecksumChanged(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...)
 	if err != nil {
 		return err
 	}
@@ -300,7 +303,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 		binaryModified = true
 	} else {
-		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, dirCache, binaryChecksumKey)
+		binaryModified, err = dirchange.HasDirChecksumChanged(dirCache, binaryChecksumKey, "", binaryPath)
 		if err != nil {
 			return err
 		}
@@ -354,18 +357,18 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// save checksums
 	if c.ConfigPath() != "" {
-		if err := dirchange.SaveDirChecksum(c.app.Path, []string{c.ConfigPath()}, dirCache, configChecksumKey); err != nil {
+		if err := dirchange.SaveDirChecksum(dirCache, configChecksumKey, c.app.Path, c.ConfigPath()); err != nil {
 			return err
 		}
 	}
-	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, dirCache, sourceChecksumKey); err != nil {
+	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
 		return err
 	}
 	binaryPath, err = exec.LookPath(binaryName)
 	if err != nil {
 		return err
 	}
-	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, dirCache, binaryChecksumKey); err != nil {
+	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
 		return err
 	}
 

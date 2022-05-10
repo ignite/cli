@@ -15,31 +15,31 @@ var ErrNoFile = errors.New("no file in specified paths")
 // SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the provided cache
 // If checksumSavePath directory doesn't exist, it is created
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func SaveDirChecksum(workdir string, paths []string, cache cache.Cache[[]byte], cacheKey string) error {
-	checksum, err := ChecksumFromPaths(workdir, paths)
+func SaveDirChecksum(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) error {
+	checksum, err := ChecksumFromPaths(workdir, paths...)
 	if err != nil {
 		return err
 	}
 
 	// save checksum
-	return cache.Put(cacheKey, checksum)
+	return checksumCache.Put(cacheKey, checksum)
 }
 
 // HasDirChecksumChanged computes the md5 checksum of the provided paths (directories or files)
 // and compare it with the current cached checksum
 // Return true if the checksum doesn't exist yet
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func HasDirChecksumChanged(workdir string, paths []string, cache cache.Cache[[]byte], cacheKey string) (bool, error) {
-	savedChecksum, found, err := cache.Get(cacheKey)
+func HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) (bool, error) {
+	savedChecksum, err := checksumCache.Get(cacheKey)
+	if err == cache.ErrorNotFound {
+		return true, nil
+	}
 	if err != nil {
 		return false, err
 	}
-	if !found {
-		return true, nil
-	}
 
 	// Compute checksum
-	checksum, err := ChecksumFromPaths(workdir, paths)
+	checksum, err := ChecksumFromPaths(workdir, paths...)
 	if errors.Is(err, ErrNoFile) {
 		// Checksum cannot be saved with no file
 		// Therefore if no file are found, this means these have been delete, then the directory has been changed
@@ -59,7 +59,7 @@ func HasDirChecksumChanged(workdir string, paths []string, cache cache.Cache[[]b
 
 // ChecksumFromPaths computes the md5 checksum from the provided paths
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func ChecksumFromPaths(workdir string, paths []string) ([]byte, error) {
+func ChecksumFromPaths(workdir string, paths ...string) ([]byte, error) {
 	hash := md5.New()
 
 	// Can't compute hash if no file present

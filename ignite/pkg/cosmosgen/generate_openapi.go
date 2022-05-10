@@ -18,6 +18,8 @@ var openAPIOut = []string{
 	"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,fqn_for_openapi_name=true,simple_operation_ids=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 }
 
+const specCacheNamespace = "generate.openapi.spec"
+
 func generateOpenAPISpec(g *generator) error {
 	out := filepath.Join(g.appPath, g.o.specOut)
 
@@ -37,9 +39,9 @@ func generateOpenAPISpec(g *generator) error {
 		}
 	}()
 
-	specCache := cache.New[[]byte](g.cacheStorage, "generate.openapi")
+	specCache := cache.New[[]byte](g.cacheStorage, specCacheNamespace)
 
-	anyChanges := false
+	var hasAnySpecChanged bool
 
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
@@ -50,22 +52,23 @@ func generateOpenAPISpec(g *generator) error {
 		}
 		specPath := filepath.Join(dir, "apidocs.swagger.json")
 
-		checksum, err := dirchange.ChecksumFromPaths(src, []string{m.Pkg.Path})
+		checksumPaths := append([]string{m.Pkg.Path}, g.o.includeDirs...)
+		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
 		if err != nil {
 			return err
 		}
 		cacheKey := fmt.Sprintf("%x", checksum)
-		existing, found, err := specCache.Get(cacheKey)
-		if err != nil {
+		existingSpec, err := specCache.Get(cacheKey)
+		if err != nil && err != cache.ErrorNotFound {
 			return err
 		}
 
-		if found {
-			if err := os.WriteFile(specPath, existing, 0644); err != nil {
+		if err != cache.ErrorNotFound {
+			if err := os.WriteFile(specPath, existingSpec, 0644); err != nil {
 				return err
 			}
 		} else {
-			anyChanges = true
+			hasAnySpecChanged = true
 			include, err := g.resolveInclude(src)
 			if err != nil {
 				return err
@@ -121,9 +124,9 @@ func generateOpenAPISpec(g *generator) error {
 		}
 	}
 
-	if !anyChanges {
+	if !hasAnySpecChanged {
 		// In case the generated output has been changed
-		changed, err := dirchange.HasDirChecksumChanged(g.appPath, []string{out}, specCache, out)
+		changed, err := dirchange.HasDirChecksumChanged(specCache, out, g.appPath, out)
 		if err != nil {
 			return err
 		}
@@ -146,5 +149,5 @@ func generateOpenAPISpec(g *generator) error {
 		return err
 	}
 
-	return dirchange.SaveDirChecksum(g.appPath, []string{out}, specCache, out)
+	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
 }

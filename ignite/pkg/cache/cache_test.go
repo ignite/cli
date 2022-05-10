@@ -1,9 +1,10 @@
-package cache
+package cache_test
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
+	"github.com/stretchr/testify/require"
 )
 
 type TestStruct struct {
@@ -13,60 +14,54 @@ type TestStruct struct {
 func TestCreateStorage(t *testing.T) {
 	tmpDir1 := t.TempDir()
 	tmpDir2 := t.TempDir()
-	cacheFolder = xfilepath.Path(tmpDir1) // Overriding $HOME/.ignite folder
 
-	_, err := NewChainStorage("myChain")
+	_, err := cache.NewNamespacedStorage(tmpDir1, "myChain")
 	require.NoError(t, err)
 
-	_, err = NewStorage(tmpDir2)
+	_, err = cache.NewStorage(tmpDir2)
 	require.NoError(t, err)
 }
 
 func TestStoreString(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheFolder = xfilepath.Path(tmpDir) // Overriding $HOME/.ignite folder
-	cacheStorage, err := NewChainStorage("myChain")
+	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
 	require.NoError(t, err)
 
-	strNamespace := New[string](cacheStorage, "myNameSpace")
+	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
 
 	err = strNamespace.Put("myKey", "myValue")
 	require.NoError(t, err)
 
-	val, found, err := strNamespace.Get("myKey")
+	val, err := strNamespace.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, "myValue", val)
 
-	strNamespaceAgain := New[string](cacheStorage, "myNameSpace")
+	strNamespaceAgain := cache.New[string](cacheStorage, "myNameSpace")
 
-	valAgain, found, err := strNamespaceAgain.Get("myKey")
+	valAgain, err := strNamespaceAgain.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, "myValue", valAgain)
 }
 
 func TestStoreObjects(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheFolder = xfilepath.Path(tmpDir) // Overriding $HOME/.ignite folder
-	cacheStorage, err := NewChainStorage("myChain")
+	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
 	require.NoError(t, err)
 
-	cache := New[TestStruct](cacheStorage, "mySimpleNamespace")
+	structCache := cache.New[TestStruct](cacheStorage, "mySimpleNamespace")
 
-	err = cache.Put("myKey", TestStruct{
+	err = structCache.Put("myKey", TestStruct{
 		Num: 42,
 	})
 	require.NoError(t, err)
 
-	val, found, err := cache.Get("myKey")
+	val, err := structCache.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, val, TestStruct{
 		Num: 42,
 	})
 
-	arrayNamespace := New[[]TestStruct](cacheStorage, "myArrayNamespace")
+	arrayNamespace := cache.New[[]TestStruct](cacheStorage, "myArrayNamespace")
 
 	err = arrayNamespace.Put("myKey", []TestStruct{
 		{
@@ -78,32 +73,29 @@ func TestStoreObjects(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	val2, found, err := arrayNamespace.Get("myKey")
+	val2, err := arrayNamespace.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, 2, len(val2))
 	require.Equal(t, 42, (val2)[0].Num)
 	require.Equal(t, 420, (val2)[1].Num)
 
-	empty, found, err := arrayNamespace.Get("doesNotExists")
-	require.NoError(t, err)
-	require.False(t, found)
+	empty, err := arrayNamespace.Get("doesNotExists")
+	require.Equal(t, cache.ErrorNotFound, err)
 	require.Nil(t, empty)
 }
 
 func TestConflicts(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheFolder = xfilepath.Path(tmpDir) // Overriding $HOME/.ignite folder
-	cacheStorage1, err := NewChainStorage("myChain")
+	cacheStorage1, err := cache.NewNamespacedStorage(tmpDir, "myChain")
 	require.NoError(t, err)
-	cacheStorage2, err := NewChainStorage("myChain2")
+	cacheStorage2, err := cache.NewNamespacedStorage(tmpDir, "myChain2")
 	require.NoError(t, err)
 
-	sameStorageDifferentNamespaceCache1 := New[int](cacheStorage1, "ns1")
+	sameStorageDifferentNamespaceCache1 := cache.New[int](cacheStorage1, "ns1")
 
-	sameStorageDifferentNamespaceCache2 := New[int](cacheStorage1, "ns2")
+	sameStorageDifferentNamespaceCache2 := cache.New[int](cacheStorage1, "ns2")
 
-	differentStorageSameNamespace := New[int](cacheStorage2, "ns1")
+	differentStorageSameNamespace := cache.New[int](cacheStorage2, "ns1")
 
 	// Put values in caches
 	err = sameStorageDifferentNamespaceCache1.Put("myKey", 41)
@@ -120,47 +112,41 @@ func TestConflicts(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check that everything comes back as expected
-	val1, found, err := sameStorageDifferentNamespaceCache1.Get("myKey")
+	val1, err := sameStorageDifferentNamespaceCache1.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, 42, val1)
 
-	val2, found, err := sameStorageDifferentNamespaceCache2.Get("myKey")
+	val2, err := sameStorageDifferentNamespaceCache2.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, 1337, val2)
 
-	val3, found, err := differentStorageSameNamespace.Get("myKey")
+	val3, err := differentStorageSameNamespace.Get("myKey")
 	require.NoError(t, err)
-	require.True(t, found)
 	require.Equal(t, 9001, val3)
 }
 
 func TestDeleteKey(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheFolder = xfilepath.Path(tmpDir) // Overriding $HOME/.ignite folder
-	cacheStorage, err := NewChainStorage("myChain")
+	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
 	require.NoError(t, err)
 
-	strNamespace := New[string](cacheStorage, "myNameSpace")
+	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
 	err = strNamespace.Put("myKey", "someValue")
 	require.NoError(t, err)
 
 	err = strNamespace.Delete("myKey")
 	require.NoError(t, err)
 
-	_, found, err := strNamespace.Get("myKey")
-	require.NoError(t, err)
-	require.False(t, found)
+	_, err = strNamespace.Get("myKey")
+	require.Equal(t, cache.ErrorNotFound, err)
 }
 
 func TestClearStorage(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheFolder = xfilepath.Path(tmpDir) // Overriding $HOME/.ignite folder
-	cacheStorage, err := NewChainStorage("myChain")
+	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
 	require.NoError(t, err)
 
-	strNamespace := New[string](cacheStorage, "myNameSpace")
+	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
 
 	err = strNamespace.Put("myKey", "myValue")
 	require.NoError(t, err)
@@ -168,7 +154,23 @@ func TestClearStorage(t *testing.T) {
 	err = cacheStorage.Clear()
 	require.NoError(t, err)
 
-	_, found, err := strNamespace.Get("myKey")
+	_, err = strNamespace.Get("myKey")
+	require.Equal(t, cache.ErrorNotFound, err)
+}
+
+func TestCloseStorage(t *testing.T) {
+	tmpDir := t.TempDir()
+	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
 	require.NoError(t, err)
-	require.False(t, found)
+
+	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
+
+	err = strNamespace.Put("myKey", "myValue")
+	require.NoError(t, err)
+
+	err = cacheStorage.Close()
+	require.NoError(t, err)
+
+	err = strNamespace.Put("myKey2", "myValue2")
+	require.Error(t, err)
 }

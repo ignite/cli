@@ -3,11 +3,11 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"os"
 	"path/filepath"
+	"sync"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -15,12 +15,11 @@ const cacheFolderName = "cache"
 const dbName = "ignite_cache.db"
 
 var (
-	// This is the top level folder where each chain's cache will be stored
-	// When using NewChainStorage, each chain gets a separate folder
-	cacheFolder = xfilepath.Join(chainconfig.ConfigDirPath, xfilepath.Path(cacheFolderName))
+	ErrorNotFound = errors.New("no value was found with the provided key")
 
 	// We need to make sure we don't open multiple connections to the same cache file, so we keep track of them here
 	dbInstances = make(map[string]*bolt.DB)
+	mu          = sync.Mutex{}
 )
 
 // Storage is meant to be passed around and used by the New function (which provides namespacing and type-safety)
@@ -34,21 +33,18 @@ type Cache[T any] struct {
 	namespace string
 }
 
-// NewChainStorage creates a separate cache storage for a chain with chainName
+// NewNamespacedStorage creates a separate cache storage for a top-level namespace
 // It is safe to call multiple times
-func NewChainStorage(chainName string) (Storage, error) {
-	dir, err := xfilepath.Join(cacheFolder, xfilepath.Path(chainName))()
-	if err != nil {
-		return Storage{}, err
-	}
-
-	return NewStorage(dir)
+func NewNamespacedStorage(rootCacheDir string, topLevelNamespace string) (Storage, error) {
+	return NewStorage(filepath.Join(rootCacheDir, cacheFolderName, topLevelNamespace))
 }
 
 // NewStorage create a local db file (if it doesn't exist) and opens a connection to it (or reuses an existing one)
-// Usually NewChainStorage is more appropriate to use since it makes it possible to clear the cache for a particular project
+// Usually NewNamespacedStorage is more appropriate to use since it makes it possible to clear the cache for separate top-level namespaces
 // It is safe to call multiple times
 func NewStorage(dir string) (Storage, error) {
+	mu.Lock()
+	defer mu.Unlock()
 	db, ok := dbInstances[dir]
 	if ok {
 		return Storage{db}, nil
@@ -66,6 +62,19 @@ func NewStorage(dir string) (Storage, error) {
 
 	dbInstances[dir] = db
 	return Storage{db}, nil
+}
+
+// Close closes the underlying database and cleans up memory
+// Attempting to use the same Storage instance or any pre-existing Cache instances
+// will result in errors.
+func (s Storage) Close() error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	dbKey := filepath.Dir(s.db.Path())
+	delete(dbInstances, dbKey)
+
+	return s.db.Close()
 }
 
 // New creates a namespaced and typesafe key-value Cache
@@ -106,18 +115,16 @@ func (c Cache[T]) Put(key string, value T) error {
 
 // Get fetches the value of key within the namespace.
 // If no value exists, it will return found == false
-func (c Cache[T]) Get(key string) (val T, found bool, err error) {
+func (c Cache[T]) Get(key string) (val T, err error) {
 	err = c.storage.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(c.namespace))
 		if b == nil {
-			found = false
-			return nil
+			return ErrorNotFound
 		}
 		c := b.Cursor()
 		if k, v := c.Seek([]byte(key)); bytes.Equal(k, []byte(key)) {
 			if v == nil {
-				found = false
-				return nil
+				return ErrorNotFound
 			}
 
 			var decodedVal T
@@ -127,9 +134,8 @@ func (c Cache[T]) Get(key string) (val T, found bool, err error) {
 			}
 
 			val = decodedVal
-			found = true
 		} else {
-			found = false
+			return ErrorNotFound
 		}
 
 		return nil

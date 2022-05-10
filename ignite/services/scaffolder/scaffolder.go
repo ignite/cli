@@ -22,17 +22,17 @@ import (
 
 // Scaffolder is Starport app scaffolder.
 type Scaffolder struct {
-	// path of the app.
-	path string
-
-	// modpath represents the go module path of the app.
-	modpath gomodulepath.Path
-
 	// Version of the chain
 	Version cosmosver.Version
 
 	// CacheStorage is used for caching build steps
 	CacheStorage cache.Storage
+
+	// path of the app.
+	path string
+
+	// modpath represents the go module path of the app.
+	modpath gomodulepath.Path
 }
 
 // App creates a new scaffolder for an existent app.
@@ -54,7 +54,11 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, err
 	}
 
-	cacheStorage, err := cache.NewChainStorage(modpath.Root)
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return Scaffolder{}, err
+	}
+	cacheStorage, err := cache.NewNamespacedStorage(cacheRootDir, modpath.Root)
 	if err != nil {
 		return Scaffolder{}, err
 	}
@@ -69,16 +73,16 @@ func App(path string) (Scaffolder, error) {
 	}
 
 	s := Scaffolder{
-		path:         path,
-		modpath:      modpath,
 		Version:      version,
 		CacheStorage: cacheStorage,
+		path:         path,
+		modpath:      modpath,
 	}
 
 	return s, nil
 }
 
-func finish(path, gomodPath string, cacheStore cache.Storage) error {
+func finish(cacheStore cache.Storage, path, gomodPath string) error {
 	if err := protoc(path, gomodPath, cacheStore); err != nil {
 		return err
 	}
