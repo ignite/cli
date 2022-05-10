@@ -84,8 +84,8 @@ func VerifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator)
 	if !info.PubKey.Equals(ed25519.PubKey(consPubKey)) {
 		return fmt.Errorf(
 			"the consensus pub key %s doesn't match the one inside the gentx %s",
-			string(consPubKey),
-			string(info.PubKey),
+			ed25519.PubKey(consPubKey).String(),
+			info.PubKey.String(),
 		)
 	}
 
