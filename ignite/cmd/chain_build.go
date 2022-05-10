@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 )
 
@@ -49,7 +50,7 @@ Sample usages:
 	return c
 }
 
-func chainBuildHandler(cmd *cobra.Command, args []string) error {
+func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	var (
 		isRelease, _      = cmd.Flags().GetBool(flagRelease)
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
@@ -77,7 +78,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		fmt.Printf("🗃  Release created: %s\n", infoColor(releasePath))
+		fmt.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 
 		return nil
 	}
@@ -88,10 +89,10 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if output == "" {
-		fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(binaryName))
+		fmt.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
 	} else {
 		binaryPath := filepath.Join(output, binaryName)
-		fmt.Printf("🗃  Binary built at the path: %s\n", infoColor(binaryPath))
+		fmt.Printf("🗃  Binary built at the path: %s\n", colors.Info(binaryPath))
 	}
 
 	return nil

@@ -125,10 +125,9 @@ func (n Network) sendAccountRequest(
 	genesisPath string,
 	isCustomGentx bool,
 	launchID uint64,
-	accountAddress string,
+	address string,
 	amount sdk.Coins,
 ) (err error) {
-	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
@@ -154,7 +153,7 @@ func (n Network) sendAccountRequest(
 	msg := launchtypes.NewMsgRequestAddAccount(
 		n.account.Address(networktypes.SPN),
 		launchID,
-		accountAddress,
+		address,
 		amount,
 	)
 
@@ -233,7 +232,7 @@ func (n Network) sendValidatorRequest(
 
 // hasValidator verify if the validator already exist into the SPN store
 func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := launchtypes.NewQueryClient(n.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
+	_, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -247,7 +246,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 
 // hasAccount verify if the account already exist into the SPN store
 func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := launchtypes.NewQueryClient(n.cosmos.Context).VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
+	_, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -257,7 +256,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		return false, err
 	}
 
-	_, err = launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
+	_, err = n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})

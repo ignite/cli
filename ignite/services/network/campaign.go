@@ -47,7 +47,7 @@ func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
 // Campaign fetches the campaign from Starport Network
 func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign information"))
-	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
+	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: campaignID,
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	var campaigns []networktypes.Campaign
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
-	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+	res, err := n.campaignQuery.
 		CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
 		return campaigns, err
@@ -146,8 +146,8 @@ func (n Network) UpdateCampaign(
 	if p.name != "" || len(p.metadata) > 0 {
 		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(
 			account,
-			p.name,
 			id,
+			p.name,
 			p.metadata,
 		))
 	}

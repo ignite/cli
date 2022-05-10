@@ -1,4 +1,4 @@
-package clispinner
+package icons
 
 import "github.com/fatih/color"
 

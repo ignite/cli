@@ -5,7 +5,22 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/services/network/testutil"
 )
+
+func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
+	suite := testutil.NewSuite()
+	return suite, New(
+		suite.CosmosClientMock,
+		account,
+		WithCampaignQueryClient(suite.CampaignQueryMock),
+		WithLaunchQueryClient(suite.LaunchQueryMock),
+		WithProfileQueryClient(suite.ProfileQueryMock),
+		WithRewardQueryClient(suite.RewardClient),
+	)
+}
 
 func TestParseID(t *testing.T) {
 	tests := []struct {

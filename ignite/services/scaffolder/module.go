@@ -191,7 +191,6 @@ func (s Scaffolder) CreateModule(
 		Params:       params,
 		AppName:      s.modpath.Package,
 		AppPath:      s.path,
-		OwnerName:    owner(s.modpath.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,

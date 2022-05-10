@@ -10,7 +10,6 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -25,7 +24,7 @@ const (
 )
 
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
-func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []launchtypes.Request) (err error) {
+func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []networktypes.Request) (err error) {
 	c.ev.Send(events.New(events.StatusOngoing, "Verifying requests format"))
 	for _, req := range reqs {
 		// static verification of the request
@@ -114,18 +113,25 @@ func (c Chain) setSimulationConfig() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	apiAddr, err := xurl.TCP(genAddr(ports[0]))
+	if err != nil {
+		return "", err
+	}
+
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("api.address", xurl.TCP(genAddr(ports[0])))
+	config.Set("api.address", apiAddr)
 	config.Set("grpc.address", genAddr(ports[1]))
+
 	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
-	_, err = config.WriteTo(file)
-	if err != nil {
+
+	if _, err := config.WriteTo(file); err != nil {
 		return "", err
 	}
 
@@ -138,17 +144,30 @@ func (c Chain) setSimulationConfig() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	rpcAddr, err := xurl.TCP(genAddr(ports[2]))
+	if err != nil {
+		return "", err
+	}
+
+	p2pAddr, err := xurl.TCP(genAddr(ports[3]))
+	if err != nil {
+		return "", err
+	}
+
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")
-	config.Set("rpc.laddr", xurl.TCP(genAddr(ports[2])))
-	config.Set("p2p.laddr", xurl.TCP(genAddr(ports[3])))
+	config.Set("rpc.laddr", rpcAddr)
+	config.Set("p2p.laddr", p2pAddr)
 	config.Set("rpc.pprof_laddr", genAddr(ports[4]))
+
 	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
+
 	_, err = config.WriteTo(file)
 
 	return genAddr(ports[0]), err
@@ -157,7 +176,12 @@ func (c Chain) setSimulationConfig() (string, error) {
 // isChainListening checks if the chain is listening for API queries on the specified address
 func isChainListening(ctx context.Context, addressAPI string) error {
 	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(addressAPI)+"/node_info")
+		addr, err := xurl.HTTP(addressAPI)
+		if err != nil {
+			return fmt.Errorf("invalid api address format %s: %w", addressAPI, err)
+		}
+
+		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/node_info", addr))
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}

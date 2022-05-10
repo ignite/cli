@@ -2,12 +2,11 @@ package ignitecmd
 
 import (
 	"fmt"
-	"io"
-	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
@@ -29,8 +28,11 @@ func NewNetworkCampaignList() *cobra.Command {
 	return c
 }
 
-func networkCampaignListHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd)
+func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -44,12 +46,11 @@ func networkCampaignListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Cleanup()
-	return renderCampaignSummaries(campaigns, os.Stdout)
+	return renderCampaignSummaries(campaigns, session)
 }
 
 // renderCampaignSummaries writes into the provided out, the list of summarized campaigns
-func renderCampaignSummaries(campaigns []networktypes.Campaign, out io.Writer) error {
+func renderCampaignSummaries(campaigns []networktypes.Campaign, session cliui.Session) error {
 	var campaignEntries [][]string
 
 	for _, c := range campaigns {
@@ -66,5 +67,7 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, out io.Writer) e
 		})
 	}
 
-	return entrywriter.MustWrite(out, CampaignSummaryHeader, campaignEntries...)
+	session.StopSpinner()
+
+	return session.PrintTable(CampaignSummaryHeader, campaignEntries...)
 }

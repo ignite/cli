@@ -14,33 +14,33 @@ import (
 func TestCreateMapWithStargate(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		path = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a map",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "user", "user-id", "email"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "user", "user-id", "email"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with custom path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "appPath", "email", "--path", filepath.Join(path, "app")),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "appPath", "email", "--path", filepath.Join(path, "app")),
 			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with no message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "nomessage", "email", "--no-message"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "nomessage", "email", "--no-message"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "example", "--require-registration"),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -51,6 +51,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"list",
+				"--yes",
 				"user",
 				"email",
 				"--module",
@@ -63,7 +64,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a map with a typename that already exist",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "user", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -71,14 +72,14 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "mapUser", "email", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with a custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "mapDetail", "user:MapUser", "--module", "example"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapDetail", "user:MapUser", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
@@ -88,6 +89,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 			step.Exec(envtest.IgniteApp,
 				"s",
 				"map",
+				"--yes",
 				"salary",
 				"numInt:int",
 				"numsInt:array.int",
@@ -114,6 +116,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"map",
+				"--yes",
 				"map_with_index",
 				"email",
 				"emailIds:ints",
@@ -132,6 +135,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"map",
+				"--yes",
 				"map_with_invalid_index",
 				"email",
 				"--index",
@@ -146,15 +150,15 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a message and a map with no-message flag to check conflicts",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "create-scavenge", "description"),
-			step.Exec(envtest.IgniteApp, "s", "map", "scavenge", "description", "--no-message"),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "create-scavenge", "description"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "scavenge", "description", "--no-message"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a map with duplicated indexes",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "map_with_duplicated_index", "email", "--index", "foo,foo"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "map_with_duplicated_index", "email", "--index", "foo,foo"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
@@ -162,7 +166,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a map with an index present in fields",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "map_with_invalid_index", "email", "--index", "email"),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "map_with_invalid_index", "email", "--index", "email"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
