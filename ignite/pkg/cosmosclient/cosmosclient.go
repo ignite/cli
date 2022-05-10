@@ -263,7 +263,7 @@ func (r Response) Decode(message proto.Message) error {
 
 // IBCInfo returns the appropriate tendermint consensus state by given height
 // and the validator set for the next height
-func (c Client) IBCInfo(ctx context.Context, height int64) (*IBCInfo, error) {
+func (c Client) IBCInfo(ctx context.Context, height int64) (IBCInfo, error) {
 	node, err := c.Context().GetNode()
 	if err != nil {
 		return nil, err
@@ -298,7 +298,7 @@ func (c Client) IBCInfo(ctx context.Context, height int64) (*IBCInfo, error) {
 		hash = tmtypes.NewValidatorSet(validatorsNext.Validators).Hash()
 		root = commitmenttypes.NewMerkleRoot(commit.AppHash)
 	)
-	return &IBCInfo{
+	return IBCInfo{
 		Timestamp:          commit.Time.Format(time.RFC3339Nano),
 		NextValidatorsHash: bytes.HexBytes(hash).String(),
 		Root:               base64.StdEncoding.EncodeToString(root.Hash),
