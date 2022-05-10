@@ -3,9 +3,10 @@ package ignitecmd
 import (
 	"strconv"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/spf13/cobra"
 )
 
 var (

@@ -3,13 +3,14 @@ package ignitecmd
 import (
 	"path/filepath"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/spf13/cobra"
 )
 
 // NewNetworkChainInstall returns a new command to install a chain's binary by the launch id.
