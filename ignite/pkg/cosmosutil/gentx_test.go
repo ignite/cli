@@ -1,15 +1,22 @@
 package cosmosutil_test
 
 import (
+	"encoding/base64"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 )
 
 func TestParseGentx(t *testing.T) {
+	pk1, err := base64.StdEncoding.DecodeString("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs=")
+	require.NoError(t, err)
+	pk2, err := base64.StdEncoding.DecodeString("OL+EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ=")
+	require.NoError(t, err)
+
 	tests := []struct {
 		name      string
 		gentxPath string
@@ -21,7 +28,7 @@ func TestParseGentx(t *testing.T) {
 			gentxPath: "testdata/gentx1.json",
 			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
-				PubKey:           []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
+				PubKey:           ed25519.PubKey(pk1),
 				SelfDelegation: sdk.Coin{
 					Denom:  "stake",
 					Amount: sdk.NewInt(95000000),
@@ -33,7 +40,7 @@ func TestParseGentx(t *testing.T) {
 			gentxPath: "testdata/gentx2.json",
 			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa",
-				PubKey:           []byte("OL+EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ="),
+				PubKey:           ed25519.PubKey(pk2),
 				SelfDelegation: sdk.Coin{
 					Denom:  "stake",
 					Amount: sdk.NewInt(95000000),
