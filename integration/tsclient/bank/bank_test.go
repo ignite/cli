@@ -1,4 +1,4 @@
-package tsclient_test
+package bank_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestClientBank(t *testing.T) {
+func TestBank(t *testing.T) {
 	var (
 		env  = envtest.New(t)
 		path = env.Scaffold("chain")
