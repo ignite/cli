@@ -1,4 +1,4 @@
-package bank_test
+package cosmosgen_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBank(t *testing.T) {
+func TestBankModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
 		path = env.Scaffold("chain")
