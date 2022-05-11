@@ -16,6 +16,10 @@ const collectModuleAliases = (alias: Alias, modulesPath: string) => {
   });
 }
 
+// TODO: add .env file support for a better developer experience ? It would allow
+// writting new tests agains a running blockchain without the need of scaffolding
+// a new one for each test run.
+
 // Absolute path to the blockchain app directory
 const chainPath = process.env.TEST_CHAIN_PATH
 
