@@ -25,14 +25,24 @@ func (c Chain) ResetGenesisTime() error {
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
-	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
+
+	if err := cosmosutil.UpdateGenesis(
+		genesisPath,
+		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, 0),
+	); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 	return nil
 }
 
 // Prepare prepares the chain to be launched from genesis information
-func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) Prepare(
+	ctx context.Context,
+	gi networktypes.GenesisInformation,
+	ibcInfo networktypes.IBCInfo,
+	unbondingTime int64,
+	debug bool,
+) error {
 	// chain initialization
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -60,7 +70,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		}
 	}
 
-	if err := c.buildGenesis(ctx, gi); err != nil {
+	if err := c.buildGenesis(ctx, gi, ibcInfo, unbondingTime, debug); err != nil {
 		return err
 	}
 
@@ -83,7 +93,13 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
-func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) buildGenesis(
+	ctx context.Context,
+	gi networktypes.GenesisInformation,
+	ibcInfo networktypes.IBCInfo,
+	unbondingTime int64,
+	debug bool,
+) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	addressPrefix, err := c.detectPrefix(ctx)
@@ -107,12 +123,22 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	// set chain id
-	if err := cosmosutil.SetChainID(genesisPath, c.id); err != nil {
-		return errors.Wrap(err, "chain id cannot be set")
-	}
-	// set the genesis time for the chain
-	if err := cosmosutil.SetGenesisTime(genesisPath, c.launchTime); err != nil {
+	// update genesis
+	if err := cosmosutil.UpdateGenesis(
+		genesisPath,
+		// set genesis time and chain id
+		cosmosutil.WithKeyValue(cosmosutil.FieldChainID, c.id),
+		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime),
+		// set the network consensus parameters
+		cosmosutil.WithKeyValueBoolean(cosmosutil.FieldDebugMode, debug),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, cosmosutil.SPNChainID),
+		cosmosutil.WithKeyValueUint(cosmosutil.FieldLastBlockHeight, ibcInfo.RevisionHeight),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, ibcInfo.ConsensusState.Timestamp),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, ibcInfo.ConsensusState.NextValidatorsHash),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusRootHash, ibcInfo.ConsensusState.Root.Hash),
+		cosmosutil.WithKeyValueInt(cosmosutil.FieldConsumerUnbondingPeriod, unbondingTime),
+		cosmosutil.WithKeyValueUint(cosmosutil.FieldConsumerRevisionHeight, ibcInfo.RevisionHeight),
+	); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 

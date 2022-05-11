@@ -74,6 +74,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/calmh/randomart v1.1.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect

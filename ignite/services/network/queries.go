@@ -5,6 +5,7 @@ import (
 	"sort"
 	"sync"
 
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -219,4 +220,27 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 		return rewardtypes.RewardPool{}, err
 	}
 	return res.RewardPool, nil
+}
+
+// StakingParams fetches the staking module params
+func (n Network) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
+	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
+	if err != nil {
+		return stakingtypes.Params{}, err
+	}
+	return res.Params, nil
+}
+
+// IBCInfo Fetches the consensus state with the validator set and the unbounding time
+func (n Network) IBCInfo(ctx context.Context) (networktypes.IBCInfo, int64, error) {
+	info, err := NodeInfo(ctx, n.cosmos)
+	if err != nil {
+		return networktypes.IBCInfo{}, 0, err
+	}
+
+	stakingParams, err := n.StakingParams(ctx)
+	if err != nil {
+		return networktypes.IBCInfo{}, 0, err
+	}
+	return info, int64(stakingParams.UnbondingTime.Seconds()), nil
 }
