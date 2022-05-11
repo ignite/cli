@@ -47,7 +47,7 @@ func (c Chain) SimulateRequests(
 	c.ev.Send(events.New(events.StatusDone, "Requests format verified"))
 
 	// prepare the chain with the requests
-	if err := c.Prepare(ctx, gi, ibcInfo, unbondingTime, false); err != nil {
+	if err := c.Prepare(ctx, gi, ibcInfo, unbondingTime); err != nil {
 		return err
 	}
 

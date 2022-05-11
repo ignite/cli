@@ -76,7 +76,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		if err = c.Prepare(cmd.Context(), genesisInformation, info, unboundingTime, false); err != nil {
+		if err = c.Prepare(cmd.Context(), genesisInformation, info, unboundingTime); err != nil {
 			return err
 		}
 

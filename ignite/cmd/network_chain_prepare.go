@@ -16,7 +16,6 @@ import (
 
 const (
 	flagForce = "force"
-	flagDebug = "debug"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -29,7 +28,6 @@ func NewNetworkChainPrepare() *cobra.Command {
 	}
 
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
-	c.Flags().Bool(flagDebug, false, "Set the monitoring debug mode")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -41,10 +39,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	var (
-		force, _ = cmd.Flags().GetBool(flagForce)
-		debug, _ = cmd.Flags().GetBool(flagDebug)
-	)
+	force, _ := cmd.Flags().GetBool(flagForce)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -88,7 +83,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Prepare(cmd.Context(), genesisInformation, info, unboundingTime, debug); err != nil {
+	if err := c.Prepare(cmd.Context(), genesisInformation, info, unboundingTime); err != nil {
 		return err
 	}
 

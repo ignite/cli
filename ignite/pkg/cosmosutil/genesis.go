@@ -23,7 +23,6 @@ const (
 	FieldGenesisTime                 = "genesis_time"
 	FieldChainID                     = "chain_id"
 	FieldConsumerChainID             = "app_state.monitoringp.params.consumerChainID"
-	FieldDebugMode                   = "app_state.monitoringp.params.debugMode"
 	FieldLastBlockHeight             = "app_state.monitoringp.params.lastBlockHeight"
 	FieldConsensusTimestamp          = "app_state.monitoringp.params.consumerConsensusState.timestamp"
 	FieldConsensusNextValidatorsHash = "app_state.monitoringp.params.consumerConsensusState.nextValidatorsHash"

@@ -289,6 +289,7 @@ func TestUpdateGenesis(t *testing.T) {
 				genesis: genesisSample,
 				options: []cosmosutil.GenesisField{
 					cosmosutil.WithKeyValue("wrong.path", "foobar"),
+					cosmosutil.WithKeyValue("app_state.monitoring.wrong", "baz"),
 				},
 			},
 		},
