@@ -146,8 +146,8 @@ export default class Relayer {
         clientB?: string
     ): Promise<Link> {
 
-        let clientIdB = clientB || 'undefined';
-        if (typeof clientIdB !== 'undefined') {
+        let clientIdB = clientB;
+        if (typeof clientIdB === 'undefined' || clientIdB === '') {
             // client on B pointing to A
             const args = await buildCreateClientArgs(nodeA);
             const {clientId: clientId} = await nodeB.createTendermintClient(
@@ -157,8 +157,8 @@ export default class Relayer {
             clientIdB = clientId;
         }
 
-        let clientIdA = clientA || 'undefined';
-        if (typeof clientIdA !== 'undefined') {
+        let clientIdA = clientA;
+        if (typeof clientIdA === 'undefined' || clientIdA === '') {
             // client on A pointing to B
             const args2 = await buildCreateClientArgs(nodeB);
             const {clientId: clientId} = await nodeA.createTendermintClient(

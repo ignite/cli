@@ -117,7 +117,7 @@ func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
 }
 
 func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayerconf.Path, action string) (
-	relayerconf.Path, error) {
+	reply relayerconf.Path, err error) {
 	srcChain, srcKey, err := r.prepare(ctx, conf, path.Src.ChainID)
 	if err != nil {
 		return relayerconf.Path{}, err
@@ -128,17 +128,16 @@ func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayer
 		return relayerconf.Path{}, err
 	}
 
-	var reply relayerconf.Path
-
-	err = tsrelayer.Call(ctx, action, []interface{}{
+	args := []interface{}{
 		path,
 		srcChain,
 		dstChain,
 		srcKey,
 		dstKey,
-	}, &reply)
-
-	return reply, err
+		srcChain.ClientID,
+		dstChain.ClientID,
+	}
+	return reply, tsrelayer.Call(ctx, action, args, &reply)
 }
 
 func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID string) (
