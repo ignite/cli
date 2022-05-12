@@ -120,8 +120,8 @@ func ExecRetry() ExecOption {
 }
 
 type clientOptions struct {
-	env              map[string]string
-	pattern, rootDir string
+	env                        map[string]string
+	pattern, rootDir, testfile string
 }
 
 // ClientOption defines options for the TS client test runner.
@@ -136,17 +136,24 @@ func ClientEnv(env map[string]string) ClientOption {
 	}
 }
 
-// ClientTestName options defines a pattern to match the test(s) that should be run.
+// ClientTestName option defines a pattern to match the test(s) that should be run.
 func ClientTestName(pattern string) ClientOption {
 	return func(o *clientOptions) {
 		o.pattern = pattern
 	}
 }
 
-// ClientTestDir options defines a root directory where to look for tests.
+// ClientTestDir option defines a root directory where to look for tests and test files.
 func ClientTestDir(dir string) ClientOption {
 	return func(o *clientOptions) {
 		o.rootDir = dir
+	}
+}
+
+// ClientTestFile option defines a file to look for tests.
+func ClientTestFile(filename string) ClientOption {
+	return func(o *clientOptions) {
+		o.testfile = filename
 	}
 }
 
@@ -496,6 +503,10 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	args := []string{"run", "test", "--", "--dir", absRootDir}
 	if opts.pattern != "" {
 		args = append(args, "-t", opts.pattern)
+	}
+
+	if opts.testfile != "" {
+		args = append(args, opts.testfile)
 	}
 
 	for k, v := range opts.env {
