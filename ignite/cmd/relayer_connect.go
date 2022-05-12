@@ -12,11 +12,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
 )
 
-const (
-	flagClientIDA = "client-id-a"
-	flagClientIDB = "client-id-b"
-)
-
 // NewRelayerConnect returns a new relayer connect command to link all or some relayer paths and start
 // relaying txs in between.
 // if not paths are specified, all paths are linked.
@@ -28,8 +23,6 @@ func NewRelayerConnect() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().String(flagClientIDA, "", "use a custom client id for node A")
-	c.Flags().String(flagClientIDB, "", "use a custom client id for node B")
 
 	return c
 }
@@ -41,16 +34,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	session := cliui.New()
 	defer session.Cleanup()
-
-	var (
-		clientIDA, _ = cmd.Flags().GetString(flagClientIDA)
-		clientIDB, _ = cmd.Flags().GetString(flagClientIDB)
-	)
-	if clientIDA != "" && clientIDB == "" {
-		return fmt.Errorf("%s flag requires the %s flag", flagClientIDA, flagClientIDB)
-	} else if clientIDA == "" && clientIDB != "" {
-		return fmt.Errorf("%s flag requires the %s flag", flagClientIDB, flagClientIDA)
-	}
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -101,11 +84,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	session.StartSpinner("Creating links between chains...")
 
-	if err := r.Link(
-		cmd.Context(),
-		use,
-		relayer.WithClientID(clientIDA, clientIDB),
-	); err != nil {
+	if err := r.Link(cmd.Context(), use...); err != nil {
 		return err
 	}
 

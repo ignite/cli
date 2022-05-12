@@ -36,32 +36,10 @@ func New(ca cosmosaccount.Registry) Relayer {
 	}
 }
 
-// Link represents the link command options
-type Link struct {
-	clientIDA string
-	clientIDB string
-}
-
-// LinkOption sets the relayer link option.
-type LinkOption func(*Link)
-
-// WithClientID sets the custom node client's id.
-func WithClientID(clientIDA, clientIDB string) LinkOption {
-	return func(l *Link) {
-		l.clientIDA = clientIDA
-		l.clientIDB = clientIDB
-	}
-}
-
 // Link links all chains that has a path to each other.
 // paths are optional and acts as a filter to only link some chains.
 // calling Link multiple times for the same paths does not have any side effects.
-func (r Relayer) Link(ctx context.Context, pathIDs []string, options ...LinkOption) error {
-	l := &Link{}
-	for _, apply := range options {
-		apply(l)
-	}
-
+func (r Relayer) Link(ctx context.Context, pathIDs ...string) error {
 	conf, err := relayerconf.Get()
 	if err != nil {
 		return err
@@ -77,14 +55,7 @@ func (r Relayer) Link(ctx context.Context, pathIDs []string, options ...LinkOpti
 			continue
 		}
 
-		if path, err = r.call(
-			ctx,
-			conf,
-			path,
-			"link",
-			callArg(l.clientIDA),
-			callArg(l.clientIDB),
-		); err != nil {
+		if path, err = r.call(ctx, conf, path, "link"); err != nil {
 			return err
 		}
 
@@ -145,40 +116,8 @@ func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
 	return wg.Wait()
 }
 
-// callArgs represents the call command options
-type callArgs struct {
-	args []string
-}
-
-// callOption sets the relayer call option.
-type callOption func(*callArgs)
-
-// callOptions return the callArgs with all applied options
-func callOptions(options ...callOption) callArgs {
-	l := callArgs{args: make([]string, 0)}
-	for _, applyOption := range options {
-		applyOption(&l)
-	}
-	return l
-}
-
-// callArg sets the custom call arg.
-func callArg(arg string) callOption {
-	return func(c *callArgs) {
-		if arg != "" {
-			c.args = append(c.args, arg)
-		}
-	}
-}
-
-func (r Relayer) call(
-	ctx context.Context,
-	conf relayerconf.Config,
-	path relayerconf.Path,
-	action string,
-	options ...callOption,
-) (relayerconf.Path, error) {
-	l := callOptions(options...)
+func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayerconf.Path, action string) (
+	relayerconf.Path, error) {
 	srcChain, srcKey, err := r.prepare(ctx, conf, path.Src.ChainID)
 	if err != nil {
 		return relayerconf.Path{}, err
@@ -189,18 +128,15 @@ func (r Relayer) call(
 		return relayerconf.Path{}, err
 	}
 
-	args := []interface{}{
+	var reply relayerconf.Path
+
+	err = tsrelayer.Call(ctx, action, []interface{}{
 		path,
 		srcChain,
 		dstChain,
 		srcKey,
 		dstKey,
-	}
-	for _, arg := range l.args {
-		args = append(args, arg)
-	}
-	var reply relayerconf.Path
-	err = tsrelayer.Call(ctx, action, args, &reply)
+	}, &reply)
 
 	return reply, err
 }

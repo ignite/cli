@@ -18,9 +18,11 @@ var ErrChainCannotBeFound = errors.New("chain cannot be found")
 var ErrPathCannotBeFound = errors.New("path cannot be found")
 
 type Config struct {
-	Version string  `json:"version" yaml:"version"`
-	Chains  []Chain `json:"chains" yaml:"chains,omitempty"`
-	Paths   []Path  `json:"paths" yaml:"paths,omitempty"`
+	Version   string  `json:"version" yaml:"version"`
+	Chains    []Chain `json:"chains" yaml:"chains,omitempty"`
+	Paths     []Path  `json:"paths" yaml:"paths,omitempty"`
+	ClientIDA string  `json:"client-id-a" yaml:"client-id-a"`
+	ClientIDB string  `json:"client-id-b" yaml:"client-id-b"`
 }
 
 func (c Config) ChainByID(id string) (Chain, error) {

@@ -4,7 +4,7 @@ import {DirectSecp256k1Wallet} from "@cosmjs/proto-signing";
 import {GasPrice} from "@cosmjs/stargate";
 
 import {Endpoint, IbcClient, Link} from "@confio/relayer/build";
-import {prepareConnectionHandshake} from "@confio/relayer/build/lib/ibcclient";
+import {buildCreateClientArgs, prepareConnectionHandshake} from "@confio/relayer/build/lib/ibcclient";
 import {orderFromJSON} from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
 
 // local imports.
@@ -63,13 +63,7 @@ export default class Relayer {
                       ]: [Path, Chain, Chain, string, string, string?, string?]): Promise<Path> {
         const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
         const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
-
-        let link;
-        if (typeof clientIdA !== 'undefined' && typeof clientIdB !== 'undefined') {
-            link = await this.createWithClient(srcClient, dstClient, clientIdA, clientIdB);
-        } else {
-            link = await Link.createWithNewConnections(srcClient, dstClient);
-        }
+        const link = await this.create(srcClient, dstClient, clientIdA, clientIdB);
 
         const channels = await link.createChannel(
             'A',
@@ -145,17 +139,40 @@ export default class Relayer {
         );
     }
 
-    public async createWithClient(
+    public async create(
         nodeA: IbcClient,
         nodeB: IbcClient,
-        clientIdA: string,
-        clientIdB: string
+        clientA?: string,
+        clientB?: string
     ): Promise<Link> {
+
+        let clientIdB = clientB || 'undefined';
+        if (typeof clientIdB !== 'undefined') {
+            // client on B pointing to A
+            const args = await buildCreateClientArgs(nodeA);
+            const {clientId: clientId} = await nodeB.createTendermintClient(
+                args.clientState,
+                args.consensusState
+            );
+            clientIdB = clientId;
+        }
+
+        let clientIdA = clientA || 'undefined';
+        if (typeof clientIdA !== 'undefined') {
+            // client on A pointing to B
+            const args2 = await buildCreateClientArgs(nodeB);
+            const {clientId: clientId} = await nodeA.createTendermintClient(
+                args2.clientState,
+                args2.consensusState
+            );
+            clientIdA = clientId;
+        }
+
         // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
-        await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()])
+        await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()]);
 
         // connectionInit on nodeA
-        const { connectionId: connIdA } = await nodeA.connOpenInit(
+        const {connectionId: connIdA} = await nodeA.connOpenInit(
             clientIdA,
             clientIdB
         );
@@ -168,7 +185,8 @@ export default class Relayer {
             clientIdB,
             connIdA
         );
-        const { connectionId: connIdB } = await nodeB.connOpenTry(clientIdB, proof);
+
+        const {connectionId: connIdB} = await nodeB.connOpenTry(clientIdB, proof);
 
         // connectionAck on nodeA
         const proofAck = await prepareConnectionHandshake(

@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"fmt"
+
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -31,6 +33,8 @@ const (
 	flagSourceAddressPrefix = "source-prefix"
 	flagTargetAddressPrefix = "target-prefix"
 	flagOrdered             = "ordered"
+	flagSourceClientID      = "source-client-id"
+	flagTargetClientID      = "target-client-id"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -56,6 +60,7 @@ func NewRelayerConfigure() *cobra.Command {
 		Aliases: []string{"conf"},
 		RunE:    relayerConfigureHandler,
 	}
+
 	c.Flags().BoolP(flagAdvanced, "a", false, "Advanced configuration options for custom IBC modules")
 	c.Flags().String(flagSourceRPC, "", "RPC address of the source chain")
 	c.Flags().String(flagTargetRPC, "", "RPC address of the target chain")
@@ -74,6 +79,8 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceAccount, "", "Source Account")
 	c.Flags().String(flagTargetAccount, "", "Target Account")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
+	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
+	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
 	return c
@@ -295,6 +302,15 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
+	var (
+		sourceClientID, _ = cmd.Flags().GetString(flagSourceClientID)
+		targetClientID, _ = cmd.Flags().GetString(flagTargetClientID)
+	)
+	if sourceClientID != "" && targetClientID == "" {
+		return fmt.Errorf("%s flag requires the %s flag", flagSourceClientID, flagTargetClientID)
+	} else if sourceClientID == "" && targetClientID != "" {
+		return fmt.Errorf("%s flag requires the %s flag", flagTargetClientID, flagSourceClientID)
+	}
 
 	var questions []cliquiz.Question
 
@@ -375,6 +391,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		sourceGasPrice,
 		sourceGasLimit,
 		sourceAddressPrefix,
+		sourceClientID,
 	)
 	if err != nil {
 		return err
@@ -391,6 +408,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		targetGasPrice,
 		targetGasLimit,
 		targetAddressPrefix,
+		targetClientID,
 	)
 	if err != nil {
 		return err
@@ -436,7 +454,8 @@ func initChain(
 	faucetAddr,
 	gasPrice string,
 	gasLimit int64,
-	addressPrefix string,
+	addressPrefix,
+	clientID string,
 ) (*relayer.Chain, error) {
 	defer session.StopSpinner()
 	session.StartSpinner("Initializing chain...")
