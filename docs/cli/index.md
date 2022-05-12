@@ -431,6 +431,7 @@ ignite generate dart [flags]
 
 ```
   -h, --help   help for dart
+  -y, --yes    Answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
@@ -456,6 +457,7 @@ ignite generate openapi [flags]
 
 ```
   -h, --help   help for openapi
+  -y, --yes    Answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
@@ -481,6 +483,7 @@ ignite generate proto-go [flags]
 
 ```
   -h, --help   help for proto-go
+  -y, --yes    Answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
@@ -507,6 +510,7 @@ ignite generate vuex [flags]
 ```
   -h, --help                help for vuex
       --proto-all-modules   Enables proto code generation for 3rd party modules used in your chain
+  -y, --yes                 Answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
@@ -647,6 +651,7 @@ ignite scaffold band [queryName] --module [moduleName] [flags]
       --module string   IBC Module to add the packet into
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
+  -y, --yes             Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -693,6 +698,7 @@ ignite scaffold flutter [flags]
 ```
   -h, --help          help for flutter
   -p, --path string   path to scaffold content of the Flutter app (default "./flutter")
+  -y, --yes           Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -717,6 +723,7 @@ ignite scaffold list NAME [field]... [flags]
       --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
+  -y, --yes             Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -742,6 +749,7 @@ ignite scaffold map NAME [field]... [flags]
       --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
+  -y, --yes             Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -767,6 +775,7 @@ ignite scaffold message [name] [field1] [field2] ... [flags]
   -p, --path string        path of the app (default ".")
   -r, --response strings   Response fields
       --signer string      Label for the message signer (default: creator)
+  -y, --yes                Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -796,6 +805,7 @@ ignite scaffold module [name] [flags]
       --params strings         scaffold module params
   -p, --path string            path of the app (default ".")
       --require-registration   if true command will fail if module can't be registered
+  -y, --yes                    Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -824,6 +834,7 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
       --no-message      Disable send message scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
+  -y, --yes             Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -848,6 +859,7 @@ ignite scaffold query [name] [request_field1] [request_field2] ... [flags]
       --paginated          Define if the request can be paginated
   -p, --path string        path of the app (default ".")
   -r, --response strings   Response fields
+  -y, --yes                Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -872,6 +884,7 @@ ignite scaffold single NAME [field]... [flags]
       --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
+  -y, --yes             Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -896,6 +909,7 @@ ignite scaffold type NAME [field]... [flags]
       --no-simulation   Disable CRUD simulation scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   Label for the message signer (default: creator)
+  -y, --yes             Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -916,6 +930,7 @@ ignite scaffold vue [flags]
 ```
   -h, --help          help for vue
   -p, --path string   path to scaffold content of the Vue.js app (default "./vue")
+  -y, --yes           Answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**

@@ -44,7 +44,7 @@ func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
 	}
 }
 
-// Campaign fetches the campaign from Starport Network
+// Campaign fetches the campaign from Network
 func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign information"))
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
@@ -56,7 +56,7 @@ func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.
 	return networktypes.ToCampaign(res.Campaign), nil
 }
 
-// Campaigns fetches the campaigns from Starport Network
+// Campaigns fetches the campaigns from Network
 func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
 	var campaigns []networktypes.Campaign
 
@@ -75,7 +75,7 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	return campaigns, nil
 }
 
-// CreateCampaign creates a campaign in Starport Network
+// CreateCampaign creates a campaign in Network
 func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
 

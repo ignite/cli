@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	commitMessage = "Initialized with Starport"
+	commitMessage = "Initialized with Ignite CLI"
 	devXAuthor    = &object.Signature{
 		Name:  "Developer Experience team at Tendermint",
 		Email: "hello@tendermint.com",
