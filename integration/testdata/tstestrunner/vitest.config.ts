@@ -14,6 +14,7 @@ const alias = aliases.collect(process.env.TEST_CHAIN_PATH)
 export default defineConfig({
   test: {
     include: ['**/*_test.ts'],
+    globals: true,
     setupFiles: 'setupTest.ts'
   },
   resolve: {
