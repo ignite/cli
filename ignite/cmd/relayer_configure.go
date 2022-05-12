@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -306,11 +304,6 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		sourceClientID, _ = cmd.Flags().GetString(flagSourceClientID)
 		targetClientID, _ = cmd.Flags().GetString(flagTargetClientID)
 	)
-	if sourceClientID != "" && targetClientID == "" {
-		return fmt.Errorf("%s flag requires the %s flag", flagSourceClientID, flagTargetClientID)
-	} else if sourceClientID == "" && targetClientID != "" {
-		return fmt.Errorf("%s flag requires the %s flag", flagTargetClientID, flagSourceClientID)
-	}
 
 	var questions []cliquiz.Question
 
@@ -468,6 +461,7 @@ func initChain(
 		relayer.WithGasPrice(gasPrice),
 		relayer.WithGasLimit(gasLimit),
 		relayer.WithAddressPrefix(addressPrefix),
+		relayer.WithClientID(clientID),
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)

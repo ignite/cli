@@ -48,6 +48,9 @@ type Chain struct {
 	// addressPrefix is the address prefix of the chain.
 	addressPrefix string
 
+	// clientID is the client id of the chain for relayer connection.
+	clientID string
+
 	r Relayer
 }
 
@@ -86,6 +89,13 @@ func WithGasLimit(limit int64) Option {
 func WithAddressPrefix(addressPrefix string) Option {
 	return func(c *Chain) {
 		c.addressPrefix = addressPrefix
+	}
+}
+
+// WithClientID configures the chain client id
+func WithClientID(clientID string) Option {
+	return func(c *Chain) {
+		c.clientID = clientID
 	}
 }
 
@@ -210,7 +220,7 @@ func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOptio
 	i := 2
 	for {
 		guess := pathID + suffix
-		if _, err := conf.PathByID(guess); err != nil { // guess is inique.
+		if _, err := conf.PathByID(guess); err != nil { // guess is unique.
 			pathID = guess
 			break
 		}
@@ -261,6 +271,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 		RPCAddress:    c.rpcAddress,
 		GasPrice:      c.gasPrice,
 		GasLimit:      c.gasLimit,
+		ClientID:      c.clientID,
 	}
 
 	conf, err := relayerconfig.Get()
