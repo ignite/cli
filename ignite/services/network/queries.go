@@ -232,7 +232,8 @@ func (n Network) StakingParams(ctx context.Context) (stakingtypes.Params, error)
 	return res.Params, nil
 }
 
-// IBCInfo Fetches the consensus state with the validator set and the unbounding time
+// IBCInfo Fetches the consensus state with the validator set,
+// the unbounding time, and the last block height from chain rewards.
 func (n Network) IBCInfo(
 	ctx context.Context,
 	launchID uint64,
