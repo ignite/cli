@@ -1,6 +1,6 @@
 // Package nodetime provides a single, and standalone NodeJS runtime executable that contains
 // several NodeJS CLI programs bundled inside where those are reachable via subcommands.
-// the CLI bundled programs are the ones that needed by Starport and more can added as needed.
+// the CLI bundled programs are the ones that needed by Ignite CLI and more can added as needed.
 package nodetime
 
 import (
@@ -31,7 +31,7 @@ const (
 	// CommandIBCRelayer is https://github.com/confio/ts-relayer/blob/main/spec/ibc-relayer.md.
 	CommandIBCRelayer = "ibc-relayer"
 
-	// CommandXRelayer is a relayer wrapper for Starport made using the confio relayer.
+	// CommandXRelayer is a relayer wrapper for Ignite CLI made using the confio relayer.
 	CommandXRelayer = "xrelayer"
 )
 
