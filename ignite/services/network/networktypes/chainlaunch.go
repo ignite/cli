@@ -7,17 +7,18 @@ type (
 
 	// ChainLaunch represents the launch of a chain on SPN
 	ChainLaunch struct {
-		ID              uint64      `json:"ID"`
-		ChainID         string      `json:"ChainID"`
-		SourceURL       string      `json:"SourceURL"`
-		SourceHash      string      `json:"SourceHash"`
-		GenesisURL      string      `json:"GenesisURL"`
-		GenesisHash     string      `json:"GenesisHash"`
-		LaunchTime      int64       `json:"LaunchTime"`
-		CampaignID      uint64      `json:"CampaignID"`
-		LaunchTriggered bool        `json:"LaunchTriggered"`
-		Network         NetworkType `json:"Network"`
-		Reward          string      `json:"Reward,omitempty"`
+		ID                     uint64      `json:"ID"`
+		ConsumerRevisionHeight int64       `json:"ConsumerRevisionHeight"`
+		ChainID                string      `json:"ChainID"`
+		SourceURL              string      `json:"SourceURL"`
+		SourceHash             string      `json:"SourceHash"`
+		GenesisURL             string      `json:"GenesisURL"`
+		GenesisHash            string      `json:"GenesisHash"`
+		LaunchTime             int64       `json:"LaunchTime"`
+		CampaignID             uint64      `json:"CampaignID"`
+		LaunchTriggered        bool        `json:"LaunchTriggered"`
+		Network                NetworkType `json:"Network"`
+		Reward                 string      `json:"Reward,omitempty"`
 	}
 )
 
@@ -43,14 +44,15 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	}
 
 	launch := ChainLaunch{
-		ID:              chain.LaunchID,
-		ChainID:         chain.GenesisChainID,
-		SourceURL:       chain.SourceURL,
-		SourceHash:      chain.SourceHash,
-		LaunchTime:      launchTime,
-		CampaignID:      chain.CampaignID,
-		LaunchTriggered: chain.LaunchTriggered,
-		Network:         network,
+		ID:                     chain.LaunchID,
+		ConsumerRevisionHeight: chain.ConsumerRevisionHeight,
+		ChainID:                chain.GenesisChainID,
+		SourceURL:              chain.SourceURL,
+		SourceHash:             chain.SourceHash,
+		LaunchTime:             launchTime,
+		CampaignID:             chain.CampaignID,
+		LaunchTriggered:        chain.LaunchTriggered,
+		Network:                network,
 	}
 
 	// check if custom genesis URL is provided.
