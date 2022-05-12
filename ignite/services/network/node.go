@@ -10,13 +10,11 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
-type (
-	// Node is node builder.
-	Node struct {
-		cosmos       CosmosClient
-		stakingQuery stakingtypes.QueryClient
-	}
-)
+// Node is node builder.
+type Node struct {
+	cosmos       CosmosClient
+	stakingQuery stakingtypes.QueryClient
+}
 
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
 	return Node{
