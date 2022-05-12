@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"sync"
 
@@ -249,8 +250,9 @@ func (n Network) IBCInfo(
 	unboundingTime := int64(stakingParams.UnbondingTime.Seconds())
 
 	chainReward, err := n.ChainReward(ctx, launchID)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return ibcInfo, 0, unboundingTime, nil
+	if err == ErrObjectNotFound {
+		return networktypes.IBCInfo{}, 0, 0,
+			fmt.Errorf("chain %d don't have rewards to launch an incentivized network", launchID)
 	} else if err != nil {
 		return networktypes.IBCInfo{}, 0, 0, err
 	}
