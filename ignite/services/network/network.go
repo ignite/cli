@@ -12,6 +12,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
@@ -25,6 +26,8 @@ type CosmosClient interface {
 	Context() client.Context
 	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
+	Status(ctx context.Context) (*ctypes.ResultStatus, error)
+	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
 }
 
 // Network is network builder.

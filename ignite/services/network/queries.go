@@ -24,7 +24,7 @@ var (
 	ErrObjectNotFound = errors.New("query object not found")
 )
 
-// ChainLaunch fetches the chain launch from Starport Network by launch id.
+// ChainLaunch fetches the chain launch from Network by launch id.
 func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.ChainLaunch, error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chain information"))
 
@@ -41,7 +41,7 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 	return networktypes.ToChainLaunch(res.Chain), nil
 }
 
-// ChainLaunchesWithReward fetches the chain launches with rewards from Starport Network
+// ChainLaunchesWithReward fetches the chain launches with rewards from Network
 func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
@@ -24,6 +25,9 @@ func NewNetworkProfile() *cobra.Command {
 }
 
 func networkProfileHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
@@ -52,7 +56,7 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Cleanup()
+	session.Cleanup()
 	fmt.Print(profileInfo)
 	return nil
 }
