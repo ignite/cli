@@ -8,7 +8,9 @@
     "test": "vitest --run"
   },
   "devDependencies": {
+    "@types/glob": "^7.2.0",
     "@types/node": "^17.0.31",
+    "glob": "^8.0.1",
     "isomorphic-unfetch": "^3.1.0",
     "vitest": "^0.10.2"
   }

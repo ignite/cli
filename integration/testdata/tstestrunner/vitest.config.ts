@@ -1,37 +1,15 @@
-import path from 'path'
-import { readdirSync, Dirent } from 'fs'
 import { defineConfig } from 'vitest/config'
 
-type Alias = {
-  [key: string]: string
-}
-
-const collectModuleAliases = (alias: Alias, modulesPath: string) => {
-  readdirSync(modulesPath, { withFileTypes: true }).forEach((item: Dirent) => {
-    if (item.name.startsWith('.') || item.isFile()) {
-      return
-    }
-
-    alias[item.name] = path.join(modulesPath, item.name)
-  });
-}
+import aliases from './aliases'
 
 // TODO: add .env file support for a better developer experience ? It would allow
 // writting new tests agains a running blockchain without the need of scaffolding
 // a new one for each test run.
 
-// Absolute path to the blockchain app directory
-const chainPath = process.env.TEST_CHAIN_PATH
-
-// The module aliases are used to be able to import generated code within the tests
-const alias: Alias = {}
-
-// Collect the module aliases for the chain app
-collectModuleAliases(alias, `${chainPath}/vue/node_modules`)
-
-// Collect the module aliases for the generated Vuex store
-collectModuleAliases(alias, `${chainPath}/vue/src/store/generated/cosmos/cosmos-sdk`)
-collectModuleAliases(alias, `${chainPath}/vue/src/store/generated/cosmos/ibc-go`)
+// Collect the module aliases for the generated code, including cosmos, tendermint
+// or user generated modules, and also the dependencies for the frontend client.
+// Module aliases are used to be able to import auto generated code within the tests.
+const alias = aliases.collect(process.env.TEST_CHAIN_PATH)
 
 export default defineConfig({
   test: {

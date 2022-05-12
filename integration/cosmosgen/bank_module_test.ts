@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { isDeliverTxSuccess } from '@cosmjs/stargate'
 
-import { txClient, queryClient } from 'cosmos.bank.v1beta1/module'
+import { txClient, queryClient } from 'cosmos-bank-v1beta1-js/module'
 
 describe('Bank', () => {
   let txApi: string
