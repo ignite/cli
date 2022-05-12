@@ -103,10 +103,10 @@ func verifyRequest(
 		return err
 	}
 
-	info, unboundingTime, err := n.IBCInfo(ctx)
+	ibcInfo, unboundingTime, err := n.IBCInfo(ctx)
 	if err != nil {
 		return err
 	}
 
-	return c.SimulateRequests(ctx, genesisInformation, requests, info, unboundingTime)
+	return c.SimulateRequests(ctx, genesisInformation, requests, ibcInfo, unboundingTime)
 }

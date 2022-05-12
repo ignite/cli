@@ -71,12 +71,12 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 		c.SetHome(tmpHome)
 
-		info, unboundingTime, err := n.IBCInfo(cmd.Context())
+		ibcInfo, unboundingTime, err := n.IBCInfo(cmd.Context())
 		if err != nil {
 			return err
 		}
 
-		if err = c.Prepare(cmd.Context(), genesisInformation, info, unboundingTime); err != nil {
+		if err = c.Prepare(cmd.Context(), genesisInformation, ibcInfo, unboundingTime); err != nil {
 			return err
 		}
 
