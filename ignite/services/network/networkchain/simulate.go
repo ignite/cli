@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
@@ -47,7 +48,7 @@ func (c Chain) SimulateRequests(
 	c.ev.Send(events.New(events.StatusDone, "Requests format verified"))
 
 	// prepare the chain with the requests
-	if err := c.Prepare(ctx, gi, ibcInfo, unbondingTime); err != nil {
+	if err := c.Prepare(ctx, gi, ibcInfo, cosmosutil.SPNChainID, unbondingTime); err != nil {
 		return err
 	}
 

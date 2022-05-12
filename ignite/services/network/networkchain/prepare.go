@@ -40,6 +40,7 @@ func (c Chain) Prepare(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
 	ibcInfo networktypes.IBCInfo,
+	chainID string,
 	unbondingTime int64,
 ) error {
 	// chain initialization
@@ -69,7 +70,7 @@ func (c Chain) Prepare(
 		}
 	}
 
-	if err := c.buildGenesis(ctx, gi, ibcInfo, unbondingTime); err != nil {
+	if err := c.buildGenesis(ctx, gi, ibcInfo, chainID, unbondingTime); err != nil {
 		return err
 	}
 
@@ -96,6 +97,7 @@ func (c Chain) buildGenesis(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
 	ibcInfo networktypes.IBCInfo,
+	chainID string,
 	unbondingTime int64,
 ) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
@@ -121,6 +123,10 @@ func (c Chain) buildGenesis(
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
+	if chainID == "" {
+		chainID = cosmosutil.SPNChainID
+	}
+
 	// update genesis
 	if err := cosmosutil.UpdateGenesis(
 		genesisPath,
@@ -128,7 +134,7 @@ func (c Chain) buildGenesis(
 		cosmosutil.WithKeyValue(cosmosutil.FieldChainID, c.id),
 		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime),
 		// set the network consensus parameters
-		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, cosmosutil.SPNChainID),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, chainID),
 		cosmosutil.WithKeyValueUint(cosmosutil.FieldLastBlockHeight, ibcInfo.RevisionHeight),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, ibcInfo.ConsensusState.Timestamp),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, ibcInfo.ConsensusState.NextValidatorsHash),

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 )
 
@@ -20,6 +21,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 	}
 
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
+	c.Flags().String(flagChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
 
 	return c
 }
@@ -28,7 +30,10 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	out, _ := cmd.Flags().GetString(flagOut)
+	var (
+		out, _     = cmd.Flags().GetString(flagOut)
+		chainID, _ = cmd.Flags().GetString(flagChainID)
+	)
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {
@@ -76,7 +81,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		if err = c.Prepare(cmd.Context(), genesisInformation, ibcInfo, unboundingTime); err != nil {
+		if err = c.Prepare(cmd.Context(), genesisInformation, ibcInfo, chainID, unboundingTime); err != nil {
 			return err
 		}
 

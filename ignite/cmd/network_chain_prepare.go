@@ -9,6 +9,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
@@ -28,6 +29,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 	}
 
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
+	c.Flags().String(flagChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -39,7 +41,10 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	force, _ := cmd.Flags().GetBool(flagForce)
+	var (
+		force, _   = cmd.Flags().GetBool(flagForce)
+		chainID, _ = cmd.Flags().GetString(flagChainID)
+	)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -83,7 +88,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Prepare(cmd.Context(), genesisInformation, ibcInfo, unboundingTime); err != nil {
+	if err := c.Prepare(cmd.Context(), genesisInformation, ibcInfo, chainID, unboundingTime); err != nil {
 		return err
 	}
 
