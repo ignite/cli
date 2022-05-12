@@ -83,12 +83,23 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	ibcInfo, unboundingTime, err := n.IBCInfo(cmd.Context())
+	ibcInfo, lastBlockHeight, unboundingTime, err := n.IBCInfo(
+		cmd.Context(),
+		launchID,
+		chainLaunch.ConsumerRevisionHeight,
+	)
 	if err != nil {
 		return err
 	}
 
-	if err := c.Prepare(cmd.Context(), genesisInformation, ibcInfo, chainID, unboundingTime); err != nil {
+	if err := c.Prepare(
+		cmd.Context(),
+		genesisInformation,
+		ibcInfo,
+		chainID,
+		lastBlockHeight,
+		unboundingTime,
+	); err != nil {
 		return err
 	}
 

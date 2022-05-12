@@ -26,14 +26,8 @@ func NewNodeClient(cosmos CosmosClient) (Node, error) {
 }
 
 // NodeInfo Fetches the consensus state with the validator set
-func NodeInfo(ctx context.Context, client CosmosClient) (networktypes.IBCInfo, error) {
-	status, err := client.Status(ctx)
-	if err != nil {
-		return networktypes.IBCInfo{}, err
-	}
-	lastBlockHeight := status.SyncInfo.LatestBlockHeight
-
-	consensusState, err := client.ConsensusInfo(ctx, lastBlockHeight)
+func NodeInfo(ctx context.Context, client CosmosClient, height int64) (networktypes.IBCInfo, error) {
+	consensusState, err := client.ConsensusInfo(ctx, height)
 	if err != nil {
 		return networktypes.IBCInfo{}, err
 	}
@@ -55,7 +49,7 @@ func NodeInfo(ctx context.Context, client CosmosClient) (networktypes.IBCInfo, e
 	return networktypes.IBCInfo{
 		ConsensusState: spnConsensusStatue,
 		ValidatorSet:   spntypes.NewValidatorSet(validators...),
-		RevisionHeight: uint64(lastBlockHeight),
+		RevisionHeight: uint64(height),
 	}, nil
 }
 
@@ -70,7 +64,13 @@ func (n Node) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
 
 // IBCInfo Fetches the consensus state with the validator set and the unbounding time
 func (n Node) IBCInfo(ctx context.Context) (networktypes.IBCInfo, int64, error) {
-	info, err := NodeInfo(ctx, n.cosmos)
+	status, err := n.cosmos.Status(ctx)
+	if err != nil {
+		return networktypes.IBCInfo{}, 0, err
+	}
+	lastBlockHeight := status.SyncInfo.LatestBlockHeight
+
+	info, err := NodeInfo(ctx, n.cosmos, lastBlockHeight)
 	if err != nil {
 		return networktypes.IBCInfo{}, 0, err
 	}

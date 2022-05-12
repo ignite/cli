@@ -103,10 +103,21 @@ func verifyRequest(
 		return err
 	}
 
-	ibcInfo, unboundingTime, err := n.IBCInfo(ctx)
+	ibcInfo, lastBlockHeight, unboundingTime, err := n.IBCInfo(
+		ctx,
+		launchID,
+		chainLaunch.ConsumerRevisionHeight,
+	)
 	if err != nil {
 		return err
 	}
 
-	return c.SimulateRequests(ctx, genesisInformation, requests, ibcInfo, unboundingTime)
+	return c.SimulateRequests(
+		ctx,
+		genesisInformation,
+		requests,
+		ibcInfo,
+		lastBlockHeight,
+		unboundingTime,
+	)
 }

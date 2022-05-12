@@ -30,6 +30,7 @@ func (c Chain) SimulateRequests(
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
 	ibcInfo networktypes.IBCInfo,
+	lastBlockHeight,
 	unbondingTime int64,
 ) (err error) {
 	c.ev.Send(events.New(events.StatusOngoing, "Verifying requests format"))
@@ -48,7 +49,14 @@ func (c Chain) SimulateRequests(
 	c.ev.Send(events.New(events.StatusDone, "Requests format verified"))
 
 	// prepare the chain with the requests
-	if err := c.Prepare(ctx, gi, ibcInfo, cosmosutil.SPNChainID, unbondingTime); err != nil {
+	if err := c.Prepare(
+		ctx,
+		gi,
+		ibcInfo,
+		cosmosutil.SPNChainID,
+		lastBlockHeight,
+		unbondingTime,
+	); err != nil {
 		return err
 	}
 

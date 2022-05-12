@@ -232,15 +232,27 @@ func (n Network) StakingParams(ctx context.Context) (stakingtypes.Params, error)
 }
 
 // IBCInfo Fetches the consensus state with the validator set and the unbounding time
-func (n Network) IBCInfo(ctx context.Context) (networktypes.IBCInfo, int64, error) {
-	info, err := NodeInfo(ctx, n.cosmos)
+func (n Network) IBCInfo(
+	ctx context.Context,
+	launchID uint64,
+	height int64,
+) (networktypes.IBCInfo, int64, int64, error) {
+	ibcInfo, err := NodeInfo(ctx, n.cosmos, height)
 	if err != nil {
-		return networktypes.IBCInfo{}, 0, err
+		return networktypes.IBCInfo{}, 0, 0, err
 	}
 
 	stakingParams, err := n.StakingParams(ctx)
 	if err != nil {
-		return networktypes.IBCInfo{}, 0, err
+		return networktypes.IBCInfo{}, 0, 0, err
 	}
-	return info, int64(stakingParams.UnbondingTime.Seconds()), nil
+	unboundingTime := int64(stakingParams.UnbondingTime.Seconds())
+
+	chainReward, err := n.ChainReward(ctx, launchID)
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return ibcInfo, 0, unboundingTime, nil
+	} else if err != nil {
+		return networktypes.IBCInfo{}, 0, 0, err
+	}
+	return ibcInfo, chainReward.LastRewardHeight, unboundingTime, nil
 }

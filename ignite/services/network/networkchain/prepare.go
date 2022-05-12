@@ -41,6 +41,7 @@ func (c Chain) Prepare(
 	gi networktypes.GenesisInformation,
 	ibcInfo networktypes.IBCInfo,
 	chainID string,
+	lastBlockHeight,
 	unbondingTime int64,
 ) error {
 	// chain initialization
@@ -70,7 +71,14 @@ func (c Chain) Prepare(
 		}
 	}
 
-	if err := c.buildGenesis(ctx, gi, ibcInfo, chainID, unbondingTime); err != nil {
+	if err := c.buildGenesis(
+		ctx,
+		gi,
+		ibcInfo,
+		chainID,
+		lastBlockHeight,
+		unbondingTime,
+	); err != nil {
 		return err
 	}
 
@@ -98,6 +106,7 @@ func (c Chain) buildGenesis(
 	gi networktypes.GenesisInformation,
 	ibcInfo networktypes.IBCInfo,
 	chainID string,
+	lastBlockHeight,
 	unbondingTime int64,
 ) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
@@ -135,7 +144,7 @@ func (c Chain) buildGenesis(
 		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime),
 		// set the network consensus parameters
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, chainID),
-		cosmosutil.WithKeyValueUint(cosmosutil.FieldLastBlockHeight, ibcInfo.RevisionHeight),
+		cosmosutil.WithKeyValueInt(cosmosutil.FieldLastBlockHeight, lastBlockHeight),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, ibcInfo.ConsensusState.Timestamp),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, ibcInfo.ConsensusState.NextValidatorsHash),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusRootHash, ibcInfo.ConsensusState.Root.Hash),
