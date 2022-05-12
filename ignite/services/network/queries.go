@@ -238,6 +238,14 @@ func (n Network) IBCInfo(
 	launchID uint64,
 	height int64,
 ) (networktypes.IBCInfo, int64, int64, error) {
+	chainReward, err := n.ChainReward(ctx, launchID)
+	if err == ErrObjectNotFound {
+		return networktypes.IBCInfo{}, 0, 0,
+			fmt.Errorf("chain %d don't have rewards to launch an incentivized network", launchID)
+	} else if err != nil {
+		return networktypes.IBCInfo{}, 0, 0, err
+	}
+
 	ibcInfo, err := NodeInfo(ctx, n.cosmos, height)
 	if err != nil {
 		return networktypes.IBCInfo{}, 0, 0, err
@@ -249,12 +257,5 @@ func (n Network) IBCInfo(
 	}
 	unboundingTime := int64(stakingParams.UnbondingTime.Seconds())
 
-	chainReward, err := n.ChainReward(ctx, launchID)
-	if err == ErrObjectNotFound {
-		return networktypes.IBCInfo{}, 0, 0,
-			fmt.Errorf("chain %d don't have rewards to launch an incentivized network", launchID)
-	} else if err != nil {
-		return networktypes.IBCInfo{}, 0, 0, err
-	}
 	return ibcInfo, chainReward.LastRewardHeight, unboundingTime, nil
 }
