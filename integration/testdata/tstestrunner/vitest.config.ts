@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config'
 
-import aliases from './aliases'
+import aliases from './testutil/aliases'
 
 // TODO: add .env file support for a better developer experience ? It would allow
 // writting new tests agains a running blockchain without the need of scaffolding
@@ -15,7 +15,7 @@ export default defineConfig({
   test: {
     include: ['**/*_test.ts'],
     globals: true,
-    setupFiles: 'setupTest.ts'
+    setupFiles: 'testutil/setup.ts'
   },
   resolve: {
     alias
