@@ -120,8 +120,8 @@ func ExecRetry() ExecOption {
 }
 
 type clientOptions struct {
-	env                        map[string]string
-	pattern, rootDir, testfile string
+	env               map[string]string
+	pattern, testfile string
 }
 
 // ClientOption defines options for the TS client test runner.
@@ -143,17 +143,10 @@ func ClientTestName(pattern string) ClientOption {
 	}
 }
 
-// ClientTestDir option defines a root directory where to look for tests and test files.
-func ClientTestDir(dir string) ClientOption {
+// ClientTestFile option defines the name of the file where to look for tests.
+func ClientTestFile(filepath string) ClientOption {
 	return func(o *clientOptions) {
-		o.rootDir = dir
-	}
-}
-
-// ClientTestFile option defines a file to look for tests.
-func ClientTestFile(filename string) ClientOption {
-	return func(o *clientOptions) {
-		o.testfile = filename
+		o.testfile = filepath
 	}
 }
 
@@ -449,7 +442,9 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	npm, err := exec.LookPath("npm")
 	require.NoError(e.t, err, "npm binary not found")
 
-	cwd, err := os.Getwd()
+	// The root dir for the tests must be an absolute path.
+	// It is used as the start search point to find test files.
+	rootDir, err := os.Getwd()
 	require.NoError(e.t, err)
 
 	// The filename of this module is required to be able to define the location
@@ -461,7 +456,6 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	}
 
 	opts := clientOptions{
-		rootDir: "",
 		env: map[string]string{
 			"TEST_CHAIN_PATH": path,
 		},
@@ -497,10 +491,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 
 	output.Reset()
 
-	// The root dir for the tests must be an absolute path
-	absRootDir := filepath.Join(cwd, opts.rootDir)
-
-	args := []string{"run", "test", "--", "--dir", absRootDir}
+	args := []string{"run", "test", "--", "--dir", rootDir}
 	if opts.pattern != "" {
 		args = append(args, "-t", opts.pattern)
 	}
