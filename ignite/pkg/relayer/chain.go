@@ -200,7 +200,7 @@ func Ordered() ChannelOption {
 
 // Connect connects dst chain to c chain and creates a path in between in offline mode.
 // it returns the path id on success otherwise, returns with a non-nil error.
-func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOption) (id string, err error) {
+func (c *Chain) Connect(dst *Chain, options ...ChannelOption) (id string, err error) {
 	channelOptions := newChannelOptions()
 
 	for _, apply := range options {

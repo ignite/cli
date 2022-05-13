@@ -425,7 +425,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	// create the connection configuration
-	id, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
+	id, err := sourceChain.Connect(targetChain, channelOptions...)
 	if err != nil {
 		return err
 	}
