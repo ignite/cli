@@ -3,6 +3,8 @@ package network
 import (
 	"context"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -23,8 +25,8 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 				Address: address,
 			},
 		)
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return 0, ErrObjectNotFound
 	} else if err != nil {
 		return 0, err
