@@ -48,7 +48,6 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: "Ignite",
         logo: {
           alt: "My Site Logo",
           src: "img/logo.svg",
@@ -71,42 +70,90 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
             items: [
               {
-                label: "Docs",
-                to: "/index",
+                html: `
+                <a href="https://ignite.com">
+                  <img src="img/logo.svg" alt="ignite logo" width="114" height="51" />
+                </a>
+              `,
               },
             ],
           },
           {
-            title: "Community",
+            title: "Products",
             items: [
               {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/docusaurus",
+                label: "CLI",
+                href: "https://ignite.com/cli",
               },
               {
+                label: "Accelerator",
+                href: "https://ignite.com/accelerator",
+              },
+              {
+                label: "Ventures",
+                href: "https://ignite.com/ventures",
+              },
+              {
+                label: "Emeris",
+                href: "https://emeris.com",
+              },
+            ],
+          },
+          {
+            title: "Company",
+            items: [
+              {
+                label: "About Ignite",
+                href: "https://ignite.com/about",
+              },
+              {
+                label: "Careers",
+                href: "https://ignite.com/careers",
+              },
+              {
+                label: "Blog",
+                href: "https://ignite.com/blog",
+              },
+              {
+                label: "Press",
+                href: "https://ignite.com/press",
+              },
+            ],
+          },
+          {
+            title: "Contact",
+            items: [
+              {
+                label: "Media Inquiries",
+                href: "mailto:media@tendermint.com",
+              },
+              {
+                label: "Business Inquiries",
+                href: "mailto:business@tendermint.com",
+              },
+            ],
+          },
+          {
+            title: "Social",
+            items: [
+              {
                 label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
+                href: "https://discord.com/invite/ignite",
               },
               {
                 label: "Twitter",
-                href: "https://twitter.com/docusaurus",
+                href: "https://twitter.com/ignite_com",
               },
-            ],
-          },
-          {
-            title: "More",
-            items: [
               {
-                label: "GitHub",
-                href: "https://github.com/facebook/docusaurus",
+                label: "Linkedin",
+                href: "https://www.linkedin.com/company/ignt/",
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `© Ignite ${new Date().getFullYear()}`,
       },
       prism: {
         theme: lightCodeTheme,
