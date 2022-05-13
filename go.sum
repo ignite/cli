@@ -1487,8 +1487,8 @@ github.com/tendermint/fundraising v0.3.0 h1:VtHfmVlAS93MUDlt6Em21l3taw6s9kLY/w8C
 github.com/tendermint/fundraising v0.3.0/go.mod h1:oJFZUZ/GsACtkYeWScKpHLdqMUThNWpMAi/G47LJUi4=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
-github.com/tendermint/spn v0.2.1-0.20220510102140-045c15b4b7e0 h1:ubqnKv9rF2uTQJKXxJR7wP+HNocQdXZd1Uqihn8S8Bw=
-github.com/tendermint/spn v0.2.1-0.20220510102140-045c15b4b7e0/go.mod h1:xNtBc/jmB1pvb+EJYQtyJdcTZM9dOhJeW3C4Qj9n7tg=
+github.com/tendermint/spn v0.2.1-0.20220511154430-aeab7a5b2bc0 h1:kIjnfHO472W2WSzul3ek3p07yKVYxSFUNng4YJmVex4=
+github.com/tendermint/spn v0.2.1-0.20220511154430-aeab7a5b2bc0/go.mod h1:xNtBc/jmB1pvb+EJYQtyJdcTZM9dOhJeW3C4Qj9n7tg=
 github.com/tendermint/tendermint v0.34.14/go.mod h1:FrwVm3TvsVicI9Z7FlucHV6Znfd5KBc/Lpp69cCwtk0=
 github.com/tendermint/tendermint v0.34.19 h1:y0P1qI5wSa9IRuhKnTDA6IUcOrLi1hXJuALR+R7HFEk=
 github.com/tendermint/tendermint v0.34.19/go.mod h1:R5+wgIwSxMdKQcmOaeudL0Cjkr3HDkhpcdum6VeU3R4=
