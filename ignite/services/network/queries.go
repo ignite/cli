@@ -11,8 +11,6 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -183,8 +181,7 @@ func (n Network) MainnetAccount(
 				Address:    address,
 			},
 		)
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return networktypes.MainnetAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return acc, err
@@ -209,8 +206,7 @@ func (n Network) MainnetVestingAccount(
 				Address:    address,
 			},
 		)
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return networktypes.MainnetVestingAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return acc, err

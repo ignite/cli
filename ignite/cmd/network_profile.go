@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
@@ -38,15 +36,19 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var campaignID uint64
+	var (
+		campaignID uint64
+		campaign   = false
+	)
 	if len(args) > 0 {
 		campaignID, err = network.ParseID(args[0])
 		if err != nil {
 			return err
 		}
+		campaign = true
 	}
 
-	profile, err := n.Profile(cmd.Context(), campaignID)
+	profile, err := n.Profile(cmd.Context(), campaign, campaignID)
 	if err != nil {
 		return err
 	}
@@ -55,8 +57,5 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.Cleanup()
-	fmt.Print(profileInfo)
-	return nil
+	return session.Println(profileInfo)
 }

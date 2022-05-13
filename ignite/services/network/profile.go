@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 
@@ -9,8 +10,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
@@ -47,8 +46,7 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 				CoordinatorID: coordinatorID,
 			},
 		)
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return networktypes.Coordinator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Coordinator{}, err
@@ -65,8 +63,7 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 				Address: address,
 			},
 		)
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return networktypes.Validator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Validator{}, err
@@ -82,8 +79,7 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 			Address: address,
 		},
 	)
-	statusErr, ok := status.FromError(err)
-	if ok && statusErr.Code() == codes.NotFound {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return sdk.Coins{}, ErrObjectNotFound
 	} else if err != nil {
 		return sdk.Coins{}, err
@@ -92,7 +88,7 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 }
 
 // Profile returns the address profile info
-func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.Profile, error) {
+func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) (networktypes.Profile, error) {
 	address := n.account.Address(networktypes.SPN)
 	vouchers, err := n.Balances(ctx, address)
 	if err != nil {
@@ -100,7 +96,11 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 	}
 
 	var shares, vestingShares campaigntypes.Shares
-	if campaignID > 0 {
+	if campaign {
+		_, err := n.Campaign(ctx, campaignID)
+		if err == ErrObjectNotFound {
+			return networktypes.Profile{}, fmt.Errorf("invalid campaign id %d", campaignID)
+		}
 		acc, err := n.MainnetAccount(ctx, campaignID, address)
 		switch {
 		case err == ErrObjectNotFound:

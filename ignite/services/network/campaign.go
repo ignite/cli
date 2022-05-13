@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -50,7 +51,9 @@ func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: campaignID,
 	})
-	if err != nil {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return networktypes.Campaign{}, ErrObjectNotFound
+	} else if err != nil {
 		return networktypes.Campaign{}, err
 	}
 	return networktypes.ToCampaign(res.Campaign), nil
