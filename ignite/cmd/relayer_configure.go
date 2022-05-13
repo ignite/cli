@@ -10,6 +10,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
+	relayerconfig "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
 )
 
 const (
@@ -31,6 +32,7 @@ const (
 	flagSourceAddressPrefix = "source-prefix"
 	flagTargetAddressPrefix = "target-prefix"
 	flagOrdered             = "ordered"
+	flagReset               = "reset"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -74,6 +76,7 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceAccount, "", "Source Account")
 	c.Flags().String(flagTargetAccount, "", "Target Account")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
+	c.Flags().BoolP(flagReset, "r", false, "Reset the relayer config")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
 	return c
@@ -295,8 +298,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-
-	var questions []cliquiz.Question
+	var (
+		questions []cliquiz.Question
+		reset, _  = cmd.Flags().GetBool(flagReset)
+	)
 
 	// get information from prompt if flag not provided
 	if sourceAccount == "" {
@@ -354,6 +359,13 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	session.PauseSpinner()
 	if len(questions) > 0 {
 		if err := session.Ask(questions...); err != nil {
+			return err
+		}
+	}
+
+	if reset {
+		session.StartSpinner("Resetting relayer...")
+		if err := relayerconfig.Delete(); err != nil {
 			return err
 		}
 	}
