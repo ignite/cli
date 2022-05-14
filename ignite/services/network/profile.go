@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -87,6 +86,53 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 	return res.Balances, nil
 }
 
+// MainnetAccountBalance returns the spn account or vesting account balance by address from SPN
+func (n Network) MainnetAccountBalance(
+	ctx context.Context,
+	launchID uint64,
+	address string,
+) (balance sdk.Coins, vesting sdk.Coins, err error) {
+	acc, err := n.GenesisAccount(ctx, launchID, address)
+	switch {
+	case err == ErrObjectNotFound:
+		accVest, err := n.VestingAccount(ctx, launchID, address)
+		if err != nil && err != ErrObjectNotFound {
+			return nil, nil, err
+		}
+		balance = accVest.TotalBalance
+		vesting = accVest.Vesting
+	case err != nil:
+		return nil, nil, err
+	default:
+		balance = acc.Coins
+	}
+	return
+}
+
+// CampaignAccountBalance returns the spn mainnet account or mainnet
+// vesting account balance by address from SPN
+func (n Network) CampaignAccountBalance(
+	ctx context.Context,
+	campaignID uint64,
+	address string,
+) (shares campaigntypes.Shares, vestingShares campaigntypes.Shares, err error) {
+	acc, err := n.MainnetAccount(ctx, campaignID, address)
+	switch {
+	case err == ErrObjectNotFound:
+		accVest, err := n.MainnetVestingAccount(ctx, campaignID, address)
+		if err != nil && err != ErrObjectNotFound {
+			return nil, nil, err
+		}
+		shares = accVest.TotalShares
+		vestingShares = accVest.Vesting
+	case err != nil:
+		return nil, nil, err
+	default:
+		shares = acc.Shares
+	}
+	return
+}
+
 // Profile returns the address profile info
 func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) (networktypes.Profile, error) {
 	address := n.account.Address(networktypes.SPN)
@@ -95,25 +141,36 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 		return networktypes.Profile{}, err
 	}
 
-	var shares, vestingShares campaigntypes.Shares
+	var (
+		shares             campaigntypes.Shares
+		vestingShares      campaigntypes.Shares
+		chainShares        []networktypes.ChainShare
+		chainVestingShares []networktypes.ChainShare
+	)
 	if campaign {
-		_, err := n.Campaign(ctx, campaignID)
+		campaignChains, err := n.CampaignChains(ctx, campaignID)
 		if err == ErrObjectNotFound {
 			return networktypes.Profile{}, fmt.Errorf("invalid campaign id %d", campaignID)
+		} else if err != nil {
+			return networktypes.Profile{}, err
 		}
-		acc, err := n.MainnetAccount(ctx, campaignID, address)
-		switch {
-		case err == ErrObjectNotFound:
-			accVest, err := n.MainnetVestingAccount(ctx, campaignID, address)
+		shares, vestingShares, err = n.CampaignAccountBalance(ctx, campaignID, address)
+		if err != nil && err != ErrObjectNotFound {
+			return networktypes.Profile{}, err
+		}
+		for _, chain := range campaignChains.Chains {
+			balance, vesting, err := n.MainnetAccountBalance(ctx, chain, address)
 			if err != nil && err != ErrObjectNotFound {
 				return networktypes.Profile{}, err
 			}
-			shares = accVest.TotalShares
-			vestingShares = accVest.Vesting
-		case err != nil:
-			return networktypes.Profile{}, err
-		default:
-			shares = acc.Shares
+			chainShares = append(chainShares, networktypes.ChainShare{
+				LaunchID: chain,
+				Shares:   balance,
+			})
+			chainVestingShares = append(chainVestingShares, networktypes.ChainShare{
+				LaunchID: chain,
+				Shares:   vesting,
+			})
 		}
 	}
 
@@ -127,5 +184,5 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 	} else if err != nil {
 		return networktypes.Profile{}, err
 	}
-	return p.ToProfile(campaignID, vouchers, shares, vestingShares), err
+	return p.ToProfile(campaignID, vouchers, shares, vestingShares, chainShares, chainVestingShares), err
 }

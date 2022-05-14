@@ -142,7 +142,7 @@ func (c Chain) applyGenesisAccounts(
 		}
 
 		// call the add genesis account CLI command
-		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins)
+		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins.String())
 		if err != nil {
 			return err
 		}
@@ -172,8 +172,8 @@ func (c Chain) applyVestingAccounts(
 		err = cmd.AddVestingAccount(
 			ctx,
 			acc.Address,
-			acc.TotalBalance,
-			acc.Vesting,
+			acc.TotalBalance.String(),
+			acc.Vesting.String(),
 			acc.EndTime,
 		)
 		if err != nil {

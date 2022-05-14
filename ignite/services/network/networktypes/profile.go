@@ -17,18 +17,27 @@ type Validator struct {
 	SecurityContact   string   `json:"SecurityContact"`
 }
 
-func (c Validator) ToProfile(campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile {
+func (v Validator) ToProfile(
+	campaignID uint64,
+	vouchers sdk.Coins,
+	shares,
+	vestingShares campaigntypes.Shares,
+	chainShares,
+	chainVestingShares []ChainShare,
+) Profile {
 	return Profile{
-		Address:         c.Address,
-		Identity:        c.Identity,
-		Website:         c.Website,
-		Details:         c.Details,
-		Moniker:         c.Moniker,
-		SecurityContact: c.SecurityContact,
-		Vouchers:        vouchers,
-		Shares:          shares,
-		VestingShares:   vestingShares,
-		CampaignID:      campaignID,
+		CampaignID:         campaignID,
+		Address:            v.Address,
+		Identity:           v.Identity,
+		Website:            v.Website,
+		Details:            v.Details,
+		Moniker:            v.Moniker,
+		SecurityContact:    v.SecurityContact,
+		Vouchers:           vouchers,
+		Shares:             shares,
+		VestingShares:      vestingShares,
+		ChainShares:        chainShares,
+		ChainVestingShares: chainVestingShares,
 	}
 }
 
@@ -55,16 +64,25 @@ type Coordinator struct {
 	Details       string `json:"Details"`
 }
 
-func (c Coordinator) ToProfile(campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile {
+func (c Coordinator) ToProfile(
+	campaignID uint64,
+	vouchers sdk.Coins,
+	shares,
+	vestingShares campaigntypes.Shares,
+	chainShares,
+	chainVestingShares []ChainShare,
+) Profile {
 	return Profile{
-		Address:       c.Address,
-		Identity:      c.Identity,
-		Website:       c.Website,
-		Details:       c.Details,
-		Vouchers:      vouchers,
-		Shares:        shares,
-		VestingShares: vestingShares,
-		CampaignID:    campaignID,
+		CampaignID:         campaignID,
+		Address:            c.Address,
+		Identity:           c.Identity,
+		Website:            c.Website,
+		Details:            c.Details,
+		Vouchers:           vouchers,
+		Shares:             shares,
+		VestingShares:      vestingShares,
+		ChainShares:        chainShares,
+		ChainVestingShares: chainVestingShares,
 	}
 }
 
@@ -81,20 +99,34 @@ func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 }
 
 type (
+	// ChainShare represents the share of a chain on SPN
+	ChainShare struct {
+		LaunchID uint64    `json:"LaunchID,omitempty"`
+		Shares   sdk.Coins `json:"Shares,omitempty"`
+	}
 	// Profile represents the address profile on SPN
 	Profile struct {
-		Address         string               `json:"Address"`
-		CampaignID      uint64               `json:"CampaignID,omitempty"`
-		Identity        string               `json:"Identity,omitempty"`
-		Website         string               `json:"Website,omitempty"`
-		Details         string               `json:"Details,omitempty"`
-		Moniker         string               `json:"Moniker,omitempty"`
-		SecurityContact string               `json:"SecurityContact,omitempty"`
-		Vouchers        sdk.Coins            `json:"Vouchers,omitempty"`
-		Shares          campaigntypes.Shares `json:"Shares,omitempty"`
-		VestingShares   campaigntypes.Shares `json:"VestingShares,omitempty"`
+		Address            string               `json:"Address"`
+		CampaignID         uint64               `json:"CampaignID,omitempty"`
+		Identity           string               `json:"Identity,omitempty"`
+		Website            string               `json:"Website,omitempty"`
+		Details            string               `json:"Details,omitempty"`
+		Moniker            string               `json:"Moniker,omitempty"`
+		SecurityContact    string               `json:"SecurityContact,omitempty"`
+		Vouchers           sdk.Coins            `json:"Vouchers,omitempty"`
+		Shares             campaigntypes.Shares `json:"Shares,omitempty"`
+		VestingShares      campaigntypes.Shares `json:"VestingShares,omitempty"`
+		ChainShares        []ChainShare         `json:"ChainShares,omitempty"`
+		ChainVestingShares []ChainShare         `json:"ChainVestingShares,omitempty"`
 	}
 	IProfile interface {
-		ToProfile(campaignID uint64, vouchers sdk.Coins, shares, vestingShares campaigntypes.Shares) Profile
+		ToProfile(
+			campaignID uint64,
+			vouchers sdk.Coins,
+			shares,
+			vestingShares campaigntypes.Shares,
+			ChainShares,
+			ChainVestingShares []ChainShare,
+		) Profile
 	}
 )

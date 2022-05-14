@@ -232,11 +232,8 @@ func (n Network) sendValidatorRequest(
 
 // hasValidator verify if the validator already exist into the SPN store
 func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
-		LaunchID: launchID,
-		Address:  address,
-	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	_, err := n.GenesisValidator(ctx, launchID, address)
+	if err == ErrObjectNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -246,20 +243,14 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 
 // hasAccount verify if the account already exist into the SPN store
 func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
-		LaunchID: launchID,
-		Address:  address,
-	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	_, err := n.VestingAccount(ctx, launchID, address)
+	if err == ErrObjectNotFound {
 		return false, nil
 	} else if err != nil {
 		return false, err
 	}
 
-	_, err = n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
-		LaunchID: launchID,
-		Address:  address,
-	})
+	_, err = n.GenesisAccount(ctx, launchID, address)
 	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
 		return false, nil
 	} else if err != nil {
