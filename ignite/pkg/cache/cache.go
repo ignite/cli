@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -36,12 +35,10 @@ func NewStorage(dir string) (Storage, error) {
 	}
 
 	storagePath := filepath.Join(dir, dbName)
-	fmt.Println("Opening db")
 	db, err := bolt.Open(storagePath, 0640, &bolt.Options{Timeout: 5 * time.Minute})
 	if err != nil {
 		return Storage{}, err
 	}
-	fmt.Println("db opened")
 
 	return Storage{db}, nil
 }
