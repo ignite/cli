@@ -15,7 +15,7 @@ func TestCreateStorage(t *testing.T) {
 	tmpDir1 := t.TempDir()
 	tmpDir2 := t.TempDir()
 
-	_, err := cache.NewNamespacedStorage(tmpDir1, "myChain")
+	_, err := cache.NewStorage(tmpDir1)
 	require.NoError(t, err)
 
 	_, err = cache.NewStorage(tmpDir2)
@@ -24,7 +24,7 @@ func TestCreateStorage(t *testing.T) {
 
 func TestStoreString(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
+	cacheStorage, err := cache.NewStorage(tmpDir)
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
@@ -45,7 +45,7 @@ func TestStoreString(t *testing.T) {
 
 func TestStoreObjects(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
+	cacheStorage, err := cache.NewStorage(tmpDir)
 	require.NoError(t, err)
 
 	structCache := cache.New[TestStruct](cacheStorage, "mySimpleNamespace")
@@ -86,9 +86,10 @@ func TestStoreObjects(t *testing.T) {
 
 func TestConflicts(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage1, err := cache.NewNamespacedStorage(tmpDir, "myChain")
+	tmpDir2 := t.TempDir()
+	cacheStorage1, err := cache.NewStorage(tmpDir)
 	require.NoError(t, err)
-	cacheStorage2, err := cache.NewNamespacedStorage(tmpDir, "myChain2")
+	cacheStorage2, err := cache.NewStorage(tmpDir2)
 	require.NoError(t, err)
 
 	sameStorageDifferentNamespaceCache1 := cache.New[int](cacheStorage1, "ns1")
@@ -127,7 +128,7 @@ func TestConflicts(t *testing.T) {
 
 func TestDeleteKey(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
+	cacheStorage, err := cache.NewStorage(tmpDir)
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
@@ -143,7 +144,7 @@ func TestDeleteKey(t *testing.T) {
 
 func TestClearStorage(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
+	cacheStorage, err := cache.NewStorage(tmpDir)
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
@@ -160,7 +161,7 @@ func TestClearStorage(t *testing.T) {
 
 func TestCloseStorage(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewNamespacedStorage(tmpDir, "myChain")
+	cacheStorage, err := cache.NewStorage(tmpDir)
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
@@ -173,4 +174,12 @@ func TestCloseStorage(t *testing.T) {
 
 	err = strNamespace.Put("myKey2", "myValue2")
 	require.Error(t, err)
+
+	// Re-open
+	cacheStorage, err = cache.NewStorage(tmpDir)
+	require.NoError(t, err)
+	strNamespace = cache.New[string](cacheStorage, "myNameSpace")
+
+	err = strNamespace.Put("myKey2", "myValue2")
+	require.NoError(t, err)
 }

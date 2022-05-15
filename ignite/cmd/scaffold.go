@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
-
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgit"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 // flags related to component scaffolding
@@ -96,7 +97,18 @@ func scaffoldType(
 	}
 
 	if clearCache {
-		if err := sc.CacheStorage.Clear(); err != nil {
+		cacheRootDir, err := chainconfig.ConfigDirPath()
+		if err != nil {
+			return err
+		}
+		cacheStorage, err := cache.NewStorage(cacheRootDir)
+		if err != nil {
+			return err
+		}
+		if err := cacheStorage.Clear(); err != nil {
+			return err
+		}
+		if err := cacheStorage.Close(); err != nil {
 			return err
 		}
 	}

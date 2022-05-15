@@ -4,23 +4,17 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
+	"time"
 
 	bolt "go.etcd.io/bbolt"
 )
 
-const cacheFolderName = "cache"
 const dbName = "ignite_cache.db"
 
-var (
-	ErrorNotFound = errors.New("no value was found with the provided key")
-
-	// We need to make sure we don't open multiple connections to the same cache file, so we keep track of them here
-	dbInstances = make(map[string]*bolt.DB)
-	mu          = sync.Mutex{}
-)
+var ErrorNotFound = errors.New("no value was found with the provided key")
 
 // Storage is meant to be passed around and used by the New function (which provides namespacing and type-safety)
 type Storage struct {
@@ -33,47 +27,29 @@ type Cache[T any] struct {
 	namespace string
 }
 
-// NewNamespacedStorage creates a separate cache storage for a top-level namespace
-// It is safe to call multiple times
-func NewNamespacedStorage(rootCacheDir string, topLevelNamespace string) (Storage, error) {
-	return NewStorage(filepath.Join(rootCacheDir, cacheFolderName, topLevelNamespace))
-}
-
-// NewStorage create a local db file (if it doesn't exist) and opens a connection to it (or reuses an existing one)
-// Usually NewNamespacedStorage is more appropriate to use since it makes it possible to clear the cache for separate top-level namespaces
-// It is safe to call multiple times
+// NewStorage create a local db file (if it doesn't exist) and opens a connection to it
+// Storage needs to be closed before another is opened.
+// If another process already has the same db file open, NewStorage will wait for it to be closed
 func NewStorage(dir string) (Storage, error) {
-	mu.Lock()
-	defer mu.Unlock()
-	db, ok := dbInstances[dir]
-	if ok {
-		return Storage{db}, nil
-	}
-
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return Storage{}, err
 	}
 
 	storagePath := filepath.Join(dir, dbName)
-	db, err := bolt.Open(storagePath, 0640, nil)
+	fmt.Println("Opening db")
+	db, err := bolt.Open(storagePath, 0640, &bolt.Options{Timeout: 5 * time.Minute})
 	if err != nil {
 		return Storage{}, err
 	}
+	fmt.Println("db opened")
 
-	dbInstances[dir] = db
 	return Storage{db}, nil
 }
 
-// Close closes the underlying database and cleans up memory
+// Close closes the underlying database
 // Attempting to use the same Storage instance or any pre-existing Cache instances
 // will result in errors.
 func (s Storage) Close() error {
-	mu.Lock()
-	defer mu.Unlock()
-
-	dbKey := filepath.Dir(s.db.Path())
-	delete(dbInstances, dbKey)
-
 	return s.db.Close()
 }
 

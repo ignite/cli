@@ -8,8 +8,9 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-
+	"github.com/ignite-hq/cli/ignite/chainconfig"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/checksum"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
@@ -274,8 +275,21 @@ func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
 
 	c.ev.Send(events.New(events.StatusOngoing, "Building the chain's binary"))
 
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return "", err
+	}
+	cacheStorage, err := cache.NewStorage(cacheRootDir)
+	if err != nil {
+		return "", err
+	}
+
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, ""); err != nil {
+		return "", err
+	}
+
+	if err := cacheStorage.Close(); err != nil {
 		return "", err
 	}
 

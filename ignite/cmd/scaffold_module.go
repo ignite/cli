@@ -7,13 +7,14 @@ import (
 	"io"
 	"strings"
 
-	"github.com/spf13/cobra"
-
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/validation"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -116,7 +117,18 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if flagGetClearCache(cmd) {
-		if err := sc.CacheStorage.Clear(); err != nil {
+		cacheRootDir, err := chainconfig.ConfigDirPath()
+		if err != nil {
+			return err
+		}
+		cacheStorage, err := cache.NewStorage(cacheRootDir)
+		if err != nil {
+			return err
+		}
+		if err := cacheStorage.Clear(); err != nil {
+			return err
+		}
+		if err := cacheStorage.Close(); err != nil {
 			return err
 		}
 	}

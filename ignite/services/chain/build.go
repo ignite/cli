@@ -29,19 +29,19 @@ const (
 )
 
 // Build builds and installs app binaries.
-func (c *Chain) Build(ctx context.Context, output string) (binaryName string, err error) {
+func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage, output string) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, output); err != nil {
+	if err := c.build(ctx, cacheStorage, output); err != nil {
 		return "", err
 	}
 
 	return c.Binary()
 }
 
-func (c *Chain) build(ctx context.Context, output string) (err error) {
+func (c *Chain) build(ctx context.Context, cacheStorage cache.Storage, output string) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
@@ -50,11 +50,11 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 		}
 	}()
 
-	if err := c.generateAll(ctx); err != nil {
+	if err := c.generateAll(ctx, cacheStorage); err != nil {
 		return err
 	}
 
-	buildFlags, err := c.preBuild(ctx)
+	buildFlags, err := c.preBuild(ctx, cacheStorage)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 // BuildRelease builds binaries for a release. targets is a list
 // of GOOS:GOARCH when provided. It defaults to your system when no targets provided.
 // prefix is used as prefix to tarballs containing each target.
-func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets ...string) (releasePath string, err error) {
+func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, output, prefix string, targets ...string) (releasePath string, err error) {
 	if prefix == "" {
 		prefix = c.app.Name
 	}
@@ -88,7 +88,7 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 		return "", err
 	}
 
-	buildFlags, err := c.preBuild(ctx)
+	buildFlags, err := c.preBuild(ctx, cacheStorage)
 	if err != nil {
 		return "", err
 	}
@@ -166,7 +166,7 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 	return releasePath, checksum.Sum(releasePath, checksumPath)
 }
 
-func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
+func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (buildFlags []string, err error) {
 	config, err := c.Config()
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 		return nil, err
 	}
 
-	dirCache := cache.New[[]byte](c.CacheStorage, buildDirchangeCacheNamespace)
+	dirCache := cache.New[[]byte](cacheStorage, buildDirchangeCacheNamespace)
 	modChanged, err := dirchange.HasDirChecksumChanged(dirCache, modChecksumKey, c.app.Path, "go.mod")
 	if err != nil {
 		return nil, err

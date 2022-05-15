@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
@@ -72,14 +74,23 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return err
+	}
+	cacheStorage, err := cache.NewStorage(cacheRootDir)
+	if err != nil {
+		return err
+	}
+
 	if flagGetClearCache(cmd) {
-		if err := c.CacheStorage.Clear(); err != nil {
+		if err := cacheStorage.Clear(); err != nil {
 			return err
 		}
 	}
 
 	if isRelease {
-		releasePath, err := c.BuildRelease(cmd.Context(), output, releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(cmd.Context(), cacheStorage, output, releasePrefix, releaseTargets...)
 		if err != nil {
 			return err
 		}
@@ -89,7 +100,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	binaryName, err := c.Build(cmd.Context(), output)
+	binaryName, err := c.Build(cmd.Context(), cacheStorage, output)
 	if err != nil {
 		return err
 	}
@@ -101,5 +112,5 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		fmt.Printf("🗃  Binary built at the path: %s\n", colors.Info(binaryPath))
 	}
 
-	return nil
+	return cacheStorage.Close()
 }

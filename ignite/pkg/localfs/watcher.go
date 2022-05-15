@@ -11,14 +11,15 @@ import (
 )
 
 type watcher struct {
-	wt           *wt.Watcher
-	workdir      string
-	ignoreHidden bool
-	ignoreExts   []string
-	onChange     func()
-	interval     time.Duration
-	ctx          context.Context
-	done         *sync.WaitGroup
+	wt            *wt.Watcher
+	workdir       string
+	ignoreHidden  bool
+	ignoreFolders bool
+	ignoreExts    []string
+	onChange      func()
+	interval      time.Duration
+	ctx           context.Context
+	done          *sync.WaitGroup
 }
 
 // WatcherOption used to configure watcher.
@@ -49,6 +50,12 @@ func WatcherPollingInterval(d time.Duration) WatcherOption {
 func WatcherIgnoreHidden() WatcherOption {
 	return func(w *watcher) {
 		w.ignoreHidden = true
+	}
+}
+
+func WatcherIgnoreFolders() WatcherOption {
+	return func(w *watcher) {
+		w.ignoreFolders = true
 	}
 }
 
@@ -97,6 +104,9 @@ func (w *watcher) listen() {
 	for {
 		select {
 		case e := <-w.wt.Event:
+			if e.IsDir() && w.ignoreFolders {
+				continue
+			}
 			if !w.isFileIgnored(e.Path) {
 				w.onChange()
 			}

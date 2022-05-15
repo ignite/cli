@@ -85,5 +85,5 @@ func (s Scaffolder) AddQuery(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(s.CacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }

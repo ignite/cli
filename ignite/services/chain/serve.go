@@ -238,6 +238,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 		localfs.WatcherWorkdir(c.app.Path),
 		localfs.WatcherOnChange(c.refreshServe),
 		localfs.WatcherIgnoreHidden(),
+		localfs.WatcherIgnoreFolders(),
 		localfs.WatcherIgnoreExt(ignoredExts...),
 	)
 }
@@ -259,7 +260,15 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// isInit determines if the app is initialized
 	var isInit bool
 
-	dirCache := cache.New[[]byte](c.CacheStorage, serveDirchangeCacheNamespace)
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return err
+	}
+	cacheStorage, err := cache.NewStorage(cacheRootDir)
+	if err != nil {
+		return err
+	}
+	dirCache := cache.New[[]byte](cacheStorage, serveDirchangeCacheNamespace)
 
 	// determine if the app must reset the state
 	// if the state must be reset, then we consider the chain as being not initialized
@@ -326,7 +335,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, ""); err != nil {
+		if err := c.build(ctx, cacheStorage, ""); err != nil {
 			return err
 		}
 	}
@@ -369,6 +378,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
+		return err
+	}
+
+	if err := cacheStorage.Close(); err != nil {
 		return err
 	}
 

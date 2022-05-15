@@ -224,7 +224,7 @@ func (s Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, finish(s.CacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -269,7 +269,7 @@ func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xg
 		return sm, err
 	}
 
-	return sm, finish(s.CacheStorage, s.path, s.modpath.RawPath)
+	return sm, finish(s.path, s.modpath.RawPath)
 }
 
 // moduleExists checks if the module exists in the app

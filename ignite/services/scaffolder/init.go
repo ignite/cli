@@ -10,8 +10,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
@@ -48,15 +46,7 @@ func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaul
 		return "", err
 	}
 
-	cacheRootDir, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return "", err
-	}
-	cacheStore, err := cache.NewNamespacedStorage(cacheRootDir, pathInfo.Root)
-	if err != nil {
-		return path, err
-	}
-	if err := finish(cacheStore, path, pathInfo.RawPath); err != nil {
+	if err := finish(path, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 

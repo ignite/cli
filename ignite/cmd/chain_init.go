@@ -3,11 +3,12 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
+	"github.com/spf13/cobra"
 )
 
 func NewChainInit() *cobra.Command {
@@ -36,13 +37,22 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return err
+	}
+	cacheStorage, err := cache.NewStorage(cacheRootDir)
+	if err != nil {
+		return err
+	}
+
 	if flagGetClearCache(cmd) {
-		if err := c.CacheStorage.Clear(); err != nil {
+		if err := cacheStorage.Clear(); err != nil {
 			return err
 		}
 	}
 
-	if _, err := c.Build(cmd.Context(), ""); err != nil {
+	if _, err := c.Build(cmd.Context(), cacheStorage, ""); err != nil {
 		return err
 	}
 
@@ -57,5 +67,5 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 
 	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 
-	return nil
+	return cacheStorage.Close()
 }
