@@ -1,6 +1,7 @@
 package module
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
@@ -14,7 +15,12 @@ func ProtoPackageName(appModulePath, moduleName string) string {
 	// Make sure that the first path element can be used as proto package name.
 	// This is required for app module names like "github.com/username/repo" where
 	// "username" might be not be compatible with proto buffer package names.
-	path[0] = xstrings.FormatUsername(path[0])
+	path[0] = xstrings.NoNumberPrefix(path[0])
 
-	return strings.Join(path, ".")
+	return cleanProtoPackageName(strings.Join(path, "."))
+}
+
+func cleanProtoPackageName(name string) string {
+	r := regexp.MustCompile("[^a-zA-Z0-9_.]+")
+	return strings.ToLower(r.ReplaceAllString(name, ""))
 }
