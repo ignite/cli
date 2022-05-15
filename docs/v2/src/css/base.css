@@ -21,6 +21,8 @@
         box-sizing: border-box;
         margin: 0;
     }
+
+    svg { display: inline; }
     
     ::selection{}    
     

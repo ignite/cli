@@ -6,6 +6,9 @@ const pxToRem = (dest) => 1 / (16 / dest);
 // Config
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  corePlugins: {
+    // preflight: false, // avoid reset all docusaurus css
+  },
   theme: {
     borderRadius: {
       none: "0",
@@ -82,9 +85,17 @@ module.exports = {
         1000: "#000000",
       },
       card: "#F7F7F7",
+      border: "rgba(0, 0, 0, 0.07)",
+      inactive: "rgba(0, 0, 0, 0.33)",
+      inactiveLight: "rgba(255, 255, 255, 0.44)",
       muted: "#555555",
+      mutedLight: "rgba(255, 255, 255, 0.67)",
+      fg: "rgba(24, 24, 24, 0.67)",
       link: "#000000",
       linkHover: "#555555",
+      docusaurusColorBase: "var(--ifm-font-color-base)",
+      docusaurusBgColor: "var(--ifm-background-color)",
+      docusaurusColorBorder: "var(--ifm-color-emphasis-200)",
     },
     extend: {},
   },
