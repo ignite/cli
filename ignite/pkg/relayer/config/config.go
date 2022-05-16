@@ -92,3 +92,7 @@ func Save(c Config) error {
 	c.Version = supportVersion
 	return confile.New(confile.DefaultYAMLEncodingCreator, configPath).Save(c)
 }
+
+func Delete() error {
+	return os.RemoveAll(configPath)
+}
