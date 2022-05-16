@@ -364,7 +364,6 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if reset {
-		session.StartSpinner("Resetting relayer...")
 		if err := relayerconfig.Delete(); err != nil {
 			return err
 		}
