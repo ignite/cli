@@ -1,5 +1,23 @@
 # Changelog
 
+## [`v0.21.2`](https://github.com/ignite-hq/cli/releases/tag/v0.21.2)
+
+### Fixes 
+
+- Set min. gas to zero when running `chain` command set 
+
+## [`v0.21.1`](https://github.com/ignite-hq/cli/releases/tag/v0.21.1)
+
+### Features 
+
+- Add compatibility to run chains built with Cosmos-SDK `v0.46.0-alpha1` and above
+- Scaffold chains now will have `auth` module enabled by default
+
+### Fixes
+
+- Fixed shell completion generation
+- Make sure proto package names are valid when using simple app names
+
 ## [`v0.21.0`](https://github.com/ignite-hq/cli/releases/tag/v0.21.0)
 
 ### Features 
