@@ -116,6 +116,7 @@ func TestCosmosGen(t *testing.T) {
 
 	var expectedCosmosModules = []string{
 		"cosmos.auth.v1beta1",
+		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
 		"cosmos.base.tendermint.v1beta1",
 		"cosmos.crisis.v1beta1",
