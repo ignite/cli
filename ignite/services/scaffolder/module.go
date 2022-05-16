@@ -43,6 +43,7 @@ var (
 	reservedNames = map[string]struct{}{
 		"account":      {},
 		"auth":         {},
+		"authz":        {},
 		"bank":         {},
 		"block":        {},
 		"broadcast":    {},

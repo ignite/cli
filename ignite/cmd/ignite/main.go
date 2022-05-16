@@ -14,7 +14,7 @@ import (
 func main() {
 	ctx := clictx.From(context.Background())
 
-	err := ignitecmd.New(ctx).ExecuteContext(ctx)
+	err := ignitecmd.New().ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
