@@ -21,8 +21,10 @@
   --ifm-blockquote-border-color: #000000;
   --ifm-menu-link-padding-vertical: .6rem;
   --ifm-background-color: #ffffff;
+  --ifm-footer-link-color: var(--ifm-font-color-base);
   --ifm-menu-link-sublist-icon: url('~/img/ico-chevron.svg');
-
+  --docsearch-searchbox-background: #F7F7F7;
+  --docsearch-modal-shadow: green;
   @media screen and (prefers-reduced-motion) {
   transition: 	
   }
@@ -46,17 +48,71 @@ html[data-theme='dark'] {
 
 html {
     @apply bg-docusaurusBgColor;
+    body > div { @apply max-w-[90rem] m-auto;}
 
-    body > div {
-        @apply max-w-[90rem] m-auto;
-    }
     /* MAINNAV */
     .navbar {
-        @apply py-7 px-0 h-auto border-b border-b-docusaurusColorBorder shadow-none bg-docusaurusBgColor;
-        &__brand { @apply hidden; } /* to remove when in website */
+        @apply py-7 mx-6 px-0 h-auto border-b border-b-docusaurusColorBorder shadow-none bg-docusaurusBgColor;
+        @media (min-width: 997px){
+            @apply mx-0;
+        }
+        &__toggle { 
+            @apply bg-card rounded-s h-8 w-8 flex justify-center items-center; 
+            @media (min-width: 997px){
+                @apply hidden;
+            }
+        }
+        /* &__brand { @apply hidden; } to remove when in website */
         &__link--active { @apply text-muted; }
+        &__items:not(:last-child) {
+            @apply justify-between;
+            @media (min-width: 997px){
+                @apply justify-start px-3;
+            }
+            button { @apply order-2 mr-0; }
+        }
+        &__items--right > :last-child {
+            @apply right-8.5;
+        }
     }
-    .
+
+    .github-icon { @apply hover:opacity-50; }
+
+    /* SEARCHBAR */
+    .DocSearch-Button {
+        @apply text-inactive rounded-sm h-8 w-8 bg-card justify-center mr-3;
+        @media (min-width: 997px){
+            @apply w-auto justify-between; 
+        }
+        .DocSearch-Search-Icon { 
+            @media (min-width: 997px){
+                @apply hidden; 
+            }
+        }
+        .DocSearch-Button-Placeholder { @apply pr-8; }
+        .DocSearch-Button-Key{
+            background: none;
+            @apply shadow-none bg-transparent border border-inactive text-inactive p-3 text-2 rounded-s h-6 w-6;
+        }
+        .DocSearch-Button-Keys,
+        .DocSearch-Button-Placeholder {
+            @apply hidden;
+            @media (min-width: 997px){
+                @apply flex; 
+            }
+         }
+
+    }
+    .DocSearch-Search-Icon path { @apply fill-transparent; }
+    .navbar-sidebar{
+        &__brand { @apply py-7 px-6 h-auto; }
+        &__item { @apply px-6; }
+        &__back { @apply px-0; }
+    }
+    &[data-theme='dark'] .DocSearch-Modal{ @apply bg-gray-1000}
+    &[data-theme='dark'] .DocSearch-Footer{ @apply bg-gray-1000}
+    
+    /* BREADCRUMBS */
     .breadcrumbs__item:not(:last-child):after {
         content: '/';
         @apply bg-none;
@@ -64,6 +120,16 @@ html {
     .theme-doc-breadcrumbs{
         @media (min-width: 997px){
             @apply pt-[calc(theme(spacing.7)-1rem)];
+        }
+    }
+    .theme-doc-toc-mobile {
+        & > button { 
+            @apply px-0 flex justify-start;
+            &::after {
+                @apply order-first mr-5;
+                background-image: var(--ifm-menu-link-sublist-icon);
+                background-size: 70%;
+            }
         }
     }
 
@@ -92,12 +158,17 @@ html {
             ul::before { @apply hidden; }
         }
 
-        .menu__link { @apply pl-0 pr-5; }
-
+        .menu__link { 
+            @apply pl-0 pr-5; 
+            &--active:not(.menu__link--sublist) {
+                @apply text-docusaurusColorBase font-medium;
+            }
+        }
+        
         li li {
             @apply pl-7; 
             .menu__link--active:not(.menu__link--sublist){
-                @apply relative text-docusaurusColorBase;
+                @apply relative text-docusaurusColorBase font-medium;
                 &::before {
                     content: '';
                     @apply absolute block left-0 top-0 h-full w-[2px] bg-docusaurusColorBase;
@@ -132,7 +203,8 @@ html {
     .menu__list-item--collapsed .menu__link--sublist:after, .menu__list-item--collapsed .menu__caret:before {
         transform: rotateZ(0);
     }
-    .menu__caret{@apply hidden; }
+    .menu__caret,
+    li li .menu__link--sublist-caret::after{ @apply hidden; }
 
     /* RELATED ARTICLES */
     &[data-theme='dark'] .pagination-nav > a { @apply bg-fg; }
@@ -140,10 +212,20 @@ html {
         @apply pb-7 mt-9;
         & > a {
             box-shadow: 0px 0px 80px rgba(0, 0, 0, 0.07);
-            @apply border-transparent rounded pb-8.5 pt-6 px-6 hover:shadow-none;
+            @apply border-transparent rounded pb-8.5 col-span-2 pt-6 px-6 hover:shadow-none;
+
+            @media (min-width: 997px){
+                @apply col-span-1;
+            }
         }
 
         .pagination-nav{
+            &__link--next {
+                 @apply text-left;
+                @media (min-width: 997px){
+                    @apply text-right;
+                }
+            }
             &__sublabel{ @apply mb-3.5 text-gray-1000 dark:text-docusaurusColorBase text-3; }
             &__label{ @apply text-4 font-semibold; }
         }
@@ -153,19 +235,26 @@ html {
     .footer {
         background-color: var(--ifm-background-color);
         @apply  border-t border-t-docusaurusColorBorder pt-10 mb-10;
-
+        &__link-item { @apply hover:no-underline hover:text-linkHover; }
         &__bottom {margin: 0 calc(var(--ifm-spacing-horizontal) * -1);}
         &__copyright {
-            @apply grid grid-cols-5 text-left mt-9 text-2; 
+            @apply  text-left mt-9 text-2; 
+            @media (min-width: 997px){
+                @apply grid grid-cols-5;
+            }
             & > div {
                 padding: 0 var(--ifm-spacing-horizontal);
                 &:nth-child(2) {
                     @apply col-span-4;
                 }
             }
-            & a {
-                @apply pr-5;
-            }
+            & a { @apply pr-5 hover:text-linkHover hover:no-underline; }
+        }
+    }
+    .footer__col:not(:first-child) {
+        @apply basis-1/2;
+        @media (min-width: 997px){
+            @apply basis-0;
         }
     }
     .footer__col:first-child .footer__title{ @apply hidden;}
@@ -183,9 +272,9 @@ html {
         code { @apply border-0 px-3; }
         blockquote { @apply my-7; }
         a { @apply underline underline-offset-2 hover:text-linkHover hover:decoration-linkHover; }
-        ol, ul { @apply my-7.5; }
-        ul li { @apply relative pl-6 mb-5.5 before:absolute before:block before:w-[4px] before:h-[4px] before:bg-current before:left-0 before:top-[calc(1em/2)]; }
-        li li { @apply last:mb-7 before:border before:border-current before:bg-transparent; }
+        ol, ul { @apply my-7; }
+        ul li { @apply relative pl-6 mb-4 before:absolute before:block before:w-[4px] before:h-[4px] before:bg-current before:left-0 before:top-[calc(1em/2)]; }
+        li li { @apply last:mb-6 before:border before:border-current before:bg-transparent; }
         li:last-child li { @apply last:mb-0 }
         ol {
             counter-reset: item;
@@ -200,8 +289,8 @@ html {
         }
         li {
             & > ul,
-            & > ol { @apply my-5 ;}
-            & > p + .theme-code-block { @apply mt-3 ;}
+            & > ol { @apply my-5; }
+            & > p + .theme-code-block { @apply mt-3; }
         }
     }
 }

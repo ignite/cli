@@ -1,7 +1,5 @@
 {
     "label": "Sending Tokens: Nameservice",
     "position": 4,
-    "link": {
-      "type": "generated-index" 
-    }
+    "link": {}
   }
