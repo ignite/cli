@@ -19,7 +19,7 @@ ignite scaffold module launch --params minLaunch:uint,maxLaunch:int
 
 After the parameters are scaffolded, change the `x/<module>/types/params.go` file to set the default values and validate the fields. 
 
-The params module supports all [built-in Ignite CLI types](types.md).
+The params module supports all [built-in Ignite CLI types](./05-types.md).
 
 ## Params types
 

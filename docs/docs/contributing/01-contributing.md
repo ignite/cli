@@ -7,7 +7,7 @@ slug: /contributing
 
 Thank you for visiting our repository and considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
 
-To set up your environment for success, follow the [technical setup](technical-setup.md) guidelines.
+To set up your environment for success, follow the [technical setup](02-technical-setup.md) guidelines.
 
 ## Using this repo
 

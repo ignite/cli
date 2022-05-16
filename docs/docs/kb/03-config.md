@@ -169,4 +169,4 @@ host:
 
 ## genesis
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](../kb/genesis.md).
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](../kb/04-genesis.md).

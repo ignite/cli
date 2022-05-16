@@ -62,7 +62,7 @@ To complete this tutorial, you will need:
 
 <!-- Example - uncomment to use
 
-- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../guide/install.md). 
+- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../../guide/01-install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/).
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 

@@ -61,4 +61,4 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 ## Install Go
 
-Follow the steps in [Install Ignite CLI](../guide/install.md) docs to install Ignite CLI and Go.
+Follow the steps in [Install Ignite CLI](../guide/01-install.md) docs to install Ignite CLI and Go.

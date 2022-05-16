@@ -8,9 +8,9 @@ The nameservice tutorial provides step-by-step instructions to build a blockchai
 
 This tutorial builds on knowlege and skills developed in the earlier tutorials in the Ignite CLI Developer Tutorials. Before you start this building your nameservice app, we recommend that you complete these foundational tutorials:
 
-- [Install Ignite CLI](../install.md)
-- [Hello, World](../hello.md)
-- [Module Basics](../blog/index.md)
+- [Install Ignite CLI](../01-install.md)
+- [Hello, World](../02-hello.md)
+- [Module Basics](../03-blog/00-build-blog.md)
 
 The goal of this tutorial is to build a functional nameservice app and a mapping of strings to other strings (`map[string]string`).
 
@@ -24,7 +24,7 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 
 ## Prerequisites 
 
-- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../install.md). 
+- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../01-install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 - Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/master/building-modules/intro.html) 

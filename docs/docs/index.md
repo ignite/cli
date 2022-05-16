@@ -30,7 +30,7 @@ curl https://get.ignite.com/cli! | bash
 
 ## Bounty program
 
-Our [Ignite CLI bounty program](bounty/index.md) provides incentives for your participation and pays rewards.
+Our [Ignite CLI bounty program](06-bounty.md) provides incentives for your participation and pays rewards.
 
 ## Projects using Tendermint and Cosmos SDK
 

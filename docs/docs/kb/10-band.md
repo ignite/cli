@@ -110,7 +110,7 @@ If you previously used the Ignite CLI relayer, it is a good idea to remove exist
 
 3. Restart your blockchains.
 
-In another terminal tab, configure the [Ignite CLI relayer](../docs/kb/../../kb/relayer.md):
+In another terminal tab, configure the [Ignite CLI relayer](./08-relayer.md):
 
 ```bash
 ignite relayer configure -a \
