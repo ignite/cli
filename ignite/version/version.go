@@ -26,17 +26,17 @@ const (
 const prefix = "v"
 
 var (
-	// Version is the semantic version of Starport.
+	// Version is the semantic version of Ignite CLI.
 	Version = versionDev
 
-	// Date is the build date of Starport.
+	// Date is the build date of Ignite CLI.
 	Date = "-"
 
 	// Head is the HEAD of the current branch.
 	Head = "-"
 )
 
-// CheckNext checks whether there is a new version of Starport.
+// CheckNext checks whether there is a new version of Ignite CLI.
 func CheckNext(ctx context.Context) (isAvailable bool, version string, err error) {
 	if Version == versionDev || Version == versionNightly {
 		return false, "", nil
