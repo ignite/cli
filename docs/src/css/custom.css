@@ -24,7 +24,7 @@
   --ifm-footer-link-color: var(--ifm-font-color-base);
   --ifm-menu-link-sublist-icon: url('~/img/ico-chevron.svg');
   --docsearch-searchbox-background: #F7F7F7;
-  --docsearch-modal-shadow: green;
+
   @media screen and (prefers-reduced-motion) {
   transition: 	
   }
@@ -263,12 +263,17 @@ html {
     }
 
     /* MARKDOWN */
+    .markdown{
+        --ifm-heading-vertical-rhythm-bottom: 1;
+        --ifm-h1-vertical-rhythm-bottom: 1;
+    }
     .theme-doc-markdown {
         @apply mt-7 pb-8 border-b border-b-border;
 
         h1 { @apply font-termina text-7 leading-tight tracking-tighter; }
-        h2 { @apply text-6 font-bold leading-8 tracking-tight; }
+        h2 { @apply text-6 font-bold leading-9 tracking-tight; }
         h3 { @apply text-4 font-semibold leading-7 tracking-tight; }
+        p { @apply leading-relaxed; }
         code { @apply border-0 px-3; }
         blockquote { @apply my-7; }
         a { @apply underline underline-offset-2 hover:text-linkHover hover:decoration-linkHover; }
