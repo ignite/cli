@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 )
 
 // Init initializes blockchain by building the binaries and running the init command and
 // create the initial genesis of the chain, and set up a validator key
-func (c *Chain) Init(ctx context.Context) error {
+func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 	chainHome, err := c.chain.Home()
 	if err != nil {
 		return err
@@ -23,7 +24,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// build the chain and initialize it with a new validator key
-	if _, err := c.Build(ctx); err != nil {
+	if _, err := c.Build(ctx, cacheStorage); err != nil {
 		return err
 	}
 

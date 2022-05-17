@@ -29,12 +29,17 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
 
-	sm, err := sc.ImportModule(placeholder.New(), "wasm")
+	sm, err := sc.ImportModule(cacheStorage, placeholder.New(), "wasm")
 	if err != nil {
 		return err
 	}

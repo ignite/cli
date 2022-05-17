@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
@@ -22,6 +23,8 @@ func NewNetworkRequestVerify() *cobra.Command {
 		RunE:  networkRequestVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
+
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -49,8 +52,13 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	// verify the requests
-	if err := verifyRequest(cmd.Context(), nb, launchID, ids...); err != nil {
+	if err := verifyRequest(cmd.Context(), cacheStorage, nb, launchID, ids...); err != nil {
 		session.Printf("%s Request(s) %s not valid\n", icons.NotOK, numbers.List(ids, "#"))
 		return err
 	}
@@ -62,6 +70,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 // and simulate the launch of the chain from genesis with the request IDs
 func verifyRequest(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	nb NetworkBuilder,
 	launchID uint64,
 	requestIDs ...uint64,
@@ -114,6 +123,7 @@ func verifyRequest(
 
 	return c.SimulateRequests(
 		ctx,
+		cacheStorage,
 		genesisInformation,
 		requests,
 		rewardsInfo,

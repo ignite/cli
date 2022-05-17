@@ -19,6 +19,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 		RunE:  networkChainShowGenesisHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
 	c.Flags().String(flagSPNChainID, SPNChainID, "Chain ID of SPN")
 
@@ -33,6 +34,11 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		out, _        = cmd.Flags().GetString(flagOut)
 		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {
@@ -86,6 +92,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 		if err = c.Prepare(
 			cmd.Context(),
+			cacheStorage,
 			genesisInformation,
 			rewardsInfo,
 			spnChainID,

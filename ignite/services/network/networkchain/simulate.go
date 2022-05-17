@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
@@ -27,6 +28,7 @@ const (
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
 func (c Chain) SimulateRequests(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
 	rewardsInfo networktypes.Reward,
@@ -51,6 +53,7 @@ func (c Chain) SimulateRequests(
 	// prepare the chain with the requests
 	if err := c.Prepare(
 		ctx,
+		cacheStorage,
 		gi,
 		rewardsInfo,
 		SPNChainID,

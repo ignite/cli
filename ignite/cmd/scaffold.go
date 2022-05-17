@@ -94,7 +94,12 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
+	sm, err := sc.AddType(cmd.Context(), cacheStorage, typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}

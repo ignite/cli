@@ -9,12 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
@@ -30,8 +31,10 @@ const (
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
+	flagClearCache    = "clear-cache"
 
 	checkVersionTimeout = time.Millisecond * 600
+	cacheFileName       = "ignite_cache.db"
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -135,6 +138,15 @@ func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
 	return isEnabled
+}
+
+func flagSetClearCache(cmd *cobra.Command) {
+	cmd.PersistentFlags().Bool(flagClearCache, false, "clears the cache")
+}
+
+func flagGetClearCache(cmd *cobra.Command) bool {
+	clearCache, _ := cmd.Flags().GetBool(flagClearCache)
+	return clearCache
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
@@ -268,4 +280,24 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 
 func printSection(session cliui.Session, title string) error {
 	return session.Printf("------\n%s\n------\n\n", title)
+}
+
+func newCache(cmd *cobra.Command) (cache.Storage, error) {
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+	}
+
+	return storage, nil
 }
