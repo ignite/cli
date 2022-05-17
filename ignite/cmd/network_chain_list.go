@@ -3,11 +3,12 @@ package ignitecmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/spf13/cobra"
 )
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID", "network", "reward"}
@@ -24,7 +25,7 @@ func NewNetworkChainList() *cobra.Command {
 }
 
 func networkChainListHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

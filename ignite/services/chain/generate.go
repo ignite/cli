@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -99,7 +98,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	fmt.Fprintln(c.stdLog().out, "🛠️  Building proto...")
+	c.ev.Send("🛠️  Building proto...")
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),

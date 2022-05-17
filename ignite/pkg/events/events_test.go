@@ -3,52 +3,51 @@ package events_test
 import (
 	"testing"
 
-	"github.com/gookit/color"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/pkg/events"
 )
 
 func TestBusSend(t *testing.T) {
 	tests := []struct {
-		name  string
-		bus   events.Bus
-		event events.Event
+		name    string
+		bus     events.Bus
+		event   events.Event
+		options []events.Option
 	}{
 		{
-			name: "send status ongoing event",
-			bus:  events.NewBus(),
-			event: events.Event{
-				Status:      events.StatusOngoing,
-				Description: "description",
+			name:  "send status ongoing event",
+			bus:   events.NewBus(),
+			event: events.New("description", events.ProgressStarted()),
+			options: []events.Option{
+				events.ProgressStarted(),
 			},
 		},
 		{
-			name: "send status done event",
-			bus:  events.NewBus(),
-			event: events.Event{
-				Status:      events.StatusDone,
-				Description: "description",
+			name:  "send status done event",
+			bus:   events.NewBus(),
+			event: events.New("description", events.ProgressFinished()),
+			options: []events.Option{
+				events.ProgressFinished(),
 			},
 		},
 		{
-			name: "send status neutral event",
-			bus:  events.NewBus(),
-			event: events.Event{
-				Status:      events.StatusNeutral,
-				Description: "description",
-			},
+			name:  "send status neutral event",
+			bus:   events.NewBus(),
+			event: events.New("description"),
 		},
 		{
-			name: "send event on nil bus",
-			bus:  events.Bus{},
-			event: events.Event{
-				Status: events.StatusDone,
+			name:  "send event on nil bus",
+			bus:   events.Bus{},
+			event: events.New("description", events.ProgressFinished()),
+			options: []events.Option{
+				events.ProgressFinished(),
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			go tt.bus.Send(tt.event)
+			go tt.bus.Send(tt.event.Content, tt.options...)
 			if tt.bus.Events() != nil {
 				require.Equal(t, tt.event, <-tt.bus.Events())
 			}
@@ -84,7 +83,7 @@ func TestBusShutdown(t *testing.T) {
 
 func TestEventIsOngoing(t *testing.T) {
 	type fields struct {
-		status      events.Status
+		status      events.ProgressIndication
 		description string
 	}
 	tests := []struct {
@@ -92,25 +91,24 @@ func TestEventIsOngoing(t *testing.T) {
 		fields fields
 		want   bool
 	}{
-		{"status ongoing", fields{events.StatusOngoing, "description"}, true},
-		{"status done", fields{events.StatusDone, "description"}, false},
+		{"status ongoing", fields{events.IndicationStart, "description"}, true},
+		{"status done", fields{events.IndicationFinish, "description"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := events.Event{
-				Status:      tt.fields.status,
-				Description: tt.fields.description,
+				ProgressIndication: tt.fields.status,
+				Content:            tt.fields.description,
 			}
 			require.Equal(t, tt.want, e.IsOngoing())
 		})
 	}
 }
 
-func TestEventText(t *testing.T) {
+func TestEventString(t *testing.T) {
 	type fields struct {
-		status      events.Status
+		status      events.ProgressIndication
 		description string
-		textColor   color.Color
 	}
 	tests := []struct {
 		name   string
@@ -120,47 +118,43 @@ func TestEventText(t *testing.T) {
 		{
 			name: "status done",
 			fields: fields{
-				status:      events.StatusDone,
+				status:      events.IndicationFinish,
 				description: "description",
-				textColor:   color.Red,
 			},
 			want: "description",
 		},
 		{
 			name: "status ongoing",
 			fields: fields{
-				status:      events.StatusOngoing,
+				status:      events.IndicationStart,
 				description: "description",
-				textColor:   color.Red,
 			},
-			want: "description...",
+			want: "description",
 		},
 		{
 			name: "status ongoing with empty description",
 			fields: fields{
-				status:      events.StatusOngoing,
+				status:      events.IndicationStart,
 				description: "",
-				textColor:   color.Red,
 			},
-			want: "...",
+			want: "",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := events.Event{
-				Status:      tt.fields.status,
-				Description: tt.fields.description,
-				TextColor:   tt.fields.textColor,
+				ProgressIndication: tt.fields.status,
+				Content:            tt.fields.description,
 			}
-			require.Equal(t, e.TextColor.Render(tt.want), e.Text())
+			require.Equal(t, tt.want, e.String())
 		})
 	}
 }
 
 func TestNew(t *testing.T) {
 	type args struct {
-		status      events.Status
-		description string
+		content any
+		options []events.Option
 	}
 	tests := []struct {
 		name string
@@ -168,34 +162,12 @@ func TestNew(t *testing.T) {
 		want events.Event
 	}{
 		{"zero value args", args{}, events.Event{}},
-		{"large value args", args{status: 99999, description: "description"}, events.Event{Status: 99999, Description: "description"}},
-		{"status ongoing", args{status: events.StatusOngoing, description: "description"}, events.Event{Status: 0, Description: "description"}},
-		{"status done", args{status: events.StatusDone, description: "description"}, events.Event{Status: 1, Description: "description"}},
+		{"status ongoing", args{options: []events.Option{events.ProgressStarted()}, content: "description"}, events.Event{ProgressIndication: 1, Content: "description"}},
+		{"status done", args{options: []events.Option{events.ProgressFinished()}, content: "description"}, events.Event{ProgressIndication: 2, Content: "description"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.want, events.New(tt.args.status, tt.args.description))
-		})
-	}
-}
-
-func TestNewBus(t *testing.T) {
-	tests := []struct {
-		name  string
-		event events.Event
-	}{
-		{"new bus with status done event", events.Event{Status: events.StatusDone, Description: "description"}},
-		{"new bus with status ongoing event", events.Event{Status: events.StatusOngoing, Description: "description"}},
-		{"new bus with zero value event", events.Event{}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			bus := events.NewBus()
-			defer bus.Shutdown()
-			for i := 0; i < 10; i++ {
-				go bus.Send(tt.event)
-				require.Equal(t, tt.event, <-bus.Events())
-			}
+			require.Equal(t, tt.want, events.New(tt.args.content, tt.args.options...))
 		})
 	}
 }

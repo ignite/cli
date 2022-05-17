@@ -4,12 +4,12 @@ import (
 	"fmt"
 
 	"github.com/briandowns/spinner"
-	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
@@ -421,7 +421,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 
 	s.Stop()
 
-	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
+	fmt.Printf("⛓  Configured chains: %s\n\n", colors.Success(id))
 
 	return nil
 }
@@ -464,7 +464,7 @@ func initChain(
 		SetCharset(spinner.CharSets[9]).
 		SetColor("white").
 		SetPrefix(" |·").
-		SetText(color.Yellow.Sprintf("trying to receive tokens from a faucet...")).
+		SetText(colors.Info("trying to receive tokens from a faucet...")).
 		Start()
 
 	coins, err := c.TryRetrieve(cmd.Context())
@@ -472,9 +472,9 @@ func initChain(
 
 	fmt.Print(" |· ")
 	if err != nil {
-		fmt.Println(color.Yellow.Sprintf(err.Error()))
+		fmt.Println(colors.Info(err.Error()))
 	} else {
-		fmt.Println(color.Green.Sprintf("received coins from a faucet"))
+		fmt.Println(colors.Info("received coins from a faucet"))
 	}
 
 	balance := coins.String()

@@ -187,8 +187,7 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 
-	fmt.Fprintln(c.stdLog().out, "📦 Installing dependencies...")
-
+	c.ev.Send("📦 Installing dependencies...")
 	if err := gocmd.ModTidy(ctx, c.app.Path); err != nil {
 		return nil, err
 	}
@@ -196,8 +195,7 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 		return nil, err
 	}
 
-	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")
-
+	c.ev.Send("🛠️  Building the blockchain...")
 	return buildFlags, nil
 }
 

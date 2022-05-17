@@ -3,11 +3,12 @@ package ignitecmd
 import (
 	"strconv"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
 // NewNetworkRequestShow creates a new request show command to show
@@ -23,7 +24,7 @@ func NewNetworkRequestShow() *cobra.Command {
 }
 
 func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

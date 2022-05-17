@@ -128,7 +128,7 @@ func (n Network) sendAccountRequest(
 	address string,
 	amount sdk.Coins,
 ) (err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
+	n.ev.Send("Verifying account already exists "+address, events.ProgressStarted())
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	var accExist bool
@@ -157,7 +157,7 @@ func (n Network) sendAccountRequest(
 		amount,
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
@@ -169,12 +169,12 @@ func (n Network) sendAccountRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+		n.ev.Send("Account added to the network by the coordinator!", events.ProgressFinished())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to add account to the network has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.Send(
+			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
+			events.ProgressFinished(),
+		)
 	}
 	return nil
 }
@@ -207,7 +207,7 @@ func (n Network) sendValidatorRequest(
 		peer,
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
+	n.ev.Send("Broadcasting validator transaction", events.ProgressStarted())
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
@@ -220,12 +220,12 @@ func (n Network) sendValidatorRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
+		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinished())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to join the network as a validator has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.Send(
+			fmt.Sprintf("Request %d to join the network as a validator has been submitted!", requestRes.RequestID),
+			events.ProgressFinished(),
+		)
 	}
 	return nil
 }

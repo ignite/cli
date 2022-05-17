@@ -27,13 +27,13 @@ func (c *Chain) Init(ctx context.Context) error {
 		return err
 	}
 
-	c.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
+	c.ev.Send("Initializing the blockchain", events.ProgressStarted())
 
 	if err = c.chain.Init(ctx, false); err != nil {
 		return err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
+	c.ev.Send("Blockchain initialized", events.ProgressFinished())
 
 	// initialize and verify the genesis
 	if err = c.initGenesis(ctx); err != nil {
@@ -47,7 +47,7 @@ func (c *Chain) Init(ctx context.Context) error {
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
 func (c *Chain) initGenesis(ctx context.Context) error {
-	c.ev.Send(events.New(events.StatusOngoing, "Computing the Genesis"))
+	c.ev.Send("Computing the Genesis", events.ProgressStarted())
 
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -98,7 +98,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		return err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+	c.ev.Send("Genesis initialized", events.ProgressFinished())
 	return nil
 }
 

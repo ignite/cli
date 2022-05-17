@@ -3,10 +3,11 @@ package ignitecmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/spf13/cobra"
 )
 
 var CampaignSummaryHeader = []string{
@@ -28,7 +29,7 @@ func NewNetworkCampaignList() *cobra.Command {
 }
 
 func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

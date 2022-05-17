@@ -3,11 +3,12 @@ package ignitecmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/spf13/cobra"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
@@ -25,7 +26,7 @@ func NewNetworkRequestList() *cobra.Command {
 }
 
 func networkRequestListHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

@@ -2,12 +2,12 @@ package chain
 
 import (
 	"context"
-	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+
 	"github.com/go-git/go-git/v5"
-	"github.com/gookit/color"
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
@@ -16,6 +16,7 @@ import (
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/confile"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/repoversion"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 )
@@ -28,9 +29,6 @@ var (
 		"proto",
 		"third_party",
 	}
-
-	errorColor = color.Red.Render
-	infoColor  = color.Yellow.Render
 )
 
 type version struct {
@@ -65,7 +63,8 @@ type Chain struct {
 	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
 	protoBuiltAtLeastOnce bool
 
-	stdout, stderr io.Writer
+	ev          events.Bus
+	logStreamer cliui.LogStreamer
 }
 
 // chainOptions holds user given options that overwrites chain's defaults.
@@ -133,6 +132,20 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
+// CollectEvents defines an event bus for the chain
+func CollectEvents(bus events.Bus) Option {
+	return func(c *Chain) {
+		c.ev = bus
+	}
+}
+
+// WithLogStreamer sets the log streamer for the chain
+func WithLogStreamer(ls cliui.LogStreamer) Option {
+	return func(c *Chain) {
+		c.logStreamer = ls
+	}
+}
+
 // New initializes a new Chain with options that its source lives at path.
 func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
@@ -144,18 +157,11 @@ func New(path string, options ...Option) (*Chain, error) {
 		app:            app,
 		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		stdout:         io.Discard,
-		stderr:         io.Discard,
 	}
 
 	// Apply the options
 	for _, apply := range options {
 		apply(c)
-	}
-
-	if c.logLevel == LogVerbose {
-		c.stdout = os.Stdout
-		c.stderr = os.Stderr
 	}
 
 	c.sourceVersion, err = c.appVersion()
@@ -457,13 +463,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	ccrOptions := make([]chaincmdrunner.Option, 0)
-	if c.logLevel == LogVerbose {
-		ccrOptions = append(ccrOptions,
-			chaincmdrunner.Stdout(os.Stdout),
-			chaincmdrunner.Stderr(os.Stderr),
-			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
-		)
+	var ccrOptions = []chaincmdrunner.Option{}
+
+	if c.logStreamer != nil {
+		logStream := c.logStreamer.NewLogStream(c.app.D(), 202)
+		ccrOptions = append(
+			ccrOptions,
+			chaincmdrunner.Stdout(logStream.Stdout()),
+			chaincmdrunner.Stderr(logStream.Stderr()))
 	}
 
 	return chaincmdrunner.New(ctx, cc, ccrOptions...)

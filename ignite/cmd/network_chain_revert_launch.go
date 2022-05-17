@@ -1,10 +1,11 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/spf13/cobra"
 )
 
 // NewNetworkChainRevertLaunch creates a new chain revert launch command
@@ -24,7 +25,7 @@ func NewNetworkChainRevertLaunch() *cobra.Command {
 }
 
 func networkChainRevertLaunchHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

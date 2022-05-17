@@ -5,10 +5,11 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -33,7 +34,7 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 }
 
 func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	var (

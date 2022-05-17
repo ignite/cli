@@ -4,12 +4,13 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/spf13/cobra"
-	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -41,7 +42,7 @@ func newNetworkCampaignAccountList() *cobra.Command {
 }
 
 func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, campaignID, err := networkChainLaunch(cmd, args, session)

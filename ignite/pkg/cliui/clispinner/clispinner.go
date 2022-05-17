@@ -21,7 +21,8 @@ type (
 	Option func(*Options)
 
 	Options struct {
-		writer io.Writer
+		writer           io.Writer
+		startImmediately bool
 	}
 )
 
@@ -32,6 +33,12 @@ func WithWriter(w io.Writer) Option {
 	}
 }
 
+func StartImmediately() Option {
+	return func(options *Options) {
+		options.startImmediately = true
+	}
+}
+
 // New creates a new spinner.
 func New(options ...Option) *Spinner {
 	o := Options{}
@@ -39,14 +46,16 @@ func New(options ...Option) *Spinner {
 		apply(&o)
 	}
 
-	underlyingSpinnerOptions := []spinner.Option{}
+	underlyingSpinnerOptions := []spinner.Option{spinner.WithColor(spinnerColor)}
 	if o.writer != nil {
 		underlyingSpinnerOptions = append(underlyingSpinnerOptions, spinner.WithWriter(o.writer))
 	}
 
 	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
+	if !o.startImmediately {
+		sp.Stop()
+	}
 
-	sp.Color(spinnerColor)
 	s := &Spinner{
 		sp: sp,
 	}

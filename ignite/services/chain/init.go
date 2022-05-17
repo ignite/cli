@@ -2,10 +2,11 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	accview "github.com/ignite-hq/cli/ignite/pkg/cliui/view/account"
 
 	"github.com/imdario/mergo"
 
@@ -131,6 +132,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		return err
 	}
 
+	var accs accview.Accounts
 	// add accounts from config into genesis
 	for _, account := range conf.Accounts {
 		var generatedAccount chaincmdrunner.Account
@@ -150,23 +152,17 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 			return err
 		}
 
+		accs = append(accs)
+
 		if account.Address == "" {
-			fmt.Fprintf(
-				c.stdLog().out,
-				"🙂 Created account %q with address %q with mnemonic: %q\n",
-				generatedAccount.Name,
-				generatedAccount.Address,
-				generatedAccount.Mnemonic,
-			)
+			accs = append(accs, accview.NewAccount(generatedAccount.Name, accountAddress, accview.WithMnemonic(generatedAccount.Mnemonic)))
 		} else {
-			fmt.Fprintf(
-				c.stdLog().out,
-				"🙂 Imported an account %q with address: %q\n",
-				account.Name,
-				account.Address,
-			)
+			accs = append(accs, accview.NewAccount(account.Name, accountAddress))
 		}
 	}
+
+	c.ev.Send("🗂️  Initialize accounts ...")
+	c.ev.Send(accview.AccountCollection(accs...))
 
 	_, err = c.IssueGentx(ctx, Validator{
 		Name:          conf.Validator.Name,

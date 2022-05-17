@@ -1,10 +1,11 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/yaml"
 	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/spf13/cobra"
 )
 
 // NewNetworkCampaignShow returns a new command to show published campaign on Ignite
@@ -19,7 +20,7 @@ func NewNetworkCampaignShow() *cobra.Command {
 }
 
 func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	// parse campaign ID

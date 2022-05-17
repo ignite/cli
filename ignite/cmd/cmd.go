@@ -9,7 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
@@ -18,8 +22,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	"github.com/ignite-hq/cli/ignite/version"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
 )
 
 const (
@@ -68,12 +70,12 @@ ignite scaffold chain github.com/username/mars`,
 	return c
 }
 
-func logLevel(cmd *cobra.Command) chain.LogLvl {
+func logLevel(cmd *cobra.Command) cliui.Verbosity {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 	if verbose {
-		return chain.LogVerbose
+		return cliui.VerbosityVerbose
 	}
-	return chain.LogRegular
+	return cliui.VerbosityRegular
 }
 
 func flagSetPath(cmd *cobra.Command) {
@@ -146,8 +148,8 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 }
 
 var (
-	modifyPrefix = color.New(color.FgMagenta).SprintFunc()("modify ")
-	createPrefix = color.New(color.FgGreen).SprintFunc()("create ")
+	modifyPrefix = colors.Modified("modify ")
+	createPrefix = colors.Success("create ")
 	removePrefix = func(s string) string {
 		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
 	}

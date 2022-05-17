@@ -3,10 +3,20 @@ package chain
 import (
 	"io"
 	"os"
-	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/lineprefixer"
-	"github.com/ignite-hq/cli/ignite/pkg/prefixgen"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/prefixgen"
+)
+
+const (
+	TagFaucetAddressNotify         = "faucetAddress"
+	TagBlockchainApiAddressNotify  = "blockchainAPIAddress"
+	TagTendermintNodeAddressNotify = "tendermintNodeAddress"
+	TagCosmosSDKVersionNotify      = "cosmosSDKVersion"
+	TagBuildErrorNotify            = "buildError"
+	TagValidationErrorNotify       = "buildError"
+	TagWaitForChangesNotify        = "waitForChanges"
+	TagRebuildTriggeredNotify      = "rebuildTriggered"
+	TagUnrecognisedErrorNotify     = "unrecognisedError"
 )
 
 // prefixes holds prefix configuration for logs messages.
@@ -34,28 +44,9 @@ type std struct {
 
 // std returns the stdout and stderr to output logs by logType.
 func (c *Chain) stdLog() std {
-	prefixed := func(w io.Writer) *lineprefixer.Writer {
-		var (
-			prefix    = prefixes[logStarport]
-			prefixStr string
-			options   = prefixgen.Common(prefixgen.Color(prefix.Color))
-			gen       = prefixgen.New(prefix.Name, options...)
-		)
-		if strings.Count(prefix.Name, "%s") > 0 {
-			prefixStr = gen.Gen(c.app.Name)
-		} else {
-			prefixStr = gen.Gen()
-		}
-		return lineprefixer.NewWriter(w, func() string { return prefixStr })
-	}
-	var (
-		stdout io.Writer = prefixed(c.stdout)
-		stderr io.Writer = prefixed(c.stderr)
-	)
-	if c.logLevel == LogRegular {
-		stdout = os.Stdout
-		stderr = os.Stderr
-	}
+
+	stdout := os.Stdout
+	stderr := os.Stderr
 	return std{
 		out: stdout,
 		err: stderr,
@@ -65,7 +56,6 @@ func (c *Chain) stdLog() std {
 func (c *Chain) genPrefix(logType logType) string {
 	prefix := prefixes[logType]
 
-	return prefixgen.
-		New(prefix.Name, prefixgen.Common(prefixgen.Color(prefix.Color))...).
+	return prefixgen.New(prefix.Name, prefixgen.Common(prefixgen.Color(prefix.Color))...).
 		Gen(c.app.Name)
 }

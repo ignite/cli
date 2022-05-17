@@ -3,10 +3,11 @@ package network
 import (
 	"context"
 
+	"github.com/ignite-hq/cli/ignite/pkg/events"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
@@ -74,7 +75,7 @@ func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs
 
 // SubmitRequest submits reviewals for proposals in batch for chain.
 func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
-	n.ev.Send(events.New(events.StatusOngoing, "Submitting requests..."))
+	n.ev.Send("Submitting requests...", events.ProgressStarted())
 
 	messages := make([]sdk.Msg, len(reviewal))
 	for i, reviewal := range reviewal {

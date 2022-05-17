@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 )
 
@@ -34,8 +35,12 @@ func NewChainServe() *cobra.Command {
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
-	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
+	session := cliui.New(cliui.WithVerbosity(logLevel(cmd)))
+	defer session.Cleanup()
+
+	var chainOption = []chain.Option{
+		chain.CollectEvents(session.EventBus()),
+		chain.WithLogStreamer(session),
 	}
 
 	if flagGetProto3rdParty(cmd) {

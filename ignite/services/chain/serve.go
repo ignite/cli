@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
+
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -144,7 +146,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					if c.served {
 						c.served = false
 
-						fmt.Fprintln(c.stdLog().out, "💿 Saving genesis state...")
+						c.ev.Send("💿 Saving genesis state...")
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
@@ -154,21 +156,19 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 						genesisPath, err := c.exportedGenesisPath()
 						if err != nil {
-							fmt.Fprintln(c.stdLog().err, err.Error())
 							return err
 						}
-						fmt.Fprintf(c.stdLog().out, "💿 Genesis state saved in %s\n", genesisPath)
+						c.ev.Send(fmt.Sprintf("💿 Genesis state saved in %s", genesisPath))
 					}
 				case errors.As(err, &buildErr):
-					fmt.Fprintf(c.stdLog().err, "%s\n", errorColor(err.Error()))
+					c.ev.Send(colors.Error(err.Error()))
 
 					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(c.stdLog().out, "see: https://github.com/ignite-hq/cli#configure")
+						c.ev.Send("see: https://github.com/ignite-hq/cli#configure")
 					}
 
-					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))
-
+					c.ev.Send(colors.Info("Waiting for a fix before retrying..."))
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -177,9 +177,13 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
-						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
-If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport chain serve --reset-once")
-
+						c.ev.Send(
+							fmt.Sprintf(
+								"%s %s",
+								colors.Info("Blockchain failed to start.If the new code is no longer compatible with the saved state, you can reset the database by launching:"),
+								"starport chain serve --reset-once",
+							),
+						)
 						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
 
@@ -201,7 +205,7 @@ If the new code is no longer compatible with the saved state, you can reset the 
 }
 
 func (c *Chain) setup() error {
-	fmt.Fprintf(c.stdLog().out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
+	c.ev.Send(fmt.Sprintf("Cosmos SDK's version is: %s\n", colors.Info(c.Version)))
 
 	return c.checkSystem()
 }
@@ -220,6 +224,7 @@ func (c *Chain) refreshServe() {
 	if c.serveCancel != nil {
 		c.serveCancel()
 	}
+	// send event changes detected
 	c.serveRefresher <- struct{}{}
 }
 
@@ -278,7 +283,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 		if forceReset || configModified {
 			// if forceReset is set, we consider the app as being not initialized
-			fmt.Fprintln(c.stdLog().out, "🔄 Resetting the app state...")
+			c.ev.Send("🔄 Resetting the app state...")
 			isInit = false
 		}
 	}
@@ -334,7 +339,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// init phase
 	// nolint:gocritic
 	if !isInit || (appModified && !exportGenesisExists) {
-		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
+		c.ev.Send("💿 Initializing the app...")
 
 		if err := c.Init(ctx, true); err != nil {
 			return err
@@ -342,7 +347,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
-		fmt.Fprintln(c.stdLog().out, "💿 Existent genesis detected, restoring the database...")
+		c.ev.Send("💿 Existent genesis detected, restoring the database...")
 
 		if err := commands.UnsafeReset(ctx); err != nil {
 			return err
@@ -352,7 +357,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 			return err
 		}
 	} else {
-		fmt.Fprintln(c.stdLog().out, "▶️  Restarting existing app...")
+		c.ev.Send("▶️  Restarting existing app...")
 	}
 
 	// save checksums
@@ -415,13 +420,13 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	rpcAddr, _ := xurl.HTTP(config.Host.RPC)
 	apiAddr, _ := xurl.HTTP(config.Host.API)
 
-	// print the server addresses.
-	fmt.Fprintf(c.stdLog().out, "🌍 Tendermint node: %s\n", rpcAddr)
-	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", apiAddr)
+	// log the server addresses.
+	c.ev.Send(fmt.Sprintf("🌍 Tendermint node: %s", rpcAddr))
+	c.ev.Send(fmt.Sprintf("🌍 Blockchain API: %s", apiAddr))
 
 	if isFaucetEnabled {
 		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
-		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", faucetAddr)
+		c.ev.Send(fmt.Sprintf("🌍 Token faucet: %s", faucetAddr))
 	}
 
 	return g.Wait()

@@ -1,12 +1,12 @@
 package ignitecmd
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 )
@@ -56,11 +56,14 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
 		output, _         = cmd.Flags().GetString(flagOutput)
+		session           = cliui.New(cliui.WithVerbosity(logLevel(cmd)))
 	)
+	defer session.Cleanup()
 
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+		chain.CollectEvents(session.EventBus()),
+		chain.WithLogStreamer(session),
 	}
 
 	if flagGetProto3rdParty(cmd) {
@@ -77,10 +80,8 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
-
-		return nil
+		session.StopSpinner()
+		return session.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 	}
 
 	binaryName, err := c.Build(cmd.Context(), output)
@@ -88,12 +89,12 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	session.StopSpinner()
+
 	if output == "" {
-		fmt.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
-	} else {
-		binaryPath := filepath.Join(output, binaryName)
-		fmt.Printf("🗃  Binary built at the path: %s\n", colors.Info(binaryPath))
+		return session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
 	}
 
-	return nil
+	binaryPath := filepath.Join(output, binaryName)
+	return session.Printf("🗃  Binary built at the path: %s\n", colors.Info(binaryPath))
 }

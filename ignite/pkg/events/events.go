@@ -5,43 +5,51 @@ package events
 import (
 	"fmt"
 	"sync"
-
-	"github.com/gookit/color"
 )
 
 type (
+	ProgressIndication uint8
+
 	// Event represents a state.
 	Event struct {
-		// Description of the state.
-		Description string
-
-		// Status shows the current status of event.
-		Status Status
-
-		// TextColor of the text.
-		TextColor color.Color
-
-		// Icon of the text.
-		Icon string
+		ProgressIndication ProgressIndication
+		Icon               string
+		Content            interface{}
+		Verbose            bool
+		Tag                string
+		kvstore            map[string]string
 	}
-
-	// Status shows if state is ongoing or completed.
-	Status int
-
 	// Option event options
 	Option func(*Event)
 )
 
 const (
-	StatusOngoing Status = iota
-	StatusDone
-	StatusNeutral
+	IndicationNone ProgressIndication = iota
+	IndicationStart
+	IndicationFinish
 )
 
-// TextColor sets the text color
-func TextColor(c color.Color) Option {
+func ProgressStarted() Option {
 	return func(e *Event) {
-		e.TextColor = c
+		e.ProgressIndication = IndicationStart
+	}
+}
+
+func ProgressFinished() Option {
+	return func(e *Event) {
+		e.ProgressIndication = IndicationFinish
+	}
+}
+
+func Verbose() Option {
+	return func(e *Event) {
+		e.Verbose = true
+	}
+}
+
+func WithKV(key, value string) Option {
+	return func(e *Event) {
+		e.kvstore[key] = value
 	}
 }
 
@@ -52,42 +60,38 @@ func Icon(icon string) Option {
 	}
 }
 
+func WithTag(tag string) Option {
+	return func(e *Event) {
+		e.Tag = tag
+	}
+}
+
 // New creates a new event with given config.
-func New(status Status, description string, options ...Option) Event {
-	ev := Event{Status: status, Description: description}
+func New(content interface{}, options ...Option) Event {
+	ev := Event{
+		Content: content,
+		kvstore: make(map[string]string),
+	}
 	for _, applyOption := range options {
 		applyOption(&ev)
 	}
 	return ev
 }
 
-// NewOngoing creates a new StatusOngoing event.
-func NewOngoing(description string) Event {
-	return New(StatusOngoing, description)
-}
-
-// NewNeutral creates a new StatusNeutral event.
-func NewNeutral(description string) Event {
-	return New(StatusNeutral, description)
-}
-
-// NewDone creates a new StatusDone event.
-func NewDone(description, icon string) Event {
-	return New(StatusDone, description, Icon(icon))
-}
-
 // IsOngoing checks if state change that triggered this event is still ongoing.
 func (e Event) IsOngoing() bool {
-	return e.Status == StatusOngoing
+	return e.ProgressIndication == IndicationStart
 }
 
 // Text returns the text state of event.
-func (e Event) Text() string {
-	text := e.Description
-	if e.IsOngoing() {
-		text = fmt.Sprintf("%s...", e.Description)
-	}
-	return e.TextColor.Render(text)
+func (e Event) String() string {
+	return fmt.Sprintf("%s", e.Content)
+}
+
+// GetValue returns a value from underlying event kvstore
+func (e Event) GetValue(key string) (string, bool) {
+	value, ok := e.kvstore[key]
+	return value, ok
 }
 
 // Bus is a send/receive event bus.
@@ -128,14 +132,14 @@ func NewBus(options ...BusOption) Bus {
 }
 
 // Send sends a new event to bus.
-func (b Bus) Send(e Event) {
+func (b Bus) Send(content any, options ...Option) {
 	if b.evchan == nil {
 		return
 	}
 	if b.buswg != nil {
 		b.buswg.Add(1)
 	}
-	b.evchan <- e
+	b.evchan <- New(content, options...)
 }
 
 // Events returns go channel with Event accessible only for read.

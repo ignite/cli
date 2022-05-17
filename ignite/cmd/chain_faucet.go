@@ -1,12 +1,11 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 )
 
@@ -30,11 +29,14 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	var (
 		toAddress = args[0]
 		coins     = args[1]
+		session   = cliui.New(cliui.WithVerbosity(logLevel(cmd)))
 	)
+	defer session.Cleanup()
 
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+		chain.CollectEvents(session.EventBus()),
+		chain.WithLogStreamer(session),
 	}
 
 	c, err := newChainWithHomeFlags(cmd, chainOption...)
@@ -58,6 +60,6 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("📨 Coins sent.")
-	return nil
+	session.StopSpinner()
+	return session.Println("📨 Coins sent.")
 }

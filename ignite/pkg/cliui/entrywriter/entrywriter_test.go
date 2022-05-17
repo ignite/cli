@@ -2,9 +2,10 @@ package entrywriter_test
 
 import (
 	"errors"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"io"
 	"testing"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 
 	"github.com/stretchr/testify/require"
 )

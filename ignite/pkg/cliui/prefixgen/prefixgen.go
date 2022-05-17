@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gookit/color"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 )
 
 // Prefixer generates prefixes.
@@ -82,7 +82,7 @@ func (p *Prefixer) Gen(s ...interface{}) string {
 		prefix = strings.ToUpper(prefix)
 	}
 	if p.color != 0 {
-		return color.C256(p.color).Sprint(prefix)
+		return colors.SprintFunc(int(p.color))(prefix)
 	}
 	return prefix
 }

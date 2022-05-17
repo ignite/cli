@@ -3,9 +3,10 @@ package ignitecmd
 import (
 	"strconv"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -25,7 +26,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 }
 
 func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)

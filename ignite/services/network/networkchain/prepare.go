@@ -84,7 +84,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
 func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation) error {
-	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
+	c.ev.Send("Building the genesis", events.ProgressStarted())
 
 	addressPrefix, err := c.detectPrefix(ctx)
 	if err != nil {
@@ -116,7 +116,7 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Genesis built"))
+	c.ev.Send("Genesis built", events.ProgressFinished())
 
 	return nil
 }
