@@ -21,7 +21,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 	}
 
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
-	c.Flags().String(flagSPNChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
+	c.Flags().String(flagSPNChainID, cosmosutil.SPNChainID, "Chain ID of SPN")
 
 	return c
 }
