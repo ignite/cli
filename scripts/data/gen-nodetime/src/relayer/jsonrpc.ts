@@ -9,21 +9,22 @@ export default async function run(handlers: Handler[]) {
   const server = new JSONRPCServer();
 
   // attach methods to the rpc server.
-  for (var [name, func] of handlers) {
+  for (const [name, func] of handlers) {
     server.addMethod(name, func);
   }
 
   // read the rpc call, invoke it and send a response.
-  let jsonreq: string = "";
+  let jsonRequest: string = "";
 
   stdin.setEncoding("utf8");
 
   for await (const chunk of stdin) {
-    jsonreq += chunk;
+    jsonRequest += chunk;
   }
 
-  const jsonres = await server.receiveJSON(jsonreq);
-  const res = JSON.stringify(jsonres);
+  const jsonResponse = await server.receiveJSON(jsonRequest);
+  const response = JSON.stringify(jsonResponse);
 
-  console.log(res);
+  console.log(response);
 }
+

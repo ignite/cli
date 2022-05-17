@@ -13,3 +13,4 @@ changelog:
   skip: true
 release:
   prerelease: true
+  name_template: nightly
