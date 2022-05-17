@@ -21,7 +21,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 	}
 
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
-	c.Flags().String(flagChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
+	c.Flags().String(flagSPNChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
 
 	return c
 }
@@ -32,7 +32,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 	var (
 		out, _     = cmd.Flags().GetString(flagOut)
-		chainID, _ = cmd.Flags().GetString(flagChainID)
+		chainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
@@ -76,7 +76,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 		c.SetHome(tmpHome)
 
-		ibcInfo, lastBlockHeight, unboundingTime, err := n.IBCInfo(
+		rewardInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
 			cmd.Context(),
 			launchID,
 			chainLaunch.ConsumerRevisionHeight,
@@ -88,7 +88,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		if err = c.Prepare(
 			cmd.Context(),
 			genesisInformation,
-			ibcInfo,
+			rewardInfo,
 			chainID,
 			lastBlockHeight,
 			unboundingTime,

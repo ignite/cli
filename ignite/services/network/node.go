@@ -23,11 +23,11 @@ func NewNodeClient(cosmos CosmosClient) (Node, error) {
 	}, nil
 }
 
-// NodeInfo Fetches the consensus state with the validator set
-func NodeInfo(ctx context.Context, client CosmosClient, height int64) (networktypes.IBCInfo, error) {
+// RewardsInfo Fetches the consensus state with the validator set
+func RewardsInfo(ctx context.Context, client CosmosClient, height int64) (networktypes.Reward, error) {
 	consensusState, err := client.ConsensusInfo(ctx, height)
 	if err != nil {
-		return networktypes.IBCInfo{}, err
+		return networktypes.Reward{}, err
 	}
 	spnConsensusStatue := spntypes.NewConsensusState(
 		consensusState.Timestamp,
@@ -44,7 +44,7 @@ func NodeInfo(ctx context.Context, client CosmosClient, height int64) (networkty
 		)
 	}
 
-	return networktypes.IBCInfo{
+	return networktypes.Reward{
 		ConsensusState: spnConsensusStatue,
 		ValidatorSet:   spntypes.NewValidatorSet(validators...),
 		RevisionHeight: uint64(height),
@@ -60,22 +60,22 @@ func (n Node) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	return res.Params, nil
 }
 
-// IBCInfo Fetches the consensus state with the validator set and the unbounding time
-func (n Node) IBCInfo(ctx context.Context) (networktypes.IBCInfo, int64, error) {
+// RewardInfo Fetches the consensus state with the validator set and the unbounding time
+func (n Node) RewardInfo(ctx context.Context) (networktypes.Reward, int64, error) {
 	status, err := n.cosmos.Status(ctx)
 	if err != nil {
-		return networktypes.IBCInfo{}, 0, err
+		return networktypes.Reward{}, 0, err
 	}
 	lastBlockHeight := status.SyncInfo.LatestBlockHeight
 
-	info, err := NodeInfo(ctx, n.cosmos, lastBlockHeight)
+	info, err := RewardsInfo(ctx, n.cosmos, lastBlockHeight)
 	if err != nil {
-		return networktypes.IBCInfo{}, 0, err
+		return networktypes.Reward{}, 0, err
 	}
 
 	stakingParams, err := n.StakingParams(ctx)
 	if err != nil {
-		return networktypes.IBCInfo{}, 0, err
+		return networktypes.Reward{}, 0, err
 	}
 	return info, int64(stakingParams.UnbondingTime.Seconds()), nil
 }

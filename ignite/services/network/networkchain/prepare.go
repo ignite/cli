@@ -39,7 +39,7 @@ func (c Chain) ResetGenesisTime() error {
 func (c Chain) Prepare(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
-	ibcInfo networktypes.IBCInfo,
+	rewardInfo networktypes.Reward,
 	chainID string,
 	lastBlockHeight,
 	unbondingTime int64,
@@ -74,7 +74,7 @@ func (c Chain) Prepare(
 	if err := c.buildGenesis(
 		ctx,
 		gi,
-		ibcInfo,
+		rewardInfo,
 		chainID,
 		lastBlockHeight,
 		unbondingTime,
@@ -104,7 +104,7 @@ func (c Chain) Prepare(
 func (c Chain) buildGenesis(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
-	ibcInfo networktypes.IBCInfo,
+	rewardInfo networktypes.Reward,
 	chainID string,
 	lastBlockHeight,
 	unbondingTime int64,
@@ -145,11 +145,11 @@ func (c Chain) buildGenesis(
 		// set the network consensus parameters
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, chainID),
 		cosmosutil.WithKeyValueInt(cosmosutil.FieldLastBlockHeight, lastBlockHeight),
-		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, ibcInfo.ConsensusState.Timestamp),
-		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, ibcInfo.ConsensusState.NextValidatorsHash),
-		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusRootHash, ibcInfo.ConsensusState.Root.Hash),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, rewardInfo.ConsensusState.Timestamp),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, rewardInfo.ConsensusState.NextValidatorsHash),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusRootHash, rewardInfo.ConsensusState.Root.Hash),
 		cosmosutil.WithKeyValueInt(cosmosutil.FieldConsumerUnbondingPeriod, unbondingTime),
-		cosmosutil.WithKeyValueUint(cosmosutil.FieldConsumerRevisionHeight, ibcInfo.RevisionHeight),
+		cosmosutil.WithKeyValueUint(cosmosutil.FieldConsumerRevisionHeight, rewardInfo.RevisionHeight),
 	); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}

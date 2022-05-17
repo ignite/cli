@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"sync"
 
@@ -223,8 +222,8 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 	return res.RewardPool, nil
 }
 
-// StakingParams fetches the staking module params
-func (n Network) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
+// stakingParams fetches the staking module params
+func (n Network) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
 	if err != nil {
 		return stakingtypes.Params{}, err
@@ -232,31 +231,36 @@ func (n Network) StakingParams(ctx context.Context) (stakingtypes.Params, error)
 	return res.Params, nil
 }
 
-// IBCInfo Fetches the consensus state with the validator set,
+// RewardsInfo Fetches the consensus state with the validator set,
 // the unbounding time, and the last block height from chain rewards.
-func (n Network) IBCInfo(
+func (n Network) RewardsInfo(
 	ctx context.Context,
 	launchID uint64,
 	height int64,
-) (networktypes.IBCInfo, int64, int64, error) {
+) (
+	rewardsInfo networktypes.Reward,
+	lastRewardHeight int64,
+	unboundingTime int64,
+	err error,
+) {
+	rewardsInfo, err = RewardsInfo(ctx, n.cosmos, height)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+
+	stakingParams, err := n.stakingParams(ctx)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	unboundingTime = int64(stakingParams.UnbondingTime.Seconds())
+
 	chainReward, err := n.ChainReward(ctx, launchID)
 	if err == ErrObjectNotFound {
-		return networktypes.IBCInfo{}, 0, 0,
-			fmt.Errorf("chain %d don't have rewards to launch an incentivized network", launchID)
+		return rewardsInfo, 1, unboundingTime, nil
 	} else if err != nil {
-		return networktypes.IBCInfo{}, 0, 0, err
+		return rewardsInfo, 0, 0, err
 	}
+	lastRewardHeight = chainReward.LastRewardHeight
 
-	ibcInfo, err := NodeInfo(ctx, n.cosmos, height)
-	if err != nil {
-		return networktypes.IBCInfo{}, 0, 0, err
-	}
-
-	stakingParams, err := n.StakingParams(ctx)
-	if err != nil {
-		return networktypes.IBCInfo{}, 0, 0, err
-	}
-	unboundingTime := int64(stakingParams.UnbondingTime.Seconds())
-
-	return ibcInfo, chainReward.LastRewardHeight, unboundingTime, nil
+	return
 }

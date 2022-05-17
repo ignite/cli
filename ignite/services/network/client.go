@@ -9,15 +9,15 @@ import (
 func (n Network) CreateClient(
 	launchID uint64,
 	unbondingTime int64,
-	ibcInfo networktypes.IBCInfo,
+	rewardInfo networktypes.Reward,
 ) (string, error) {
 	msgCreateClient := monitoringctypes.NewMsgCreateClient(
 		n.account.Address(networktypes.SPN),
 		launchID,
-		ibcInfo.ConsensusState,
-		ibcInfo.ValidatorSet,
+		rewardInfo.ConsensusState,
+		rewardInfo.ValidatorSet,
 		unbondingTime,
-		ibcInfo.RevisionHeight,
+		rewardInfo.RevisionHeight,
 	)
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateClient)

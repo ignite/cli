@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	flagForce = "force"
+	flagForce      = "force"
+	flagSPNChainID = "spn-chain-id"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -29,7 +30,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 	}
 
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
-	c.Flags().String(flagChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
+	c.Flags().String(flagSPNChainID, cosmosutil.SPNChainID, "Chain ID to use for this network")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -43,7 +44,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 
 	var (
 		force, _   = cmd.Flags().GetBool(flagForce)
-		chainID, _ = cmd.Flags().GetString(flagChainID)
+		chainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -83,7 +84,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	ibcInfo, lastBlockHeight, unboundingTime, err := n.IBCInfo(
+	rewardInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
 		cmd.Context(),
 		launchID,
 		chainLaunch.ConsumerRevisionHeight,
@@ -95,7 +96,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	if err := c.Prepare(
 		cmd.Context(),
 		genesisInformation,
-		ibcInfo,
+		rewardInfo,
 		chainID,
 		lastBlockHeight,
 		unboundingTime,
