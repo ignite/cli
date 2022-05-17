@@ -24,6 +24,7 @@
   --ifm-footer-link-color: var(--ifm-font-color-base);
   --ifm-menu-link-sublist-icon: url('~/img/ico-chevron.svg');
   --docsearch-searchbox-background: #F7F7F7;
+  --ifm-navbar-height: 7.5rem;
 
   @media screen and (prefers-reduced-motion) {
   transition: 	
@@ -138,6 +139,7 @@ html {
         @media (min-width: 997px){
             @apply border-r border-r-docusaurusColorBorder;
         }
+        & > div:first-child > a { @apply m-0; }
         nav {
             @media (min-width: 997px){
                 @apply pt-7;

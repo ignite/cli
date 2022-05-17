@@ -60,6 +60,7 @@ const config = {
         },
       },
       navbar: {
+        hideOnScroll: true,
         logo: {
           alt: "Ignite Logo",
           src: "img/header-logo.svg",
