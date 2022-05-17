@@ -60,8 +60,8 @@ func (n Node) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	return res.Params, nil
 }
 
-// RewardInfo Fetches the consensus state with the validator set and the unbounding time
-func (n Node) RewardInfo(ctx context.Context) (networktypes.Reward, int64, error) {
+// RewardsInfo Fetches the consensus state with the validator set and the unbounding time
+func (n Node) RewardsInfo(ctx context.Context) (networktypes.Reward, int64, error) {
 	status, err := n.cosmos.Status(ctx)
 	if err != nil {
 		return networktypes.Reward{}, 0, err

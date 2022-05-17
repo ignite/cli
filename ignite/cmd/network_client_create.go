@@ -46,7 +46,7 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	rewardInfo, unboundingTime, err := node.RewardInfo(cmd.Context())
+	rewardsInfo, unboundingTime, err := node.RewardsInfo(cmd.Context())
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	clientID, err := n.CreateClient(launchID, unboundingTime, rewardInfo)
+	clientID, err := n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	if err != nil {
 		return err
 	}

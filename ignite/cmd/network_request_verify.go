@@ -103,7 +103,7 @@ func verifyRequest(
 		return err
 	}
 
-	rewardInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
 		ctx,
 		launchID,
 		chainLaunch.ConsumerRevisionHeight,
@@ -116,7 +116,7 @@ func verifyRequest(
 		ctx,
 		genesisInformation,
 		requests,
-		rewardInfo,
+		rewardsInfo,
 		lastBlockHeight,
 		unboundingTime,
 	)

@@ -76,7 +76,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 		c.SetHome(tmpHome)
 
-		rewardInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+		rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
 			cmd.Context(),
 			launchID,
 			chainLaunch.ConsumerRevisionHeight,
@@ -88,7 +88,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		if err = c.Prepare(
 			cmd.Context(),
 			genesisInformation,
-			rewardInfo,
+			rewardsInfo,
 			spnChainID,
 			lastBlockHeight,
 			unboundingTime,

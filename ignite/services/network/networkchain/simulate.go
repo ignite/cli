@@ -29,7 +29,7 @@ func (c Chain) SimulateRequests(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
-	rewardInfo networktypes.Reward,
+	rewardsInfo networktypes.Reward,
 	lastBlockHeight,
 	unbondingTime int64,
 ) (err error) {
@@ -52,7 +52,7 @@ func (c Chain) SimulateRequests(
 	if err := c.Prepare(
 		ctx,
 		gi,
-		rewardInfo,
+		rewardsInfo,
 		cosmosutil.SPNChainID,
 		lastBlockHeight,
 		unbondingTime,
