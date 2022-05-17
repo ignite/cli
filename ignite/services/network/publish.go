@@ -21,7 +21,7 @@ type publishOptions struct {
 	noCheck     bool
 	metadata    string
 	totalSupply sdk.Coins
-	shares      campaigntypes.Shares
+	shares      sdk.Coins
 	mainnet     bool
 }
 
@@ -70,8 +70,8 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 	}
 }
 
-// WithShares enables minting vouchers for shares.
-func WithShares(shares campaigntypes.Shares) PublishOption {
+// WithPercentageShares enables minting vouchers for shares.
+func WithPercentageShares(shares sdk.Coins) PublishOption {
 	return func(c *publishOptions) {
 		c.shares = shares
 	}
@@ -171,13 +171,24 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	msgs := []sdk.Msg{msgCreateChain}
 
 	if !o.shares.Empty() {
+		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
+		if err != nil {
+			return 0, 0, 0, err
+		}
+
+		var coins []sdk.Coin
+
+		for _, share := range o.shares {
+			amount := int64((float64(share.Amount.Int64()) / 100) * float64(totalSharesResp.TotalShares))
+			coins = append(coins, sdk.NewInt64Coin(share.Denom, amount))
+		}
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
 		// consider ways to refactor to accomplish a better API and efficiency.
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			n.account.Address(networktypes.SPN),
 			campaignID,
-			o.shares,
+			campaigntypes.NewSharesFromCoins(coins),
 		)
 		msgs = append(msgs, msgMintVouchers)
 	}
