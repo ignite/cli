@@ -1,13 +1,15 @@
 package cosmosgen
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 
 	"github.com/iancoleman/strcase"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
 	swaggercombine "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite-hq/cli/ignite/pkg/protoc"
 )
@@ -15,6 +17,8 @@ import (
 var openAPIOut = []string{
 	"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,fqn_for_openapi_name=true,simple_operation_ids=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 }
+
+const specCacheNamespace = "generate.openapi.spec"
 
 func generateOpenAPISpec(g *generator) error {
 	out := filepath.Join(g.appPath, g.o.specOut)
@@ -35,33 +39,63 @@ func generateOpenAPISpec(g *generator) error {
 		}
 	}()
 
+	specCache := cache.New[[]byte](g.cacheStorage, specCacheNamespace)
+
+	var hasAnySpecChanged bool
+
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
 	gen := func(src string, m module.Module) (err error) {
-		include, err := g.resolveInclude(src)
-		if err != nil {
-			return err
-		}
-
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
+		specPath := filepath.Join(dir, "apidocs.swagger.json")
 
-		err = protoc.Generate(
-			g.ctx,
-			dir,
-			m.Pkg.Path,
-			include,
-			openAPIOut,
-		)
+		checksumPaths := append([]string{m.Pkg.Path}, g.o.includeDirs...)
+		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
 		if err != nil {
 			return err
+		}
+		cacheKey := fmt.Sprintf("%x", checksum)
+		existingSpec, err := specCache.Get(cacheKey)
+		if err != nil && err != cache.ErrorNotFound {
+			return err
+		}
+
+		if err != cache.ErrorNotFound {
+			if err := os.WriteFile(specPath, existingSpec, 0644); err != nil {
+				return err
+			}
+		} else {
+			hasAnySpecChanged = true
+			include, err := g.resolveInclude(src)
+			if err != nil {
+				return err
+			}
+
+			err = protoc.Generate(
+				g.ctx,
+				dir,
+				m.Pkg.Path,
+				include,
+				openAPIOut,
+			)
+			if err != nil {
+				return err
+			}
+
+			f, err := os.ReadFile(specPath)
+			if err != nil {
+				return err
+			}
+			if err := specCache.Put(cacheKey, f); err != nil {
+				return err
+			}
 		}
 
 		specDirs = append(specDirs, dir)
 
-		specPath := filepath.Join(dir, "apidocs.swagger.json")
 		return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath)
 	}
 
@@ -90,6 +124,18 @@ func generateOpenAPISpec(g *generator) error {
 		}
 	}
 
+	if !hasAnySpecChanged {
+		// In case the generated output has been changed
+		changed, err := dirchange.HasDirChecksumChanged(specCache, out, g.appPath, out)
+		if err != nil {
+			return err
+		}
+
+		if !changed {
+			return nil
+		}
+	}
+
 	sort.Slice(conf.APIs, func(a, b int) bool { return conf.APIs[a].ID < conf.APIs[b].ID })
 
 	// ensure out dir exists.
@@ -99,5 +145,9 @@ func generateOpenAPISpec(g *generator) error {
 	}
 
 	// combine specs into one and save to out.
-	return swaggercombine.Combine(g.ctx, conf, out)
+	if err := swaggercombine.Combine(g.ctx, conf, out); err != nil {
+		return err
+	}
+
+	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
 }
