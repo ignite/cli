@@ -82,7 +82,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	if err != nil {
 		return err
 	}
-	gas := sdktypes.NewInt64Coin(staked.Denom, 80000)
+	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
 	config.Set("minimum-gas-prices", gas.String())
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)

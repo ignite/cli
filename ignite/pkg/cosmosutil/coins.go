@@ -23,5 +23,14 @@ func ParseCoinsNormalizedWithPercentageRequired(coins string) (sdk.Coins, error)
 			return nil, fmt.Errorf("amount for %s has to have a %% after the number", trimPercentage(ss))
 		}
 	}
-	return sdk.ParseCoinsNormalized(trimPercentage(coins))
+	c, err := sdk.ParseCoinsNormalized(trimPercentage(coins))
+	if err != nil {
+		return nil, err
+	}
+	for _, coin := range c {
+		if coin.Amount.Int64() > 100 {
+			return nil, fmt.Errorf("%q can not be bigger than 100", coin.Denom)
+		}
+	}
+	return c, nil
 }
