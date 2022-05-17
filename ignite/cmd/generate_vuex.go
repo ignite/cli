@@ -3,8 +3,6 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/spf13/cobra"
@@ -29,11 +27,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cacheRootDir, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return err
-	}
-	cacheStorage, err := cache.NewStorage(cacheRootDir)
+	cacheStorage, err := newCache()
 	if err != nil {
 		return err
 	}
@@ -51,5 +45,5 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 	s.Stop()
 	fmt.Println("⛏️  Generated vuex stores.")
 
-	return cacheStorage.Close()
+	return nil
 }

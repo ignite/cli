@@ -2,6 +2,7 @@ package localfs
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -69,25 +70,37 @@ func WatcherIgnoreExt(exts ...string) WatcherOption {
 // Watch starts watching changes on the paths. options are used to configure the
 // behaviour of watch operation.
 func Watch(ctx context.Context, paths []string, options ...WatcherOption) error {
-	wt := wt.New()
-	wt.SetMaxEvents(1)
-
 	w := &watcher{
-		wt:       wt,
+		wt:       wt.New(),
 		onChange: func() {},
 		interval: time.Millisecond * 300,
 		done:     &sync.WaitGroup{},
 		ctx:      ctx,
 	}
+	w.wt.SetMaxEvents(1)
+
 	for _, o := range options {
 		o(w)
 	}
+
+	w.wt.AddFilterHook(func(info os.FileInfo, fullPath string) error {
+		if info.IsDir() && w.ignoreFolders {
+			return wt.ErrSkip
+		}
+		if w.isFileIgnored(fullPath) {
+			return wt.ErrSkip
+		}
+
+		return nil
+	})
 
 	// ignore hidden paths.
 	w.wt.IgnoreHiddenFiles(w.ignoreHidden)
 
 	// add paths to watch
-	w.addPaths(paths...)
+	if err := w.addPaths(paths...); err != nil {
+		return err
+	}
 
 	// start watching.
 	w.done.Add(1)
@@ -103,13 +116,8 @@ func (w *watcher) listen() {
 	defer w.done.Done()
 	for {
 		select {
-		case e := <-w.wt.Event:
-			if e.IsDir() && w.ignoreFolders {
-				continue
-			}
-			if !w.isFileIgnored(e.Path) {
-				w.onChange()
-			}
+		case <-w.wt.Event:
+			w.onChange()
 		case <-w.wt.Closed:
 			return
 		case <-w.ctx.Done():
@@ -118,13 +126,17 @@ func (w *watcher) listen() {
 	}
 }
 
-func (w *watcher) addPaths(paths ...string) {
+func (w *watcher) addPaths(paths ...string) error {
 	for _, path := range paths {
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(w.workdir, path)
 		}
-		w.wt.AddRecursive(path)
+		if err := w.wt.AddRecursive(path); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (w *watcher) isFileIgnored(path string) bool {

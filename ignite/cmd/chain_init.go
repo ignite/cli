@@ -3,8 +3,6 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
@@ -37,11 +35,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	cacheRootDir, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return err
-	}
-	cacheStorage, err := cache.NewStorage(cacheRootDir)
+	cacheStorage, err := newCache()
 	if err != nil {
 		return err
 	}
@@ -67,5 +61,5 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 
 	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 
-	return cacheStorage.Close()
+	return nil
 }

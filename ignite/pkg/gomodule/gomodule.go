@@ -89,7 +89,7 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 	}
 
 	pathCache := cache.New[string](cacheStorage, pathCacheNamespace)
-	cacheKey := fmt.Sprintf("%s%s", pkg.Path, pkg.Version)
+	cacheKey := cache.Key(pkg.Path, pkg.Version)
 	path, err = pathCache.Get(cacheKey)
 	if err != nil && err != cache.ErrorNotFound {
 		return "", err

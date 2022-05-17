@@ -7,8 +7,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/validation"
@@ -73,6 +71,17 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache()
+	if err != nil {
+		return err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := cacheStorage.Clear(); err != nil {
+			return err
+		}
+	}
+
 	options := []scaffolder.ModuleCreationOption{
 		scaffolder.WithParams(params),
 	}
@@ -116,24 +125,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if flagGetClearCache(cmd) {
-		cacheRootDir, err := chainconfig.ConfigDirPath()
-		if err != nil {
-			return err
-		}
-		cacheStorage, err := cache.NewStorage(cacheRootDir)
-		if err != nil {
-			return err
-		}
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
-		if err := cacheStorage.Close(); err != nil {
-			return err
-		}
-	}
-
-	sm, err := sc.CreateModule(placeholder.New(), name, options...)
+	sm, err := sc.CreateModule(cacheStorage, placeholder.New(), name, options...)
 	s.Stop()
 	if err != nil {
 		var validationErr validation.Error

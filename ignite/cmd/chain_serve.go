@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/services/chain"
@@ -60,19 +58,13 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache()
+	if err != nil {
+		return err
+	}
+
 	if flagGetClearCache(cmd) {
-		cacheRootDir, err := chainconfig.ConfigDirPath()
-		if err != nil {
-			return err
-		}
-		cacheStorage, err := cache.NewStorage(cacheRootDir)
-		if err != nil {
-			return err
-		}
 		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
-		if err := cacheStorage.Close(); err != nil {
 			return err
 		}
 	}
@@ -94,5 +86,5 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
 
-	return c.Serve(cmd.Context(), serveOptions...)
+	return c.Serve(cmd.Context(), cacheStorage, serveOptions...)
 }

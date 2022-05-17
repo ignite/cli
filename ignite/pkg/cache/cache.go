@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
@@ -17,7 +18,7 @@ var ErrorNotFound = errors.New("no value was found with the provided key")
 
 // Storage is meant to be passed around and used by the New function (which provides namespacing and type-safety)
 type Storage struct {
-	db *bolt.DB
+	storagePath string
 }
 
 // Cache is a namespaced and type-safe key-value store
@@ -26,28 +27,16 @@ type Cache[T any] struct {
 	namespace string
 }
 
-// NewStorage create a local db file (if it doesn't exist) and opens a connection to it
-// Storage needs to be closed before another is opened.
-// If another process already has the same db file open, NewStorage will wait for it to be closed
+// NewStorage sets up the storage needed for later cache usage
+// It does not need to be closed as this happens automatically in each call to the cache
 func NewStorage(dir string) (Storage, error) {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return Storage{}, err
 	}
 
 	storagePath := filepath.Join(dir, dbName)
-	db, err := bolt.Open(storagePath, 0640, &bolt.Options{Timeout: 5 * time.Minute})
-	if err != nil {
-		return Storage{}, err
-	}
 
-	return Storage{db}, nil
-}
-
-// Close closes the underlying database
-// Attempting to use the same Storage instance or any pre-existing Cache instances
-// will result in errors.
-func (s Storage) Close() error {
-	return s.db.Close()
+	return Storage{storagePath}, nil
 }
 
 // New creates a namespaced and typesafe key-value Cache
@@ -58,9 +47,20 @@ func New[T any](storage Storage, namespace string) Cache[T] {
 	}
 }
 
+// Key creates a single composite key from a list of keyParts
+func Key(keyParts ...string) string {
+	return strings.Join(keyParts, "")
+}
+
 // Clear deletes all namespaces and cached values
 func (s Storage) Clear() error {
-	return s.db.Update(func(tx *bolt.Tx) error {
+	db, err := bolt.Open(s.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	return db.Update(func(tx *bolt.Tx) error {
 		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
 			return tx.DeleteBucket(name)
 		})
@@ -70,6 +70,12 @@ func (s Storage) Clear() error {
 // Put sets key to value within the namespace
 // If the key already exists, it will be overwritten
 func (c Cache[T]) Put(key string, value T) error {
+	db, err := bolt.Open(c.storage.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
 	var buf bytes.Buffer
 	encoder := gob.NewEncoder(&buf)
 	if err := encoder.Encode(value); err != nil {
@@ -77,7 +83,7 @@ func (c Cache[T]) Put(key string, value T) error {
 	}
 	result := buf.Bytes()
 
-	return c.storage.db.Update(func(tx *bolt.Tx) error {
+	return db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(c.namespace))
 		if err != nil {
 			return err
@@ -89,7 +95,13 @@ func (c Cache[T]) Put(key string, value T) error {
 // Get fetches the value of key within the namespace.
 // If no value exists, it will return found == false
 func (c Cache[T]) Get(key string) (val T, err error) {
-	err = c.storage.db.View(func(tx *bolt.Tx) error {
+	db, err := bolt.Open(c.storage.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(c.namespace))
 		if b == nil {
 			return ErrorNotFound
@@ -114,12 +126,18 @@ func (c Cache[T]) Get(key string) (val T, err error) {
 		return nil
 	})
 
-	return
+	return val, err
 }
 
 // Delete removes a value for key within the namespace
 func (c Cache[T]) Delete(key string) error {
-	return c.storage.db.Update(func(tx *bolt.Tx) error {
+	db, err := bolt.Open(c.storage.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(c.namespace))
 		if b == nil {
 			return nil

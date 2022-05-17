@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgit"
@@ -96,24 +94,18 @@ func scaffoldType(
 		return err
 	}
 
+	cacheStorage, err := newCache()
+	if err != nil {
+		return err
+	}
+
 	if clearCache {
-		cacheRootDir, err := chainconfig.ConfigDirPath()
-		if err != nil {
-			return err
-		}
-		cacheStorage, err := cache.NewStorage(cacheRootDir)
-		if err != nil {
-			return err
-		}
 		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
-		if err := cacheStorage.Close(); err != nil {
 			return err
 		}
 	}
 
-	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
+	sm, err := sc.AddType(cmd.Context(), cacheStorage, typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}

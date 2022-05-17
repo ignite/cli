@@ -83,7 +83,7 @@ func ServeResetOnce() ServeOption {
 }
 
 // Serve serves an app.
-func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
+func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options ...ServeOption) error {
 	serveOptions := newServeOption()
 
 	// apply the options
@@ -137,7 +137,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err = c.serve(serveCtx, shouldReset)
+				err = c.serve(serveCtx, cacheStorage, shouldReset)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -246,7 +246,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context, forceReset bool) error {
+func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -260,14 +260,6 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// isInit determines if the app is initialized
 	var isInit bool
 
-	cacheRootDir, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return err
-	}
-	cacheStorage, err := cache.NewStorage(cacheRootDir)
-	if err != nil {
-		return err
-	}
 	dirCache := cache.New[[]byte](cacheStorage, serveDirchangeCacheNamespace)
 
 	// determine if the app must reset the state
@@ -378,10 +370,6 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
-		return err
-	}
-
-	if err := cacheStorage.Close(); err != nil {
 		return err
 	}
 

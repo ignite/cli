@@ -78,7 +78,7 @@ func (g *generator) setup() (err error) {
 	// at some point, it is a nice to have.
 	moduleCache := cache.New[ModulesInPath](g.cacheStorage, moduleCacheNamespace)
 	for _, dep := range g.deps {
-		cacheKey := dep.Path + dep.Version
+		cacheKey := cache.Key(dep.Path, dep.Version)
 		modulesInPath, err := moduleCache.Get(cacheKey)
 		if err != nil && err != cache.ErrorNotFound {
 			return err

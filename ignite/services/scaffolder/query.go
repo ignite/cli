@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/gobuffalo/genny"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
@@ -16,6 +16,7 @@ import (
 // AddQuery adds a new query to scaffolded app
 func (s Scaffolder) AddQuery(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName,
@@ -85,5 +86,5 @@ func (s Scaffolder) AddQuery(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }

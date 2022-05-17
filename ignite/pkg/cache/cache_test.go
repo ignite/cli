@@ -159,27 +159,10 @@ func TestClearStorage(t *testing.T) {
 	require.Equal(t, cache.ErrorNotFound, err)
 }
 
-func TestCloseStorage(t *testing.T) {
-	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewStorage(tmpDir)
-	require.NoError(t, err)
+func TestKey(t *testing.T) {
+	singleKey := cache.Key("test1")
+	require.Equal(t, "test1", singleKey)
 
-	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
-
-	err = strNamespace.Put("myKey", "myValue")
-	require.NoError(t, err)
-
-	err = cacheStorage.Close()
-	require.NoError(t, err)
-
-	err = strNamespace.Put("myKey2", "myValue2")
-	require.Error(t, err)
-
-	// Re-open
-	cacheStorage, err = cache.NewStorage(tmpDir)
-	require.NoError(t, err)
-	strNamespace = cache.New[string](cacheStorage, "myNameSpace")
-
-	err = strNamespace.Put("myKey2", "myValue2")
-	require.NoError(t, err)
+	multiKey := cache.Key("test1", "test2", "test3")
+	require.Equal(t, "test1test2test3", multiKey)
 }

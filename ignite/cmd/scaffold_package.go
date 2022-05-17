@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
@@ -65,6 +63,17 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache()
+	if err != nil {
+		return err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := cacheStorage.Clear(); err != nil {
+			return err
+		}
+	}
+
 	var options []scaffolder.PacketOption
 	if noMessage {
 		options = append(options, scaffolder.PacketWithoutMessage())
@@ -77,24 +86,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if flagGetClearCache(cmd) {
-		cacheRootDir, err := chainconfig.ConfigDirPath()
-		if err != nil {
-			return err
-		}
-		cacheStorage, err := cache.NewStorage(cacheRootDir)
-		if err != nil {
-			return err
-		}
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
-		if err := cacheStorage.Close(); err != nil {
-			return err
-		}
-	}
-
-	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, options...)
+	sm, err := sc.AddPacket(cmd.Context(), cacheStorage, placeholder.New(), module, packet, packetFields, ackFields, options...)
 	if err != nil {
 		return err
 	}

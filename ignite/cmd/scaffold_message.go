@@ -3,8 +3,6 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
@@ -47,6 +45,17 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
+	cacheStorage, err := newCache()
+	if err != nil {
+		return err
+	}
+
+	if clearCache {
+		if err := cacheStorage.Clear(); err != nil {
+			return err
+		}
+	}
+
 	var options []scaffolder.MessageOption
 
 	// Get description
@@ -69,24 +78,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if clearCache {
-		cacheRootDir, err := chainconfig.ConfigDirPath()
-		if err != nil {
-			return err
-		}
-		cacheStorage, err := cache.NewStorage(cacheRootDir)
-		if err != nil {
-			return err
-		}
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
-		if err := cacheStorage.Close(); err != nil {
-			return err
-		}
-	}
-
-	sm, err := sc.AddMessage(cmd.Context(), placeholder.New(), module, args[0], args[1:], resFields, options...)
+	sm, err := sc.AddMessage(cmd.Context(), cacheStorage, placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
 	}

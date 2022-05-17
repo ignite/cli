@@ -3,8 +3,6 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/spf13/cobra"
@@ -66,29 +64,23 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := newApp(appPath)
+	cacheStorage, err := newCache()
 	if err != nil {
 		return err
 	}
 
 	if flagGetClearCache(cmd) {
-		cacheRootDir, err := chainconfig.ConfigDirPath()
-		if err != nil {
-			return err
-		}
-		cacheStorage, err := cache.NewStorage(cacheRootDir)
-		if err != nil {
-			return err
-		}
 		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
-		if err := cacheStorage.Close(); err != nil {
 			return err
 		}
 	}
 
-	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	sc, err := newApp(appPath)
+	if err != nil {
+		return err
+	}
+
+	sm, err := sc.AddQuery(cmd.Context(), cacheStorage, placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
 	}

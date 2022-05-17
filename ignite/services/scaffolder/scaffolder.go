@@ -69,8 +69,8 @@ func App(path string) (Scaffolder, error) {
 	return s, nil
 }
 
-func finish(path, gomodPath string) error {
-	if err := protoc(path, gomodPath); err != nil {
+func finish(cacheStorage cache.Storage, path, gomodPath string) error {
+	if err := protoc(cacheStorage, path, gomodPath); err != nil {
 		return err
 	}
 	if err := tidy(path); err != nil {
@@ -79,7 +79,7 @@ func finish(path, gomodPath string) error {
 	return fmtProject(path)
 }
 
-func protoc(projectPath, gomodPath string) error {
+func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
 		return err
 	}
@@ -114,20 +114,7 @@ func protoc(projectPath, gomodPath string) error {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
 
-	cacheRootDir, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return err
-	}
-	cacheStorage, err := cache.NewStorage(cacheRootDir)
-	if err != nil {
-		return err
-	}
-
-	if err := cosmosgen.Generate(context.Background(), cacheStorage, projectPath, conf.Build.Proto.Path, options...); err != nil {
-		return err
-	}
-
-	return cacheStorage.Close()
+	return cosmosgen.Generate(context.Background(), cacheStorage, projectPath, conf.Build.Proto.Path, options...)
 }
 
 func tidy(path string) error {
