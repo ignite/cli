@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
@@ -57,6 +57,7 @@ func WithoutSimulation() MessageOption {
 // AddMessage adds a new message to scaffolded app
 func (s Scaffolder) AddMessage(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
 	msgName string,
@@ -165,7 +166,7 @@ func (s Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name

@@ -3,10 +3,9 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/services/chain"
+	"github.com/spf13/cobra"
 )
 
 func NewGenerateGo() *cobra.Command {
@@ -26,7 +25,12 @@ func generateGoHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), chain.GenerateGo()); err != nil {
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo()); err != nil {
 		return err
 	}
 

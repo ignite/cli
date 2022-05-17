@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pelletier/go-toml"
-	"github.com/pkg/errors"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/pelletier/go-toml"
+	"github.com/pkg/errors"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 // ResetGenesisTime reset the chain genesis time
@@ -32,7 +32,7 @@ func (c Chain) ResetGenesisTime() error {
 }
 
 // Prepare prepares the chain to be launched from genesis information
-func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) Prepare(ctx context.Context, cacheStorage cache.Storage, gi networktypes.GenesisInformation) error {
 	// chain initialization
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -44,14 +44,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if err = c.Init(ctx); err != nil {
+		if err = c.Init(ctx, cacheStorage); err != nil {
 			return err
 		}
 	case err != nil:
 		return err
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
-		if _, err := c.Build(ctx); err != nil {
+		if _, err := c.Build(ctx, cacheStorage); err != nil {
 			return err
 		}
 
