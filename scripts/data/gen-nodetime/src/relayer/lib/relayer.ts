@@ -144,17 +144,17 @@ export default class Relayer {
         clientA: string,
         clientB: string
     ): Promise<Link> {
-        let clientIdB = clientB;
+        let dstClientID = clientB;
         if (!clientB) {
             const args = await buildCreateClientArgs(nodeA);
             const {clientId: clientId} = await nodeB.createTendermintClient(
                 args.clientState,
                 args.consensusState
             );
-            clientIdB = clientId;
+            dstClientID = clientId;
         }
 
-        let clientIdA = clientA;
+        let srcClientID = clientA;
         if (!clientA) {
             // client on A pointing to B
             const args2 = await buildCreateClientArgs(nodeB);
@@ -162,7 +162,7 @@ export default class Relayer {
                 args2.clientState,
                 args2.consensusState
             );
-            clientIdA = clientId;
+            srcClientID = clientId;
         }
 
         // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
@@ -170,27 +170,27 @@ export default class Relayer {
 
         // connectionInit on nodeA
         const {connectionId: connIdA} = await nodeA.connOpenInit(
-            clientIdA,
-            clientIdB
+            srcClientID,
+            dstClientID
         );
 
         // connectionTry on nodeB
         const proof = await prepareConnectionHandshake(
             nodeA,
             nodeB,
-            clientIdA,
-            clientIdB,
+            srcClientID,
+            dstClientID,
             connIdA
         );
 
-        const {connectionId: connIdB} = await nodeB.connOpenTry(clientIdB, proof);
+        const {connectionId: connIdB} = await nodeB.connOpenTry(dstClientID, proof);
 
         // connectionAck on nodeA
         const proofAck = await prepareConnectionHandshake(
             nodeB,
             nodeA,
-            clientIdB,
-            clientIdA,
+            dstClientID,
+            srcClientID,
             connIdB
         );
         await nodeA.connOpenAck(connIdA, proofAck);
@@ -199,14 +199,14 @@ export default class Relayer {
         const proofConfirm = await prepareConnectionHandshake(
             nodeA,
             nodeB,
-            clientIdA,
-            clientIdB,
+            srcClientID,
+            dstClientID,
             connIdA
         );
         await nodeB.connOpenConfirm(connIdB, proofConfirm);
 
-        const endA = new Endpoint(nodeA, clientIdA, connIdA);
-        const endB = new Endpoint(nodeB, clientIdB, connIdB);
+        const endA = new Endpoint(nodeA, srcClientID, connIdA);
+        const endB = new Endpoint(nodeB, dstClientID, connIdB);
 
         return new Link(endA, endB, new ConsoleLogger());
     }
