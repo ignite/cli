@@ -101,8 +101,8 @@ func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 type (
 	// ChainShare represents the share of a chain on SPN
 	ChainShare struct {
-		LaunchID uint64    `json:"LaunchID,omitempty"`
-		Shares   sdk.Coins `json:"Shares,omitempty"`
+		LaunchID uint64    `json:"LaunchID"`
+		Shares   sdk.Coins `json:"Shares"`
 	}
 	// Profile represents the address profile on SPN
 	Profile struct {
@@ -113,11 +113,11 @@ type (
 		Details            string               `json:"Details,omitempty"`
 		Moniker            string               `json:"Moniker,omitempty"`
 		SecurityContact    string               `json:"SecurityContact,omitempty"`
-		Vouchers           sdk.Coins            `json:"Vouchers,omitempty"`
-		Shares             campaigntypes.Shares `json:"Shares,omitempty"`
-		VestingShares      campaigntypes.Shares `json:"VestingShares,omitempty"`
-		ChainShares        []ChainShare         `json:"ChainShares,omitempty"`
-		ChainVestingShares []ChainShare         `json:"ChainVestingShares,omitempty"`
+		Vouchers           sdk.Coins            `json:"Vouchers"`
+		Shares             campaigntypes.Shares `json:"Shares"`
+		VestingShares      campaigntypes.Shares `json:"VestingShares"`
+		ChainShares        []ChainShare         `json:"ChainShares"`
+		ChainVestingShares []ChainShare         `json:"ChainVestingShares"`
 	}
 	IProfile interface {
 		ToProfile(
