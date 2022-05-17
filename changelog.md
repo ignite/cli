@@ -1,5 +1,11 @@
 # Changelog
 
+## [`v0.21.2`](https://github.com/ignite-hq/cli/releases/tag/v0.21.2)
+
+### Fixes 
+
+- Set min. gas to zero when running `chain` command set 
+
 ## [`v0.21.1`](https://github.com/ignite-hq/cli/releases/tag/v0.21.1)
 
 ### Features 
