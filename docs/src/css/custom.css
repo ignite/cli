@@ -262,6 +262,11 @@ html {
         & > svg {@apply hidden;}
     }
 
+    .theme-back-to-top-button{
+        @apply rotate-180;
+        &::after{ @apply w-1/2;}
+    }
+
     /* MARKDOWN */
     .markdown{
         --ifm-heading-vertical-rhythm-bottom: 1;
