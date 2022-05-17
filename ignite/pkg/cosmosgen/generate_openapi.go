@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/iancoleman/strcase"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/dirchange"

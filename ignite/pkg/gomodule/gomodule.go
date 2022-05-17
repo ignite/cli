@@ -11,11 +11,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/mod/modfile"
+	"golang.org/x/mod/module"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"golang.org/x/mod/modfile"
-	"golang.org/x/mod/module"
 )
 
 const pathCacheNamespace = "gomodule.path"
