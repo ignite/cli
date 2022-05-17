@@ -10,6 +10,9 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
@@ -21,8 +24,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/chain"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 	"github.com/ignite-hq/cli/ignite/version"
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
 )
 
 const (
