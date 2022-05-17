@@ -15,8 +15,10 @@ func NewRelayer() *cobra.Command {
 		Short:   "Connect blockchains by using IBC protocol",
 	}
 
-	c.AddCommand(NewRelayerConfigure())
-	c.AddCommand(NewRelayerConnect())
+	c.AddCommand(
+		NewRelayerConfigure(),
+		NewRelayerConnect(),
+	)
 
 	return c
 }
