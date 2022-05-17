@@ -145,7 +145,6 @@ export default class Relayer {
         clientA?: string,
         clientB?: string
     ): Promise<Link> {
-
         let clientIdB = clientB;
         if (typeof clientIdB === 'undefined' || clientIdB === '') {
             // client on B pointing to A
@@ -210,6 +209,7 @@ export default class Relayer {
 
         const endA = new Endpoint(nodeA, clientIdA, connIdA);
         const endB = new Endpoint(nodeB, clientIdB, connIdB);
+
         return new Link(endA, endB, new ConsoleLogger());
     }
 }
