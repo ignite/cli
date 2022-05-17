@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
@@ -20,6 +19,7 @@ import (
 )
 
 const (
+	SPNChainID                  = "spn-1"
 	ListeningTimeout            = time.Minute * 1
 	ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
 )
@@ -53,7 +53,7 @@ func (c Chain) SimulateRequests(
 		ctx,
 		gi,
 		rewardsInfo,
-		cosmosutil.SPNChainID,
+		SPNChainID,
 		lastBlockHeight,
 		unbondingTime,
 	); err != nil {

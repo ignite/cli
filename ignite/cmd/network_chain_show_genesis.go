@@ -8,7 +8,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
 )
 
@@ -21,7 +20,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 	}
 
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
-	c.Flags().String(flagSPNChainID, cosmosutil.SPNChainID, "Chain ID of SPN")
+	c.Flags().String(flagSPNChainID, SPNChainID, "Chain ID of SPN")
 
 	return c
 }

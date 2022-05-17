@@ -9,7 +9,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
@@ -18,6 +17,7 @@ import (
 const (
 	flagForce      = "force"
 	flagSPNChainID = "spn-chain-id"
+	SPNChainID     = "spn-1"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -30,7 +30,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 	}
 
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
-	c.Flags().String(flagSPNChainID, cosmosutil.SPNChainID, "Chain ID of SPN")
+	c.Flags().String(flagSPNChainID, SPNChainID, "Chain ID of SPN")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
