@@ -30,6 +30,7 @@ type Chain = {
     rpc_address: string;
     gas_price: string;
     gas_limit: number;
+    client_id: string;
 };
 
 type Path = {
@@ -58,12 +59,10 @@ export default class Relayer {
                           dstChain,
                           srcKey,
                           dstKey,
-                          clientIdA,
-                          clientIdB
-                      ]: [Path, Chain, Chain, string, string, string?, string?]): Promise<Path> {
+                      ]: [Path, Chain, Chain, string, string]): Promise<Path> {
         const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
         const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
-        const link = await this.create(srcClient, dstClient, clientIdA, clientIdB);
+        const link = await this.create(srcClient, dstClient, srcChain.client_id, dstChain.client_id);
 
         const channels = await link.createChannel(
             'A',
@@ -142,12 +141,11 @@ export default class Relayer {
     public async create(
         nodeA: IbcClient,
         nodeB: IbcClient,
-        clientA?: string,
-        clientB?: string
+        clientA: string,
+        clientB: string
     ): Promise<Link> {
         let clientIdB = clientB;
-        if (typeof clientIdB === 'undefined' || clientIdB === '') {
-            // client on B pointing to A
+        if (!clientB) {
             const args = await buildCreateClientArgs(nodeA);
             const {clientId: clientId} = await nodeB.createTendermintClient(
                 args.clientState,
@@ -157,7 +155,7 @@ export default class Relayer {
         }
 
         let clientIdA = clientA;
-        if (typeof clientIdA === 'undefined' || clientIdA === '') {
+        if (!clientA) {
             // client on A pointing to B
             const args2 = await buildCreateClientArgs(nodeB);
             const {clientId: clientId} = await nodeA.createTendermintClient(

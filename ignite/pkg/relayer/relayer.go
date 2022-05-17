@@ -134,8 +134,6 @@ func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayer
 		dstChain,
 		srcKey,
 		dstKey,
-		srcChain.ClientID,
-		dstChain.ClientID,
 	}
 	return reply, tsrelayer.Call(ctx, action, args, &reply)
 }
