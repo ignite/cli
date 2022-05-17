@@ -99,7 +99,9 @@ func Watch(ctx context.Context, paths []string, options ...WatcherOption) error 
 	w.wt.IgnoreHiddenFiles(w.ignoreHidden)
 
 	// add paths to watch
-	w.addPaths(paths...)
+	if err := w.addPaths(paths...); err != nil {
+		return err
+	}
 
 	// start watching.
 	w.done.Add(1)
