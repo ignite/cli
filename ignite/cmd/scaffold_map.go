@@ -20,6 +20,7 @@ func NewScaffoldMap() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
 

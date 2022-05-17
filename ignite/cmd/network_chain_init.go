@@ -33,6 +33,8 @@ func NewNetworkChainInit() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInitHandler,
 	}
+
+	flagSetClearCache(c)
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
 	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
@@ -86,6 +88,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	n, err := nb.Network()
 	if err != nil {
 		return err
@@ -101,7 +108,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	gen, err := c.Init(cmd.Context())
+	gen, err := c.Init(cmd.Context(), cacheStorage)
 	if err != nil {
 		return err
 	}

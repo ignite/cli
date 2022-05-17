@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
@@ -26,7 +27,7 @@ const (
 )
 
 // Prepare prepares the chain to be launched from genesis information
-func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) Prepare(ctx context.Context, cacheStorage cache.Storage, gi networktypes.GenesisInformation) error {
 	// chain initialization
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -38,14 +39,15 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if gen, err = c.Init(ctx); err != nil {
+		gen, err = c.Init(ctx, cacheStorage)
+		if err != nil {
 			return err
 		}
 	case err != nil:
 		return err
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
-		if _, err := c.Build(ctx); err != nil {
+		if _, err := c.Build(ctx, cacheStorage); err != nil {
 			return err
 		}
 

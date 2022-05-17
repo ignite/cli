@@ -41,6 +41,7 @@ func NewNetworkChainPublish() *cobra.Command {
 		RunE:  networkChainPublishHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().String(flagBranch, "", "Git branch to use for the repo")
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
@@ -85,6 +86,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	source, err := xurl.MightHTTPS(args[0])
 	if err != nil {
 		return fmt.Errorf("invalid source url format: %w", err)
+	}
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
 	}
 
 	if campaign != 0 && campaignTotalSupplyStr != "" {
@@ -222,7 +228,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 			publishOptions = append(publishOptions, network.WithCustomGenesis(gen))
 		}
 	} else {
-		gen, err := c.Init(cmd.Context())
+		gen, err := c.Init(cmd.Context(), cacheStorage)
 		if err != nil { // initialize the chain for checking.
 			return err
 		}

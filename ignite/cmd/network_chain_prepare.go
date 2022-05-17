@@ -27,6 +27,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 		RunE:  networkChainPrepareHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -40,6 +41,11 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	force, _ := cmd.Flags().GetBool(flagForce)
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -78,7 +84,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Prepare(cmd.Context(), genesisInformation); err != nil {
+	if err := c.Prepare(cmd.Context(), cacheStorage, genesisInformation); err != nil {
 		return err
 	}
 
