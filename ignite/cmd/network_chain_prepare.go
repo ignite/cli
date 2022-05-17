@@ -42,15 +42,9 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 
 	force, _ := cmd.Flags().GetBool(flagForce)
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

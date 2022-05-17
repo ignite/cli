@@ -33,6 +33,7 @@ const (
 	flagClearCache    = "clear-cache"
 
 	checkVersionTimeout = time.Millisecond * 600
+	cacheFileName       = "ignite_cache.db"
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -280,10 +281,22 @@ func printSection(session cliui.Session, title string) error {
 	return session.Printf("------\n%s\n------\n\n", title)
 }
 
-func newCache() (cache.Storage, error) {
+func newCache(cmd *cobra.Command) (cache.Storage, error) {
 	cacheRootDir, err := chainconfig.ConfigDirPath()
 	if err != nil {
 		return cache.Storage{}, err
 	}
-	return cache.NewStorage(cacheRootDir)
+
+	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+	}
+
+	return storage, err
 }

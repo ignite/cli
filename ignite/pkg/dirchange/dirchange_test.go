@@ -26,7 +26,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	tempDir := os.TempDir()
 	cacheDir := os.TempDir()
 
-	cacheStorage, err := cache.NewStorage(cacheDir)
+	cacheStorage, err := cache.NewStorage(filepath.Join(cacheDir, "testcache.db"))
 	require.NoError(t, err)
 	cache := cache.New[[]byte](cacheStorage, "testnamespace")
 

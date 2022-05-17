@@ -46,15 +46,9 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	var options []scaffolder.OracleOption

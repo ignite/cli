@@ -12,8 +12,6 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-const dbName = "ignite_cache.db"
-
 var ErrorNotFound = errors.New("no value was found with the provided key")
 
 // Storage is meant to be passed around and used by the New function (which provides namespacing and type-safety)
@@ -28,15 +26,14 @@ type Cache[T any] struct {
 }
 
 // NewStorage sets up the storage needed for later cache usage
+// path is the full path (including filename) to the database file to ues
 // It does not need to be closed as this happens automatically in each call to the cache
-func NewStorage(dir string) (Storage, error) {
-	if err := os.MkdirAll(dir, 0755); err != nil {
+func NewStorage(path string) (Storage, error) {
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return Storage{}, err
 	}
 
-	storagePath := filepath.Join(dir, dbName)
-
-	return Storage{storagePath}, nil
+	return Storage{path}, nil
 }
 
 // New creates a namespaced and typesafe key-value Cache
@@ -54,7 +51,7 @@ func Key(keyParts ...string) string {
 
 // Clear deletes all namespaces and cached values
 func (s Storage) Clear() error {
-	db, err := bolt.Open(s.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	db, err := openDb(s.storagePath)
 	if err != nil {
 		return err
 	}
@@ -70,7 +67,7 @@ func (s Storage) Clear() error {
 // Put sets key to value within the namespace
 // If the key already exists, it will be overwritten
 func (c Cache[T]) Put(key string, value T) error {
-	db, err := bolt.Open(c.storage.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	db, err := openDb(c.storage.storagePath)
 	if err != nil {
 		return err
 	}
@@ -95,7 +92,7 @@ func (c Cache[T]) Put(key string, value T) error {
 // Get fetches the value of key within the namespace.
 // If no value exists, it will return found == false
 func (c Cache[T]) Get(key string) (val T, err error) {
-	db, err := bolt.Open(c.storage.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	db, err := openDb(c.storage.storagePath)
 	if err != nil {
 		return
 	}
@@ -131,7 +128,7 @@ func (c Cache[T]) Get(key string) (val T, err error) {
 
 // Delete removes a value for key within the namespace
 func (c Cache[T]) Delete(key string) error {
-	db, err := bolt.Open(c.storage.storagePath, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	db, err := openDb(c.storage.storagePath)
 	if err != nil {
 		return err
 	}
@@ -145,4 +142,8 @@ func (c Cache[T]) Delete(key string) error {
 
 		return b.Delete([]byte(key))
 	})
+}
+
+func openDb(path string) (*bolt.DB, error) {
+	return bolt.Open(path, 0640, &bolt.Options{Timeout: 1 * time.Minute})
 }

@@ -71,15 +71,9 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	options := []scaffolder.ModuleCreationOption{

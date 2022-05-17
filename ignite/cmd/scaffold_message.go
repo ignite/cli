@@ -39,21 +39,14 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
 		withoutSimulation = flagGetNoSimulation(cmd)
-		clearCache        = flagGetClearCache(cmd)
 	)
 
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if clearCache {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	var options []scaffolder.MessageOption

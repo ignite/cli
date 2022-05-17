@@ -35,15 +35,9 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	if _, err := c.Build(cmd.Context(), cacheStorage, ""); err != nil {

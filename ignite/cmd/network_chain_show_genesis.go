@@ -31,15 +31,9 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 	out, _ := cmd.Flags().GetString(flagOut)
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)

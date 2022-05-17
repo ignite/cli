@@ -41,18 +41,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix, _   = cmd.Flags().GetString(flagAddressPrefix)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		appPath            = flagGetPath(cmd)
-		clearCache         = flagGetClearCache(cmd)
 	)
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if clearCache {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	appdir, err := scaffolder.Init(cacheStorage, placeholder.New(), appPath, name, addressPrefix, noDefaultModule)

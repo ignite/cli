@@ -89,15 +89,9 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	n, err := nb.Network()

@@ -87,15 +87,9 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid source url format: %w", err)
 	}
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	if campaign != 0 && campaignTotalSupplyStr != "" {

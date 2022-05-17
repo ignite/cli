@@ -29,15 +29,9 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if flagGetClearCache(cmd) {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	sc, err := newApp(appPath)

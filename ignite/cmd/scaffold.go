@@ -64,7 +64,6 @@ func scaffoldType(
 		withoutSimulation = flagGetNoSimulation(cmd)
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
-		clearCache        = flagGetClearCache(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -94,15 +93,9 @@ func scaffoldType(
 		return err
 	}
 
-	cacheStorage, err := newCache()
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
-	}
-
-	if clearCache {
-		if err := cacheStorage.Clear(); err != nil {
-			return err
-		}
 	}
 
 	sm, err := sc.AddType(cmd.Context(), cacheStorage, typeName, placeholder.New(), kind, options...)

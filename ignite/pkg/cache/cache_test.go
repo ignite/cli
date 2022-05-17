@@ -1,6 +1,7 @@
 package cache_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
@@ -15,16 +16,16 @@ func TestCreateStorage(t *testing.T) {
 	tmpDir1 := t.TempDir()
 	tmpDir2 := t.TempDir()
 
-	_, err := cache.NewStorage(tmpDir1)
+	_, err := cache.NewStorage(filepath.Join(tmpDir1, "test.db"))
 	require.NoError(t, err)
 
-	_, err = cache.NewStorage(tmpDir2)
+	_, err = cache.NewStorage(filepath.Join(tmpDir2, "test.db"))
 	require.NoError(t, err)
 }
 
 func TestStoreString(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewStorage(tmpDir)
+	cacheStorage, err := cache.NewStorage(filepath.Join(tmpDir, "testdbfile.db"))
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
@@ -45,7 +46,7 @@ func TestStoreString(t *testing.T) {
 
 func TestStoreObjects(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewStorage(tmpDir)
+	cacheStorage, err := cache.NewStorage(filepath.Join(tmpDir, "testdbfile.db"))
 	require.NoError(t, err)
 
 	structCache := cache.New[TestStruct](cacheStorage, "mySimpleNamespace")
@@ -87,9 +88,9 @@ func TestStoreObjects(t *testing.T) {
 func TestConflicts(t *testing.T) {
 	tmpDir := t.TempDir()
 	tmpDir2 := t.TempDir()
-	cacheStorage1, err := cache.NewStorage(tmpDir)
+	cacheStorage1, err := cache.NewStorage(filepath.Join(tmpDir, "testdbfile.db"))
 	require.NoError(t, err)
-	cacheStorage2, err := cache.NewStorage(tmpDir2)
+	cacheStorage2, err := cache.NewStorage(filepath.Join(tmpDir2, "testdbfile.db"))
 	require.NoError(t, err)
 
 	sameStorageDifferentNamespaceCache1 := cache.New[int](cacheStorage1, "ns1")
@@ -128,7 +129,7 @@ func TestConflicts(t *testing.T) {
 
 func TestDeleteKey(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewStorage(tmpDir)
+	cacheStorage, err := cache.NewStorage(filepath.Join(tmpDir, "testdbfile.db"))
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
@@ -144,7 +145,7 @@ func TestDeleteKey(t *testing.T) {
 
 func TestClearStorage(t *testing.T) {
 	tmpDir := t.TempDir()
-	cacheStorage, err := cache.NewStorage(tmpDir)
+	cacheStorage, err := cache.NewStorage(filepath.Join(tmpDir, "testdbfile.db"))
 	require.NoError(t, err)
 
 	strNamespace := cache.New[string](cacheStorage, "myNameSpace")
