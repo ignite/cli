@@ -298,5 +298,5 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 		}
 	}
 
-	return storage, err
+	return storage, nil
 }
