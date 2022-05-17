@@ -2,6 +2,7 @@ package localfs
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -98,9 +99,7 @@ func Watch(ctx context.Context, paths []string, options ...WatcherOption) error 
 	w.wt.IgnoreHiddenFiles(w.ignoreHidden)
 
 	// add paths to watch
-	if err := w.addPaths(paths...); err != nil {
-		return err
-	}
+	w.addPaths(paths...)
 
 	// start watching.
 	w.done.Add(1)
@@ -131,6 +130,12 @@ func (w *watcher) addPaths(paths ...string) error {
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(w.workdir, path)
 		}
+
+		// Ignoring paths that don't exist
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+
 		if err := w.wt.AddRecursive(path); err != nil {
 			return err
 		}
