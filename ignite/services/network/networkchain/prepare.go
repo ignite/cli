@@ -105,7 +105,7 @@ func (c Chain) buildGenesis(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
 	rewardInfo networktypes.Reward,
-	chainID string,
+	spnChainID string,
 	lastBlockHeight,
 	unbondingTime int64,
 ) error {
@@ -132,10 +132,6 @@ func (c Chain) buildGenesis(
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	if chainID == "" {
-		chainID = cosmosutil.SPNChainID
-	}
-
 	// update genesis
 	if err := cosmosutil.UpdateGenesis(
 		genesisPath,
@@ -143,7 +139,7 @@ func (c Chain) buildGenesis(
 		cosmosutil.WithKeyValue(cosmosutil.FieldChainID, c.id),
 		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime),
 		// set the network consensus parameters
-		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, chainID),
+		cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, spnChainID),
 		cosmosutil.WithKeyValueInt(cosmosutil.FieldLastBlockHeight, lastBlockHeight),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, rewardInfo.ConsensusState.Timestamp),
 		cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, rewardInfo.ConsensusState.NextValidatorsHash),
