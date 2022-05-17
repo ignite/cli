@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"

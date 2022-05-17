@@ -7,9 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite-hq/cli/integration"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCliWithCaching(t *testing.T) {
