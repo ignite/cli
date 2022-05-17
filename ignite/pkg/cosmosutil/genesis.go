@@ -19,7 +19,6 @@ import (
 )
 
 const (
-	SPNChainID                       = "spn-1"
 	FieldGenesisTime                 = "genesis_time"
 	FieldChainID                     = "chain_id"
 	FieldConsumerChainID             = "app_state.monitoringp.params.consumerChainID"
