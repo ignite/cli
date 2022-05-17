@@ -1,4 +1,4 @@
-package dirchange
+package dirchange_test
 
 import (
 	"crypto/rand"
@@ -6,12 +6,14 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
+	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	TmpPattern   = "starport-dirchange"
-	ChecksumFile = "checksum.txt"
+	TmpPattern  = "starport-dirchange"
+	ChecksumKey = "checksum"
 )
 
 func randomBytes(n int) []byte {
@@ -22,10 +24,15 @@ func randomBytes(n int) []byte {
 
 func TestHasDirChecksumChanged(t *testing.T) {
 	tempDir := os.TempDir()
+	cacheDir := os.TempDir()
+
+	cacheStorage, err := cache.NewStorage(filepath.Join(cacheDir, "testcache.db"))
+	require.NoError(t, err)
+	cache := cache.New[[]byte](cacheStorage, "testnamespace")
 
 	// Create directory tree
 	dir1 := filepath.Join(tempDir, "foo1")
-	err := os.MkdirAll(dir1, 0700)
+	err = os.MkdirAll(dir1, 0700)
 	require.NoError(t, err)
 	defer os.RemoveAll(dir1)
 	dir2 := filepath.Join(tempDir, "foo2")
@@ -60,7 +67,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 
 	// Check checksum
 	paths := []string{dir1, dir2, dir3}
-	checksum, err := checksumFromPaths("", paths)
+	checksum, err := dirchange.ChecksumFromPaths("", paths...)
 	require.NoError(t, err)
 	// md5 checksum is 16 bytes
 	require.Len(t, checksum, 16)
@@ -70,31 +77,31 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NoError(t, err)
 	err = os.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
 	require.NoError(t, err)
-	tmpChecksum, err := checksumFromPaths("", paths)
+	tmpChecksum, err := dirchange.ChecksumFromPaths("", paths...)
 	require.NoError(t, err)
 	require.Equal(t, checksum, tmpChecksum)
 
 	// Can compute the checksum from a specific workdir
 	pathNames := []string{"foo1", "foo2", "foo3"}
-	tmpChecksum, err = checksumFromPaths(tempDir, pathNames)
+	tmpChecksum, err = dirchange.ChecksumFromPaths(tempDir, pathNames...)
 	require.NoError(t, err)
 	require.Equal(t, checksum, tmpChecksum)
 
 	// Ignore non existent dir
 	pathNames = append(pathNames, "nonexistent")
-	tmpChecksum, err = checksumFromPaths(tempDir, pathNames)
+	tmpChecksum, err = dirchange.ChecksumFromPaths(tempDir, pathNames...)
 	require.NoError(t, err)
 	require.Equal(t, checksum, tmpChecksum)
 
 	// Checksum from a subdir is different
-	tmpChecksum, err = checksumFromPaths("", []string{dir1, dir2})
+	tmpChecksum, err = dirchange.ChecksumFromPaths("", dir1, dir2)
 	require.NoError(t, err)
 	require.NotEqual(t, checksum, tmpChecksum)
 
 	// Checksum changes if a file is modified
 	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
 	require.NoError(t, err)
-	newChecksum, err := checksumFromPaths("", paths)
+	newChecksum, err := dirchange.ChecksumFromPaths("", paths...)
 	require.NoError(t, err)
 	require.NotEqual(t, checksum, newChecksum)
 
@@ -107,46 +114,44 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	err = os.MkdirAll(empty2, 0700)
 	require.NoError(t, err)
 	defer os.RemoveAll(empty2)
-	_, err = checksumFromPaths("", []string{empty1, empty2})
+	_, err = dirchange.ChecksumFromPaths("", empty1, empty2)
 	require.Error(t, err)
 
-	// SaveDirChecksum saves the checksum in the specified dir
+	// SaveDirChecksum saves the checksum in the cache
 	saveDir, err := os.MkdirTemp(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(saveDir)
-	err = SaveDirChecksum("", paths, saveDir, ChecksumFile)
+	err = dirchange.SaveDirChecksum(cache, ChecksumKey, "", paths...)
 	require.NoError(t, err)
-	require.FileExists(t, filepath.Join(saveDir, ChecksumFile))
-	fileContent, err := os.ReadFile(filepath.Join(saveDir, ChecksumFile))
+	savedChecksum, err := cache.Get(ChecksumKey)
 	require.NoError(t, err)
-	require.Equal(t, newChecksum, fileContent)
+	require.Equal(t, newChecksum, savedChecksum)
 
 	// Error if the paths contains no file
-	err = SaveDirChecksum("", []string{empty1, empty2}, saveDir, ChecksumFile)
+	err = dirchange.SaveDirChecksum(cache, ChecksumKey, "", empty1, empty2)
 	require.Error(t, err)
 
 	// HasDirChecksumChanged returns false if the directory has not changed
-	changed, err := HasDirChecksumChanged("", paths, saveDir, ChecksumFile)
+	changed, err := dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", paths...)
 	require.NoError(t, err)
 	require.False(t, changed)
 
-	// Return true if checksum file doesn't exist
-	newSaveDir, err := os.MkdirTemp(tempDir, TmpPattern)
+	// Return true if cache entry doesn't exist
+	err = cache.Delete(ChecksumKey)
 	require.NoError(t, err)
-	defer os.RemoveAll(newSaveDir)
-	changed, err = HasDirChecksumChanged("", paths, newSaveDir, ChecksumFile)
+	changed, err = dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", paths...)
 	require.NoError(t, err)
 	require.True(t, changed)
 
 	// Return true if the paths contains no file
-	changed, err = HasDirChecksumChanged("", []string{empty1, empty2}, saveDir, ChecksumFile)
+	changed, err = dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", empty1, empty2)
 	require.NoError(t, err)
 	require.True(t, changed)
 
 	// Return true if it has been changed
 	err = os.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	changed, err = HasDirChecksumChanged("", paths, saveDir, ChecksumFile)
+	changed, err = dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", paths...)
 	require.NoError(t, err)
 	require.True(t, changed)
 }

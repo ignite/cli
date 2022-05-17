@@ -3,10 +3,9 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -23,6 +22,7 @@ func NewScaffoldQuery() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
@@ -64,12 +64,17 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
 
-	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	sm, err := sc.AddQuery(cmd.Context(), cacheStorage, placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
 	}

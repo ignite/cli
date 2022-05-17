@@ -5,10 +5,10 @@ import (
 	"errors"
 	"path/filepath"
 
-	"golang.org/x/mod/module"
-
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
+	"golang.org/x/mod/module"
 )
 
 var (
@@ -39,7 +39,7 @@ func NewModule(importPath string, protoPaths ...string) Module {
 // r should be the list of required packages of the target go app. it is used to resolve exact versions
 // of the go modules that used by the target app.
 // global dependencies are also included to paths.
-func ResolveDependencyPaths(ctx context.Context, src string, versions []module.Version, modules ...Module) (paths []string, err error) {
+func ResolveDependencyPaths(ctx context.Context, cacheStorage cache.Storage, src string, versions []module.Version, modules ...Module) (paths []string, err error) {
 	globalInclude, err := globalInclude()
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func ResolveDependencyPaths(ctx context.Context, src string, versions []module.V
 	}
 
 	for i, v := range vs {
-		path, err := gomodule.LocatePath(ctx, src, v)
+		path, err := gomodule.LocatePath(ctx, cacheStorage, src, v)
 		if err != nil {
 			return nil, err
 		}

@@ -6,6 +6,7 @@ import (
 
 	gomodmodule "golang.org/x/mod/module"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 )
@@ -89,6 +90,7 @@ func IncludeDirs(dirs []string) Option {
 // generator generates code for sdk and sdk apps.
 type generator struct {
 	ctx          context.Context
+	cacheStorage cache.Storage
 	appPath      string
 	protoDir     string
 	o            *generateOptions
@@ -100,13 +102,14 @@ type generator struct {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, appPath, protoDir string, options ...Option) error {
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir string, options ...Option) error {
 	g := &generator{
 		ctx:          ctx,
 		appPath:      appPath,
 		protoDir:     protoDir,
 		o:            &generateOptions{},
 		thirdModules: make(map[string][]module.Module),
+		cacheStorage: cacheStorage,
 	}
 
 	for _, apply := range options {
