@@ -1,5 +1,7 @@
 ---
 sidebar_position: 0
+slug: /guide/nameservice
+
 ---
 
 # Nameservice Tutorial

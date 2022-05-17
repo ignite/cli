@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+slug: /guide/scavenge
+
 ---
 
 # Scavenger hunt game

@@ -1,6 +1,7 @@
 ---
 sidebar_position: 0
 description: Learn module basics by writing and reading blog posts to your chain.
+slug: /guide/blog
 ---
 
 # Build a blog
