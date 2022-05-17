@@ -36,10 +36,8 @@ const (
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
-func New(ctx context.Context) *cobra.Command {
+func New() *cobra.Command {
 	cobra.EnableCommandSorting = false
-
-	checkNewVersion(ctx)
 
 	c := &cobra.Command{
 		Use:   "ignite",
@@ -54,6 +52,12 @@ ignite scaffold chain github.com/username/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Check for new versions only when shell completion scripts are not being
+			// generated to avoid invalid output to stdout when a new version is available
+			if cmd.Use != "completions" {
+				checkNewVersion(cmd.Context())
+			}
+
 			return goenv.ConfigurePath()
 		},
 	}
