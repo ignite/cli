@@ -188,11 +188,13 @@ html {
     &[data-theme='dark'] .menu__link{ @apply text-mutedLight}
     .menu__link{
         @apply text-muted;
-        &:hover { @apply text-docusaurusColorBase; }
+        &:hover { 
+            text-shadow: 0.1px 0.1px 0 var(--ifm-font-color-base), -0.1px -0.1px 0 var(--ifm-font-color-base), 0.1px -0.1px 0 var(--ifm-font-color-base), -0.1px 0.1px 0 var(--ifm-font-color-base), -0.1px 0 0 var(--ifm-font-color-base), 0.1px 0 0 var(--ifm-font-color-base), 0 0.1px 0 var(--ifm-font-color-base), 0 -0.1px 0 var(--ifm-font-color-base);
+            @apply text-docusaurusColorBase; 
+        }
     }
 
-    .menu__link--sublist-caret,
-     {
+    .menu__link--sublist-caret{
         @apply flex;
         &::after {
             background-size: 16px;
@@ -205,6 +207,13 @@ html {
     }
     .menu__caret,
     li li .menu__link--sublist-caret::after{ @apply hidden; }
+
+    /* TOC */
+    .table-of-contents__link:hover,
+    .table-of-contents__link--active{
+        text-shadow: 0.1px 0.1px 0 var(--ifm-font-color-base), -0.1px -0.1px 0 var(--ifm-font-color-base), 0.1px -0.1px 0 var(--ifm-font-color-base), -0.1px 0.1px 0 var(--ifm-font-color-base), -0.1px 0 0 var(--ifm-font-color-base), 0.1px 0 0 var(--ifm-font-color-base), 0 0.1px 0 var(--ifm-font-color-base), 0 -0.1px 0 var(--ifm-font-color-base);
+
+    }
 
     /* RELATED ARTICLES */
     &[data-theme='dark'] .pagination-nav > a { @apply bg-fg; }
