@@ -9,6 +9,7 @@ import (
 	"os"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -101,8 +102,6 @@ func TestPublish(t *testing.T) {
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
 		)
-		shares, err := campaigntypes.NewShares("20foo,50staking")
-		require.NoError(t, err)
 
 		suite.ProfileQueryMock.
 			On(
@@ -113,6 +112,16 @@ func TestPublish(t *testing.T) {
 				},
 			).
 			Return(nil, nil).
+			Once()
+		suite.CampaignQueryMock.
+			On(
+				"TotalShares",
+				context.Background(),
+				&campaigntypes.QueryTotalSharesRequest{},
+			).
+			Return(&campaigntypes.QueryTotalSharesResponse{
+				TotalShares: 100000,
+			}, nil).
 			Once()
 		suite.CosmosClientMock.
 			On(
@@ -131,7 +140,7 @@ func TestPublish(t *testing.T) {
 				campaigntypes.NewMsgMintVouchers(
 					account.Address(networktypes.SPN),
 					testutil.CampaignID,
-					shares,
+					campaigntypes.NewSharesFromCoins(sdk.NewCoins(sdk.NewInt64Coin("foo", 2000), sdk.NewInt64Coin("staking", 50000))),
 				),
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -159,7 +168,7 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, _, publishError := network.Publish(context.Background(), suite.ChainMock,
-			WithShares(shares),
+			WithPercentageShares(sdk.NewCoins(sdk.NewInt64Coin("foo", 2), sdk.NewInt64Coin("staking", 50))),
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)

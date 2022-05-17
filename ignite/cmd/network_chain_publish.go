@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
@@ -199,7 +198,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithShares(campaigntypes.NewSharesFromCoins(coins)))
+		publishOptions = append(publishOptions, network.WithPercentageShares(coins))
 	}
 
 	// init the chain.
