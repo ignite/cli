@@ -43,8 +43,8 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	var (
-		force, _   = cmd.Flags().GetBool(flagForce)
-		chainID, _ = cmd.Flags().GetString(flagSPNChainID)
+		force, _      = cmd.Flags().GetBool(flagForce)
+		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -97,7 +97,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		cmd.Context(),
 		genesisInformation,
 		rewardInfo,
-		chainID,
+		spnChainID,
 		lastBlockHeight,
 		unboundingTime,
 	); err != nil {

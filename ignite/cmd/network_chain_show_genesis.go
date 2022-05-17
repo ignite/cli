@@ -31,8 +31,8 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	var (
-		out, _     = cmd.Flags().GetString(flagOut)
-		chainID, _ = cmd.Flags().GetString(flagSPNChainID)
+		out, _        = cmd.Flags().GetString(flagOut)
+		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
@@ -89,7 +89,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 			cmd.Context(),
 			genesisInformation,
 			rewardInfo,
-			chainID,
+			spnChainID,
 			lastBlockHeight,
 			unboundingTime,
 		); err != nil {
