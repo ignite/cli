@@ -3,10 +3,11 @@ package ignitecmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/spf13/cobra"
 )
 
 func NewChainInit() *cobra.Command {

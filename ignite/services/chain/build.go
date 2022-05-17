@@ -9,6 +9,8 @@ import (
 	"runtime"
 
 	"github.com/docker/docker/pkg/archive"
+	"github.com/pkg/errors"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/checksum"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
@@ -18,7 +20,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/goanalysis"
 	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/pkg/errors"
 )
 
 const (

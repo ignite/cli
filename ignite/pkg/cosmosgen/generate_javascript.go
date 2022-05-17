@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
@@ -17,7 +19,6 @@ import (
 	tsproto "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-proto"
 	"github.com/ignite-hq/cli/ignite/pkg/protoc"
 	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"golang.org/x/sync/errgroup"
 )
 
 var (

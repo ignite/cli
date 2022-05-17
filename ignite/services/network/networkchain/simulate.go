@@ -8,14 +8,15 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/pelletier/go-toml"
+	"github.com/pkg/errors"
+
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/pelletier/go-toml"
-	"github.com/pkg/errors"
 )
 
 const (
