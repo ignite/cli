@@ -76,6 +76,8 @@ html {
             @apply right-8.5;
         }
     }
+    &[data-theme='dark'] .navbar__item {  @apply text-mutedLight; }
+    &[data-theme='dark'] .navbar__toggle {  @apply bg-fg; }
 
     .github-icon { @apply hover:opacity-50; }
 
@@ -112,7 +114,9 @@ html {
     }
     &[data-theme='dark'] .DocSearch-Modal{ @apply bg-gray-1000}
     &[data-theme='dark'] .DocSearch-Footer{ @apply bg-gray-1000}
-    
+    &[data-theme='dark'] .DocSearch-Button{ @apply bg-fg text-inactiveLight;}
+    &[data-theme='dark'] .DocSearch-Button-Key{ @apply text-inactiveLight border-inactiveLight;}
+
     /* BREADCRUMBS */
     .breadcrumbs__item:not(:last-child):after {
         content: '/';
