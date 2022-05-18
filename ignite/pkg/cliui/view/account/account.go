@@ -43,7 +43,7 @@ func (acc Account) String() string {
 
 type Accounts []Account
 
-func AccountCollection(accounts ...Account) Accounts {
+func Collection(accounts ...Account) Accounts {
 	return append(Accounts{}, accounts...)
 }
 

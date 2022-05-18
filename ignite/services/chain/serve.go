@@ -154,7 +154,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							fmt.Fprint(c.stdLog().err, err.Error())
+							c.ev.Send(err.Error())
 							return err
 						}
 

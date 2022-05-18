@@ -30,7 +30,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
-	
+
 	var (
 		out, _        = cmd.Flags().GetString(flagOut)
 		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)

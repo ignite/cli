@@ -152,8 +152,6 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 			return err
 		}
 
-		accs = append(accs)
-
 		if account.Address == "" {
 			accs = append(accs, accview.NewAccount(generatedAccount.Name, accountAddress, accview.WithMnemonic(generatedAccount.Mnemonic)))
 		} else {
@@ -162,7 +160,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 	}
 
 	c.ev.Send("🗂️  Initialize accounts ...")
-	c.ev.Send(accview.AccountCollection(accs...))
+	c.ev.Send(accview.Collection(accs...))
 
 	_, err = c.IssueGentx(ctx, Validator{
 		Name:          conf.Validator.Name,
