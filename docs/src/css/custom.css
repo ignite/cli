@@ -24,7 +24,7 @@
   --ifm-footer-link-color: var(--ifm-font-color-base);
   --ifm-menu-link-sublist-icon: url('~/img/ico-chevron.svg');
   --docsearch-searchbox-background: #F7F7F7;
-  --ifm-navbar-height: 7.5rem;
+  --ifm-navbar-height: 5.563rem;
 
   @media screen and (prefers-reduced-motion) {
   transition: 	
@@ -49,11 +49,16 @@ html[data-theme='dark'] {
 
 html {
     @apply bg-docusaurusBgColor;
-    body > div { @apply max-w-[90rem] m-auto;}
+    body > div { 
+        @apply max-w-[90rem] m-auto;
+        @media (min-width: 997px){
+            @apply  px-6;
+        }
+    }
 
     /* MAINNAV */
     .navbar {
-        @apply py-7 mx-6 px-0 h-auto border-b border-b-docusaurusColorBorder shadow-none bg-docusaurusBgColor;
+        @apply py-5 mx-6 px-0 h-auto border-b border-b-docusaurusColorBorder shadow-none bg-docusaurusBgColor;
         @media (min-width: 997px){
             @apply mx-0;
         }
@@ -159,7 +164,7 @@ html {
             @apply relative pl-0;
             &::before {
                 content: '';
-                @apply absolute block left-3 top-0 h-full w-[2px] bg-inactive;
+                @apply absolute block left-3 top-0 h-full w-[2px] bg-border;
             }
             ul::before { @apply hidden; }
         }
