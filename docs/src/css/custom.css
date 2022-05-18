@@ -294,10 +294,11 @@ html {
         h2 { @apply text-6 font-bold leading-9 tracking-tight; }
         h3 { @apply text-4 font-semibold leading-7 tracking-tight; }
         p { @apply leading-relaxed; }
+        p, ul, ol, code, blockquote { @apply text-[1.125rem]}
         code { @apply border-0 px-3; }
         blockquote { @apply my-7; }
         a { @apply underline underline-offset-2 hover:text-linkHover hover:decoration-linkHover; }
-        ol, ul { @apply my-7; }
+        ol, ul { @apply my-6; }
         ul li { @apply relative pl-6 mb-4 before:absolute before:block before:w-[4px] before:h-[4px] before:bg-current before:left-0 before:top-[calc(1em/2)]; }
         li li { @apply last:mb-6 before:border before:border-current before:bg-transparent; }
         li:last-child li { @apply last:mb-0 }
