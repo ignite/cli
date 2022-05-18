@@ -64,7 +64,7 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, 
 		return "", "", err
 	}
 
-	ibcInfo, err := node.IBCInfo(cmd.Context())
+	rewardsInfo, unboundingTime, err := node.RewardsInfo(cmd.Context())
 	if err != nil {
 		return "", "", err
 	}
@@ -74,7 +74,7 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, 
 		return "", "", err
 	}
 
-	spnClientID, err := n.CreateClient(launchID, ibcInfo)
+	spnClientID, err := n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	if err != nil {
 		return "", "", err
 	}
