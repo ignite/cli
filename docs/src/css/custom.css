@@ -295,7 +295,7 @@ html {
     .theme-doc-markdown {
         @apply mt-7 pb-8 border-b border-b-border;
 
-        h1 { @apply font-termina text-7 leading-tight tracking-tighter; }
+        h1 { @apply text-7 font-bold leading-10 tracking-tighter; }
         h2 { @apply text-6 font-bold leading-9 tracking-tight; }
         h3 { @apply text-4 font-semibold leading-7 tracking-tight; }
         p { @apply leading-relaxed; }
