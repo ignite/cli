@@ -16,8 +16,6 @@ type (
 		Icon               string
 		Content            interface{}
 		Verbose            bool
-		Tag                string
-		kvstore            map[string]string
 	}
 	// Option event options
 	Option func(*Event)
@@ -47,12 +45,6 @@ func Verbose() Option {
 	}
 }
 
-func WithKV(key, value string) Option {
-	return func(e *Event) {
-		e.kvstore[key] = value
-	}
-}
-
 // Icon sets the text icon prefix.
 func Icon(icon string) Option {
 	return func(e *Event) {
@@ -60,17 +52,10 @@ func Icon(icon string) Option {
 	}
 }
 
-func WithTag(tag string) Option {
-	return func(e *Event) {
-		e.Tag = tag
-	}
-}
-
 // New creates a new event with given config.
 func New(content interface{}, options ...Option) Event {
 	ev := Event{
 		Content: content,
-		kvstore: make(map[string]string),
 	}
 	for _, applyOption := range options {
 		applyOption(&ev)
@@ -86,12 +71,6 @@ func (e Event) IsOngoing() bool {
 // Text returns the text state of event.
 func (e Event) String() string {
 	return fmt.Sprintf("%s", e.Content)
-}
-
-// GetValue returns a value from underlying event kvstore
-func (e Event) GetValue(key string) (string, bool) {
-	value, ok := e.kvstore[key]
-	return value, ok
 }
 
 // Bus is a send/receive event bus.
