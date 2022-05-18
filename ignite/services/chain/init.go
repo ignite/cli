@@ -6,12 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	accview "github.com/ignite-hq/cli/ignite/pkg/cliui/view/account"
-
 	"github.com/imdario/mergo"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
+	accview "github.com/ignite-hq/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite-hq/cli/ignite/pkg/confile"
 )
 
@@ -159,7 +158,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		}
 	}
 
-	c.ev.Send("🗂️  Initialize accounts ...")
+	c.ev.SendString("🗂  Initialize accounts...")
 	c.ev.Send(accview.Collection(accs...))
 
 	_, err = c.IssueGentx(ctx, Validator{

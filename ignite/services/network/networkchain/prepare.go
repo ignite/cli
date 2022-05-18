@@ -111,7 +111,7 @@ func (c Chain) buildGenesis(
 	lastBlockHeight,
 	unbondingTime int64,
 ) error {
-	c.ev.Send("Building the genesis", events.ProgressStarted())
+	c.ev.SendString("Building the genesis", events.ProgressStarted())
 
 	addressPrefix, err := c.detectPrefix(ctx)
 	if err != nil {
@@ -152,7 +152,7 @@ func (c Chain) buildGenesis(
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 
-	c.ev.Send("Genesis built", events.ProgressFinished())
+	c.ev.SendString("Genesis built", events.ProgressFinished())
 
 	return nil
 }

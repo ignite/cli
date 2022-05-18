@@ -6,63 +6,17 @@ import (
 	"os"
 	"sync"
 
-	"github.com/docker/docker/pkg/ioutils"
+	"github.com/manifoldco/promptui"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/lineprefixer"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/prefixgen"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/manifoldco/promptui"
 )
 
-const (
-	defaultLogStreamLabel = "ignite"
-	defaultLogStreamColor = 201
-)
-
-type LogStream struct {
-	stdout io.WriteCloser
-	stderr io.WriteCloser
-}
-
-func (ls LogStream) Stdout() io.WriteCloser {
-	return ls.stdout
-}
-
-func (ls LogStream) Stderr() io.WriteCloser {
-	return ls.stderr
-}
-
-// Session controls command line interaction with users.
-type (
-	Verbosity uint8
-
-	Session struct {
-		ev       events.Bus
-		eventsWg *sync.WaitGroup
-
-		spinner                 *clispinner.Spinner
-		startSpinnerImmediately bool
-
-		in     io.ReadCloser
-		stdout io.WriteCloser
-		stderr io.WriteCloser
-
-		verbosity                     Verbosity
-		defaultLogStream              LogStream
-		isDefaultLogStreamInitialised bool
-
-		printLoopWg *sync.WaitGroup
-	}
-
-	LogStreamer interface {
-		NewLogStream(label string, color uint8) (logStream LogStream)
-	}
-
-	Option func(s *Session)
-)
+// Verbosity enumerates possible verbosity levels for cli output
+type Verbosity uint8
 
 const (
 	VerbosityRegular = iota
@@ -70,14 +24,36 @@ const (
 	VerbosityVerbose
 )
 
-// WithStdout sets base stdout for a session.
+// Session controls command line interaction with users.
+type Session struct {
+	ev       events.Bus
+	eventsWg *sync.WaitGroup
+
+	spinner                 *clispinner.Spinner
+	startSpinnerImmediately bool
+
+	in     io.ReadCloser
+	stdout io.WriteCloser
+	stderr io.WriteCloser
+
+	verbosity                     Verbosity
+	defaultLogStream              LogStream
+	isDefaultLogStreamInitialised bool
+
+	printLoopWg *sync.WaitGroup
+}
+
+// Option is used to customize Session during creation
+type Option func(s *Session)
+
+// WithStdout sets base stdout for a Session.
 func WithStdout(stdout io.WriteCloser) Option {
 	return func(s *Session) {
 		s.stdout = stdout
 	}
 }
 
-// WithStderr sets base stderr for a session
+// WithStderr sets base stderr for a Session
 func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
 		s.stderr = stderr
@@ -85,19 +61,21 @@ func WithStderr(stderr io.WriteCloser) Option {
 	}
 }
 
-// WithInput sets input stream for a session.
+// WithInput sets input stream for a Session.
 func WithInput(input io.ReadCloser) Option {
 	return func(s *Session) {
 		s.in = input
 	}
 }
 
+// WithVerbosity sets verbosity level for Session
 func WithVerbosity(v Verbosity) Option {
 	return func(s *Session) {
 		s.verbosity = v
 	}
 }
 
+// StartSpinner forces spinner to be spinning right after creation
 func StartSpinner() Option {
 	return func(s *Session) {
 		s.startSpinnerImmediately = true
@@ -119,50 +97,18 @@ func New(options ...Option) Session {
 		apply(&session)
 	}
 
+	if session.startSpinnerImmediately {
+		session.spinner = clispinner.New(clispinner.WithWriter(session.defaultLogStream.Stdout()))
+	}
+
 	session.defaultLogStream = session.NewLogStream(defaultLogStreamLabel, defaultLogStreamColor)
 	if session.verbosity != VerbosityVerbose {
 		session.verbosity = VerbositySilent
 	}
 
-	var spinnerOptions = []clispinner.Option{
-		clispinner.WithWriter(session.defaultLogStream.Stdout()),
-	}
-	if session.startSpinnerImmediately {
-		spinnerOptions = append(spinnerOptions, clispinner.StartImmediately())
-	}
-	session.spinner = clispinner.New(spinnerOptions...)
-
 	session.printLoopWg.Add(1)
 	go session.printLoop()
 	return session
-}
-
-func (s Session) NewLogStream(label string, color uint8) (logStream LogStream) {
-	prefixed := func(w io.Writer) *lineprefixer.Writer {
-		options := prefixgen.Common(prefixgen.Color(color))
-		prefixStr := prefixgen.New(label, options...).Gen()
-		return lineprefixer.NewWriter(w, func() string { return prefixStr })
-	}
-
-	verbosity := s.verbosity
-	if s.isDefaultLogStreamInitialised && verbosity != VerbosityVerbose {
-		verbosity = VerbositySilent
-	}
-	s.isDefaultLogStreamInitialised = true
-
-	switch verbosity {
-	case VerbositySilent:
-		logStream.stdout = ioutils.NopWriteCloser(io.Discard)
-		logStream.stderr = ioutils.NopWriteCloser(io.Discard)
-	case VerbosityVerbose:
-		logStream.stdout = prefixed(s.stdout)
-		logStream.stderr = prefixed(s.stderr)
-	default:
-		logStream.stdout = s.stdout
-		logStream.stderr = s.stderr
-	}
-
-	return
 }
 
 // StopSpinner returns session's event bus.
@@ -172,23 +118,32 @@ func (s Session) EventBus() events.Bus {
 
 // StartSpinner starts spinner.
 func (s Session) StartSpinner(text string) {
+	if s.spinner == nil {
+		s.spinner = clispinner.New(clispinner.WithWriter(s.defaultLogStream.Stdout()))
+	}
 	s.spinner.SetText(text).Start()
 }
 
 // StopSpinner stops spinner.
 func (s Session) StopSpinner() {
+	if s.spinner == nil {
+		return
+	}
 	s.spinner.Stop()
 }
 
 // PauseSpinner pauses spinner, returns resume function to start paused spinner again.
 func (s Session) PauseSpinner() (mightResume func()) {
-	isActive := s.spinner.IsActive()
+	isActive := s.spinner != nil && s.spinner.IsActive()
 	f := func() {
 		if isActive {
 			s.spinner.Start()
 		}
 	}
-	s.spinner.Stop()
+
+	if isActive {
+		s.spinner.Stop()
+	}
 	return f
 }
 
@@ -267,19 +222,26 @@ func (s Session) printLoop() {
 	for event := range s.ev.Events() {
 		switch event.ProgressIndication {
 		case events.IndicationStart:
-			s.StartSpinner(event.String())
+			s.StartSpinner(event.Content.String())
 
 		case events.IndicationFinish:
 			if event.Icon == "" {
 				event.Icon = icons.OK
 			}
 			s.StopSpinner()
-			fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.String())
+			if event.HasIcon() {
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content.String())
+			} else {
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content.String())
+			}
 
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
-			fmt.Fprintln(s.defaultLogStream.Stdout(), event.String())
-
+			if event.HasIcon() {
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content.String())
+			} else {
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content.String())
+			}
 			resume()
 		}
 

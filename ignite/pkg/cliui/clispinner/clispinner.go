@@ -33,12 +33,6 @@ func WithWriter(w io.Writer) Option {
 	}
 }
 
-func StartImmediately() Option {
-	return func(options *Options) {
-		options.startImmediately = true
-	}
-}
-
 // New creates a new spinner.
 func New(options ...Option) *Spinner {
 	o := Options{}
@@ -52,9 +46,6 @@ func New(options ...Option) *Spinner {
 	}
 
 	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
-	if !o.startImmediately {
-		sp.Stop()
-	}
 
 	s := &Spinner{
 		sp: sp,

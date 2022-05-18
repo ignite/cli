@@ -48,6 +48,5 @@ func (p *Writer) Write(b []byte) (n int, err error) {
 }
 
 func (p *Writer) Close() error {
-	// TODO implement me
-	panic("implement me")
+	return nil
 }

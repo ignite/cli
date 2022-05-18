@@ -36,14 +36,6 @@ type version struct {
 	hash string
 }
 
-type LogLvl int
-
-const (
-	LogSilent LogLvl = iota
-	LogRegular
-	LogVerbose
-)
-
 // Chain provides programatic access and tools for a Cosmos SDK blockchain.
 type Chain struct {
 	// app holds info about blockchain app.
@@ -55,7 +47,6 @@ type Chain struct {
 
 	plugin         Plugin
 	sourceVersion  version
-	logLevel       LogLvl
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
@@ -88,13 +79,6 @@ type chainOptions struct {
 
 // Option configures Chain.
 type Option func(*Chain)
-
-// LogLevel sets logging level.
-func LogLevel(level LogLvl) Option {
-	return func(c *Chain) {
-		c.logLevel = level
-	}
-}
 
 // ID replaces chain's id with given id.
 func ID(id string) Option {
@@ -155,7 +139,6 @@ func New(path string, options ...Option) (*Chain, error) {
 
 	c := &Chain{
 		app:            app,
-		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
 	}
 
@@ -466,7 +449,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	var ccrOptions = []chaincmdrunner.Option{}
 
 	if c.logStreamer != nil {
-		logStream := c.logStreamer.NewLogStream(c.app.D(), 202)
+		logStream := c.logStreamer.NewLogStream(c.app.D(), 96)
 		ccrOptions = append(
 			ccrOptions,
 			chaincmdrunner.Stdout(logStream.Stdout()),

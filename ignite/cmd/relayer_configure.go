@@ -2,14 +2,15 @@ package ignitecmd
 
 import (
 	"github.com/gookit/color"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
 	relayerconfig "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -86,7 +87,7 @@ func NewRelayerConfigure() *cobra.Command {
 	return c
 }
 
-func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
+func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	defer func() {
 		err = handleRelayerAccountErr(err)
 	}()

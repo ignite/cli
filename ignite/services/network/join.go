@@ -128,7 +128,7 @@ func (n Network) sendAccountRequest(
 	address string,
 	amount sdk.Coins,
 ) (err error) {
-	n.ev.Send("Verifying account already exists "+address, events.ProgressStarted())
+	n.ev.SendString(fmt.Sprintf("Verifying account already exists %s", address), events.ProgressStarted())
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	var accExist bool
@@ -157,7 +157,7 @@ func (n Network) sendAccountRequest(
 		amount,
 	)
 
-	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
+	n.ev.SendString("Broadcasting account transactions", events.ProgressStarted())
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
@@ -169,9 +169,9 @@ func (n Network) sendAccountRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send("Account added to the network by the coordinator!", events.ProgressFinished())
+		n.ev.SendString("Account added to the network by the coordinator!", events.ProgressFinished())
 	} else {
-		n.ev.Send(
+		n.ev.SendString(
 			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
 			events.ProgressFinished(),
 		)
@@ -207,7 +207,7 @@ func (n Network) sendValidatorRequest(
 		peer,
 	)
 
-	n.ev.Send("Broadcasting validator transaction", events.ProgressStarted())
+	n.ev.SendString("Broadcasting validator transaction", events.ProgressStarted())
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
@@ -220,9 +220,9 @@ func (n Network) sendValidatorRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinished())
+		n.ev.SendString("Validator added to the network by the coordinator!", events.ProgressFinished())
 	} else {
-		n.ev.Send(
+		n.ev.SendString(
 			fmt.Sprintf("Request %d to join the network as a validator has been submitted!", requestRes.RequestID),
 			events.ProgressFinished(),
 		)

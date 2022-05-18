@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/view/errorview"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
@@ -19,6 +19,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
@@ -150,11 +151,11 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if c.served {
 						c.served = false
 
-						c.ev.Send("💿 Saving genesis state...")
+						c.ev.SendString("💿 Saving genesis state...")
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							c.ev.Send(err.Error())
+							c.ev.Send(errorview.NewError(err))
 							return err
 						}
 
@@ -162,17 +163,17 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						if err != nil {
 							return err
 						}
-						c.ev.Send(fmt.Sprintf("💿 Genesis state saved in %s", genesisPath))
+						c.ev.SendString(fmt.Sprintf("💿 Genesis state saved in %s", genesisPath))
 					}
 				case errors.As(err, &buildErr):
-					c.ev.Send(colors.Error(err.Error()))
+					c.ev.Send(errorview.NewError(err))
 
 					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
-						c.ev.Send("see: https://github.com/ignite-hq/cli#configure")
+						c.ev.SendString("see: https://github.com/ignite-hq/cli#configure")
 					}
 
-					c.ev.Send(colors.Info("Waiting for a fix before retrying..."))
+					c.ev.SendString(colors.Info("Waiting for a fix before retrying..."))
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -181,7 +182,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
-						c.ev.Send(
+						c.ev.SendString(
 							fmt.Sprintf(
 								"%s %s",
 								colors.Info("Blockchain failed to start.\nIf the new code is no longer compatible with the saved state, you can reset the database by launching:"),
@@ -209,7 +210,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 }
 
 func (c *Chain) setup() error {
-	c.ev.Send(fmt.Sprintf("Cosmos SDK's version is: %s\n", colors.Info(c.Version)))
+	c.ev.SendString(fmt.Sprintf("Cosmos SDK's version is: %s", colors.Info(c.Version)))
 
 	return c.checkSystem()
 }
@@ -285,7 +286,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 
 		if forceReset || configModified {
 			// if forceReset is set, we consider the app as being not initialized
-			c.ev.Send("🔄 Resetting the app state...")
+			c.ev.SendString("🔄 Resetting the app state...")
 			isInit = false
 		}
 	}
@@ -341,7 +342,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	// init phase
 	// nolint:gocritic
 	if !isInit || (appModified && !exportGenesisExists) {
-		c.ev.Send("💿 Initializing the app...")
+		c.ev.SendString("💿 Initializing the app...")
 
 		if err := c.Init(ctx, true); err != nil {
 			return err
@@ -349,7 +350,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
-		c.ev.Send("💿 Existent genesis detected, restoring the database...")
+		c.ev.SendString("💿 Existent genesis detected, restoring the database...")
 
 		if err := commands.UnsafeReset(ctx); err != nil {
 			return err
@@ -359,7 +360,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 			return err
 		}
 	} else {
-		c.ev.Send("▶️  Restarting existing app...")
+		c.ev.SendString("▶  Restarting existing app...")
 	}
 
 	// save checksums
@@ -423,12 +424,12 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	apiAddr, _ := xurl.HTTP(config.Host.API)
 
 	// log the server addresses.
-	c.ev.Send(fmt.Sprintf("🌍 Tendermint node: %s", rpcAddr))
-	c.ev.Send(fmt.Sprintf("🌍 Blockchain API: %s", apiAddr))
+	c.ev.SendString(fmt.Sprintf("🌍 Tendermint node: %s", rpcAddr))
+	c.ev.SendString(fmt.Sprintf("🌍 Blockchain API: %s", apiAddr))
 
 	if isFaucetEnabled {
 		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
-		c.ev.Send(fmt.Sprintf("🌍 Token faucet: %s", faucetAddr))
+		c.ev.SendString(fmt.Sprintf("🌍 Token faucet: %s", faucetAddr))
 	}
 
 	return g.Wait()

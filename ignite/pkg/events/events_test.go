@@ -18,7 +18,7 @@ func TestBusSend(t *testing.T) {
 		{
 			name:  "send status ongoing event",
 			bus:   events.NewBus(),
-			event: events.New("description", events.ProgressStarted()),
+			event: events.New(events.StringContent("description"), events.ProgressStarted()),
 			options: []events.Option{
 				events.ProgressStarted(),
 			},
@@ -26,7 +26,7 @@ func TestBusSend(t *testing.T) {
 		{
 			name:  "send status done event",
 			bus:   events.NewBus(),
-			event: events.New("description", events.ProgressFinished()),
+			event: events.New(events.StringContent("description"), events.ProgressFinished()),
 			options: []events.Option{
 				events.ProgressFinished(),
 			},
@@ -34,12 +34,12 @@ func TestBusSend(t *testing.T) {
 		{
 			name:  "send status neutral event",
 			bus:   events.NewBus(),
-			event: events.New("description"),
+			event: events.New(events.StringContent("description")),
 		},
 		{
 			name:  "send event on nil bus",
 			bus:   events.Bus{},
-			event: events.New("description", events.ProgressFinished()),
+			event: events.New(events.StringContent("description"), events.ProgressFinished()),
 			options: []events.Option{
 				events.ProgressFinished(),
 			},
@@ -98,7 +98,7 @@ func TestEventIsOngoing(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			e := events.Event{
 				ProgressIndication: tt.fields.status,
-				Content:            tt.fields.description,
+				Content:            events.StringContent(tt.fields.description),
 			}
 			require.Equal(t, tt.want, e.IsOngoing())
 		})
@@ -144,16 +144,16 @@ func TestEventString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			e := events.Event{
 				ProgressIndication: tt.fields.status,
-				Content:            tt.fields.description,
+				Content:            events.StringContent(tt.fields.description),
 			}
-			require.Equal(t, tt.want, e.String())
+			require.Equal(t, tt.want, e.Content.String())
 		})
 	}
 }
 
 func TestNew(t *testing.T) {
 	type args struct {
-		content any
+		content events.Content
 		options []events.Option
 	}
 	tests := []struct {
@@ -161,9 +161,27 @@ func TestNew(t *testing.T) {
 		args args
 		want events.Event
 	}{
-		{"zero value args", args{}, events.Event{}},
-		{"status ongoing", args{options: []events.Option{events.ProgressStarted()}, content: "description"}, events.Event{ProgressIndication: 1, Content: "description"}},
-		{"status done", args{options: []events.Option{events.ProgressFinished()}, content: "description"}, events.Event{ProgressIndication: 2, Content: "description"}},
+		{
+			"zero value args",
+			args{},
+			events.Event{},
+		},
+		{
+			"status ongoing",
+			args{
+				options: []events.Option{events.ProgressStarted()},
+				content: events.StringContent("description"),
+			},
+			events.Event{ProgressIndication: 1, Content: events.StringContent("description")},
+		},
+		{
+			"status done",
+			args{
+				options: []events.Option{events.ProgressFinished()},
+				content: events.StringContent("description"),
+			},
+			events.Event{ProgressIndication: 2, Content: events.StringContent("description")},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

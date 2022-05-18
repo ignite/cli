@@ -99,7 +99,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	c.ev.Send("🛠️  Building proto...")
+	c.ev.SendString("🛠  Building proto...")
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),

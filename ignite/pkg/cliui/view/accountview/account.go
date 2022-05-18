@@ -1,4 +1,4 @@
-package account
+package accountview
 
 import (
 	"fmt"
@@ -8,21 +8,21 @@ import (
 type Option func(account *Account)
 
 type Account struct {
-	name     string
-	address  string
-	mnemonic string
+	Name     string
+	Address  string
+	Mnemonic string
 }
 
 func WithMnemonic(menmonic string) Option {
 	return func(a *Account) {
-		a.mnemonic = menmonic
+		a.Mnemonic = menmonic
 	}
 }
 
 func NewAccount(name, address string, options ...Option) Account {
 	a := Account{
-		name:    name,
-		address: address,
+		Name:    name,
+		Address: address,
 	}
 
 	for _, apply := range options {
@@ -33,10 +33,10 @@ func NewAccount(name, address string, options ...Option) Account {
 
 func (acc Account) String() string {
 	b := strings.Builder{}
-	b.WriteString(fmt.Sprintf("Account added: %s \n", acc.name))
-	b.WriteString(fmt.Sprintf("Address: %s \n", acc.address))
-	if acc.mnemonic != "" {
-		b.WriteString(fmt.Sprintf("Mnemonic: %s \n", breakMnemonicIntoLines(acc.mnemonic, 8)))
+	b.WriteString(fmt.Sprintf("Account added: %s \n", acc.Name))
+	b.WriteString(fmt.Sprintf("Address: %s \n", acc.Address))
+	if acc.Mnemonic != "" {
+		b.WriteString(fmt.Sprintf("Mnemonic: %s \n", breakMnemonicIntoLines(acc.Mnemonic, 8)))
 	}
 	return b.String()
 }

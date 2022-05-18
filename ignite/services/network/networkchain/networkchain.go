@@ -135,20 +135,19 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		apply(c)
 	}
 
-	c.ev.Send("Fetching the source code", events.ProgressStarted())
+	c.ev.SendString("Fetching the source code", events.ProgressStarted())
 
 	var err error
 	if c.path, c.hash, err = fetchSource(ctx, c.url, c.ref, c.hash); err != nil {
 		return nil, err
 	}
 
-	c.ev.Send("Source code fetched", events.ProgressFinished())
-	c.ev.Send("Setting up the blockchain", events.ProgressStarted())
+	c.ev.SendString("Source code fetched", events.ProgressFinished())
+	c.ev.SendString("Setting up the blockchain", events.ProgressStarted())
 
 	chainOption := []chain.Option{
 		chain.ID(c.id),
 		chain.HomePath(c.home),
-		chain.LogLevel(chain.LogSilent),
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -169,7 +168,7 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	}
 
 	c.chain = chain
-	c.ev.Send("Blockchain set up", events.ProgressFinished())
+	c.ev.SendString("Blockchain set up", events.ProgressFinished())
 
 	return c, nil
 }
@@ -273,14 +272,14 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 		}
 	}
 
-	c.ev.Send("Building the chain's binary", events.ProgressStarted())
+	c.ev.SendString("Building the chain's binary", events.ProgressStarted())
 
 	// build binary
 	if binaryName, err = c.chain.Build(ctx, cacheStorage, ""); err != nil {
 		return "", err
 	}
 
-	c.ev.Send("Chain's binary built", events.ProgressFinished())
+	c.ev.SendString("Chain's binary built", events.ProgressFinished())
 
 	// cache built binary for launch id
 	if c.launchID != 0 {

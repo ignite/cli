@@ -3,8 +3,6 @@ package network
 import (
 	"context"
 
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -12,6 +10,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
@@ -127,7 +126,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	coordinatorAddress := n.account.Address(networktypes.SPN)
 	campaignID = o.campaignID
 
-	n.ev.Send("Publishing the network", events.ProgressStarted())
+	n.ev.SendString("Publishing the network", events.ProgressStarted())
 
 	_, err = n.profileQuery.
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
