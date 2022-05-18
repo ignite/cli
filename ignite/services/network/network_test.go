@@ -19,6 +19,7 @@ func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
 		WithLaunchQueryClient(suite.LaunchQueryMock),
 		WithProfileQueryClient(suite.ProfileQueryMock),
 		WithRewardQueryClient(suite.RewardClient),
+		WithStakingQueryClient(suite.StakingClient),
 		WithBankQueryClient(suite.BankClient),
 	)
 }

@@ -16,6 +16,7 @@ type Suite struct {
 	CampaignQueryMock *mocks.CampaignClient
 	ProfileQueryMock  *mocks.ProfileClient
 	RewardClient      *mocks.RewardClient
+	StakingClient     *mocks.StakingClient
 	BankClient        *mocks.BankClient
 }
 
@@ -27,6 +28,7 @@ func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.CosmosClientMock.AssertExpectations(t)
 	s.CampaignQueryMock.AssertExpectations(t)
 	s.RewardClient.AssertExpectations(t)
+	s.StakingClient.AssertExpectations(t)
 	s.BankClient.AssertExpectations(t)
 }
 
@@ -41,6 +43,7 @@ func NewSuite() Suite {
 		CampaignQueryMock: new(mocks.CampaignClient),
 		ProfileQueryMock:  new(mocks.ProfileClient),
 		RewardClient:      new(mocks.RewardClient),
+		StakingClient:     new(mocks.StakingClient),
 		BankClient:        new(mocks.BankClient),
 	}
 }
