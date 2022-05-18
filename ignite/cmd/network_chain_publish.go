@@ -9,12 +9,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
 const (
@@ -40,6 +40,7 @@ func NewNetworkChainPublish() *cobra.Command {
 		RunE:  networkChainPublishHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().String(flagBranch, "", "Git branch to use for the repo")
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
@@ -62,6 +63,9 @@ func NewNetworkChainPublish() *cobra.Command {
 }
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	var (
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
@@ -81,6 +85,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	source, err := xurl.MightHTTPS(args[0])
 	if err != nil {
 		return fmt.Errorf("invalid source url format: %w", err)
+	}
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
 	}
 
 	if campaign != 0 && campaignTotalSupplyStr != "" {
@@ -125,11 +134,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%s and %s flags must be provided together", flagRewardCoins, flagRewardHeight)
 	}
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// use source from chosen target.
 	var sourceOption networkchain.SourceOption
@@ -199,7 +207,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithShares(campaigntypes.NewSharesFromCoins(coins)))
+		publishOptions = append(publishOptions, network.WithPercentageShares(coins))
 	}
 
 	// init the chain.
@@ -210,12 +218,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
+	} else if err := c.Init(cmd.Context(), cacheStorage); err != nil { // initialize the chain for checking.
 		return err
 	}
 
-	nb.Spinner.SetText("Publishing...")
-	nb.Spinner.Start()
+	session.StartSpinner("Publishing...")
 
 	n, err := nb.Network()
 	if err != nil {
@@ -233,13 +240,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	nb.Spinner.Stop()
-
-	fmt.Printf("%s Network published \n", clispinner.OK)
-	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
-	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
+	session.StopSpinner()
+	session.Printf("%s Network published \n", icons.OK)
+	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
+	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		fmt.Printf("%s Mainnet ID: %d \n", clispinner.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
 	}
 
 	return nil

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
@@ -77,6 +78,13 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	config.Set("grpc.address", conf.Host.GRPC)
 	config.Set("grpc-web.address", conf.Host.GRPCWeb)
 
+	staked, err := sdktypes.ParseCoinNormalized(conf.Validator.Staked)
+	if err != nil {
+		return err
+	}
+	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
+	config.Set("minimum-gas-prices", gas.String())
+
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -105,6 +113,7 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 		return fmt.Errorf("invalid p2p address format %s: %w", conf.Host.P2P, err)
 	}
 
+	config.Set("mode", "validator")
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")

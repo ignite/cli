@@ -9,9 +9,17 @@ on:
       - develop
 
 jobs:
+  consecutiveness:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: mktcode/consecutive-workflow-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
   docker:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    needs: [ consecutiveness ]
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2

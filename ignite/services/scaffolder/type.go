@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
@@ -118,6 +119,7 @@ func TypeWithSigner(signer string) AddTypeOption {
 // if no module is given, the type will be scaffolded inside the app's default module.
 func (s Scaffolder) AddType(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	typeName string,
 	tracer *placeholder.Tracer,
 	kind AddTypeKind,
@@ -175,7 +177,6 @@ func (s Scaffolder) AddType(
 			AppPath:      s.path,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
-			OwnerName:    owner(s.modpath.RawPath),
 			TypeName:     name,
 			Fields:       tFields,
 			NoMessage:    o.withoutMessage,
@@ -195,7 +196,6 @@ func (s Scaffolder) AddType(
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
-			OwnerName:  opts.OwnerName,
 		},
 	)
 	if err != nil {
@@ -245,7 +245,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name

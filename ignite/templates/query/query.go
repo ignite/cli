@@ -25,7 +25,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("QueryName", opts.QueryName)
 	ctx.Set("Description", opts.Description)
-	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("ReqFields", opts.ReqFields)
 	ctx.Set("ResFields", opts.ResFields)

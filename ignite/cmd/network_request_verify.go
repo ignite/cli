@@ -2,13 +2,14 @@ package ignitecmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/numbers"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
@@ -22,6 +23,8 @@ func NewNetworkRequestVerify() *cobra.Command {
 		RunE:  networkRequestVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
+
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -29,12 +32,13 @@ func NewNetworkRequestVerify() *cobra.Command {
 }
 
 func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
-	// initialize network common methods
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -48,21 +52,25 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// verify the requests
-	if err := verifyRequest(cmd.Context(), nb, launchID, ids...); err != nil {
-		fmt.Printf("%s Request(s) %s not valid\n", clispinner.NotOK, numbers.List(ids, "#"))
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s verified\n", clispinner.OK, numbers.List(ids, "#"))
-	return nil
+	// verify the requests
+	if err := verifyRequest(cmd.Context(), cacheStorage, nb, launchID, ids...); err != nil {
+		session.Printf("%s Request(s) %s not valid\n", icons.NotOK, numbers.List(ids, "#"))
+		return err
+	}
+
+	return session.Printf("%s Request(s) %s verified\n", icons.OK, numbers.List(ids, "#"))
 }
 
 // verifyRequest initialize the chain from the launch ID in a temporary directory
 // and simulate the launch of the chain from genesis with the request IDs
 func verifyRequest(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	nb NetworkBuilder,
 	launchID uint64,
 	requestIDs ...uint64,
@@ -104,5 +112,22 @@ func verifyRequest(
 		return err
 	}
 
-	return c.SimulateRequests(ctx, genesisInformation, requests)
+	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+		ctx,
+		launchID,
+		chainLaunch.ConsumerRevisionHeight,
+	)
+	if err != nil {
+		return err
+	}
+
+	return c.SimulateRequests(
+		ctx,
+		cacheStorage,
+		genesisInformation,
+		requests,
+		rewardsInfo,
+		lastBlockHeight,
+		unboundingTime,
+	)
 }

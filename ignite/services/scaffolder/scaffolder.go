@@ -1,4 +1,4 @@
-// Package scaffolder initializes Starport apps and modifies existing ones
+// Package scaffolder initializes Ignite CLI apps and modifies existing ones
 // to add more features in a later time.
 package scaffolder
 
@@ -6,32 +6,30 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 )
 
-// Scaffolder is Starport app scaffolder.
+// Scaffolder is Ignite CLI app scaffolder.
 type Scaffolder struct {
+	// Version of the chain
+	Version cosmosver.Version
+
 	// path of the app.
 	path string
 
 	// modpath represents the go module path of the app.
 	modpath gomodulepath.Path
-
-	// Version of the chain
-	Version cosmosver.Version
 }
 
 // App creates a new scaffolder for an existent app.
@@ -63,20 +61,16 @@ func App(path string) (Scaffolder, error) {
 	}
 
 	s := Scaffolder{
+		Version: version,
 		path:    path,
 		modpath: modpath,
-		Version: version,
 	}
 
 	return s, nil
 }
 
-func owner(modulePath string) string {
-	return strings.Split(modulePath, "/")[1]
-}
-
-func finish(path, gomodPath string) error {
-	if err := protoc(path, gomodPath); err != nil {
+func finish(cacheStorage cache.Storage, path, gomodPath string) error {
+	if err := protoc(cacheStorage, path, gomodPath); err != nil {
 		return err
 	}
 	if err := tidy(path); err != nil {
@@ -85,7 +79,7 @@ func finish(path, gomodPath string) error {
 	return fmtProject(path)
 }
 
-func protoc(projectPath, gomodPath string) error {
+func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
 		return err
 	}
@@ -111,10 +105,7 @@ func protoc(projectPath, gomodPath string) error {
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
+				cosmosgen.VuexStoreModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
@@ -123,7 +114,7 @@ func protoc(projectPath, gomodPath string) error {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
 
-	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
+	return cosmosgen.Generate(context.Background(), cacheStorage, projectPath, conf.Build.Proto.Path, options...)
 }
 
 func tidy(path string) error {

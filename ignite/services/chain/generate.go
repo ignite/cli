@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
 )
 
 const (
@@ -55,7 +55,7 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-func (c *Chain) generateAll(ctx context.Context) error {
+func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
@@ -75,12 +75,13 @@ func (c *Chain) generateAll(ctx context.Context) error {
 		additionalTargets = append(additionalTargets, GenerateOpenAPI())
 	}
 
-	return c.Generate(ctx, GenerateGo(), additionalTargets...)
+	return c.Generate(ctx, cacheStorage, GenerateGo(), additionalTargets...)
 }
 
 // Generate makes code generation from proto files for given target and additionalTargets.
 func (c *Chain) Generate(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	target GenerateTarget,
 	additionalTargets ...GenerateTarget,
 ) error {
@@ -126,10 +127,7 @@ func (c *Chain) Generate(
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
+				cosmosgen.VuexStoreModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
@@ -168,7 +166,7 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
+	if err := cosmosgen.Generate(ctx, cacheStorage, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

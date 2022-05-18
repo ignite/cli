@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 )
@@ -22,6 +22,7 @@ func NewScaffoldBandchain() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
@@ -46,6 +47,11 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	var options []scaffolder.OracleOption
 	if signer != "" {
 		options = append(options, scaffolder.OracleWithSigner(signer))
@@ -56,7 +62,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
+	sm, err := sc.AddOracle(cacheStorage, placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blogibc")
+		path = env.Scaffold("github.com/test/blogibc")
 	)
 
 	env.Must(env.Exec("create an IBC module",
@@ -113,7 +113,7 @@ func TestCreateIBCOracle(t *testing.T) {
 
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("ibcoracle")
+		path = env.Scaffold("github.com/test/ibcoracle")
 	)
 
 	env.Must(env.Exec("create an IBC module",
@@ -192,7 +192,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("blogibc2")
+		path = env.Scaffold("github.com/test/blogibc2")
 	)
 
 	env.Must(env.Exec("create an IBC module",
