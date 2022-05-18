@@ -12,10 +12,12 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/goenv"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 const (
-	flagForce = "force"
+	flagForce      = "force"
+	flagSPNChainID = "spn-chain-id"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -27,7 +29,9 @@ func NewNetworkChainPrepare() *cobra.Command {
 		RunE:  networkChainPrepareHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
+	c.Flags().String(flagSPNChainID, networktypes.SPNChainID, "Chain ID of SPN")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -39,7 +43,15 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
-	force, _ := cmd.Flags().GetBool(flagForce)
+	var (
+		force, _      = cmd.Flags().GetBool(flagForce)
+		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
+	)
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -78,7 +90,24 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Prepare(cmd.Context(), genesisInformation); err != nil {
+	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+		cmd.Context(),
+		launchID,
+		chainLaunch.ConsumerRevisionHeight,
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Prepare(
+		cmd.Context(),
+		cacheStorage,
+		genesisInformation,
+		rewardsInfo,
+		spnChainID,
+		lastBlockHeight,
+		unboundingTime,
+	); err != nil {
 		return err
 	}
 

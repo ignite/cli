@@ -16,6 +16,7 @@ func NewScaffoldType() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c
