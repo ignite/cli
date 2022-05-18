@@ -20,7 +20,6 @@ import (
 )
 
 const (
-	SPNChainID                  = "spn-1"
 	ListeningTimeout            = time.Minute * 1
 	ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
 )
@@ -56,7 +55,7 @@ func (c Chain) SimulateRequests(
 		cacheStorage,
 		gi,
 		rewardsInfo,
-		SPNChainID,
+		networktypes.SPNChainID,
 		lastBlockHeight,
 		unbondingTime,
 	); err != nil {

@@ -9,6 +9,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 func newNetworkChainShowGenesis() *cobra.Command {
@@ -21,7 +22,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 
 	flagSetClearCache(c)
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
-	c.Flags().String(flagSPNChainID, SPNChainID, "Chain ID of SPN")
+	c.Flags().String(flagSPNChainID, networktypes.SPNChainID, "Chain ID of SPN")
 
 	return c
 }
