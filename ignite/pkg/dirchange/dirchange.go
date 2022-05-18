@@ -6,47 +6,40 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 )
 
 var ErrNoFile = errors.New("no file in specified paths")
 
-// SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the specified directory
+// SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the provided cache
 // If checksumSavePath directory doesn't exist, it is created
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func SaveDirChecksum(workdir string, paths []string, checksumSavePath string, checksumName string) error {
-	checksum, err := checksumFromPaths(workdir, paths)
+func SaveDirChecksum(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) error {
+	checksum, err := ChecksumFromPaths(workdir, paths...)
 	if err != nil {
 		return err
 	}
 
-	// create directory if needed
-	if err := os.MkdirAll(checksumSavePath, 0700); err != nil && !os.IsExist(err) {
-		return err
-	}
-
 	// save checksum
-	checksumFilePath := filepath.Join(checksumSavePath, checksumName)
-	return os.WriteFile(checksumFilePath, checksum, 0644)
+	return checksumCache.Put(cacheKey, checksum)
 }
 
 // HasDirChecksumChanged computes the md5 checksum of the provided paths (directories or files)
-// and compare it with the current saved checksum
-// Return true if the checksum file doesn't exist yet
+// and compare it with the current cached checksum
+// Return true if the checksum doesn't exist yet
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath string, checksumName string) (bool, error) {
-	// create directory if needed
-	if err := os.MkdirAll(checksumSavePath, 0700); err != nil && !os.IsExist(err) {
-		return false, err
-	}
-	checksumFilePath := filepath.Join(checksumSavePath, checksumName)
-	if _, err := os.Stat(checksumFilePath); os.IsNotExist(err) {
+func HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) (bool, error) {
+	savedChecksum, err := checksumCache.Get(cacheKey)
+	if err == cache.ErrorNotFound {
 		return true, nil
-	} else if err != nil {
-		return false, nil
+	}
+	if err != nil {
+		return false, err
 	}
 
 	// Compute checksum
-	checksum, err := checksumFromPaths(workdir, paths)
+	checksum, err := ChecksumFromPaths(workdir, paths...)
 	if errors.Is(err, ErrNoFile) {
 		// Checksum cannot be saved with no file
 		// Therefore if no file are found, this means these have been delete, then the directory has been changed
@@ -56,10 +49,6 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 	}
 
 	// Compare checksums
-	savedChecksum, err := os.ReadFile(checksumFilePath)
-	if err != nil {
-		return false, err
-	}
 	if bytes.Equal(checksum, savedChecksum) {
 		return false, nil
 	}
@@ -68,9 +57,9 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 	return true, nil
 }
 
-// checksumFromPaths computes the md5 checksum from the provided paths
+// ChecksumFromPaths computes the md5 checksum from the provided paths
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
+func ChecksumFromPaths(workdir string, paths ...string) ([]byte, error) {
 	hash := md5.New()
 
 	// Can't compute hash if no file present

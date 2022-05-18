@@ -184,7 +184,7 @@ func (e Env) Scaffold(name string, flags ...string) (appPath string) {
 
 	appDir := path.Base(name)
 
-	// Cleanup the home directory of the app
+	// Cleanup the home directory and cache of the app
 	e.t.Cleanup(func() {
 		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appDir)))
 	})

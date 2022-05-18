@@ -10,7 +10,9 @@ import (
 	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/sta"
@@ -29,7 +31,10 @@ var (
 	}
 )
 
-const vuexRootMarker = "vuex-root"
+const (
+	vuexRootMarker          = "vuex-root"
+	dirchangeCacheNamespace = "generate.javascript.dirchange"
+)
 
 type jsGenerator struct {
 	g *generator
@@ -60,10 +65,28 @@ func (g *jsGenerator) generateModules() error {
 
 	gg := &errgroup.Group{}
 
+	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
 	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
 			m := m
-			gg.Go(func() error { return g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m) })
+			gg.Go(func() error {
+				cacheKey := m.Pkg.Path
+				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
+				changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
+				if err != nil {
+					return err
+				}
+
+				if !changed {
+					return nil
+				}
+
+				if err := g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m); err != nil {
+					return err
+				}
+
+				return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
+			})
 		}
 	}
 

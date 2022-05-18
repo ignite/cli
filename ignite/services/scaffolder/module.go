@@ -12,6 +12,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	appanalysis "github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/app"
@@ -145,6 +146,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s Scaffolder) CreateModule(
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName string,
 	options ...ModuleCreationOption,
@@ -225,11 +227,11 @@ func (s Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
+func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
@@ -270,7 +272,7 @@ func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xg
 		return sm, err
 	}
 
-	return sm, finish(s.path, s.modpath.RawPath)
+	return sm, finish(cacheStorage, s.path, s.modpath.RawPath)
 }
 
 // moduleExists checks if the module exists in the app
