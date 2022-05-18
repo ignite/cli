@@ -7,12 +7,13 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 // NewNetworkClientCreate creates a client id in monitoring consumer modules of SPN
 func NewNetworkClientCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [launch-id] [node-api-url]",
+		Use:   "create [launch-id] [chain-rpc]",
 		Short: "Connect the monitoring modules of launched chains with SPN",
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkClientCreateHandler,
@@ -30,42 +31,53 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	nodeAPI := args[1]
+	chainRPC := args[1]
 
-	clientID, err := clientCreate(cmd, launchID, nodeAPI)
+	spnClientID, chainClientID, err := clientCreate(cmd, launchID, chainRPC)
 	if err != nil {
 		return err
 	}
 
 	session.StopSpinner()
-	session.Printf("%s Client created: %s\n", icons.Info, clientID)
+	session.Printf("%s Network client created: %s\n", icons.Info, spnClientID)
+	session.Printf("%s Target chain client: %s\n", icons.Info, chainClientID)
 	return nil
 }
 
-func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, error) {
+func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, string, error) {
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	node, err := network.NewNodeClient(nodeClient)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	ibcInfo, err := node.IBCInfo(cmd.Context())
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	n, err := nb.Network()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return n.CreateClient(launchID, ibcInfo)
+	spnClientID, err := n.CreateClient(launchID, ibcInfo)
+	if err != nil {
+		return "", "", err
+	}
+
+	nodeClientID, err := node.FindClientID(cmd.Context(), networktypes.SPNChainID)
+	if err != nil {
+		return "", "", err
+	}
+
+	return spnClientID, nodeClientID, err
 }

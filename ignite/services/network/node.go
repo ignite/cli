@@ -3,15 +3,20 @@ package network
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ibctypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
+	"github.com/tendermint/spn/x/monitoringp/types"
 )
 
 // Node is node builder.
 type Node struct {
-	cosmos       CosmosClient
-	stakingQuery stakingtypes.QueryClient
+	cosmos         CosmosClient
+	stakingQuery   stakingtypes.QueryClient
+	ibcClientQuery ibctypes.QueryClient
 }
 
 // IBCInfo is node client info.
@@ -22,10 +27,12 @@ type IBCInfo struct {
 	Height         uint64
 }
 
+// NewNodeClient creates a new client for node API
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
 	return Node{
-		cosmos:       cosmos,
-		stakingQuery: stakingtypes.NewQueryClient(cosmos.Context()),
+		cosmos:         cosmos,
+		stakingQuery:   stakingtypes.NewQueryClient(cosmos.Context()),
+		ibcClientQuery: ibctypes.NewQueryClient(cosmos.Context()),
 	}, nil
 }
 
@@ -56,7 +63,7 @@ func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
 		)
 	}
 
-	stakingParams, err := n.StakingParams(ctx)
+	stakingParams, err := n.stakingParams(ctx)
 	if err != nil {
 		return IBCInfo{}, err
 	}
@@ -69,8 +76,35 @@ func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
 	}, nil
 }
 
-// StakingParams fetches the staking module params
-func (n Node) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
+// FindClientID fetches the client id from states for a given chain id
+func (n Node) FindClientID(ctx context.Context, chainID string) (string, error) {
+	states, err := n.states(ctx)
+	if err != nil {
+		return "", err
+	}
+	for _, state := range states {
+		tmClientState, ok := state.ClientState.GetCachedValue().(*ibctmtypes.ClientState)
+		if !ok {
+			return "", types.ErrInvalidClient
+		}
+		if tmClientState.ChainId == chainID {
+			return state.ClientId, nil
+		}
+	}
+	return "", fmt.Errorf("client id state not found for chain %s", chainID)
+}
+
+// states fetches the chain ibc states
+func (n Node) states(ctx context.Context) (ibctypes.IdentifiedClientStates, error) {
+	res, err := n.ibcClientQuery.ClientStates(ctx, &ibctypes.QueryClientStatesRequest{})
+	if err != nil {
+		return ibctypes.IdentifiedClientStates{}, err
+	}
+	return res.ClientStates, nil
+}
+
+// stakingParams fetches the staking module params
+func (n Node) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
 	if err != nil {
 		return stakingtypes.Params{}, err
