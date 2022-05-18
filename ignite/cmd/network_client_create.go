@@ -59,6 +59,11 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, 
 		return "", "", err
 	}
 
+	nodeClientID, err := node.FindClientID(cmd.Context(), networktypes.SPNChainID)
+	if err != nil {
+		return "", "", err
+	}
+
 	ibcInfo, err := node.IBCInfo(cmd.Context())
 	if err != nil {
 		return "", "", err
@@ -70,11 +75,6 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, 
 	}
 
 	spnClientID, err := n.CreateClient(launchID, ibcInfo)
-	if err != nil {
-		return "", "", err
-	}
-
-	nodeClientID, err := node.FindClientID(cmd.Context(), networktypes.SPNChainID)
 	if err != nil {
 		return "", "", err
 	}

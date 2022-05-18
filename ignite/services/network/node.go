@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
 	"github.com/tendermint/spn/x/monitoringp/types"
@@ -16,7 +16,7 @@ import (
 type Node struct {
 	cosmos         CosmosClient
 	stakingQuery   stakingtypes.QueryClient
-	ibcClientQuery ibctypes.QueryClient
+	ibcClientQuery ibcclienttypes.QueryClient
 }
 
 // IBCInfo is node client info.
@@ -32,7 +32,7 @@ func NewNodeClient(cosmos CosmosClient) (Node, error) {
 	return Node{
 		cosmos:         cosmos,
 		stakingQuery:   stakingtypes.NewQueryClient(cosmos.Context()),
-		ibcClientQuery: ibctypes.NewQueryClient(cosmos.Context()),
+		ibcClientQuery: ibcclienttypes.NewQueryClient(cosmos.Context()),
 	}, nil
 }
 
@@ -95,10 +95,10 @@ func (n Node) FindClientID(ctx context.Context, chainID string) (string, error) 
 }
 
 // states fetches the chain ibc states
-func (n Node) states(ctx context.Context) (ibctypes.IdentifiedClientStates, error) {
-	res, err := n.ibcClientQuery.ClientStates(ctx, &ibctypes.QueryClientStatesRequest{})
+func (n Node) states(ctx context.Context) (ibcclienttypes.IdentifiedClientStates, error) {
+	res, err := n.ibcClientQuery.ClientStates(ctx, &ibcclienttypes.QueryClientStatesRequest{})
 	if err != nil {
-		return ibctypes.IdentifiedClientStates{}, err
+		return ibcclienttypes.IdentifiedClientStates{}, err
 	}
 	return res.ClientStates, nil
 }
