@@ -25,7 +25,15 @@ const (
 )
 
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
-func (c Chain) SimulateRequests(ctx context.Context, cacheStorage cache.Storage, gi networktypes.GenesisInformation, reqs []networktypes.Request) (err error) {
+func (c Chain) SimulateRequests(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	gi networktypes.GenesisInformation,
+	reqs []networktypes.Request,
+	rewardsInfo networktypes.Reward,
+	lastBlockHeight,
+	unbondingTime int64,
+) (err error) {
 	c.ev.Send("Verifying requests format", events.ProgressStarted())
 	for _, req := range reqs {
 		// static verification of the request
@@ -42,7 +50,15 @@ func (c Chain) SimulateRequests(ctx context.Context, cacheStorage cache.Storage,
 	c.ev.Send("Requests format verified", events.ProgressFinished())
 
 	// prepare the chain with the requests
-	if err := c.Prepare(ctx, cacheStorage, gi); err != nil {
+	if err := c.Prepare(
+		ctx,
+		cacheStorage,
+		gi,
+		rewardsInfo,
+		networktypes.SPNChainID,
+		lastBlockHeight,
+		unbondingTime,
+	); err != nil {
 		return err
 	}
 

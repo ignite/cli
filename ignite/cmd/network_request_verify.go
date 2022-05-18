@@ -113,5 +113,22 @@ func verifyRequest(
 		return err
 	}
 
-	return c.SimulateRequests(ctx, cacheStorage, genesisInformation, requests)
+	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+		ctx,
+		launchID,
+		chainLaunch.ConsumerRevisionHeight,
+	)
+	if err != nil {
+		return err
+	}
+
+	return c.SimulateRequests(
+		ctx,
+		cacheStorage,
+		genesisInformation,
+		requests,
+		rewardsInfo,
+		lastBlockHeight,
+		unboundingTime,
+	)
 }

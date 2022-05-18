@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -38,6 +39,7 @@ type Network struct {
 	launchQuery   launchtypes.QueryClient
 	profileQuery  profiletypes.QueryClient
 	rewardQuery   rewardtypes.QueryClient
+	stakingQuery  stakingtypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -83,6 +85,12 @@ func WithRewardQueryClient(client rewardtypes.QueryClient) Option {
 	}
 }
 
+func WithStakingQueryClient(client stakingtypes.QueryClient) Option {
+	return func(n *Network) {
+		n.stakingQuery = client
+	}
+}
+
 // CollectEvents collects events from the network builder.
 func CollectEvents(ev events.Bus) Option {
 	return func(n *Network) {
@@ -99,6 +107,7 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 		launchQuery:   launchtypes.NewQueryClient(cosmos.Context()),
 		profileQuery:  profiletypes.NewQueryClient(cosmos.Context()),
 		rewardQuery:   rewardtypes.NewQueryClient(cosmos.Context()),
+		stakingQuery:  stakingtypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
 		opt(&n)
