@@ -7,7 +7,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
-	github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44
+	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.45.4

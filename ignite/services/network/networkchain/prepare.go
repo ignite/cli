@@ -27,7 +27,15 @@ const (
 )
 
 // Prepare prepares the chain to be launched from genesis information
-func (c Chain) Prepare(ctx context.Context, cacheStorage cache.Storage, gi networktypes.GenesisInformation) error {
+func (c Chain) Prepare(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	gi networktypes.GenesisInformation,
+	rewardsInfo networktypes.Reward,
+	chainID string,
+	lastBlockHeight,
+	unbondingTime int64,
+) error {
 	// chain initialization
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -58,7 +66,15 @@ func (c Chain) Prepare(ctx context.Context, cacheStorage cache.Storage, gi netwo
 	}
 	defer gen.Close()
 
-	if err := c.buildGenesis(ctx, gi, gen); err != nil {
+	if err := c.buildGenesis(
+		ctx,
+		gi,
+		gen,
+		rewardsInfo,
+		chainID,
+		lastBlockHeight,
+		unbondingTime,
+	); err != nil {
 		return err
 	}
 
@@ -81,7 +97,15 @@ func (c Chain) Prepare(ctx context.Context, cacheStorage cache.Storage, gi netwo
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
-func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation, gen *genesis.Genesis) error {
+func (c Chain) buildGenesis(
+	ctx context.Context,
+	gi networktypes.GenesisInformation,
+	gen *genesis.Genesis,
+	rewardsInfo networktypes.Reward,
+	spnChainID string,
+	lastBlockHeight,
+	unbondingTime int64,
+) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	addressPrefix, err := c.detectPrefix(ctx)
