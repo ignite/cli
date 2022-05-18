@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
 	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
@@ -24,7 +25,15 @@ const (
 )
 
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
-func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []networktypes.Request) (err error) {
+func (c Chain) SimulateRequests(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	gi networktypes.GenesisInformation,
+	reqs []networktypes.Request,
+	rewardsInfo networktypes.Reward,
+	lastBlockHeight,
+	unbondingTime int64,
+) (err error) {
 	c.ev.Send(events.New(events.StatusOngoing, "Verifying requests format"))
 	for _, req := range reqs {
 		// static verification of the request
@@ -41,7 +50,15 @@ func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInfo
 	c.ev.Send(events.New(events.StatusDone, "Requests format verified"))
 
 	// prepare the chain with the requests
-	if err := c.Prepare(ctx, gi); err != nil {
+	if err := c.Prepare(
+		ctx,
+		cacheStorage,
+		gi,
+		rewardsInfo,
+		networktypes.SPNChainID,
+		lastBlockHeight,
+		unbondingTime,
+	); err != nil {
 		return err
 	}
 

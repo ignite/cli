@@ -58,6 +58,7 @@ type Chain struct {
 	RPCAddress    string `json:"rpc_address" yaml:"rpc_address"`
 	GasPrice      string `json:"gas_price" yaml:"gas_price,omitempty"`
 	GasLimit      int64  `json:"gas_limit" yaml:"gas_limit,omitempty"`
+	ClientID      string `json:"client_id" yaml:"client_id,omitempty"`
 }
 
 type Path struct {
