@@ -14,6 +14,7 @@ func NewNetworkClient() *cobra.Command {
 
 	c.AddCommand(
 		NewNetworkClientCreate(),
+		NewNetworkClientConnect(),
 	)
 
 	return c
