@@ -1,16 +1,14 @@
 package icons
 
-import (
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
-)
+import "github.com/fatih/color"
 
 var (
 	// OK is an OK mark.
-	OK = colors.Success("✔")
+	OK = color.New(color.FgGreen).SprintFunc()("✔")
 	// NotOK is a red cross mark
-	NotOK = colors.Error("✘")
+	NotOK = color.New(color.FgRed).SprintFunc()("✘")
 	// Bullet is a bullet mark
-	Bullet = colors.Info("⋆")
+	Bullet = color.New(color.FgYellow).SprintFunc()("⋆")
 	// Info is an info mark
-	Info = colors.Info("𝓲")
+	Info = color.New(color.FgYellow).SprintFunc()("𝓲")
 )

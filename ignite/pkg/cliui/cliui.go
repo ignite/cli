@@ -7,8 +7,6 @@ import (
 	"sync"
 
 	"github.com/docker/docker/pkg/ioutils"
-	"github.com/manifoldco/promptui"
-
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
@@ -16,6 +14,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/lineprefixer"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/prefixgen"
 	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/manifoldco/promptui"
 )
 
 const (
@@ -82,6 +81,7 @@ func WithStdout(stdout io.WriteCloser) Option {
 func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
 		s.stderr = stderr
+
 	}
 }
 
@@ -118,6 +118,7 @@ func New(options ...Option) Session {
 	for _, apply := range options {
 		apply(&session)
 	}
+
 	session.defaultLogStream = session.NewLogStream(defaultLogStreamLabel, defaultLogStreamColor)
 	if session.verbosity != VerbosityVerbose {
 		session.verbosity = VerbositySilent
@@ -278,6 +279,7 @@ func (s Session) printLoop() {
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
 			fmt.Fprintln(s.defaultLogStream.Stdout(), event.String())
+
 			resume()
 		}
 

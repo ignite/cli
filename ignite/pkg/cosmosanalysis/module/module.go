@@ -20,6 +20,9 @@ type Module struct {
 	// Name of the module.
 	Name string
 
+	// GoModulePath of the app where the module is defined.
+	GoModulePath string
+
 	// Pkg holds the proto package info.
 	Pkg protoanalysis.Package
 
@@ -163,8 +166,9 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	namesplit := strings.Split(pkg.Name, ".")
 	m := Module{
-		Name: namesplit[len(namesplit)-1],
-		Pkg:  pkg,
+		Name:         namesplit[len(namesplit)-1],
+		GoModulePath: d.basegopath,
+		Pkg:          pkg,
 	}
 
 	// fill sdk Msgs.

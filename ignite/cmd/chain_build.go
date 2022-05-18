@@ -39,6 +39,7 @@ Sample usages:
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().Bool(flagRelease, false, "build for a release")
@@ -75,8 +76,13 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	if isRelease {
-		releasePath, err := c.BuildRelease(cmd.Context(), output, releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(cmd.Context(), cacheStorage, output, releasePrefix, releaseTargets...)
 		if err != nil {
 			return err
 		}
@@ -84,7 +90,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return session.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 	}
 
-	binaryName, err := c.Build(cmd.Context(), output)
+	binaryName, err := c.Build(cmd.Context(), cacheStorage, output)
 	if err != nil {
 		return err
 	}

@@ -1,10 +1,13 @@
 package cosmosutil
 
 import (
-	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
+
+	"github.com/tendermint/tendermint/crypto/ed25519"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -12,13 +15,10 @@ import (
 var GentxFilename = "gentx.json"
 
 type (
-	// PubKey represents the public key in bytes array
-	PubKey []byte
-
 	// GentxInfo represents the basic info about gentx file
 	GentxInfo struct {
 		DelegatorAddress string
-		PubKey           PubKey
+		PubKey           ed25519.PubKey
 		SelfDelegation   sdk.Coin
 		Memo             string
 	}
@@ -30,7 +30,8 @@ type (
 				DelegatorAddress string `json:"delegator_address"`
 				ValidatorAddress string `json:"validator_address"`
 				PubKey           struct {
-					Key string `json:"key"`
+					Type string `json:"@type"`
+					Key  string `json:"key"`
 				} `json:"pubkey"`
 				Value struct {
 					Denom  string `json:"denom"`
@@ -41,12 +42,6 @@ type (
 		} `json:"body"`
 	}
 )
-
-// Equal returns true if the public keys are equal
-func (pb PubKey) Equal(key []byte) bool {
-	res := bytes.Compare(pb, key)
-	return res == 0
-}
 
 // GentxFromPath returns GentxInfo from the json file
 func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
@@ -80,7 +75,12 @@ func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 
 	info.Memo = stargateGentx.Body.Memo
 	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
-	info.PubKey = []byte(stargateGentx.Body.Messages[0].PubKey.Key)
+
+	pb := stargateGentx.Body.Messages[0].PubKey.Key
+	info.PubKey, err = base64.StdEncoding.DecodeString(pb)
+	if err != nil {
+		return info, gentx, fmt.Errorf("invalid validator public key %s", err.Error())
+	}
 
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {

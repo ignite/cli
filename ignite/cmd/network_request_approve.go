@@ -24,6 +24,8 @@ func NewNetworkRequestApprove() *cobra.Command {
 		RunE:    networkRequestApproveHandler,
 		Args:    cobra.ExactArgs(2),
 	}
+
+	flagSetClearCache(c)
 	c.Flags().Bool(flagNoVerification, false, "approve the requests without verifying them")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -63,9 +65,14 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	// if requests must be verified, we simulate the chain in a temporary directory with the requests
 	if !noVerification {
-		if err := verifyRequest(cmd.Context(), nb, launchID, ids...); err != nil {
+		if err := verifyRequest(cmd.Context(), cacheStorage, nb, launchID, ids...); err != nil {
 			return errors.Wrap(err, "request(s) not valid")
 		}
 		session.Printf("%s Request(s) %s verified\n", icons.OK, numbers.List(ids, "#"))

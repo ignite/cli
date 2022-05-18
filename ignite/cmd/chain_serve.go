@@ -24,6 +24,7 @@ func NewChainServe() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
@@ -62,6 +63,11 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	// serve the chain
 	var serveOptions []chain.ServeOption
 	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
@@ -79,5 +85,5 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
 
-	return c.Serve(cmd.Context(), serveOptions...)
+	return c.Serve(cmd.Context(), cacheStorage, serveOptions...)
 }

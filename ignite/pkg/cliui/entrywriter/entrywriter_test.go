@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-
 	"github.com/stretchr/testify/require"
 )
 

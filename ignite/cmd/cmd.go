@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
@@ -29,15 +31,15 @@ const (
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
+	flagClearCache    = "clear-cache"
 
 	checkVersionTimeout = time.Millisecond * 600
+	cacheFileName       = "ignite_cache.db"
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
-func New(ctx context.Context) *cobra.Command {
+func New() *cobra.Command {
 	cobra.EnableCommandSorting = false
-
-	checkNewVersion(ctx)
 
 	c := &cobra.Command{
 		Use:   "ignite",
@@ -52,6 +54,12 @@ ignite scaffold chain github.com/username/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Check for new versions only when shell completion scripts are not being
+			// generated to avoid invalid output to stdout when a new version is available
+			if cmd.Use != "completions" {
+				checkNewVersion(cmd.Context())
+			}
+
 			return goenv.ConfigurePath()
 		},
 	}
@@ -130,6 +138,15 @@ func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
 	return isEnabled
+}
+
+func flagSetClearCache(cmd *cobra.Command) {
+	cmd.PersistentFlags().Bool(flagClearCache, false, "clears the cache")
+}
+
+func flagGetClearCache(cmd *cobra.Command) bool {
+	clearCache, _ := cmd.Flags().GetBool(flagClearCache)
+	return clearCache
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
@@ -261,6 +278,26 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(title string) {
-	fmt.Printf("------\n%s\n------\n\n", title)
+func printSection(session cliui.Session, title string) error {
+	return session.Printf("------\n%s\n------\n\n", title)
+}
+
+func newCache(cmd *cobra.Command) (cache.Storage, error) {
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+	}
+
+	return storage, nil
 }

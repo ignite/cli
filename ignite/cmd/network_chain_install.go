@@ -21,6 +21,8 @@ func NewNetworkChainInstall() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInstallHandler,
 	}
+
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	return c
 }
@@ -28,6 +30,11 @@ func NewNetworkChainInstall() *cobra.Command {
 func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -55,7 +62,7 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	binaryName, err := c.Build(cmd.Context())
+	binaryName, err := c.Build(cmd.Context(), cacheStorage)
 	if err != nil {
 		return err
 	}

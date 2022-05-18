@@ -18,6 +18,7 @@ func NewChainInit() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 
 	return c
@@ -38,7 +39,12 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if _, err := c.Build(cmd.Context(), ""); err != nil {
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
+	if _, err := c.Build(cmd.Context(), cacheStorage, ""); err != nil {
 		return err
 	}
 

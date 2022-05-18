@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	"github.com/ignite-hq/cli/ignite/pkg/checksum"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
@@ -253,7 +254,7 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 }
 
 // Build builds chain sources, also checks if source was already built
-func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
+func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
 	// if chain was already published and has launch id check binary cache
 	if c.launchID != 0 {
 		if binaryName, err = c.chain.Binary(); err != nil {
@@ -275,7 +276,7 @@ func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
 	c.ev.Send("Building the chain's binary", events.ProgressStarted())
 
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, ""); err != nil {
 		return "", err
 	}
 

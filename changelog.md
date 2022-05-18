@@ -1,11 +1,35 @@
 # Changelog
 
+## [`v0.21.2`](https://github.com/ignite-hq/cli/releases/tag/v0.21.2)
+
+### Fixes 
+
+- Set min. gas to zero when running `chain` command set 
+
+## [`v0.21.1`](https://github.com/ignite-hq/cli/releases/tag/v0.21.1)
+
+### Features 
+
+- Add compatibility to run chains built with Cosmos-SDK `v0.46.0-alpha1` and above
+- Scaffold chains now will have `auth` module enabled by default
+
+### Fixes
+
+- Fixed shell completion generation
+- Make sure proto package names are valid when using simple app names
+
+## [`v0.21.0`](https://github.com/ignite-hq/cli/releases/tag/v0.21.0)
+
+### Features 
+
+- Support simple app names when scaffolding chains. e.g.: `ignite scaffold chain mars`
+- Ask confirmation when scaffolding over changes that are not committed yet 
+
 ## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
 
 ### Fixes
 
 - Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
-
 
 ## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
 

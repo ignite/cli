@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/manifoldco/promptui"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
@@ -94,7 +94,12 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
+	sm, err := sc.AddType(cmd.Context(), cacheStorage, typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}
@@ -131,11 +136,11 @@ func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
 		}
 
 		if !getYes(cmd) && !changesCommitted {
-			prompt := promptui.Prompt{
-				Label:     "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
-				IsConfirm: true,
+			var confirmed bool
+			prompt := &survey.Confirm{
+				Message: "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
 			}
-			if _, err := prompt.Run(); err != nil {
+			if err := survey.AskOne(prompt, &confirmed); err != nil || !confirmed {
 				return errors.New("said no")
 			}
 		}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
@@ -43,6 +44,7 @@ func OracleWithSigner(signer string) OracleOption {
 
 // AddOracle adds a new BandChain oracle envtest.
 func (s *Scaffolder) AddOracle(
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName string,
@@ -94,7 +96,6 @@ func (s *Scaffolder) AddOracle(
 			AppPath:    s.path,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.modpath.RawPath),
 			QueryName:  name,
 			MsgSigner:  mfSigner,
 		}
@@ -107,7 +108,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 func (s Scaffolder) installBandPacket() error {
