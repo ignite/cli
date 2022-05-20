@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/spn/testutil/sample"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
@@ -170,7 +171,13 @@ func TestJoin(t *testing.T) {
 					LaunchID: testutil.LaunchID,
 				},
 			).
-			Return(nil, nil).
+			Return(&launchtypes.QueryGetGenesisValidatorResponse{
+				GenesisValidator: sample.GenesisValidator(
+					sample.Rand(),
+					testutil.LaunchID,
+					account.Address(networktypes.SPN),
+				),
+			}, nil).
 			Once()
 
 		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
