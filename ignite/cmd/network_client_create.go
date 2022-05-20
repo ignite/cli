@@ -18,8 +18,11 @@ func NewNetworkClientCreate() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkClientCreateHandler,
 	}
+
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().String(flagSPNChainID, networktypes.SPNChainID, "Chain ID of SPN")
+
 	return c
 }
 
@@ -33,51 +36,53 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 	chainRPC := args[1]
 
-	spnClientID, chainClientID, err := clientCreate(cmd, launchID, chainRPC)
+	nodeID, chainClientID, spnClientID, err := clientCreate(cmd, launchID, chainRPC)
 	if err != nil {
 		return err
 	}
 
 	session.StopSpinner()
 	session.Printf("%s Network client created: %s\n", icons.Info, spnClientID)
-	session.Printf("%s Target chain client: %s\n", icons.Info, chainClientID)
+	session.Printf("%s Target chain %s client: %s\n", icons.Info, nodeID, chainClientID)
 	return nil
 }
 
-func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, string, error) {
+func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, string, string, error) {
+	spnChainID, _ := cmd.Flags().GetString(flagSPNChainID)
+
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	node, err := network.NewNodeClient(nodeClient)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
-	nodeClientID, err := node.FindClientID(cmd.Context(), networktypes.SPNChainID)
+	nodeClientID, err := node.FindClientID(cmd.Context(), spnChainID)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
-	rewardsInfo, unboundingTime, err := node.RewardsInfo(cmd.Context())
+	rewardsInfo, nodeID, unboundingTime, err := node.RewardsInfo(cmd.Context())
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	n, err := nb.Network()
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	spnClientID, err := n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
-	return spnClientID, nodeClientID, err
+	return nodeID, nodeClientID, spnClientID, err
 }

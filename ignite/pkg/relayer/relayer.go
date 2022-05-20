@@ -36,42 +36,47 @@ func New(ca cosmosaccount.Registry) Relayer {
 	}
 }
 
-// Link links all chains that has a path to each other.
+// LinkPaths links all chains that has a path from config file to each other.
 // paths are optional and acts as a filter to only link some chains.
 // calling Link multiple times for the same paths does not have any side effects.
-func (r Relayer) Link(ctx context.Context, pathIDs ...string) error {
+func (r Relayer) LinkPaths(ctx context.Context, pathIDs ...string) error {
 	conf, err := relayerconf.Get()
 	if err != nil {
 		return err
 	}
 
 	for _, id := range pathIDs {
-		path, err := conf.PathByID(id)
+		conf, err = r.Link(ctx, conf, id)
 		if err != nil {
-			return err
-		}
-
-		if path.Src.ChannelID != "" { // already linked.
-			continue
-		}
-
-		if path, err = r.call(ctx, conf, path, "link"); err != nil {
-			return err
-		}
-
-		if err := conf.UpdatePath(path); err != nil {
 			return err
 		}
 		if err := relayerconf.Save(conf); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
-// Start relays packets for linked paths until ctx is canceled.
-func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
+// Link links chain path to each other.
+func (r Relayer) Link(ctx context.Context, conf relayerconf.Config, pathID string) (relayerconf.Config, error) {
+	path, err := conf.PathByID(pathID)
+	if err != nil {
+		return conf, err
+	}
+
+	if path.Src.ChannelID != "" {
+		return conf, fmt.Errorf("path %s already linked", path.ID)
+	}
+
+	if path, err = r.call(ctx, conf, path, "link"); err != nil {
+		return conf, err
+	}
+
+	return conf, conf.UpdatePath(path)
+}
+
+// StartPaths relays packets for linked paths from config file until ctx is canceled.
+func (r Relayer) StartPaths(ctx context.Context, pathIDs ...string) error {
 	conf, err := relayerconf.Get()
 	if err != nil {
 		return err
@@ -81,12 +86,8 @@ func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
 	var m sync.Mutex // protects relayerconf.Path.
 
 	start := func(id string) error {
-		path, err := conf.PathByID(id)
+		path, err := r.Start(ctx, conf, id)
 		if err != nil {
-			return err
-		}
-
-		if path, err = r.call(ctx, conf, path, "start"); err != nil {
 			return err
 		}
 
@@ -114,6 +115,15 @@ func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
 	}
 
 	return wg.Wait()
+}
+
+// Start relays packets for linked path until ctx is canceled.
+func (r Relayer) Start(ctx context.Context, conf relayerconf.Config, pathID string) (relayerconf.Path, error) {
+	path, err := conf.PathByID(pathID)
+	if err != nil {
+		return path, err
+	}
+	return r.call(ctx, conf, path, "start")
 }
 
 func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayerconf.Path, action string) (

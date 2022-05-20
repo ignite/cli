@@ -1,6 +1,10 @@
 package ignitecmd
 
 import (
+	"bytes"
+	"fmt"
+	"text/tabwriter"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
@@ -19,7 +23,7 @@ const (
 	flagSPNGasPrice        = "spn-gasprice"
 	flagSPNGasLimit        = "spn-gaslimit"
 
-	defaultGasPrice = "0.0000025"
+	defaultGasPrice = "0.00025"
 	defaultGasLimit = 400000
 )
 
@@ -34,13 +38,14 @@ func NewNetworkClientConnect() *cobra.Command {
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().String(flagSPNGasPrice, defaultGasPrice, "Gas price used for transactions on SPN")
-	c.Flags().String(flagChainGasPrice, defaultGasPrice, "Gas price used for transactions on target chain")
+	c.Flags().String(flagSPNGasPrice, defaultGasPrice+networktypes.SPNDenom, "Gas price used for transactions on SPN")
+	c.Flags().String(flagChainGasPrice, defaultGasPrice+"stake", "Gas price used for transactions on target chain")
 	c.Flags().Int64(flagSPNGasLimit, defaultGasLimit, "Gas limit used for transactions on SPN")
 	c.Flags().Int64(flagChainGasLimit, defaultGasLimit, "Gas limit used for transactions on target chain")
-	c.Flags().String(flagChainAddressPrefix, "", "Address prefix of the target chain")
+	c.Flags().String(flagChainAddressPrefix, "cosmos", "Address prefix of the target chain")
 	c.Flags().String(flagChainAccount, cosmosaccount.DefaultAccount, "Target chain Account")
 	c.Flags().String(flagChainFaucet, "", "Faucet address of the target chain")
+	c.Flags().String(flagSPNChainID, networktypes.SPNChainID, "Chain ID of SPN")
 
 	return c
 }
@@ -97,6 +102,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		chainAddressPrefix, _ = cmd.Flags().GetString(flagChainAddressPrefix)
 		chainAccount, _       = cmd.Flags().GetString(flagChainAccount)
 		chainFaucet, _        = cmd.Flags().GetString(flagChainFaucet)
+		spnChainID, _         = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	launchID, err := network.ParseID(args[0])
@@ -106,7 +112,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	chainRPC := args[1]
 
 	session.StartSpinner("Creating network relayer client ID...")
-	spnClientID, chainClientID, err := clientCreate(cmd, launchID, chainRPC)
+	nodeID, chainClientID, spnClientID, err := clientCreate(cmd, launchID, chainRPC)
 	if err != nil {
 		return err
 	}
@@ -132,6 +138,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
+	spnChain.ID = spnChainID
 
 	targetChain, err := initChain(
 		cmd,
@@ -149,12 +156,42 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
+	targetChain.ID = nodeID
 
-	// TODO remove me
-	session.Println(spnChain, targetChain)
+	session.StartSpinner("Creating links between chains...")
 
-	session.StartSpinner("Configuring...")
+	pathID, cfg := networktypes.SPNRelayerConfig(*spnChain, *targetChain)
+	if cfg, err = r.Link(cmd.Context(), cfg, pathID); err != nil {
+		return err
+	}
 
 	session.StopSpinner()
-	return nil
+	if err := printSection(session, "Paths"); err != nil {
+		return err
+	}
+
+	session.StartSpinner("Loading...")
+
+	path, err := r.GetPath(cmd.Context(), pathID)
+	if err != nil {
+		return err
+	}
+
+	session.StopSpinner()
+
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "%s:\n", path.ID)
+	fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Src.ChainID, path.Src.PortID, path.Src.ChannelID)
+	fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Dst.ChainID, path.Dst.PortID, path.Dst.ChannelID)
+	fmt.Fprintln(w)
+	w.Flush()
+	session.Print(buf.String())
+
+	if err := printSection(session, "Listening and relaying packets between chains..."); err != nil {
+		return err
+	}
+
+	_, err = r.Start(cmd.Context(), cfg, pathID)
+	return err
 }

@@ -400,6 +400,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
+	if err := sourceChain.EnsureChainSetup(cmd.Context()); err != nil {
+		return err
+	}
+
 	targetChain, err := initChain(
 		cmd,
 		r,
@@ -414,6 +418,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		targetClientID,
 	)
 	if err != nil {
+		return err
+	}
+
+	if err := targetChain.EnsureChainSetup(cmd.Context()); err != nil {
 		return err
 	}
 
@@ -464,7 +472,6 @@ func initChain(
 	session.StartSpinner("Initializing chain...")
 
 	c, account, err := r.NewChain(
-		cmd.Context(),
 		accountName,
 		rpcAddr,
 		relayer.WithFaucet(faucetAddr),

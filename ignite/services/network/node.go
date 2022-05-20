@@ -99,21 +99,24 @@ func (n Node) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 }
 
 // RewardsInfo Fetches the consensus state with the validator set and the unbounding time
-func (n Node) RewardsInfo(ctx context.Context) (networktypes.Reward, int64, error) {
+func (n Node) RewardsInfo(ctx context.Context) (networktypes.Reward, string, int64, error) {
 	status, err := n.cosmos.Status(ctx)
 	if err != nil {
-		return networktypes.Reward{}, 0, err
+		return networktypes.Reward{}, "", 0, err
 	}
 	lastBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	info, err := RewardsInfo(ctx, n.cosmos, lastBlockHeight)
 	if err != nil {
-		return networktypes.Reward{}, 0, err
+		return networktypes.Reward{}, "", 0, err
 	}
 
 	stakingParams, err := n.stakingParams(ctx)
 	if err != nil {
-		return networktypes.Reward{}, 0, err
+		return networktypes.Reward{}, "", 0, err
 	}
-	return info, int64(stakingParams.UnbondingTime.Seconds()), nil
+	return info,
+		status.NodeInfo.Network,
+		int64(stakingParams.UnbondingTime.Seconds()),
+		nil
 }

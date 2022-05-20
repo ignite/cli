@@ -83,7 +83,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	session.StartSpinner("Creating links between chains...")
 
-	if err := r.Link(cmd.Context(), use...); err != nil {
+	if err := r.LinkPaths(cmd.Context(), use...); err != nil {
 		return err
 	}
 
@@ -117,5 +117,5 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	return r.Start(cmd.Context(), use...)
+	return r.StartPaths(cmd.Context(), use...)
 }
