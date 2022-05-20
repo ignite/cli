@@ -7,9 +7,9 @@ import (
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
+	"github.com/cosmos/ibc-go/v2/modules/core/exported"
+	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
-	"github.com/tendermint/spn/x/monitoringp/types"
 
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -23,6 +23,10 @@ type Node struct {
 
 // NewNodeClient creates a new client for node API
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
+	cosmos.Context().InterfaceRegistry.RegisterImplementations(
+		(*exported.ClientState)(nil),
+		&lightclienttypes.ClientState{},
+	)
 	return Node{
 		cosmos:         cosmos,
 		stakingQuery:   stakingtypes.NewQueryClient(cosmos.Context()),
@@ -65,11 +69,11 @@ func (n Node) FindClientID(ctx context.Context, chainID string) (string, error) 
 		return "", err
 	}
 	for _, state := range states {
-		tmClientState, ok := state.ClientState.GetCachedValue().(*ibctmtypes.ClientState)
-		if !ok {
-			return "", types.ErrInvalidClient
+		clientState, ok := state.ClientState.GetCachedValue().(*lightclienttypes.ClientState)
+		if !ok && clientState != nil {
+			continue
 		}
-		if tmClientState.ChainId == chainID {
+		if clientState.ChainId == chainID {
 			return state.ClientId, nil
 		}
 	}
