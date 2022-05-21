@@ -50,27 +50,6 @@ func NewNetworkClientConnect() *cobra.Command {
 	return c
 }
 
-// ignite network --local connect [launch-id] [target-rpc]
-// Flag
-// --target-faucet
-// Flag values with defaults
-// --source-gaslimit
-// --target-gaslimit
-// --source-gasprice
-// --target-gasprice
-// --source-account (from)
-// --target-account (from)
-// Hardcoded flags
-// --ordered
-// --source-rpc "http://0.0.0.0:26657"
-// --source-faucet "http://0.0.0.0:4500"
-// --source-port "monitoringc"
-// --target-port "monitoringp"
-// --source-version "monitoring-1"
-// --target-version "monitoring-1"
-// --source-prefix "spn"
-// --target-prefix "cosmos" (fetch from genesis)
-
 func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	defer func() {
 		err = handleRelayerAccountErr(err)
@@ -95,20 +74,23 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	var (
-		spnGasPrice, _        = cmd.Flags().GetString(flagSPNGasPrice)
-		chainGasPrice, _      = cmd.Flags().GetString(flagChainGasPrice)
-		spnGasLimit, _        = cmd.Flags().GetInt64(flagSPNGasLimit)
-		chainGasLimit, _      = cmd.Flags().GetInt64(flagChainGasLimit)
+		spnGasPrice, _   = cmd.Flags().GetString(flagSPNGasPrice)
+		chainGasPrice, _ = cmd.Flags().GetString(flagChainGasPrice)
+		spnGasLimit, _   = cmd.Flags().GetInt64(flagSPNGasLimit)
+		chainGasLimit, _ = cmd.Flags().GetInt64(flagChainGasLimit)
+		// TODO fetch from genesis
 		chainAddressPrefix, _ = cmd.Flags().GetString(flagChainAddressPrefix)
 		chainAccount, _       = cmd.Flags().GetString(flagChainAccount)
 		chainFaucet, _        = cmd.Flags().GetString(flagChainFaucet)
-		spnChainID, _         = cmd.Flags().GetString(flagSPNChainID)
+		// TODO fetch from node state
+		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
+	// TODO fetch from chain peer
 	chainRPC := args[1]
 
 	session.StartSpinner("Creating network relayer client ID...")

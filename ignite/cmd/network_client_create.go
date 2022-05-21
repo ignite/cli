@@ -79,6 +79,7 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, 
 		return "", "", "", err
 	}
 
+	// TODO check if exists first
 	spnClientID, err := n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	if err != nil {
 		return "", "", "", err
