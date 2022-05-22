@@ -3,12 +3,12 @@ package network
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v2/modules/core/exported"
 	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
+	"github.com/pkg/errors"
 	spntypes "github.com/tendermint/spn/pkg/types"
 
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
@@ -20,6 +20,9 @@ type Node struct {
 	stakingQuery   stakingtypes.QueryClient
 	ibcClientQuery ibcclienttypes.QueryClient
 }
+
+// ErrChainClientNotExist returned when specified client does not exist for a chain.
+var ErrChainClientNotExist = errors.New("client id not found for chain")
 
 // NewNodeClient creates a new client for node API
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
@@ -62,13 +65,17 @@ func RewardsInfo(ctx context.Context, client CosmosClient, height int64) (networ
 	}, nil
 }
 
-// FindClientID fetches the client id from states for a given chain id
-func (n Node) FindClientID(ctx context.Context, chainID string) (string, error) {
-	states, err := n.states(ctx)
+func findClientID(ctx context.Context, client CosmosClient, chainID string) (string, error) {
+	ibcClientQuery := ibcclienttypes.NewQueryClient(client.Context())
+	client.Context().InterfaceRegistry.RegisterImplementations(
+		(*exported.ClientState)(nil),
+		&lightclienttypes.ClientState{},
+	)
+	res, err := ibcClientQuery.ClientStates(ctx, &ibcclienttypes.QueryClientStatesRequest{})
 	if err != nil {
 		return "", err
 	}
-	for _, state := range states {
+	for _, state := range res.ClientStates {
 		clientState, ok := state.ClientState.GetCachedValue().(*lightclienttypes.ClientState)
 		if !ok && clientState != nil {
 			continue
@@ -77,16 +84,12 @@ func (n Node) FindClientID(ctx context.Context, chainID string) (string, error) 
 			return state.ClientId, nil
 		}
 	}
-	return "", fmt.Errorf("client id state not found for chain %s", chainID)
+	return "", ErrChainClientNotExist
 }
 
-// states fetches the chain ibc states
-func (n Node) states(ctx context.Context) (ibcclienttypes.IdentifiedClientStates, error) {
-	res, err := n.ibcClientQuery.ClientStates(ctx, &ibcclienttypes.QueryClientStatesRequest{})
-	if err != nil {
-		return ibcclienttypes.IdentifiedClientStates{}, err
-	}
-	return res.ClientStates, nil
+// FindClientID find an IBC client id by chain
+func (n Node) FindClientID(ctx context.Context, chainID string) (string, error) {
+	return findClientID(ctx, n.cosmos, chainID)
 }
 
 // stakingParams fetches the staking module params
