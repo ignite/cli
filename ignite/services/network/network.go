@@ -7,6 +7,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
+	ibcconntypes "github.com/cosmos/ibc-go/v2/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v2/modules/core/exported"
+	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -32,14 +37,13 @@ type CosmosClient interface {
 
 // Network is network builder.
 type Network struct {
+	Node
 	ev            events.Bus
-	cosmos        CosmosClient
 	account       cosmosaccount.Account
 	campaignQuery campaigntypes.QueryClient
 	launchQuery   launchtypes.QueryClient
 	profileQuery  profiletypes.QueryClient
 	rewardQuery   rewardtypes.QueryClient
-	stakingQuery  stakingtypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -100,14 +104,24 @@ func CollectEvents(ev events.Bus) Option {
 
 // New creates a Builder.
 func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
+	cosmos.Context().InterfaceRegistry.RegisterImplementations(
+		(*exported.ClientState)(nil),
+		&lightclienttypes.ClientState{},
+	)
+
 	n := Network{
-		cosmos:        cosmos,
+		Node: Node{
+			cosmos:          cosmos,
+			ibcClientQuery:  ibcclienttypes.NewQueryClient(cosmos.Context()),
+			ibcConnQuery:    ibcconntypes.NewQueryClient(cosmos.Context()),
+			ibcChannelQuery: ibcchanneltypes.NewQueryClient(cosmos.Context()),
+			stakingQuery:    stakingtypes.NewQueryClient(cosmos.Context()),
+		},
 		account:       account,
 		campaignQuery: campaigntypes.NewQueryClient(cosmos.Context()),
 		launchQuery:   launchtypes.NewQueryClient(cosmos.Context()),
 		profileQuery:  profiletypes.NewQueryClient(cosmos.Context()),
 		rewardQuery:   rewardtypes.NewQueryClient(cosmos.Context()),
-		stakingQuery:  stakingtypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
 		opt(&n)

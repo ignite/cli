@@ -10,6 +10,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
+	relayerconf "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -94,7 +95,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	chainRPC := args[1]
 
 	session.StartSpinner("Creating network relayer client ID...")
-	nodeID, chainClientID, spnClientID, err := clientCreate(cmd, launchID, chainRPC)
+	chain, spn, err := clientCreate(cmd, launchID, chainRPC, spnChainID)
 	if err != nil {
 		return err
 	}
@@ -115,12 +116,12 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		spnGasPrice,
 		spnGasLimit,
 		networktypes.SPN,
-		spnClientID,
+		spn.ClientID,
 	)
 	if err != nil {
 		return err
 	}
-	spnChain.ID = spnChainID
+	spnChain.ID = spn.ChainID
 
 	targetChain, err := initChain(
 		cmd,
@@ -133,16 +134,16 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		chainGasPrice,
 		chainGasLimit,
 		chainAddressPrefix,
-		chainClientID,
+		chain.ClientID,
 	)
 	if err != nil {
 		return err
 	}
-	targetChain.ID = nodeID
+	targetChain.ID = chain.ChainID
 
 	session.StartSpinner("Creating links between chains...")
 
-	pathID, cfg := networktypes.SPNRelayerConfig(*spnChain, *targetChain)
+	pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
 	if cfg, err = r.Link(cmd.Context(), cfg, pathID); err != nil {
 		return err
 	}
@@ -176,4 +177,37 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	_, err = r.Start(cmd.Context(), cfg, pathID)
 	return err
+}
+
+func spnRelayerConfig(
+	srcChain,
+	dstChain relayer.Chain,
+	srcChannel,
+	dstChannel networktypes.Relayer,
+) (string, relayerconf.Config) {
+	pathID := relayer.PathID(srcChain.ID, dstChain.ID)
+	return pathID, relayerconf.Config{
+		Version: relayerconf.SupportVersion,
+		Chains:  []relayerconf.Chain{srcChain.Config(), dstChain.Config()},
+		Paths: []relayerconf.Path{
+			{
+				ID:       pathID,
+				Ordering: relayer.OrderingOrdered,
+				Src: relayerconf.PathEnd{
+					ChainID:      srcChain.ID,
+					PortID:       networktypes.SPNPortID,
+					Version:      networktypes.SPNVersion,
+					ConnectionID: srcChannel.ConnectionID,
+					ChannelID:    srcChannel.Channel.ChannelID,
+				},
+				Dst: relayerconf.PathEnd{
+					ChainID:      dstChain.ID,
+					PortID:       networktypes.ChainPortID,
+					Version:      networktypes.SPNVersion,
+					ConnectionID: dstChannel.ConnectionID,
+					ChannelID:    dstChannel.Channel.ChannelID,
+				},
+			},
+		},
+	}
 }

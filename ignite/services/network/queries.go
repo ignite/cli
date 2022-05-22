@@ -5,7 +5,6 @@ import (
 	"sort"
 	"sync"
 
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -222,15 +221,6 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 	return res.RewardPool, nil
 }
 
-// stakingParams fetches the staking module params
-func (n Network) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
-	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
-	if err != nil {
-		return stakingtypes.Params{}, err
-	}
-	return res.Params, nil
-}
-
 // RewardsInfo Fetches the consensus state with the validator set,
 // the unbounding time, and the last block height from chain rewards.
 func (n Network) RewardsInfo(
@@ -243,7 +233,7 @@ func (n Network) RewardsInfo(
 	unboundingTime int64,
 	err error,
 ) {
-	rewardsInfo, err = RewardsInfo(ctx, n.cosmos, height)
+	rewardsInfo, err = n.consensus(ctx, n.cosmos, height)
 	if err != nil {
 		return rewardsInfo, 0, 0, err
 	}

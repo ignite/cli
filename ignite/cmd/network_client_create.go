@@ -30,62 +30,68 @@ func networkClientCreateHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
+	spnChainID, _ := cmd.Flags().GetString(flagSPNChainID)
+
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
 	chainRPC := args[1]
 
-	nodeID, chainClientID, spnClientID, err := clientCreate(cmd, launchID, chainRPC)
+	chain, spn, err := clientCreate(cmd, launchID, chainRPC, spnChainID)
 	if err != nil {
 		return err
 	}
 
 	session.StopSpinner()
-	session.Printf("%s Network client created: %s\n", icons.Info, spnClientID)
-	session.Printf("%s Target chain %s client: %s\n", icons.Info, nodeID, chainClientID)
+	session.Printf("%s Network client created: %s\n", icons.Info, spn.ClientID)
+	if spn.ConnectionID != "" {
+		session.Printf("%s Network already have a connection: %s\n", icons.Bullet, spn.ConnectionID)
+	}
+	session.Printf("%s Target chain %s client: %s\n", icons.Info, chain.ChainID, chain.ClientID)
+	if chain.ConnectionID != "" {
+		session.Printf("%s The chain %s already have a connection: %s\n", icons.Bullet, chain.ChainID, chain.ConnectionID)
+	}
 	return nil
 }
 
-func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI string) (string, string, string, error) {
-	spnChainID, _ := cmd.Flags().GetString(flagSPNChainID)
-
+func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI, spnChainID string) (networktypes.Relayer, networktypes.Relayer, error) {
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
 	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 	node, err := network.NewNodeClient(nodeClient)
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	nodeClientID, err := node.FindClientID(cmd.Context(), spnChainID)
+	nodeRelayer, err := node.FindClientID(cmd.Context(), spnChainID)
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
 	rewardsInfo, nodeID, unboundingTime, err := node.RewardsInfo(cmd.Context())
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
 	n, err := nb.Network()
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	spnClientID, err := n.FindClientID(cmd.Context(), nodeID)
+	spnRelayer, err := n.FindClientID(cmd.Context(), nodeID)
 	if err == network.ErrChainClientNotExist {
-		spnClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
+		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	}
 	if err != nil {
-		return "", "", "", err
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	return nodeID, nodeClientID, spnClientID, err
+	return nodeRelayer, spnRelayer, err
 }
