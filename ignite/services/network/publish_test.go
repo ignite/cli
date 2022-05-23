@@ -168,7 +168,7 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, _, publishError := network.Publish(context.Background(), suite.ChainMock,
-			WithPercentageShares([]SharePercentage{
+			WithPercentageShares([]SharePercent{
 				NewSharePercentage("foo", 2),
 				NewSharePercentage("staking", 50),
 			}),
@@ -845,13 +845,13 @@ func TestParseSharePercentages(t *testing.T) {
 	tests := []struct {
 		name     string
 		shareStr string
-		want     []SharePercentage
+		want     []SharePercent
 		err      error
 	}{
 		{
 			name:     "valid share percentage",
 			shareStr: "12.333%def",
-			want: []SharePercentage{
+			want: []SharePercent{
 				{
 					denom:   "def",
 					percent: 12.333,
@@ -861,7 +861,7 @@ func TestParseSharePercentages(t *testing.T) {
 		{
 			name:     "100% percentage",
 			shareStr: "100%def",
-			want: []SharePercentage{
+			want: []SharePercent{
 				{
 					denom:   "def",
 					percent: 100,
@@ -871,7 +871,7 @@ func TestParseSharePercentages(t *testing.T) {
 		{
 			name:     "valid share percentages",
 			shareStr: "12%def,10.3%abc",
-			want: []SharePercentage{
+			want: []SharePercent{
 				{
 					denom:   "def",
 					percent: 12,

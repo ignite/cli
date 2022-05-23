@@ -19,22 +19,22 @@ import (
 )
 
 // SharePercentage represent percent of total share
-type SharePercentage struct {
+type SharePercent struct {
 	denom   string
 	percent float64
 }
 
 // NewSharePercentage creates new share percentage
-func NewSharePercentage(denom string, percent float64) SharePercentage {
-	return SharePercentage{denom: denom, percent: percent}
+func NewSharePercentage(denom string, percent float64) SharePercent {
+	return SharePercent{denom: denom, percent: percent}
 }
 
 // ParseSharePercentages parsers SharePercentage list from string
 // format: 12.4%foo,10%bar,0.133%baz
-func ParseSharePercentages(percentagesString string) ([]SharePercentage, error) {
+func ParseSharePercentages(percentages string) ([]SharePercent, error) {
 	var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
-	rawPercentages := strings.Split(percentagesString, ",")
-	percentages := make([]SharePercentage, len(rawPercentages))
+	rawPercentages := strings.Split(percentages, ",")
+	ps := make([]SharePercent, len(rawPercentages))
 	for i, percentage := range rawPercentages {
 		// validate raw percentage format
 		if len(rePercentageRequired.FindStringIndex(percentage)) == 0 {
@@ -50,10 +50,10 @@ func ParseSharePercentages(percentagesString string) ([]SharePercentage, error) 
 		if percent > 100 {
 			return nil, fmt.Errorf("%q can not be bigger than 100", denom)
 		}
-		percentages[i] = NewSharePercentage(denom, percent)
+		ps[i] = NewSharePercentage(denom, percent)
 	}
 
-	return percentages, nil
+	return ps, nil
 }
 
 // publishOptions holds info about how to create a chain.
@@ -64,7 +64,7 @@ type publishOptions struct {
 	noCheck          bool
 	metadata         string
 	totalSupply      sdk.Coins
-	sharePercentages []SharePercentage
+	sharePercentages []SharePercent
 	mainnet          bool
 }
 
@@ -114,7 +114,7 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 }
 
 // WithPercentageShares enables minting vouchers for shares.
-func WithPercentageShares(sharePercentages []SharePercentage) PublishOption {
+func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	return func(c *publishOptions) {
 		c.sharePercentages = sharePercentages
 	}
