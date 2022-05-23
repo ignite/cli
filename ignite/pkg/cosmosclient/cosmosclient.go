@@ -390,6 +390,47 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 	}, nil
 }
 
+// GetBlockTXs returns the transactions in a block.
+// The list of transactions can be empty if there are no transactions
+// in the block at the moment this method is called.
+func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err error) {
+	r, err := c.RPC.Block(ctx, &height)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
+	}
+
+	blockTime := r.Block.Time.UTC().Format(time.RFC3339Nano)
+	query := fmt.Sprintf("tx.height=%d", height)
+	perPage := 30
+	page := 1
+
+	// TODO: fetch pages in parallel ? requires page 1 request to calculate page count
+	for {
+		r, err := c.RPC.TxSearch(ctx, query, false, &page, &perPage, "asc")
+		if err != nil {
+			return nil, err
+		}
+
+		for _, t := range r.Txs {
+			txs = append(txs, TX{
+				Hash:      t.Hash.String(),
+				Height:    height,
+				BlockTime: blockTime,
+				EventLog:  t.TxResult.GetLog(),
+			})
+		}
+
+		// Stop when the last page is fetched
+		if r.TotalCount <= (page * perPage) {
+			break
+		}
+
+		page++
+	}
+
+	return txs, nil
+}
+
 // prepareBroadcast performs checks and operations before broadcasting messages
 func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []sdktypes.Msg) error {
 	// TODO uncomment after https://github.com/tendermint/spn/issues/363
