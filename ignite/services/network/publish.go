@@ -2,6 +2,10 @@ package network
 
 import (
 	"context"
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -14,16 +18,54 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
+// SharePercentage represent percent of total share
+type SharePercentage struct {
+	denom   string
+	percent float64
+}
+
+// NewSharePercentage creates new share percentage
+func NewSharePercentage(denom string, percent float64) SharePercentage {
+	return SharePercentage{denom: denom, percent: percent}
+}
+
+// ParseSharePercentages parsers SharePercentage list from string
+// format: 12.4%foo,10%bar,0.133%baz
+func ParseSharePercentages(percentagesString string) ([]SharePercentage, error) {
+	var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
+	rawPercentages := strings.Split(percentagesString, ",")
+	percentages := make([]SharePercentage, len(rawPercentages))
+	for i, percentage := range rawPercentages {
+		// validate raw percentage format
+		if len(rePercentageRequired.FindStringIndex(percentage)) == 0 {
+			return nil, fmt.Errorf("invalid percentage format %s", percentage)
+		}
+
+		foo := strings.Split(percentage, "%")
+		denom := foo[1]
+		percent, err := strconv.ParseFloat(foo[0], 64)
+		if err != nil {
+			return nil, err
+		}
+		if percent > 100 {
+			return nil, fmt.Errorf("%q can not be bigger than 100", denom)
+		}
+		percentages[i] = NewSharePercentage(denom, percent)
+	}
+
+	return percentages, nil
+}
+
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL  string
-	chainID     string
-	campaignID  uint64
-	noCheck     bool
-	metadata    string
-	totalSupply sdk.Coins
-	shares      sdk.Coins
-	mainnet     bool
+	genesisURL       string
+	chainID          string
+	campaignID       uint64
+	noCheck          bool
+	metadata         string
+	totalSupply      sdk.Coins
+	sharePercentages []SharePercentage
+	mainnet          bool
 }
 
 // PublishOption configures chain creation.
@@ -72,9 +114,9 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 }
 
 // WithPercentageShares enables minting vouchers for shares.
-func WithPercentageShares(shares sdk.Coins) PublishOption {
+func WithPercentageShares(sharePercentages []SharePercentage) PublishOption {
 	return func(c *publishOptions) {
-		c.shares = shares
+		c.sharePercentages = sharePercentages
 	}
 }
 
@@ -175,7 +217,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	msgs := []sdk.Msg{msgCreateChain}
 
-	if !o.shares.Empty() {
+	if len(o.sharePercentages) != 0 {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
 			return 0, 0, 0, err
@@ -183,9 +225,9 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 		var coins []sdk.Coin
 
-		for _, share := range o.shares {
-			amount := int64((float64(share.Amount.Int64()) / 100) * float64(totalSharesResp.TotalShares))
-			coins = append(coins, sdk.NewInt64Coin(share.Denom, amount))
+		for _, share := range o.sharePercentages {
+			amount := int64(share.percent * float64(totalSharesResp.TotalShares/100))
+			coins = append(coins, sdk.NewInt64Coin(share.denom, amount))
 		}
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
@@ -193,7 +235,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			n.account.Address(networktypes.SPN),
 			campaignID,
-			campaigntypes.NewSharesFromCoins(coins),
+			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
 		msgs = append(msgs, msgMintVouchers)
 	}

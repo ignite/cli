@@ -168,7 +168,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, _, publishError := network.Publish(context.Background(), suite.ChainMock,
-			WithPercentageShares(sdk.NewCoins(sdk.NewInt64Coin("foo", 2), sdk.NewInt64Coin("staking", 50))),
+			WithPercentageShares([]SharePercentage{
+				NewSharePercentage("foo", 2),
+				NewSharePercentage("staking", 50),
+			}),
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
@@ -836,4 +839,76 @@ func TestPublish(t *testing.T) {
 		require.Equal(t, expectedError, publishError)
 		suite.AssertAllMocks(t)
 	})
+}
+
+func TestParseSharePercentages(t *testing.T) {
+	tests := []struct {
+		name     string
+		shareStr string
+		want     []SharePercentage
+		err      error
+	}{
+		{
+			name:     "valid share percentage",
+			shareStr: "12.333%def",
+			want: []SharePercentage{
+				{
+					denom:   "def",
+					percent: 12.333,
+				},
+			},
+		},
+		{
+			name:     "100% percentage",
+			shareStr: "100%def",
+			want: []SharePercentage{
+				{
+					denom:   "def",
+					percent: 100,
+				},
+			},
+		},
+		{
+			name:     "valid share percentages",
+			shareStr: "12%def,10.3%abc",
+			want: []SharePercentage{
+				{
+					denom:   "def",
+					percent: 12,
+				},
+				{
+					denom:   "abc",
+					percent: 10.3,
+				},
+			},
+		},
+		{
+			name:     "share percentages greater than 100",
+			shareStr: "12%def,10.3abc",
+			err:      errors.New("invalid percentage format 10.3abc"),
+		},
+		{
+			name:     "share percentages without % sign",
+			shareStr: "12%def,103%abc",
+			err:      errors.New("\"abc\" can not be bigger than 100"),
+		},
+		{
+			name:     "invalid percent",
+			shareStr: "12.3d3%def",
+			err:      errors.New("invalid percentage format 12.3d3%def"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ParseSharePercentages(tt.shareStr)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, result)
+		})
+	}
 }
