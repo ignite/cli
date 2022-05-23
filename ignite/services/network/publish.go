@@ -18,7 +18,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
-// SharePercentage represent percent of total share
+// SharePercent represent percent of total share
 type SharePercent struct {
 	denom   string
 	percent float64
