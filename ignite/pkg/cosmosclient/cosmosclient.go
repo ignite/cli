@@ -431,6 +431,33 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 	return txs, nil
 }
 
+// CollectTXs collects transactions from multiple consecutive blocks.
+// Transactions from a single block are send to the channel only if all transactions
+// from that block are collected successfully.
+// Blocks are traversed sequentially starting from a height until the latest block height
+// available at the moment this method is called.
+// The channel might contain the transactions collected successfully up until that point
+// when an error is returned.
+func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX) error {
+	defer close(tc)
+
+	status, err := c.Status(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to fetch latest block height: %w", err)
+	}
+
+	for height := fromHeight; height <= status.SyncInfo.LatestBlockHeight; height++ {
+		txs, err := c.GetBlockTXs(ctx, height)
+		if err != nil {
+			return err
+		}
+
+		tc <- txs
+	}
+
+	return nil
+}
+
 // prepareBroadcast performs checks and operations before broadcasting messages
 func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []sdktypes.Msg) error {
 	// TODO uncomment after https://github.com/tendermint/spn/issues/363
