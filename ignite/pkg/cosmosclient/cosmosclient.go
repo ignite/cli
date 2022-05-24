@@ -7,8 +7,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -46,6 +48,8 @@ import (
 var FaucetTransferEnsureDuration = time.Second * 40
 
 var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+
+var defaultTXsPerPage = 30
 
 const (
 	defaultNodeAddress   = "http://localhost:26657"
@@ -399,14 +403,15 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
 	}
 
+	query := url.Values{}
+	query.Set("tx.height", strconv.FormatInt(height, 10))
+
 	blockTime := r.Block.Time.UTC().Format(time.RFC3339Nano)
-	query := fmt.Sprintf("tx.height=%d", height)
-	perPage := 30
 	page := 1
 
 	// TODO: fetch pages in parallel ? requires page 1 request to calculate page count
 	for {
-		r, err := c.RPC.TxSearch(ctx, query, false, &page, &perPage, "asc")
+		r, err := c.RPC.TxSearch(ctx, query.Encode(), false, &page, &defaultTXsPerPage, "asc")
 		if err != nil {
 			return nil, err
 		}
@@ -421,7 +426,7 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 		}
 
 		// Stop when the last page is fetched
-		if r.TotalCount <= (page * perPage) {
+		if r.TotalCount <= (page * defaultTXsPerPage) {
 			break
 		}
 
