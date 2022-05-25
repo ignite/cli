@@ -36,7 +36,6 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 			},
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
             args := []string{}
             args = append(args, fields...)
