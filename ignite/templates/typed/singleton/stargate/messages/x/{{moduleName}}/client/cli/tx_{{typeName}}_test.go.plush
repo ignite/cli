@@ -35,7 +35,6 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 			},
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
             var args []string
             args = append(args, fields...)
@@ -82,7 +81,6 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 			args: common,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
             var args []string
             args = append(args, fields...)
@@ -130,7 +128,6 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 			args: common,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{}, tc.args...))
 			if tc.err != nil {
