@@ -7,6 +7,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
+	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.45.4
@@ -45,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.4
-	github.com/tendermint/spn v0.2.1-0.20220511154430-aeab7a5b2bc0
+	github.com/tendermint/spn v0.2.1-0.20220525143719-11fb463eaadf
 	github.com/tendermint/tendermint v0.34.19
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tendermint/vue v0.3.5
@@ -75,7 +76,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
-	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/calmh/randomart v1.1.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
