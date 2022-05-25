@@ -86,7 +86,7 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI, spnChainID strin
 	}
 
 	spnRelayer, err := n.FindClientID(cmd.Context(), launchID)
-	if err == network.ErrChainClientNotExist {
+	if err == network.ErrObjectNotFound {
 		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	}
 	if err != nil {

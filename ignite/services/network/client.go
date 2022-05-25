@@ -3,15 +3,11 @@ package network
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
-
-// ErrChainClientNotExist returned when specified client does not exist for a chain.
-var ErrChainClientNotExist = errors.New("client id not found for chain")
 
 // CreateClient send create client message to SPN
 func (n Network) CreateClient(
@@ -64,7 +60,7 @@ func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer net
 		return relayer, err
 	}
 	if len(clientStates) == 0 {
-		return relayer, ErrChainClientNotExist
+		return relayer, ErrObjectNotFound
 	}
 	clientID := clientStates[0]
 	relayer.ConnectionID, relayer.Channel, err = n.GetConnectionChannel(ctx, clientID)

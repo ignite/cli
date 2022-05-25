@@ -156,7 +156,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	session.StartSpinner("Loading...")
 
-	path, err := r.GetPath(cmd.Context(), pathID)
+	path, err := cfg.PathByID(pathID)
 	if err != nil {
 		return err
 	}

@@ -97,7 +97,7 @@ func (n Node) FindClientID(ctx context.Context, chainID string) (relayer network
 			return relayer, err
 		}
 	}
-	return relayer, ErrChainClientNotExist
+	return relayer, ErrObjectNotFound
 }
 
 // connectionChannels fetches the chain connection channels by connection id
