@@ -144,7 +144,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	needsLink, pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
 	if needsLink {
-		cfg, err = r.Link(cmd.Context(), cfg, pathID)
+		cfg, err = r.Link(cmd.Context(), session, cfg, pathID)
 		if err != nil {
 			return err
 		}
@@ -177,7 +177,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	_, err = r.Start(cmd.Context(), cfg, pathID)
+	_, err = r.Start(cmd.Context(), session, cfg, pathID)
 	return err
 }
 

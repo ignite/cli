@@ -5,19 +5,19 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 
 	"github.com/gorilla/rpc/v2/json2"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite-hq/cli/ignite/pkg/nodetime"
 )
 
 // Call calls a method in the ts relayer wrapper lib with args and fills reply from the returned value.
-func Call(ctx context.Context, method string, args, reply interface{}) error {
+func Call(ctx context.Context, session cliui.Session, method string, args, reply interface{}) error {
 	command, cleanup, err := nodetime.Command(nodetime.CommandXRelayer)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 		}
 
 		if err != nil { // a line printed to the stdout by the other process.
-			fmt.Println(sc.Text())
+			session.Println(sc.Text())
 		}
 	}
 
