@@ -65,12 +65,9 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI, spnChainID strin
 	if err != nil {
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
-	node, err := network.NewNodeClient(nodeClient)
-	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
-	}
+	node := network.NewNode(nodeClient)
 
-	chainRelayer, err := node.FindClientID(cmd.Context(), spnChainID)
+	chainRelayer, err := node.FindClientID(cmd.Context())
 	if err != nil {
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}

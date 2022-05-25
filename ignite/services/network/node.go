@@ -8,9 +8,8 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
 	ibcconntypes "github.com/cosmos/ibc-go/v2/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
-	"github.com/cosmos/ibc-go/v2/modules/core/exported"
-	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
+	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
@@ -18,26 +17,24 @@ import (
 
 // Node is node builder.
 type Node struct {
-	cosmos          CosmosClient
-	stakingQuery    stakingtypes.QueryClient
-	ibcClientQuery  ibcclienttypes.QueryClient
-	ibcConnQuery    ibcconntypes.QueryClient
-	ibcChannelQuery ibcchanneltypes.QueryClient
+	cosmos                  CosmosClient
+	stakingQuery            stakingtypes.QueryClient
+	ibcClientQuery          ibcclienttypes.QueryClient
+	ibcConnQuery            ibcconntypes.QueryClient
+	ibcChannelQuery         ibcchanneltypes.QueryClient
+	monitoringProviderQuery monitoringptypes.QueryClient
 }
 
-// NewNodeClient creates a new client for node API
-func NewNodeClient(cosmos CosmosClient) (Node, error) {
-	cosmos.Context().InterfaceRegistry.RegisterImplementations(
-		(*exported.ClientState)(nil),
-		&lightclienttypes.ClientState{},
-	)
+// NewNode creates a new client for node API
+func NewNode(cosmos CosmosClient) Node {
 	return Node{
-		cosmos:          cosmos,
-		stakingQuery:    stakingtypes.NewQueryClient(cosmos.Context()),
-		ibcClientQuery:  ibcclienttypes.NewQueryClient(cosmos.Context()),
-		ibcConnQuery:    ibcconntypes.NewQueryClient(cosmos.Context()),
-		ibcChannelQuery: ibcchanneltypes.NewQueryClient(cosmos.Context()),
-	}, nil
+		cosmos:                  cosmos,
+		stakingQuery:            stakingtypes.NewQueryClient(cosmos.Context()),
+		ibcClientQuery:          ibcclienttypes.NewQueryClient(cosmos.Context()),
+		ibcConnQuery:            ibcconntypes.NewQueryClient(cosmos.Context()),
+		ibcChannelQuery:         ibcchanneltypes.NewQueryClient(cosmos.Context()),
+		monitoringProviderQuery: monitoringptypes.NewQueryClient(cosmos.Context()),
+	}
 }
 
 // consensus Fetches the consensus state with the validator set
@@ -68,40 +65,28 @@ func (n Node) consensus(ctx context.Context, client CosmosClient, height int64) 
 	}, nil
 }
 
-// GetConnectionChannel get the connection and channel by client id
-func (n Node) GetConnectionChannel(
-	ctx context.Context,
-	clientID string,
-) (connectionID string, channel networktypes.Channel, err error) {
-	conns, err := n.clientConnections(ctx, clientID)
-	if err != nil || len(conns) == 0 {
-		return "", channel, err
-	}
-	connectionID = conns[0]
-
-	channels, err := n.connectionChannels(ctx, conns[0])
-	if err != nil && len(channels) == 0 {
-		return connectionID, channel, err
-	}
-	channel = channels[0]
-	return connectionID, channel, nil
-}
-
 // FindClientID find client, connection and channel id by the chain id
-func (n Node) FindClientID(ctx context.Context, chainID string) (relayer networktypes.Relayer, err error) {
-	clientStates, err := n.clientStates(ctx)
-	for _, state := range clientStates {
-		if state.ChainID == chainID {
-			relayer.ClientID = state.ClientID
-			relayer.ConnectionID, relayer.Channel, err = n.GetConnectionChannel(ctx, state.ClientID)
-			return relayer, err
-		}
+func (n Node) FindClientID(ctx context.Context) (relayer networktypes.Relayer, err error) {
+	relayer.ClientID, err = n.consumerClientID(ctx)
+	if err != nil && err != ErrObjectNotFound {
+		return
 	}
-	return relayer, ErrObjectNotFound
+	relayer.ChannelID, err = n.connectionChannelID(ctx)
+	if err != nil && err != ErrObjectNotFound {
+		return
+	}
+	connections, err := n.clientConnections(ctx, relayer.ClientID)
+	if err != nil && err != ErrObjectNotFound {
+		return
+	}
+	if len(connections) > 0 {
+		relayer.ConnectionID = connections[0]
+	}
+	return
 }
 
 // connectionChannels fetches the chain connection channels by connection id
-func (n Node) connectionChannels(ctx context.Context, connectionID string) (channels []networktypes.Channel, err error) {
+func (n Node) connectionChannels(ctx context.Context, connectionID string) (channels []string, err error) {
 	res, err := n.ibcChannelQuery.ConnectionChannels(ctx, &ibcchanneltypes.QueryConnectionChannelsRequest{
 		Connection: connectionID,
 	})
@@ -111,7 +96,7 @@ func (n Node) connectionChannels(ctx context.Context, connectionID string) (chan
 		return nil, err
 	}
 	for _, channel := range res.Channels {
-		channels = append(channels, networktypes.ToChannel(*channel))
+		channels = append(channels, channel.ChannelId)
 	}
 	return
 }
@@ -129,22 +114,6 @@ func (n Node) clientConnections(ctx context.Context, clientID string) ([]string,
 	return res.ConnectionPaths, err
 }
 
-// clientStates fetches the chain client states
-func (n Node) clientStates(ctx context.Context) (states []networktypes.ClientState, err error) {
-	res, err := n.ibcClientQuery.ClientStates(ctx, &ibcclienttypes.QueryClientStatesRequest{})
-	if err != nil {
-		return nil, err
-	}
-	for _, state := range res.ClientStates {
-		clientState, ok := networktypes.ToClientState(state)
-		if !ok {
-			continue
-		}
-		states = append(states, clientState)
-	}
-	return
-}
-
 // stakingParams fetches the staking module params
 func (n Node) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
@@ -152,6 +121,32 @@ func (n Node) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 		return stakingtypes.Params{}, err
 	}
 	return res.Params, nil
+}
+
+// consumerClientID fetches the consumer client id from the monitoring provider
+func (n Node) consumerClientID(ctx context.Context) (string, error) {
+	res, err := n.monitoringProviderQuery.ConsumerClientID(
+		ctx, &monitoringptypes.QueryGetConsumerClientIDRequest{},
+	)
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return "", ErrObjectNotFound
+	} else if err != nil {
+		return "", err
+	}
+	return res.ConsumerClientID.ClientID, nil
+}
+
+// connectionChannelID fetches the consumer connection chnnael id from the monitoring provider
+func (n Node) connectionChannelID(ctx context.Context) (string, error) {
+	res, err := n.monitoringProviderQuery.ConnectionChannelID(
+		ctx, &monitoringptypes.QueryGetConnectionChannelIDRequest{},
+	)
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return "", ErrObjectNotFound
+	} else if err != nil {
+		return "", err
+	}
+	return res.ConnectionChannelID.ChannelID, nil
 }
 
 // RewardsInfo Fetches the consensus state with the validator set and the unbounding time

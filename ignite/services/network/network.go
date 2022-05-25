@@ -4,19 +4,16 @@ import (
 	"context"
 	"strconv"
 
-	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
-	ibcconntypes "github.com/cosmos/ibc-go/v2/modules/core/03-connection/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v2/modules/core/exported"
 	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
+	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -40,13 +37,14 @@ type CosmosClient interface {
 // Network is network builder.
 type Network struct {
 	Node
-	ev               events.Bus
-	account          cosmosaccount.Account
-	campaignQuery    campaigntypes.QueryClient
-	launchQuery      launchtypes.QueryClient
-	profileQuery     profiletypes.QueryClient
-	rewardQuery      rewardtypes.QueryClient
-	monitoringcQuery monitoringctypes.QueryClient
+	ev                      events.Bus
+	account                 cosmosaccount.Account
+	campaignQuery           campaigntypes.QueryClient
+	launchQuery             launchtypes.QueryClient
+	profileQuery            profiletypes.QueryClient
+	rewardQuery             rewardtypes.QueryClient
+	monitoringConsumerQuery monitoringctypes.QueryClient
+	monitoringProviderQuery monitoringptypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -98,9 +96,9 @@ func WithStakingQueryClient(client stakingtypes.QueryClient) Option {
 	}
 }
 
-func WithMonitoringClientQueryClient(client monitoringctypes.QueryClient) Option {
+func WithMonitoringConsumerQueryClient(client monitoringctypes.QueryClient) Option {
 	return func(n *Network) {
-		n.monitoringcQuery = client
+		n.monitoringConsumerQuery = client
 	}
 }
 
@@ -119,19 +117,13 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 	)
 
 	n := Network{
-		Node: Node{
-			cosmos:          cosmos,
-			ibcClientQuery:  ibcclienttypes.NewQueryClient(cosmos.Context()),
-			ibcConnQuery:    ibcconntypes.NewQueryClient(cosmos.Context()),
-			ibcChannelQuery: ibcchanneltypes.NewQueryClient(cosmos.Context()),
-			stakingQuery:    stakingtypes.NewQueryClient(cosmos.Context()),
-		},
-		account:          account,
-		campaignQuery:    campaigntypes.NewQueryClient(cosmos.Context()),
-		launchQuery:      launchtypes.NewQueryClient(cosmos.Context()),
-		profileQuery:     profiletypes.NewQueryClient(cosmos.Context()),
-		rewardQuery:      rewardtypes.NewQueryClient(cosmos.Context()),
-		monitoringcQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
+		Node:                    NewNode(cosmos),
+		account:                 account,
+		campaignQuery:           campaigntypes.NewQueryClient(cosmos.Context()),
+		launchQuery:             launchtypes.NewQueryClient(cosmos.Context()),
+		profileQuery:            profiletypes.NewQueryClient(cosmos.Context()),
+		rewardQuery:             rewardtypes.NewQueryClient(cosmos.Context()),
+		monitoringConsumerQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
 		opt(&n)

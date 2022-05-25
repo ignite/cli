@@ -188,9 +188,9 @@ func spnRelayerConfig(
 	dstChannel networktypes.Relayer,
 ) (bool, string, relayerconf.Config) {
 	needsLink := !(srcChannel.ConnectionID != "" &&
-		srcChannel.Channel.ChannelID != "" &&
+		srcChannel.ChannelID != "" &&
 		dstChannel.ConnectionID != "" &&
-		dstChannel.Channel.ChannelID != "")
+		dstChannel.ChannelID != "")
 	pathID := relayer.PathID(srcChain.ID, dstChain.ID)
 	return needsLink, pathID, relayerconf.Config{
 		Version: relayerconf.SupportVersion,
@@ -204,14 +204,14 @@ func spnRelayerConfig(
 					PortID:       networktypes.SPNPortID,
 					Version:      networktypes.SPNVersion,
 					ConnectionID: srcChannel.ConnectionID,
-					ChannelID:    srcChannel.Channel.ChannelID,
+					ChannelID:    srcChannel.ChannelID,
 				},
 				Dst: relayerconf.PathEnd{
 					ChainID:      dstChain.ID,
 					PortID:       networktypes.ChainPortID,
 					Version:      networktypes.SPNVersion,
 					ConnectionID: dstChannel.ConnectionID,
-					ChannelID:    dstChannel.Channel.ChannelID,
+					ChannelID:    dstChannel.ChannelID,
 				},
 			},
 		},

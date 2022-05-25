@@ -38,7 +38,7 @@ func (n Network) CreateClient(
 
 // VerifiedClientIDs fetches the verified client ids from SPN by launch id
 func (n Network) VerifiedClientIDs(ctx context.Context, launchID uint64) ([]string, error) {
-	res, err := n.monitoringcQuery.
+	res, err := n.monitoringConsumerQuery.
 		VerifiedClientIds(ctx,
 			&monitoringctypes.QueryGetVerifiedClientIdsRequest{
 				LaunchID: launchID,
@@ -62,7 +62,18 @@ func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer net
 	if len(clientStates) == 0 {
 		return relayer, ErrObjectNotFound
 	}
-	clientID := clientStates[0]
-	relayer.ConnectionID, relayer.Channel, err = n.GetConnectionChannel(ctx, clientID)
+	relayer.ClientID = clientStates[0]
+
+	relayer.ChannelID, err = n.connectionChannelID(ctx)
+	if err != nil && err != ErrObjectNotFound {
+		return
+	}
+	connections, err := n.clientConnections(ctx, relayer.ClientID)
+	if err != nil && err != ErrObjectNotFound {
+		return
+	}
+	if len(connections) > 0 {
+		relayer.ConnectionID = connections[0]
+	}
 	return relayer, err
 }
