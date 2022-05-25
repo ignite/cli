@@ -76,7 +76,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !force && !chainLaunch.LaunchTriggered {
-		return fmt.Errorf("chain launch has not been triggered yet. use --force to prepare anyway")
+		return fmt.Errorf("chain %d launch has not been triggered yet. use --force to prepare anyway", launchID)
 	}
 
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
