@@ -141,10 +141,12 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	session.StartSpinner("Creating links between chains...")
 
-	pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
-	cfg, err = r.Link(cmd.Context(), cfg, pathID)
-	if err != nil {
-		return err
+	needsLink, pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
+	if needsLink {
+		cfg, err = r.Link(cmd.Context(), cfg, pathID)
+		if err != nil {
+			return err
+		}
 	}
 
 	session.StopSpinner()
@@ -183,9 +185,13 @@ func spnRelayerConfig(
 	dstChain relayer.Chain,
 	srcChannel,
 	dstChannel networktypes.Relayer,
-) (string, relayerconf.Config) {
+) (bool, string, relayerconf.Config) {
+	needsLink := !(srcChannel.ConnectionID != "" &&
+		srcChannel.Channel.ChannelID != "" &&
+		dstChannel.ConnectionID != "" &&
+		dstChannel.Channel.ChannelID != "")
 	pathID := relayer.PathID(srcChain.ID, dstChain.ID)
-	return pathID, relayerconf.Config{
+	return needsLink, pathID, relayerconf.Config{
 		Version: relayerconf.SupportVersion,
 		Chains:  []relayerconf.Chain{srcChain.Config(), dstChain.Config()},
 		Paths: []relayerconf.Path{
