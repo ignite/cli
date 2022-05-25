@@ -11,7 +11,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/ctxticker"
@@ -42,7 +41,6 @@ func New(ca cosmosaccount.Registry) Relayer {
 // calling Link multiple times for the same paths does not have any side effects.
 func (r Relayer) LinkPaths(
 	ctx context.Context,
-	session cliui.Session,
 	pathIDs ...string,
 ) error {
 	conf, err := relayerconf.Get()
@@ -51,7 +49,7 @@ func (r Relayer) LinkPaths(
 	}
 
 	for _, id := range pathIDs {
-		conf, err = r.Link(ctx, session, conf, id)
+		conf, err = r.Link(ctx, conf, id)
 		if err != nil {
 			return err
 		}
@@ -65,7 +63,6 @@ func (r Relayer) LinkPaths(
 // Link links chain path to each other.
 func (r Relayer) Link(
 	ctx context.Context,
-	session cliui.Session,
 	conf relayerconf.Config,
 	pathID string,
 ) (relayerconf.Config, error) {
@@ -78,7 +75,7 @@ func (r Relayer) Link(
 		return conf, fmt.Errorf("path %s already linked", path.ID)
 	}
 
-	if path, err = r.call(ctx, session, conf, path, "link"); err != nil {
+	if path, err = r.call(ctx, conf, path, "link"); err != nil {
 		return conf, err
 	}
 
@@ -88,7 +85,6 @@ func (r Relayer) Link(
 // StartPaths relays packets for linked paths from config file until ctx is canceled.
 func (r Relayer) StartPaths(
 	ctx context.Context,
-	session cliui.Session,
 	pathIDs ...string,
 ) error {
 	conf, err := relayerconf.Get()
@@ -100,7 +96,7 @@ func (r Relayer) StartPaths(
 	var m sync.Mutex // protects relayerconf.Path.
 
 	start := func(id string) error {
-		path, err := r.Start(ctx, session, conf, id)
+		path, err := r.Start(ctx, conf, id)
 		if err != nil {
 			return err
 		}
@@ -134,7 +130,6 @@ func (r Relayer) StartPaths(
 // Start relays packets for linked path until ctx is canceled.
 func (r Relayer) Start(
 	ctx context.Context,
-	session cliui.Session,
 	conf relayerconf.Config,
 	pathID string,
 ) (relayerconf.Path, error) {
@@ -142,12 +137,11 @@ func (r Relayer) Start(
 	if err != nil {
 		return path, err
 	}
-	return r.call(ctx, session, conf, path, "start")
+	return r.call(ctx, conf, path, "start")
 }
 
 func (r Relayer) call(
 	ctx context.Context,
-	session cliui.Session,
 	conf relayerconf.Config,
 	path relayerconf.Path,
 	action string,
@@ -170,7 +164,7 @@ func (r Relayer) call(
 		srcKey,
 		dstKey,
 	}
-	return reply, tsrelayer.Call(ctx, session, action, args, &reply)
+	return reply, tsrelayer.Call(ctx, action, args, &reply)
 }
 
 func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID string) (

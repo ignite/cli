@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"text/tabwriter"
 
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
@@ -24,7 +26,7 @@ const (
 	flagSPNGasPrice        = "spn-gasprice"
 	flagSPNGasLimit        = "spn-gaslimit"
 
-	defaultGasPrice = "0.00025"
+	defaultGasPrice = "0.0000025"
 	defaultGasLimit = 400000
 )
 
@@ -91,7 +93,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 	// TODO fetch from chain peer
-	chainRPC := args[1]
+	chainRPC := xurl.HTTPEnsurePort(args[1])
 
 	session.StartSpinner("Creating network relayer client ID...")
 	chain, spn, err := clientCreate(cmd, launchID, chainRPC, spnChainID)
@@ -144,7 +146,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	needsLink, pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
 	if needsLink {
-		cfg, err = r.Link(cmd.Context(), session, cfg, pathID)
+		cfg, err = r.Link(cmd.Context(), cfg, pathID)
 		if err != nil {
 			return err
 		}
@@ -177,7 +179,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	_, err = r.Start(cmd.Context(), session, cfg, pathID)
+	_, err = r.Start(cmd.Context(), cfg, pathID)
 	return err
 }
 
