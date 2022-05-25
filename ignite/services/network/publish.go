@@ -24,16 +24,16 @@ type SharePercent struct {
 	percent float64
 }
 
-// NewSharePercentage creates new share percentage
-func NewSharePercentage(denom string, percent float64) SharePercent {
+// NewSharePercent creates new share percent representation
+func NewSharePercent(denom string, percent float64) SharePercent {
 	return SharePercent{denom: denom, percent: percent}
 }
 
-// ParseSharePercentages parsers SharePercentage list from string
+// ParseSharePercents parses SharePercentage list from string
 // format: 12.4%foo,10%bar,0.133%baz
-func ParseSharePercentages(percentages string) ([]SharePercent, error) {
+func ParseSharePercents(percents string) ([]SharePercent, error) {
 	var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
-	rawPercentages := strings.Split(percentages, ",")
+	rawPercentages := strings.Split(percents, ",")
 	ps := make([]SharePercent, len(rawPercentages))
 	for i, percentage := range rawPercentages {
 		// validate raw percentage format
@@ -50,7 +50,7 @@ func ParseSharePercentages(percentages string) ([]SharePercent, error) {
 		if percent > 100 {
 			return nil, fmt.Errorf("%q can not be bigger than 100", denom)
 		}
-		ps[i] = NewSharePercentage(denom, percent)
+		ps[i] = NewSharePercent(denom, percent)
 	}
 
 	return ps, nil

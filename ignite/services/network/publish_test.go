@@ -169,8 +169,8 @@ func TestPublish(t *testing.T) {
 
 		launchID, campaignID, _, publishError := network.Publish(context.Background(), suite.ChainMock,
 			WithPercentageShares([]SharePercent{
-				NewSharePercentage("foo", 2),
-				NewSharePercentage("staking", 50),
+				NewSharePercent("foo", 2),
+				NewSharePercent("staking", 50),
 			}),
 		)
 		require.NoError(t, publishError)
@@ -901,7 +901,7 @@ func TestParseSharePercentages(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := ParseSharePercentages(tt.shareStr)
+			result, err := ParseSharePercents(tt.shareStr)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.err.Error(), err.Error())

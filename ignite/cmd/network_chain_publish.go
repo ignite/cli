@@ -201,7 +201,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		sharePercentages, err := network.ParseSharePercentages(sharesStr)
+		sharePercentages, err := network.ParseSharePercents(sharesStr)
 		if err != nil {
 			return err
 		}
