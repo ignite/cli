@@ -116,7 +116,12 @@ func TestPublish(t *testing.T) {
 					Address: account.Address(networktypes.SPN),
 				},
 			).
-			Return(nil, nil).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
 			Once()
 		suite.CampaignQueryMock.
 			On(
