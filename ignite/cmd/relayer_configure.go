@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"fmt"
+
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -469,7 +471,7 @@ func initChain(
 	clientID string,
 ) (*relayer.Chain, error) {
 	defer session.StopSpinner()
-	session.StartSpinner("Initializing chain...")
+	session.StartSpinner(fmt.Sprintf("Initializing chain %s...", name))
 
 	c, account, err := r.NewChain(
 		accountName,
@@ -484,16 +486,15 @@ func initChain(
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
-	session.StopSpinner()
-
 	accountAddr := account.Address(addressPrefix)
 
+	session.StopSpinner()
 	session.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)
 	session.StartSpinner(color.Yellow.Sprintf("trying to receive tokens from a faucet..."))
 
 	coins, err := c.TryRetrieve(cmd.Context())
-	session.StopSpinner()
 
+	session.StopSpinner()
 	session.Print(" |· ")
 	if err != nil {
 		session.Println(color.Yellow.Sprintf(err.Error()))

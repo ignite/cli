@@ -4,6 +4,8 @@ import (
 	"context"
 	"strconv"
 
+	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -38,12 +40,13 @@ type CosmosClient interface {
 // Network is network builder.
 type Network struct {
 	Node
-	ev            events.Bus
-	account       cosmosaccount.Account
-	campaignQuery campaigntypes.QueryClient
-	launchQuery   launchtypes.QueryClient
-	profileQuery  profiletypes.QueryClient
-	rewardQuery   rewardtypes.QueryClient
+	ev               events.Bus
+	account          cosmosaccount.Account
+	campaignQuery    campaigntypes.QueryClient
+	launchQuery      launchtypes.QueryClient
+	profileQuery     profiletypes.QueryClient
+	rewardQuery      rewardtypes.QueryClient
+	monitoringcQuery monitoringctypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -95,6 +98,12 @@ func WithStakingQueryClient(client stakingtypes.QueryClient) Option {
 	}
 }
 
+func WithMonitoringClientQueryClient(client monitoringctypes.QueryClient) Option {
+	return func(n *Network) {
+		n.monitoringcQuery = client
+	}
+}
+
 // CollectEvents collects events from the network builder.
 func CollectEvents(ev events.Bus) Option {
 	return func(n *Network) {
@@ -117,11 +126,12 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 			ibcChannelQuery: ibcchanneltypes.NewQueryClient(cosmos.Context()),
 			stakingQuery:    stakingtypes.NewQueryClient(cosmos.Context()),
 		},
-		account:       account,
-		campaignQuery: campaigntypes.NewQueryClient(cosmos.Context()),
-		launchQuery:   launchtypes.NewQueryClient(cosmos.Context()),
-		profileQuery:  profiletypes.NewQueryClient(cosmos.Context()),
-		rewardQuery:   rewardtypes.NewQueryClient(cosmos.Context()),
+		account:          account,
+		campaignQuery:    campaigntypes.NewQueryClient(cosmos.Context()),
+		launchQuery:      launchtypes.NewQueryClient(cosmos.Context()),
+		profileQuery:     profiletypes.NewQueryClient(cosmos.Context()),
+		rewardQuery:      rewardtypes.NewQueryClient(cosmos.Context()),
+		monitoringcQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
 		opt(&n)

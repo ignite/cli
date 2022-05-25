@@ -70,12 +70,12 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI, spnChainID strin
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	nodeRelayer, err := node.FindClientID(cmd.Context(), spnChainID)
+	chainRelayer, err := node.FindClientID(cmd.Context(), spnChainID)
 	if err != nil {
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	rewardsInfo, nodeID, unboundingTime, err := node.RewardsInfo(cmd.Context())
+	rewardsInfo, chainID, unboundingTime, err := node.RewardsInfo(cmd.Context())
 	if err != nil {
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
@@ -85,7 +85,7 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI, spnChainID strin
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	spnRelayer, err := n.FindClientID(cmd.Context(), nodeID)
+	spnRelayer, err := n.FindClientID(cmd.Context(), launchID)
 	if err == network.ErrChainClientNotExist {
 		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	}
@@ -93,5 +93,7 @@ func clientCreate(cmd *cobra.Command, launchID uint64, nodeAPI, spnChainID strin
 		return networktypes.Relayer{}, networktypes.Relayer{}, err
 	}
 
-	return nodeRelayer, spnRelayer, err
+	chainRelayer.ChainID = chainID
+	spnRelayer.ChainID = spnChainID
+	return chainRelayer, spnRelayer, err
 }

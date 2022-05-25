@@ -10,7 +10,6 @@ import (
 	ibcchanneltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v2/modules/core/exported"
 	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
-	"github.com/pkg/errors"
 	spntypes "github.com/tendermint/spn/pkg/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
@@ -25,9 +24,6 @@ type Node struct {
 	ibcConnQuery    ibcconntypes.QueryClient
 	ibcChannelQuery ibcchanneltypes.QueryClient
 }
-
-// ErrChainClientNotExist returned when specified client does not exist for a chain.
-var ErrChainClientNotExist = errors.New("client id not found for chain")
 
 // NewNodeClient creates a new client for node API
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
@@ -72,32 +68,33 @@ func (n Node) consensus(ctx context.Context, client CosmosClient, height int64) 
 	}, nil
 }
 
-// FindClientID Fetches the client id by channel id and check open connections
-func (n Node) FindClientID(ctx context.Context, chainID string) (relayer networktypes.Relayer, err error) {
-	relayer.ChainID = chainID
+// GetConnectionChannel get the connection and channel by client id
+func (n Node) GetConnectionChannel(
+	ctx context.Context,
+	clientID string,
+) (connectionID string, channel networktypes.Channel, err error) {
+	conns, err := n.clientConnections(ctx, clientID)
+	if err != nil || len(conns) == 0 {
+		return "", channel, err
+	}
+	connectionID = conns[0]
 
+	channels, err := n.connectionChannels(ctx, conns[0])
+	if err != nil && len(channels) == 0 {
+		return connectionID, channel, err
+	}
+	channel = channels[0]
+	return connectionID, channel, nil
+}
+
+// FindClientID find client, connection and channel id by the chain id
+func (n Node) FindClientID(ctx context.Context, chainID string) (relayer networktypes.Relayer, err error) {
 	clientStates, err := n.clientStates(ctx)
 	for _, state := range clientStates {
 		if state.ChainID == chainID {
 			relayer.ClientID = state.ClientID
-
-			conns, err := n.clientConnections(ctx, state.ClientID)
-			if err != nil {
-				return relayer, err
-			} else if len(conns) == 0 {
-				return relayer, nil
-			}
-			relayer.ConnectionID = conns[0]
-
-			channels, err := n.connectionChannels(ctx, conns[0])
-			if err != nil {
-				return relayer, err
-			} else if len(channels) == 0 {
-				return relayer, nil
-			}
-			relayer.Channel = channels[0]
-
-			return relayer, nil
+			relayer.ConnectionID, relayer.Channel, err = n.GetConnectionChannel(ctx, state.ClientID)
+			return relayer, err
 		}
 	}
 	return relayer, ErrChainClientNotExist

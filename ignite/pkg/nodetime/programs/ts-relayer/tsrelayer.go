@@ -35,7 +35,7 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 	g.Go(func() error {
 		defer resw.Close()
 
-		return cmdrunner.New().Run(
+		err := cmdrunner.New().Run(
 			ctx,
 			step.New(
 				step.Exec(command[0], command[1:]...),
@@ -43,6 +43,7 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 				step.Stdout(resw),
 			),
 		)
+		return err
 	})
 
 	// regular logs can be printed to the stdout by the other process before a jsonrpc response is emitted.

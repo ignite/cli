@@ -59,6 +59,8 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	session := cliui.New()
 	defer session.Cleanup()
 
+	session.StartSpinner("Setting up chains...")
+
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
 	)
@@ -67,10 +69,6 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if err := ca.EnsureDefaultAccount(); err != nil {
-		return err
-	}
-
-	if err := printSection(session, "Setting up chains"); err != nil {
 		return err
 	}
 
@@ -144,7 +142,8 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	session.StartSpinner("Creating links between chains...")
 
 	pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
-	if cfg, err = r.Link(cmd.Context(), cfg, pathID); err != nil {
+	cfg, err = r.Link(cmd.Context(), cfg, pathID)
+	if err != nil {
 		return err
 	}
 
