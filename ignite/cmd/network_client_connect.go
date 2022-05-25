@@ -40,6 +40,7 @@ func NewNetworkClientConnect() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().String(flagSPNGasPrice, defaultGasPrice+networktypes.SPNDenom, "Gas price used for transactions on SPN")
+	// TODO fetch the stake coin from chain genesis/config
 	c.Flags().String(flagChainGasPrice, defaultGasPrice+"stake", "Gas price used for transactions on target chain")
 	c.Flags().Int64(flagSPNGasLimit, defaultGasLimit, "Gas limit used for transactions on SPN")
 	c.Flags().Int64(flagChainGasLimit, defaultGasLimit, "Gas limit used for transactions on target chain")
