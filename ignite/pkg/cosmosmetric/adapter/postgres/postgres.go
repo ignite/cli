@@ -3,13 +3,13 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/tendermint/tendermint/types/time"
 
 	_ "github.com/lib/pq" // required to register postgres sql driver
 )
@@ -20,10 +20,38 @@ const (
 	defaultPort = 5432
 	defaultHost = "127.0.0.1"
 
-	queryBlockHeight = "SELECT MAX(height) FROM tx"
-	queryInsertTX    = "INSERT INTO tx(hash, index, height, block_time, created_at) VALUES($1, $2, $3, $4, $5)"
-	queryInsertAttr  = "INSERT INTO attribute (tx_hash, event_type, event_index, name, value) VALUES($1, $2, $3, $4, $5)"
+	queryBlockHeight = `
+		SELECT MAX(height)
+		FROM tx
+	`
+	queryInsertTX = `
+		INSERT INTO tx (hash, index, height, block_time)
+		VALUES ($1, $2, $3, $4)
+	`
+	queryInsertAttr = `
+		INSERT INTO attribute (tx_hash, event_type, event_index, name, value)
+		VALUES ($1, $2, $3, $4, $5)
+	`
+	querySchemaExists = `
+		SELECT EXISTS (
+			SELECT FROM information_schema.tables
+			WHERE table_schema = 'public' AND table_name = 'schema'
+		)
+	`
+	querySchemaVersion = `
+		SELECT MAX(version)
+		FROM schema
+	`
+
+	// Latest schema version that the adapter should apply.
+	// This version should be updated when new schema/*.sql files are added
+	// to match the name of the latest file, otherwise the new schemas won't
+	// be applied. All schema file names MUST be numeric.
+	schemaVersion = 1
 )
+
+//go:embed schemas/*
+var fsSchemas embed.FS
 
 var (
 	// ErrClosed is returned when database connection is not open.
@@ -102,6 +130,28 @@ func (a Adapter) GetType() string {
 	return adapterType
 }
 
+func (a Adapter) SetupSchema(ctx context.Context) error {
+	current, err := a.getSchemaVersion(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to read schema version: %w", err)
+	}
+
+	if current == schemaVersion {
+		return nil
+	} else if current > schemaVersion {
+		return fmt.Errorf("latest schema version is v%d, found v%d", schemaVersion, current)
+	}
+
+	for i := current + 1; i <= schemaVersion; i++ {
+		name := fmt.Sprintf("%d.sql", i)
+		if err := a.applySchema(ctx, name); err != nil {
+			return fmt.Errorf("error applying schema '%s': %w", name, err)
+		}
+	}
+
+	return nil
+}
+
 // TODO: add support to save raw transaction data
 func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 	db, err := a.getDB()
@@ -136,8 +186,7 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 	// Save the transactions and event attributes
 	for _, tx := range txs {
 		hash := tx.Raw.Hash.String()
-		createdAt := time.Now().UTC()
-		if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime, createdAt); err != nil {
+		if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime); err != nil {
 			return err
 		}
 
@@ -184,6 +233,46 @@ func (a Adapter) getDB() (*sql.DB, error) {
 	}
 
 	return a.db, nil
+}
+
+func (a Adapter) getSchemaVersion(ctx context.Context) (version uint, err error) {
+	db, err := a.getDB()
+	if err != nil {
+		return 0, err
+	}
+
+	exists := false
+	row := db.QueryRowContext(ctx, querySchemaExists)
+	if err = row.Scan(&exists); err != nil {
+		return 0, err
+	}
+
+	if !exists {
+		return 0, nil
+	}
+
+	row = db.QueryRowContext(ctx, querySchemaVersion)
+	if err = row.Scan(&version); err != nil {
+		return 0, err
+	}
+
+	return version, nil
+}
+
+func (a Adapter) applySchema(ctx context.Context, filename string) error {
+	script, err := fsSchemas.ReadFile(fmt.Sprintf("schemas/%s", filename))
+	if err != nil {
+		return err
+	}
+
+	db, err := a.getDB()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.ExecContext(ctx, string(script))
+
+	return err
 }
 
 func createPostgresURI(a Adapter) string {

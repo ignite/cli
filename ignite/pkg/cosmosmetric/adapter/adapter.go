@@ -19,6 +19,12 @@ type Adapter interface {
 	// GetType returns the adapter type.
 	GetType() string
 
+	// SetupSchema creates or updates the data backend schema required to save the metrics.
+	// This method must be called at least once to create the initial database schema.
+	// Calling it when a schema already exists updates the existing schema to the latest
+	// version if the current one is older.
+	SetupSchema(context.Context) error
+
 	// GetLatestHeight returns the height of the latest block known by the data backend.
 	GetLatestHeight(context.Context) (int64, error)
 }
