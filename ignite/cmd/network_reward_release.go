@@ -28,8 +28,9 @@ const (
 	flagSPNGasLimit          = "spn-gaslimit"
 	flagCreateClientOnly     = "create-client-only"
 
-	defaultGasPrice = "0.0000025"
-	defaultGasLimit = 400000
+	defaultTestnetGasPrice = "0.0000025stake"
+	defaultSPNGasPrice     = "0.0000025" + networktypes.SPNDenom
+	defaultGasLimit        = 400000
 )
 
 // NewNetworkRewardRelease connects the monitoring modules of launched
@@ -44,12 +45,11 @@ func NewNetworkRewardRelease() *cobra.Command {
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().String(flagSPNGasPrice, defaultGasPrice+networktypes.SPNDenom, "Gas price used for transactions on SPN")
-	// TODO fetch the stake coin from chain genesis/config
-	c.Flags().String(flagTestnetGasPrice, defaultGasPrice+"stake", "Gas price used for transactions on testnet chain")
+	c.Flags().String(flagSPNGasPrice, defaultSPNGasPrice, "Gas price used for transactions on SPN")
+	c.Flags().String(flagTestnetGasPrice, defaultTestnetGasPrice, "Gas price used for transactions on testnet chain")
 	c.Flags().Int64(flagSPNGasLimit, defaultGasLimit, "Gas limit used for transactions on SPN")
 	c.Flags().Int64(flagTestnetGasLimit, defaultGasLimit, "Gas limit used for transactions on testnet chain")
-	c.Flags().String(flagTestnetAddressPrefix, "cosmos", "Address prefix of the testnet chain")
+	c.Flags().String(flagTestnetAddressPrefix, cosmosaccount.AccountPrefixCosmos, "Address prefix of the testnet chain")
 	c.Flags().String(flagTestnetAccount, cosmosaccount.DefaultAccount, "testnet chain Account")
 	c.Flags().String(flagTestnetFaucet, "", "Faucet address of the testnet chain")
 	c.Flags().Bool(flagCreateClientOnly, false, "Only create the network client id")
@@ -66,6 +66,12 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	defer session.Cleanup()
 
 	session.StartSpinner("Setting up chains...")
+
+	launchID, err := network.ParseID(args[0])
+	if err != nil {
+		return err
+	}
+	chainRPC := xurl.HTTPEnsurePort(args[1])
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -102,13 +108,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		testnetAccount, _       = cmd.Flags().GetString(flagTestnetAccount)
 		testnetFaucet, _        = cmd.Flags().GetString(flagTestnetFaucet)
 	)
-
-	launchID, err := network.ParseID(args[0])
-	if err != nil {
-		return err
-	}
-	// TODO fetch from chain peer
-	chainRPC := xurl.HTTPEnsurePort(args[1])
 
 	session.StartSpinner("Creating network relayer client ID...")
 	chain, spn, err := clientCreate(cmd, session, launchID, chainRPC, spnChainID)
