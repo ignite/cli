@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -22,6 +23,11 @@ const (
 	queryBlockHeight = "SELECT MAX(height) FROM tx"
 	queryInsertTX    = "INSERT INTO tx(hash, index, height, block_time, created_at) VALUES($1, $2, $3, $4, $5)"
 	queryInsertAttr  = "INSERT INTO attribute (tx_hash, event_type, event_index, name, value) VALUES($1, $2, $3, $4, $5)"
+)
+
+var (
+	// ErrClosed is returned when database connection is not open.
+	ErrClosed = errors.New("no database connection")
 )
 
 // Option defines an option for the adapter.
@@ -98,8 +104,13 @@ func (a Adapter) GetType() string {
 
 // TODO: add support to save raw transaction data
 func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
+	db, err := a.getDB()
+	if err != nil {
+		return err
+	}
+
 	// Start a transaction
-	sqlTx, err := a.db.BeginTx(ctx, nil)
+	sqlTx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -154,12 +165,25 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 }
 
 func (a Adapter) GetLatestHeight(ctx context.Context) (height int64, err error) {
-	row := a.db.QueryRowContext(ctx, queryBlockHeight)
+	db, err := a.getDB()
+	if err != nil {
+		return 0, err
+	}
+
+	row := db.QueryRowContext(ctx, queryBlockHeight)
 	if err = row.Scan(&height); err != nil {
 		return 0, err
 	}
 
 	return height, nil
+}
+
+func (a Adapter) getDB() (*sql.DB, error) {
+	if a.db == nil {
+		return nil, ErrClosed
+	}
+
+	return a.db, nil
 }
 
 func createPostgresURI(a Adapter) string {

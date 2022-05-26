@@ -28,7 +28,7 @@ type TXEventAttribute struct {
 	Value any    `json:"value"`
 }
 
-// UnmarshallEvents parses the JSON encoded transactions events.
+// UnmarshallEvents parses the JSON encoded events emitted during transaction's execution.
 func UnmarshallEvents(tx TX) ([]TXEvent, error) {
 	// The transaction's event log contains a list where each item is an object
 	// with a single "events" property which in turn contains the list of events
