@@ -7,8 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/v2/modules/core/exported"
-	lightclienttypes "github.com/cosmos/ibc-go/v2/modules/light-clients/07-tendermint/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -111,11 +109,6 @@ func CollectEvents(ev events.Bus) Option {
 
 // New creates a Builder.
 func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
-	cosmos.Context().InterfaceRegistry.RegisterImplementations(
-		(*exported.ClientState)(nil),
-		&lightclienttypes.ClientState{},
-	)
-
 	n := Network{
 		Node:                    NewNode(cosmos),
 		account:                 account,
