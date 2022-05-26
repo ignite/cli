@@ -8,7 +8,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
 	relayerconf "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
@@ -17,43 +19,46 @@ import (
 )
 
 const (
-	flagChainFaucet        = "chain-faucet"
-	flagChainAddressPrefix = "chain-prefix"
-	flagChainAccount       = "chain-account"
-	flagChainGasPrice      = "chain-gasprice"
-	flagChainGasLimit      = "chain-gaslimit"
-	flagSPNGasPrice        = "spn-gasprice"
-	flagSPNGasLimit        = "spn-gaslimit"
+	flagTestnetFaucet        = "testnet-faucet"
+	flagTestnetAddressPrefix = "testnet-prefix"
+	flagTestnetAccount       = "testnet-account"
+	flagTestnetGasPrice      = "testnet-gasprice"
+	flagTestnetGasLimit      = "testnet-gaslimit"
+	flagSPNGasPrice          = "spn-gasprice"
+	flagSPNGasLimit          = "spn-gaslimit"
+	flagCreateClientOnly     = "create-client-only"
 
 	defaultGasPrice = "0.0000025"
 	defaultGasLimit = 400000
 )
 
-// NewNetworkClientConnect connects the monitoring modules of launched chains with SPN
-func NewNetworkClientConnect() *cobra.Command {
+// NewNetworkRewardRelease connects the monitoring modules of launched
+// chains with SPN and distribute rewards with chain Relayer
+func NewNetworkRewardRelease() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "connect [launch-id] [chain-rpc]",
+		Use:   "release [launch-id] [chain-rpc]",
 		Short: "Connect the monitoring modules of launched chains with SPN",
 		Args:  cobra.ExactArgs(2),
-		RunE:  networkConnectHandler,
+		RunE:  networkRewardRelease,
 	}
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().String(flagSPNGasPrice, defaultGasPrice+networktypes.SPNDenom, "Gas price used for transactions on SPN")
 	// TODO fetch the stake coin from chain genesis/config
-	c.Flags().String(flagChainGasPrice, defaultGasPrice+"stake", "Gas price used for transactions on target chain")
+	c.Flags().String(flagTestnetGasPrice, defaultGasPrice+"stake", "Gas price used for transactions on testnet chain")
 	c.Flags().Int64(flagSPNGasLimit, defaultGasLimit, "Gas limit used for transactions on SPN")
-	c.Flags().Int64(flagChainGasLimit, defaultGasLimit, "Gas limit used for transactions on target chain")
-	c.Flags().String(flagChainAddressPrefix, "cosmos", "Address prefix of the target chain")
-	c.Flags().String(flagChainAccount, cosmosaccount.DefaultAccount, "Target chain Account")
-	c.Flags().String(flagChainFaucet, "", "Faucet address of the target chain")
+	c.Flags().Int64(flagTestnetGasLimit, defaultGasLimit, "Gas limit used for transactions on testnet chain")
+	c.Flags().String(flagTestnetAddressPrefix, "cosmos", "Address prefix of the testnet chain")
+	c.Flags().String(flagTestnetAccount, cosmosaccount.DefaultAccount, "testnet chain Account")
+	c.Flags().String(flagTestnetFaucet, "", "Faucet address of the testnet chain")
 	c.Flags().String(flagSPNChainID, networktypes.SPNChainID, "Chain ID of SPN")
+	c.Flags().Bool(flagCreateClientOnly, false, "Only create the network client id")
 
 	return c
 }
 
-func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
+func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	defer func() {
 		err = handleRelayerAccountErr(err)
 	}()
@@ -75,14 +80,15 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	var (
-		spnGasPrice, _   = cmd.Flags().GetString(flagSPNGasPrice)
-		chainGasPrice, _ = cmd.Flags().GetString(flagChainGasPrice)
-		spnGasLimit, _   = cmd.Flags().GetInt64(flagSPNGasLimit)
-		chainGasLimit, _ = cmd.Flags().GetInt64(flagChainGasLimit)
+		createClientOnly, _ = cmd.Flags().GetBool(flagCreateClientOnly)
+		spnGasPrice, _      = cmd.Flags().GetString(flagSPNGasPrice)
+		testnetGasPrice, _  = cmd.Flags().GetString(flagTestnetGasPrice)
+		spnGasLimit, _      = cmd.Flags().GetInt64(flagSPNGasLimit)
+		testnetGasLimit, _  = cmd.Flags().GetInt64(flagTestnetGasLimit)
 		// TODO fetch from genesis
-		chainAddressPrefix, _ = cmd.Flags().GetString(flagChainAddressPrefix)
-		chainAccount, _       = cmd.Flags().GetString(flagChainAccount)
-		chainFaucet, _        = cmd.Flags().GetString(flagChainFaucet)
+		testnetAddressPrefix, _ = cmd.Flags().GetString(flagTestnetAddressPrefix)
+		testnetAccount, _       = cmd.Flags().GetString(flagTestnetAccount)
+		testnetFaucet, _        = cmd.Flags().GetString(flagTestnetFaucet)
 		// TODO fetch from node state
 		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
@@ -95,9 +101,12 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	chainRPC := xurl.HTTPEnsurePort(args[1])
 
 	session.StartSpinner("Creating network relayer client ID...")
-	chain, spn, err := clientCreate(cmd, launchID, chainRPC, spnChainID)
+	chain, spn, err := clientCreate(cmd, session, launchID, chainRPC, spnChainID)
 	if err != nil {
 		return err
+	}
+	if createClientOnly {
+		return nil
 	}
 
 	session.StartSpinner("Fetching chain info...")
@@ -123,27 +132,27 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 	spnChain.ID = spn.ChainID
 
-	targetChain, err := initChain(
+	testnetChain, err := initChain(
 		cmd,
 		r,
 		session,
 		relayerTarget,
-		chainAccount,
+		testnetAccount,
 		chainRPC,
-		chainFaucet,
-		chainGasPrice,
-		chainGasLimit,
-		chainAddressPrefix,
+		testnetFaucet,
+		testnetGasPrice,
+		testnetGasLimit,
+		testnetAddressPrefix,
 		chain.ClientID,
 	)
 	if err != nil {
 		return err
 	}
-	targetChain.ID = chain.ChainID
+	testnetChain.ID = chain.ChainID
 
 	session.StartSpinner("Creating links between chains...")
 
-	needsLink, pathID, cfg := spnRelayerConfig(*spnChain, *targetChain, spn, chain)
+	needsLink, pathID, cfg := spnRelayerConfig(*spnChain, *testnetChain, spn, chain)
 	if needsLink {
 		cfg, err = r.Link(cmd.Context(), cfg, pathID)
 		if err != nil {
@@ -179,6 +188,80 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	return r.Start(cmd.Context(), cfg, pathID, nil)
+}
+
+func clientCreate(
+	cmd *cobra.Command,
+	session cliui.Session,
+	launchID uint64,
+	nodeAPI,
+	spnChainID string,
+) (networktypes.Relayer, networktypes.Relayer, error) {
+	nb, err := newNetworkBuilder(cmd)
+	if err != nil {
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
+	}
+
+	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
+	if err != nil {
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
+	}
+	node := network.NewNode(nodeClient)
+
+	chainRelayer, err := node.FindClientID(cmd.Context())
+	if err != nil {
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
+	}
+
+	rewardsInfo, chainID, unboundingTime, err := node.RewardsInfo(cmd.Context())
+	if err != nil {
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
+	}
+
+	n, err := nb.Network()
+	if err != nil {
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
+	}
+
+	spnRelayer, err := n.FindClientID(cmd.Context(), launchID)
+	if err == network.ErrObjectNotFound {
+		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
+	}
+	if err != nil {
+		return networktypes.Relayer{}, networktypes.Relayer{}, err
+	}
+
+	chainRelayer.ChainID = chainID
+	spnRelayer.ChainID = spnChainID
+
+	session.Printf(
+		"%s Network client: %s\n",
+		icons.Info,
+		spnRelayer.ClientID,
+	)
+	printRelayerOptions(session, spnRelayer.ConnectionID, spnRelayer.ChainID, "connection")
+	printRelayerOptions(session, spnRelayer.ChannelID, spnRelayer.ChainID, "channel")
+
+	session.Printf(
+		"%s Testnet chain %s client: %s\n",
+		icons.Info,
+		chainRelayer.ChainID,
+		chainRelayer.ClientID,
+	)
+	printRelayerOptions(session, chainRelayer.ConnectionID, chainRelayer.ChainID, "connection")
+	printRelayerOptions(session, chainRelayer.ChannelID, chainRelayer.ChainID, "channel")
+	return chainRelayer, spnRelayer, err
+}
+
+func printRelayerOptions(session cliui.Session, obj, chainID, option string) {
+	if obj != "" {
+		session.Printf("%s The chain %s already have a %s: %s\n",
+			icons.Bullet,
+			chainID,
+			option,
+			obj,
+		)
+	}
 }
 
 func spnRelayerConfig(
