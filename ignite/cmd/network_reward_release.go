@@ -52,7 +52,6 @@ func NewNetworkRewardRelease() *cobra.Command {
 	c.Flags().String(flagTestnetAddressPrefix, "cosmos", "Address prefix of the testnet chain")
 	c.Flags().String(flagTestnetAccount, cosmosaccount.DefaultAccount, "testnet chain Account")
 	c.Flags().String(flagTestnetFaucet, "", "Faucet address of the testnet chain")
-	c.Flags().String(flagSPNChainID, networktypes.SPNChainID, "Chain ID of SPN")
 	c.Flags().Bool(flagCreateClientOnly, false, "Only create the network client id")
 
 	return c
@@ -67,6 +66,19 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	defer session.Cleanup()
 
 	session.StartSpinner("Setting up chains...")
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
+	if err != nil {
+		return err
+	}
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+	spnChainID, err := n.ChainID(cmd.Context())
+	if err != nil {
+		return err
+	}
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -89,8 +101,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		testnetAddressPrefix, _ = cmd.Flags().GetString(flagTestnetAddressPrefix)
 		testnetAccount, _       = cmd.Flags().GetString(flagTestnetAccount)
 		testnetFaucet, _        = cmd.Flags().GetString(flagTestnetFaucet)
-		// TODO fetch from node state
-		spnChainID, _ = cmd.Flags().GetString(flagSPNChainID)
 	)
 
 	launchID, err := network.ParseID(args[0])
