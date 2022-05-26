@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"text/tabwriter"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-
 	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/relayer"
 	relayerconf "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -179,8 +178,7 @@ func networkConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	_, err = r.Start(cmd.Context(), cfg, pathID)
-	return err
+	return r.Start(cmd.Context(), cfg, pathID, nil)
 }
 
 func spnRelayerConfig(

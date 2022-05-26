@@ -83,48 +83,25 @@ func (r Relayer) Link(
 }
 
 // StartPaths relays packets for linked paths from config file until ctx is canceled.
-func (r Relayer) StartPaths(
-	ctx context.Context,
-	pathIDs ...string,
-) error {
+func (r Relayer) StartPaths(ctx context.Context, pathIDs ...string) error {
 	conf, err := relayerconf.Get()
 	if err != nil {
 		return err
 	}
 
-	wg, ctx := errgroup.WithContext(ctx)
 	var m sync.Mutex // protects relayerconf.Path.
-
-	start := func(id string) error {
-		path, err := r.Start(ctx, conf, id)
-		if err != nil {
-			return err
-		}
-
-		m.Lock()
-		defer m.Unlock()
-
-		conf, err := relayerconf.Get()
-		if err != nil {
-			return err
-		}
-
-		if err := conf.UpdatePath(path); err != nil {
-			return err
-		}
-
-		return relayerconf.Save(conf)
-	}
-
 	for _, id := range pathIDs {
 		id := id
-
-		wg.Go(func() error {
-			return ctxticker.DoNow(ctx, relayDuration, func() error { return start(id) })
+		err := r.Start(ctx, conf, id, func(path relayerconf.Config) error {
+			m.Lock()
+			defer m.Unlock()
+			return relayerconf.Save(conf)
 		})
+		if err != nil {
+			return err
+		}
 	}
-
-	return wg.Wait()
+	return nil
 }
 
 // Start relays packets for linked path until ctx is canceled.
@@ -132,12 +109,30 @@ func (r Relayer) Start(
 	ctx context.Context,
 	conf relayerconf.Config,
 	pathID string,
-) (relayerconf.Path, error) {
-	path, err := conf.PathByID(pathID)
-	if err != nil {
-		return path, err
+	postExecute func(path relayerconf.Config) error,
+) error {
+	wg, ctx := errgroup.WithContext(ctx)
+	start := func(id string) error {
+		path, err := conf.PathByID(pathID)
+		if err != nil {
+			return err
+		}
+		path, err = r.call(ctx, conf, path, "start")
+		if err != nil {
+			return err
+		}
+		if err := conf.UpdatePath(path); err != nil {
+			return err
+		}
+		if postExecute != nil {
+			return postExecute(conf)
+		}
+		return nil
 	}
-	return r.call(ctx, conf, path, "start")
+	wg.Go(func() error {
+		return ctxticker.DoNow(ctx, relayDuration, func() error { return start(pathID) })
+	})
+	return wg.Wait()
 }
 
 func (r Relayer) call(

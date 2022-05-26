@@ -31,11 +31,11 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 
 	resr, resw := io.Pipe()
 
-	g := errgroup.Group{}
+	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		defer resw.Close()
 
-		err := cmdrunner.New().Run(
+		return cmdrunner.New().Run(
 			ctx,
 			step.New(
 				step.Exec(command[0], command[1:]...),
@@ -43,7 +43,6 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 				step.Stdout(resw),
 			),
 		)
-		return err
 	})
 
 	// regular logs can be printed to the stdout by the other process before a jsonrpc response is emitted.
