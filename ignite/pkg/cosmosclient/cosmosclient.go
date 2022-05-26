@@ -49,18 +49,20 @@ var FaucetTransferEnsureDuration = time.Second * 40
 
 var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
 
-var defaultTXsPerPage = 30
-
 const (
 	defaultNodeAddress   = "http://localhost:26657"
 	defaultGasAdjustment = 1.0
 	defaultGasLimit      = 300000
-)
 
-const (
 	defaultFaucetAddress   = "http://localhost:4500"
 	defaultFaucetDenom     = "token"
 	defaultFaucetMinAmount = 100
+
+	defaultTXsPerPage = 30
+
+	searchHeight = "tx.height"
+
+	orderAsc = "asc"
 )
 
 // Client is a client to access your chain by querying and broadcasting transactions.
@@ -403,30 +405,29 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
 	}
 
-	query := url.Values{}
-	query.Set("tx.height", strconv.FormatInt(height, 10))
+	params := url.Values{}
+	params.Set(searchHeight, strconv.FormatInt(height, 10))
+	query := params.Encode()
 
-	blockTime := r.Block.Time.UTC().Format(time.RFC3339Nano)
+	// TODO: improve to fetch pages in parallel (requires fetching page 1 to calculate n. of pages)
 	page := 1
-
-	// TODO: fetch pages in parallel ? requires page 1 request to calculate page count
+	perPage := defaultTXsPerPage
+	blockTime := r.Block.Time
 	for {
-		r, err := c.RPC.TxSearch(ctx, query.Encode(), false, &page, &defaultTXsPerPage, "asc")
+		res, err := c.RPC.TxSearch(ctx, query, false, &page, &perPage, orderAsc)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, t := range r.Txs {
+		for _, tx := range res.Txs {
 			txs = append(txs, TX{
-				Hash:      t.Hash.String(),
-				Height:    height,
 				BlockTime: blockTime,
-				EventLog:  t.TxResult.GetLog(),
+				Raw:       tx,
 			})
 		}
 
 		// Stop when the last page is fetched
-		if r.TotalCount <= (page * defaultTXsPerPage) {
+		if res.TotalCount <= (page * perPage) {
 			break
 		}
 
@@ -457,7 +458,18 @@ func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX
 			return err
 		}
 
-		tc <- txs
+		// Ignore blocks without transactions
+		if txs == nil {
+			continue
+		}
+
+		// Make sure that collection finishes if the context
+		// is done when the transactions channel is full
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case tc <- txs:
+		}
 	}
 
 	return nil

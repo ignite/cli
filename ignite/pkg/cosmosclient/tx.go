@@ -1,17 +1,49 @@
 package cosmosclient
 
-// TX contains transaction information.
+import (
+	"encoding/json"
+	"time"
+
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+)
+
+// TX defines a block transaction.
 type TX struct {
-	// Hash contains the transaction hash.
-	Hash string
+	// BlockTime returns the time of the block that contains the transaction.
+	BlockTime time.Time
 
-	// Height of the block that contains the transaction.
-	Height int64
+	// Raw contains the transaction as returned by the Tendermint API.
+	Raw *ctypes.ResultTx
+}
 
-	// BlockTime contains the timestamp of the block that contains the transaction.
-	BlockTime string
+// TXEvent defines a transaction event.
+type TXEvent struct {
+	Type       string             `json:"type"`
+	Attributes []TXEventAttribute `json:"attributes"`
+}
 
-	// EventLog contains the events emitted during the execution.
-	// The value is a JSON string containing the list of events.
-	EventLog string
+// TXEventAttribute defines a transaction event attribute.
+type TXEventAttribute struct {
+	Key   string `json:"key"`
+	Value any    `json:"value"`
+}
+
+// UnmarshallEvents parses the JSON encoded transactions events.
+func UnmarshallEvents(tx TX) ([]TXEvent, error) {
+	// The transaction's event log contains a list where each item is an object
+	// with a single "events" property which in turn contains the list of events
+	var log []struct {
+		Events []TXEvent `json:"events"`
+	}
+
+	raw := tx.Raw.TxResult.GetLog()
+	if err := json.Unmarshal([]byte(raw), &log); err != nil {
+		return nil, err
+	}
+
+	if len(log) > 0 {
+		return log[0].Events, nil
+	}
+
+	return nil, nil
 }
