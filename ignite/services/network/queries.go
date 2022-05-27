@@ -229,3 +229,12 @@ func (n Network) ChainID(ctx context.Context) (string, error) {
 	}
 	return status.NodeInfo.Network, nil
 }
+
+// ChainID fetches the network chain id
+func (n Network) ChainID(ctx context.Context) (string, error) {
+	status, err := n.cosmos.Status(ctx)
+	if err != nil {
+		return "", err
+	}
+	return status.NodeInfo.Network, nil
+}
