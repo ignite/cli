@@ -2,6 +2,7 @@ package cosmosclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -38,7 +39,7 @@ func UnmarshallEvents(tx TX) ([]TXEvent, error) {
 
 	raw := tx.Raw.TxResult.GetLog()
 	if err := json.Unmarshal([]byte(raw), &log); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error decoding transaction events: %w", err)
 	}
 
 	if len(log) > 0 {

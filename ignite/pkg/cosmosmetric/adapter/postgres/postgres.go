@@ -145,7 +145,7 @@ func (a Adapter) SetupSchema(ctx context.Context) error {
 	for i := current + 1; i <= schemaVersion; i++ {
 		name := fmt.Sprintf("%d.sql", i)
 		if err := a.applySchema(ctx, name); err != nil {
-			return fmt.Errorf("error applying schema '%s': %w", name, err)
+			return fmt.Errorf("error applying schema %s: %w", name, err)
 		}
 	}
 
@@ -187,7 +187,7 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 	for _, tx := range txs {
 		hash := tx.Raw.Hash.String()
 		if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime); err != nil {
-			return err
+			return fmt.Errorf("error saving transaction %s: %w", hash, err)
 		}
 
 		events, err := cosmosclient.UnmarshallEvents(tx)
@@ -200,11 +200,11 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 				// The attribute value must be saved as a JSON encoded value
 				v, err := json.Marshal(attr.Value)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to encode event attribute '%s': %w", attr.Key, err)
 				}
 
 				if _, err := attrStmt.ExecContext(ctx, hash, evt.Type, i, attr.Key, v); err != nil {
-					return err
+					return fmt.Errorf("error saving event attribute: %w", err)
 				}
 			}
 		}
@@ -293,7 +293,6 @@ func createPostgresURI(a Adapter) string {
 	// Add extra params as query arguments
 	if a.params != nil {
 		query := url.Values{}
-
 		for k, v := range a.params {
 			query.Set(k, v)
 		}
