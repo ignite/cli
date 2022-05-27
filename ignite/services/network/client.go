@@ -36,8 +36,8 @@ func (n Network) CreateClient(
 	return createClientRes.ClientID, nil
 }
 
-// VerifiedClientIDs fetches the verified client ids from SPN by launch id
-func (n Network) VerifiedClientIDs(ctx context.Context, launchID uint64) ([]string, error) {
+// verifiedClientIDs fetches the verified client ids from SPN by launch id
+func (n Network) verifiedClientIDs(ctx context.Context, launchID uint64) ([]string, error) {
 	res, err := n.monitoringConsumerQuery.
 		VerifiedClientIds(ctx,
 			&monitoringctypes.QueryGetVerifiedClientIdsRequest{
@@ -55,7 +55,7 @@ func (n Network) VerifiedClientIDs(ctx context.Context, launchID uint64) ([]stri
 
 // FindClientID find client, connection and channel id by the chain launch id
 func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer networktypes.Relayer, err error) {
-	clientStates, err := n.VerifiedClientIDs(ctx, launchID)
+	clientStates, err := n.verifiedClientIDs(ctx, launchID)
 	if err != nil {
 		return relayer, err
 	}
@@ -64,16 +64,22 @@ func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer net
 	}
 	relayer.ClientID = clientStates[0]
 
-	relayer.ChannelID, err = n.connectionChannelID(ctx)
-	if err != nil && err != ErrObjectNotFound {
-		return
-	}
 	connections, err := n.clientConnections(ctx, relayer.ClientID)
 	if err != nil && err != ErrObjectNotFound {
-		return
+		return relayer, err
 	}
-	if len(connections) > 0 {
-		relayer.ConnectionID = connections[0]
+	if err == ErrObjectNotFound || len(connections) == 0 {
+		return relayer, nil
 	}
-	return relayer, err
+	relayer.ConnectionID = connections[0]
+
+	channels, err := n.connectionChannels(ctx, relayer.ConnectionID)
+	if err != nil && err != ErrObjectNotFound {
+		return relayer, err
+	}
+	if err == ErrObjectNotFound || len(connections) == 0 {
+		return relayer, nil
+	}
+	relayer.ChannelID = channels[0]
+	return relayer, nil
 }
