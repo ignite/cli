@@ -53,7 +53,7 @@ require (
 	github.com/vektra/mockery/v2 v2.11.0
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.45.0
