@@ -35,4 +35,12 @@ CREATE TABLE attribute (
 CREATE INDEX attribute_idx ON attribute (event_type, name);
 CREATE INDEX attribute_event_idx ON attribute (event_type);
 
+CREATE TABLE raw_tx (
+    hash        CHAR(64) NOT NULL,
+    data        TEXT NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT raw_tx_pk PRIMARY KEY (hash)
+);
+
 COMMIT;

@@ -10,6 +10,8 @@ import (
 	"net/url"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"golang.org/x/sync/errgroup"
 
 	_ "github.com/lib/pq" // required to register postgres sql driver
 )
@@ -17,11 +19,12 @@ import (
 const (
 	adapterType = "postgres"
 
-	defaultPort = 5432
-	defaultHost = "127.0.0.1"
+	defaultPort            = 5432
+	defaultHost            = "127.0.0.1"
+	defaultSaveConcurrency = 0 // no limit
 
 	queryBlockHeight = `
-		SELECT MAX(height)
+		SELECT COALESCE(MAX(height), 0)
 		FROM tx
 	`
 	queryInsertTX = `
@@ -39,8 +42,12 @@ const (
 		)
 	`
 	querySchemaVersion = `
-		SELECT MAX(version)
+		SELECT COALESCE(MAX(version), 0)
 		FROM schema
+	`
+	queryInsertRawTX = `
+		INSERT INTO raw_tx (hash, data)
+		VALUES ($1, $2)
 	`
 
 	// Latest schema version that the adapter should apply.
@@ -96,11 +103,20 @@ func WithParams(params map[string]string) Option {
 	}
 }
 
+// WithSaveConcurrency configures the max number of parallel
+// INSERT statements allowed during save.
+func WithSaveConcurrency(concurrency int) Option {
+	return func(a *Adapter) {
+		a.saveConcurrency = concurrency
+	}
+}
+
 // NewAdapter creates a new PostgreSQL adapter.
 func NewAdapter(database string, options ...Option) (Adapter, error) {
 	adapter := Adapter{
-		host: defaultHost,
-		port: defaultPort,
+		host:            defaultHost,
+		port:            defaultPort,
+		saveConcurrency: defaultSaveConcurrency,
 	}
 
 	for _, o := range options {
@@ -122,6 +138,7 @@ type Adapter struct {
 	host, user, password, database string
 	port                           uint
 	params                         map[string]string
+	saveConcurrency                int
 
 	db *sql.DB
 }
@@ -152,7 +169,6 @@ func (a Adapter) SetupSchema(ctx context.Context) error {
 	return nil
 }
 
-// TODO: add support to save raw transaction data
 func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 	db, err := a.getDB()
 	if err != nil {
@@ -165,7 +181,7 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 		return err
 	}
 
-	// Note: rollback won't have any effect if the transaction is committed before
+	// Rollback won't have any effect if the transaction is committed before
 	defer sqlTx.Rollback()
 
 	// Prepare insert statements to speed up "bulk" saving times
@@ -183,31 +199,24 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 
 	defer attrStmt.Close()
 
-	// Save the transactions and event attributes
+	wg, groupCtx := errgroup.WithContext(ctx)
+	if a.saveConcurrency > 0 {
+		wg.SetLimit(a.saveConcurrency)
+	}
+
 	for _, tx := range txs {
-		hash := tx.Raw.Hash.String()
-		if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime); err != nil {
-			return fmt.Errorf("error saving transaction %s: %w", hash, err)
-		}
+		tx := tx
 
-		events, err := cosmosclient.UnmarshallEvents(tx)
-		if err != nil {
-			return err
-		}
+		wg.Go(func() error {
+			return saveRawTX(groupCtx, sqlTx, tx.Raw)
+		})
+		wg.Go(func() error {
+			return saveTX(groupCtx, txStmt, attrStmt, tx)
+		})
+	}
 
-		for i, evt := range events {
-			for _, attr := range evt.Attributes {
-				// The attribute value must be saved as a JSON encoded value
-				v, err := json.Marshal(attr.Value)
-				if err != nil {
-					return fmt.Errorf("failed to encode event attribute '%s': %w", attr.Key, err)
-				}
-
-				if _, err := attrStmt.ExecContext(ctx, hash, evt.Type, i, attr.Key, v); err != nil {
-					return fmt.Errorf("error saving event attribute: %w", err)
-				}
-			}
-		}
+	if err := wg.Wait(); err != nil {
+		return err
 	}
 
 	return sqlTx.Commit()
@@ -301,4 +310,46 @@ func createPostgresURI(a Adapter) string {
 	}
 
 	return uri.String()
+}
+
+func saveRawTX(ctx context.Context, sqlTx *sql.Tx, rtx *ctypes.ResultTx) error {
+	hash := rtx.Hash.String()
+	raw, err := json.Marshal(rtx)
+	if err != nil {
+		return fmt.Errorf("failed to encode raw TX %s: %w", hash, err)
+	}
+
+	if _, err := sqlTx.ExecContext(ctx, queryInsertRawTX, hash, raw); err != nil {
+		return fmt.Errorf("error saving raw TX %s: %w", hash, err)
+	}
+
+	return nil
+}
+
+func saveTX(ctx context.Context, txStmt, attrStmt *sql.Stmt, tx cosmosclient.TX) error {
+	hash := tx.Raw.Hash.String()
+	if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime); err != nil {
+		return fmt.Errorf("error saving TX %s: %w", hash, err)
+	}
+
+	events, err := cosmosclient.UnmarshallEvents(tx)
+	if err != nil {
+		return fmt.Errorf("invalid event log in TX %s: %w", hash, err)
+	}
+
+	for i, evt := range events {
+		for _, attr := range evt.Attributes {
+			// The attribute value must be saved as a JSON encoded value
+			v, err := json.Marshal(attr.Value)
+			if err != nil {
+				return fmt.Errorf("failed to encode event attribute '%s': %w", attr.Key, err)
+			}
+
+			if _, err := attrStmt.ExecContext(ctx, hash, evt.Type, i, attr.Key, v); err != nil {
+				return fmt.Errorf("error saving event attribute: %w", err)
+			}
+		}
+	}
+
+	return nil
 }
