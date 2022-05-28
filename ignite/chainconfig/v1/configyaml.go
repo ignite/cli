@@ -8,6 +8,26 @@ import (
 	"github.com/ignite/cli/ignite/chainconfig/common"
 )
 
+// DefaultValidator defines the default values for the validator.
+var (
+	GRPCPort    = 9090
+	GRPCWebPort = 9091
+	APIPort     = 1317
+
+	RPCPort   = 26657
+	P2P       = 26656
+	PPROFPort = 6060
+
+	DefaultValidator = Validator{
+		App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
+			"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
+			"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)}},
+		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
+			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2P)},
+			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort)},
+	}
+)
+
 // Config is the user given configuration to do additional setup
 // during serve.
 type Config struct {
@@ -232,4 +252,15 @@ func (v *Validator) FillDefaults(defaultValidator Validator) error {
 		return err
 	}
 	return nil
+}
+
+// IncreasePort generates an validator with all the ports incremented by the value portIncrement.
+func (v *Validator) IncreasePort(portIncrement int) *Validator {
+	result := &Validator{
+		App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
+			"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
+		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
+			"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
+	}
+	return result
 }
