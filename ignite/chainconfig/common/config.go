@@ -2,6 +2,11 @@ package common
 
 type Version int
 
+var (
+	// LatestVersion defines the latest version of the config.
+	LatestVersion Version = 1
+)
+
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`

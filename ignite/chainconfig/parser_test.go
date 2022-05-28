@@ -2,6 +2,8 @@ package chainconfig
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 
@@ -471,4 +473,42 @@ init:
 
 	_, err := Parse(strings.NewReader(confyml))
 	assert.Nil(t, err)
+}
+
+func TestIsConfigLatest(t *testing.T) {
+	path := "testdata/configv0.yaml"
+	version, latest, err := IsConfigLatest(path)
+	require.NoError(t, err)
+	require.Equal(t, false, latest)
+	require.Equal(t, common.Version(0), version)
+
+	path = "testdata/configv1.yaml"
+	version, latest, err = IsConfigLatest(path)
+	require.NoError(t, err)
+	require.Equal(t, true, latest)
+	require.Equal(t, common.LatestVersion, version)
+}
+
+func TestMigrateConfigFile(t *testing.T) {
+	sourceFile := "testdata/configv0.yaml"
+	tempFile := "testdata/temp.yaml"
+	input, err := ioutil.ReadFile(sourceFile)
+	require.NoError(t, err)
+
+	err = ioutil.WriteFile(tempFile, input, 0644)
+	require.NoError(t, err)
+
+	err = MigrateConfigFile(tempFile)
+	require.NoError(t, err)
+
+	targetFile, err := ParseFile(tempFile)
+	require.NoError(t, err)
+
+	expectedFile, err := ParseFile("testdata/configv1.yaml")
+	require.NoError(t, err)
+
+	require.Equal(t, expectedFile, targetFile)
+
+	// Remove the temp file
+	require.NoError(t, os.Remove(tempFile))
 }
