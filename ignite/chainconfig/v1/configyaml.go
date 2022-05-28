@@ -2,6 +2,8 @@ package v1
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/imdario/mergo"
 
@@ -10,9 +12,10 @@ import (
 
 // DefaultValidator defines the default values for the validator.
 var (
-	GRPCPort    = 9090
-	GRPCWebPort = 9091
-	APIPort     = 1317
+	DefaultPortMargin = 10
+	GRPCPort          = 9090
+	GRPCWebPort       = 9091
+	APIPort           = 1317
 
 	RPCPort   = 26657
 	P2P       = 26656
@@ -153,7 +156,8 @@ func (c *Config) Clone() common.Config {
 // FillValidatorsDefaults fills in the defaults values for the validators if they are missing.
 func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
 	for i := range c.Validators {
-		if err := c.Validators[i].FillDefaults(defaultValidator); err != nil {
+		validator := defaultValidator.IncreasePort(i * DefaultPortMargin)
+		if err := c.Validators[i].FillDefaults(validator); err != nil {
 			return err
 		}
 	}
@@ -230,13 +234,121 @@ func (v *Validator) FillDefaults(defaultValidator Validator) error {
 	return nil
 }
 
+func (v *Validator) GetGRPC() string {
+	if v.App != nil {
+		if val, ok := v.App["grpc"]; ok {
+			return getValue(val, "address")
+		}
+	}
+	return ""
+}
+
+func (v *Validator) GetGRPCAddress() string {
+	grpc := v.GetGRPC()
+	return getAddress(grpc)
+}
+
+func (v *Validator) GetGRPCPort() int {
+	grpc := v.GetGRPC()
+	return getPort(grpc)
+}
+
+func (v *Validator) GetGRPCWeb() string {
+	if v.App != nil {
+		if val, ok := v.App["grpc-web"]; ok {
+			return getValue(val, "address")
+		}
+	}
+	return ""
+}
+
+func (v *Validator) GetGRPCWebAddress() string {
+	grpcweb := v.GetGRPCWeb()
+	return getAddress(grpcweb)
+}
+
+func (v *Validator) GetGRPCWebPort() int {
+	grpcweb := v.GetGRPCWeb()
+	return getPort(grpcweb)
+}
+
+func (v *Validator) GetAPI() string {
+	if v.App != nil {
+		if val, ok := v.App["api"]; ok {
+			return getValue(val, "address")
+		}
+	}
+	return ""
+}
+
+func (v *Validator) GetAPIAddress() string {
+	return getAddress(v.GetAPI())
+}
+
+func (v *Validator) GetAPIPort() int {
+	return getPort(v.GetAPI())
+}
+
+func (v *Validator) GetProf() string {
+	if v.Config != nil {
+		if val, ok := v.Config["pprof_laddr"]; ok {
+			return fmt.Sprintf("%v", val)
+		}
+	}
+	return ""
+}
+
+func (v *Validator) GetProfAddress() string {
+	return getAddress(v.GetProf())
+}
+
+func (v *Validator) GetProfPort() int {
+	return getPort(v.GetProf())
+}
+
+func (v *Validator) GetP2P() string {
+	if v.Config != nil {
+		if val, ok := v.Config["p2p"]; ok {
+			return getValue(val, "laddr")
+		}
+	}
+	return ""
+}
+
+func (v *Validator) GetP2PAddress() string {
+	return getAddress(v.GetP2P())
+}
+
+func (v *Validator) GetP2PPort() int {
+	return getPort(v.GetP2P())
+}
+
+func (v *Validator) GetRPC() string {
+	if v.Config != nil {
+		if val, ok := v.Config["rpc"]; ok {
+			return getValue(val, "laddr")
+		}
+	}
+	return ""
+}
+
+func (v *Validator) GetRPCAddress() string {
+	return getAddress(v.GetRPC())
+}
+
+func (v *Validator) GetRPCPort() int {
+	return getPort(v.GetRPC())
+}
+
 // IncreasePort generates an validator with all the ports incremented by the value portIncrement.
-func (v *Validator) IncreasePort(portIncrement int) *Validator {
-	result := &Validator{
-		App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
-			"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
-		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-			"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
+func (v *Validator) IncreasePort(portIncrement int) Validator {
+	result := Validator{
+		App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetGRPCAddress(), v.GetGRPCPort()+portIncrement)},
+			"grpc-web": map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetGRPCWebAddress(), v.GetGRPCWebPort()+portIncrement)},
+			"api":      map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetAPIAddress(), v.GetAPIPort()+portIncrement)}},
+		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("%s:%d", v.GetRPCAddress(), v.GetRPCPort()+portIncrement)},
+			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("%s:%d", v.GetP2PAddress(), v.GetP2PPort()+portIncrement)},
+			"pprof_laddr": fmt.Sprintf("%s:%d", v.GetProfAddress(), v.GetProfPort()+portIncrement)},
 	}
 	return result
 }
@@ -257,4 +369,24 @@ func getValue(val interface{}, keyMap string) string {
 		}
 	}
 	return ""
+}
+
+func getAddress(fullAddress string) string {
+	if fullAddress == "" {
+		return ""
+	}
+	index := strings.LastIndex(fullAddress, ":")
+	return fullAddress[:index]
+}
+
+func getPort(fullAddress string) int {
+	if fullAddress == "" {
+		return 0
+	}
+	index := strings.LastIndex(fullAddress, ":")
+	port, err := strconv.Atoi(fullAddress[index+1:])
+	if err != nil {
+		return 0
+	}
+	return port
 }

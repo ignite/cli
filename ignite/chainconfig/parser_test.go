@@ -1,6 +1,7 @@
 package chainconfig
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -235,9 +236,10 @@ validators:
 
 func TestValidator(t *testing.T) {
 	tests := []struct {
-		TestName     string
-		Input        string
-		ExpectedHost common.Host
+		TestName                string
+		Input                   string
+		ExpectedFirstValidator  *v1.Validator
+		ExpectedSecondValidator *v1.Validator
 	}{{
 		TestName: "Parse the config yaml with no addresses for the validator",
 		Input: `
@@ -249,15 +251,29 @@ accounts:
     coins: ["5000token"]
 validators:
   - name: user1
-    staked: "100000000stake"
+    bonded: "100000000stake"
+  - name: user2
+    bonded: "100000000stake"
 `,
-		ExpectedHost: common.Host{
-			RPC:     "0.0.0.0:26657",
-			P2P:     "0.0.0.0:26656",
-			Prof:    "0.0.0.0:6060",
-			GRPC:    "0.0.0.0:9090",
-			GRPCWeb: "0.0.0.0:9091",
-			API:     "0.0.0.0:1317",
+		ExpectedFirstValidator: &v1.Validator{
+			Name:   "user1",
+			Bonded: "100000000stake",
+			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
+				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort)},
+				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)}},
+			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
+				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2P)},
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort)},
+		},
+		ExpectedSecondValidator: &v1.Validator{
+			Name:   "user2",
+			Bonded: "100000000stake",
+			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort+v1.DefaultPortMargin)},
+				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort+v1.DefaultPortMargin)},
+				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort+v1.DefaultPortMargin)}},
+			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort+v1.DefaultPortMargin)},
+				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2P+v1.DefaultPortMargin)},
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort+v1.DefaultPortMargin)},
 		},
 	}, {
 		TestName: "Parse the config yaml with all the addresses for the validator",
@@ -270,7 +286,7 @@ accounts:
     coins: ["5000token"]
 validators:
   - name: user1
-    staked: "100000000stake"
+    bonded: "100000000stake"
     app:
       grpc:
         address: localhost:8080
@@ -284,14 +300,41 @@ validators:
       p2p:
         laddr: localhost:80804
       pprof_laddr: localhost:80809
+  - name: user2
+    bonded: "100000000stake"
+    app:
+      grpc:
+        address: localhost:8180
+      api:
+        address: localhost:81801
+      grpc-web:
+        address: localhost:81802
+    config:
+      rpc:
+        laddr: localhost:81807
+      p2p:
+        laddr: localhost:81804
+      pprof_laddr: localhost:81809
 `,
-		ExpectedHost: common.Host{
-			RPC:     "localhost:80807",
-			P2P:     "localhost:80804",
-			Prof:    "localhost:80809",
-			GRPC:    "localhost:8080",
-			GRPCWeb: "localhost:80802",
-			API:     "localhost:80801",
+		ExpectedFirstValidator: &v1.Validator{
+			Name:   "user1",
+			Bonded: "100000000stake",
+			App: map[string]interface{}{"grpc": map[interface{}]interface{}{"address": "localhost:8080"},
+				"grpc-web": map[interface{}]interface{}{"address": "localhost:80802"},
+				"api":      map[interface{}]interface{}{"address": "localhost:80801"}},
+			Config: map[string]interface{}{"rpc": map[interface{}]interface{}{"laddr": "localhost:80807"},
+				"p2p":         map[interface{}]interface{}{"laddr": "localhost:80804"},
+				"pprof_laddr": "localhost:80809"},
+		},
+		ExpectedSecondValidator: &v1.Validator{
+			Name:   "user2",
+			Bonded: "100000000stake",
+			App: map[string]interface{}{"grpc": map[interface{}]interface{}{"address": "localhost:8180"},
+				"grpc-web": map[interface{}]interface{}{"address": "localhost:81802"},
+				"api":      map[interface{}]interface{}{"address": "localhost:81801"}},
+			Config: map[string]interface{}{"rpc": map[interface{}]interface{}{"laddr": "localhost:81807"},
+				"p2p":         map[interface{}]interface{}{"laddr": "localhost:81804"},
+				"pprof_laddr": "localhost:81809"},
 		},
 	}}
 
@@ -300,7 +343,8 @@ validators:
 			conf, err := Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
 			require.Equal(t, 1, conf.GetVersion())
-			require.Equal(t, test.ExpectedHost, conf.GetHost())
+			require.Equal(t, test.ExpectedFirstValidator, conf.ListValidators()[0])
+			require.Equal(t, test.ExpectedSecondValidator, conf.ListValidators()[1])
 		})
 	}
 }
