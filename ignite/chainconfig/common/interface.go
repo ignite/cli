@@ -9,7 +9,7 @@ type Validator interface {
 // Config is the interface defining all the common methods for the ConfigYaml struct across all supported versions
 type Config interface {
 	Clone() Config
-	GetVersion() int
+	GetVersion() Version
 	GetFaucet() Faucet
 	ListAccounts() []Account
 	ListValidators() []Validator

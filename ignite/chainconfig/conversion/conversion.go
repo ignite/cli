@@ -6,7 +6,7 @@ import (
 
 var (
 	// LatestVersion defines the latest version of the config.
-	LatestVersion = 1
+	LatestVersion common.Version = 1
 )
 
 // ConvertNext converts a Config to the next version of Config.
