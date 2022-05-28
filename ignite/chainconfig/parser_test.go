@@ -6,6 +6,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/common"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -153,13 +154,15 @@ faucet:
 }
 
 func TestParseWithVersion(t *testing.T) {
+	expectedVersion := new(int)
+	*expectedVersion = 1
 	tests := []struct {
 		TestName        string
 		Input           string
 		ExpectedError   error
 		ExpectedVersion int
 	}{{
-		TestName: "Parse the config yaml with the field version",
+		TestName: "Parse the config yaml with the field version 0",
 		Input: `
 version: 0
 accounts:
@@ -173,13 +176,81 @@ validator:
 `,
 		ExpectedError:   nil,
 		ExpectedVersion: 1,
+	}, {
+		TestName: "Parse the config yaml with the field version 1",
+		Input: `
+version: 1
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validators:
+  - name: user1
+    staked: "100000000stake"
+    app:
+      grpc:
+        address: localhost:8080
+      api:
+        address: localhost:80801
+`,
+		ExpectedError:   nil,
+		ExpectedVersion: 1,
+	}, {
+		TestName: "Parse the config yaml with unsupported version",
+		Input: `
+version: 10000
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validators:
+  - name: user1
+  - bonded: "100000000stake"
+`,
+		ExpectedError:   &UnsupportedVersionError{Message: "the version is not available in the supported list"},
+		ExpectedVersion: 0,
 	}}
 
 	for _, test := range tests {
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := Parse(strings.NewReader(test.Input))
+			if conf != nil {
+				require.Equal(t, test.ExpectedVersion, conf.GetVersion())
+			}
 			require.Equal(t, test.ExpectedError, err)
-			require.Equal(t, test.ExpectedVersion, conf.GetVersion())
 		})
 	}
+}
+
+func TestParseMapInterface(t *testing.T) {
+	confyml := `
+version: 1
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validator:
+  name: user1
+  staked: "100000000stake"
+validators:
+  - name: user1
+    staked: "100000000stake"
+    app:
+      grpc:
+        address: "localhost:8080"
+      api:
+        address: "localhost:80801"
+faucet:
+  host: "0.0.0.0:4600"
+  port: 4700
+init:
+  app:
+    test-key: test-val:120
+`
+
+	_, err := Parse(strings.NewReader(confyml))
+	assert.Nil(t, err)
 }
