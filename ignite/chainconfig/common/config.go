@@ -114,3 +114,16 @@ type Host struct {
 	GRPCWeb string `yaml:"grpc-web"`
 	API     string `yaml:"api"`
 }
+
+// Config is the interface defining all the common methods for the ConfigYaml struct across all supported versions
+type Config interface {
+	GetVersion() string
+	GetFaucet() Faucet
+	ListAccounts() []Account
+	ListValidators() []Validator
+	GetBuild() Build
+	GetHost() Host
+	GetGenesis() map[string]interface{}
+	GetInit() Init
+	GetClient() Client
+}

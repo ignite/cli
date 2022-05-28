@@ -56,7 +56,7 @@ var DefaultConf = v0.ConfigYaml{
 }
 
 // Parse parses config.yml into UserConfig.
-func Parse(r io.Reader) (v0.ConfigYaml, error) {
+func Parse(r io.Reader) (common.Config, error) {
 	var conf v0.ConfigYaml
 	if err := yaml.NewDecoder(r).Decode(&conf); err != nil {
 		return conf, err
@@ -68,7 +68,7 @@ func Parse(r io.Reader) (v0.ConfigYaml, error) {
 }
 
 // ParseFile parses config.yml from the path.
-func ParseFile(path string) (v0.ConfigYaml, error) {
+func ParseFile(path string) (common.Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return v0.ConfigYaml{}, nil
@@ -111,12 +111,12 @@ func LocateDefault(root string) (path string, err error) {
 }
 
 // FaucetHost returns the faucet host to use
-func FaucetHost(conf v0.ConfigYaml) string {
+func FaucetHost(conf common.Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
-	host := conf.Faucet.Host
-	if conf.Faucet.Port != 0 {
-		host = fmt.Sprintf(":%d", conf.Faucet.Port)
+	host := conf.GetFaucet().Host
+	if conf.GetFaucet().Port != 0 {
+		host = fmt.Sprintf(":%d", conf.GetFaucet().Port)
 	}
 
 	return host

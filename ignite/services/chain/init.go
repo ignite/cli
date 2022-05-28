@@ -9,7 +9,7 @@ import (
 
 	"github.com/imdario/mergo"
 
-	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
+	"github.com/ignite/cli/ignite/chainconfig/common"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/confile"
 )
@@ -74,8 +74,8 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// make sure that chain id given during chain.New() has the most priority.
-	if conf.Genesis != nil {
-		conf.Genesis["chain_id"] = chainID
+	if conf.GetGenesis() != nil {
+		conf.GetGenesis()["chain_id"] = chainID
 	}
 
 	// Initilize app config
@@ -101,10 +101,10 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		path    string
 		changes map[string]interface{}
 	}{
-		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
-		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.Init.Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
+		{confile.DefaultJSONEncodingCreator, genesisPath, conf.GetGenesis()},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.GetInit().App},
+		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.GetInit().Client},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.GetInit().Config},
 	}
 
 	for _, ac := range appconfigs {
@@ -125,14 +125,14 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf v0.ConfigYaml) error {
+func (c *Chain) InitAccounts(ctx context.Context, conf common.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
 	}
 
 	// add accounts from config into genesis
-	for _, account := range conf.Accounts {
+	for _, account := range conf.ListAccounts() {
 		var generatedAccount chaincmdrunner.Account
 		accountAddress := account.Address
 
@@ -169,8 +169,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf v0.ConfigYaml) error {
 	}
 
 	_, err = c.IssueGentx(ctx, Validator{
-		Name:          conf.Validator.Name,
-		StakingAmount: conf.Validator.Staked,
+		Name:          conf.ListValidators()[0].Name,
+		StakingAmount: conf.ListValidators()[0].Staked,
 	})
 	return err
 }
