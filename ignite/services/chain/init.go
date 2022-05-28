@@ -9,7 +9,7 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/chainconfig/common"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/confile"
 )
@@ -125,7 +125,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf common.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, conf *v1.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -169,8 +169,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf common.Config) error {
 	}
 
 	_, err = c.IssueGentx(ctx, Validator{
-		Name:          conf.ListValidators()[0].GetName(),
-		StakingAmount: conf.ListValidators()[0].GetBonded(),
+		Name:          conf.ListValidators()[0].Name,
+		StakingAmount: conf.ListValidators()[0].Bonded,
 	})
 	return err
 }

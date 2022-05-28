@@ -21,7 +21,7 @@ func TestListValidators(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, []common.Validator{
+	require.Equal(t, []*Validator{
 		&Validator{
 			Name:   "test-name",
 			Bonded: "101ATOM",

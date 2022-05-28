@@ -54,7 +54,7 @@ var (
 )
 
 // Parse parses config.yml into UserConfig based on the version.
-func Parse(r io.Reader) (common.Config, error) {
+func Parse(r io.Reader) (*v1.Config, error) {
 	// Read the version field
 	version, err := getConfigVersion(r)
 	if err != nil {
@@ -74,7 +74,7 @@ func Parse(r io.Reader) (common.Config, error) {
 
 	// Decode the file by parsing the content again.
 	if err = yaml.NewDecoder(r).Decode(conf); err != nil {
-		return conf, err
+		return nil, err
 	}
 
 	conf, err = conversion.ConvertLatest(conf)
@@ -86,12 +86,13 @@ func Parse(r io.Reader) (common.Config, error) {
 		return nil, err
 	}
 
+	latestConfig := conf.(*v1.Config)
 	// As the lib does not support the merge of the array, we fill in the default values for the list of validators.
-	if err = conf.(*v1.Config).FillValidatorsDefaults(v1.DefaultValidator); err != nil {
+	if err = latestConfig.FillValidatorsDefaults(v1.DefaultValidator); err != nil {
 		return nil, err
 	}
 
-	return conf, validate(conf)
+	return latestConfig, validate(latestConfig)
 }
 
 // getConfigVersion returns the version in the io.Reader based on the field version.
@@ -100,7 +101,7 @@ func getConfigVersion(r io.Reader) (common.Version, error) {
 	if err := yaml.NewDecoder(r).Decode(&baseConf); err != nil {
 		return 0, err
 	}
-	return baseConf.Version, nil
+	return baseConf.ConfigVersion, nil
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.
@@ -116,7 +117,7 @@ func GetConfigInstance(version common.Version) (common.Config, error) {
 }
 
 // ParseFile parses config.yml from the path.
-func ParseFile(path string) (common.Config, error) {
+func ParseFile(path string) (*v1.Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -126,12 +127,15 @@ func ParseFile(path string) (common.Config, error) {
 }
 
 // validate validates user config.
-func validate(conf common.Config) error {
+func validate(conf *v1.Config) error {
 	if len(conf.ListAccounts()) == 0 {
 		return &ValidationError{"at least 1 account is needed"}
 	}
-	if conf.ListValidators()[0].GetName() == "" {
-		return &ValidationError{"validator is required"}
+
+	for _, validator := range conf.Validators {
+		if validator.Name == "" {
+			return &ValidationError{"validator is required"}
+		}
 	}
 	return nil
 }
@@ -174,6 +178,18 @@ func LocateDefault(root string) (path string, err error) {
 		}
 	}
 	return "", ErrCouldntLocateConfig
+}
+
+// FaucetHost returns the faucet host to use
+func FaucetHost(conf *v1.Config) string {
+	// We keep supporting Port option for backward compatibility
+	// TODO: drop this option in the future
+	host := conf.GetFaucet().Host
+	if conf.GetFaucet().Port != 0 {
+		host = fmt.Sprintf(":%d", conf.GetFaucet().Port)
+	}
+
+	return host
 }
 
 // CreateConfigDir creates config directory if it is not created yet.

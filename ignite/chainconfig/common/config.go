@@ -1,7 +1,5 @@
 package common
 
-import "fmt"
-
 type Version int
 
 // Account holds the options related to setting up Cosmos wallets.
@@ -115,17 +113,17 @@ type Host struct {
 
 // BaseConfig is the struct containing all the common fields for the config across all the versions.
 type BaseConfig struct {
-	Version  Version                `yaml:"version"`
-	Build    Build                  `yaml:"build"`
-	Accounts []Account              `yaml:"accounts"`
-	Faucet   Faucet                 `yaml:"faucet"`
-	Client   Client                 `yaml:"client"`
-	Genesis  map[string]interface{} `yaml:"genesis"`
+	ConfigVersion Version                `yaml:"version"`
+	Build         Build                  `yaml:"build"`
+	Accounts      []Account              `yaml:"accounts"`
+	Faucet        Faucet                 `yaml:"faucet"`
+	Client        Client                 `yaml:"client"`
+	Genesis       map[string]interface{} `yaml:"genesis"`
 }
 
 // GetVersion returns the version of the config.yaml file.
-func (c *BaseConfig) GetVersion() Version {
-	return c.Version
+func (c *BaseConfig) Version() Version {
+	return c.ConfigVersion
 }
 
 // GetGenesis returns the Genesis.
@@ -156,16 +154,4 @@ func (c *BaseConfig) GetFaucet() Faucet {
 // GetClient returns the Client.
 func (c *BaseConfig) GetClient() Client {
 	return c.Client
-}
-
-// FaucetHost returns the faucet host to use
-func FaucetHost(conf Config) string {
-	// We keep supporting Port option for backward compatibility
-	// TODO: drop this option in the future
-	host := conf.GetFaucet().Host
-	if conf.GetFaucet().Port != 0 {
-		host = fmt.Sprintf(":%d", conf.GetFaucet().Port)
-	}
-
-	return host
 }
