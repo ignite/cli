@@ -2,6 +2,8 @@ package common
 
 import "fmt"
 
+type Version int
+
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`
@@ -113,7 +115,7 @@ type Host struct {
 
 // BaseConfig is the struct containing all the common fields for the config across all the versions.
 type BaseConfig struct {
-	Version  int                    `yaml:"version"`
+	Version  Version                `yaml:"version"`
 	Build    Build                  `yaml:"build"`
 	Accounts []Account              `yaml:"accounts"`
 	Faucet   Faucet                 `yaml:"faucet"`
@@ -122,7 +124,7 @@ type BaseConfig struct {
 }
 
 // GetVersion returns the version of the config.yaml file.
-func (c *BaseConfig) GetVersion() int {
+func (c *BaseConfig) GetVersion() Version {
 	return c.Version
 }
 

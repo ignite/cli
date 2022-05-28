@@ -34,7 +34,7 @@ var (
 	DefaultVersion = "v0"
 
 	// Migration defines the version as the key and the config instance as the value
-	Migration = map[int]common.Config{0: &v0.Config{}, 1: &v1.Config{}}
+	Migration = map[common.Version]common.Config{0: &v0.Config{}, 1: &v1.Config{}}
 
 	// DefaultConfig defines the default config without the validators.
 	DefaultConfig = &v1.Config{
@@ -96,7 +96,7 @@ func Parse(r io.Reader) (common.Config, error) {
 }
 
 // getConfigVersion returns the version in the io.Reader based on the field version.
-func getConfigVersion(r io.Reader) (int, error) {
+func getConfigVersion(r io.Reader) (common.Version, error) {
 	var baseConf common.BaseConfig
 	if err := yaml.NewDecoder(r).Decode(&baseConf); err != nil {
 		return 0, err
@@ -105,7 +105,7 @@ func getConfigVersion(r io.Reader) (int, error) {
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.
-func GetConfigInstance(version int) (common.Config, error) {
+func GetConfigInstance(version common.Version) (common.Config, error) {
 	var config common.Config
 	var ok bool
 	if config, ok = Migration[version]; !ok {

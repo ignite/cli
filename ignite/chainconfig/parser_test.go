@@ -170,7 +170,7 @@ func TestParseWithVersion(t *testing.T) {
 		TestName        string
 		Input           string
 		ExpectedError   error
-		ExpectedVersion int
+		ExpectedVersion common.Version
 	}{{
 		TestName: "Parse the config yaml with the field version 0",
 		Input: `
@@ -342,7 +342,7 @@ validators:
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
-			require.Equal(t, 1, conf.GetVersion())
+			require.Equal(t, common.Version(1), conf.GetVersion())
 			require.Equal(t, test.ExpectedFirstValidator, conf.ListValidators()[0])
 			require.Equal(t, test.ExpectedSecondValidator, conf.ListValidators()[1])
 		})
