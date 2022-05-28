@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/imdario/mergo"
+
 	"github.com/stretchr/testify/require"
 
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
@@ -37,8 +39,11 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		App:    map[string]interface{}{"hello": "cosmos"},
 		Config: map[string]interface{}{"fast_sync": false},
 	}
-	err := c.FillValidatorsDefaults(defaultValidator)
-	require.NoError(t, err)
+
+	for i := range c.Validators {
+		err := mergo.Merge(&c.Validators[i], defaultValidator)
+		require.NoError(t, err)
+	}
 
 	require.NoError(t, cf.Save(c))
 	go func() {
