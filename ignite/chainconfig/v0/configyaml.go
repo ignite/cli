@@ -5,15 +5,15 @@ import "github.com/ignite/cli/ignite/chainconfig/common"
 // ConfigYaml is the user given configuration to do additional setup
 // during serve.
 type ConfigYaml struct {
-	Accounts  []common.Account       `yaml:"accounts"`
-	Validator common.Validator       `yaml:"validator"`
-	Faucet    common.Faucet          `yaml:"faucet"`
-	Client    common.Client          `yaml:"client"`
-	Build     common.Build           `yaml:"build"`
-	Init      common.Init            `yaml:"init"`
-	Genesis   map[string]interface{} `yaml:"genesis"`
-	Host      common.Host            `yaml:"host"`
-	Version   string                 `yaml:"version"`
+	Accounts              []common.Account       `yaml:"accounts"`
+	Validator             common.Validator       `yaml:"validator"`
+	Faucet                common.Faucet          `yaml:"faucet"`
+	Client                common.Client          `yaml:"client"`
+	Build                 common.Build           `yaml:"build"`
+	Init                  common.Init            `yaml:"init"`
+	Genesis               map[string]interface{} `yaml:"genesis"`
+	Host                  common.Host            `yaml:"host"`
+	common.BaseConfigYaml `yaml:",inline"`
 }
 
 // AccountByName finds account by name.
@@ -69,4 +69,37 @@ func (c ConfigYaml) ListAccounts() []common.Account {
 // ListValidators returns the list of all the validators.
 func (c ConfigYaml) ListValidators() []common.Validator {
 	return []common.Validator{c.Validator}
+}
+
+// Clone returns an identical copy of the instance
+func (c *ConfigYaml) Clone() common.Config {
+	copy := *c
+	return &copy
+}
+
+// Default returns the instance with the default value
+func (c *ConfigYaml) Default() common.Config {
+	return &ConfigYaml{
+		Host: common.Host{
+			// when in Docker on MacOS, it only works with 0.0.0.0.
+			RPC:     "0.0.0.0:26657",
+			P2P:     "0.0.0.0:26656",
+			Prof:    "0.0.0.0:6060",
+			GRPC:    "0.0.0.0:9090",
+			GRPCWeb: "0.0.0.0:9091",
+			API:     "0.0.0.0:1317",
+		},
+		Build: common.Build{
+			Proto: common.Proto{
+				Path: "proto",
+				ThirdPartyPaths: []string{
+					"third_party/proto",
+					"proto_vendor",
+				},
+			},
+		},
+		Faucet: common.Faucet{
+			Host: "0.0.0.0:4500",
+		},
+	}
 }

@@ -1,7 +1,6 @@
 package chainconfig
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/common"
@@ -20,7 +19,7 @@ validator:
   staked: "100000000stake"
 `
 
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := Parse([]byte(confyml))
 
 	require.NoError(t, err)
 	require.Equal(t, []common.Account{
@@ -54,7 +53,7 @@ validator:
   staked: "100000000stake"
 `
 
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := Parse([]byte(confyml))
 
 	require.NoError(t, err)
 	require.Equal(t, []common.Account{
@@ -85,7 +84,7 @@ accounts:
     coins: ["5000token"]
 `
 
-	_, err := Parse(strings.NewReader(confyml))
+	_, err := Parse([]byte(confyml))
 	require.Equal(t, &ValidationError{"validator is required"}, err)
 }
 
@@ -102,7 +101,7 @@ validator:
 faucet:
   host: "0.0.0.0:4600"
 `
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := Parse([]byte(confyml))
 	require.NoError(t, err)
 	require.Equal(t, "0.0.0.0:4600", FaucetHost(conf))
 
@@ -118,7 +117,7 @@ validator:
 faucet:
   port: 4700
 `
-	conf, err = Parse(strings.NewReader(confyml))
+	conf, err = Parse([]byte(confyml))
 	require.NoError(t, err)
 	require.Equal(t, ":4700", FaucetHost(conf))
 
@@ -136,7 +135,39 @@ faucet:
   host: "0.0.0.0:4600"
   port: 4700
 `
-	conf, err = Parse(strings.NewReader(confyml))
+	conf, err = Parse([]byte(confyml))
 	require.NoError(t, err)
 	require.Equal(t, ":4700", FaucetHost(conf))
+}
+
+func TestParseWithVersion(t *testing.T) {
+	tests := []struct {
+		TestName        string
+		Input           string
+		ExpectedError   error
+		ExpectedVersion string
+	}{{
+		TestName: "Parse the config yaml with the field version",
+		Input: `
+version: v1
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validator:
+  name: user1
+  staked: "100000000stake"
+`,
+		ExpectedError:   nil,
+		ExpectedVersion: "v1",
+	}}
+
+	for _, test := range tests {
+		t.Run(test.TestName, func(t *testing.T) {
+			conf, err := Parse([]byte(test.Input))
+			require.Equal(t, test.ExpectedError, err)
+			require.Equal(t, test.ExpectedVersion, conf.GetVersion())
+		})
+	}
 }
