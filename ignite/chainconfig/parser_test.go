@@ -357,7 +357,7 @@ validators:
 				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort)},
 				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)}},
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
-				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2P)},
+				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort)},
 				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort)},
 		},
 		ExpectedSecondValidator: &v1.Validator{
@@ -367,7 +367,7 @@ validators:
 				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort+v1.DefaultPortMargin)},
 				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort+v1.DefaultPortMargin)}},
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort+v1.DefaultPortMargin)},
-				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2P+v1.DefaultPortMargin)},
+				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort+v1.DefaultPortMargin)},
 				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort+v1.DefaultPortMargin)},
 		},
 	}, {
@@ -452,12 +452,9 @@ accounts:
     coins: ["1000token", "100000000stake"]
   - name: you
     coins: ["5000token"]
-validator:
-  name: user1
-  staked: "100000000stake"
 validators:
   - name: user1
-    staked: "100000000stake"
+    bonded: "100000000stake"
     app:
       grpc:
         address: "localhost:8080"
@@ -466,13 +463,16 @@ validators:
 faucet:
   host: "0.0.0.0:4600"
   port: 4700
-init:
-  app:
-    test-key: test-val:120
 `
 
-	_, err := Parse(strings.NewReader(confyml))
+	conf, err := Parse(strings.NewReader(confyml))
 	assert.Nil(t, err)
+	require.Equal(t, 1, len(conf.Validators))
+	validator := conf.Validators[0]
+	require.Equal(t, "localhost:8080", validator.GetGRPC())
+	require.Equal(t, "localhost:80801", validator.GetAPI())
+	require.Equal(t, "100000000stake", validator.Bonded)
+	require.Equal(t, "user1", validator.Name)
 }
 
 func TestIsConfigLatest(t *testing.T) {
@@ -511,4 +511,58 @@ func TestMigrateConfigFile(t *testing.T) {
 
 	// Remove the temp file
 	require.NoError(t, os.Remove(tempFile))
+}
+
+func TestValidatorWithGentx(t *testing.T) {
+	confyml := `
+version: 1
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validators:
+  - name: user1
+    staked: "100000000stake"
+    app:
+      grpc:
+        address: "localhost:8080"
+      api:
+        address: "localhost:80801"
+    gentx:
+      amount: 1000stake
+      moniker: mymoniker
+      commission-max-change-rate: max-rate
+      home: /path/to/home/dir
+      keyring-backend: os
+      chain-id: test-chain-1
+      commission-max-rate: 1.0
+      commission-rate: 0.07
+      details: no details
+      security-contact: no security-contact
+      website: no website
+      gas-prices: GasPrices-1
+      identity: Identity-1
+      min-self-delegation: MinSelfDelegation-1
+`
+
+	conf, err := Parse(strings.NewReader(confyml))
+	assert.Nil(t, err)
+	require.Equal(t, 1, len(conf.Validators))
+	validator := conf.Validators[0]
+	gentx := validator.Gentx
+	require.Equal(t, "1000stake", gentx.Amount)
+	require.Equal(t, "mymoniker", gentx.Moniker)
+	require.Equal(t, "max-rate", gentx.CommissionMaxChangeRate)
+	require.Equal(t, "/path/to/home/dir", gentx.Home)
+	require.Equal(t, "os", gentx.KeyringBackend)
+	require.Equal(t, "test-chain-1", gentx.ChainID)
+	require.Equal(t, "1.0", gentx.CommissionMaxRate)
+	require.Equal(t, "0.07", gentx.CommissionRate)
+	require.Equal(t, "no details", gentx.Details)
+	require.Equal(t, "no security-contact", gentx.SecurityContact)
+	require.Equal(t, "no website", gentx.Website)
+	require.Equal(t, "GasPrices-1", gentx.GasPrices)
+	require.Equal(t, "MinSelfDelegation-1", gentx.MinSelfDelegation)
+	require.Equal(t, "Identity-1", gentx.Identity)
 }
