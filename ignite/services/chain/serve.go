@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
-	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
+	"github.com/ignite-hq/cli/ignite/chainconfig/common"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
@@ -379,7 +379,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, config v0.ConfigYaml) error {
+func (c *Chain) start(ctx context.Context, config common.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -415,8 +415,8 @@ func (c *Chain) start(ctx context.Context, config v0.ConfigYaml) error {
 
 	// note: address format errors are handled by the
 	// error group, so they can be safely ignored here
-	rpcAddr, _ := xurl.HTTP(config.Host.RPC)
-	apiAddr, _ := xurl.HTTP(config.Host.API)
+	rpcAddr, _ := xurl.HTTP(config.GetHost().RPC)
+	apiAddr, _ := xurl.HTTP(config.GetHost().API)
 
 	// print the server addresses.
 	fmt.Fprintf(c.stdLog().out, "🌍 Tendermint node: %s\n", rpcAddr)

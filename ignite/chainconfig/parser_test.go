@@ -32,11 +32,11 @@ validator:
 			Name:  "you",
 			Coins: []string{"5000token"},
 		},
-	}, conf.Accounts)
+	}, conf.ListAccounts())
 	require.Equal(t, common.Validator{
 		Name:   "user1",
 		Staked: "100000000stake",
-	}, conf.Validator)
+	}, conf.ListValidators()[0])
 }
 
 func TestCoinTypeParse(t *testing.T) {
@@ -69,11 +69,11 @@ validator:
 			Coins:    []string{"5000token"},
 			CoinType: "123456",
 		},
-	}, conf.Accounts)
+	}, conf.ListAccounts())
 	require.Equal(t, common.Validator{
 		Name:   "user1",
 		Staked: "100000000stake",
-	}, conf.Validator)
+	}, conf.ListValidators()[0])
 }
 
 func TestParseInvalid(t *testing.T) {

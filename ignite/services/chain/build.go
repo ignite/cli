@@ -178,7 +178,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		return nil, err
 	}
 
-	ldFlags := config.Build.LDFlags
+	ldFlags := config.GetBuild().LDFlags
 	ldFlags = append(ldFlags,
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Name=%s", xstrings.Title(c.app.Name)),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.AppName=%sd", c.app.Name),
@@ -226,8 +226,8 @@ func (c *Chain) discoverMain(path string) (pkgPath string, err error) {
 		return "", err
 	}
 
-	if conf.Build.Main != "" {
-		return filepath.Join(c.app.Path, conf.Build.Main), nil
+	if conf.GetBuild().Main != "" {
+		return filepath.Join(c.app.Path, conf.GetBuild().Main), nil
 	}
 
 	path, err = goanalysis.DiscoverOneMain(path)

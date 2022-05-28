@@ -95,12 +95,12 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 
 	options := []cosmosgen.Option{
 		cosmosgen.WithGoGeneration(gomodPath),
-		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
+		cosmosgen.IncludeDirs(conf.GetBuild().Proto.ThirdPartyPaths),
 	}
 
 	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+	if conf.GetClient().Vuex.Path != "" {
+		storeRootPath := filepath.Join(projectPath, conf.GetClient().Vuex.Path, "generated")
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
@@ -110,11 +110,11 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 			),
 		)
 	}
-	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+	if conf.GetClient().OpenAPI.Path != "" {
+		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.GetClient().OpenAPI.Path))
 	}
 
-	return cosmosgen.Generate(context.Background(), cacheStorage, projectPath, conf.Build.Proto.Path, options...)
+	return cosmosgen.Generate(context.Background(), cacheStorage, projectPath, conf.GetBuild().Proto.Path, options...)
 }
 
 func tidy(path string) error {

@@ -6,10 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
 
-	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
@@ -48,7 +49,7 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, conf v0.ConfigYaml) error {
+func (p *stargatePlugin) Configure(homePath string, conf common.Config) error {
 	if err := p.appTOML(homePath, conf); err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func (p *stargatePlugin) Configure(homePath string, conf v0.ConfigYaml) error {
 	return p.configTOML(homePath, conf)
 }
 
-func (p *stargatePlugin) appTOML(homePath string, conf v0.ConfigYaml) error {
+func (p *stargatePlugin) appTOML(homePath string, conf common.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -66,19 +67,19 @@ func (p *stargatePlugin) appTOML(homePath string, conf v0.ConfigYaml) error {
 		return err
 	}
 
-	apiAddr, err := xurl.TCP(conf.Host.API)
+	apiAddr, err := xurl.TCP(conf.GetHost().API)
 	if err != nil {
-		return fmt.Errorf("invalid api address format %s: %w", conf.Host.API, err)
+		return fmt.Errorf("invalid api address format %s: %w", conf.GetHost().API, err)
 	}
 
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", apiAddr)
-	config.Set("grpc.address", conf.Host.GRPC)
-	config.Set("grpc-web.address", conf.Host.GRPCWeb)
+	config.Set("grpc.address", conf.GetHost().GRPC)
+	config.Set("grpc-web.address", conf.GetHost().GRPCWeb)
 
-	staked, err := sdktypes.ParseCoinNormalized(conf.Validator.Staked)
+	staked, err := sdktypes.ParseCoinNormalized(conf.ListValidators()[0].Staked)
 	if err != nil {
 		return err
 	}
@@ -95,7 +96,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf v0.ConfigYaml) error {
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, conf v0.ConfigYaml) error {
+func (p *stargatePlugin) configTOML(homePath string, conf common.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -103,14 +104,14 @@ func (p *stargatePlugin) configTOML(homePath string, conf v0.ConfigYaml) error {
 		return err
 	}
 
-	rpcAddr, err := xurl.TCP(conf.Host.RPC)
+	rpcAddr, err := xurl.TCP(conf.GetHost().RPC)
 	if err != nil {
-		return fmt.Errorf("invalid rpc address format %s: %w", conf.Host.RPC, err)
+		return fmt.Errorf("invalid rpc address format %s: %w", conf.GetHost().RPC, err)
 	}
 
-	p2pAddr, err := xurl.TCP(conf.Host.P2P)
+	p2pAddr, err := xurl.TCP(conf.GetHost().P2P)
 	if err != nil {
-		return fmt.Errorf("invalid p2p address format %s: %w", conf.Host.P2P, err)
+		return fmt.Errorf("invalid p2p address format %s: %w", conf.GetHost().P2P, err)
 	}
 
 	config.Set("mode", "validator")
@@ -119,7 +120,7 @@ func (p *stargatePlugin) configTOML(homePath string, conf v0.ConfigYaml) error {
 	config.Set("consensus.timeout_propose", "1s")
 	config.Set("rpc.laddr", rpcAddr)
 	config.Set("p2p.laddr", p2pAddr)
-	config.Set("rpc.pprof_laddr", conf.Host.Prof)
+	config.Set("rpc.pprof_laddr", conf.GetHost().Prof)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
@@ -151,12 +152,12 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf v0.ConfigYaml) error {
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf common.Config) error {
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",
 		"--grpc.address",
-		conf.Host.GRPC,
+		conf.GetHost().GRPC,
 	)
 	return &CannotStartAppError{p.app.Name, err}
 }
