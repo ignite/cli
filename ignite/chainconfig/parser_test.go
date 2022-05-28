@@ -35,6 +35,7 @@ validator:
 			Coins: []string{"5000token"},
 		},
 	}, conf.ListAccounts())
+
 	require.Equal(t, []common.Validator{
 		&v1.Validator{
 			Name:   "user1",
@@ -44,6 +45,15 @@ validator:
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
 				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
 		}}, conf.ListValidators())
+
+	require.Equal(t, common.Host{
+		RPC:     "0.0.0.0:26657",
+		P2P:     "0.0.0.0:26656",
+		Prof:    "0.0.0.0:6060",
+		GRPC:    "0.0.0.0:9090",
+		GRPCWeb: "0.0.0.0:9091",
+		API:     "0.0.0.0:1317",
+	}, conf.GetHost())
 }
 
 func TestCoinTypeParse(t *testing.T) {
@@ -154,8 +164,6 @@ faucet:
 }
 
 func TestParseWithVersion(t *testing.T) {
-	expectedVersion := new(int)
-	*expectedVersion = 1
 	tests := []struct {
 		TestName        string
 		Input           string
@@ -207,7 +215,7 @@ accounts:
     coins: ["5000token"]
 validators:
   - name: user1
-  - bonded: "100000000stake"
+    bonded: "100000000stake"
 `,
 		ExpectedError:   &UnsupportedVersionError{Message: "the version is not available in the supported list"},
 		ExpectedVersion: 0,
@@ -220,6 +228,78 @@ validators:
 				require.Equal(t, test.ExpectedVersion, conf.GetVersion())
 			}
 			require.Equal(t, test.ExpectedError, err)
+		})
+	}
+}
+
+func TestValidator(t *testing.T) {
+	tests := []struct {
+		TestName     string
+		Input        string
+		ExpectedHost common.Host
+	}{{
+		TestName: "Parse the config yaml with no addresses for the validator",
+		Input: `
+version: 1
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validators:
+  - name: user1
+    staked: "100000000stake"
+`,
+		ExpectedHost: common.Host{
+			RPC:     "0.0.0.0:26657",
+			P2P:     "0.0.0.0:26656",
+			Prof:    "0.0.0.0:6060",
+			GRPC:    "0.0.0.0:9090",
+			GRPCWeb: "0.0.0.0:9091",
+			API:     "0.0.0.0:1317",
+		},
+	}, {
+		TestName: "Parse the config yaml with all the addresses for the validator",
+		Input: `
+version: 1
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["5000token"]
+validators:
+  - name: user1
+    staked: "100000000stake"
+    app:
+      grpc:
+        address: localhost:8080
+      api:
+        address: localhost:80801
+      grpc-web:
+        address: localhost:80802
+    config:
+      rpc:
+        laddr: localhost:80807
+      p2p:
+        laddr: localhost:80804
+      pprof_laddr: localhost:80809
+`,
+		ExpectedHost: common.Host{
+			RPC:     "localhost:80807",
+			P2P:     "localhost:80804",
+			Prof:    "localhost:80809",
+			GRPC:    "localhost:8080",
+			GRPCWeb: "localhost:80802",
+			API:     "localhost:80801",
+		},
+	}}
+
+	for _, test := range tests {
+		t.Run(test.TestName, func(t *testing.T) {
+			conf, err := Parse(strings.NewReader(test.Input))
+			require.NoError(t, err)
+			require.Equal(t, 1, conf.GetVersion())
+			require.Equal(t, test.ExpectedHost, conf.GetHost())
 		})
 	}
 }

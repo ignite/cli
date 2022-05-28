@@ -9,11 +9,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/imdario/mergo"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig/conversion"
 
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 
-	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/common"

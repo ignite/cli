@@ -52,21 +52,11 @@ func (c *Config) GetHost() common.Host {
 	api := host.API
 	if validator.Config != nil {
 		if val, ok := validator.Config["rpc"]; ok {
-			v, yes := val.(map[string]interface{})
-			if yes {
-				if address, key := v["laddr"]; key {
-					rpc = fmt.Sprintf("%v", address)
-				}
-			}
+			rpc = getValue(val, "laddr")
 		}
 
 		if val, ok := validator.Config["p2p"]; ok {
-			v, yes := val.(map[string]interface{})
-			if yes {
-				if address, key := v["laddr"]; key {
-					p2p = fmt.Sprintf("%v", address)
-				}
-			}
+			p2p = getValue(val, "laddr")
 		}
 
 		if val, ok := validator.Config["pprof_laddr"]; ok {
@@ -76,32 +66,18 @@ func (c *Config) GetHost() common.Host {
 
 	if validator.App != nil {
 		if val, ok := validator.App["grpc"]; ok {
-			v, yes := val.(map[string]interface{})
-			if yes {
-				if address, key := v["address"]; key {
-					grpc = fmt.Sprintf("%v", address)
-				}
-			}
+			grpc = getValue(val, "address")
 		}
 
 		if val, ok := validator.App["grpc-web"]; ok {
-			v, yes := val.(map[string]interface{})
-			if yes {
-				if address, key := v["address"]; key {
-					grpcweb = fmt.Sprintf("%v", address)
-				}
-			}
+			grpcweb = getValue(val, "address")
 		}
 
 		if val, ok := validator.App["api"]; ok {
-			v, yes := val.(map[string]interface{})
-			if yes {
-				if address, key := v["address"]; key {
-					api = fmt.Sprintf("%v", address)
-				}
-			}
+			api = getValue(val, "address")
 		}
 	}
+
 	// Get the information from the first validator.
 	return common.Host{
 		RPC:     rpc,
@@ -263,4 +239,22 @@ func (v *Validator) IncreasePort(portIncrement int) *Validator {
 			"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
 	}
 	return result
+}
+
+func getValue(val interface{}, keyMap string) string {
+	switch v := val.(type) {
+	case map[string]interface{}:
+		for key, address := range v {
+			if key == keyMap {
+				return fmt.Sprintf("%v", address)
+			}
+		}
+	case map[interface{}]interface{}:
+		for key, address := range v {
+			if fmt.Sprintf("%v", key) == keyMap {
+				return fmt.Sprintf("%v", address)
+			}
+		}
+	}
+	return ""
 }
