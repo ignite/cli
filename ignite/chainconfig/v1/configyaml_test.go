@@ -98,3 +98,30 @@ func TestGetAddressPort(t *testing.T) {
 	require.Equal(t, "0.0.0.0", validator.GetProfAddress())
 	require.Equal(t, 6070, validator.GetProfPort())
 }
+
+func TestClone(t *testing.T) {
+	config := &Config{
+		Validators: []Validator{
+			{
+				Name:   "alice",
+				Bonded: "100000000stake",
+			},
+		},
+	}
+	clone := config.Clone()
+	require.Equal(t, config, clone)
+
+	clone.(*Config).Validators = []Validator{
+		Validator{
+			Name:   "test",
+			Bonded: "stakedvalue",
+		},
+	}
+	require.NotEqual(t, config, clone)
+	require.Equal(t, []Validator{
+		Validator{
+			Name:   "test",
+			Bonded: "stakedvalue",
+		},
+	}, clone.(*Config).Validators)
+}

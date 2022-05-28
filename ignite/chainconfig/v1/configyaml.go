@@ -12,21 +12,34 @@ import (
 
 // DefaultValidator defines the default values for the validator.
 var (
+	// DefaultPortMargin is the default incremental margin for the the port number.
 	DefaultPortMargin = 10
-	GRPCPort          = 9090
-	GRPCWebPort       = 9091
-	APIPort           = 1317
 
-	RPCPort   = 26657
-	P2P       = 26656
+	// GRPCPort is the default port number of GRPC.
+	GRPCPort = 9090
+
+	// GRPCWebPort is the default port number of GRPC-Web.
+	GRPCWebPort = 9091
+
+	// APIPort is the default port number of API.
+	APIPort = 1317
+
+	// RPCPort is the default port number of RPC.
+	RPCPort = 26657
+
+	// P2PPort is the default port number of P2P.
+	P2PPort = 26656
+
+	// PPROFPort is the default port number of Prof.
 	PPROFPort = 6060
 
+	// DefaultValidator is the default configuration of the validator
 	DefaultValidator = Validator{
 		App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
 			"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
 			"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)}},
 		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
-			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2P)},
+			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort)},
 			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort)},
 	}
 )
@@ -38,7 +51,7 @@ type Config struct {
 	common.BaseConfig `yaml:",inline"`
 }
 
-// GetHost returns the Host.
+// GetHost returns the Host. This method currently implements the use case of one validator.
 func (c *Config) GetHost() common.Host {
 	if len(c.Validators) == 0 {
 		return common.Host{}
@@ -92,7 +105,7 @@ func (c *Config) GetHost() common.Host {
 	}
 }
 
-// GetInit returns the Init.
+// GetInit returns the Init. This method currently implements the use case of one validator.
 func (c *Config) GetInit() common.Init {
 	if len(c.Validators) == 0 {
 		return common.Init{}
@@ -166,7 +179,10 @@ func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
 
 // Validator holds info related to validator settings.
 type Validator struct {
-	Name   string `yaml:"name"`
+	// Name is the name of the validator.
+	Name string `yaml:"name"`
+
+	// Bonded is how much the validator has staked.
 	Bonded string `yaml:"bonded"`
 
 	// App overwrites appd's config/app.toml configs.
@@ -196,6 +212,7 @@ func (v *Validator) FillDefaults(defaultValidator Validator) error {
 	return nil
 }
 
+// GetGRPC returns the GRPC
 func (v *Validator) GetGRPC() string {
 	if v.App != nil {
 		if val, ok := v.App["grpc"]; ok {
@@ -205,16 +222,19 @@ func (v *Validator) GetGRPC() string {
 	return ""
 }
 
+// GetGRPCAddress returns the GRPC IP
 func (v *Validator) GetGRPCAddress() string {
 	grpc := v.GetGRPC()
 	return getAddress(grpc)
 }
 
+// GetGRPCPort returns the GRPC port
 func (v *Validator) GetGRPCPort() int {
 	grpc := v.GetGRPC()
 	return getPort(grpc)
 }
 
+// GetGRPCWeb returns the GRPCWeb
 func (v *Validator) GetGRPCWeb() string {
 	if v.App != nil {
 		if val, ok := v.App["grpc-web"]; ok {
@@ -224,16 +244,19 @@ func (v *Validator) GetGRPCWeb() string {
 	return ""
 }
 
+// GetGRPCWebAddress returns the GRPCWeb IP
 func (v *Validator) GetGRPCWebAddress() string {
 	grpcweb := v.GetGRPCWeb()
 	return getAddress(grpcweb)
 }
 
+// GetGRPCWebPort returns the GRPCWeb port
 func (v *Validator) GetGRPCWebPort() int {
 	grpcweb := v.GetGRPCWeb()
 	return getPort(grpcweb)
 }
 
+// GetAPI returns the API
 func (v *Validator) GetAPI() string {
 	if v.App != nil {
 		if val, ok := v.App["api"]; ok {
@@ -243,14 +266,17 @@ func (v *Validator) GetAPI() string {
 	return ""
 }
 
+// GetAPIAddress returns the API IP
 func (v *Validator) GetAPIAddress() string {
 	return getAddress(v.GetAPI())
 }
 
+// GetAPIPort returns the API port
 func (v *Validator) GetAPIPort() int {
 	return getPort(v.GetAPI())
 }
 
+// GetProf returns the Prof
 func (v *Validator) GetProf() string {
 	if v.Config != nil {
 		if val, ok := v.Config["pprof_laddr"]; ok {
@@ -260,14 +286,17 @@ func (v *Validator) GetProf() string {
 	return ""
 }
 
+// GetProfAddress returns the Prof IP
 func (v *Validator) GetProfAddress() string {
 	return getAddress(v.GetProf())
 }
 
+// GetProfPort returns the Prof port
 func (v *Validator) GetProfPort() int {
 	return getPort(v.GetProf())
 }
 
+// GetP2P returns the P2P
 func (v *Validator) GetP2P() string {
 	if v.Config != nil {
 		if val, ok := v.Config["p2p"]; ok {
@@ -277,14 +306,17 @@ func (v *Validator) GetP2P() string {
 	return ""
 }
 
+// GetP2PAddress returns the P2P IP
 func (v *Validator) GetP2PAddress() string {
 	return getAddress(v.GetP2P())
 }
 
+// GetP2PPort returns the P2P port
 func (v *Validator) GetP2PPort() int {
 	return getPort(v.GetP2P())
 }
 
+// GetRPC returns the RPC
 func (v *Validator) GetRPC() string {
 	if v.Config != nil {
 		if val, ok := v.Config["rpc"]; ok {
@@ -294,10 +326,12 @@ func (v *Validator) GetRPC() string {
 	return ""
 }
 
+// GetRPCAddress returns the RPC IP
 func (v *Validator) GetRPCAddress() string {
 	return getAddress(v.GetRPC())
 }
 
+// GetRPCPort returns the RPC port
 func (v *Validator) GetRPCPort() int {
 	return getPort(v.GetRPC())
 }
