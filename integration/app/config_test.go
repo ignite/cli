@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	envtest "github.com/ignite/cli/integration"
@@ -27,17 +27,20 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		isBackendAliveErr error
 	)
 
-	var c v0.Config
+	var c v1.Config
 
 	cf := confile.New(confile.DefaultYAMLEncodingCreator, filepath.Join(path, "config.yml"))
 	require.NoError(t, cf.Load(&c))
 
 	c.Genesis = map[string]interface{}{"chain_id": "cosmos"}
-	c.Init.App = map[string]interface{}{"hello": "cosmos"}
-	c.Init.Config = map[string]interface{}{"fast_sync": false}
+	defaultValidator := v1.Validator{
+		App:    map[string]interface{}{"hello": "cosmos"},
+		Config: map[string]interface{}{"fast_sync": false},
+	}
+	err := c.FillValidatorsDefaults(defaultValidator)
+	require.NoError(t, err)
 
 	require.NoError(t, cf.Save(c))
-
 	go func() {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
