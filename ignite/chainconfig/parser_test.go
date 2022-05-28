@@ -164,7 +164,7 @@ validator:
   staked: "100000000stake"
 `,
 		ExpectedError:   nil,
-		ExpectedVersion: 0,
+		ExpectedVersion: 1,
 	}}
 
 	for _, test := range tests {

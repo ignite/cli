@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig/conversion"
+
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 
 	"github.com/imdario/mergo"
@@ -91,6 +93,10 @@ func Parse(r io.Reader) (common.Config, error) {
 		return nil, err
 	}
 
+	conf, err = conversion.ConvertLatest(conf)
+	if err != nil {
+		return nil, err
+	}
 	return conf, validate(conf)
 }
 
