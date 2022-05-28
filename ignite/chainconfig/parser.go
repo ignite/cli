@@ -33,8 +33,6 @@ var (
 	// ConfigFileNames is a list of recognized names as for Ignite's config file.
 	ConfigFileNames = []string{"config.yml", "config.yaml"}
 
-	DefaultVersion = "v0"
-
 	// Migration defines the version as the key and the config instance as the value
 	Migration = map[int]common.Config{0: &v0.Config{}, 1: &v1.Config{}}
 
