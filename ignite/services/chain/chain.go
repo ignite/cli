@@ -224,8 +224,7 @@ func (c *Chain) ConfigPath() string {
 func (c *Chain) Config() (common.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		conf := &v1.Config{}
-		return conf.Default(), nil
+		return chainconfig.DefaultConfig, nil
 	}
 	return chainconfig.ParseFile(configPath)
 }

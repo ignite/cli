@@ -37,7 +37,7 @@ var (
 	Migration = map[int]common.Config{0: &v0.Config{}, 1: &v1.Config{}}
 
 	// DefaultConfig defines the default config without the validators.
-	DefaultConfig = v1.Config{
+	DefaultConfig = &v1.Config{
 		BaseConfig: common.BaseConfig{
 			Build: common.Build{
 				Proto: common.Proto{

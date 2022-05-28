@@ -44,35 +44,6 @@ func (c *Config) Clone() common.Config {
 	return &copy
 }
 
-// Default returns the instance with the default value
-func (c *Config) Default() common.Config {
-	return &Config{
-		Host: common.Host{
-			// when in Docker on MacOS, it only works with 0.0.0.0.
-			RPC:     "0.0.0.0:26657",
-			P2P:     "0.0.0.0:26656",
-			Prof:    "0.0.0.0:6060",
-			GRPC:    "0.0.0.0:9090",
-			GRPCWeb: "0.0.0.0:9091",
-			API:     "0.0.0.0:1317",
-		},
-		BaseConfig: common.BaseConfig{
-			Build: common.Build{
-				Proto: common.Proto{
-					Path: "proto",
-					ThirdPartyPaths: []string{
-						"third_party/proto",
-						"proto_vendor",
-					},
-				},
-			},
-			Faucet: common.Faucet{
-				Host: "0.0.0.0:4500",
-			},
-		},
-	}
-}
-
 // Validator holds info related to validator settings.
 type Validator struct {
 	Name   string `yaml:"name"`

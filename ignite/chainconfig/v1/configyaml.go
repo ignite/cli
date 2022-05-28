@@ -164,34 +164,6 @@ func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
 	return nil
 }
 
-// Default returns the instance with the default value
-func (c *Config) Default() common.Config {
-	return &Config{
-		Validators: []Validator{
-			{
-				App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
-					"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
-				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-					"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-			},
-		},
-		BaseConfig: common.BaseConfig{
-			Build: common.Build{
-				Proto: common.Proto{
-					Path: "proto",
-					ThirdPartyPaths: []string{
-						"third_party/proto",
-						"proto_vendor",
-					},
-				},
-			},
-			Faucet: common.Faucet{
-				Host: "0.0.0.0:4500",
-			},
-		},
-	}
-}
-
 // Validator holds info related to validator settings.
 type Validator struct {
 	Name   string `yaml:"name"`
