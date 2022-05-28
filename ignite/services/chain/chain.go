@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	"github.com/tendermint/spn/pkg/chainid"
@@ -219,7 +221,7 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (chainconfig.Config, error) {
+func (c *Chain) Config() (v0.ConfigYaml, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
 		return chainconfig.DefaultConf, nil

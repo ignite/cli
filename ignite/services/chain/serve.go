@@ -15,6 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
+	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
@@ -378,7 +379,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
+func (c *Chain) start(ctx context.Context, config v0.ConfigYaml) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
