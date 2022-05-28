@@ -423,7 +423,7 @@ func (c *Chain) start(ctx context.Context, config common.Config) error {
 	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", apiAddr)
 
 	if isFaucetEnabled {
-		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
+		faucetAddr, _ := xurl.HTTP(common.FaucetHost(config))
 		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", faucetAddr)
 	}
 
@@ -437,7 +437,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    chainconfig.FaucetHost(config),
+		Addr:    common.FaucetHost(config),
 		Handler: faucet,
 	})
 }
