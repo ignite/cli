@@ -130,11 +130,35 @@ type Config interface {
 	Default() Config
 }
 
+// BaseConfigYaml is the struct containing all the common fields for the config across all the versions.
 type BaseConfigYaml struct {
-	Version string `yaml:"version"`
+	Version  string    `yaml:"version"`
+	Build    Build     `yaml:"build"`
+	Accounts []Account `yaml:"accounts"`
+	Faucet   Faucet    `yaml:"faucet"`
 }
 
 // GetVersion returns the version of the config.yaml file.
 func (c *BaseConfigYaml) GetVersion() string {
 	return c.Version
+}
+
+// AccountByName finds account by name.
+func (c *BaseConfigYaml) AccountByName(name string) (acc Account, found bool) {
+	for _, acc := range c.Accounts {
+		if acc.Name == name {
+			return acc, true
+		}
+	}
+	return Account{}, false
+}
+
+// GetBuild returns the Build.
+func (c *BaseConfigYaml) GetBuild() Build {
+	return c.Build
+}
+
+// GetFaucet returns the Faucet.
+func (c *BaseConfigYaml) GetFaucet() Faucet {
+	return c.Faucet
 }
