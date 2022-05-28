@@ -33,11 +33,6 @@ func (c *Config) ListAccounts() []common.Account {
 	return c.Accounts
 }
 
-// ListValidators returns the list of all the validators.
-func (c *Config) ListValidators() []common.Validator {
-	return []common.Validator{&c.Validator}
-}
-
 // Clone returns an identical copy of the instance
 func (c *Config) Clone() common.Config {
 	copy := *c
@@ -48,14 +43,4 @@ func (c *Config) Clone() common.Config {
 type Validator struct {
 	Name   string `yaml:"name"`
 	Staked string `yaml:"staked"`
-}
-
-// GetName returns the name of the validator.
-func (v *Validator) GetName() string {
-	return v.Name
-}
-
-// GetBonded returns the bonded value.
-func (v *Validator) GetBonded() string {
-	return v.Staked
 }

@@ -138,8 +138,8 @@ func (c *Config) ListAccounts() []common.Account {
 }
 
 // ListValidators returns the list of all the validators.
-func (c *Config) ListValidators() []common.Validator {
-	validators := make([]common.Validator, len(c.Validators))
+func (c *Config) ListValidators() []*Validator {
+	validators := make([]*Validator, len(c.Validators))
 	for i := range c.Validators {
 		validators[i] = &c.Validators[i]
 	}
@@ -186,16 +186,6 @@ type Validator struct {
 
 	// Gentx overwrites appd's config/gentx.toml configs.
 	Gentx map[string]interface{} `yaml:"gentx"`
-}
-
-// GetName returns the name of the validator.
-func (v *Validator) GetName() string {
-	return v.Name
-}
-
-// GetBonded returns the bonded value.
-func (v *Validator) GetBonded() string {
-	return v.Bonded
 }
 
 // FillDefaults fills in the default values in the parameter defaultValidator.

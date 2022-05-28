@@ -2,6 +2,7 @@ package conversion
 
 import (
 	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
 var (
@@ -9,22 +10,17 @@ var (
 	LatestVersion common.Version = 1
 )
 
-// ConvertNext converts a Config to the next version of Config.
-func ConvertNext(config common.Config) (common.Config, error) {
-	return config.ConvertNext()
-}
-
 // ConvertLatest converts a Config to the latest version of Config.
-func ConvertLatest(config common.Config) (common.Config, error) {
+func ConvertLatest(config common.Config) (*v1.Config, error) {
 	var err error
-	version := config.GetVersion()
+	version := config.Version()
 
 	for version < LatestVersion {
-		config, err = ConvertNext(config)
+		config, err = config.ConvertNext()
 		if err != nil {
-			return config, err
+			return config.(*v1.Config), err
 		}
-		version = config.GetVersion()
+		version = config.Version()
 	}
-	return config, err
+	return config.(*v1.Config), err
 }

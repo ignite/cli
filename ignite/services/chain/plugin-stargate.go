@@ -6,11 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
-
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
 
+	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
@@ -49,7 +48,7 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, conf common.Config) error {
+func (p *stargatePlugin) Configure(homePath string, conf *v1.Config) error {
 	if err := p.appTOML(homePath, conf); err != nil {
 		return err
 	}
@@ -59,7 +58,7 @@ func (p *stargatePlugin) Configure(homePath string, conf common.Config) error {
 	return p.configTOML(homePath, conf)
 }
 
-func (p *stargatePlugin) appTOML(homePath string, conf common.Config) error {
+func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -79,7 +78,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf common.Config) error {
 	config.Set("grpc.address", conf.GetHost().GRPC)
 	config.Set("grpc-web.address", conf.GetHost().GRPCWeb)
 
-	staked, err := sdktypes.ParseCoinNormalized(conf.ListValidators()[0].GetBonded())
+	staked, err := sdktypes.ParseCoinNormalized(conf.ListValidators()[0].Bonded)
 	if err != nil {
 		return err
 	}
@@ -96,7 +95,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf common.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, conf common.Config) error {
+func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -152,7 +151,7 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf common.Config) error {
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf *v1.Config) error {
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",

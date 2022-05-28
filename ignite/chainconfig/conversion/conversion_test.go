@@ -3,8 +3,8 @@ package conversion
 import (
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig/common"
 	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,8 +15,8 @@ func TestConvertLatest(t *testing.T) {
 	assert.Nil(t, err)
 	expected := v0.GetConvertedLatestConfig()
 
-	require.Equal(t, 0, origin.GetVersion())
-	require.Equal(t, 1, result.GetVersion())
+	require.Equal(t, common.Version(0), origin.Version())
+	require.Equal(t, common.Version(1), result.Version())
 	require.Equal(t, origin.GetFaucet(), result.GetFaucet())
 	require.Equal(t, origin.GetClient(), result.GetClient())
 	require.Equal(t, origin.GetBuild(), result.GetBuild())
@@ -24,5 +24,5 @@ func TestConvertLatest(t *testing.T) {
 	require.Equal(t, origin.GetGenesis(), result.GetGenesis())
 	require.Equal(t, origin.ListAccounts(), result.ListAccounts())
 	require.Equal(t, origin.GetInit(), result.GetInit())
-	require.Equal(t, expected.(*v1.Config), result.(*v1.Config))
+	require.Equal(t, expected, result)
 }

@@ -2,7 +2,6 @@ package chainconfig
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -38,7 +37,7 @@ validator:
 		},
 	}, conf.ListAccounts())
 
-	require.Equal(t, []common.Validator{
+	require.Equal(t, []*v1.Validator{
 		&v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
@@ -89,7 +88,7 @@ validator:
 			CoinType: "123456",
 		},
 	}, conf.ListAccounts())
-	require.Equal(t, []common.Validator{
+	require.Equal(t, []*v1.Validator{
 		&v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
@@ -128,7 +127,7 @@ faucet:
 `
 	conf, err := Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, "0.0.0.0:4600", common.FaucetHost(conf))
+	require.Equal(t, "0.0.0.0:4600", FaucetHost(conf))
 
 	confyml = `
 accounts:
@@ -144,7 +143,7 @@ faucet:
 `
 	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, ":4700", common.FaucetHost(conf))
+	require.Equal(t, ":4700", FaucetHost(conf))
 
 	// Port must be higher priority
 	confyml = `
@@ -162,7 +161,7 @@ faucet:
 `
 	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, ":4700", common.FaucetHost(conf))
+	require.Equal(t, ":4700", FaucetHost(conf))
 }
 
 func TestParseWithMigration(t *testing.T) {
@@ -209,9 +208,7 @@ genesis:
 `
 	conf, err := Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, reflect.TypeOf(DefaultConfig), reflect.TypeOf(conf))
-	config := conf.(*v1.Config)
-	require.Equal(t, common.Version(1), config.Version)
+	require.Equal(t, common.Version(1), conf.Version())
 	require.Equal(t, []common.Account{
 		{
 			Name:  "alice",
@@ -222,10 +219,10 @@ genesis:
 			Coins: []string{"5000000000000aevmos"},
 		},
 	}, conf.ListAccounts())
-	require.Equal(t, "bob", *config.GetFaucet().Name)
-	require.Equal(t, []string{"10aevmos"}, config.GetFaucet().Coins)
+	require.Equal(t, "bob", *conf.GetFaucet().Name)
+	require.Equal(t, []string{"10aevmos"}, conf.GetFaucet().Coins)
 	// The default value of Host has been filled in for Faucet.
-	require.Equal(t, "0.0.0.0:4500", config.GetFaucet().Host)
+	require.Equal(t, "0.0.0.0:4500", conf.GetFaucet().Host)
 	// The default values have been filled in for Build.
 	require.Equal(t, common.Build{Binary: "evmosd",
 		Proto: common.Proto{
@@ -234,11 +231,11 @@ genesis:
 				"third_party/proto",
 				"proto_vendor",
 			},
-		}}, config.GetBuild())
+		}}, conf.GetBuild())
 
 	// The validator is filled with the default values for grpc, grpc-web, api, rpc, p2p and pprof_laddr.
 	// The init.app and init.home are moved under the validator as well.
-	require.Equal(t, []common.Validator{
+	require.Equal(t, []*v1.Validator{
 		&v1.Validator{
 			Name:   "alice",
 			Bonded: "100000000000000000000aevmos",
@@ -323,7 +320,7 @@ validators:
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := Parse(strings.NewReader(test.Input))
 			if conf != nil {
-				require.Equal(t, test.ExpectedVersion, conf.GetVersion())
+				require.Equal(t, test.ExpectedVersion, conf.Version())
 			}
 			require.Equal(t, test.ExpectedError, err)
 		})
@@ -438,7 +435,7 @@ validators:
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
-			require.Equal(t, common.Version(1), conf.GetVersion())
+			require.Equal(t, common.Version(1), conf.Version())
 			require.Equal(t, test.ExpectedFirstValidator, conf.ListValidators()[0])
 			require.Equal(t, test.ExpectedSecondValidator, conf.ListValidators()[1])
 		})

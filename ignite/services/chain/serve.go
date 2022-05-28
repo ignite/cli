@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
@@ -379,7 +379,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, config common.Config) error {
+func (c *Chain) start(ctx context.Context, config *v1.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -423,7 +423,7 @@ func (c *Chain) start(ctx context.Context, config common.Config) error {
 	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", apiAddr)
 
 	if isFaucetEnabled {
-		faucetAddr, _ := xurl.HTTP(common.FaucetHost(config))
+		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
 		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", faucetAddr)
 	}
 
@@ -437,7 +437,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    common.FaucetHost(config),
+		Addr:    chainconfig.FaucetHost(config),
 		Handler: faucet,
 	})
 }

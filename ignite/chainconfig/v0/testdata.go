@@ -7,7 +7,7 @@ import (
 
 var v = "bob"
 
-func GetInitialV0Config() common.Config {
+func GetInitialV0Config() *Config {
 	return &Config{
 		Validator: Validator{
 			Name:   "alice",
@@ -28,7 +28,7 @@ func GetInitialV0Config() common.Config {
 			API:     "localhost:51028",
 		},
 		BaseConfig: common.BaseConfig{
-			Version: 0,
+			ConfigVersion: 0,
 			Build: common.Build{
 				Proto: common.Proto{
 					Path: "proto",
@@ -71,8 +71,7 @@ func GetInitialV0Config() common.Config {
 	}
 }
 
-func GetConvertedLatestConfig() common.Config {
-
+func GetConvertedLatestConfig() *v1.Config {
 	return &v1.Config{
 		Validators: []v1.Validator{
 			{
@@ -86,7 +85,7 @@ func GetConvertedLatestConfig() common.Config {
 			},
 		},
 		BaseConfig: common.BaseConfig{
-			Version: 1,
+			ConfigVersion: 1,
 			Build: common.Build{
 				Proto: common.Proto{
 					Path: "proto",
