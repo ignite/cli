@@ -37,31 +37,6 @@ var (
 			"how-to: https://github.com/ignite-hq/cli/blob/develop/docs/configure/index.md")
 )
 
-// DefaultConf holds default configuration.
-var DefaultConf = v0.ConfigYaml{
-	Host: common.Host{
-		// when in Docker on MacOS, it only works with 0.0.0.0.
-		RPC:     "0.0.0.0:26657",
-		P2P:     "0.0.0.0:26656",
-		Prof:    "0.0.0.0:6060",
-		GRPC:    "0.0.0.0:9090",
-		GRPCWeb: "0.0.0.0:9091",
-		API:     "0.0.0.0:1317",
-	},
-	Build: common.Build{
-		Proto: common.Proto{
-			Path: "proto",
-			ThirdPartyPaths: []string{
-				"third_party/proto",
-				"proto_vendor",
-			},
-		},
-	},
-	Faucet: common.Faucet{
-		Host: "0.0.0.0:4500",
-	},
-}
-
 // Parse parses config.yml into UserConfig based on the version.
 func Parse(content []byte) (common.Config, error) {
 	// Read the version field
