@@ -2,6 +2,7 @@ package chainconfig
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -163,6 +164,102 @@ faucet:
 	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
 	require.Equal(t, ":4700", common.FaucetHost(conf))
+}
+
+func TestParseWithMigration(t *testing.T) {
+	confyml := `
+accounts:
+  - name: alice
+    coins: ["100000000uatom", "100000000000000000000aevmos"]
+  - name: bob
+    coins: ["5000000000000aevmos"]
+validator:
+  name: alice
+  staked: "100000000000000000000aevmos"
+faucet:
+  name: bob 
+  coins: ["10aevmos"]
+build:
+  binary: "evmosd"
+init:
+  home: "$HOME/.evmosd"
+  app:
+    evm-rpc:
+      address: "0.0.0.0:8545"     # change the JSON-RPC address and port
+      ws-address: "0.0.0.0:8546"  # change the JSON-RPC websocket address and port
+genesis:
+  chain_id: "evmosd_9000-1"
+  app_state:
+    staking:
+      params:
+        bond_denom: "aevmos"
+    mint:
+      params:
+        mint_denom: "aevmos"
+    crisis:
+      constant_fee:
+        denom: "aevmos"
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "10000000"
+            denom: "aevmos"
+    evm:
+      params:
+        evm_denom: "aevmos"
+`
+	conf, err := Parse(strings.NewReader(confyml))
+	require.NoError(t, err)
+	require.Equal(t, reflect.TypeOf(DefaultConfig), reflect.TypeOf(conf))
+	config := conf.(*v1.Config)
+	require.Equal(t, common.Version(1), config.Version)
+	require.Equal(t, []common.Account{
+		{
+			Name:  "alice",
+			Coins: []string{"100000000uatom", "100000000000000000000aevmos"},
+		},
+		{
+			Name:  "bob",
+			Coins: []string{"5000000000000aevmos"},
+		},
+	}, conf.ListAccounts())
+	require.Equal(t, "bob", *config.GetFaucet().Name)
+	require.Equal(t, []string{"10aevmos"}, config.GetFaucet().Coins)
+	// The default value of Host has been filled in for Faucet.
+	require.Equal(t, "0.0.0.0:4500", config.GetFaucet().Host)
+	// The default values have been filled in for Build.
+	require.Equal(t, common.Build{Binary: "evmosd",
+		Proto: common.Proto{
+			Path: "proto",
+			ThirdPartyPaths: []string{
+				"third_party/proto",
+				"proto_vendor",
+			},
+		}}, config.GetBuild())
+
+	// The validator is filled with the default values for grpc, grpc-web, api, rpc, p2p and pprof_laddr.
+	// The init.app and init.home are moved under the validator as well.
+	require.Equal(t, []common.Validator{
+		&v1.Validator{
+			Name:   "alice",
+			Bonded: "100000000000000000000aevmos",
+			Home:   "$HOME/.evmosd",
+			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
+				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"},
+				"api":      map[string]interface{}{"address": "0.0.0.0:1317"},
+				"evm-rpc":  map[interface{}]interface{}{"address": "0.0.0.0:8545", "ws-address": "0.0.0.0:8546"}},
+			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
+				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
+		}}, conf.ListValidators())
+
+	require.Equal(t, map[string]interface{}{"app_state": map[interface{}]interface{}{"crisis": map[interface{}]interface{}{"constant_fee": map[interface{}]interface{}{"denom": "aevmos"}},
+		"evm":     map[interface{}]interface{}{"params": map[interface{}]interface{}{"evm_denom": "aevmos"}},
+		"gov":     map[interface{}]interface{}{"deposit_params": map[interface{}]interface{}{"min_deposit": []interface{}{map[interface{}]interface{}{"amount": "10000000", "denom": "aevmos"}}}},
+		"mint":    map[interface{}]interface{}{"params": map[interface{}]interface{}{"mint_denom": "aevmos"}},
+		"staking": map[interface{}]interface{}{"params": map[interface{}]interface{}{"bond_denom": "aevmos"}}},
+		"chain_id": "evmosd_9000-1"},
+		conf.GetGenesis())
+
 }
 
 func TestParseWithVersion(t *testing.T) {

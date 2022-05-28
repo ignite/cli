@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
@@ -68,7 +67,7 @@ func Parse(r io.Reader) (common.Config, error) {
 	}
 
 	// Go back to the beginning of the file.
-	_, err = r.(*strings.Reader).Seek(0, 0)
+	_, err = r.(io.Seeker).Seek(0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +151,15 @@ type UnsupportedVersionError struct {
 }
 
 func (e *UnsupportedVersionError) Error() string {
+	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
+}
+
+// UnknownInputError is returned when the input of Parse is unknown.
+type UnknownInputError struct {
+	Message string
+}
+
+func (e *UnknownInputError) Error() string {
 	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
 }
 
