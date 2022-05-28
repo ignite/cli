@@ -95,6 +95,44 @@ func Parse(r io.Reader) (*v1.Config, error) {
 	return latestConfig, validate(latestConfig)
 }
 
+// IsConfigLatest checks if the version of the config file is the latest
+func IsConfigLatest(path string) (common.Version, bool, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return 0, false, err
+	}
+	defer file.Close()
+	version, err := getConfigVersion(file)
+	if err != nil {
+		return 0, false, err
+	}
+	return version, version == common.LatestVersion, nil
+}
+
+// MigrateConfigFile upgrades the config file to the latest version.
+func MigrateConfigFile(configFile string) error {
+	configyml, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		return err
+	}
+	defer configyml.Close()
+	conf, err := Parse(configyml)
+	if err != nil {
+		return err
+	}
+
+	err = configyml.Truncate(0)
+	if err != nil {
+		return err
+	}
+
+	_, err = configyml.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	return yaml.NewEncoder(configyml).Encode(conf)
+}
+
 // getConfigVersion returns the version in the io.Reader based on the field version.
 func getConfigVersion(r io.Reader) (common.Version, error) {
 	var baseConf common.BaseConfig

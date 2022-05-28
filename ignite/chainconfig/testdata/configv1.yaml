@@ -1,0 +1,72 @@
+version: 1
+accounts:
+  - name: alice
+    coins: ["100000000uatom", "100000000000000000000aevmos"]
+  - name: bob
+    coins: ["5000000000000aevmos"]
+validators:
+  - name: alice
+    bonded: 100000000000000000000aevmos
+    app:
+      api:
+        address: 0.0.0.0:1317
+      evm-rpc:
+        address: 0.0.0.0:8545
+        ws-address: 0.0.0.0:8546
+      grpc:
+        address: 0.0.0.0:9090
+      grpc-web:
+        address: 0.0.0.0:9091
+    config:
+      p2p:
+        laddr: 0.0.0.0:26656
+      pprof_laddr: 0.0.0.0:6060
+      rpc:
+        laddr: 0.0.0.0:26657
+    client: {}
+    home: $HOME/.evmosd
+    keyring-backend: ""
+    gentx: {}
+build:
+  main: ""
+  binary: evmosd
+  ldflags: []
+  proto:
+    path: proto
+    third_party_paths:
+      - third_party/proto
+      - proto_vendor
+faucet:
+  name: bob
+  coins: ["10aevmos"]
+  coins_max: []
+  rate_limit_window: ""
+  host: 0.0.0.0:4500
+  port: 0
+client:
+  vuex:
+    path: ""
+  dart:
+    path: ""
+  openapi:
+    path: ""
+genesis:
+  app_state:
+    crisis:
+      constant_fee:
+        denom: aevmos
+    evm:
+      params:
+        evm_denom: aevmos
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "10000000"
+            denom: aevmos
+    mint:
+      params:
+        mint_denom: aevmos
+    staking:
+      params:
+        bond_denom: aevmos
+  chain_id: evmosd_9000-1

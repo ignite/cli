@@ -112,6 +112,17 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
+func flagSetConfig() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
+	return fs
+}
+
+func getConfig(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagConfig)
+	return
+}
+
 func flagSetYes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.BoolP(flagYes, "y", false, "Answers interactive yes/no questions with yes")
