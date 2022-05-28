@@ -1,13 +1,12 @@
 package chainconfig
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
@@ -57,13 +56,8 @@ var (
 
 // Parse parses config.yml into UserConfig based on the version.
 func Parse(r io.Reader) (common.Config, error) {
-	// The io.Reader can only be read once, so we need to keep the content for further usage.
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
 	// Read the version field
-	version, err := getConfigVersion(bytes.NewReader(content))
+	version, err := getConfigVersion(r)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +67,14 @@ func Parse(r io.Reader) (common.Config, error) {
 		return nil, err
 	}
 
+	// Go back to the beginning of the file.
+	_, err = r.(*strings.Reader).Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
+
 	// Decode the file by parsing the content again.
-	if err = yaml.NewDecoder(bytes.NewReader(content)).Decode(conf); err != nil {
+	if err = yaml.NewDecoder(r).Decode(conf); err != nil {
 		return conf, err
 	}
 
