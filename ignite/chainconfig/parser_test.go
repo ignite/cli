@@ -4,9 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite/cli/ignite/chainconfig/common"
-	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/chainconfig/common"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 
 func TestParse(t *testing.T) {
@@ -35,9 +36,13 @@ validator:
 		},
 	}, conf.ListAccounts())
 	require.Equal(t, []common.Validator{
-		&v0.Validator{
+		&v1.Validator{
 			Name:   "user1",
-			Staked: "100000000stake",
+			Bonded: "100000000stake",
+			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
+				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
+			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
+				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
 		}}, conf.ListValidators())
 }
 
@@ -73,9 +78,13 @@ validator:
 		},
 	}, conf.ListAccounts())
 	require.Equal(t, []common.Validator{
-		&v0.Validator{
+		&v1.Validator{
 			Name:   "user1",
-			Staked: "100000000stake",
+			Bonded: "100000000stake",
+			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
+				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
+			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
+				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
 		}}, conf.ListValidators())
 }
 
