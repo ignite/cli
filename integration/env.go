@@ -315,7 +315,7 @@ func (e Env) RandomizeServerPorts(path string, configFile string) common.Host {
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf v0.ConfigYaml
+	var conf v0.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Host = servers
@@ -341,7 +341,7 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf v0.ConfigYaml
+	var conf v0.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Faucet.Port = port[0]
@@ -369,7 +369,7 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf v0.ConfigYaml
+	var conf v0.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Init.Home = e.TmpDir()

@@ -6,14 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
-	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/chainconfig/common"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
@@ -225,7 +224,7 @@ func (c *Chain) ConfigPath() string {
 func (c *Chain) Config() (common.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		conf := &v0.ConfigYaml{}
+		conf := &v0.Config{}
 		return conf.Default(), nil
 	}
 	return chainconfig.ParseFile(configPath)

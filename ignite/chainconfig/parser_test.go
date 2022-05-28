@@ -1,10 +1,11 @@
 package chainconfig
 
 import (
+	"strings"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
-	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
+	"github.com/ignite/cli/ignite/chainconfig/common"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,7 +21,7 @@ validator:
   staked: "100000000stake"
 `
 
-	conf, err := Parse([]byte(confyml))
+	conf, err := Parse(strings.NewReader(confyml))
 
 	require.NoError(t, err)
 	require.Equal(t, []common.Account{
@@ -55,7 +56,7 @@ validator:
   staked: "100000000stake"
 `
 
-	conf, err := Parse([]byte(confyml))
+	conf, err := Parse(strings.NewReader(confyml))
 
 	require.NoError(t, err)
 	require.Equal(t, []common.Account{
@@ -87,7 +88,7 @@ accounts:
     coins: ["5000token"]
 `
 
-	_, err := Parse([]byte(confyml))
+	_, err := Parse(strings.NewReader(confyml))
 	require.Equal(t, &ValidationError{"validator is required"}, err)
 }
 
@@ -104,7 +105,7 @@ validator:
 faucet:
   host: "0.0.0.0:4600"
 `
-	conf, err := Parse([]byte(confyml))
+	conf, err := Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
 	require.Equal(t, "0.0.0.0:4600", FaucetHost(conf))
 
@@ -120,7 +121,7 @@ validator:
 faucet:
   port: 4700
 `
-	conf, err = Parse([]byte(confyml))
+	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
 	require.Equal(t, ":4700", FaucetHost(conf))
 
@@ -138,7 +139,7 @@ faucet:
   host: "0.0.0.0:4600"
   port: 4700
 `
-	conf, err = Parse([]byte(confyml))
+	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
 	require.Equal(t, ":4700", FaucetHost(conf))
 }
@@ -148,11 +149,11 @@ func TestParseWithVersion(t *testing.T) {
 		TestName        string
 		Input           string
 		ExpectedError   error
-		ExpectedVersion string
+		ExpectedVersion int
 	}{{
 		TestName: "Parse the config yaml with the field version",
 		Input: `
-version: v1
+version: 0
 accounts:
   - name: me
     coins: ["1000token", "100000000stake"]
@@ -163,12 +164,12 @@ validator:
   staked: "100000000stake"
 `,
 		ExpectedError:   nil,
-		ExpectedVersion: "v1",
+		ExpectedVersion: 0,
 	}}
 
 	for _, test := range tests {
 		t.Run(test.TestName, func(t *testing.T) {
-			conf, err := Parse([]byte(test.Input))
+			conf, err := Parse(strings.NewReader(test.Input))
 			require.Equal(t, test.ExpectedError, err)
 			require.Equal(t, test.ExpectedVersion, conf.GetVersion())
 		})

@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
@@ -27,71 +29,100 @@ var (
 	DefaultVersion = "v0"
 
 	// Migration defines the version as the key and the config instance as the value
-	Migration = map[string]common.Config{"v0": &v0.ConfigYaml{}}
+	Migration = map[int]common.Config{0: &v0.Config{}, 1: &v1.Config{}}
+
+	DefaultConfig0 = v0.Config{
+		Host: common.Host{
+			// when in Docker on MacOS, it only works with 0.0.0.0.
+			RPC:     "0.0.0.0:26657",
+			P2P:     "0.0.0.0:26656",
+			Prof:    "0.0.0.0:6060",
+			GRPC:    "0.0.0.0:9090",
+			GRPCWeb: "0.0.0.0:9091",
+			API:     "0.0.0.0:1317",
+		},
+		BaseConfig: common.BaseConfig{
+			Build: common.Build{
+				Proto: common.Proto{
+					Path: "proto",
+					ThirdPartyPaths: []string{
+						"third_party/proto",
+						"proto_vendor",
+					},
+				},
+			},
+			Faucet: common.Faucet{
+				Host: "0.0.0.0:4500",
+			},
+		},
+	}
 )
 
 var (
 	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
 	ErrCouldntLocateConfig = errors.New(
 		"could not locate a config.yml in your chain. please follow the link for" +
-			"how-to: https://github.com/ignite-hq/cli/blob/develop/docs/configure/index.md")
+			"how-to: https://github.com/ignite/cli/blob/develop/docs/configure/index.md")
 )
 
 // Parse parses config.yml into UserConfig based on the version.
-func Parse(content []byte) (common.Config, error) {
+func Parse(r io.Reader) (common.Config, error) {
+	// The io.Reader can only be read once, so we need to keep the content for further usage.
+	content, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 	// Read the version field
 	version, err := getConfigVersion(bytes.NewReader(content))
 	if err != nil {
-		return GetDefaultConfig(), err
+		return nil, err
 	}
 
-	conf := GetConfigInstance(version)
+	fmt.Println(string(content))
+	fmt.Println(version)
+	conf, err := GetConfigInstance(version)
+	if err != nil {
+		return nil, err
+	}
 	if err = yaml.NewDecoder(bytes.NewReader(content)).Decode(conf); err != nil {
 		return conf, err
 	}
-	if err = mergo.Merge(conf, conf.Default()); err != nil {
-		return GetDefaultConfig(), err
+	if err = mergo.Merge(conf, DefaultConfig0); err != nil {
+		return nil, err
 	}
+
 	return conf, validate(conf)
 }
 
 // getConfigVersion returns the version in the io.Reader based on the field version.
-func getConfigVersion(r io.Reader) (string, error) {
-	var baseConf common.BaseConfigYaml
+func getConfigVersion(r io.Reader) (int, error) {
+	var baseConf common.BaseConfig
 	if err := yaml.NewDecoder(r).Decode(&baseConf); err != nil {
-		return DefaultVersion, err
+		return 0, err
 	}
-	if baseConf.Version != "" {
-		return baseConf.Version, nil
-	}
-	return DefaultVersion, nil
+	return baseConf.Version, nil
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.
-func GetConfigInstance(version string) common.Config {
+func GetConfigInstance(version int) (common.Config, error) {
 	var config common.Config
 	var ok bool
 	if config, ok = Migration[version]; !ok {
 		// If there is no matching instance, return the config with the v0 version.
-		return GetDefaultConfig()
+		return nil, &UnsupportedVersionError{"the version is not available in the supported list"}
 	}
 	// If we find the matching instance, clone the instance and return it.
-	return config.Clone()
+	return config.Clone(), nil
 }
 
 // ParseFile parses config.yml from the path.
 func ParseFile(path string) (common.Config, error) {
-	yfile, err := ioutil.ReadFile(path)
+	file, err := os.Open(path)
 	if err != nil {
-		return GetDefaultConfig(), err
+		return nil, err
 	}
-
-	return Parse(yfile)
-}
-
-// GetDefaultConfig returns the default instance of the config.
-func GetDefaultConfig() common.Config {
-	return &v0.ConfigYaml{}
+	defer file.Close()
+	return Parse(file)
 }
 
 // validate validates user config.
@@ -112,6 +143,15 @@ type ValidationError struct {
 
 func (e *ValidationError) Error() string {
 	return fmt.Sprintf("config is not valid: %s", e.Message)
+}
+
+// UnsupportedVersionError is returned when the version of the config is not supported.
+type UnsupportedVersionError struct {
+	Message string
+}
+
+func (e *UnsupportedVersionError) Error() string {
+	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
 }
 
 // LocateDefault locates the default path for the config file, if no file found returns ErrCouldntLocateConfig.
