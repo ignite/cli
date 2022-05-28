@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"text/tabwriter"
 
@@ -161,8 +162,11 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 
 	session.StartSpinner("Creating links between chains...")
 
-	needsLink, pathID, cfg := spnRelayerConfig(*spnChain, *testnetChain, spn, chain)
-	if needsLink {
+	pathID, cfg, err := spnRelayerConfig(*spnChain, *testnetChain, spn, chain)
+	if err != nil {
+		return err
+	}
+	if spn.ChannelID == "" {
 		cfg, err = r.Link(cmd.Context(), cfg, pathID)
 		if err != nil {
 			return err
@@ -278,34 +282,45 @@ func spnRelayerConfig(
 	dstChain relayer.Chain,
 	srcChannel,
 	dstChannel networktypes.Relayer,
-) (bool, string, relayerconf.Config) {
-	needsLink := !(srcChannel.ConnectionID != "" &&
-		srcChannel.ChannelID != "" &&
-		dstChannel.ConnectionID != "" &&
-		dstChannel.ChannelID != "")
-	pathID := relayer.PathID(srcChain.ID, dstChain.ID)
-	return needsLink, pathID, relayerconf.Config{
-		Version: relayerconf.SupportVersion,
-		Chains:  []relayerconf.Chain{srcChain.Config(), dstChain.Config()},
-		Paths: []relayerconf.Path{
-			{
-				ID:       pathID,
-				Ordering: relayer.OrderingOrdered,
-				Src: relayerconf.PathEnd{
-					ChainID:      srcChain.ID,
-					PortID:       networktypes.SPNPortID,
-					Version:      networktypes.SPNVersion,
-					ConnectionID: srcChannel.ConnectionID,
-					ChannelID:    srcChannel.ChannelID,
-				},
-				Dst: relayerconf.PathEnd{
-					ChainID:      dstChain.ID,
-					PortID:       networktypes.ChainPortID,
-					Version:      networktypes.SPNVersion,
-					ConnectionID: dstChannel.ConnectionID,
-					ChannelID:    dstChannel.ChannelID,
+) (string, relayerconf.Config, error) {
+	var (
+		pathID = relayer.PathID(srcChain.ID, dstChain.ID)
+		conf   = relayerconf.Config{
+			Version: relayerconf.SupportVersion,
+			Chains:  []relayerconf.Chain{srcChain.Config(), dstChain.Config()},
+			Paths: []relayerconf.Path{
+				{
+					ID:       pathID,
+					Ordering: relayer.OrderingOrdered,
+					Src: relayerconf.PathEnd{
+						ChainID:      srcChain.ID,
+						PortID:       networktypes.SPNPortID,
+						Version:      networktypes.SPNVersion,
+						ConnectionID: srcChannel.ConnectionID,
+						ChannelID:    srcChannel.ChannelID,
+					},
+					Dst: relayerconf.PathEnd{
+						ChainID:      dstChain.ID,
+						PortID:       networktypes.ChainPortID,
+						Version:      networktypes.SPNVersion,
+						ConnectionID: dstChannel.ConnectionID,
+						ChannelID:    dstChannel.ChannelID,
+					},
 				},
 			},
-		},
+		}
+	)
+	switch {
+	case srcChannel.ConnectionID != "" &&
+		srcChannel.ChannelID != "" &&
+		dstChannel.ConnectionID != "" &&
+		dstChannel.ChannelID != "":
+		return pathID, conf, nil
+	case srcChannel.ConnectionID == "" &&
+		srcChannel.ChannelID == "" &&
+		dstChannel.ConnectionID == "" &&
+		dstChannel.ChannelID == "":
+		return pathID, conf, nil
 	}
+	return pathID, conf, errors.New("connection was already established and is missing in one of the chains")
 }
