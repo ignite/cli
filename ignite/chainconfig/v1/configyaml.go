@@ -98,13 +98,36 @@ func (c *Config) GetInit() common.Init {
 	if len(c.Validators) == 0 {
 		return common.Init{}
 	}
+
 	validator := c.Validators[0]
+	app := make(map[string]interface{})
+	for key, value := range validator.App {
+		app[key] = value
+	}
+	delete(app, "grpc")
+	delete(app, "grpc-web")
+	delete(app, "api")
+
+	if len(app) == 0 {
+		app = nil
+	}
+
+	config := make(map[string]interface{})
+	for key, value := range validator.Config {
+		config[key] = value
+	}
+	delete(config, "rpc")
+	delete(config, "p2p")
+	delete(config, "pprof_laddr")
+	if len(config) == 0 {
+		config = nil
+	}
 
 	// Get the information from the first validator.
 	return common.Init{
-		App:            validator.App,
+		App:            app,
 		Client:         validator.Client,
-		Config:         validator.Config,
+		Config:         config,
 		Home:           validator.Home,
 		KeyringBackend: validator.KeyringBackend,
 	}

@@ -80,8 +80,6 @@ func Parse(r io.Reader) (common.Config, error) {
 		return nil, err
 	}
 
-	fmt.Println(string(content))
-	fmt.Println(version)
 	conf, err := GetConfigInstance(version)
 	if err != nil {
 		return nil, err
@@ -97,6 +95,7 @@ func Parse(r io.Reader) (common.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return conf, validate(conf)
 }
 
