@@ -169,18 +169,6 @@ func LocateDefault(root string) (path string, err error) {
 	return "", ErrCouldntLocateConfig
 }
 
-// FaucetHost returns the faucet host to use
-func FaucetHost(conf common.Config) string {
-	// We keep supporting Port option for backward compatibility
-	// TODO: drop this option in the future
-	host := conf.GetFaucet().Host
-	if conf.GetFaucet().Port != 0 {
-		host = fmt.Sprintf(":%d", conf.GetFaucet().Port)
-	}
-
-	return host
-}
-
 // CreateConfigDir creates config directory if it is not created yet.
 func CreateConfigDir() error {
 	confPath, err := ConfigDirPath()

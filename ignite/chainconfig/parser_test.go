@@ -127,7 +127,7 @@ faucet:
 `
 	conf, err := Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, "0.0.0.0:4600", FaucetHost(conf))
+	require.Equal(t, "0.0.0.0:4600", common.FaucetHost(conf))
 
 	confyml = `
 accounts:
@@ -143,7 +143,7 @@ faucet:
 `
 	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, ":4700", FaucetHost(conf))
+	require.Equal(t, ":4700", common.FaucetHost(conf))
 
 	// Port must be higher priority
 	confyml = `
@@ -161,7 +161,7 @@ faucet:
 `
 	conf, err = Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, ":4700", FaucetHost(conf))
+	require.Equal(t, ":4700", common.FaucetHost(conf))
 }
 
 func TestParseWithVersion(t *testing.T) {

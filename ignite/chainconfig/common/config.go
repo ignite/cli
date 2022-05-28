@@ -1,5 +1,7 @@
 package common
 
+import "fmt"
+
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`
@@ -152,4 +154,16 @@ func (c *BaseConfig) GetFaucet() Faucet {
 // GetClient returns the Client.
 func (c *BaseConfig) GetClient() Client {
 	return c.Client
+}
+
+// FaucetHost returns the faucet host to use
+func FaucetHost(conf Config) string {
+	// We keep supporting Port option for backward compatibility
+	// TODO: drop this option in the future
+	host := conf.GetFaucet().Host
+	if conf.GetFaucet().Port != 0 {
+		host = fmt.Sprintf(":%d", conf.GetFaucet().Port)
+	}
+
+	return host
 }
