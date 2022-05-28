@@ -126,4 +126,15 @@ type Config interface {
 	GetGenesis() map[string]interface{}
 	GetInit() Init
 	GetClient() Client
+	Clone() Config
+	Default() Config
+}
+
+type BaseConfigYaml struct {
+	Version string `yaml:"version"`
+}
+
+// GetVersion returns the version of the config.yaml file.
+func (c *BaseConfigYaml) GetVersion() string {
+	return c.Version
 }
