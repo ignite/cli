@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
@@ -219,7 +220,7 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (chainconfig.Config, error) {
+func (c *Chain) Config() (v0.ConfigYaml, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
 		return chainconfig.DefaultConf, nil

@@ -18,7 +18,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/common"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -252,7 +253,7 @@ func (e Env) EnsureAppIsSteady(appPath string) {
 
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
-func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
+func (e Env) IsAppServed(ctx context.Context, host common.Host) error {
 	checkAlive := func() error {
 		addr, err := xurl.HTTP(host.API)
 		if err != nil {
@@ -287,7 +288,7 @@ func (e Env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
+func (e Env) RandomizeServerPorts(path string, configFile string) common.Host {
 	if configFile == "" {
 		configFile = ConfigYML
 	}
@@ -300,7 +301,7 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 		return fmt.Sprintf("localhost:%d", port)
 	}
 
-	servers := chainconfig.Host{
+	servers := common.Host{
 		RPC:     genAddr(ports[0]),
 		P2P:     genAddr(ports[1]),
 		Prof:    genAddr(ports[2]),
@@ -314,7 +315,7 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf chainconfig.Config
+	var conf v0.ConfigYaml
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Host = servers
@@ -340,7 +341,7 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf chainconfig.Config
+	var conf v0.ConfigYaml
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Faucet.Port = port[0]
@@ -368,7 +369,7 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf chainconfig.Config
+	var conf v0.ConfigYaml
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Init.Home = e.TmpDir()

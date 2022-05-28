@@ -9,7 +9,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -48,7 +48,7 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, conf chainconfig.Config) error {
+func (p *stargatePlugin) Configure(homePath string, conf v0.ConfigYaml) error {
 	if err := p.appTOML(homePath, conf); err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (p *stargatePlugin) Configure(homePath string, conf chainconfig.Config) err
 	return p.configTOML(homePath, conf)
 }
 
-func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error {
+func (p *stargatePlugin) appTOML(homePath string, conf v0.ConfigYaml) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -95,7 +95,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) error {
+func (p *stargatePlugin) configTOML(homePath string, conf v0.ConfigYaml) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -151,7 +151,7 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf chainconfig.Config) error {
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf v0.ConfigYaml) error {
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",

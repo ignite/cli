@@ -10,6 +10,8 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/chainconfig/common"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
@@ -29,8 +31,8 @@ var (
 )
 
 // DefaultConf holds default configuration.
-var DefaultConf = Config{
-	Host: Host{
+var DefaultConf = v0.ConfigYaml{
+	Host: common.Host{
 		// when in Docker on MacOS, it only works with 0.0.0.0.
 		RPC:     "0.0.0.0:26657",
 		P2P:     "0.0.0.0:26656",
@@ -39,8 +41,8 @@ var DefaultConf = Config{
 		GRPCWeb: "0.0.0.0:9091",
 		API:     "0.0.0.0:1317",
 	},
-	Build: Build{
-		Proto: Proto{
+	Build: common.Build{
+		Proto: common.Proto{
 			Path: "proto",
 			ThirdPartyPaths: []string{
 				"third_party/proto",
@@ -48,35 +50,35 @@ var DefaultConf = Config{
 			},
 		},
 	},
-	Faucet: Faucet{
+	Faucet: common.Faucet{
 		Host: "0.0.0.0:4500",
 	},
 }
 
 // Parse parses config.yml into UserConfig.
-func Parse(r io.Reader) (Config, error) {
-	var conf Config
+func Parse(r io.Reader) (v0.ConfigYaml, error) {
+	var conf v0.ConfigYaml
 	if err := yaml.NewDecoder(r).Decode(&conf); err != nil {
 		return conf, err
 	}
 	if err := mergo.Merge(&conf, DefaultConf); err != nil {
-		return Config{}, err
+		return v0.ConfigYaml{}, err
 	}
 	return conf, validate(conf)
 }
 
 // ParseFile parses config.yml from the path.
-func ParseFile(path string) (Config, error) {
+func ParseFile(path string) (v0.ConfigYaml, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return Config{}, nil
+		return v0.ConfigYaml{}, nil
 	}
 	defer file.Close()
 	return Parse(file)
 }
 
 // validate validates user config.
-func validate(conf Config) error {
+func validate(conf v0.ConfigYaml) error {
 	if len(conf.Accounts) == 0 {
 		return &ValidationError{"at least 1 account is needed"}
 	}
@@ -109,7 +111,7 @@ func LocateDefault(root string) (path string, err error) {
 }
 
 // FaucetHost returns the faucet host to use
-func FaucetHost(conf Config) string {
+func FaucetHost(conf v0.ConfigYaml) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
 	host := conf.Faucet.Host

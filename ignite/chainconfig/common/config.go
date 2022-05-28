@@ -1,27 +1,4 @@
-package chainconfig
-
-// Config is the user given configuration to do additional setup
-// during serve.
-type Config struct {
-	Accounts  []Account              `yaml:"accounts"`
-	Validator Validator              `yaml:"validator"`
-	Faucet    Faucet                 `yaml:"faucet"`
-	Client    Client                 `yaml:"client"`
-	Build     Build                  `yaml:"build"`
-	Init      Init                   `yaml:"init"`
-	Genesis   map[string]interface{} `yaml:"genesis"`
-	Host      Host                   `yaml:"host"`
-}
-
-// AccountByName finds account by name.
-func (c Config) AccountByName(name string) (acc Account, found bool) {
-	for _, acc := range c.Accounts {
-		if acc.Name == name {
-			return acc, true
-		}
-	}
-	return Account{}, false
-}
+package common
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
