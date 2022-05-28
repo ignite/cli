@@ -12,12 +12,6 @@ type Account struct {
 	RPCAddress string `yaml:"rpc_address,omitempty"`
 }
 
-// Validator holds info related to validator settings.
-type Validator struct {
-	Name   string `yaml:"name"`
-	Staked string `yaml:"staked"`
-}
-
 // Build holds build configs.
 type Build struct {
 	Main    string   `yaml:"main"`
@@ -115,19 +109,26 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
+// Validator is the interface defining all the common methods for the Validator struct across all supported versions
+type Validator interface {
+	GetName() string
+	GetBonded() string
+}
+
 // Config is the interface defining all the common methods for the ConfigYaml struct across all supported versions
 type Config interface {
+	Clone() Config
+	Default() Config
 	GetVersion() string
 	GetFaucet() Faucet
 	ListAccounts() []Account
 	ListValidators() []Validator
+	GetClient() Client
 	GetBuild() Build
+
 	GetHost() Host
 	GetGenesis() map[string]interface{}
 	GetInit() Init
-	GetClient() Client
-	Clone() Config
-	Default() Config
 }
 
 // BaseConfigYaml is the struct containing all the common fields for the config across all the versions.
@@ -136,6 +137,7 @@ type BaseConfigYaml struct {
 	Build    Build     `yaml:"build"`
 	Accounts []Account `yaml:"accounts"`
 	Faucet   Faucet    `yaml:"faucet"`
+	Client   Client    `yaml:"client"`
 }
 
 // GetVersion returns the version of the config.yaml file.
@@ -161,4 +163,9 @@ func (c *BaseConfigYaml) GetBuild() Build {
 // GetFaucet returns the Faucet.
 func (c *BaseConfigYaml) GetFaucet() Faucet {
 	return c.Faucet
+}
+
+// GetClient returns the Client.
+func (c *BaseConfigYaml) GetClient() Client {
+	return c.Client
 }

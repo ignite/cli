@@ -5,8 +5,7 @@ import "github.com/ignite/cli/ignite/chainconfig/common"
 // ConfigYaml is the user given configuration to do additional setup
 // during serve.
 type ConfigYaml struct {
-	Validator             common.Validator       `yaml:"validator"`
-	Client                common.Client          `yaml:"client"`
+	Validator             Validator              `yaml:"validator"`
 	Init                  common.Init            `yaml:"init"`
 	Genesis               map[string]interface{} `yaml:"genesis"`
 	Host                  common.Host            `yaml:"host"`
@@ -28,11 +27,6 @@ func (c *ConfigYaml) GetInit() common.Init {
 	return c.Init
 }
 
-// GetClient returns the Client.
-func (c *ConfigYaml) GetClient() common.Client {
-	return c.Client
-}
-
 // ListAccounts returns the list of all the accounts.
 func (c *ConfigYaml) ListAccounts() []common.Account {
 	return c.Accounts
@@ -40,7 +34,7 @@ func (c *ConfigYaml) ListAccounts() []common.Account {
 
 // ListValidators returns the list of all the validators.
 func (c *ConfigYaml) ListValidators() []common.Validator {
-	return []common.Validator{c.Validator}
+	return []common.Validator{&c.Validator}
 }
 
 // Clone returns an identical copy of the instance
@@ -76,4 +70,20 @@ func (c *ConfigYaml) Default() common.Config {
 			},
 		},
 	}
+}
+
+// Validator holds info related to validator settings.
+type Validator struct {
+	Name   string `yaml:"name"`
+	Staked string `yaml:"staked"`
+}
+
+// GetName returns the name of the validator.
+func (v *Validator) GetName() string {
+	return v.Name
+}
+
+// GetBonded returns the bonded value.
+func (v *Validator) GetBonded() string {
+	return v.Staked
 }

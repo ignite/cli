@@ -99,7 +99,7 @@ func validate(conf common.Config) error {
 	if len(conf.ListAccounts()) == 0 {
 		return &ValidationError{"at least 1 account is needed"}
 	}
-	if conf.ListValidators()[0].Name == "" {
+	if conf.ListValidators()[0].GetName() == "" {
 		return &ValidationError{"validator is required"}
 	}
 	return nil

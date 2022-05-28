@@ -169,8 +169,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf common.Config) error {
 	}
 
 	_, err = c.IssueGentx(ctx, Validator{
-		Name:          conf.ListValidators()[0].Name,
-		StakingAmount: conf.ListValidators()[0].Staked,
+		Name:          conf.ListValidators()[0].GetName(),
+		StakingAmount: conf.ListValidators()[0].GetBonded(),
 	})
 	return err
 }
