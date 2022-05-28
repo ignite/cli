@@ -225,7 +225,7 @@ func (c *Chain) ConfigPath() string {
 func (c *Chain) Config() (common.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		conf := &v0.ConfigYaml{}
+		conf := &v0.Config{}
 		return conf.Default(), nil
 	}
 	return chainconfig.ParseFile(configPath)

@@ -109,44 +109,28 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
-// Validator is the interface defining all the common methods for the Validator struct across all supported versions
-type Validator interface {
-	GetName() string
-	GetBonded() string
-}
-
-// Config is the interface defining all the common methods for the ConfigYaml struct across all supported versions
-type Config interface {
-	Clone() Config
-	Default() Config
-	GetVersion() string
-	GetFaucet() Faucet
-	ListAccounts() []Account
-	ListValidators() []Validator
-	GetClient() Client
-	GetBuild() Build
-
-	GetHost() Host
-	GetGenesis() map[string]interface{}
-	GetInit() Init
-}
-
-// BaseConfigYaml is the struct containing all the common fields for the config across all the versions.
-type BaseConfigYaml struct {
-	Version  string    `yaml:"version"`
-	Build    Build     `yaml:"build"`
-	Accounts []Account `yaml:"accounts"`
-	Faucet   Faucet    `yaml:"faucet"`
-	Client   Client    `yaml:"client"`
+// BaseConfig is the struct containing all the common fields for the config across all the versions.
+type BaseConfig struct {
+	Version  int                    `yaml:"version"`
+	Build    Build                  `yaml:"build"`
+	Accounts []Account              `yaml:"accounts"`
+	Faucet   Faucet                 `yaml:"faucet"`
+	Client   Client                 `yaml:"client"`
+	Genesis  map[string]interface{} `yaml:"genesis"`
 }
 
 // GetVersion returns the version of the config.yaml file.
-func (c *BaseConfigYaml) GetVersion() string {
+func (c *BaseConfig) GetVersion() int {
 	return c.Version
 }
 
+// GetGenesis returns the Genesis.
+func (c *BaseConfig) GetGenesis() map[string]interface{} {
+	return c.Genesis
+}
+
 // AccountByName finds account by name.
-func (c *BaseConfigYaml) AccountByName(name string) (acc Account, found bool) {
+func (c *BaseConfig) AccountByName(name string) (acc Account, found bool) {
 	for _, acc := range c.Accounts {
 		if acc.Name == name {
 			return acc, true
@@ -156,16 +140,16 @@ func (c *BaseConfigYaml) AccountByName(name string) (acc Account, found bool) {
 }
 
 // GetBuild returns the Build.
-func (c *BaseConfigYaml) GetBuild() Build {
+func (c *BaseConfig) GetBuild() Build {
 	return c.Build
 }
 
 // GetFaucet returns the Faucet.
-func (c *BaseConfigYaml) GetFaucet() Faucet {
+func (c *BaseConfig) GetFaucet() Faucet {
 	return c.Faucet
 }
 
 // GetClient returns the Client.
-func (c *BaseConfigYaml) GetClient() Client {
+func (c *BaseConfig) GetClient() Client {
 	return c.Client
 }

@@ -27,7 +27,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		isBackendAliveErr error
 	)
 
-	var c v0.ConfigYaml
+	var c v0.Config
 
 	cf := confile.New(confile.DefaultYAMLEncodingCreator, filepath.Join(path, "config.yml"))
 	require.NoError(t, cf.Load(&c))
