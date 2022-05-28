@@ -1,9 +1,3 @@
-version: 1
-accounts:
-  - name: alice
-    coins: ["100000000uatom", "100000000000000000000aevmos"]
-  - name: bob
-    coins: ["5000000000000aevmos"]
 validators:
   - name: alice
     bonded: 100000000000000000000aevmos
@@ -26,7 +20,8 @@ validators:
     client: {}
     home: $HOME/.evmosd
     keyring-backend: ""
-    gentx: {}
+    gentx: null
+version: 1
 build:
   main: ""
   binary: evmosd
@@ -36,9 +31,18 @@ build:
     third_party_paths:
       - third_party/proto
       - proto_vendor
+accounts:
+  - name: alice
+    coins:
+      - 100000000uatom
+      - 100000000000000000000aevmos
+  - name: bob
+    coins:
+      - 5000000000000aevmos
 faucet:
   name: bob
-  coins: ["10aevmos"]
+  coins:
+    - 10aevmos
   coins_max: []
   rate_limit_window: ""
   host: 0.0.0.0:4500

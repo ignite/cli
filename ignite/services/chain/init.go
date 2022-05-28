@@ -168,10 +168,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *v1.Config) error {
 		}
 	}
 
-	_, err = c.IssueGentx(ctx, Validator{
-		Name:          conf.ListValidators()[0].Name,
-		StakingAmount: conf.ListValidators()[0].Bonded,
-	})
+	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+
 	return err
 }
 
@@ -234,4 +232,72 @@ type Account struct {
 	Mnemonic string `json:"mnemonic"`
 	CoinType string
 	Coins    string
+}
+
+func createValidatorFromConfig(conf *v1.Config) Validator {
+	// Currently, we support the config file with one valid validator.
+	validator := conf.ListValidators()[0]
+	name := validator.Name
+	monikerV := ""
+	commissionRate := ""
+	commissionMaxRate := ""
+	commissionMaxChangeRate := ""
+	gasPrices := ""
+	details := ""
+	identity := ""
+	website := ""
+	securityContact := ""
+	minSelfDelegation := ""
+	stakingAmount := validator.Bonded
+
+	if validator.Gentx != nil {
+		if validator.Gentx.Amount != "" {
+			stakingAmount = validator.Gentx.Amount
+		}
+		if validator.Gentx.Moniker != "" {
+			monikerV = validator.Gentx.Moniker
+		}
+		if validator.Gentx.CommissionRate != "" {
+			commissionRate = validator.Gentx.CommissionRate
+		}
+		if validator.Gentx.CommissionMaxRate != "" {
+			commissionMaxRate = validator.Gentx.CommissionMaxRate
+		}
+		if validator.Gentx.CommissionMaxChangeRate != "" {
+			commissionMaxChangeRate = validator.Gentx.CommissionMaxChangeRate
+		}
+		if validator.Gentx.GasPrices != "" {
+			gasPrices = validator.Gentx.GasPrices
+		}
+		if validator.Gentx.Details != "" {
+			details = validator.Gentx.Details
+		}
+		if validator.Gentx.Identity != "" {
+			identity = validator.Gentx.Identity
+		}
+		if validator.Gentx.Website != "" {
+			website = validator.Gentx.Website
+		}
+		if validator.Gentx.SecurityContact != "" {
+			securityContact = validator.Gentx.SecurityContact
+		}
+		if validator.Gentx.MinSelfDelegation != "" {
+			minSelfDelegation = validator.Gentx.MinSelfDelegation
+		}
+	}
+
+	return Validator{
+		Name:                    name,
+		StakingAmount:           stakingAmount,
+		Moniker:                 monikerV,
+		CommissionRate:          commissionRate,
+		CommissionMaxRate:       commissionMaxRate,
+		CommissionMaxChangeRate: commissionMaxChangeRate,
+		MinSelfDelegation:       minSelfDelegation,
+		GasPrices:               gasPrices,
+		Details:                 details,
+		Identity:                identity,
+		Website:                 website,
+		SecurityContact:         securityContact,
+	}
 }
