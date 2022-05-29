@@ -13,6 +13,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
+// internal type alias for convienence
+type configmap = map[string]interface{}
+
 var (
 	// ConfigDirPath returns the path of configuration directory of Ignite.
 	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
@@ -28,14 +31,37 @@ var ErrCouldntLocateConfig = errors.New(
 
 // DefaultConf holds default configuration.
 var DefaultConf = Config{
-	Host: Host{
-		// when in Docker on MacOS, it only works with 0.0.0.0.
-		RPC:     "0.0.0.0:26657",
-		P2P:     "0.0.0.0:26656",
-		Prof:    "0.0.0.0:6060",
-		GRPC:    "0.0.0.0:9090",
-		GRPCWeb: "0.0.0.0:9091",
-		API:     "0.0.0.0:1317",
+	Validators: []Validator{
+		{
+			// when in Docker on MacOS, it only works with 0.0.0.0.
+			App: configmap{
+				"grpc": configmap{
+					"address": "0.0.0.0:9090",
+				},
+
+				"grpc-web": configmap{
+					"address": "0.0.0.0:9091",
+				},
+
+				"api": configmap{
+					"address": "0.0.0.0:1317",
+				},
+			},
+
+			Config: configmap{
+				"rpc": configmap{
+					"laddr": "0.0.0.0:26657",
+				},
+
+				"p2p": configmap{
+					"laddr": "0.0.0.0:26656",
+				},
+
+				"pprof_laddr": "0.0.0.0:6060",
+			},
+
+			Client: configmap{},
+		},
 	},
 	Build: Build{
 		Proto: Proto{
@@ -54,14 +80,11 @@ var DefaultConf = Config{
 // Config is the user given configuration to do additional setup
 // during serve.
 type Config struct {
-	Accounts  []Account              `yaml:"accounts"`
-	Validator Validator              `yaml:"validator"`
-	Faucet    Faucet                 `yaml:"faucet"`
-	Client    Client                 `yaml:"client"`
-	Build     Build                  `yaml:"build"`
-	Init      Init                   `yaml:"init"`
-	Genesis   map[string]interface{} `yaml:"genesis"`
-	Host      Host                   `yaml:"host"`
+	Accounts   []Account              `yaml:"accounts"`
+	Validators []Validator            `yaml:"validators"`
+	Faucet     Faucet                 `yaml:"faucet"`
+	Build      Build                  `yaml:"build"`
+	Genesis    map[string]interface{} `yaml:"genesis"`
 }
 
 // AccountByName finds account by name.
@@ -88,8 +111,46 @@ type Account struct {
 
 // Validator holds info related to validator settings.
 type Validator struct {
-	Name   string `yaml:"name"`
-	Staked string `yaml:"staked"`
+	Name string `yaml:"name"`
+
+	Bonded string `yaml:"bonded"`
+
+	// App overwrites appd's config/app.toml configs.
+	App map[string]interface{} `yaml:"app"`
+
+	// Client overwrites appd's config/client.toml configs.
+	Client map[string]interface{} `yaml:"client"`
+
+	// Config overwrites appd's config/config.toml configs.
+	Config map[string]interface{} `yaml:"config"`
+
+	// Home overwrites default home directory used for the app
+	Home string `yaml:"home"`
+
+	// KeyringBackend is the default keyring backend to use for blockchain initialization
+	KeyringBackend string `yaml:"keyring-backend"`
+
+	// GenTx overwrites the default gentx transaction info.
+	GenTx GenTx `yaml:"gentx"`
+}
+
+// GenTx validator info
+type GenTx struct {
+	// Amount to self stake. Overwrites Validator.Bonded
+	Amount string `yaml:"amount"`
+
+	// Moniker of valudator. Overwrites Validator.Name
+	Moniker string `yaml:"moniker"`
+
+	CommisionRate           string `yaml:"rate"`
+	CommissionMaxRate       string `yaml:"max-rate"`
+	CommissionMaxChangeRate string `yaml:"max-change-rate"`
+	MinDelegation           string `yaml:"min-delegation"`
+	GasPrices               string `yaml:"gas-prices"`
+	Details                 string `yaml:"details"`
+	Identity                string `yaml:"identity"`
+	Website                 string `yaml:"website"`
+	SecurityContact         string `yaml:"securty-contact"`
 }
 
 // Build holds build configs.
@@ -161,33 +222,33 @@ type Faucet struct {
 	Port int `yaml:"port"`
 }
 
-// Init overwrites sdk configurations with given values.
-type Init struct {
-	// App overwrites appd's config/app.toml configs.
-	App map[string]interface{} `yaml:"app"`
+// // Init overwrites sdk configurations with given values.
+// type Init struct {
+// 	// App overwrites appd's config/app.toml configs.
+// 	App map[string]interface{} `yaml:"app"`
 
-	// Client overwrites appd's config/client.toml configs.
-	Client map[string]interface{} `yaml:"client"`
+// 	// Client overwrites appd's config/client.toml configs.
+// 	Client map[string]interface{} `yaml:"client"`
 
-	// Config overwrites appd's config/config.toml configs.
-	Config map[string]interface{} `yaml:"config"`
+// 	// Config overwrites appd's config/config.toml configs.
+// 	Config map[string]interface{} `yaml:"config"`
 
-	// Home overwrites default home directory used for the app
-	Home string `yaml:"home"`
+// 	// Home overwrites default home directory used for the app
+// 	Home string `yaml:"home"`
 
-	// KeyringBackend is the default keyring backend to use for blockchain initialization
-	KeyringBackend string `yaml:"keyring-backend"`
-}
+// 	// KeyringBackend is the default keyring backend to use for blockchain initialization
+// 	KeyringBackend string `yaml:"keyring-backend"`
+// }
 
 // Host keeps configuration related to started servers.
-type Host struct {
-	RPC     string `yaml:"rpc"`
-	P2P     string `yaml:"p2p"`
-	Prof    string `yaml:"prof"`
-	GRPC    string `yaml:"grpc"`
-	GRPCWeb string `yaml:"grpc-web"`
-	API     string `yaml:"api"`
-}
+// type App struct {
+// 	RPC     string `yaml:"rpc"`
+// 	P2P     string `yaml:"p2p"`
+// 	Prof    string `yaml:"prof"`
+// 	GRPC    string `yaml:"grpc"`
+// 	GRPCWeb string `yaml:"grpc-web"`
+// 	API     string `yaml:"api"`
+// }
 
 // Parse parses config.yml into UserConfig.
 func Parse(r io.Reader) (Config, error) {
@@ -195,7 +256,7 @@ func Parse(r io.Reader) (Config, error) {
 	if err := yaml.NewDecoder(r).Decode(&conf); err != nil {
 		return conf, err
 	}
-	if err := mergo.Merge(&conf, DefaultConf); err != nil {
+	if err := mergo.Merge(&conf, DefaultConf, mergo.WithSliceDeepCopy); err != nil {
 		return Config{}, err
 	}
 	return conf, validate(conf)
@@ -216,8 +277,8 @@ func validate(conf Config) error {
 	if len(conf.Accounts) == 0 {
 		return &ValidationError{"at least 1 account is needed"}
 	}
-	if conf.Validator.Name == "" {
-		return &ValidationError{"validator is required"}
+	if len(conf.Validators) == 0 || conf.Validators[0].Name == "" {
+		return &ValidationError{"at least one validator is required"}
 	}
 	return nil
 }

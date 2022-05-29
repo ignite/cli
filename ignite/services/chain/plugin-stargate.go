@@ -103,23 +103,23 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 		return err
 	}
 
-	rpcAddr, err := xurl.TCP(conf.Host.RPC)
-	if err != nil {
-		return fmt.Errorf("invalid rpc address format %s: %w", conf.Host.RPC, err)
-	}
+	// rpcAddr, err := xurl.TCP(conf.Host.RPC)
+	// if err != nil {
+	// 	return fmt.Errorf("invalid rpc address format %s: %w", conf.Host.RPC, err)
+	// }
 
-	p2pAddr, err := xurl.TCP(conf.Host.P2P)
-	if err != nil {
-		return fmt.Errorf("invalid p2p address format %s: %w", conf.Host.P2P, err)
-	}
+	// p2pAddr, err := xurl.TCP(conf.Host.P2P)
+	// if err != nil {
+	// 	return fmt.Errorf("invalid p2p address format %s: %w", conf.Host.P2P, err)
+	// }
 
 	config.Set("mode", "validator")
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")
-	config.Set("rpc.laddr", rpcAddr)
-	config.Set("p2p.laddr", p2pAddr)
-	config.Set("rpc.pprof_laddr", conf.Host.Prof)
+	// config.Set("rpc.laddr", rpcAddr)
+	// config.Set("p2p.laddr", p2pAddr)
+	// config.Set("rpc.pprof_laddr", conf.Host.Prof)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {

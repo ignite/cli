@@ -96,6 +96,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
+	// for each validator
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
