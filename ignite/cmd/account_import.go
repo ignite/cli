@@ -24,6 +24,7 @@ func NewAccountImport() *cobra.Command {
 
 	c.Flags().String(flagSecret, "", "Your mnemonic or path to your private key (use interactive mode instead to securely pass your mnemonic)")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetAccountImportExport())
 
 	return c
@@ -31,8 +32,10 @@ func NewAccountImport() *cobra.Command {
 
 func accountImportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name      = args[0]
-		secret, _ = cmd.Flags().GetString(flagSecret)
+		name           = args[0]
+		secret, _      = cmd.Flags().GetString(flagSecret)
+		keyringBackend = getKeyringBackend(cmd)
+		keyringDir     = getKeyringDir(cmd)
 	)
 
 	if secret == "" {
@@ -59,7 +62,8 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithKeyringBackend(keyringBackend),
+		cosmosaccount.WithKeyringDir(keyringDir),
 	)
 	if err != nil {
 		return err

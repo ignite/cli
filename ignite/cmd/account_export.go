@@ -19,6 +19,7 @@ func NewAccountExport() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetAccountImportExport())
 	c.Flags().String(flagPath, "", "path to export private key. default: ./key_[name]")
 
@@ -27,8 +28,10 @@ func NewAccountExport() *cobra.Command {
 
 func accountExportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name = args[0]
-		path = flagGetPath(cmd)
+		name           = args[0]
+		path           = flagGetPath(cmd)
+		keyringBackend = getKeyringBackend(cmd)
+		keyringDir     = getKeyringDir(cmd)
 	)
 
 	passphrase, err := getPassphrase(cmd)
@@ -37,7 +40,8 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithKeyringBackend(keyringBackend),
+		cosmosaccount.WithKeyringDir(keyringDir),
 	)
 	if err != nil {
 		return err

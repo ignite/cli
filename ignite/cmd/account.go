@@ -16,6 +16,7 @@ const (
 	flagPassphrase     = "passphrase"
 	flagNonInteractive = "non-interactive"
 	flagKeyringBackend = "keyring-backend"
+	flagKeyringDir     = "keyring-dir"
 	flagFrom           = "from"
 )
 
@@ -56,6 +57,17 @@ func flagSetKeyringBackend() *flag.FlagSet {
 func getKeyringBackend(cmd *cobra.Command) cosmosaccount.KeyringBackend {
 	backend, _ := cmd.Flags().GetString(flagKeyringBackend)
 	return cosmosaccount.KeyringBackend(backend)
+}
+
+func flagSetKeyringDir() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagKeyringDir, cosmosaccount.KeyringHome, "The accounts keyring directory")
+	return fs
+}
+
+func getKeyringDir(cmd *cobra.Command) string {
+	keyringDir, _ := cmd.Flags().GetString(flagKeyringDir)
+	return keyringDir
 }
 
 func flagSetAccountPrefixes() *flag.FlagSet {

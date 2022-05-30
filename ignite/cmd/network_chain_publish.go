@@ -56,6 +56,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetYes())
 

@@ -23,6 +23,7 @@ func NewNetworkCampaignPublish() *cobra.Command {
 	c.Flags().String(flagMetadata, "", "Add a metada to the chain")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }

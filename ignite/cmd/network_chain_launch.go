@@ -24,6 +24,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 	c.Flags().Duration(flagRemainingTime, 0, "Duration of time in seconds before the chain is effectively launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }

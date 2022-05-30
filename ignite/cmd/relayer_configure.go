@@ -83,6 +83,7 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
 	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -97,6 +98,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithKeyringDir(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err

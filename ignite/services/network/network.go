@@ -25,7 +25,7 @@ type CosmosClient interface {
 	Address(accountName string) (sdktypes.AccAddress, error)
 	Context() client.Context
 	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
-	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
+	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (unsignedTx client.TxBuilder, broadcast func() (cosmosclient.Response, error), err error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
 	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
 }
