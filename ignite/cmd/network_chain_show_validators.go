@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
@@ -19,12 +20,17 @@ func newNetworkChainShowValidators() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainShowValidatorsHandler,
 	}
+
+	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+
 	return c
 }
 
 func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
+
+	addressPrefix := getAddressPrefix(cmd)
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {
@@ -45,8 +51,14 @@ func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error 
 		if err != nil {
 			return err
 		}
+
+		address, err := cosmosutil.ChangeAddressPrefix(acc.Address, addressPrefix)
+		if err != nil {
+			return err
+		}
+
 		validatorEntries = append(validatorEntries, []string{
-			acc.Address,
+			address,
 			acc.SelfDelegation.String(),
 			peer,
 		})

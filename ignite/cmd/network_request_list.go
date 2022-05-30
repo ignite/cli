@@ -7,6 +7,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
@@ -22,6 +23,9 @@ func NewNetworkRequestList() *cobra.Command {
 		RunE:  networkRequestListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
+
+	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+
 	return c
 }
 
@@ -33,6 +37,8 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	addressPrefix := getAddressPrefix(cmd)
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -52,11 +58,15 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 
 	session.StopSpinner()
 
-	return renderRequestSummaries(requests, session)
+	return renderRequestSummaries(requests, session, addressPrefix)
 }
 
 // renderRequestSummaries writes into the provided out, the list of summarized requests
-func renderRequestSummaries(requests []networktypes.Request, session cliui.Session) error {
+func renderRequestSummaries(
+	requests []networktypes.Request,
+	session cliui.Session,
+	addressPrefix string,
+) error {
 	requestEntries := make([][]string, 0)
 	for _, request := range requests {
 		var (
@@ -67,8 +77,17 @@ func renderRequestSummaries(requests []networktypes.Request, session cliui.Sessi
 		switch req := request.Content.Content.(type) {
 		case *launchtypes.RequestContent_GenesisAccount:
 			requestType = "Add Genesis Account"
-			content = fmt.Sprintf("%s, %s",
+
+			address, err := cosmosutil.ChangeAddressPrefix(
 				req.GenesisAccount.Address,
+				addressPrefix,
+			)
+			if err != nil {
+				return err
+			}
+
+			content = fmt.Sprintf("%s, %s",
+				address,
 				req.GenesisAccount.Coins.String())
 		case *launchtypes.RequestContent_GenesisValidator:
 			requestType = "Add Genesis Validator"
@@ -97,10 +116,28 @@ func renderRequestSummaries(requests []networktypes.Request, session cliui.Sessi
 			)
 		case *launchtypes.RequestContent_ValidatorRemoval:
 			requestType = "Remove Validator"
-			content = req.ValidatorRemoval.ValAddress
+
+			address, err := cosmosutil.ChangeAddressPrefix(
+				req.ValidatorRemoval.ValAddress,
+				addressPrefix,
+			)
+			if err != nil {
+				return err
+			}
+
+			content = address
 		case *launchtypes.RequestContent_AccountRemoval:
 			requestType = "Remove Account"
-			content = req.AccountRemoval.Address
+
+			address, err := cosmosutil.ChangeAddressPrefix(
+				req.AccountRemoval.Address,
+				addressPrefix,
+			)
+			if err != nil {
+				return err
+			}
+
+			content = address
 		}
 
 		requestEntries = append(requestEntries, []string{
