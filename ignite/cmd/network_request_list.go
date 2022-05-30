@@ -95,9 +95,18 @@ func renderRequestSummaries(
 			if err != nil {
 				return err
 			}
+
+			address, err := cosmosutil.ChangeAddressPrefix(
+				req.GenesisValidator.Address,
+				addressPrefix,
+			)
+			if err != nil {
+				return err
+			}
+
 			content = fmt.Sprintf("%s, %s, %s",
 				peer,
-				req.GenesisValidator.Address,
+				address,
 				req.GenesisValidator.SelfDelegation.String())
 		case *launchtypes.RequestContent_VestingAccount:
 			requestType = "Add Vesting Account"
@@ -110,8 +119,17 @@ func renderRequestSummaries(
 			} else {
 				vestingCoins = fmt.Sprintf("%s (vesting: %s)", dv.TotalBalance, dv.Vesting)
 			}
-			content = fmt.Sprintf("%s, %s",
+
+			address, err := cosmosutil.ChangeAddressPrefix(
 				req.VestingAccount.Address,
+				addressPrefix,
+			)
+			if err != nil {
+				return err
+			}
+
+			content = fmt.Sprintf("%s, %s",
+				address,
 				vestingCoins,
 			)
 		case *launchtypes.RequestContent_ValidatorRemoval:
