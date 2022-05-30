@@ -7,7 +7,7 @@ order: 8
 
 A Vue frontend app is created in the `vue` directory when a blockchain is scaffolded. To start the frontend app run `npm i && npm run dev` in the `vue` directory.
 
-The frontend app is built using the `@ignt/vue` and `@ignt/vuex` packages. For details, see the [monorepo for Ignite CLI front-end development](https://github.com/ignite-hq/web).
+The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. For details, see the [monorepo for Ignite CLI front-end development](https://github.com/ignite-hq/web).
 
 ## Client code generation
 
