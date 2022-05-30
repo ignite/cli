@@ -2,10 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
-	"regexp"
-	"strconv"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -18,44 +14,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
-// SharePercent represent percent of total share
-type SharePercent struct {
-	denom   string
-	percent float64
-}
-
-// NewSharePercent creates new share percent representation
-func NewSharePercent(denom string, percent float64) SharePercent {
-	return SharePercent{denom: denom, percent: percent}
-}
-
-// ParseSharePercents parses SharePercentage list from string
-// format: 12.4%foo,10%bar,0.133%baz
-func ParseSharePercents(percents string) ([]SharePercent, error) {
-	var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
-	rawPercentages := strings.Split(percents, ",")
-	ps := make([]SharePercent, len(rawPercentages))
-	for i, percentage := range rawPercentages {
-		// validate raw percentage format
-		if len(rePercentageRequired.FindStringIndex(percentage)) == 0 {
-			return nil, fmt.Errorf("invalid percentage format %s", percentage)
-		}
-
-		foo := strings.Split(percentage, "%")
-		denom := foo[1]
-		percent, err := strconv.ParseFloat(foo[0], 64)
-		if err != nil {
-			return nil, err
-		}
-		if percent > 100 {
-			return nil, fmt.Errorf("%q can not be bigger than 100", denom)
-		}
-		ps[i] = NewSharePercent(denom, percent)
-	}
-
-	return ps, nil
-}
-
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
 	genesisURL       string
@@ -64,7 +22,7 @@ type publishOptions struct {
 	noCheck          bool
 	metadata         string
 	totalSupply      sdk.Coins
-	sharePercentages []SharePercent
+	sharePercentages SharePercents
 	mainnet          bool
 }
 
@@ -224,10 +182,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 
 		var coins []sdk.Coin
-
-		for _, share := range o.sharePercentages {
-			amount := int64(share.percent * float64(totalSharesResp.TotalShares/100))
-			coins = append(coins, sdk.NewInt64Coin(share.denom, amount))
+		for _, percentage := range o.sharePercentages {
+			coin, err := percentage.Share(totalSharesResp.TotalShares)
+			if err != nil {
+				return 0, 0, 0, err
+			}
+			coins = append(coins, coin)
 		}
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.

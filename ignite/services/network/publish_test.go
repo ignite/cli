@@ -169,8 +169,8 @@ func TestPublish(t *testing.T) {
 
 		launchID, campaignID, _, publishError := network.Publish(context.Background(), suite.ChainMock,
 			WithPercentageShares([]SharePercent{
-				NewSharePercent("foo", 2),
-				NewSharePercent("staking", 50),
+				SampleSharePercent(t, "foo", 2, 100),
+				SampleSharePercent(t, "staking", 50, 100),
 			}),
 		)
 		require.NoError(t, publishError)
@@ -839,76 +839,4 @@ func TestPublish(t *testing.T) {
 		require.Equal(t, expectedError, publishError)
 		suite.AssertAllMocks(t)
 	})
-}
-
-func TestParseSharePercentages(t *testing.T) {
-	tests := []struct {
-		name     string
-		shareStr string
-		want     []SharePercent
-		err      error
-	}{
-		{
-			name:     "valid share percentage",
-			shareStr: "12.333%def",
-			want: []SharePercent{
-				{
-					denom:   "def",
-					percent: 12.333,
-				},
-			},
-		},
-		{
-			name:     "100% percentage",
-			shareStr: "100%def",
-			want: []SharePercent{
-				{
-					denom:   "def",
-					percent: 100,
-				},
-			},
-		},
-		{
-			name:     "valid share percentages",
-			shareStr: "12%def,10.3%abc",
-			want: []SharePercent{
-				{
-					denom:   "def",
-					percent: 12,
-				},
-				{
-					denom:   "abc",
-					percent: 10.3,
-				},
-			},
-		},
-		{
-			name:     "share percentages greater than 100",
-			shareStr: "12%def,10.3abc",
-			err:      errors.New("invalid percentage format 10.3abc"),
-		},
-		{
-			name:     "share percentages without % sign",
-			shareStr: "12%def,103%abc",
-			err:      errors.New("\"abc\" can not be bigger than 100"),
-		},
-		{
-			name:     "invalid percent",
-			shareStr: "12.3d3%def",
-			err:      errors.New("invalid percentage format 12.3d3%def"),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := ParseSharePercents(tt.shareStr)
-			if tt.err != nil {
-				require.Error(t, err)
-				require.Equal(t, tt.err.Error(), err.Error())
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, tt.want, result)
-		})
-	}
 }
