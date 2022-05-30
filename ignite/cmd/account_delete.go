@@ -17,15 +17,21 @@ func NewAccountDelete() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
 
 func accountDeleteHandler(cmd *cobra.Command, args []string) error {
-	name := args[0]
+	var (
+		name           = args[0]
+		keyringBackend = getKeyringBackend(cmd)
+		keyringDir     = getKeyringDir(cmd)
+	)
 
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithKeyringBackend(keyringBackend),
+		cosmosaccount.WithKeyringDir(keyringDir),
 	)
 	if err != nil {
 		return err

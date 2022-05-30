@@ -149,6 +149,7 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 			return e.Exec(msg, steps, options...)
 		}
 	}
+
 	if err != nil {
 		msg = fmt.Sprintf("%s\n\nLogs:\n\n%s\n\nError Logs:\n\n%s\n",
 			msg,
@@ -285,12 +286,38 @@ func (e Env) TmpDir() (path string) {
 	return path
 }
 
+func (e Env) SetKeyringBackend(path string, configFile string, keyringBackend string) {
+	configyml, conf := e.openConfig(path, configFile)
+	defer configyml.Close()
+
+	conf.Init.KeyringBackend = keyringBackend
+	e.saveConfig(configyml, conf)
+}
+func (e Env) SetConfigMnemonic(path string, configFile string, accountName string, mnemonic string) {
+	configyml, conf := e.openConfig(path, configFile)
+	defer configyml.Close()
+
+	found := false
+	for i, acc := range conf.Accounts {
+		if acc.Name == accountName {
+			conf.Accounts[i].Mnemonic = mnemonic
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		e.t.FailNow()
+	}
+
+	e.saveConfig(configyml, conf)
+}
+
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
 func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
-	if configFile == "" {
-		configFile = ConfigYML
-	}
+	configyml, conf := e.openConfig(path, configFile)
+	defer configyml.Close()
 
 	// generate random server ports and servers list.
 	ports, err := availableport.Find(6)
@@ -310,46 +337,25 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
-	require.NoError(e.t, err)
-	defer configyml.Close()
-
-	var conf chainconfig.Config
-	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
-
 	conf.Host = servers
-	require.NoError(e.t, configyml.Truncate(0))
-	_, err = configyml.Seek(0, 0)
-	require.NoError(e.t, err)
-	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+	e.saveConfig(configyml, conf)
 
 	return servers
 }
 
 // ConfigureFaucet finds a random port for the app faucet and updates config.yml with this port and provided coins options
 func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []string) string {
-	if configFile == "" {
-		configFile = ConfigYML
-	}
+	configyml, conf := e.openConfig(path, configFile)
+	defer configyml.Close()
 
 	// find a random available port
 	port, err := availableport.Find(1)
 	require.NoError(e.t, err)
 
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
-	require.NoError(e.t, err)
-	defer configyml.Close()
-
-	var conf chainconfig.Config
-	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
-
 	conf.Faucet.Port = port[0]
 	conf.Faucet.Coins = coins
 	conf.Faucet.CoinsMax = coinsMax
-	require.NoError(e.t, configyml.Truncate(0))
-	_, err = configyml.Seek(0, 0)
-	require.NoError(e.t, err)
-	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+	e.saveConfig(configyml, conf)
 
 	addr, err := xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
 	require.NoError(e.t, err)
@@ -358,24 +364,15 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
-func (e Env) SetRandomHomeConfig(path string, configFile string) {
-	if configFile == "" {
-		configFile = ConfigYML
-	}
-
-	// update config.yml with the generated temporary directories
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
-	require.NoError(e.t, err)
+// Returns the random home directory
+func (e Env) SetRandomHomeConfig(path string, configFile string) string {
+	configyml, conf := e.openConfig(path, configFile)
 	defer configyml.Close()
 
-	var conf chainconfig.Config
-	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
-
 	conf.Init.Home = e.TmpDir()
-	require.NoError(e.t, configyml.Truncate(0))
-	_, err = configyml.Seek(0, 0)
-	require.NoError(e.t, err)
-	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+	e.saveConfig(configyml, conf)
+
+	return conf.Init.Home
 }
 
 // Must fails the immediately if not ok.
@@ -396,4 +393,30 @@ func (e Env) Home() string {
 // AppdHome returns appd's home dir.
 func (e Env) AppdHome(name string) string {
 	return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
+}
+
+// openConfig opens the config file and returns both the file itself and an unmarshalled config object
+// The returned file must be closed
+func (e Env) openConfig(path string, configFile string) (*os.File, chainconfig.Config) {
+	if configFile == "" {
+		configFile = ConfigYML
+	}
+
+	// update config.yml with the generated temporary directories
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	require.NoError(e.t, err)
+
+	var conf chainconfig.Config
+	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
+
+	return configyml, conf
+}
+
+// saveConfig saves the profided conf object to the configyml file
+// saveConfig does not close the file
+func (e Env) saveConfig(configyml *os.File, conf chainconfig.Config) {
+	require.NoError(e.t, configyml.Truncate(0))
+	_, err := configyml.Seek(0, 0)
+	require.NoError(e.t, err)
+	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 }

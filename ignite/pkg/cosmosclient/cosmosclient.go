@@ -3,12 +3,12 @@ package cosmosclient
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,21 +21,18 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
-	"github.com/tendermint/tendermint/libs/bytes"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
@@ -87,6 +84,10 @@ type Client struct {
 	homePath           string
 	keyringServiceName string
 	keyringBackend     cosmosaccount.KeyringBackend
+	keyringDir         string
+
+	gas       string
+	gasPrices string
 }
 
 // Option configures your client.
@@ -113,6 +114,13 @@ func WithKeyringServiceName(name string) Option {
 func WithKeyringBackend(backend cosmosaccount.KeyringBackend) Option {
 	return func(c *Client) {
 		c.keyringBackend = backend
+	}
+}
+
+// WithKeyringDir sets the directory of the keyring. By default, it uses cosmosaccount.KeyringHome
+func WithKeyringDir(keyringDir string) Option {
+	return func(c *Client) {
+		c.keyringDir = keyringDir
 	}
 }
 
@@ -143,6 +151,18 @@ func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 	}
 }
 
+func WithGas(gas string) Option {
+	return func(c *Client) {
+		c.gas = gas
+	}
+}
+
+func WithGasPrices(gasPrices string) Option {
+	return func(c *Client) {
+		c.gasPrices = gasPrices
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -153,6 +173,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		faucetDenom:     defaultFaucetDenom,
 		faucetMinAmount: defaultFaucetMinAmount,
 		out:             io.Discard,
+		gas:             strconv.Itoa(defaultGasLimit),
 	}
 
 	var err error
@@ -180,10 +201,14 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		c.homePath = filepath.Join(home, "."+c.chainID)
 	}
 
+	if c.keyringDir == "" {
+		c.keyringDir = c.homePath
+	}
+
 	c.AccountRegistry, err = cosmosaccount.New(
 		cosmosaccount.WithKeyringServiceName(c.keyringServiceName),
 		cosmosaccount.WithKeyringBackend(c.keyringBackend),
-		cosmosaccount.WithHome(c.homePath),
+		cosmosaccount.WithKeyringDir(c.keyringDir),
 	)
 	if err != nil {
 		return Client{}, err
@@ -206,6 +231,40 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 		return sdktypes.AccAddress{}, err
 	}
 	return account.Info.GetAddress(), nil
+}
+
+func (c Client) AccountExists(accountName string) (bool, error) {
+	_, err := c.Account(accountName)
+	var accErr *cosmosaccount.AccountDoesNotExistError
+	errNotFound := errors.As(err, &accErr)
+	if errNotFound {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// Bech32Address returns the bech32 address, with the correct prefix, from account name or address.
+func (c Client) Bech32Address(accountNameOrAddress string) (string, error) {
+	unlockFn := c.lockBech32Prefix()
+	defer unlockFn()
+
+	_, _, err := bech32.DecodeAndConvert(accountNameOrAddress)
+	if err == nil {
+		// Already bech32
+		return accountNameOrAddress, nil
+	}
+
+	account, err := c.Account(accountNameOrAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return account.Address(c.addressPrefix), nil
 }
 
 func (c Client) Context() client.Context {
@@ -251,60 +310,6 @@ func (r Response) Decode(message proto.Message) error {
 	}, message)
 }
 
-// ConsensusInfo is the validator consensus info
-type ConsensusInfo struct {
-	Timestamp          string                `json:"Timestamp"`
-	Root               string                `json:"Root"`
-	NextValidatorsHash string                `json:"NextValidatorsHash"`
-	ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
-}
-
-// ConsensusInfo returns the appropriate tendermint consensus state by given height
-// and the validator set for the next height
-func (c Client) ConsensusInfo(ctx context.Context, height int64) (ConsensusInfo, error) {
-	node, err := c.Context().GetNode()
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	commit, err := node.Commit(ctx, &height)
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	var (
-		page  = 1
-		count = 10_000
-	)
-	validators, err := node.Validators(ctx, &height, &page, &count)
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	protoValset, err := tmtypes.NewValidatorSet(validators.Validators).ToProto()
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	heightNext := height + 1
-	validatorsNext, err := node.Validators(ctx, &heightNext, &page, &count)
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	var (
-		hash = tmtypes.NewValidatorSet(validatorsNext.Validators).Hash()
-		root = commitmenttypes.NewMerkleRoot(commit.AppHash)
-	)
-
-	return ConsensusInfo{
-		Timestamp:          commit.Time.Format(time.RFC3339Nano),
-		NextValidatorsHash: bytes.HexBytes(hash).String(),
-		Root:               base64.StdEncoding.EncodeToString(root.Hash),
-		ValidatorSet:       protoValset,
-	}, nil
-}
-
 // Status returns the node status
 func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
 	return c.RPC.Status(ctx)
@@ -319,24 +324,51 @@ func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response,
 	return broadcast()
 }
 
+func (c Client) GenerateTx(accountName string, msgs ...sdktypes.Msg) (string, error) {
+	unsignedTx, _, err := c.BroadcastTxWithProvision(accountName, msgs...)
+	if err != nil {
+		return "", err
+	}
+
+	json, err := c.context.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
+	if err != nil {
+		return "", err
+	}
+
+	return string(json), nil
+}
+
 // protects sdktypes.Config.
 var mconf sync.Mutex
 
-func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (
-	gas uint64, broadcast func() (Response, error), err error) {
-	if err := c.prepareBroadcast(context.Background(), accountName, msgs); err != nil {
-		return 0, nil, err
-	}
-
-	// TODO find a better way if possible.
+func (c Client) lockBech32Prefix() (unlockFn func()) {
 	mconf.Lock()
-	defer mconf.Unlock()
 	config := sdktypes.GetConfig()
 	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
 
+	return mconf.Unlock
+}
+
+func performQuery[T any](c Client, q func() (T, error)) (T, error) {
+	unlockFn := c.lockBech32Prefix()
+	defer unlockFn()
+
+	return q()
+}
+
+func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (
+	unsignedTx client.TxBuilder, broadcast func() (Response, error), err error) {
+	if err := c.prepareBroadcast(context.Background(), accountName, msgs); err != nil {
+		return nil, nil, err
+	}
+
+	// TODO find a better way if possible.
+	unlockFn := c.lockBech32Prefix()
+	defer unlockFn()
+
 	accountAddress, err := c.Address(accountName)
 	if err != nil {
-		return 0, nil, err
+		return nil, nil, err
 	}
 
 	ctx := c.context.
@@ -345,26 +377,41 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 
 	txf, err := prepareFactory(ctx, c.Factory)
 	if err != nil {
-		return 0, nil, err
+		return nil, nil, err
 	}
 
-	_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
-	if err != nil {
-		return 0, nil, err
+	var gas uint64
+	if c.gas != "" && c.gas != "auto" {
+		gas, err = strconv.ParseUint(c.gas, 10, 64)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else {
+		_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
+		if err != nil {
+			return nil, nil, err
+		}
+		// the simulated gas can vary from the actual gas needed for a real transaction
+		// we add an additional amount to endure sufficient gas is provided
+		gas += 10000
 	}
-	// the simulated gas can vary from the actual gas needed for a real transaction
-	// we add an additional amount to endure sufficient gas is provided
-	gas += 10000
+
 	txf = txf.WithGas(gas)
 
-	// Return the provision function
-	return gas, func() (Response, error) {
-		txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
-		if err != nil {
-			return Response{}, err
-		}
+	if c.gasPrices != "" {
+		txf = txf.WithGasPrices(c.gasPrices)
+	}
 
-		txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
+	txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
+
+	// Return the provision function
+	return txUnsigned, func() (Response, error) {
+
 		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
 			return Response{}, err
 		}
@@ -517,6 +564,7 @@ func newContext(
 	sdktypes.RegisterInterfaces(interfaceRegistry)
 	staking.RegisterInterfaces(interfaceRegistry)
 	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	banktypes.RegisterInterfaces(interfaceRegistry)
 
 	return client.Context{}.
 		WithChainID(chainID).
