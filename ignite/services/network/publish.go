@@ -175,7 +175,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	msgs := []sdk.Msg{msgCreateChain}
 
-	if len(o.sharePercentages) != 0 {
+	if !o.sharePercentages.Empty() {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
 			return 0, 0, 0, err
