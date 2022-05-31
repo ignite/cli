@@ -63,15 +63,15 @@ func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) err
 
 	var additionalTargets []GenerateTarget
 
-	if conf.GetClient().Vuex.Path != "" {
+	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
 	}
 
-	if conf.GetClient().Dart.Path != "" {
+	if conf.Client.Dart.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateDart())
 	}
 
-	if conf.GetClient().OpenAPI.Path != "" {
+	if conf.Client.OpenAPI.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateOpenAPI())
 	}
 
@@ -103,7 +103,7 @@ func (c *Chain) Generate(
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building proto...")
 
 	options := []cosmosgen.Option{
-		cosmosgen.IncludeDirs(conf.GetBuild().Proto.ThirdPartyPaths),
+		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
 	if targetOptions.isGoEnabled {
@@ -114,7 +114,7 @@ func (c *Chain) Generate(
 
 	// generate Vuex code as well if it is enabled.
 	if targetOptions.isVuexEnabled {
-		vuexPath := conf.GetClient().Vuex.Path
+		vuexPath := conf.Client.Vuex.Path
 		if vuexPath == "" {
 			vuexPath = defaultVuexPath
 		}
@@ -134,7 +134,7 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isDartEnabled {
-		dartPath := conf.GetClient().Dart.Path
+		dartPath := conf.Client.Dart.Path
 
 		if dartPath == "" {
 			dartPath = defaultDartPath
@@ -157,7 +157,7 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isOpenAPIEnabled {
-		openAPIPath := conf.GetClient().OpenAPI.Path
+		openAPIPath := conf.Client.OpenAPI.Path
 
 		if openAPIPath == "" {
 			openAPIPath = defaultOpenAPIPath
@@ -166,7 +166,7 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	if err := cosmosgen.Generate(ctx, cacheStorage, c.app.Path, conf.GetBuild().Proto.Path, options...); err != nil {
+	if err := cosmosgen.Generate(ctx, cacheStorage, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

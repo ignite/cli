@@ -131,11 +131,6 @@ func (c *BaseConfig) Version() Version {
 	return c.ConfigVersion
 }
 
-// GetGenesis returns the Genesis.
-func (c *BaseConfig) GetGenesis() map[string]interface{} {
-	return c.Genesis
-}
-
 // AccountByName finds account by name.
 func (c *BaseConfig) AccountByName(name string) (acc Account, found bool) {
 	for _, acc := range c.Accounts {
@@ -144,19 +139,4 @@ func (c *BaseConfig) AccountByName(name string) (acc Account, found bool) {
 		}
 	}
 	return Account{}, false
-}
-
-// GetBuild returns the Build.
-func (c *BaseConfig) GetBuild() Build {
-	return c.Build
-}
-
-// GetFaucet returns the Faucet.
-func (c *BaseConfig) GetFaucet() Faucet {
-	return c.Faucet
-}
-
-// GetClient returns the Client.
-func (c *BaseConfig) GetClient() Client {
-	return c.Client
 }

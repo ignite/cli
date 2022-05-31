@@ -74,8 +74,8 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// make sure that chain id given during chain.New() has the most priority.
-	if conf.GetGenesis() != nil {
-		conf.GetGenesis()["chain_id"] = chainID
+	if conf.Genesis != nil {
+		conf.Genesis["chain_id"] = chainID
 	}
 
 	// Initilize app config
@@ -101,7 +101,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		path    string
 		changes map[string]interface{}
 	}{
-		{confile.DefaultJSONEncodingCreator, genesisPath, conf.GetGenesis()},
+		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
 		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.GetInit().App},
 		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.GetInit().Client},
 		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.GetInit().Config},

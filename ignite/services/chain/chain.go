@@ -240,7 +240,7 @@ func (c *Chain) ID() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	genid, ok := chainConfig.GetGenesis()["chain_id"]
+	genid, ok := chainConfig.Genesis["chain_id"]
 	if ok {
 		return genid.(string), nil
 	}
@@ -270,8 +270,8 @@ func (c *Chain) Binary() (string, error) {
 		return "", err
 	}
 
-	if conf.GetBuild().Binary != "" {
-		return conf.GetBuild().Binary, nil
+	if conf.Build.Binary != "" {
+		return conf.Build.Binary, nil
 	}
 
 	return c.app.D(), nil
