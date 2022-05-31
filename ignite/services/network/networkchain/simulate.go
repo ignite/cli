@@ -30,9 +30,6 @@ func (c Chain) SimulateRequests(
 	cacheStorage cache.Storage,
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
-	rewardsInfo networktypes.Reward,
-	lastBlockHeight,
-	unbondingTime int64,
 ) (err error) {
 	c.ev.Send(events.New(events.StatusOngoing, "Verifying requests format"))
 	for _, req := range reqs {
@@ -54,10 +51,10 @@ func (c Chain) SimulateRequests(
 		ctx,
 		cacheStorage,
 		gi,
-		rewardsInfo,
+		networktypes.Reward{RevisionHeight: 1},
 		networktypes.SPNChainID,
-		lastBlockHeight,
-		unbondingTime,
+		1,
+		2,
 	); err != nil {
 		return err
 	}
