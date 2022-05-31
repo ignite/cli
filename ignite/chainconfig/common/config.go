@@ -2,11 +2,6 @@ package common
 
 type Version int
 
-var (
-	// LatestVersion defines the latest version of the config.
-	LatestVersion Version = 1
-)
-
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`
@@ -127,12 +122,12 @@ type BaseConfig struct {
 }
 
 // GetVersion returns the version of the config.yaml file.
-func (c *BaseConfig) Version() Version {
+func (c BaseConfig) Version() Version {
 	return c.ConfigVersion
 }
 
 // AccountByName finds account by name.
-func (c *BaseConfig) AccountByName(name string) (acc Account, found bool) {
+func (c BaseConfig) AccountByName(name string) (acc Account, found bool) {
 	for _, acc := range c.Accounts {
 		if acc.Name == name {
 			return acc, true

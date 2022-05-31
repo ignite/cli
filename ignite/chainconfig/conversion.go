@@ -9,7 +9,7 @@ func ConvertLatest(config common.Config) (common.Config, error) {
 	var err error
 	version := config.Version()
 
-	for version < common.LatestVersion {
+	for version < LatestVersion {
 		config, err = config.ConvertNext()
 		if err != nil {
 			return config, err

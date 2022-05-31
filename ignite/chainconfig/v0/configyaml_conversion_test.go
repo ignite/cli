@@ -3,9 +3,8 @@ package v0
 import (
 	"testing"
 
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite/cli/ignite/chainconfig/common"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
