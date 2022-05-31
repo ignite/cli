@@ -96,15 +96,38 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
+	validator := conf.Validators[0]
+	config := make(map[string]interface{})
+	for key, value := range validator.Config {
+		config[key] = value
+	}
+	delete(config, "rpc")
+	delete(config, "p2p")
+	delete(config, "pprof_laddr")
+	if len(config) == 0 {
+		config = nil
+	}
+
+	app := make(map[string]interface{})
+	for key, value := range validator.App {
+		app[key] = value
+	}
+	delete(app, "grpc")
+	delete(app, "grpc-web")
+	delete(app, "api")
+
+	if len(app) == 0 {
+		app = nil
+	}
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
 		changes map[string]interface{}
 	}{
 		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.GetInit().App},
-		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.GetInit().Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.GetInit().Config},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, app},
+		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, validator.Client},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, config},
 	}
 
 	for _, ac := range appconfigs {

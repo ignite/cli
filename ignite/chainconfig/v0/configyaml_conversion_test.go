@@ -18,12 +18,12 @@ func TestConvertNext(t *testing.T) {
 
 	require.Equal(t, common.Version(0), origin.Version())
 	require.Equal(t, common.Version(1), result.Version())
-	require.Equal(t, origin.GetFaucet(), result.(*v1.Config).GetFaucet())
-	require.Equal(t, origin.GetClient(), result.(*v1.Config).GetClient())
-	require.Equal(t, origin.GetBuild(), result.(*v1.Config).GetBuild())
-	require.Equal(t, origin.GetHost(), result.(*v1.Config).GetHost())
-	require.Equal(t, origin.GetGenesis(), result.(*v1.Config).GetGenesis())
+	require.Equal(t, origin.Faucet, result.(*v1.Config).Faucet)
+	require.Equal(t, origin.Client, result.(*v1.Config).Client)
+	require.Equal(t, origin.Build, result.(*v1.Config).Build)
+	//require.Equal(t, origin.Host, result.(*v1.Config).GetHost())
+	require.Equal(t, origin.Genesis, result.(*v1.Config).Genesis)
 	require.Equal(t, origin.ListAccounts(), result.(*v1.Config).ListAccounts())
-	require.Equal(t, origin.GetInit(), result.(*v1.Config).GetInit())
+	//require.Equal(t, origin.GetInit(), result.(*v1.Config).GetInit())
 	require.Equal(t, expected, result)
 }

@@ -413,10 +413,14 @@ func (c *Chain) start(ctx context.Context, config *v1.Config) error {
 	// set the app as being served
 	c.served = true
 
+	// Get the first validator
+	validator := config.Validators[0]
+
 	// note: address format errors are handled by the
 	// error group, so they can be safely ignored here
-	rpcAddr, _ := xurl.HTTP(config.GetHost().RPC)
-	apiAddr, _ := xurl.HTTP(config.GetHost().API)
+
+	rpcAddr, _ := xurl.HTTP(validator.GetRPC())
+	apiAddr, _ := xurl.HTTP(validator.GetAPI())
 
 	// print the server addresses.
 	fmt.Fprintf(c.stdLog().out, "🌍 Tendermint node: %s\n", rpcAddr)
