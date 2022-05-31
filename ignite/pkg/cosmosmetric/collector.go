@@ -8,20 +8,20 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// ClientCollecter defines the interface for Cosmos clients that support collection of transactions.
-type ClientCollecter interface {
+// TXsCollecter defines the interface for Cosmos clients that support collection of transactions.
+type TXsCollecter interface {
 	CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) error
 }
 
 // NewCollector creates a new transactions collector.
-func NewCollector(db adapter.Saver, client ClientCollecter) Collector {
+func NewCollector(db adapter.Saver, client TXsCollecter) Collector {
 	return Collector{db, client}
 }
 
 // Collector defines a type to collect and save block transactions in a data backend.
 type Collector struct {
 	db     adapter.Saver
-	client ClientCollecter
+	client TXsCollecter
 }
 
 // Collect gathers transactions for all blocks starting from a specific height.
