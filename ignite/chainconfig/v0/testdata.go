@@ -14,9 +14,9 @@ func GetInitialV0Config() *Config {
 			Staked: "100000000stake",
 		},
 		Init: common.Init{
-			App:    nil,
-			Client: nil,
-			Config: nil,
+			App:    map[string]interface{}{"test-app": "test-app"},
+			Config: map[string]interface{}{"test-config": "test-config"},
+			Client: map[string]interface{}{"test-client": "test-client"},
 		},
 		Host: common.Host{
 			// when in Docker on MacOS, it only works with 0.0.0.0.
@@ -77,11 +77,15 @@ func GetConvertedLatestConfig() *v1.Config {
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
-				Client: nil,
+				Client: map[string]interface{}{"test-client": "test-client"},
 				App: map[string]interface{}{"grpc": map[string]interface{}{"address": "localhost:53831"},
-					"grpc-web": map[string]interface{}{"address": "localhost:46531"}, "api": map[string]interface{}{"address": "localhost:51028"}},
+					"grpc-web": map[string]interface{}{"address": "localhost:46531"}, "api": map[string]interface{}{"address": "localhost:51028"},
+					"test-app": "test-app",
+				},
 				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "localhost:53803"},
-					"p2p": map[string]interface{}{"laddr": "localhost:50198"}, "pprof_laddr": "localhost:53030"},
+					"p2p": map[string]interface{}{"laddr": "localhost:50198"}, "pprof_laddr": "localhost:53030",
+					"test-config": "test-config",
+				},
 			},
 		},
 		BaseConfig: common.BaseConfig{

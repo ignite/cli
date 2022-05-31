@@ -56,16 +56,6 @@ func (c *Config) ListAccounts() []common.Account {
 	return c.Accounts
 }
 
-// ListValidators returns the list of all the validators.
-func (c *Config) ListValidators() []*Validator {
-	validators := make([]*Validator, len(c.Validators))
-	for i := range c.Validators {
-		validators[i] = &c.Validators[i]
-	}
-
-	return validators
-}
-
 // Clone returns an identical copy of the instance
 func (c *Config) Clone() common.Config {
 	copy := *c
@@ -75,7 +65,22 @@ func (c *Config) Clone() common.Config {
 // FillValidatorsDefaults fills in the defaults values for the validators if they are missing.
 func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
 	for i := range c.Validators {
-		validator := defaultValidator.IncreasePort(i * DefaultPortMargin)
+		var validator Validator
+		if i > 0 {
+			previousValidatorPorts := Validator{
+				App: map[string]interface{}{"grpc": map[string]interface{}{"address": c.Validators[i-1].GetGRPC()},
+					"grpc-web": map[string]interface{}{"address": c.Validators[i-1].GetGRPCWeb()},
+					"api":      map[string]interface{}{"address": c.Validators[i-1].GetAPI()}},
+				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": c.Validators[i-1].GetRPC()},
+					"p2p":         map[string]interface{}{"laddr": c.Validators[i-1].GetP2P()},
+					"pprof_laddr": c.Validators[i-1].GetProf()},
+			}
+
+			validator = previousValidatorPorts.IncreasePort(DefaultPortMargin)
+		} else {
+			validator = defaultValidator
+		}
+
 		if err := c.Validators[i].FillDefaults(validator); err != nil {
 			return err
 		}

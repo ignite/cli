@@ -253,7 +253,7 @@ type Account struct {
 
 func createValidatorFromConfig(conf *v1.Config) (validator Validator) {
 	// Currently, we support the config file with one valid validator.
-	validatorFromConfig := conf.ListValidators()[0]
+	validatorFromConfig := conf.Validators[0]
 	validator.Name = validatorFromConfig.Name
 	validator.StakingAmount = validatorFromConfig.Bonded
 
