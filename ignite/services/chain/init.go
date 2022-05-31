@@ -104,9 +104,6 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	delete(config, "rpc")
 	delete(config, "p2p")
 	delete(config, "pprof_laddr")
-	if len(config) == 0 {
-		config = nil
-	}
 
 	app := make(map[string]interface{})
 	for key, value := range validator.App {
@@ -116,9 +113,6 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	delete(app, "grpc-web")
 	delete(app, "api")
 
-	if len(app) == 0 {
-		app = nil
-	}
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string

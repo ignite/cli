@@ -3,13 +3,10 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
-
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/spf13/cobra"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
-
-	"github.com/spf13/cobra"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -65,7 +62,7 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 			if !getYes(cmd) {
 				var confirmed bool
 				message := fmt.Sprintf("The configuration file of the project is at the version %d. The latest version is %d. Would you like to upgrade your configuration file of your project to the latest version?",
-					currentVersion, common.LatestVersion)
+					currentVersion, chainconfig.LatestVersion)
 				prompt := &survey.Confirm{
 					Message: message,
 				}
@@ -74,7 +71,7 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 				}
 			}
 			// Convert the current Config Yaml to the latest version
-			return chainconfig.MigrateConfigFile(configPath)
+			return chainconfig.MigrateLatest(configPath)
 		}
 		return nil
 	}

@@ -477,10 +477,10 @@ func TestIsConfigLatest(t *testing.T) {
 	version, latest, err = IsConfigLatest(path)
 	require.NoError(t, err)
 	require.Equal(t, true, latest)
-	require.Equal(t, common.LatestVersion, version)
+	require.Equal(t, LatestVersion, version)
 }
 
-func TestMigrateConfigFile(t *testing.T) {
+func TestMigrateLatest(t *testing.T) {
 	sourceFile := "testdata/configv0.yaml"
 	tempFile := "testdata/temp.yaml"
 	input, err := ioutil.ReadFile(sourceFile)
@@ -489,7 +489,7 @@ func TestMigrateConfigFile(t *testing.T) {
 	err = ioutil.WriteFile(tempFile, input, 0644)
 	require.NoError(t, err)
 
-	err = MigrateConfigFile(tempFile)
+	err = MigrateLatest(tempFile)
 	require.NoError(t, err)
 
 	targetFile, err := ParseFile(tempFile)
