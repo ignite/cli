@@ -220,9 +220,9 @@ func LocateDefault(root string) (path string, err error) {
 func FaucetHost(conf *v1.Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
-	host := conf.GetFaucet().Host
-	if conf.GetFaucet().Port != 0 {
-		host = fmt.Sprintf(":%d", conf.GetFaucet().Port)
+	host := conf.Faucet.Host
+	if conf.Faucet.Port != 0 {
+		host = fmt.Sprintf(":%d", conf.Faucet.Port)
 	}
 
 	return host
