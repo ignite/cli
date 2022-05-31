@@ -257,70 +257,46 @@ type Account struct {
 	Coins    string
 }
 
-func createValidatorFromConfig(conf *v1.Config) Validator {
+func createValidatorFromConfig(conf *v1.Config) (validator Validator) {
 	// Currently, we support the config file with one valid validator.
-	validator := conf.ListValidators()[0]
-	name := validator.Name
-	monikerV := ""
-	commissionRate := ""
-	commissionMaxRate := ""
-	commissionMaxChangeRate := ""
-	gasPrices := ""
-	details := ""
-	identity := ""
-	website := ""
-	securityContact := ""
-	minSelfDelegation := ""
-	stakingAmount := validator.Bonded
+	validatorFromConfig := conf.ListValidators()[0]
+	validator.Name = validatorFromConfig.Name
+	validator.StakingAmount = validatorFromConfig.Bonded
 
-	if validator.Gentx != nil {
-		if validator.Gentx.Amount != "" {
-			stakingAmount = validator.Gentx.Amount
+	if validatorFromConfig.Gentx != nil {
+		if validatorFromConfig.Gentx.Amount != "" {
+			validator.StakingAmount = validatorFromConfig.Gentx.Amount
 		}
-		if validator.Gentx.Moniker != "" {
-			monikerV = validator.Gentx.Moniker
+		if validatorFromConfig.Gentx.Moniker != "" {
+			validator.Moniker = validatorFromConfig.Gentx.Moniker
 		}
-		if validator.Gentx.CommissionRate != "" {
-			commissionRate = validator.Gentx.CommissionRate
+		if validatorFromConfig.Gentx.CommissionRate != "" {
+			validator.CommissionRate = validatorFromConfig.Gentx.CommissionRate
 		}
-		if validator.Gentx.CommissionMaxRate != "" {
-			commissionMaxRate = validator.Gentx.CommissionMaxRate
+		if validatorFromConfig.Gentx.CommissionMaxRate != "" {
+			validator.CommissionMaxRate = validatorFromConfig.Gentx.CommissionMaxRate
 		}
-		if validator.Gentx.CommissionMaxChangeRate != "" {
-			commissionMaxChangeRate = validator.Gentx.CommissionMaxChangeRate
+		if validatorFromConfig.Gentx.CommissionMaxChangeRate != "" {
+			validator.CommissionMaxChangeRate = validatorFromConfig.Gentx.CommissionMaxChangeRate
 		}
-		if validator.Gentx.GasPrices != "" {
-			gasPrices = validator.Gentx.GasPrices
+		if validatorFromConfig.Gentx.GasPrices != "" {
+			validator.GasPrices = validatorFromConfig.Gentx.GasPrices
 		}
-		if validator.Gentx.Details != "" {
-			details = validator.Gentx.Details
+		if validatorFromConfig.Gentx.Details != "" {
+			validator.Details = validatorFromConfig.Gentx.Details
 		}
-		if validator.Gentx.Identity != "" {
-			identity = validator.Gentx.Identity
+		if validatorFromConfig.Gentx.Identity != "" {
+			validator.Identity = validatorFromConfig.Gentx.Identity
 		}
-		if validator.Gentx.Website != "" {
-			website = validator.Gentx.Website
+		if validatorFromConfig.Gentx.Website != "" {
+			validator.Website = validatorFromConfig.Gentx.Website
 		}
-		if validator.Gentx.SecurityContact != "" {
-			securityContact = validator.Gentx.SecurityContact
+		if validatorFromConfig.Gentx.SecurityContact != "" {
+			validator.SecurityContact = validatorFromConfig.Gentx.SecurityContact
 		}
-		if validator.Gentx.MinSelfDelegation != "" {
-			minSelfDelegation = validator.Gentx.MinSelfDelegation
+		if validatorFromConfig.Gentx.MinSelfDelegation != "" {
+			validator.MinSelfDelegation = validatorFromConfig.Gentx.MinSelfDelegation
 		}
 	}
-
-	return Validator{
-		Name:                    name,
-		StakingAmount:           stakingAmount,
-		Moniker:                 monikerV,
-		CommissionRate:          commissionRate,
-		CommissionMaxRate:       commissionMaxRate,
-		CommissionMaxChangeRate: commissionMaxChangeRate,
-		MinSelfDelegation:       minSelfDelegation,
-		GasPrices:               gasPrices,
-		Details:                 details,
-		Identity:                identity,
-		Website:                 website,
-		SecurityContact:         securityContact,
-	}
+	return validator
 }
