@@ -391,12 +391,9 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	var conf v1.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
-	defaultValidator := v1.Validator{
-		Home: e.TmpDir(),
+	for i := range conf.Validators {
+		conf.Validators[i].Home = e.TmpDir()
 	}
-
-	err = conf.FillValidatorsDefaults(defaultValidator)
-	require.NoError(e.t, err)
 
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)

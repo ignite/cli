@@ -79,7 +79,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 	config.Set("grpc.address", validator.GetGRPC())
 	config.Set("grpc-web.address", validator.GetGRPCWeb())
 
-	staked, err := sdktypes.ParseCoinNormalized(conf.ListValidators()[0].Bonded)
+	staked, err := sdktypes.ParseCoinNormalized(conf.Validators[0].Bonded)
 	if err != nil {
 		return err
 	}

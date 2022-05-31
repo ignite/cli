@@ -39,15 +39,15 @@ validator:
 		},
 	}, conf.ListAccounts())
 
-	require.Equal(t, []*v1.Validator{
-		&v1.Validator{
+	require.Equal(t, []v1.Validator{
+		v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
 			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
 				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
 				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-		}}, conf.ListValidators())
+		}}, conf.Validators)
 }
 
 func TestCoinTypeParse(t *testing.T) {
@@ -81,15 +81,15 @@ validator:
 			CoinType: "123456",
 		},
 	}, conf.ListAccounts())
-	require.Equal(t, []*v1.Validator{
-		&v1.Validator{
+	require.Equal(t, []v1.Validator{
+		v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
 			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
 				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
 				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-		}}, conf.ListValidators())
+		}}, conf.Validators)
 }
 
 func TestParseInvalid(t *testing.T) {
@@ -228,8 +228,8 @@ genesis:
 
 	// The validator is filled with the default values for grpc, grpc-web, api, rpc, p2p and pprof_laddr.
 	// The init.app and init.home are moved under the validator as well.
-	require.Equal(t, []*v1.Validator{
-		&v1.Validator{
+	require.Equal(t, []v1.Validator{
+		v1.Validator{
 			Name:   "alice",
 			Bonded: "100000000000000000000aevmos",
 			Home:   "$HOME/.evmosd",
@@ -239,7 +239,7 @@ genesis:
 				"evm-rpc":  map[interface{}]interface{}{"address": "0.0.0.0:8545", "ws-address": "0.0.0.0:8546"}},
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
 				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-		}}, conf.ListValidators())
+		}}, conf.Validators)
 
 	require.Equal(t, map[string]interface{}{"app_state": map[interface{}]interface{}{"crisis": map[interface{}]interface{}{"constant_fee": map[interface{}]interface{}{"denom": "aevmos"}},
 		"evm":     map[interface{}]interface{}{"params": map[interface{}]interface{}{"evm_denom": "aevmos"}},
@@ -324,8 +324,8 @@ func TestValidator(t *testing.T) {
 	tests := []struct {
 		TestName                string
 		Input                   string
-		ExpectedFirstValidator  *v1.Validator
-		ExpectedSecondValidator *v1.Validator
+		ExpectedFirstValidator  v1.Validator
+		ExpectedSecondValidator v1.Validator
 	}{{
 		TestName: "Parse the config yaml with no addresses for the validator",
 		Input: `
@@ -341,7 +341,7 @@ validators:
   - name: user2
     bonded: "100000000stake"
 `,
-		ExpectedFirstValidator: &v1.Validator{
+		ExpectedFirstValidator: v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
 			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
@@ -351,7 +351,7 @@ validators:
 				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort)},
 				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort)},
 		},
-		ExpectedSecondValidator: &v1.Validator{
+		ExpectedSecondValidator: v1.Validator{
 			Name:   "user2",
 			Bonded: "100000000stake",
 			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort+v1.DefaultPortMargin)},
@@ -402,7 +402,7 @@ validators:
         laddr: localhost:81804
       pprof_laddr: localhost:81809
 `,
-		ExpectedFirstValidator: &v1.Validator{
+		ExpectedFirstValidator: v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
 			App: map[string]interface{}{"grpc": map[interface{}]interface{}{"address": "localhost:8080"},
@@ -412,7 +412,7 @@ validators:
 				"p2p":         map[interface{}]interface{}{"laddr": "localhost:80804"},
 				"pprof_laddr": "localhost:80809"},
 		},
-		ExpectedSecondValidator: &v1.Validator{
+		ExpectedSecondValidator: v1.Validator{
 			Name:   "user2",
 			Bonded: "100000000stake",
 			App: map[string]interface{}{"grpc": map[interface{}]interface{}{"address": "localhost:8180"},
@@ -429,8 +429,8 @@ validators:
 			conf, err := Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
 			require.Equal(t, common.Version(1), conf.Version())
-			require.Equal(t, test.ExpectedFirstValidator, conf.ListValidators()[0])
-			require.Equal(t, test.ExpectedSecondValidator, conf.ListValidators()[1])
+			require.Equal(t, test.ExpectedFirstValidator, conf.Validators[0])
+			require.Equal(t, test.ExpectedSecondValidator, conf.Validators[1])
 		})
 	}
 }
