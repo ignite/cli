@@ -11,7 +11,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/chainconfig/common"
-	"github.com/ignite/cli/ignite/chainconfig/conversion"
 	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -77,7 +76,7 @@ func Parse(r io.Reader) (*v1.Config, error) {
 		return nil, err
 	}
 
-	conf, err = conversion.ConvertLatest(conf)
+	conf, err = ConvertLatest(conf)
 	if err != nil {
 		return nil, err
 	}

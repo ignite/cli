@@ -222,10 +222,10 @@ genesis:
 			Coins: []string{"5000000000000aevmos"},
 		},
 	}, conf.ListAccounts())
-	require.Equal(t, "bob", *conf.GetFaucet().Name)
-	require.Equal(t, []string{"10aevmos"}, conf.GetFaucet().Coins)
+	require.Equal(t, "bob", *conf.Faucet.Name)
+	require.Equal(t, []string{"10aevmos"}, conf.Faucet.Coins)
 	// The default value of Host has been filled in for Faucet.
-	require.Equal(t, "0.0.0.0:4500", conf.GetFaucet().Host)
+	require.Equal(t, "0.0.0.0:4500", conf.Faucet.Host)
 	// The default values have been filled in for Build.
 	require.Equal(t, common.Build{Binary: "evmosd",
 		Proto: common.Proto{
@@ -234,7 +234,7 @@ genesis:
 				"third_party/proto",
 				"proto_vendor",
 			},
-		}}, conf.GetBuild())
+		}}, conf.Build)
 
 	// The validator is filled with the default values for grpc, grpc-web, api, rpc, p2p and pprof_laddr.
 	// The init.app and init.home are moved under the validator as well.
@@ -257,7 +257,7 @@ genesis:
 		"mint":    map[interface{}]interface{}{"params": map[interface{}]interface{}{"mint_denom": "aevmos"}},
 		"staking": map[interface{}]interface{}{"params": map[interface{}]interface{}{"bond_denom": "aevmos"}}},
 		"chain_id": "evmosd_9000-1"},
-		conf.GetGenesis())
+		conf.Genesis)
 
 }
 
