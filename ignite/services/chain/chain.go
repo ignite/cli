@@ -201,7 +201,8 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		rpcAddress = conf.GetHost().RPC
+		validator := conf.Validators[0]
+		rpcAddress = validator.GetRPC()
 	}
 	return rpcAddress, nil
 }
@@ -309,8 +310,9 @@ func (c *Chain) DefaultHome() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if config.GetInit().Home != "" {
-		return config.GetInit().Home, nil
+	validator := config.Validators[0]
+	if validator.Home != "" {
+		return validator.Home, nil
 	}
 
 	return c.plugin.Home(), nil
@@ -383,13 +385,14 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 2nd.
-	if config.GetInit().KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(config.GetInit().KeyringBackend)
+	validator := config.Validators[0]
+	if validator.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
 	}
 
 	// 3rd.
-	if config.GetInit().Client != nil {
-		if backend, ok := config.GetInit().Client["keyring-backend"]; ok {
+	if validator.Client != nil {
+		if backend, ok := validator.Client["keyring-backend"]; ok {
 			if backendStr, ok := backend.(string); ok {
 				return chaincmd.KeyringBackendFromString(backendStr)
 			}
@@ -443,7 +446,8 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	nodeAddr, err := xurl.TCP(config.GetHost().RPC)
+	validator := config.Validators[0]
+	nodeAddr, err := xurl.TCP(validator.GetRPC())
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}

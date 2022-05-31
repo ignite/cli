@@ -13,21 +13,6 @@ type Config struct {
 	common.BaseConfig `yaml:",inline"`
 }
 
-// GetHost returns the Host.
-func (c *Config) GetHost() common.Host {
-	return c.Host
-}
-
-// GetGenesis returns the Genesis.
-func (c *Config) GetGenesis() map[string]interface{} {
-	return c.Genesis
-}
-
-// GetInit returns the Init.
-func (c *Config) GetInit() common.Init {
-	return c.Init
-}
-
 // ListAccounts returns the list of all the accounts.
 func (c *Config) ListAccounts() []common.Account {
 	return c.Accounts

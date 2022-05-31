@@ -66,17 +66,18 @@ func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 		return err
 	}
 
-	apiAddr, err := xurl.TCP(conf.GetHost().API)
+	validator := conf.Validators[0]
+	apiAddr, err := xurl.TCP(validator.GetAPI())
 	if err != nil {
-		return fmt.Errorf("invalid api address format %s: %w", conf.GetHost().API, err)
+		return fmt.Errorf("invalid api address format %s: %w", validator.GetAPI(), err)
 	}
 
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", apiAddr)
-	config.Set("grpc.address", conf.GetHost().GRPC)
-	config.Set("grpc-web.address", conf.GetHost().GRPCWeb)
+	config.Set("grpc.address", validator.GetGRPC())
+	config.Set("grpc-web.address", validator.GetGRPCWeb())
 
 	staked, err := sdktypes.ParseCoinNormalized(conf.ListValidators()[0].Bonded)
 	if err != nil {
@@ -103,14 +104,15 @@ func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
 		return err
 	}
 
-	rpcAddr, err := xurl.TCP(conf.GetHost().RPC)
+	validator := conf.Validators[0]
+	rpcAddr, err := xurl.TCP(validator.GetRPC())
 	if err != nil {
-		return fmt.Errorf("invalid rpc address format %s: %w", conf.GetHost().RPC, err)
+		return fmt.Errorf("invalid rpc address format %s: %w", validator.GetRPC(), err)
 	}
 
-	p2pAddr, err := xurl.TCP(conf.GetHost().P2P)
+	p2pAddr, err := xurl.TCP(validator.GetP2P())
 	if err != nil {
-		return fmt.Errorf("invalid p2p address format %s: %w", conf.GetHost().P2P, err)
+		return fmt.Errorf("invalid p2p address format %s: %w", validator.GetP2P(), err)
 	}
 
 	config.Set("mode", "validator")
@@ -119,7 +121,7 @@ func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
 	config.Set("consensus.timeout_propose", "1s")
 	config.Set("rpc.laddr", rpcAddr)
 	config.Set("p2p.laddr", p2pAddr)
-	config.Set("rpc.pprof_laddr", conf.GetHost().Prof)
+	config.Set("rpc.pprof_laddr", validator.GetProf())
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
@@ -152,11 +154,12 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 }
 
 func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf *v1.Config) error {
+	validator := conf.Validators[0]
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",
 		"--grpc.address",
-		conf.GetHost().GRPC,
+		validator.GetGRPC(),
 	)
 	return &CannotStartAppError{p.app.Name, err}
 }

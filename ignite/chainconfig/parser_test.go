@@ -49,15 +49,6 @@ validator:
 			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
 				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
 		}}, conf.ListValidators())
-
-	require.Equal(t, common.Host{
-		RPC:     "0.0.0.0:26657",
-		P2P:     "0.0.0.0:26656",
-		Prof:    "0.0.0.0:6060",
-		GRPC:    "0.0.0.0:9090",
-		GRPCWeb: "0.0.0.0:9091",
-		API:     "0.0.0.0:1317",
-	}, conf.GetHost())
 }
 
 func TestCoinTypeParse(t *testing.T) {
