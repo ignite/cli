@@ -406,9 +406,7 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
 	}
 
-	params := url.Values{}
-	params.Set(searchHeight, strconv.FormatInt(height, 10))
-	query := params.Encode()
+	query := createTxSearchByHeightQuery(height)
 
 	// TODO: improve to fetch pages in parallel (requires fetching page 1 to calculate n. of pages)
 	page := 1
@@ -628,4 +626,10 @@ func newFactory(clientCtx client.Context) tx.Factory {
 		WithSignMode(signing.SignMode_SIGN_MODE_UNSPECIFIED).
 		WithAccountRetriever(clientCtx.AccountRetriever).
 		WithTxConfig(clientCtx.TxConfig)
+}
+
+func createTxSearchByHeightQuery(height int64) string {
+	params := url.Values{}
+	params.Set(searchHeight, strconv.FormatInt(height, 10))
+	return params.Encode()
 }
