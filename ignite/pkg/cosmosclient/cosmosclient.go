@@ -35,6 +35,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/libs/bytes"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -68,7 +69,7 @@ const (
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
-	RPC *rpchttp.HTTP
+	RPC rpcclient.Client
 
 	// Factory is a Cosmos SDK tx factory.
 	Factory tx.Factory
@@ -585,7 +586,7 @@ func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error
 }
 
 func newContext(
-	c *rpchttp.HTTP,
+	c rpcclient.Client,
 	out io.Writer,
 	chainID,
 	home string,
