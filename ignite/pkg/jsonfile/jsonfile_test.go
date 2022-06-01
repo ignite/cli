@@ -7,8 +7,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
-	"strconv"
-	"strings"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,6 +43,18 @@ func TestJSONFile_Field(t *testing.T) {
 			want:     "22020096",
 		},
 		{
+			name:     "get boolean parameter",
+			filepath: "testdata/jsonfile.json",
+			key:      "launched",
+			want:     true,
+		},
+		{
+			name:     "get array parameter",
+			filepath: "testdata/jsonfile.json",
+			key:      "consensus_params.block.best_blocks",
+			want:     []int{100, 20, 11, 4, 2},
+		},
+		{
 			name:     "get number parameter",
 			filepath: "testdata/jsonfile.json",
 			key:      "consensus_params.block.time_iota_ms",
@@ -53,7 +63,7 @@ func TestJSONFile_Field(t *testing.T) {
 		{
 			name:     "get coins parameter",
 			filepath: "testdata/jsonfile.json",
-			key:      "app_state.bank.balances.coins",
+			key:      "app_state.bank.balances.[0].coins",
 			want:     sdk.Coins{sdk.NewCoin("stake", sdk.NewInt(95000000))},
 		},
 		{
@@ -69,7 +79,7 @@ func TestJSONFile_Field(t *testing.T) {
 		{
 			name:     "invalid coins parameter",
 			filepath: "testdata/jsonfile.json",
-			key:      "app_state.bank.balances.coins",
+			key:      "app_state.bank.balances.[0].coins",
 			want:     invalidStruct{name: "invalid", number: 110},
 			err:      ErrInvalidValueType,
 		},
@@ -85,6 +95,10 @@ func TestJSONFile_Field(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f, err := FromPath(tt.filepath)
 			require.NoError(t, err)
+			t.Cleanup(func() {
+				err = f.Close()
+				require.NoError(t, err)
+			})
 			out := reflect.New(reflect.TypeOf(tt.want))
 			err = f.Field(tt.key, out.Interface())
 			if tt.err != nil {
@@ -178,6 +192,21 @@ func TestJSONFile_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f, err := FromPath(tt.filepath)
 			require.NoError(t, err)
+			t.Cleanup(func() {
+				err = f.Close()
+				require.NoError(t, err)
+				b, err := f.Bytes()
+				require.NoError(t, err)
+
+				err = os.RemoveAll(tt.filepath)
+				require.NoError(t, err)
+				f, err := os.Create(tt.filepath)
+				require.NoError(t, err)
+				defer f.Close()
+				_, err = f.Write(b)
+				require.NoError(t, err)
+
+			})
 			err = f.Update(tt.opts...)
 			if tt.err != nil {
 				require.Error(t, err)
@@ -191,18 +220,9 @@ func TestJSONFile_Update(t *testing.T) {
 				opt(updates)
 			}
 			for key, value := range updates {
-				var out interface{}
-				err = f.Field(key, &out)
-				switch out := out.(type) {
-				case string:
-					require.Equal(t, strings.ReplaceAll(string(value), "\"", ""), out)
-				case float64:
-					v, err := strconv.Atoi(string(value))
-					require.NoError(t, err)
-					require.Equal(t, v, int(out))
-				default:
-					require.Equal(t, value, out)
-				}
+				newValue := value
+				err = f.Field(key, &newValue)
+				require.Equal(t, value, newValue)
 			}
 		})
 	}
@@ -218,7 +238,7 @@ func TestJSONFile_Hash(t *testing.T) {
 		{
 			name:     "file hash",
 			filepath: "testdata/jsonfile.json",
-			want:     "4d685d9cb6f9fb9815a33f10a75cd9970f162bbc6ebc8c5c0e3fd166d1b3ee93",
+			want:     "632c9b5e00ac0f67cb30419fd5e8dbcf74498cc43c00bae1532d07953bd39ba3",
 		},
 		{
 			name:     "not found file",
@@ -237,6 +257,10 @@ func TestJSONFile_Hash(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
+			t.Cleanup(func() {
+				err = f.Close()
+				require.NoError(t, err)
+			})
 			got, err := f.Hash()
 			if tt.err != nil {
 				require.Error(t, err)
@@ -316,6 +340,10 @@ func TestFromURL(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
+			t.Cleanup(func() {
+				err = got.Close()
+				require.NoError(t, err)
+			})
 			var verificationField string
 			err = got.Field(tt.verifyField, &verificationField)
 			require.NoError(t, err)

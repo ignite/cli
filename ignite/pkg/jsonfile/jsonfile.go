@@ -1,6 +1,7 @@
 package jsonfile
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -30,6 +31,7 @@ type (
 		tarballPath string
 		url         string
 		updates     map[string][]byte
+		cache       []byte
 	}
 	// UpdateFileOption configures file update.
 	UpdateFileOption func(map[string][]byte)
@@ -124,65 +126,66 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 		file:        file,
 		url:         url,
 		tarballPath: tarballPath,
+		cache:       ext.Bytes(),
 	}, nil
+}
+
+// Bytes returns the jsonfile byte array.
+func (f *JSONFile) Bytes() ([]byte, error) {
+	file := f.cache
+	if file != nil {
+		return file, nil
+	}
+	if err := f.Reset(); err != nil {
+		return nil, err
+	}
+	scanner := bufio.NewScanner(f.file)
+	for scanner.Scan() {
+		file = append(file, scanner.Bytes()...)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	f.cache = file
+	return file, nil
 }
 
 // Field return the param by key and the position into byte slice from the file reader.
 // Key can be a path to a nested parameter eg: app_state.staking.accounts
 func (f *JSONFile) Field(key string, param interface{}) error {
-	if err := f.Reset(); err != nil {
+	file, err := f.Bytes()
+	if err != nil {
 		return err
 	}
-	dec := json.NewDecoder(f.file)
-	// Split the keys by the separator to find nested JSON parameters eg: app_state.staking.accounts
-	keys := strings.Split(key, keySeparator)
-	// Instead of unmarshal the whole content of a file
-	// this will decode one line/record at a time
-	for {
-		t, err := dec.Token()
-		if err == io.EOF {
-			break
+
+	value, dataType, _, err := jsonparser.Get(file, strings.Split(key, keySeparator)...)
+	if err == jsonparser.KeyPathNotFoundError {
+		return ErrFieldNotFound
+	} else if err != nil {
+		return err
+	}
+
+	switch dataType {
+	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
+		err := json.Unmarshal(value, param)
+		if _, ok := err.(*json.UnmarshalTypeError); ok {
+			return ErrInvalidValueType
+		} else if err != nil {
+			return err
 		}
+	case jsonparser.String:
+		paramStr, ok := param.(*string)
+		if !ok {
+			return ErrInvalidValueType
+		}
+		*paramStr, err = jsonparser.ParseString(value)
 		if err != nil {
 			return err
 		}
-		name, ok := t.(string)
-		if !ok {
-			continue
-		}
-		// If the nested path was found
-		if name == keys[0] {
-			if len(keys) > 1 {
-				keys = keys[1:]
-				continue
-			}
-
-			// Try to decode the all data first
-			err := dec.Decode(&param)
-			if err == nil {
-				return nil
-			}
-
-			// If not decode, only get the JSON value from the key
-			t, err := dec.Token()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				return err
-			}
-			switch t := t.(type) {
-			case int:
-				param = strconv.Itoa(t)
-			case string:
-				param = t
-			default:
-				return ErrInvalidValueType
-			}
-			return nil
-		}
+	default:
+		return ErrInvalidValueType
 	}
-	return errors.Wrap(ErrFieldNotFound, key)
+	return nil
 }
 
 // WithKeyValue update a file value object by key
@@ -207,7 +210,7 @@ func WithKeyIntValue(key string, value int) UpdateFileOption {
 	}
 }
 
-// Update updates the file file with the new parameters by key
+// Update updates the file with the new parameters by key
 func (f *JSONFile) Update(opts ...UpdateFileOption) error {
 	for _, opt := range opts {
 		opt(f.updates)
@@ -230,6 +233,7 @@ func (f *JSONFile) Write(p []byte) (int, error) {
 		}
 		delete(f.updates, key)
 	}
+	f.cache = p
 
 	err = truncate(f.file, 0)
 	if err != nil {
