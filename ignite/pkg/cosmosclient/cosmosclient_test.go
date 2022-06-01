@@ -7,7 +7,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient/testutil"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -151,6 +150,7 @@ func TestGetBlockTXsWithSearchError(t *testing.T) {
 
 func TestCollectTXs(t *testing.T) {
 	m := testutil.NewTendermintClientMock(t)
+	ctx := context.Background()
 
 	// Mock the Status RPC endpoint to report that only two blocks exists
 	status := ctypes.ResultStatus{
@@ -159,14 +159,14 @@ func TestCollectTXs(t *testing.T) {
 		},
 	}
 
-	m.OnStatus().Return(&status, nil)
+	m.On("Status", ctx).Return(&status, nil)
 
 	// Mock the Block RPC endpoint to return two blocks
 	b1 := createTestBlock(1)
 	b2 := createTestBlock(2)
 
-	m.On("Block", mock.Anything, &b1.Height).Return(&ctypes.ResultBlock{Block: &b1}, nil)
-	m.On("Block", mock.Anything, &b2.Height).Return(&ctypes.ResultBlock{Block: &b2}, nil)
+	m.On("Block", ctx, &b1.Height).Return(&ctypes.ResultBlock{Block: &b1}, nil)
+	m.On("Block", ctx, &b2.Height).Return(&ctypes.ResultBlock{Block: &b2}, nil)
 
 	// Mock the TxSearch RPC endpoint to return each of the two block.
 	// Transactions are empty because only the pointer address is required to assert.
@@ -183,8 +183,8 @@ func TestCollectTXs(t *testing.T) {
 		TotalCount: 2,
 	}
 
-	m.On("TxSearch", mock.Anything, q1, false, &page, &perPage, orderAsc).Return(&r1, nil)
-	m.On("TxSearch", mock.Anything, q2, false, &page, &perPage, orderAsc).Return(&r2, nil)
+	m.On("TxSearch", ctx, q1, false, &page, &perPage, orderAsc).Return(&r1, nil)
+	m.On("TxSearch", ctx, q2, false, &page, &perPage, orderAsc).Return(&r2, nil)
 
 	// Prepare expected values
 	wantTXs := []TX{
@@ -224,7 +224,7 @@ func TestCollectTXs(t *testing.T) {
 		}
 	}()
 
-	err := client.CollectTXs(context.Background(), 1, tc)
+	err := client.CollectTXs(ctx, 1, tc)
 
 	select {
 	case <-time.After(time.Second):
