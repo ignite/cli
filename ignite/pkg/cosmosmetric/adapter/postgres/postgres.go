@@ -147,7 +147,7 @@ func (a Adapter) GetType() string {
 	return adapterType
 }
 
-func (a Adapter) SetupSchema(ctx context.Context) error {
+func (a Adapter) Init(ctx context.Context) error {
 	current, err := a.getSchemaVersion(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to read schema version: %w", err)
