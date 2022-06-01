@@ -1,7 +1,9 @@
 package jsonfile
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -192,21 +194,25 @@ func TestJSONFile_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f, err := FromPath(tt.filepath)
 			require.NoError(t, err)
+
+			// Rollback files after change
+			b, err := f.Bytes()
+			require.NoError(t, err)
 			t.Cleanup(func() {
+				var prettyJSON bytes.Buffer
+				err := json.Indent(&prettyJSON, b, "", "  ")
+				require.NoError(t, err)
+
+				err = truncate(f.file, 0)
+				require.NoError(t, err)
+				err = f.Reset()
+				require.NoError(t, err)
+				_, err = f.file.Write(prettyJSON.Bytes())
+				require.NoError(t, err)
 				err = f.Close()
 				require.NoError(t, err)
-				b, err := f.Bytes()
-				require.NoError(t, err)
-
-				err = os.RemoveAll(tt.filepath)
-				require.NoError(t, err)
-				f, err := os.Create(tt.filepath)
-				require.NoError(t, err)
-				defer f.Close()
-				_, err = f.Write(b)
-				require.NoError(t, err)
-
 			})
+
 			err = f.Update(tt.opts...)
 			if tt.err != nil {
 				require.Error(t, err)
@@ -238,7 +244,7 @@ func TestJSONFile_Hash(t *testing.T) {
 		{
 			name:     "file hash",
 			filepath: "testdata/jsonfile.json",
-			want:     "632c9b5e00ac0f67cb30419fd5e8dbcf74498cc43c00bae1532d07953bd39ba3",
+			want:     "036dbc0020f4ab5604f46a8e5a05c368e4cba41f48fcac2864641902c1dfcad5",
 		},
 		{
 			name:     "not found file",

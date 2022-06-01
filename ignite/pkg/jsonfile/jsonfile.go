@@ -126,7 +126,6 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 		file:        file,
 		url:         url,
 		tarballPath: tarballPath,
-		cache:       ext.Bytes(),
 	}, nil
 }
 
