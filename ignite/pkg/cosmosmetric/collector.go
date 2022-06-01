@@ -9,6 +9,8 @@ import (
 )
 
 // TXsCollecter defines the interface for Cosmos clients that support collection of transactions.
+//
+//go:generate mockery --name TXsCollecter --filename txs_collecter.go --with-expecter
 type TXsCollecter interface {
 	CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) error
 }

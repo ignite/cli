@@ -7,6 +7,8 @@ import (
 )
 
 // Saver is the interface that wraps the transactions save method.
+//
+//go:generate mockery --name Saver --case underscore --with-expecter --output ../mocks
 type Saver interface {
 	// Save a list of transactions into a data backend.
 	Save(context.Context, []cosmosclient.TX) error
