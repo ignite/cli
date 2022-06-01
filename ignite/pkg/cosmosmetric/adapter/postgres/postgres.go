@@ -332,7 +332,7 @@ func saveTX(ctx context.Context, txStmt, attrStmt *sql.Stmt, tx cosmosclient.TX)
 		return fmt.Errorf("error saving TX %s: %w", hash, err)
 	}
 
-	events, err := cosmosclient.UnmarshallEvents(tx)
+	events, err := cosmosclient.UnmarshallEvents(tx.GetEventLog())
 	if err != nil {
 		return fmt.Errorf("invalid event log in TX %s: %w", hash, err)
 	}

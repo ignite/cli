@@ -17,6 +17,11 @@ type TX struct {
 	Raw *ctypes.ResultTx
 }
 
+// GetLog returns the event log encoded as JSON.
+func (t TX) GetEventLog() []byte {
+	return []byte(t.Raw.TxResult.GetLog())
+}
+
 // TXEvent defines a transaction event.
 type TXEvent struct {
 	Type       string             `json:"type"`
@@ -29,16 +34,15 @@ type TXEventAttribute struct {
 	Value any    `json:"value"`
 }
 
-// UnmarshallEvents parses the JSON encoded events emitted during transaction's execution.
-func UnmarshallEvents(tx TX) ([]TXEvent, error) {
+// UnmarshallEvents parses JSON encoded transaction event logs.
+func UnmarshallEvents(b []byte) ([]TXEvent, error) {
 	// The transaction's event log contains a list where each item is an object
 	// with a single "events" property which in turn contains the list of events
 	var log []struct {
 		Events []TXEvent `json:"events"`
 	}
 
-	raw := tx.Raw.TxResult.GetLog()
-	if err := json.Unmarshal([]byte(raw), &log); err != nil {
+	if err := json.Unmarshal(b, &log); err != nil {
 		return nil, fmt.Errorf("error decoding transaction events: %w", err)
 	}
 
