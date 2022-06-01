@@ -249,7 +249,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !amountCoins.IsZero() {
-		if err := n.SendFromAccountRequest(launchID, amountCoins); err != nil {
+		if err := n.SendAccountRequestForCoordinator(launchID, amountCoins); err != nil {
 			return err
 		}
 	}

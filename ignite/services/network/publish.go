@@ -223,7 +223,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	return createChainRes.LaunchID, campaignID, mainnetID, nil
 }
 
-func (n Network) SendFromAccountRequest(launchID uint64, amount sdk.Coins) error {
+func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {
 	return n.sendAccountRequest(launchID, n.account.Address(networktypes.SPN), amount)
 }
 
