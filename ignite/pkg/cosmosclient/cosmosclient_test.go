@@ -9,17 +9,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	rpcmocks "github.com/tendermint/tendermint/rpc/client/mocks"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 func TestGetBlockTXs(t *testing.T) {
-	m := rpcmocks.Client{}
-	m.Test(t)
+	m := testutil.NewTendermintClientMock(t)
+	ctx := context.Background()
 
 	// Mock the Block RPC endpoint
-	ctx := context.Background()
 	block := createTestBlock(1)
 
 	m.On("Block", ctx, &block.Height).Return(&ctypes.ResultBlock{Block: &block}, nil)
@@ -36,10 +34,12 @@ func TestGetBlockTXs(t *testing.T) {
 
 	m.On("TxSearch", ctx, searchQry, false, &page, &perPage, orderAsc).Return(&resSearch, nil)
 
-	// Create a cosmos client with an RPC mock
-	client := Client{RPC: &m}
+	// Create a cosmos client that uses the RPC mock
+	client := Client{RPC: m}
 
 	txs, err := client.GetBlockTXs(ctx, block.Height)
+
+	// Assert
 	require.NoError(t, err)
 	require.Equal(t, txs, []TX{
 		{
@@ -53,21 +53,19 @@ func TestGetBlockTXs(t *testing.T) {
 }
 
 func TestGetBlockTXsWithBlockError(t *testing.T) {
-	m := rpcmocks.Client{}
-	m.Test(t)
+	m := testutil.NewTendermintClientMock(t)
 
 	wantErr := errors.New("expected error")
 
-	// Mock the Block RPC endpoint
-	ctx := context.Background()
-	height := int64(1)
+	// Mock the Block RPC endpoint to return an error
+	m.OnBlock().Return(nil, wantErr)
 
-	m.On("Block", ctx, &height).Return(nil, wantErr)
+	// Create a cosmos client that uses the RPC mock
+	client := Client{RPC: m}
 
-	// Create a cosmos client with an RPC mock
-	client := Client{RPC: &m}
+	txs, err := client.GetBlockTXs(context.Background(), 1)
 
-	txs, err := client.GetBlockTXs(ctx, height)
+	// Assert
 	require.ErrorIs(t, err, wantErr)
 	require.Nil(t, txs)
 
@@ -76,17 +74,16 @@ func TestGetBlockTXsWithBlockError(t *testing.T) {
 }
 
 func TestGetBlockTXsPagination(t *testing.T) {
-	m := rpcmocks.Client{}
-	m.Test(t)
+	m := testutil.NewTendermintClientMock(t)
 
 	// Mock the Block RPC endpoint
-	ctx := context.Background()
 	block := createTestBlock(1)
 
-	m.On("Block", ctx, &block.Height).Return(&ctypes.ResultBlock{Block: &block}, nil)
+	m.OnBlock().Return(&ctypes.ResultBlock{Block: &block}, nil)
 
 	// Mock the TxSearch RPC endpoint and fake the number of
 	// transactions so it is called twice to fetch two pages
+	ctx := context.Background()
 	searchQry := createTxSearchByHeightQuery(block.Height)
 	perPage := defaultTXsPerPage
 	fakeCount := perPage + 1
@@ -104,10 +101,12 @@ func TestGetBlockTXsPagination(t *testing.T) {
 	m.On("TxSearch", ctx, searchQry, false, &first, &perPage, orderAsc).Return(&firstPage, nil)
 	m.On("TxSearch", ctx, searchQry, false, &second, &perPage, orderAsc).Return(&secondPage, nil)
 
-	// Create a cosmos client with an RPC mock
-	client := Client{RPC: &m}
+	// Create a cosmos client that uses the RPC mock
+	client := Client{RPC: m}
 
 	txs, err := client.GetBlockTXs(ctx, block.Height)
+
+	// Assert
 	require.NoError(t, err)
 	require.Equal(t, txs, []TX{
 		{
@@ -125,28 +124,24 @@ func TestGetBlockTXsPagination(t *testing.T) {
 }
 
 func TestGetBlockTXsWithSearchError(t *testing.T) {
-	m := rpcmocks.Client{}
-	m.Test(t)
+	m := testutil.NewTendermintClientMock(t)
 
 	wantErr := errors.New("expected error")
 
 	// Mock the Block RPC endpoint
-	ctx := context.Background()
 	block := createTestBlock(1)
 
-	m.On("Block", ctx, &block.Height).Return(&ctypes.ResultBlock{Block: &block}, nil)
+	m.OnBlock().Return(&ctypes.ResultBlock{Block: &block}, nil)
 
-	// Mock the TxSearch RPC endpoint
-	searchQry := createTxSearchByHeightQuery(block.Height)
-	perPage := defaultTXsPerPage
-	page := 1
+	// Mock the TxSearch RPC endpoint to return an error
+	m.OnTxSearch().Return(nil, wantErr)
 
-	m.On("TxSearch", ctx, searchQry, false, &page, &perPage, orderAsc).Return(nil, wantErr)
+	// Create a cosmos client that uses the RPC mock
+	client := Client{RPC: m}
 
-	// Create a cosmos client with an RPC mock
-	client := Client{RPC: &m}
+	txs, err := client.GetBlockTXs(context.Background(), block.Height)
 
-	txs, err := client.GetBlockTXs(ctx, block.Height)
+	// Assert
 	require.ErrorIs(t, err, wantErr)
 	require.Nil(t, txs)
 
