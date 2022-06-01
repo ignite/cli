@@ -48,7 +48,12 @@ import (
 // is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
 var FaucetTransferEnsureDuration = time.Second * 40
 
-var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+var (
+	// ErrInvalidBlockHeight is returned when a block height value is not valid.
+	ErrInvalidBlockHeight = errors.New("block height must be greater than 0")
+
+	errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+)
 
 const (
 	defaultNodeAddress   = "http://localhost:26657"
@@ -398,9 +403,15 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 }
 
 // GetBlockTXs returns the transactions in a block.
-// The list of transactions can be empty if there are no transactions
-// in the block at the moment this method is called.
+// The list of transactions can be empty if there are no transactions in the block
+// at the moment this method is called.
+// Tendermint might index a limited number of block so trying to fetch transactions
+// from a block that is not indexed would return an error.
 func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err error) {
+	if height == 0 {
+		return nil, ErrInvalidBlockHeight
+	}
+
 	r, err := c.RPC.Block(ctx, &height)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
@@ -449,6 +460,10 @@ func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX
 	status, err := c.Status(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to fetch latest block height: %w", err)
+	}
+
+	if fromHeight == 0 {
+		fromHeight = 1
 	}
 
 	for height := fromHeight; height <= status.SyncInfo.LatestBlockHeight; height++ {
