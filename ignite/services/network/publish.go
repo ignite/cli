@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -215,4 +216,43 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 	}
 	return createChainRes.LaunchID, campaignID, mainnetID, nil
+}
+
+func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {
+	return n.sendAccountRequest(launchID, n.account.Address(networktypes.SPN), amount)
+}
+
+// SendAccountRequest creates an add AddAccount request message.
+func (n Network) sendAccountRequest(
+	launchID uint64,
+	address string,
+	amount sdk.Coins,
+) error {
+	msg := launchtypes.NewMsgRequestAddAccount(
+		n.account.Address(networktypes.SPN),
+		launchID,
+		address,
+		amount,
+	)
+
+	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgRequestAddAccountResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+	} else {
+		n.ev.Send(events.New(events.StatusDone,
+			fmt.Sprintf("Request %d to add account to the network has been submitted!",
+				requestRes.RequestID),
+		))
+	}
+	return nil
 }

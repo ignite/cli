@@ -104,7 +104,7 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.sendAccountRequest(
+		if err := n.ensureAccount(
 			ctx,
 			genesisPath,
 			isCustomGentx,
@@ -119,8 +119,8 @@ func (n Network) Join(
 	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
-// sendAccountRequest creates an add AddAccount request message.
-func (n Network) sendAccountRequest(
+// ensureAccount creates an add AddAccount request message.
+func (n Network) ensureAccount(
 	ctx context.Context,
 	genesisPath string,
 	isCustomGentx bool,
@@ -150,33 +150,7 @@ func (n Network) sendAccountRequest(
 		return fmt.Errorf("account %s already exist", address)
 	}
 
-	msg := launchtypes.NewMsgRequestAddAccount(
-		n.account.Address(networktypes.SPN),
-		launchID,
-		address,
-		amount,
-	)
-
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
-	if err != nil {
-		return err
-	}
-
-	var requestRes launchtypes.MsgRequestAddAccountResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-
-	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
-	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to add account to the network has been submitted!",
-				requestRes.RequestID),
-		))
-	}
-	return nil
+	return n.sendAccountRequest(launchID, address, amount)
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
