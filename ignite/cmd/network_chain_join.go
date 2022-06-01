@@ -32,6 +32,7 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainJoinHandler,
 	}
+
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
@@ -39,6 +40,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetYes())
+
 	return c
 }
 
