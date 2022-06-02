@@ -8,10 +8,21 @@ import (
 )
 
 const (
-	genesisFilename     = "genesis.json"
+	genesisFilename = "genesis.json"
+
 	fieldPathStakeDenom = "app_state.staking.params.bond_denom"
 	fieldPathChainID    = "chain_id"
 	fieldPathAccounts   = "app_state.auth.accounts"
+
+	FieldGenesisTime                 = "genesis_time"
+	FieldChainID                     = "chain_id"
+	FieldConsumerChainID             = "app_state.monitoringp.params.consumerChainID"
+	FieldLastBlockHeight             = "app_state.monitoringp.params.lastBlockHeight"
+	FieldConsensusTimestamp          = "app_state.monitoringp.params.consumerConsensusState.timestamp"
+	FieldConsensusNextValidatorsHash = "app_state.monitoringp.params.consumerConsensusState.nextValidatorsHash"
+	FieldConsensusRootHash           = "app_state.monitoringp.params.consumerConsensusState.root.hash"
+	FieldConsumerUnbondingPeriod     = "app_state.monitoringp.params.consumerUnbondingPeriod"
+	FieldConsumerRevisionHeight      = "app_state.monitoringp.params.consumerRevisionHeight"
 )
 
 type (

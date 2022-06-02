@@ -135,7 +135,7 @@ func TestJSONFile_Update(t *testing.T) {
 			name:     "update string field to number",
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
-				WithKeyIntValue(
+				WithKeyValueInt(
 					"consensus_params.block.max_bytes",
 					22020096,
 				),
@@ -145,7 +145,7 @@ func TestJSONFile_Update(t *testing.T) {
 			name:     "update number field",
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
-				WithKeyIntValue(
+				WithKeyValueInt(
 					"consensus_params.block.time_iota_ms",
 					1000,
 				),
@@ -155,7 +155,7 @@ func TestJSONFile_Update(t *testing.T) {
 			name:     "update coin field",
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
-				WithTime(
+				WithKeyValueTimestamp(
 					"genesis_time",
 					10000000,
 				),
@@ -169,11 +169,11 @@ func TestJSONFile_Update(t *testing.T) {
 					"consensus_params.block.max_bytes",
 					"3000000",
 				),
-				WithKeyIntValue(
+				WithKeyValueInt(
 					"consensus_params.block.time_iota_ms",
 					1000,
 				),
-				WithTime(
+				WithKeyValueTimestamp(
 					"genesis_time",
 					999999999,
 				),

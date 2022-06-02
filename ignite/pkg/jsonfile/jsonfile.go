@@ -27,8 +27,10 @@ const (
 var (
 	// ErrFieldNotFound parameter not found into json
 	ErrFieldNotFound = errors.New("JSON field not found")
+
 	// ErrInvalidValueType invalid value type
 	ErrInvalidValueType = errors.New("invalid value type")
+
 	// ErrInvalidURL invalid file URL
 	ErrInvalidURL = errors.New("invalid file URL")
 )
@@ -203,19 +205,24 @@ func WithKeyValue(key string, value string) UpdateFileOption {
 	}
 }
 
-// WithTime update a time value
-func WithTime(key string, t int64) UpdateFileOption {
+// WithKeyValueTimestamp update a time value
+func WithKeyValueTimestamp(key string, t int64) UpdateFileOption {
 	return func(update map[string][]byte) {
 		formatted := time.Unix(t, 0).UTC().Format(time.RFC3339Nano)
 		update[key] = []byte(`"` + formatted + `"`)
 	}
 }
 
-// WithKeyIntValue update a file int value object by key
-func WithKeyIntValue(key string, value int) UpdateFileOption {
+// WithKeyValueInt update a file int value object by key
+func WithKeyValueInt(key string, value int64) UpdateFileOption {
 	return func(update map[string][]byte) {
-		update[key] = []byte(strconv.Itoa(value))
+		update[key] = []byte(strconv.FormatInt(value, 10))
 	}
+}
+
+// WithKeyValueUint update a file uint value object by key
+func WithKeyValueUint(key string, value uint64) UpdateFileOption {
+	return WithKeyValueInt(key, int64(value))
 }
 
 // Update updates the file with the new parameters by key
@@ -260,9 +267,6 @@ func (f *JSONFile) Write(p []byte) (int, error) {
 		return n, io.ErrShortWrite
 	}
 
-	// FIXME passing the new byte slice length throws an error
-	// because the reader has less byte length than the writer
-	// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/io/io.go;l=432
 	return length, nil
 }
 
@@ -272,6 +276,7 @@ func truncate(rws io.WriteSeeker, size int) error {
 	if !ok {
 		return errors.New("truncate: unable to truncate")
 	}
+
 	return t.Truncate(int64(size))
 }
 
@@ -295,10 +300,12 @@ func (f *JSONFile) Hash() (string, error) {
 	if err := f.Reset(); err != nil {
 		return "", err
 	}
+
 	h := sha256.New()
 	if _, err := io.Copy(h, f.file); err != nil {
 		return "", err
 	}
+
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
@@ -307,6 +314,7 @@ func (f *JSONFile) String() (string, error) {
 	if err := f.Reset(); err != nil {
 		return "", err
 	}
+
 	data, err := io.ReadAll(f.file)
 	return string(data), err
 }

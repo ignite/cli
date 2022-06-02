@@ -21,11 +21,6 @@ import (
 	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
-const (
-	paramChainID     = "chain_id"
-	paramGenesisTime = "genesis_time"
-)
-
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(
 	ctx context.Context,
@@ -125,8 +120,17 @@ func (c Chain) buildGenesis(
 	}
 
 	if err := gen.Update(
-		jsonfile.WithKeyValue(paramChainID, c.id),
-		jsonfile.WithTime(paramGenesisTime, c.launchTime),
+		// set genesis time and chain id
+		jsonfile.WithKeyValue(genesis.FieldChainID, c.id),
+		jsonfile.WithKeyValueTimestamp(genesis.FieldGenesisTime, c.launchTime),
+		// set the network consensus parameters
+		jsonfile.WithKeyValue(genesis.FieldConsumerChainID, spnChainID),
+		jsonfile.WithKeyValueInt(genesis.FieldLastBlockHeight, lastBlockHeight),
+		jsonfile.WithKeyValue(genesis.FieldConsensusTimestamp, rewardsInfo.ConsensusState.Timestamp),
+		jsonfile.WithKeyValue(genesis.FieldConsensusNextValidatorsHash, rewardsInfo.ConsensusState.NextValidatorsHash),
+		jsonfile.WithKeyValue(genesis.FieldConsensusRootHash, rewardsInfo.ConsensusState.Root.Hash),
+		jsonfile.WithKeyValueInt(genesis.FieldConsumerUnbondingPeriod, unbondingTime),
+		jsonfile.WithKeyValueUint(genesis.FieldConsumerRevisionHeight, rewardsInfo.RevisionHeight),
 	); err != nil {
 		return errors.Wrap(err, "genesis cannot be update")
 	}
