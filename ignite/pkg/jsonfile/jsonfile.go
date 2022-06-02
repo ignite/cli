@@ -24,10 +24,19 @@ const (
 	keySeparator = "."
 )
 
+var (
+	// ErrFieldNotFound parameter not found into json
+	ErrFieldNotFound = errors.New("JSON field not found")
+	// ErrInvalidValueType invalid value type
+	ErrInvalidValueType = errors.New("invalid value type")
+	// ErrInvalidURL invalid file URL
+	ErrInvalidURL = errors.New("invalid file URL")
+)
+
 type (
 	// JSONFile represents the file
 	JSONFile struct {
-		file        readWriteSeeker
+		file        ReadWriteSeeker
 		tarballPath string
 		url         string
 		updates     map[string][]byte
@@ -39,24 +48,16 @@ type (
 	writeTruncate interface {
 		Truncate(size int64) error
 	}
-	readWriteSeeker interface {
+
+	ReadWriteSeeker interface {
 		io.ReadWriteSeeker
 		Close() error
 		Sync() error
 	}
 )
 
-var (
-	// ErrFieldNotFound parameter not found into json
-	ErrFieldNotFound = errors.New("JSON field not found")
-	// ErrInvalidValueType invalid value type
-	ErrInvalidValueType = errors.New("invalid value type")
-	// ErrInvalidURL invalid file URL
-	ErrInvalidURL = errors.New("invalid file URL")
-)
-
 // New creates a new JSONFile
-func New(file readWriteSeeker) *JSONFile {
+func New(file ReadWriteSeeker) *JSONFile {
 	return &JSONFile{
 		updates: make(map[string][]byte),
 		file:    file,
@@ -74,7 +75,7 @@ func FromPath(path string) (*JSONFile, error) {
 }
 
 // FromURL fetches the file from the given URL and returns its content.
-func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile, error) {
+func FromURL(ctx context.Context, url, destPath, tarballFileName string) (*JSONFile, error) {
 	// TODO create a cache system to avoid download genesis with the same hash again
 
 	// Download the file from URL
@@ -82,20 +83,22 @@ func FromURL(ctx context.Context, url, path, tarballFileName string) (*JSONFile,
 	if err != nil {
 		return nil, err
 	}
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, ErrInvalidURL
 	}
 
 	// Remove the old file if exists and create a new one
-	if err := os.RemoveAll(path); err != nil {
+	if err := os.RemoveAll(destPath); err != nil {
 		return nil, err
 	}
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0600)
+	file, err := os.OpenFile(destPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create the file")
 	}
