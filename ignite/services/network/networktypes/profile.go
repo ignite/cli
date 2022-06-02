@@ -107,18 +107,18 @@ type (
 
 	// Profile represents the address profile on SPN
 	Profile struct {
-		Address            string
-		CampaignID         uint64 `json:",omitempty"`
-		Identity           string `json:",omitempty"`
-		Website            string `json:",omitempty"`
-		Details            string `json:",omitempty"`
-		Moniker            string `json:",omitempty"`
-		SecurityContact    string `json:",omitempty"`
-		Vouchers           sdk.Coins
-		Shares             campaigntypes.Shares
-		VestingShares      campaigntypes.Shares
-		ChainShares        []ChainShare
-		ChainVestingShares []ChainShare
+		Address            string               `json:"Address"`
+		CampaignID         uint64               `json:"CampaignID,omitempty"`
+		Identity           string               `json:"Identity,omitempty"`
+		Website            string               `json:"Website,omitempty"`
+		Details            string               `json:"Details,omitempty"`
+		Moniker            string               `json:"Moniker,omitempty"`
+		SecurityContact    string               `json:"SecurityContact,omitempty"`
+		Vouchers           sdk.Coins            `json:"Vouchers,omitempty"`
+		Shares             campaigntypes.Shares `json:"Shares,omitempty"`
+		VestingShares      campaigntypes.Shares `json:"VestingShares,omitempty"`
+		ChainShares        []ChainShare         `json:"ChainShares,omitempty"`
+		ChainVestingShares []ChainShare         `json:"ChainVestingShares,omitempty"`
 	}
 
 	// ProfileAcc represents the address profile method interface

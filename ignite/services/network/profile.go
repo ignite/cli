@@ -178,11 +178,13 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 	p, err = n.Validator(ctx, address)
 	if err == ErrObjectNotFound {
 		p, err = n.Coordinator(ctx, address)
-		if err != nil {
+		if err == ErrObjectNotFound {
+			p = networktypes.Coordinator{Address: address}
+		} else if err != nil {
 			return networktypes.Profile{}, err
 		}
 	} else if err != nil {
 		return networktypes.Profile{}, err
 	}
-	return p.ToProfile(campaignID, vouchers, shares, vestingShares, chainShares, chainVestingShares), err
+	return p.ToProfile(campaignID, vouchers, shares, vestingShares, chainShares, chainVestingShares), nil
 }
