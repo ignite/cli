@@ -34,7 +34,8 @@ var (
 )
 
 type (
-	// JSONFile represents the file
+	// JSONFile represents the JSON file and also implements the io.write interface
+	// saving directly to the file
 	JSONFile struct {
 		file        ReadWriteSeeker
 		tarballPath string
@@ -42,13 +43,18 @@ type (
 		updates     map[string][]byte
 		cache       []byte
 	}
-	// UpdateFileOption configures file update.
-	UpdateFileOption func(map[string][]byte)
 
+	// UpdateFileOption configures file update function with key and value
+	UpdateFileOption func(map[string][]byte)
+)
+
+type (
+	// writeTruncate represents the truncate method from io.WriteSeeker interface
 	writeTruncate interface {
 		Truncate(size int64) error
 	}
 
+	// ReadWriteSeeker represents the owns ReadWriteSeeker interface inherit from io.ReadWriteSeeker
 	ReadWriteSeeker interface {
 		io.ReadWriteSeeker
 		Close() error
