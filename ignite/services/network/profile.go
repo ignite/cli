@@ -174,7 +174,7 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 		}
 	}
 
-	var p networktypes.IProfile
+	var p networktypes.ProfileAcc
 	p, err = n.Validator(ctx, address)
 	if err == ErrObjectNotFound {
 		p, err = n.Coordinator(ctx, address)
