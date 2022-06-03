@@ -24,7 +24,7 @@ func NewNetworkRequestList() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+	c.Flags().AddFlagSet(flagSetSPNAccountPrefixes())
 
 	return c
 }

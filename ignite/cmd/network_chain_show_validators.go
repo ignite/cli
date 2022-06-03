@@ -21,7 +21,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 		RunE:  networkChainShowValidatorsHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+	c.Flags().AddFlagSet(flagSetSPNAccountPrefixes())
 
 	return c
 }

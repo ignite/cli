@@ -23,7 +23,7 @@ func newNetworkChainShowAccounts() *cobra.Command {
 		RunE:  networkChainShowAccountsHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+	c.Flags().AddFlagSet(flagSetSPNAccountPrefixes())
 
 	return c
 }
