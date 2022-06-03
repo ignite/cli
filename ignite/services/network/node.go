@@ -29,7 +29,7 @@ func RewardsInfo(ctx context.Context, client CosmosClient, height int64) (networ
 	if err != nil {
 		return networktypes.Reward{}, err
 	}
-	spnConsensusStatue := spntypes.NewConsensusState(
+	spnConsensusState := spntypes.NewConsensusState(
 		consensusState.Timestamp,
 		consensusState.NextValidatorsHash,
 		consensusState.Root,
@@ -45,7 +45,7 @@ func RewardsInfo(ctx context.Context, client CosmosClient, height int64) (networ
 	}
 
 	return networktypes.Reward{
-		ConsensusState: spnConsensusStatue,
+		ConsensusState: spnConsensusState,
 		ValidatorSet:   spntypes.NewValidatorSet(validators...),
 		RevisionHeight: uint64(height),
 	}, nil
