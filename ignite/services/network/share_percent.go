@@ -30,7 +30,11 @@ func NewSharePercent(denom string, nominator, denominator uint64) (SharePercent,
 	if denominator < nominator {
 		return SharePercent{}, fmt.Errorf("%q can not be bigger than 100", denom)
 	}
-	return SharePercent{denom: denom, nominator: nominator, denominator: denominator}, nil
+	return SharePercent{
+		denom:       denom,
+		nominator:   nominator,
+		denominator: denominator,
+	}, nil
 }
 
 // Share returns coin share of total according to underlying percent
