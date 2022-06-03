@@ -90,19 +90,26 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	tx, err := client.BankSendTx(fromAddress, toAddress, coins, from)
+	if err != nil {
+		return err
+	}
+
 	if generateOnly {
-		tx, err := client.BankSendGenerateOnly(fromAddress, toAddress, coins, from)
+		json, err := tx.EncodeJSON()
 		if err != nil {
 			return err
 		}
 
-		return session.Println(tx)
+		session.StopSpinner()
+		return session.Println(string(json))
 	}
 
-	if err := client.BankSend(fromAddress, toAddress, coins, from); err != nil {
+	if _, err := tx.Broadcast(); err != nil {
 		return err
 	}
 
+	session.StopSpinner()
 	session.Println("Transaction broadcast successful!")
 	return session.Printf("%s sent from %s to %s\n", amount, fromAccountInput, toAccountInput)
 

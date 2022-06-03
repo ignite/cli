@@ -22,7 +22,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -150,12 +149,15 @@ func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 	}
 }
 
+// WithGas sets an explicit gas-limit on transactions.
+// Set to "auto" to calculate automatically
 func WithGas(gas string) Option {
 	return func(c *Client) {
 		c.gas = gas
 	}
 }
 
+// WithGasPrices sets the price per gas (e.g. 0.1uatom)
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
@@ -249,8 +251,7 @@ func (c Client) AccountExists(accountName string) (bool, error) {
 
 // Bech32Address returns the bech32 address, with the correct prefix, from account name or address.
 func (c Client) Bech32Address(accountNameOrAddress string) (string, error) {
-	unlockFn := c.lockBech32Prefix()
-	defer unlockFn()
+	defer c.lockBech32Prefix()()
 
 	_, _, err := bech32.DecodeAndConvert(accountNameOrAddress)
 	if err == nil {
@@ -314,29 +315,6 @@ func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
 	return c.RPC.Status(ctx)
 }
 
-// BroadcastTx creates and broadcasts a tx with given messages for account.
-func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response, error) {
-	_, broadcast, err := c.BroadcastTxWithProvision(accountName, msgs...)
-	if err != nil {
-		return Response{}, err
-	}
-	return broadcast()
-}
-
-func (c Client) GenerateTx(accountName string, msgs ...sdktypes.Msg) (string, error) {
-	unsignedTx, _, err := c.BroadcastTxWithProvision(accountName, msgs...)
-	if err != nil {
-		return "", err
-	}
-
-	json, err := c.context.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
-	if err != nil {
-		return "", err
-	}
-
-	return string(json), nil
-}
-
 // protects sdktypes.Config.
 var mconf sync.Mutex
 
@@ -349,25 +327,26 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 }
 
 func performQuery[T any](c Client, q func() (T, error)) (T, error) {
-	unlockFn := c.lockBech32Prefix()
-	defer unlockFn()
+	defer c.lockBech32Prefix()()
 
 	return q()
 }
 
-func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (
-	unsignedTx client.TxBuilder, broadcast func() (Response, error), err error) {
-	if err := c.prepareBroadcast(context.Background(), accountName, msgs); err != nil {
-		return nil, nil, err
+func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response, error) {
+	txService, err := c.CreateTx(accountName, msgs...)
+	if err != nil {
+		return Response{}, err
 	}
 
-	// TODO find a better way if possible.
-	unlockFn := c.lockBech32Prefix()
-	defer unlockFn()
+	return txService.Broadcast()
+}
+
+func (c Client) CreateTx(accountName string, msgs ...sdktypes.Msg) (TxService, error) {
+	defer c.lockBech32Prefix()()
 
 	accountAddress, err := c.Address(accountName)
 	if err != nil {
-		return nil, nil, err
+		return TxService{}, err
 	}
 
 	ctx := c.context.
@@ -376,25 +355,24 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 
 	txf, err := prepareFactory(ctx, c.Factory)
 	if err != nil {
-		return nil, nil, err
+		return TxService{}, err
 	}
 
 	var gas uint64
 	if c.gas != "" && c.gas != "auto" {
 		gas, err = strconv.ParseUint(c.gas, 10, 64)
 		if err != nil {
-			return nil, nil, err
+			return TxService{}, err
 		}
 	} else {
 		_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
 		if err != nil {
-			return nil, nil, err
+			return TxService{}, err
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
 		// we add an additional amount to endure sufficient gas is provided
 		gas += 10000
 	}
-
 	txf = txf.WithGas(gas)
 
 	if c.gasPrices != "" {
@@ -403,36 +381,16 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 
 	txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
-		return nil, nil, err
+		return TxService{}, err
 	}
 
 	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
 
-	// Return the provision function
-	return txUnsigned, func() (Response, error) {
-
-		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
-			return Response{}, err
-		}
-
-		txBytes, err := ctx.TxConfig.TxEncoder()(txUnsigned.GetTx())
-		if err != nil {
-			return Response{}, err
-		}
-
-		resp, err := ctx.BroadcastTx(txBytes)
-		if err == sdkerrors.ErrInsufficientFunds {
-			err = c.makeSureAccountHasTokens(context.Background(), accountAddress.String())
-			if err != nil {
-				return Response{}, err
-			}
-			resp, err = ctx.BroadcastTx(txBytes)
-		}
-
-		return Response{
-			Codec:      ctx.Codec,
-			TxResponse: resp,
-		}, handleBroadcastResult(resp, err)
+	return TxService{
+		client:        c,
+		clientContext: ctx,
+		txBuilder:     txUnsigned,
+		txFactory:     txf,
 	}, nil
 }
 
