@@ -15,12 +15,22 @@ func (sp SharePercents) Empty() bool {
 	return len(sp) == 0
 }
 
+var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
+
 // SharePercent represent percent of total share
 type SharePercent struct {
 	denom string
 	// in order to avoid using numbers with floating point
 	// fractional representation is used: 297/10000 instead of 2.97%
 	nominator, denominator uint64
+}
+
+// NewSharePercent creates new share percent representation
+func NewSharePercent(denom string, nominator, denominator uint64) (SharePercent, error) {
+	if denominator < nominator {
+		return SharePercent{}, fmt.Errorf("%q can not be bigger than 100", denom)
+	}
+	return SharePercent{denom: denom, nominator: nominator, denominator: denominator}, nil
 }
 
 // Share returns coin share of total according to underlying percent
@@ -41,39 +51,33 @@ func (p SharePercent) Share(total uint64) (sdk.Coin, error) {
 // format: 11.87%foo
 func SharePercentFromString(str string) (SharePercent, error) {
 	// validate raw percentage format
-	var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
 	if len(rePercentageRequired.FindStringIndex(str)) == 0 {
-		return SharePercent{}, fmt.Errorf("invalid percentage format %s", str)
+		return SharePercent{}, newInvalidPercentageFormat(str)
 	}
-	foo := strings.Split(str, "%")
-	denom := foo[1]
-	fractional := strings.Split(foo[0], ".")
+	var (
+		foo        = strings.Split(str, "%")
+		fractional = strings.Split(foo[0], ".")
+		denom      = foo[1]
+	)
+
 	switch len(fractional) {
 	case 1:
 		nominator, err := strconv.ParseUint(fractional[0], 10, 64)
 		if err != nil {
-			return SharePercent{}, fmt.Errorf("invalid percentage format %s", str)
+			return SharePercent{}, newInvalidPercentageFormat(str)
 		}
 		return NewSharePercent(denom, nominator, 100)
 	case 2:
 		trimmedFractionalPart := strings.TrimRight(fractional[1], "0")
 		nominator, err := strconv.ParseUint(fractional[0]+trimmedFractionalPart, 10, 64)
 		if err != nil {
-			return SharePercent{}, fmt.Errorf("invalid percentage format %s", str)
+			return SharePercent{}, newInvalidPercentageFormat(str)
 		}
 		return NewSharePercent(denom, nominator, uintPow(10, uint64(len(trimmedFractionalPart)+2)))
 
 	default:
-		return SharePercent{}, fmt.Errorf("invalid percentage format %s", str)
+		return SharePercent{}, newInvalidPercentageFormat(str)
 	}
-}
-
-// NewSharePercent creates new share percent representation
-func NewSharePercent(denom string, nominator, denominator uint64) (SharePercent, error) {
-	if denominator < nominator {
-		return SharePercent{}, fmt.Errorf("%q can not be bigger than 100", denom)
-	}
-	return SharePercent{denom: denom, nominator: nominator, denominator: denominator}, nil
 }
 
 // ParseSharePercents parses SharePercentage list from string
@@ -99,4 +103,8 @@ func uintPow(x, y uint64) uint64 {
 		result *= x
 	}
 	return result
+}
+
+func newInvalidPercentageFormat(s string) error {
+	return fmt.Errorf("invalid percentage format %s", s)
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/alecthomas/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
@@ -63,4 +64,10 @@ func TestParseID(t *testing.T) {
 			require.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func SampleSharePercent(t *testing.T, denom string, nominator, denominator uint64) SharePercent {
+	sp, err := NewSharePercent(denom, nominator, denominator)
+	assert.NoError(t, err)
+	return sp
 }
