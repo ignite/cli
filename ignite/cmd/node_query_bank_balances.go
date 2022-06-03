@@ -10,8 +10,8 @@ import (
 
 func NewNodeQueryBankBalances() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "balances [address]",
-		Short: "Query for account balances by address",
+		Use:   "balances [account-name|address]",
+		Short: "Query for account balances by account name or address",
 		RunE:  nodeQueryBankBalancesHandler,
 		Args:  cobra.ExactArgs(1),
 	}
@@ -60,7 +60,7 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	session.StartSpinner("Querying...")
-	balances, err := client.BankBalances(address, pagination)
+	balances, err := client.BankBalances(cmd.Context(), address, pagination)
 	if err != nil {
 		return err
 	}
@@ -70,5 +70,6 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		rows = append(rows, []string{fmt.Sprintf("%s", b.Amount), b.Denom})
 	}
 
+	session.StopSpinner()
 	return session.PrintTable([]string{"Amount", "Denom"}, rows...)
 }

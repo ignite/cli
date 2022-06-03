@@ -44,12 +44,14 @@ func flagSetPagination(query string) *flag.FlagSet {
 }
 
 func getPagination(cmd *cobra.Command) (*query.PageRequest, error) {
-	pageKey, _ := cmd.Flags().GetString(flagPageKey)
-	offset, _ := cmd.Flags().GetUint64(flagOffset)
-	limit, _ := cmd.Flags().GetUint64(flagLimit)
-	countTotal, _ := cmd.Flags().GetBool(flagCountTotal)
-	page, _ := cmd.Flags().GetUint64(flagPage)
-	reverse, _ := cmd.Flags().GetBool(flagReverse)
+	var (
+		pageKey, _    = cmd.Flags().GetString(flagPageKey)
+		offset, _     = cmd.Flags().GetUint64(flagOffset)
+		limit, _      = cmd.Flags().GetUint64(flagLimit)
+		countTotal, _ = cmd.Flags().GetBool(flagCountTotal)
+		page, _       = cmd.Flags().GetUint64(flagPage)
+		reverse, _    = cmd.Flags().GetBool(flagReverse)
+	)
 
 	if page > 1 && offset > 0 {
 		return nil, errors.New("page and offset cannot be used together")
