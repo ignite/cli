@@ -257,6 +257,66 @@ func (_m *CampaignClient) MainnetAccountAll(ctx context.Context, in *types.Query
 	return r0, r1
 }
 
+// MainnetAccountBalance provides a mock function with given fields: ctx, in, opts
+func (_m *CampaignClient) MainnetAccountBalance(ctx context.Context, in *types.QueryGetMainnetAccountBalanceRequest, opts ...grpc.CallOption) (*types.QueryGetMainnetAccountBalanceResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QueryGetMainnetAccountBalanceResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryGetMainnetAccountBalanceRequest, ...grpc.CallOption) *types.QueryGetMainnetAccountBalanceResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QueryGetMainnetAccountBalanceResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryGetMainnetAccountBalanceRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MainnetAccountBalanceAll provides a mock function with given fields: ctx, in, opts
+func (_m *CampaignClient) MainnetAccountBalanceAll(ctx context.Context, in *types.QueryAllMainnetAccountBalanceRequest, opts ...grpc.CallOption) (*types.QueryAllMainnetAccountBalanceResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QueryAllMainnetAccountBalanceResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryAllMainnetAccountBalanceRequest, ...grpc.CallOption) *types.QueryAllMainnetAccountBalanceResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QueryAllMainnetAccountBalanceResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryAllMainnetAccountBalanceRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // MainnetVestingAccount provides a mock function with given fields: ctx, in, opts
 func (_m *CampaignClient) MainnetVestingAccount(ctx context.Context, in *types.QueryGetMainnetVestingAccountRequest, opts ...grpc.CallOption) (*types.QueryGetMainnetVestingAccountResponse, error) {
 	_va := make([]interface{}, len(opts))

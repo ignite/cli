@@ -53,6 +53,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
 	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -79,7 +80,14 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
+		amount, _                 = cmd.Flags().GetString(flagAmount)
 	)
+
+	// parse the amount.
+	amountCoins, err := sdk.ParseCoinsNormalized(amount)
+	if err != nil {
+		return errors.Wrap(err, "error parsing amount")
+	}
 
 	source, err := xurl.MightHTTPS(args[0])
 	if err != nil {
@@ -228,24 +236,31 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
 
-	if !rewardCoins.Empty() && rewardDuration > 0 {
+	if !rewardCoins.IsZero() && rewardDuration > 0 {
 		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
+			return err
+		}
+	}
+
+	if !amountCoins.IsZero() {
+		if err := n.SendAccountRequestForCoordinator(launchID, amountCoins); err != nil {
 			return err
 		}
 	}
 
 	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
-	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
-	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)
+	} else {
+		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
 	}
+	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 
 	return nil
 }
