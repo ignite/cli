@@ -498,7 +498,7 @@ func TestPublish(t *testing.T) {
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
 			gts            = startInvalidJSONServer()
-			expectedError  = errors.New("cannot unmarshal the chain genesis file: invalid character 'i' looking for beginning of value")
+			expectedError  = errors.New("JSON field not found")
 		)
 		defer gts.Close()
 
