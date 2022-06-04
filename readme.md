@@ -32,9 +32,11 @@ For questions and support, join the official [Ignite Discord](https://discord.gg
 
 Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the best possible experience, use the version of Ignite CLI that corresponds to the version of Cosmos SDK that your blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
-| Ignite CLI | Cosmos SDK | IBC                  | Notes                                            |
+| Ignite CLI | Cosmos SDK | IBC                  | Notes |
 | -------- | ---------- | -------------------- | ------------------------------------------------ |
-| v0.19.2  | v0.44.5    | v2.0.2               | |
+| v0.21.1  | v0.45.4    | v2.0.3               | Supports Cosmos SDK v0.46.0-alpha1 and above |
+| v0.21.0  | v0.45.4    | v2.0.3               | |
+| v0.20.0  | v0.45.3    | v2.0.3              | |
 | v0.19    | v0.44      | v1.2.2               | |
 | v0.18    | v0.44      | v1.2.2               | `ignite chain serve` works with v0.44.x chains |
 | v0.17    | v0.42      | Same with Cosmos SDK | |
