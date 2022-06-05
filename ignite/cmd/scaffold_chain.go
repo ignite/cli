@@ -34,7 +34,7 @@ A project name can be a simple name or a URL. The name will be used as the Go mo
 		
 A new directory with source code files will be created in the current directory. To use a different path use the "--path" flag.
 
-Most of the logic of your blockchain is written in custom modules. Each module effectively encapsulates an independent piece of functionality. Following the Cosmos SDK convention, custom modules are stored inside the "x/" directory. By default, Ignite creates a module with a name that matches the name of the project. To create a blockchain without a default module use the "--no-module" flag.
+Most of the logic of your blockchain is written in custom modules. Each module effectively encapsulates an independent piece of functionality. Following the Cosmos SDK convention, custom modules are stored inside the "x/" directory. By default, Ignite creates a module with a name that matches the name of the project. To create a blockchain without a default module use the "--no-module" flag. Additional modules can be added after a project is created with "ignite scaffold module" command.
 
 Account addresses on Cosmos SDK-based blockchains have string prefixes. For example, the Cosmos Hub blockchain uses the default "cosmos" prefix, so that addresses look like this: "cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf". To use a custom address prefix use the "--address-prefix" flag. For example:
 
@@ -48,7 +48,7 @@ The blockchain is using the Cosmos SDK modular blockchain framework. Learn more 
 	}
 
 	flagSetClearCache(c)
-	c.Flags().StringP(flagPath, "p", ".", "Path where a project will be created")
+	c.Flags().StringP(flagPath, "p", ".", "Create a project in a specific path")
 	c.Flags().String(flagAddressPrefix, "cosmos", "Address prefix")
 	c.Flags().Bool(flagNoDefaultModule, false, "Create a project without a default module")
 
