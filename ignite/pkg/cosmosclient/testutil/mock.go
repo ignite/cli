@@ -3,8 +3,8 @@ package testutil
 import (
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient/mocks"
 	"github.com/stretchr/testify/mock"
-	rpcmocks "github.com/tendermint/tendermint/rpc/client/mocks"
 )
 
 // NewTendermintClientMock creates a new Tendermint RPC client mock.
@@ -17,7 +17,7 @@ func NewTendermintClientMock(t *testing.T) *TendermintClientMock {
 
 // TendermintClientMock mocks Tendermint's RPC client.
 type TendermintClientMock struct {
-	rpcmocks.Client
+	mocks.RPCClient
 }
 
 // OnStatus starts a generic call mock on the Status RPC method.

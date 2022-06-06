@@ -71,10 +71,15 @@ const (
 	orderAsc = "asc"
 )
 
+//go:generate mockery --name RPCClient --case underscore --with-expecter
+type RPCClient interface {
+	rpcclient.Client
+}
+
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
-	RPC rpcclient.Client
+	RPC RPCClient
 
 	// Factory is a Cosmos SDK tx factory.
 	Factory tx.Factory
