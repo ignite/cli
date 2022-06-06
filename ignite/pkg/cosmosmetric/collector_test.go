@@ -1,4 +1,4 @@
-package cosmosmetric
+package cosmosmetric_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -51,7 +52,7 @@ func TestCollector(t *testing.T) {
 		Return(nil).
 		Times(2)
 
-	c := NewCollector(db, client)
+	c := cosmosmetric.NewCollector(db, client)
 	ctx := context.Background()
 
 	// Act
@@ -80,7 +81,7 @@ func TestCollectorWithCollectError(t *testing.T) {
 		Times(1)
 
 	db := mocks.NewSaver(t)
-	c := NewCollector(db, client)
+	c := cosmosmetric.NewCollector(db, client)
 	ctx := context.Background()
 
 	// Act
@@ -122,7 +123,7 @@ func TestCollectorWithSaveError(t *testing.T) {
 		Return(wantErr).
 		Times(1)
 
-	c := NewCollector(db, client)
+	c := cosmosmetric.NewCollector(db, client)
 	ctx := context.Background()
 
 	// Act
