@@ -281,6 +281,8 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 			}
 			tunnelAddresses = append(tunnelAddresses, tunneledPeer)
 			p2pAddresses = append(p2pAddresses, fmt.Sprintf("%s@127.0.0.1:%s", tunneledPeer.NodeID, tunneledPeer.LocalPort))
+		case *launchtypes.Peer_None:
+			continue
 		default:
 			return fmt.Errorf("invalid peer type")
 		}

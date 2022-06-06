@@ -107,7 +107,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 				flagAmount,
 			)
 			if err := session.AskConfirm(question); err != nil {
-				return session.PrintSaidNo()
+				if errors.Is(err, cliui.ErrRejectConfirmation) {
+					return session.PrintSaidNo()
+				}
+				return err
 			}
 		}
 
@@ -130,6 +133,14 @@ func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress
 			return "", errors.Wrap(err, "cannot read public Gitpod address of the node")
 		}
 		return publicAddress, nil
+	}
+
+	question := "Do you want to share your node IP address, it will be added as a persistent peer"
+	if err := session.AskConfirm(question); err != nil {
+		if errors.Is(err, cliui.ErrRejectConfirmation) {
+			return "", nil
+		}
+		return "", err
 	}
 
 	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.

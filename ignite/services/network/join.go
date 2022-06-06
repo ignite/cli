@@ -67,11 +67,13 @@ func (n Network) Join(
 			return err
 		}
 
-		if xurl.IsHTTP(o.publicAddress) {
+		switch {
+		case xurl.IsHTTP(o.publicAddress):
 			peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
-		} else {
+		case o.publicAddress == "":
+			peer = launchtypes.NewPeerEmpty(nodeID)
+		default:
 			peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
-
 		}
 
 		if o.gentxPath, err = c.DefaultGentxPath(); err != nil {

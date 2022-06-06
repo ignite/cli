@@ -1,13 +1,13 @@
 package cliui
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"sync"
 
-	"github.com/manifoldco/promptui"
-
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
@@ -28,6 +28,8 @@ type Session struct {
 }
 
 type Option func(s *Session)
+
+var ErrRejectConfirmation = errors.New("confirmation rejected")
 
 // WithOutput sets output stream for a session.
 func WithOutput(output io.Writer) Option {
@@ -118,6 +120,8 @@ func (s Session) Print(messages ...interface{}) error {
 	return err
 }
 
+// TODO: configure Ask prompts to use session stdin and stdout
+
 // Ask asks questions in the terminal and collect answers.
 func (s Session) Ask(questions ...cliquiz.Question) error {
 	s.Wait()
@@ -129,12 +133,18 @@ func (s Session) Ask(questions ...cliquiz.Question) error {
 func (s Session) AskConfirm(message string) error {
 	s.Wait()
 	defer s.PauseSpinner()()
-	prompt := promptui.Prompt{
-		Label:     message,
-		IsConfirm: true,
+	var confirmed bool
+	prompt := &survey.Confirm{
+		Message: message,
 	}
-	_, err := prompt.Run()
-	return err
+	if err := survey.AskOne(prompt, &confirmed); err != nil {
+		return err
+	}
+	if !confirmed {
+		return ErrRejectConfirmation
+	}
+
+	return nil
 }
 
 // PrintTable prints table data.

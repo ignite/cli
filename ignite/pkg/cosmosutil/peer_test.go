@@ -19,6 +19,11 @@ func TestVerifyPeerFormat(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "valid empty peer",
+			peer: launchtypes.NewPeerEmpty("node"),
+			want: true,
+		},
+		{
 			name: "peer connection without port",
 			peer: launchtypes.NewPeerConn("node", "peer"),
 			want: false,

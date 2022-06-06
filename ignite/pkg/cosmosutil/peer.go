@@ -22,6 +22,8 @@ func VerifyPeerFormat(peer launchtypes.Peer) bool {
 		return true
 	case *launchtypes.Peer_HttpTunnel:
 		return xurl.IsHTTP(conn.HttpTunnel.Address)
+	case *launchtypes.Peer_None:
+		return true
 	default:
 		return false
 	}
