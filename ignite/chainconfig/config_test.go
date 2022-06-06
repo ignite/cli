@@ -14,9 +14,9 @@ accounts:
     coins: ["1000token", "100000000stake"]
   - name: you
     coins: ["5000token"]
-validator:
-  name: user1
-  staked: "100000000stake"
+validators:
+  - name: user1
+    bonded: "100000000stake"
 `
 
 	conf, err := Parse(strings.NewReader(confyml))
@@ -34,8 +34,8 @@ validator:
 	}, conf.Accounts)
 	require.Equal(t, Validator{
 		Name:   "user1",
-		Staked: "100000000stake",
-	}, conf.Validator)
+		Bonded: "100000000stake",
+	}, conf.Validators[0])
 }
 
 func TestCoinTypeParse(t *testing.T) {
@@ -48,9 +48,9 @@ accounts:
   - name: you
     coins: ["5000token"]
     cointype: 123456
-validator:
-  name: user1
-  staked: "100000000stake"
+validators:
+  - name: user1
+    bonded: "100000000stake"
 `
 
 	conf, err := Parse(strings.NewReader(confyml))
@@ -71,8 +71,8 @@ validator:
 	}, conf.Accounts)
 	require.Equal(t, Validator{
 		Name:   "user1",
-		Staked: "100000000stake",
-	}, conf.Validator)
+		Bonded: "100000000stake",
+	}, conf.Validators[0])
 }
 
 func TestParseInvalid(t *testing.T) {
@@ -85,7 +85,7 @@ accounts:
 `
 
 	_, err := Parse(strings.NewReader(confyml))
-	require.Equal(t, &ValidationError{"validator is required"}, err)
+	require.Equal(t, &ValidationError{"at least one validator is required"}, err)
 }
 
 func TestFaucetHost(t *testing.T) {
@@ -95,9 +95,9 @@ accounts:
     coins: ["1000token", "100000000stake"]
   - name: you
     coins: ["5000token"]
-validator:
-  name: user1
-  staked: "100000000stake"
+validators:
+  - name: user1
+    bonded: "100000000stake"
 faucet:
   host: "0.0.0.0:4600"
 `
@@ -111,9 +111,9 @@ accounts:
     coins: ["1000token", "100000000stake"]
   - name: you
     coins: ["5000token"]
-validator:
-  name: user1
-  staked: "100000000stake"
+validators:
+  - name: user1
+    bonded: "100000000stake"
 faucet:
   port: 4700
 `
@@ -128,9 +128,9 @@ accounts:
     coins: ["1000token", "100000000stake"]
   - name: you
     coins: ["5000token"]
-validator:
-  name: user1
-  staked: "100000000stake"
+validators:
+  - name: user1
+    bonded: "100000000stake"
 faucet:
   host: "0.0.0.0:4600"
   port: 4700

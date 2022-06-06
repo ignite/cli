@@ -34,6 +34,7 @@ var DefaultConf = Config{
 	Validators: []Validator{
 		{
 			// when in Docker on MacOS, it only works with 0.0.0.0.
+			Name: "smith",
 			App: configmap{
 				"grpc": configmap{
 					"address": "0.0.0.0:9090",
@@ -73,7 +74,7 @@ var DefaultConf = Config{
 		},
 	},
 	Faucet: Faucet{
-		Host: "0.0.0.0:4500",
+		Host: "0.0.0.0:45001",
 	},
 }
 
@@ -250,13 +251,24 @@ type Faucet struct {
 // 	API     string `yaml:"api"`
 // }
 
+// note(jsimnz): Using github.com/imdario/mergo to merge the config struct with the default struct
+// has a problem with the change to Validators being a slice instead of a struct. There is a mergo
+// option `mergo.WithSliceDeepCopy` which will correctly handle merging the default validator slice
+// with the defined one in the config, but it has a side-effect of setting `config.Overwrite` true
+// on the `mergo.Config` struct. So we need to add an additional functional option call to set
+// `config.Overwrite` back to false, otherwise other parts of the config don't get merged correctly
+// like Faucet.
+func mergoWithoutOverwrite(config *mergo.Config) {
+	config.Overwrite = false
+}
+
 // Parse parses config.yml into UserConfig.
 func Parse(r io.Reader) (Config, error) {
 	var conf Config
 	if err := yaml.NewDecoder(r).Decode(&conf); err != nil {
 		return conf, err
 	}
-	if err := mergo.Merge(&conf, DefaultConf, mergo.WithSliceDeepCopy); err != nil {
+	if err := mergo.Merge(&conf, DefaultConf, mergo.WithSliceDeepCopy, mergoWithoutOverwrite); err != nil {
 		return Config{}, err
 	}
 	return conf, validate(conf)
