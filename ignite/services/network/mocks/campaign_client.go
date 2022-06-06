@@ -407,6 +407,36 @@ func (_m *CampaignClient) Params(ctx context.Context, in *types.QueryParamsReque
 	return r0, r1
 }
 
+// SpecialAllocationsBalance provides a mock function with given fields: ctx, in, opts
+func (_m *CampaignClient) SpecialAllocationsBalance(ctx context.Context, in *types.QuerySpecialAllocationsBalanceRequest, opts ...grpc.CallOption) (*types.QuerySpecialAllocationsBalanceResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QuerySpecialAllocationsBalanceResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QuerySpecialAllocationsBalanceRequest, ...grpc.CallOption) *types.QuerySpecialAllocationsBalanceResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QuerySpecialAllocationsBalanceResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QuerySpecialAllocationsBalanceRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // TotalShares provides a mock function with given fields: ctx, in, opts
 func (_m *CampaignClient) TotalShares(ctx context.Context, in *types.QueryTotalSharesRequest, opts ...grpc.CallOption) (*types.QueryTotalSharesResponse, error) {
 	_va := make([]interface{}, len(opts))
