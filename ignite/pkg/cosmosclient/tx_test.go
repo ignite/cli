@@ -1,18 +1,19 @@
-package cosmosclient
+package cosmosclient_test
 
 import (
 	"encoding/json"
 	"testing"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUnmarshallEvents(t *testing.T) {
 	// Arrange
-	wantEvents := []TXEvent{
+	wantEvents := []cosmosclient.TXEvent{
 		{
 			Type: "test",
-			Attributes: []TXEventAttribute{
+			Attributes: []cosmosclient.TXEventAttribute{
 				{Key: "foo", Value: "bar"},
 				{Key: "baz", Value: 42.0},
 			},
@@ -20,7 +21,7 @@ func TestUnmarshallEvents(t *testing.T) {
 	}
 
 	log := []struct {
-		Events []TXEvent `json:"events"`
+		Events []cosmosclient.TXEvent `json:"events"`
 	}{
 		{Events: wantEvents},
 	}
@@ -31,7 +32,7 @@ func TestUnmarshallEvents(t *testing.T) {
 	}
 
 	// Act
-	events, err := UnmarshallEvents(raw)
+	events, err := cosmosclient.UnmarshallEvents(raw)
 
 	// Assert
 	require.NoError(t, err)
