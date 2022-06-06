@@ -1,10 +1,12 @@
-package cosmosclient
+package cosmosclient_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient/testutil"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
@@ -22,25 +24,25 @@ func TestGetBlockTXs(t *testing.T) {
 	m.On("Block", ctx, &block.Height).Return(&ctypes.ResultBlock{Block: &block}, nil)
 
 	// Mock the TxSearch RPC endpoint
-	searchQry := createTxSearchByHeightQuery(block.Height)
+	searchQry := fmt.Sprintf("tx.height=%d", block.Height)
 	page := 1
-	perPage := defaultTXsPerPage
+	perPage := 30
 	rtx := ctypes.ResultTx{}
 	resSearch := ctypes.ResultTxSearch{
 		Txs:        []*ctypes.ResultTx{&rtx},
 		TotalCount: 1,
 	}
 
-	m.On("TxSearch", ctx, searchQry, false, &page, &perPage, orderAsc).Return(&resSearch, nil)
+	m.On("TxSearch", ctx, searchQry, false, &page, &perPage, "asc").Return(&resSearch, nil)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	txs, err := client.GetBlockTXs(ctx, block.Height)
 
 	// Assert
 	require.NoError(t, err)
-	require.Equal(t, txs, []TX{
+	require.Equal(t, txs, []cosmosclient.TX{
 		{
 			BlockTime: block.Time,
 			Raw:       &rtx,
@@ -60,7 +62,7 @@ func TestGetBlockTXsWithBlockError(t *testing.T) {
 	m.OnBlock().Return(nil, wantErr)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	txs, err := client.GetBlockTXs(context.Background(), 1)
 
@@ -83,8 +85,8 @@ func TestGetBlockTXsPagination(t *testing.T) {
 	// Mock the TxSearch RPC endpoint and fake the number of
 	// transactions so it is called twice to fetch two pages
 	ctx := context.Background()
-	searchQry := createTxSearchByHeightQuery(block.Height)
-	perPage := defaultTXsPerPage
+	searchQry := fmt.Sprintf("tx.height=%d", block.Height)
+	perPage := 30
 	fakeCount := perPage + 1
 	first := 1
 	second := 2
@@ -97,17 +99,17 @@ func TestGetBlockTXsPagination(t *testing.T) {
 		TotalCount: fakeCount,
 	}
 
-	m.On("TxSearch", ctx, searchQry, false, &first, &perPage, orderAsc).Return(&firstPage, nil)
-	m.On("TxSearch", ctx, searchQry, false, &second, &perPage, orderAsc).Return(&secondPage, nil)
+	m.On("TxSearch", ctx, searchQry, false, &first, &perPage, "asc").Return(&firstPage, nil)
+	m.On("TxSearch", ctx, searchQry, false, &second, &perPage, "asc").Return(&secondPage, nil)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	txs, err := client.GetBlockTXs(ctx, block.Height)
 
 	// Assert
 	require.NoError(t, err)
-	require.Equal(t, txs, []TX{
+	require.Equal(t, txs, []cosmosclient.TX{
 		{
 			BlockTime: block.Time,
 			Raw:       firstPage.Txs[0],
@@ -136,7 +138,7 @@ func TestGetBlockTXsWithSearchError(t *testing.T) {
 	m.OnTxSearch().Return(nil, wantErr)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	txs, err := client.GetBlockTXs(context.Background(), block.Height)
 
@@ -171,23 +173,23 @@ func TestCollectTXs(t *testing.T) {
 	// Mock the TxSearch RPC endpoint to return each of the two block.
 	// Transactions are empty because only the pointer address is required to assert.
 	page := 1
-	perPage := defaultTXsPerPage
-	q1 := createTxSearchByHeightQuery(1)
+	perPage := 30
+	q1 := "tx.height=1"
 	r1 := ctypes.ResultTxSearch{
 		Txs:        []*ctypes.ResultTx{{}},
 		TotalCount: 1,
 	}
-	q2 := createTxSearchByHeightQuery(2)
+	q2 := "tx.height=2"
 	r2 := ctypes.ResultTxSearch{
 		Txs:        []*ctypes.ResultTx{{}, {}},
 		TotalCount: 2,
 	}
 
-	m.On("TxSearch", ctx, q1, false, &page, &perPage, orderAsc).Return(&r1, nil)
-	m.On("TxSearch", ctx, q2, false, &page, &perPage, orderAsc).Return(&r2, nil)
+	m.On("TxSearch", ctx, q1, false, &page, &perPage, "asc").Return(&r1, nil)
+	m.On("TxSearch", ctx, q2, false, &page, &perPage, "asc").Return(&r2, nil)
 
 	// Prepare expected values
-	wantTXs := []TX{
+	wantTXs := []cosmosclient.TX{
 		{
 			BlockTime: b1.Time,
 			Raw:       r1.Txs[0],
@@ -203,15 +205,15 @@ func TestCollectTXs(t *testing.T) {
 	}
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	// Create a channel to receive the transactions from the two blocks.
 	// The channel must be closed after the call to collect.
-	tc := make(chan []TX)
+	tc := make(chan []cosmosclient.TX)
 
 	// Collect all transactions
 	var (
-		txs  []TX
+		txs  []cosmosclient.TX
 		open bool
 	)
 
@@ -252,11 +254,11 @@ func TestCollectTXsWithStatusError(t *testing.T) {
 	m.OnStatus().Return(nil, wantErr)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	// Create a channel to receive the transactions from the two blocks.
 	// The channel must be closed after the call to collect.
-	tc := make(chan []TX)
+	tc := make(chan []cosmosclient.TX)
 
 	open := false
 	ctx := context.Background()
@@ -290,11 +292,11 @@ func TestCollectTXsWithBlockError(t *testing.T) {
 	m.OnBlock().Return(nil, wantErr)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	// Create a channel to receive the transactions from the two blocks.
 	// The channel must be closed after the call to collect.
-	tc := make(chan []TX)
+	tc := make(chan []cosmosclient.TX)
 
 	open := false
 	ctx := context.Background()
@@ -336,11 +338,11 @@ func TestCollectTXsWithContextDone(t *testing.T) {
 	m.OnTxSearch().Return(&rs, nil)
 
 	// Create a cosmos client that uses the RPC mock
-	client := Client{RPC: m}
+	client := cosmosclient.Client{RPC: m}
 
 	// Create a channel to receive the transactions from the two blocks.
 	// The channel must be closed after the call to collect.
-	tc := make(chan []TX)
+	tc := make(chan []cosmosclient.TX)
 
 	// Create a context and cancel it so the collect call finishes because the context is done
 	ctx, cancel := context.WithCancel(context.Background())
