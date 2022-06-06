@@ -96,16 +96,18 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	// for each validator
+	// todo: update for each validator
+	// now: hard code first validator
+	validator := conf.Validators[0]
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
 		changes map[string]interface{}
 	}{
 		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
-		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.Init.Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, validator.App},
+		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, validator.Client},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, validator.Config},
 	}
 
 	for _, ac := range appconfigs {
@@ -169,9 +171,12 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		}
 	}
 
+	// todo: for each validator
+	// now: hardcode validator
+	validator := conf.Validators[0]
 	_, err = c.IssueGentx(ctx, Validator{
-		Name:          conf.Validator.Name,
-		StakingAmount: conf.Validator.Staked,
+		Name:          validator.Name,
+		StakingAmount: validator.Bonded,
 	})
 	return err
 }

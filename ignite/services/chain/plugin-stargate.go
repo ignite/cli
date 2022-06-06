@@ -66,19 +66,22 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 		return err
 	}
 
-	apiAddr, err := xurl.TCP(conf.Host.API)
+	// todo: validator selector or FOR EACH
+	validator := conf.Validators[0]
+	api := validator.API()
+	apiAddr, err := xurl.TCP(api)
 	if err != nil {
-		return fmt.Errorf("invalid api address format %s: %w", conf.Host.API, err)
+		return fmt.Errorf("invalid api address format %s: %w", api, err)
 	}
 
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", apiAddr)
-	config.Set("grpc.address", conf.Host.GRPC)
-	config.Set("grpc-web.address", conf.Host.GRPCWeb)
+	config.Set("grpc.address", validator.GRPC())
+	config.Set("grpc-web.address", validator.GRPCWeb())
 
-	staked, err := sdktypes.ParseCoinNormalized(conf.Validator.Staked)
+	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
 	if err != nil {
 		return err
 	}
@@ -117,6 +120,8 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")
+
+	// We can ignore this step as its now baked into the validator parse
 	// config.Set("rpc.laddr", rpcAddr)
 	// config.Set("p2p.laddr", p2pAddr)
 	// config.Set("rpc.pprof_laddr", conf.Host.Prof)
@@ -152,11 +157,12 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 }
 
 func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf chainconfig.Config) error {
+	val := conf.Validators[0]
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",
 		"--grpc.address",
-		conf.Host.GRPC,
+		val.GRPC(),
 	)
 	return &CannotStartAppError{p.app.Name, err}
 }

@@ -309,6 +309,34 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 		API:     genAddr(ports[5]),
 	}
 
+	val := chainconfig.Validator{
+		App: map[string]interface{}{
+			"grpc": map[string]interface{}{
+				"address": servers.GRPC,
+			},
+
+			"grpc-web": map[string]interface{}{
+				"address": servers.GRPCWeb,
+			},
+
+			"api": map[string]interface{}{
+				"address": servers.API,
+			},
+		},
+
+		Config: map[string]interface{}{
+			"rpc": map[string]interface{}{
+				"laddr": servers.RPC,
+			},
+
+			"p2p": map[string]interface{}{
+				"laddr": servers.P2P,
+			},
+
+			"pprof_laddr": servers.Prof,
+		},
+	}
+
 	// update config.yml with the generated servers list.
 	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0o755)
 	require.NoError(e.t, err)
@@ -317,7 +345,8 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 	var conf chainconfig.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
-	conf.Host = servers
+	conf.Validators[0].App = val.App
+	conf.Validators[0].Config = val.App
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
@@ -371,7 +400,7 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	var conf chainconfig.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
-	conf.Init.Home = e.TmpDir()
+	conf.Validators[0].Home = e.TmpDir()
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)

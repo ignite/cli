@@ -34,7 +34,6 @@ var DefaultConf = Config{
 	Validators: []Validator{
 		{
 			// when in Docker on MacOS, it only works with 0.0.0.0.
-			Name: "smith",
 			App: configmap{
 				"grpc": configmap{
 					"address": "0.0.0.0:9090",
@@ -86,6 +85,7 @@ type Config struct {
 	Faucet     Faucet                 `yaml:"faucet"`
 	Build      Build                  `yaml:"build"`
 	Genesis    map[string]interface{} `yaml:"genesis"`
+	Client     Client                 `yaml:"client"`
 }
 
 // AccountByName finds account by name.
@@ -133,6 +133,58 @@ type Validator struct {
 
 	// GenTx overwrites the default gentx transaction info.
 	GenTx GenTx `yaml:"gentx"`
+}
+
+func (v Validator) API() string {
+	return v.getConfigItemWithNamespace(v.App, "api", "address")
+}
+
+func (v Validator) GRPC() string {
+	return v.getConfigItemWithNamespace(v.App, "grpc", "address")
+}
+
+func (v Validator) GRPCWeb() string {
+	return v.getConfigItemWithNamespace(v.App, "grpc-web", "address")
+}
+
+func (v Validator) RPC() string {
+	return v.getConfigItemWithNamespace(v.Config, "rpc", "laddr")
+}
+
+func (v Validator) P2P() string {
+	return v.getConfigItemWithNamespace(v.Config, "p2p", "laddr")
+}
+
+func (v Validator) Pprof() string {
+	return v.getConfigItem(v.Config, "pprof_laddr")
+}
+
+// we can generalize these getter into a single recursive map field getter
+// func that accepts an abritrary depth, but we only ever seem to either
+// do 1 or two deep, so that might be overkill.
+func (v Validator) getConfigItemWithNamespace(conf map[string]interface{}, namespace, key string) string {
+	// sanity checks since its map[string]interface{} types all the way down
+	if confMap, ok := conf[namespace].(configmap); ok {
+		if rawval, ok := confMap[key]; ok {
+			if val, ok := rawval.(string); ok {
+				return val
+			}
+			return "" // default?
+		}
+		return "" // default?
+	}
+	return "" // default?
+}
+
+func (v Validator) getConfigItem(conf map[string]interface{}, key string) string {
+	// sanity checks since its map[string]interface{} types all the way down
+	if rawval, ok := conf[key]; ok {
+		if val, ok := rawval.(string); ok {
+			return val
+		}
+		return "" // default?
+	}
+	return "" // default?
 }
 
 // GenTx validator info
@@ -242,14 +294,16 @@ type Faucet struct {
 // }
 
 // Host keeps configuration related to started servers.
-// type App struct {
-// 	RPC     string `yaml:"rpc"`
-// 	P2P     string `yaml:"p2p"`
-// 	Prof    string `yaml:"prof"`
-// 	GRPC    string `yaml:"grpc"`
-// 	GRPCWeb string `yaml:"grpc-web"`
-// 	API     string `yaml:"api"`
-// }
+// Keeping for backwards compatability for now, despite no longer being used
+// directly on the config object.
+type Host struct {
+	RPC     string `yaml:"rpc"`
+	P2P     string `yaml:"p2p"`
+	Prof    string `yaml:"prof"`
+	GRPC    string `yaml:"grpc"`
+	GRPCWeb string `yaml:"grpc-web"`
+	API     string `yaml:"api"`
+}
 
 // note(jsimnz): Using github.com/imdario/mergo to merge the config struct with the default struct
 // has a problem with the change to Validators being a slice instead of a struct. There is a mergo

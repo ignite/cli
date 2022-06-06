@@ -32,8 +32,8 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	require.NoError(t, cf.Load(&c))
 
 	c.Genesis = map[string]interface{}{"chain_id": "cosmos"}
-	c.Init.App = map[string]interface{}{"hello": "cosmos"}
-	c.Init.Config = map[string]interface{}{"fast_sync": false}
+	c.Validators[0].App = map[string]interface{}{"hello": "cosmos"}
+	c.Validators[0].Config = map[string]interface{}{"fast_sync": false}
 
 	require.NoError(t, cf.Save(c))
 
