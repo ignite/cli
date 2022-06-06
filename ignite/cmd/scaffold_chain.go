@@ -48,8 +48,8 @@ The blockchain is using the Cosmos SDK modular blockchain framework. Learn more 
 	}
 
 	flagSetClearCache(c)
+	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().StringP(flagPath, "p", ".", "Create a project in a specific path")
-	c.Flags().String(flagAddressPrefix, "cosmos", "Address prefix")
 	c.Flags().Bool(flagNoDefaultModule, false, "Create a project without a default module")
 
 	return c
@@ -61,9 +61,9 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	var (
 		name               = args[0]
-		addressPrefix, _   = cmd.Flags().GetString(flagAddressPrefix)
-		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
+		addressPrefix      = getAddressPrefix(cmd)
 		appPath            = flagGetPath(cmd)
+		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 	)
 
 	cacheStorage, err := newCache(cmd)
