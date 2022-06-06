@@ -51,17 +51,6 @@ type Config struct {
 	common.BaseConfig `yaml:",inline"`
 }
 
-// ListAccounts returns the list of all the accounts.
-func (c *Config) ListAccounts() []common.Account {
-	return c.Accounts
-}
-
-// Clone returns an identical copy of the instance
-func (c *Config) Clone() common.Config {
-	copy := *c
-	return &copy
-}
-
 // FillValidatorsDefaults fills in the defaults values for the validators if they are missing.
 func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
 	for i := range c.Validators {

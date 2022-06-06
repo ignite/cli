@@ -14,7 +14,8 @@ import (
 )
 
 // Parse parses config.yml into UserConfig based on the version.
-func Parse(r io.Reader) (*v1.Config, error) {
+// TODO parse to the given config
+func Parse(configFile io.Reader, out common.Config) error {
 	// Read the version field
 	version, err := getConfigVersion(r)
 	if err != nil {

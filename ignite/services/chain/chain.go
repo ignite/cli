@@ -6,13 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
+	configv1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	sperrors "github.com/ignite-hq/cli/ignite/errors"
 	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
@@ -20,6 +18,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
 	"github.com/ignite-hq/cli/ignite/pkg/repoversion"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/tendermint/spn/pkg/chainid"
 )
 
 var (
@@ -222,7 +221,7 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*v1.Config, error) {
+func (c *Chain) Config() (*configv1.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
 		return chainconfig.DefaultConfig, nil
