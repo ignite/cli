@@ -332,21 +332,15 @@ func saveTX(ctx context.Context, txStmt, attrStmt *sql.Stmt, tx cosmosclient.TX)
 		return fmt.Errorf("error saving TX %s: %w", hash, err)
 	}
 
-	events, err := cosmosclient.UnmarshallEvents(tx.GetEventLog())
+	events, err := tx.GetEvents()
 	if err != nil {
-		return fmt.Errorf("invalid event log in TX %s: %w", hash, err)
+		return err
 	}
 
 	for i, evt := range events {
 		for _, attr := range evt.Attributes {
-			// The attribute value must be saved as a JSON encoded value
-			v, err := json.Marshal(attr.Value)
-			if err != nil {
-				return fmt.Errorf("failed to encode event attribute '%s': %w", attr.Key, err)
-			}
-
-			if _, err := attrStmt.ExecContext(ctx, hash, evt.Type, i, attr.Key, v); err != nil {
-				return fmt.Errorf("error saving event attribute: %w", err)
+			if _, err := attrStmt.ExecContext(ctx, hash, evt.Type, i, attr.Key, attr.Value); err != nil {
+				return fmt.Errorf("error saving event attr '%s.%s': %w", evt.Type, attr.Key, err)
 			}
 		}
 	}

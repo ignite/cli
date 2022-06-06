@@ -17,9 +17,30 @@ type TX struct {
 	Raw *ctypes.ResultTx
 }
 
-// GetLog returns the event log encoded as JSON.
-func (t TX) GetEventLog() []byte {
-	return []byte(t.Raw.TxResult.GetLog())
+// GetEvents returns the transaction events.
+func (t TX) GetEvents() (events []TXEvent, err error) {
+	for _, e := range t.Raw.TxResult.Events {
+		evt := TXEvent{Type: e.Type}
+
+		for _, a := range e.Attributes {
+			// Make sure that the attribute value is a valid JSON encoded string.
+			// Tendermint event attribute values contain JSON encoded values without quotes
+			// so string values need to be encoded to be quoted and saved as valid JSONB.
+			v, err := formatAttributeValue(a.Value)
+			if err != nil {
+				return nil, fmt.Errorf("error encoding event attr '%s.%s': %w", e.Type, a.Key, err)
+			}
+
+			evt.Attributes = append(evt.Attributes, TXEventAttribute{
+				Key:   string(a.Key),
+				Value: v,
+			})
+		}
+
+		events = append(events, evt)
+	}
+
+	return events, nil
 }
 
 // TXEvent defines a transaction event.
@@ -31,24 +52,14 @@ type TXEvent struct {
 // TXEventAttribute defines a transaction event attribute.
 type TXEventAttribute struct {
 	Key   string `json:"key"`
-	Value any    `json:"value"`
+	Value []byte `json:"value"`
 }
 
-// UnmarshallEvents parses JSON encoded transaction event logs.
-func UnmarshallEvents(b []byte) ([]TXEvent, error) {
-	// The transaction's event log contains a list where each item is an object
-	// with a single "events" property which in turn contains the list of events
-	var log []struct {
-		Events []TXEvent `json:"events"`
+func formatAttributeValue(v []byte) ([]byte, error) {
+	if json.Valid(v) {
+		return v, nil
 	}
 
-	if err := json.Unmarshal(b, &log); err != nil {
-		return nil, fmt.Errorf("error decoding transaction events: %w", err)
-	}
-
-	if len(log) > 0 {
-		return log[0].Events, nil
-	}
-
-	return nil, nil
+	// Encode all string or invalid values
+	return json.Marshal(string(v))
 }
