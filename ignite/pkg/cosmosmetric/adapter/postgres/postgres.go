@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	adapterType = "postgres"
+	DefaultPort            = 5432
+	DefaultHost            = "127.0.0.1"
+	DefaultSaveConcurrency = 0 // no limit
 
-	defaultPort            = 5432
-	defaultHost            = "127.0.0.1"
-	defaultSaveConcurrency = 0 // no limit
+	adapterType = "postgres"
 
 	queryBlockHeight = `
 		SELECT COALESCE(MAX(height), 0)
@@ -114,9 +114,9 @@ func WithSaveConcurrency(concurrency int) Option {
 // NewAdapter creates a new PostgreSQL adapter.
 func NewAdapter(database string, options ...Option) (Adapter, error) {
 	adapter := Adapter{
-		host:            defaultHost,
-		port:            defaultPort,
-		saveConcurrency: defaultSaveConcurrency,
+		host:            DefaultHost,
+		port:            DefaultPort,
+		saveConcurrency: DefaultSaveConcurrency,
 	}
 
 	for _, o := range options {
