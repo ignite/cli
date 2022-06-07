@@ -72,7 +72,7 @@ func getKeyringDir(cmd *cobra.Command) string {
 
 func flagSetAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, "cosmos", "Account address prefix")
+	fs.String(flagAddressPrefix, cosmosaccount.AccountPrefixCosmos, "Account address prefix")
 	return fs
 }
 
