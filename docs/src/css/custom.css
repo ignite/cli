@@ -26,6 +26,9 @@
   --docsearch-searchbox-background: #F7F7F7;
   --ifm-navbar-height: 5.563rem;
 
+  /* temp: local search bar */
+  --aa-primary-color-rgb: 0,0,0;
+
   @media screen and (prefers-reduced-motion) {
   transition: 	
   }
@@ -87,6 +90,30 @@ html {
     .github-icon { @apply hover:opacity-50; }
 
     /* SEARCHBAR */
+    /* local search */
+    .dsla-search-wrapper { @apply m-0; }
+    .aa-DetachedSearchButton{ 
+        @apply text-inactive rounded-sm h-8 w-8 bg-card border-none; 
+        &:focus {
+            @apply shadow-[0_0_2px_0_rgba(0,0,0,0.3)] border-link;
+        }
+        @media (min-width: 997px){
+            @apply w-auto justify-between; 
+        }
+    }
+    .aa-DetachedSearchButtonPlaceholder {
+        @apply hidden;
+        @media (min-width: 997px){
+            @apply block pr-8 pl-3 order-1;
+        }
+    }
+    .aa-DetachedCancelButton:hover { @apply shadow-none text-muted;}
+    .aa-DetachedSearchButtonIcon {@apply order-2; }
+    .aa-DetachedOverlay{ @apply max-w-none bg-inactive; }
+    .aa-Form:focus-within{
+        @apply shadow-[0_0_2px_0_rgba(0,0,0,0.3)] border-link;
+    }
+    /* algolia */
     .DocSearch-Button {
         @apply text-inactive rounded-sm h-8 w-8 bg-card justify-center mr-3;
         @media (min-width: 997px){
@@ -336,4 +363,6 @@ html {
         }
     }
 }
+
+
 

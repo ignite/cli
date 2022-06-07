@@ -194,13 +194,14 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
-      algolia: {
-        appId: "YOUR_APP_ID",
-        apiKey: "YOUR_SEARCH_API_KEY",
-        indexName: "YOUR_INDEX_NAME",
-      },
+      //   algolia: {
+      //     appId: "YOUR_APP_ID",
+      //     apiKey: "YOUR_SEARCH_API_KEY",
+      //     indexName: "YOUR_INDEX_NAME",
+      //   },
     }),
   plugins: [
+    require.resolve("@cmfcmf/docusaurus-search-local"),
     async function myPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
