@@ -47,6 +47,7 @@ tasks:
 ports:
   - port: 1317
   - port: 26657
+    visibility: public
   - port: 26659
     visibility: public
   - port: 8080
