@@ -181,6 +181,10 @@ const config = {
                 label: "Linkedin",
                 href: "https://www.linkedin.com/company/ignt/",
               },
+              {
+                label: "YouTube",
+                href: "https://www.youtube.com/ignitehq",
+              },
             ],
           },
         ],
