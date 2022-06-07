@@ -6,7 +6,7 @@ parent:
   title: Developer Tutorials
 ---
 
-# Introduction
+# Ignite CLI developer tutorials
 
 Developer tutorials provide step-by-step instructions to help you build blockchain developer skills. 
 
