@@ -64,3 +64,9 @@ func TestParseID(t *testing.T) {
 		})
 	}
 }
+
+func SampleSharePercent(t *testing.T, denom string, nominator, denominator uint64) SharePercent {
+	sp, err := NewSharePercent(denom, nominator, denominator)
+	require.NoError(t, err)
+	return sp
+}
