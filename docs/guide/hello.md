@@ -14,7 +14,7 @@ In the previous chapter you've learned how to install [Ignite CLI](https://githu
 This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.20.0 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.20.0! | bash
+curl https://get.ignite.com/cli@v0.21.2! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
@@ -26,7 +26,7 @@ Are you ready? Open a terminal window and navigate to a directory where you have
 To create your blockchain with the default directory structure, run this command:
 
 ```bash
-ignite scaffold chain github.com/username/hello
+ignite scaffold chain hello
 ```
 
 This command creates a Cosmos SDK blockchain called hello in a `hello` directory. The source code inside the `hello` directory contains a fully functional ready-to-use blockchain.
@@ -60,13 +60,13 @@ The `hello` directory contains a number of generated files and directories that 
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | app/           | Files that wire together the blockchain. The most important file is `app.go` that contains type definition of the blockchain and functions to create and initialize it. |
 | cmd/           | The main package responsible for the CLI of compiled binary.                                                                                                            |
-| docs/          | Directory for project documentation. By default, an OpenAPI spec is generated.                                                                                        |
+| docs/          | Directory for project documentation. By default, an OpenAPI spec is generated.                                                                                          |
 | proto/         | Protocol buffer files describing the data structure.                                                                                                                    |
 | testutil/      | Helper functions for testing.                                                                                                                                           |
 | vue/           | A Vue 3 web app template.                                                                                                                                               |
 | x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
 | config.yml     | A configuration file for customizing a chain in development.                                                                                                            |
-| readme.md      | A readme file for your sovereign application-specific blockchain project.                                                                                                            |
+| readme.md      | A readme file for your sovereign application-specific blockchain project.                                                                                               |
 
 Now you can get your blockchain up and running locally on a single node.
 
@@ -124,40 +124,49 @@ For all subsequent commands, use a terminal window that is different from the wi
 
 In a different terminal window, run the commands in your `hello` directory.
 
-Create a `posts` query:
+Create a `hello` query:
 
 ```bash
-ignite scaffold query posts --response title,body
+ignite scaffold query hello --response text
 ```
 
-`query` accepts a name of the query (in this case, `posts`), an optional list of request parameters (in this case, empty), and an optional comma-separated list of response fields with a `--response` flag (in this case, `body,title`).
+`query` accepts a name of the query (in this case, `hello`), an optional list of request parameters (in this case, empty), and an optional comma-separated list of response fields with a `--response` flag (in this case, `text`).
 
 The `query` command has created and modified several files:
 
-- modified `proto/hello/query.proto`
-- created `x/hello/keeper/grpc_query_posts.go`
-- modified `x/hello/client/cli/query.go`
-- created `x/hello/client/cli/query_posts.go`
+```
+modify proto/hello/query.proto
+modify x/hello/client/cli/query.go
+create x/hello/client/cli/query_hello.go
+create x/hello/keeper/grpc_query_hello.go
+```
 
 Let's examine some of these changes. For clarity, the following code blocks do not show the placeholder comments that Ignite CLI uses to scaffold code. Don't delete these placeholders since they are required to continue using Ignite CLI's scaffolding functionality.
 
+Note: it's recommended to commit changes to a version control system (for example, Git) after scaffolding. This allows others to easily distinguish between code generated by Ignite and the code writen by hand.
+
+```
+git add .
+git commit -am "Scaffolded a hello query with Ignite CLI"
+```
+
 ### Updates to the query service
 
-In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Query` service.
+In the `proto/hello/query.proto` file, the `Hello` rpc has been added to the `Query` service.
 
 ```proto
 service Query {
-  rpc Posts(QueryPostsRequest) returns (QueryPostsResponse) {
-    option (google.api.http).get = "/username/hello/hello/posts";
-  }
+	rpc Hello(QueryHelloRequest) returns (QueryHelloResponse) {
+		option (google.api.http).get = "/hello/hello/hello";
+	}
 }
 ```
 
-Here's how the `Posts` rpc for the `Query` service works:
+Here's how the `Hello` rpc for the `Query` service works:
 
-- Is responsible for returning a list of all the posts on chain
-- Accepts request parameters (`QueryPostsRequest`)
-- Returns response of type `QueryPostsResponse`
+- Is responsible for returning a `text` string
+- Accepts request parameters (`QueryHelloRequest`)
+- Returns response of type `QueryHelloResponse`
 - The `option` defines the endpoint that is used by gRPC to generate an HTTP API
 
 ### Request and reponse types
@@ -165,57 +174,60 @@ Here's how the `Posts` rpc for the `Query` service works:
 Now, take a look at the following request and response types:
 
 ```proto
-message QueryPostsRequest {
+message QueryHelloRequest {
 }
 
-message QueryPostsResponse {
-  string title = 1;
-  string body = 2;
+message QueryHelloResponse {
+  string text = 1;
 }
 ```
 
-- The `QueryPostsRequest` message is empty because requesting all posts doesn't require parameters.
-- The `QueryPostsResponse` message contains `title` and `body` that is returned from the chain.
+- The `QueryHelloRequest` message is empty because this request does not require parameters.
+- The `QueryHelloResponse` message contains `text` that is returned from the chain.
 
-## Posts keeper function
+## Hello keeper function
 
-The `x/hello/keeper/grpc_query_posts.go` file contains the `Posts` keeper function that handles the query and returns data.
+The `x/hello/keeper/grpc_query_hello.go` file contains the `Hello` keeper function that handles the query and returns data.
 
 ```go
-func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
-  if req == nil {
-    return nil, status.Error(codes.InvalidArgument, "invalid request")
-  }
-  ctx := sdk.UnwrapSDKContext(c)
-  _ = ctx
-  return &types.QueryPostsResponse{}, nil
+func (k Keeper) Hello(goCtx context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	_ = ctx
+	return &types.QueryHelloResponse{}, nil
 }
 ```
 
-The `Posts` function performs these actions:
+The `Hello` function performs these actions:
 
 - Makes a basic check on the request and throws an error if it's `nil`
 - Stores context in a `ctx` variable that contains information about the environment of the request
-- Returns a response of type `QueryPostsResponse`
+- Returns a response of type `QueryHelloResponse`
 
 Right now the response is empty.
 
 ### Update keeper function
 
-In the `query.proto` file, the response accepts `title` and `body`. 
+In the `query.proto` file, the response accepts `text`. 
 
-- Use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. 
-- On the last line of the keeper function, change the line to return a "Hello!":
+- Use a text editor to modify the `x/hello/keeper/grpc_query_hello.go` file that contains the keeper function. 
+- On the last line of the keeper function, change the line to return "Hello, Ignite CLI!":
 
 ```go
-func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
-  //...
-  return &types.QueryPostsResponse{Title: "Hello!", Body: "Ignite CLI"}, nil
+func (k Keeper) Hello(c context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	_ = ctx
+  return &types.QueryHelloResponse{Text: "Hello, Ignite CLI!"}, nil // <--
 }
 ```
 
 - Save the file to restart your chain. 
-- In a web browser, visit the posts endpoint [http://localhost:1317/username/hello/hello/posts](http://localhost:1317/username/hello/hello/posts).
+- In a web browser, visit the `hello` endpoint [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello).
 
   Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
 
@@ -245,19 +257,18 @@ Make the required changes to the `x/hello/module.go` file.
     }
     ```
 
-1. After the chain has been started, visit [http://localhost:1317/username/hello/hello/posts](http://localhost:1317/username/hello/hello/posts) and see your text displayed:
+2. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
 
     ```go
     {
-      "title": "Hello!",
-      "body": "Ignite CLI"
+      "text": "Hello, Ignite CLI!",
     }
     ```
 
-The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
+The `query` command has also scaffolded `x/hello/client/cli/query_hello.go` that implements a CLI equivalent of the hello query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
 ```go
-hellod q hello posts
+hellod q hello hello
 ```
 
 Congratulations, you have built your first blockchain and your first Cosmos SDK module. Continue the journey to learn more about scaffolding Cosmos SDK messages, types in protocol buffer files, the keeper, and more.
