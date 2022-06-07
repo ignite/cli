@@ -16,14 +16,14 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL  string
-	chainID     string
-	campaignID  uint64
-	noCheck     bool
-	metadata    string
-	totalSupply sdk.Coins
-	shares      sdk.Coins
-	mainnet     bool
+	genesisURL       string
+	chainID          string
+	campaignID       uint64
+	noCheck          bool
+	metadata         string
+	totalSupply      sdk.Coins
+	sharePercentages SharePercents
+	mainnet          bool
 }
 
 // PublishOption configures chain creation.
@@ -72,9 +72,9 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 }
 
 // WithPercentageShares enables minting vouchers for shares.
-func WithPercentageShares(shares sdk.Coins) PublishOption {
+func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	return func(c *publishOptions) {
-		c.shares = shares
+		c.sharePercentages = sharePercentages
 	}
 }
 
@@ -158,16 +158,19 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	// mint vouchers
-	if !o.shares.Empty() {
+	if !o.sharePercentages.Empty() {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
 			return 0, 0, err
 		}
 
 		var coins []sdk.Coin
-		for _, share := range o.shares {
-			amount := int64((float64(share.Amount.Int64()) / 100) * float64(totalSharesResp.TotalShares))
-			coins = append(coins, sdk.NewInt64Coin(share.Denom, amount))
+		for _, percentage := range o.sharePercentages {
+			coin, err := percentage.Share(totalSharesResp.TotalShares)
+			if err != nil {
+				return 0, 0, err
+			}
+			coins = append(coins, coin)
 		}
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
@@ -175,7 +178,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			n.account.Address(networktypes.SPN),
 			campaignID,
-			campaigntypes.NewSharesFromCoins(coins),
+			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
 		_, err = n.cosmos.BroadcastTx(n.account.Name, msgMintVouchers)
 		if err != nil {
