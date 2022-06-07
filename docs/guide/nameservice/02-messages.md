@@ -3,7 +3,7 @@ order: 2
 description: Add messages to define actions for the nameservice module.
 ---
 
-# Messages for the Nameservice Module
+# Messages for the nameservice module
 
 Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a name that belongs to them.
 
@@ -57,7 +57,7 @@ Handlers define the action that needs to be taken. Each message has an associate
 
 For example, handlers define which stores to update, how to update the stores, and under what conditions to act when a given message is received.
 
-## Scaffolding Messages
+## Scaffolding messages
 
 Now, you are ready to implement these Cosmos SDK messages to achieve the desired functionality for your nameservice app:
 
@@ -73,7 +73,7 @@ Use the `ignite scaffold message` command to scaffold new messages for your modu
 - The [`ignite scaffold message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
 - By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`.
 
-### Add the MsgBuyName Message
+### Add the MsgBuyName message
 
 To create the `MsgBuyName` message for the nameservice module:
 
@@ -153,7 +153,7 @@ The `ignite scaffold message buy-name name bid` command creates and modifies sev
     Registers the codecs.
 
 
-### Add The MsgSetName Message
+### Add the MsgSetName message
 
 To create the `MsgSetName` for the nameservice module:
 
@@ -169,7 +169,7 @@ where:
 
 This `ignite scaffold message` command modifies and creates the same set of files as the `MsgBuyName` message.
 
-### Add The MsgDeleteName Message
+### Add the MsgDeleteName message
 
 You need a message so that an end user can delete a name that belongs to them.
 

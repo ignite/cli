@@ -3,7 +3,7 @@ order: 5
 description: Start and experiment with your nameservice blockchain and nameservice module.
 ---
 
-# Play With Your Blockchain
+# Experiment with your blockchain
 
 If you haven't already, start a blockchain node in development:
 
@@ -17,7 +17,7 @@ After the `serve` command has finished building the blockchain, a `nameserviced`
 
 The terminal window where the chain is started must remain open, so open a second terminal window to use `nameserviced` to run commands at the command line.
 
-## Buy a New Name
+## Buy a new name
 
 Purchase a new name using the `buy-name` command. The name is `foo` and the bid is `20token`. 
 
@@ -62,7 +62,7 @@ Here is what an unsigned transaction looks like:
 }
 ```
 
-### Buy Name Transaction Details
+### Buy name transaction details
 
 Look at the transaction details:
 
@@ -102,7 +102,7 @@ After the transaction is broadcast and included in a block, the blockchain retur
 }
 ```
 
-## Query the Chain for a List of Names
+## Query the chain for a list of names
 
 Query the chain for a list of name and correponding values. Query commands don't need the `--from` flag, because they don't broadcast transactions and make only free requests.
 
@@ -124,7 +124,7 @@ pagination:
   total: "0"
 ```
 
-## Set a Value to the Name
+## Set a value to the name
 
 Now that `alice` is an owner of the name, she can set the value to anything she wants. Use the `set-name` command to set the value to `bar`:
 
@@ -152,7 +152,7 @@ pagination:
   total: "0"
 ```
 
-## Buy an Existing Name
+## Buy an existing name
 
 Use the `bob` account to purchase an existing name from `alice`. A successful bid requires that the buy price is higher than the current value of `20token`. 
 
@@ -182,7 +182,7 @@ pagination:
   total: "0"
 ```
 
-## Query the Bank Balance
+## Query the bank balance
 
 Use the following command to see how the `alice` bank balance has changed after this transaction:
 
@@ -190,7 +190,7 @@ Use the following command to see how the `alice` bank balance has changed after 
 nameserviced q bank balances $(nameserviced keys show alice -a)
 ```
 
-## Test an Unauthorized Transaction
+## Test an unauthorized transaction
 
 Try updating the value by broadcasting a transaction from the `alice` account: 
 

@@ -3,7 +3,7 @@ order: 3
 description: Implement types and methods that operate on the state.
 ---
 
-# Implement Types
+# Implement types
 
 Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate on the state.
 
@@ -17,7 +17,7 @@ Because Ignite CLI does the heavy lifting for you, choose from several [ignite s
 - Map (key-value pairs)
 - In a single location  
 
-## Add the whois Type
+## Add the whois type
 
 Use the `ignite scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names.
 
@@ -97,7 +97,7 @@ The `ignite scaffold map whois name value price --no-message` command created an
 
     Registers gRPC gateway routes.
 
-## Keeper Package
+## Keeper package
 
 In the `x/nameservice/keeper/whois.go` file, take at a look at the keeper package.
 

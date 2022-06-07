@@ -3,11 +3,11 @@ order: 1
 description: Scaffold a blockchain and create a nameservice module.
 ---
 
-# Scaffold the Nameservice Module
+# Scaffold the nameservice module
 
 Scaffold a blockchain and create a `nameservice` module for the nameservice app. Remember, the goal of the nameservice app is to send tokens between participants so that end users can buy names and set a value to the names.
 
-## Create a Blockchain
+## Create a blockchain
 
 Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command. The [ignite scaffold chain](https://docs.ignite.com/cli/#ignite-scaffold-chain) command accepts one argument: the Go module path that is used for the project.
 
@@ -27,7 +27,7 @@ cd nameservice
 
 Inside the `nameservice` project directory you can execute other Ignite CLI commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
 
-## Create the Module
+## Create the module
 
 Scaffold a new module called `nameservice`. By design, the `nameservice` module must send tokens between participants. The send tokens functionality is implemented in the standard `bank` module.
 

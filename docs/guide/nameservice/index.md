@@ -6,7 +6,7 @@ parent:
   description: Build a blockchain app that lets users buy names and set a value these names resolve to. 
 ---
 
-# Nameservice Tutorial
+# Tutorial: Send tokens for the nameservice app
 
 The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. The goal of the nameservice app is to send tokens between participants so that end users can buy names and set a value to the names. 
 
@@ -33,13 +33,13 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 - Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/master/building-modules/intro.html) 
 
-## Nameservice App Goals
+## Nameservice app goals
 
 The goal of the app you are building is to let users buy a name and to set a value that a name resolve to. The owner of a given name is the current highest bidder. 
 
 First, see how these simple requirements translate to app design. 
 
-### Core Concepts 
+### Core concepts 
 
 A blockchain app is a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). As a blockchain app developer, you have to define the state machine with a starting state and messages that trigger state transitions. These software components make it all possible! 
 
@@ -47,7 +47,7 @@ A blockchain app is a [replicated deterministic state machine](https://en.wikipe
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework allows developers like you to create custom blockchains that can natively interact with other blockchains. 
 - [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) software securely and consistently replicates an app on many machines. The Tendermint app-agnostic engine handles the networking and consensus layers of your blockchain. 
 
-## Cosmos SDK Modules 
+## Cosmos SDK modules 
 
 In a Cosmos SDK blockchain, application-specific logic is implemented in separate modules. Modules keep code easy to understand and reuse. Each module contains its own message and transaction processor, while the Cosmos SDK is responsible for routing each message to its respective module.
 
@@ -62,7 +62,7 @@ Your nameservice app requires the following Cosmos SDK modules:
 
 Now, take a look at the two main parts of your app: the state and the message types.
 
-## Application State
+## Application state
 
 The state represents your app at a given moment. The state of your nameservice app defines how many tokens are in each account, who the account owners are, the price of each name, and to what value each name resolves to.
 
