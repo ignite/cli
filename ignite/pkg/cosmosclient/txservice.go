@@ -59,10 +59,5 @@ func (s TxService) Broadcast() (Response, error) {
 
 // EncodeJSON encodes the transaction as a json string
 func (s TxService) EncodeJSON() ([]byte, error) {
-	json, err := s.client.context.TxConfig.TxJSONEncoder()(s.txBuilder.GetTx())
-	if err != nil {
-		return nil, err
-	}
-
-	return json, nil
+	return s.client.context.TxConfig.TxJSONEncoder()(s.txBuilder.GetTx())
 }
