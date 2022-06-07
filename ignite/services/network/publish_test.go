@@ -181,7 +181,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock,
-			WithPercentageShares(sdk.NewCoins(sdk.NewInt64Coin("foo", 2), sdk.NewInt64Coin("staking", 50))),
+			WithPercentageShares([]SharePercent{
+				SampleSharePercent(t, "foo", 2, 100),
+				SampleSharePercent(t, "staking", 50, 100),
+			}),
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)

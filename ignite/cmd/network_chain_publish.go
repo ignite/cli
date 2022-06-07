@@ -11,7 +11,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
@@ -207,12 +206,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentageRequired(sharesStr)
+		sharePercentages, err := network.ParseSharePercents(sharesStr)
 		if err != nil {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithPercentageShares(coins))
+		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
 	}
 
 	// init the chain.
