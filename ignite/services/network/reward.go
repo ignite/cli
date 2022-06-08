@@ -81,12 +81,12 @@ func (n Network) RewardsInfo(
 	unboundingTime int64,
 	err error,
 ) {
-	rewardsInfo, err = n.consensus(ctx, n.cosmos, height)
+	rewardsInfo, err = n.node.consensus(ctx, n.cosmos, height)
 	if err != nil {
 		return rewardsInfo, 0, 0, err
 	}
 
-	stakingParams, err := n.stakingParams(ctx)
+	stakingParams, err := n.node.stakingParams(ctx)
 	if err != nil {
 		return rewardsInfo, 0, 0, err
 	}

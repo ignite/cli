@@ -34,7 +34,8 @@ type CosmosClient interface {
 
 // Network is network builder.
 type Network struct {
-	Node
+	node                    Node
+	cosmos                  CosmosClient
 	ev                      events.Bus
 	account                 cosmosaccount.Account
 	campaignQuery           campaigntypes.QueryClient
@@ -90,7 +91,7 @@ func WithRewardQueryClient(client rewardtypes.QueryClient) Option {
 
 func WithStakingQueryClient(client stakingtypes.QueryClient) Option {
 	return func(n *Network) {
-		n.stakingQuery = client
+		n.node.stakingQuery = client
 	}
 }
 
@@ -110,8 +111,9 @@ func CollectEvents(ev events.Bus) Option {
 // New creates a Builder.
 func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
 	n := Network{
-		Node:                    NewNode(cosmos),
+		cosmos:                  cosmos,
 		account:                 account,
+		node:                    NewNode(cosmos),
 		campaignQuery:           campaigntypes.NewQueryClient(cosmos.Context()),
 		launchQuery:             launchtypes.NewQueryClient(cosmos.Context()),
 		profileQuery:            profiletypes.NewQueryClient(cosmos.Context()),

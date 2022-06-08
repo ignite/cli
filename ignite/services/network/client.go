@@ -64,7 +64,7 @@ func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer net
 	}
 	relayer.ClientID = clientStates[0]
 
-	connections, err := n.clientConnections(ctx, relayer.ClientID)
+	connections, err := n.node.clientConnections(ctx, relayer.ClientID)
 	if err != nil && err != ErrObjectNotFound {
 		return relayer, err
 	}
@@ -73,7 +73,7 @@ func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer net
 	}
 	relayer.ConnectionID = connections[0]
 
-	channels, err := n.connectionChannels(ctx, relayer.ConnectionID)
+	channels, err := n.node.connectionChannels(ctx, relayer.ConnectionID)
 	if err != nil && err != ErrObjectNotFound {
 		return relayer, err
 	}
