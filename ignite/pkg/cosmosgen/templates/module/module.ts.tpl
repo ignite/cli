@@ -64,8 +64,6 @@ class SDKModule extends Api<any> {
 };
 
 const Module = (test: IgniteClient) => {
-  console.log('plugin evalutes')
-
 	return {
 		module: {
 			{{ camelCaseLowerSta .Module.Pkg.Name }}: new SDKModule(test)
