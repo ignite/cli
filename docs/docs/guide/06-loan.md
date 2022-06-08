@@ -4,7 +4,7 @@ description: Loan blockchain using Ignite CLI
 title: "Advanced Module: DeFi Loan"
 ---
 
-# Loan Module
+# DeFi loan module
 
 As a rapidly growing industry in the blockchain ecosystem, (decentralized finance) DeFi is spurring innovation and revolution in spending, sending, locking, and loaning cryptocurrency tokens.
 
@@ -31,7 +31,7 @@ In this tutorial, you learn about a basic loan system as you use Ignite CLI to b
 
 **Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
 
-## Module Design
+## Module design
 
 A loan consists of:
 
@@ -53,7 +53,7 @@ The two accounts involved in the loan are:
 * `borrower`
 * `lender`
 
-### The Borrower
+### The borrower
 
 A borrower posts a loan request with loan information such as:
 
@@ -64,7 +64,7 @@ A borrower posts a loan request with loan information such as:
 
 The borrower must repay the loan amount and the loan fee to the lender by the deadline risk losing the collateral.
 
-### The Lender
+### The lender
 
 A lender can approve a loan request from a borrower.
 
@@ -72,12 +72,12 @@ A lender can approve a loan request from a borrower.
 - If the borrower is unable to pay the loan, the lender can liquidate the loan.
 - Loan liquidation transfers the collateral and the fees to the lender.
 
-## Scaffold the Blockchain
+## Scaffold the blockchain
 
 Use Ignite CLI to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
 
 ```bash
-ignite scaffold chain github.com/username/loan --no-module
+ignite scaffold chain loan --no-module
 ```
 
 The `--no-module` flag prevents scaffolding a default module. Don't worry, you will add the loan module later.
@@ -88,7 +88,7 @@ Change into the newly created `loan` directory:
 cd loan
 ```
 
-## Scaffold the Module
+## Scaffold the module
 
 Scaffold the module to create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded inside the `x` directory:
 
@@ -98,7 +98,7 @@ ignite scaffold module loan --dep bank
 
 Use the `--dep` flag to specify that this module depends on and is going to interact with the Cosmos SDK `bank` module.
 
-## Scaffold a List
+## Scaffold a list
 
 Use the [scaffold list](https://docs.ignite.com/cli/#ignite-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
 
@@ -132,7 +132,7 @@ git add .
 git commit -m "Scaffold loan module and loan list"
 ```
 
-## Scaffold the Messages
+## Scaffold the messages
 
 In order to create a loan app, you need the following messages:
 
@@ -148,7 +148,7 @@ You define the details of each message when you scaffold them.
 
 Create the messages one at a time with the according application logic.
 
-### Request Loan Message
+### Request loan message
 
 For a loan, the initial message handles the transaction when a username requests a loan.
 
@@ -175,7 +175,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/username/loan/x/loan/types"
+	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -232,7 +232,9 @@ type BankKeeper interface {
 }
 ```
 
-When a loan is created, a certain input validation is required. You want to throw error messages in case the end user tries impossible inputs.
+### Validate the input
+
+When a loan is created, a certain message input validation is required. You want to throw error messages in case the end user tries impossible inputs.
 
 You can describe message validation errors in the modules `types` directory.
 
@@ -270,6 +272,8 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 
 Congratulations, you have created the `request-loan` message.
 
+## Run and test your first message
+
 You can run the chain and test your first message.
 
 Start the blockchain:
@@ -306,6 +310,8 @@ Loan:
 
 You can stop the blockchain again with CTRL+C.
 
+### Save iterative changes
+
 This is a good time to add your advancements to git:
 
 ```bash
@@ -313,7 +319,7 @@ git add .
 git commit -m "Add request-loan message"
 ```
 
-### Approve Loan Message
+### Approve loan message
 
 After a loan request has been published, another account can approve the loan and agree to the terms of the borrower.
 
@@ -337,7 +343,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/username/loan/x/loan/types"
+	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -491,7 +497,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/username/loan/x/loan/types"
+	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -650,7 +656,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/username/loan/x/loan/types"
+	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -712,6 +718,8 @@ var (
 ```
 
 These changes are required for the `liquidate-loan` message.
+
+### Test liquidation message
 
 You can test the liquidation message now. Start your chain and reset the state of the app:
 
@@ -784,7 +792,7 @@ git add .
 git commit -m "Add liquidate-loan message"
 ```
 
-### Cancel Loan Message
+### Cancel loan message
 
 After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request.
 
@@ -807,7 +815,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/username/loan/x/loan/types"
+	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -839,6 +847,8 @@ func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (
 	return &types.MsgCancelLoanResponse{}, nil
 }
 ```
+
+### Test cancelling a loan
 
 Test the changes for cancelling a loan request:
 
