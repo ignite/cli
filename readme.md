@@ -6,10 +6,12 @@
 
 ## Quick start
 
-Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite-hq/cli/tree/master) (or open [nightly version](https://gitpod.io/#https://github.com/ignite-hq/cli/)), or [install latest release](https://docs.ignite.com/guide/install.html). Create and start a blockchain:
+Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite-hq/cli/tree/master) (or open [nightly version](https://gitpod.io/#https://github.com/ignite-hq/cli/)), or [install the latest release](https://docs.ignite.com/guide/install.html). 
+
+To create and start a blockchain:
 
 ```bash
-ignite scaffold chain github.com/username/mars
+ignite scaffold chain mars
 
 cd mars
 
@@ -22,13 +24,13 @@ To learn how to use Ignite CLI, check out the [Ignite CLI docs](https://docs.ign
 
 To install Ignite CLI locally on GNU, Linux, or macOS, see [Install Ignite CLI](https://docs.ignite.com/guide/install.html).
 
-To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [ignite-hq/vue](https://github.com/ignite-hq/vue).
+To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [ignite-hq/web](https://github.com/ignite-hq/web).
 
 ## Questions
 
 For questions and support, join the official [Ignite Discord](https://discord.gg/ignite) server. The issue list in this repo is exclusively for bug reports and feature requests.
 
-## Cosmos SDK Compatibility
+## Cosmos SDK compatibility
 
 Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the best possible experience, use the version of Ignite CLI that corresponds to the version of Cosmos SDK that your blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
@@ -47,7 +49,7 @@ We welcome contributions from everyone. The `develop` branch contains the develo
 
 Our [Ignite CLI bounty program](docs/bounty/index.md) provides incentives for your participation and pays rewards. Track new, in-progress, and completed bounties on the [Bounty board](https://github.com/ignite-hq/cli/projects/5) in GitHub.
 
-**Important** Before you start implementing a new Ignite CLI feature, the first step is to create an issue on Github that describes the proposed changes.
+**Important** Before you start implementing a new Ignite CLI feature, the first step is to create an issue on GitHub that describes the proposed changes.
 
 If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Ignite CLI. Thank you to everyone who has contributed to Ignite CLI!
 
@@ -59,6 +61,6 @@ Ignite CLI is a free and open source product maintained by [Ignite](https://igni
 - [@ignite_dev on Twitter](https://twitter.com/ignite_dev)
 - [ignite.com/blog](https://ignite.com/blog/)
 - [Ignite Discord](https://discord.com/invite/ignite)
-- [Ignite YouTube](https://www.youtube.com/channel/ignitehq)
+- [Ignite YouTube](https://www.youtube.com/ignitehq)
 - [Ignite docs](https://docs.ignite.com/)
 - [Ignite jobs](https://ignite.com/careers)
