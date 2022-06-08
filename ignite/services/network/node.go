@@ -37,12 +37,71 @@ func NewNode(cosmos CosmosClient) Node {
 	}
 }
 
+// RewardsInfo Fetches the consensus state with the validator set and the unbounding time
+func (n Node) RewardsInfo(ctx context.Context) (
+	reward networktypes.Reward,
+	chainID string,
+	unbondingTimeSeconds int64,
+	err error,
+) {
+	status, err := n.cosmos.Status(ctx)
+	if err != nil {
+		return networktypes.Reward{}, "", 0, err
+	}
+	lastBlockHeight := status.SyncInfo.LatestBlockHeight
+
+	info, err := n.consensus(ctx, n.cosmos, lastBlockHeight)
+	if err != nil {
+		return networktypes.Reward{}, "", 0, err
+	}
+
+	stakingParams, err := n.stakingParams(ctx)
+	if err != nil {
+		return networktypes.Reward{}, "", 0, err
+	}
+
+	return info,
+		status.NodeInfo.Network,
+		int64(stakingParams.UnbondingTime.Seconds()),
+		nil
+}
+
+// RewardIBCInfo returns IBC info to relay packets to claim rewards for the chain.
+func (n Node) RewardIBCInfo(ctx context.Context) (networktypes.RewardIBCInfo, error) {
+	clientID, err := n.consumerClientID(ctx)
+	if err != nil && err != ErrObjectNotFound {
+		return networktypes.RewardIBCInfo{}, err
+	}
+
+	channelID, err := n.connectionChannelID(ctx)
+	if err != nil && err != ErrObjectNotFound {
+		return networktypes.RewardIBCInfo{}, err
+	}
+
+	connections, err := n.clientConnections(ctx, clientID)
+	if err != nil && err != ErrObjectNotFound {
+		return networktypes.RewardIBCInfo{}, err
+	}
+
+	info := networktypes.RewardIBCInfo{
+		ClientID:  clientID,
+		ChannelID: channelID,
+	}
+
+	if len(connections) > 0 {
+		info.ConnectionID = connections[0]
+	}
+
+	return info, nil
+}
+
 // consensus Fetches the consensus state with the validator set
 func (n Node) consensus(ctx context.Context, client CosmosClient, height int64) (networktypes.Reward, error) {
 	consensusState, err := client.ConsensusInfo(ctx, height)
 	if err != nil {
 		return networktypes.Reward{}, err
 	}
+
 	spnConsensusState := spntypes.NewConsensusState(
 		consensusState.Timestamp,
 		consensusState.NextValidatorsHash,
@@ -58,31 +117,13 @@ func (n Node) consensus(ctx context.Context, client CosmosClient, height int64) 
 		)
 	}
 
-	return networktypes.Reward{
+	reward := networktypes.Reward{
 		ConsensusState: spnConsensusState,
 		ValidatorSet:   spntypes.NewValidatorSet(validators...),
 		RevisionHeight: uint64(height),
-	}, nil
-}
+	}
 
-// FindClientID find client, connection and channel id by the chain id
-func (n Node) FindClientID(ctx context.Context) (relayer networktypes.Relayer, err error) {
-	relayer.ClientID, err = n.consumerClientID(ctx)
-	if err != nil && err != ErrObjectNotFound {
-		return
-	}
-	relayer.ChannelID, err = n.connectionChannelID(ctx)
-	if err != nil && err != ErrObjectNotFound {
-		return
-	}
-	connections, err := n.clientConnections(ctx, relayer.ClientID)
-	if err != nil && err != ErrObjectNotFound {
-		return
-	}
-	if len(connections) > 0 {
-		relayer.ConnectionID = connections[0]
-	}
-	return
+	return reward, nil
 }
 
 // connectionChannels fetches the chain connection channels by connection id
@@ -147,27 +188,4 @@ func (n Node) connectionChannelID(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return res.ConnectionChannelID.ChannelID, nil
-}
-
-// RewardsInfo Fetches the consensus state with the validator set and the unbounding time
-func (n Node) RewardsInfo(ctx context.Context) (networktypes.Reward, string, int64, error) {
-	status, err := n.cosmos.Status(ctx)
-	if err != nil {
-		return networktypes.Reward{}, "", 0, err
-	}
-	lastBlockHeight := status.SyncInfo.LatestBlockHeight
-
-	info, err := n.consensus(ctx, n.cosmos, lastBlockHeight)
-	if err != nil {
-		return networktypes.Reward{}, "", 0, err
-	}
-
-	stakingParams, err := n.stakingParams(ctx)
-	if err != nil {
-		return networktypes.Reward{}, "", 0, err
-	}
-	return info,
-		status.NodeInfo.Network,
-		int64(stakingParams.UnbondingTime.Seconds()),
-		nil
 }
