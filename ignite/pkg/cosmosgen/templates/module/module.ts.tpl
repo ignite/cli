@@ -3,7 +3,8 @@
 import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient, DeliverTxResponse } from "@cosmjs/stargate";
 import { EncodeObject } from "@cosmjs/proto-signing";
-
+import { msgTypes } from './registry';
+import { IgniteClient } from "../client"
 import { Api } from "./rest";
 {{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
 {{ end }}
@@ -21,25 +22,19 @@ type {{ camelCase .Name }}Params = {
 };
 {{ end }}
 
-class Module extends Api<any> {
+class SDKModule extends Api<any> {
 	private _client: SigningStargateClient;
 	private _addr: string;
+	public registry;
 
-  	constructor(baseUrl: string) {
+	constructor(client: IgniteClient) {
 		super({
-			baseUrl
+			baseUrl: client.env.apiURL
 		})
+		this._client = client.client;
+		this._addr = client.env.rpcURL;
 	}
 
-	public withSigner(client: SigningStargateClient, _addr: string) {
-		this._client = client;
-		this._addr = _addr;
-	}
-
-	public noSigner() {
-		this._client = undefined;
-		this._addr = undefined;
-	}
 
 	{{ range .Module.Msgs }}
 	async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
@@ -68,4 +63,14 @@ class Module extends Api<any> {
 	{{ end }}
 };
 
+const Module = (test: IgniteClient) => {
+  console.log('plugin evalutes')
+
+	return {
+		module: {
+			{{ camelCaseLowerSta .Module.Pkg.Name }}: new SDKModule(test)
+		},
+		registry: msgTypes
+  }
+}
 export default Module;
