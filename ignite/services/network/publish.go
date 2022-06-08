@@ -17,14 +17,14 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL  string
-	chainID     string
-	campaignID  uint64
-	noCheck     bool
-	metadata    string
-	totalSupply sdk.Coins
-	shares      sdk.Coins
-	mainnet     bool
+	genesisURL       string
+	chainID          string
+	campaignID       uint64
+	noCheck          bool
+	metadata         string
+	totalSupply      sdk.Coins
+	sharePercentages SharePercents
+	mainnet          bool
 }
 
 // PublishOption configures chain creation.
@@ -73,9 +73,9 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 }
 
 // WithPercentageShares enables minting vouchers for shares.
-func WithPercentageShares(shares sdk.Coins) PublishOption {
+func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	return func(c *publishOptions) {
-		c.shares = shares
+		c.sharePercentages = sharePercentages
 	}
 }
 
@@ -87,7 +87,7 @@ func Mainnet() PublishOption {
 }
 
 // Publish submits Genesis to SPN to announce a new network.
-func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID, mainnetID uint64, err error) {
+func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID uint64, err error) {
 	o := publishOptions{}
 	for _, apply := range options {
 		apply(&o)
@@ -103,11 +103,11 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if o.genesisURL != "" {
 		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
 
@@ -120,7 +120,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if chainID == "" {
 		chainID, err = c.ChainID()
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
 
@@ -141,10 +141,10 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			"",
 		)
 		if _, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCoordinator); err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	} else if err != nil {
-		return 0, 0, 0, err
+		return 0, 0, err
 	}
 
 	if campaignID != 0 {
@@ -153,40 +153,29 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				CampaignID: o.campaignID,
 			})
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	} else {
 		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
 
-	msgCreateChain := launchtypes.NewMsgCreateChain(
-		n.account.Address(networktypes.SPN),
-		chainID,
-		c.SourceURL(),
-		c.SourceHash(),
-		o.genesisURL,
-		genesisHash,
-		true,
-		campaignID,
-		nil,
-	)
-
-	msgs := []sdk.Msg{msgCreateChain}
-
-	if !o.shares.Empty() {
+	// mint vouchers
+	if !o.sharePercentages.Empty() {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 
 		var coins []sdk.Coin
-
-		for _, share := range o.shares {
-			amount := int64((float64(share.Amount.Int64()) / 100) * float64(totalSharesResp.TotalShares))
-			coins = append(coins, sdk.NewInt64Coin(share.Denom, amount))
+		for _, percentage := range o.sharePercentages {
+			coin, err := percentage.Share(totalSharesResp.TotalShares)
+			if err != nil {
+				return 0, 0, err
+			}
+			coins = append(coins, coin)
 		}
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
@@ -194,33 +183,47 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			n.account.Address(networktypes.SPN),
 			campaignID,
-			campaigntypes.NewSharesFromCoins(coins),
+			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
-		msgs = append(msgs, msgMintVouchers)
-	}
-
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msgs...)
-	if err != nil {
-		return 0, 0, 0, err
-	}
-
-	var createChainRes launchtypes.MsgCreateChainResponse
-	if err := res.Decode(&createChainRes); err != nil {
-		return 0, 0, 0, err
-	}
-
-	if err := c.CacheBinary(createChainRes.LaunchID); err != nil {
-		return 0, 0, 0, err
-
-	}
-
-	if o.mainnet {
-		mainnetID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		_, err = n.cosmos.BroadcastTx(n.account.Name, msgMintVouchers)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
-	return createChainRes.LaunchID, campaignID, mainnetID, nil
+
+	// depending on mainnet flag initialize mainnet or testnet
+	if o.mainnet {
+		launchID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		if err != nil {
+			return 0, 0, err
+		}
+	} else {
+		msgCreateChain := launchtypes.NewMsgCreateChain(
+			n.account.Address(networktypes.SPN),
+			chainID,
+			c.SourceURL(),
+			c.SourceHash(),
+			o.genesisURL,
+			genesisHash,
+			true,
+			campaignID,
+			nil,
+		)
+		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
+		if err != nil {
+			return 0, 0, err
+		}
+		var createChainRes launchtypes.MsgCreateChainResponse
+		if err := res.Decode(&createChainRes); err != nil {
+			return 0, 0, err
+		}
+		launchID = createChainRes.LaunchID
+	}
+	if err := c.CacheBinary(launchID); err != nil {
+		return 0, 0, err
+	}
+
+	return launchID, campaignID, nil
 }
 
 func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {

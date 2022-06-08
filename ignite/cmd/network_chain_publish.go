@@ -11,7 +11,6 @@ import (
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
@@ -210,12 +209,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentageRequired(sharesStr)
+		sharePercentages, err := network.ParseSharePercents(sharesStr)
 		if err != nil {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithPercentageShares(coins))
+		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
 	}
 
 	// init the chain.
@@ -237,7 +236,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
@@ -256,11 +255,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
-	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
-	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)
+	} else {
+		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
 	}
+	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 
 	return nil
 }
