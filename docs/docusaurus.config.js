@@ -54,6 +54,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      image: "img/og-image.jpg",
       docs: {
         sidebar: {
           autoCollapseCategories: true,
