@@ -25,6 +25,7 @@
   --ifm-menu-link-sublist-icon: url('~/img/ico-chevron.svg');
   --docsearch-searchbox-background: #F7F7F7;
   --ifm-navbar-height: 5.563rem;
+  --ifm-navbar-sidebar-width: 100vw;
 
   /* temp: local search bar */
   --aa-primary-color-rgb: 0,0,0;
@@ -149,9 +150,32 @@ html {
     }
     .DocSearch-Search-Icon path { @apply fill-transparent; }
     .navbar-sidebar{
+        @apply w-full;
         &__brand { @apply py-7 px-6 h-auto; }
-        &__item { @apply px-6; }
+        &__item { @apply px-6 w-full; }
         &__back { @apply px-0; }
+        &__close { 
+            @apply bg-gray-1000 rounded-s h-8 w-8 flex justify-center items-center;
+            & > svg > g{
+                @apply stroke-gray-0;
+            } 
+        }
+    }
+    &[data-theme='dark'] .navbar-sidebar{
+        @apply bg-gray-1000;
+        &__brand { 
+            @apply shadow-none relative;
+            &::after {
+                content: '';
+                @apply absolute block h-px  bg-linkHover bottom-0 right-3 left-0 mx-6;
+            }
+        }
+        &__close {
+            @apply bg-gray-0;
+            & > svg > g {
+                @apply stroke-gray-1000;
+            }
+        }
     }
     &[data-theme='dark'] .DocSearch-Modal{ @apply bg-gray-1000}
     &[data-theme='dark'] .DocSearch-Footer{ @apply bg-gray-1000}
