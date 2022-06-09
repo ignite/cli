@@ -64,17 +64,17 @@ const config = {
         hideOnScroll: true,
         logo: {
           alt: "Ignite Logo",
-          src: "img/header-logo.svg",
+          src: "img/header-logo-docs.svg",
           href: "https://ignite.com/",
-          srcDark: "img/header-logo-dark.svg",
+          srcDark: "img/header-logo-docs-dark.svg",
         },
         items: [
-          {
-            type: "doc",
-            docId: "index",
-            position: "left",
-            label: "Docs",
-          },
+          //   {
+          //     type: "doc",
+          //     docId: "index",
+          //     position: "left",
+          //     label: "Docs",
+          //   },
           {
             href: "https://github.com/ignite-hq/cli",
             html: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="github-icon">
