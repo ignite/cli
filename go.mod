@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/AlecAivazis/survey/v2 v2.1.1
-	github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
 	github.com/buger/jsonparser v1.1.1
@@ -13,7 +12,7 @@ require (
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.45.4
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v2 v2.0.3
+	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.13.0
@@ -47,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.4
-	github.com/tendermint/spn v0.2.1-0.20220602191150-825984775c89
+	github.com/tendermint/spn v0.2.1-0.20220609194312-7833ecf4454a
 	github.com/tendermint/tendermint v0.34.19
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tendermint/vue v0.3.5
@@ -69,8 +68,6 @@ require (
 	github.com/Microsoft/hcsshim v0.9.2 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/alecthomas/chroma v0.8.2 // indirect
-	github.com/alecthomas/colour v0.0.0-20160524082231-60882d9e2721 // indirect
-	github.com/alecthomas/repr v0.0.0-20180818092828-117648cd9897 // indirect
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
@@ -238,7 +235,7 @@ require (
 	gopkg.in/ini.v1 v1.66.3 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.1.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 )
