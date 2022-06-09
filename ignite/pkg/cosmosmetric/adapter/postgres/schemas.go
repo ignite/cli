@@ -117,7 +117,6 @@ func extractSchemaVersion(fileName string) uint64 {
 	// The names of the schema files MUST be numeric
 	version, err := strconv.ParseUint(name, 10, 0)
 	if err != nil {
-		fmt.Println(name, err)
 		return 0
 	}
 
