@@ -65,7 +65,6 @@ const config = {
         logo: {
           alt: "Ignite Logo",
           src: "img/header-logo-docs.svg",
-          href: "https://ignite.com/",
           srcDark: "img/header-logo-docs-dark.svg",
         },
         items: [
