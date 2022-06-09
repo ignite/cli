@@ -118,7 +118,7 @@ html {
     &[data-theme='dark'] .aa-DetachedSearchButtonPlaceholder{@apply text-card;}
     &[data-theme='dark'] .aa-DetachedOverlay{ @apply bg-fg; }
     &[data-theme='dark'] .aa-DetachedSearchButton{@apply bg-fg;}
-    &[data-theme='dark'] .aa-DetachedContainer, .aa-DetachedContainer .aa-Panel { @apply bg-gray-1000 shadow-inner border border-muted; }
+    &[data-theme='dark'] .aa-DetachedContainer, &[data-theme='dark'] .aa-DetachedContainer .aa-Panel { @apply bg-gray-1000 shadow-inner border border-muted; }
     &[data-theme='dark'] .aa-Form{@apply text-gray-0 border-0 bg-fg shadow-none;} 
     &[data-theme='dark'] .aa-Input {@apply text-gray-0;}
     &[data-theme='dark'] .aa-Input::placeholder {@apply text-gray-0;}
