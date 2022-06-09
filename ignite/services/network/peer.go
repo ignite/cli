@@ -16,7 +16,7 @@ func PeerAddress(peer launchtypes.Peer) (string, error) {
 	case *launchtypes.Peer_HttpTunnel:
 		peerAddr = fmt.Sprintf("%s@%s", peer.Id, conn.HttpTunnel.Address)
 	case *launchtypes.Peer_None:
-		peerAddr = "[HIDDEN]"
+		peerAddr = "[NOT PROVIDED]"
 	default:
 		return peerAddr, fmt.Errorf("invalid peer connection type: %T", peer.Connection)
 	}

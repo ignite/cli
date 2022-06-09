@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/AlecAivazis/survey/v2"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
@@ -127,6 +128,21 @@ func (s Session) Ask(questions ...cliquiz.Question) error {
 	s.Wait()
 	defer s.PauseSpinner()()
 	return cliquiz.Ask(questions...)
+}
+
+// AskString asks for string prompt
+func (s Session) AskString(message string, options ...cliquiz.Option) (string, error) {
+	s.Wait()
+	defer s.PauseSpinner()()
+	var answer string
+
+	questions := []cliquiz.Question{cliquiz.NewQuestion(
+		message,
+		&answer,
+		options...,
+	)}
+
+	return answer, cliquiz.Ask(questions...)
 }
 
 // AskConfirm asks yes/no question in the terminal.

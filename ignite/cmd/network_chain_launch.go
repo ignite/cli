@@ -3,10 +3,11 @@ package ignitecmd
 import (
 	"errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/x/launch/types"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite-hq/cli/ignite/services/network"
 )
 
 const (

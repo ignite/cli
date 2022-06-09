@@ -19,6 +19,7 @@ type joinOptions struct {
 	accountAmount sdk.Coins
 	gentxPath     string
 	publicAddress string
+	nodeID        string
 }
 
 type JoinOption func(*joinOptions)
@@ -42,6 +43,12 @@ func WithPublicAddress(addr string) JoinOption {
 	}
 }
 
+func WithNodeID(nodeID string) JoinOption {
+	return func(o *joinOptions) {
+		o.nodeID = nodeID
+	}
+}
+
 // Join to the network.
 func (n Network) Join(
 	ctx context.Context,
@@ -56,26 +63,27 @@ func (n Network) Join(
 
 	isCustomGentx := o.gentxPath != ""
 	var (
-		nodeID string
+		nodeID = o.nodeID
 		peer   launchtypes.Peer
 		err    error
 	)
 
-	// if the custom gentx is not provided, get the chain default from the chain home folder.
-	if !isCustomGentx {
+	if nodeID == "" {
 		if nodeID, err = c.NodeID(ctx); err != nil {
 			return err
 		}
+	}
 
-		switch {
-		case xurl.IsHTTP(o.publicAddress):
-			peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
-		case o.publicAddress == "":
-			peer = launchtypes.NewPeerEmpty(nodeID)
-		default:
-			peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
-		}
+	switch {
+	case xurl.IsHTTP(o.publicAddress):
+		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
+	case o.publicAddress == "":
+		peer = launchtypes.NewPeerEmpty(nodeID)
+	default:
+		peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
+	}
 
+	if !isCustomGentx {
 		if o.gentxPath, err = c.DefaultGentxPath(); err != nil {
 			return err
 		}

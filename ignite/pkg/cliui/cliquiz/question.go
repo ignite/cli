@@ -25,6 +25,7 @@ type Question struct {
 	hidden        bool
 	shouldConfirm bool
 	required      bool
+	suggestion    string
 }
 
 // Option configures Question.
@@ -34,6 +35,11 @@ type Option func(*Question)
 func DefaultAnswer(answer interface{}) Option {
 	return func(q *Question) {
 		q.defaultAnswer = answer
+	}
+}
+func Suggestion(suggestion string) Option {
+	return func(q *Question) {
+		q.suggestion = suggestion
 	}
 }
 
@@ -82,6 +88,11 @@ func ask(q Question) error {
 		}
 		if q.defaultAnswer != nil {
 			input.Default = fmt.Sprintf("%v", q.defaultAnswer)
+		}
+		if q.suggestion != "" {
+			input.Suggest = func(toComplete string) []string {
+				return []string{q.suggestion}
+			}
 		}
 		prompt = input
 	} else {

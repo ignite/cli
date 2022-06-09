@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,8 +18,11 @@ import (
 )
 
 const (
-	flagGentx  = "gentx"
-	flagAmount = "amount"
+	flagGentx           = "gentx"
+	flagAmount          = "amount"
+	flagPeerAddress     = "peer-address"
+	flagHidePeerAddress = "hide-peer-address"
+	flagNodeID          = "node-id"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
@@ -35,6 +37,9 @@ func NewNetworkChainJoin() *cobra.Command {
 
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().String(flagAmount, "", "Amount of coins for account request")
+	c.Flags().String(flagPeerAddress, "", "Specify validator node's peer address ip and port")
+	c.Flags().String(flagNodeID, "", "Specify validator node's id")
+	c.Flags().Bool(flagHidePeerAddress, false, "Join without peer address")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -48,8 +53,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	var (
-		gentxPath, _ = cmd.Flags().GetString(flagGentx)
-		amount, _    = cmd.Flags().GetString(flagAmount)
+		customGentxPath, _   = cmd.Flags().GetString(flagGentx)
+		amount, _            = cmd.Flags().GetString(flagAmount)
+		customPeerAddress, _ = cmd.Flags().GetString(flagPeerAddress)
+		nodeID, _            = cmd.Flags().GetString(flagNodeID)
+		hidePeerAddress, _   = cmd.Flags().GetBool(flagHidePeerAddress)
+		publicAddr           string
 	)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -63,19 +72,20 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	joinOptions := []network.JoinOption{
-		network.WithCustomGentxPath(gentxPath),
-	}
-
-	// if there is no custom gentx, we need to detect the public address.
-	if gentxPath == "" {
-		// get the peer public address for the validator.
-		publicAddr, err := askPublicAddress(cmd.Context(), session)
+	if gitpod.IsOnGitpod() {
+		publicAddr, err = gitpod.URLForPort(cmd.Context(), xchisel.DefaultServerPort)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "cannot read public Gitpod address of the node")
 		}
-
-		joinOptions = append(joinOptions, network.WithPublicAddress(publicAddr))
+	} else if !hidePeerAddress {
+		if customPeerAddress != "" {
+			publicAddr = customPeerAddress
+		} else {
+			publicAddr, err = askPublicAddress(cmd, session)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	n, err := nb.Network()
@@ -91,6 +101,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
+	}
+
+	joinOptions := []network.JoinOption{
+		network.WithCustomGentxPath(customGentxPath),
+		network.WithPublicAddress(publicAddr),
+		network.WithNodeID(nodeID),
 	}
 
 	if amount != "" {
@@ -123,37 +139,25 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress string, err error) {
-	options := []cliquiz.Option{
-		cliquiz.Required(),
-	}
-	if gitpod.IsOnGitpod() {
-		publicAddress, err = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
-		if err != nil {
-			return "", errors.Wrap(err, "cannot read public Gitpod address of the node")
-		}
-		return publicAddress, nil
-	}
-
-	question := "Do you want to share your node IP address, it will be added as a persistent peer"
-	if err := session.AskConfirm(question); err != nil {
-		if errors.Is(err, cliui.ErrRejectConfirmation) {
-			return "", nil
-		}
-		return "", err
-	}
-
+func askPublicAddress(cmd *cobra.Command, session cliui.Session) (publicAddress string, err error) {
+	var options []cliquiz.Option
 	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
 	// just in case if GetIp fails user should enter his address manually
 	ip, err := ipify.GetIp()
 	if err == nil {
-		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+		options = append(options, cliquiz.Suggestion(fmt.Sprintf("%s:26656", ip)))
 	}
 
-	questions := []cliquiz.Question{cliquiz.NewQuestion(
-		"Peer's address",
-		&publicAddress,
-		options...,
-	)}
-	return publicAddress, session.Ask(questions...)
+	publicAddress, err = session.AskString("Peer's address", options...)
+	if err != nil {
+		return "", err
+	}
+	if publicAddress == "" && !getYes(cmd) {
+		question := "You didn't specify your peer's address. Do you want to proceed without it"
+		if err := session.AskConfirm(question); err != nil {
+			return "", err
+		}
+	}
+
+	return publicAddress, nil
 }
