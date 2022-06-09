@@ -190,7 +190,7 @@ func parseFilters(filters []query.Filter) string {
 		if v := f.GetValue(); v != nil {
 			index := strings.LastIndex(expr, filterPlaceholder)
 			expr = expr[:index] + fmt.Sprintf("$%d", pos+1) + expr[index+1:]
-			pos += 1
+			pos++
 		}
 
 		items = append(items, expr)
