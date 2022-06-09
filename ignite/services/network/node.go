@@ -6,20 +6,14 @@ import (
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
+
+	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 // Node is node builder.
 type Node struct {
 	cosmos       CosmosClient
 	stakingQuery stakingtypes.QueryClient
-}
-
-// IBCInfo is node client info.
-type IBCInfo struct {
-	ConsensusState spntypes.ConsensusState
-	ValidatorSet   spntypes.ValidatorSet
-	UnbondingTime  int64
-	Height         uint64
 }
 
 func NewNodeClient(cosmos CosmosClient) (Node, error) {
@@ -29,19 +23,13 @@ func NewNodeClient(cosmos CosmosClient) (Node, error) {
 	}, nil
 }
 
-// IBCInfo Fetches the consensus state, validator set and the staking parameters
-func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
-	status, err := n.cosmos.Status(ctx)
+// RewardsInfo Fetches the consensus state with the validator set
+func RewardsInfo(ctx context.Context, client CosmosClient, height int64) (networktypes.Reward, error) {
+	consensusState, err := client.ConsensusInfo(ctx, height)
 	if err != nil {
-		return IBCInfo{}, err
+		return networktypes.Reward{}, err
 	}
-	lastBlockHeight := status.SyncInfo.LatestBlockHeight
-
-	consensusState, err := n.cosmos.ConsensusInfo(ctx, lastBlockHeight)
-	if err != nil {
-		return IBCInfo{}, err
-	}
-	spnConsensusStatue := spntypes.NewConsensusState(
+	spnConsensusState := spntypes.NewConsensusState(
 		consensusState.Timestamp,
 		consensusState.NextValidatorsHash,
 		consensusState.Root,
@@ -56,16 +44,10 @@ func (n Node) IBCInfo(ctx context.Context) (IBCInfo, error) {
 		)
 	}
 
-	stakingParams, err := n.StakingParams(ctx)
-	if err != nil {
-		return IBCInfo{}, err
-	}
-
-	return IBCInfo{
-		ConsensusState: spnConsensusStatue,
+	return networktypes.Reward{
+		ConsensusState: spnConsensusState,
 		ValidatorSet:   spntypes.NewValidatorSet(validators...),
-		UnbondingTime:  int64(stakingParams.UnbondingTime.Seconds()),
-		Height:         uint64(lastBlockHeight),
+		RevisionHeight: uint64(height),
 	}, nil
 }
 
@@ -76,4 +58,24 @@ func (n Node) StakingParams(ctx context.Context) (stakingtypes.Params, error) {
 		return stakingtypes.Params{}, err
 	}
 	return res.Params, nil
+}
+
+// RewardsInfo Fetches the consensus state with the validator set and the unbounding time
+func (n Node) RewardsInfo(ctx context.Context) (networktypes.Reward, int64, error) {
+	status, err := n.cosmos.Status(ctx)
+	if err != nil {
+		return networktypes.Reward{}, 0, err
+	}
+	lastBlockHeight := status.SyncInfo.LatestBlockHeight
+
+	info, err := RewardsInfo(ctx, n.cosmos, lastBlockHeight)
+	if err != nil {
+		return networktypes.Reward{}, 0, err
+	}
+
+	stakingParams, err := n.StakingParams(ctx)
+	if err != nil {
+		return networktypes.Reward{}, 0, err
+	}
+	return info, int64(stakingParams.UnbondingTime.Seconds()), nil
 }

@@ -33,6 +33,8 @@ const (
 	flagTargetAddressPrefix = "target-prefix"
 	flagOrdered             = "ordered"
 	flagReset               = "reset"
+	flagSourceClientID      = "source-client-id"
+	flagTargetClientID      = "target-client-id"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -58,6 +60,7 @@ func NewRelayerConfigure() *cobra.Command {
 		Aliases: []string{"conf"},
 		RunE:    relayerConfigureHandler,
 	}
+
 	c.Flags().BoolP(flagAdvanced, "a", false, "Advanced configuration options for custom IBC modules")
 	c.Flags().String(flagSourceRPC, "", "RPC address of the source chain")
 	c.Flags().String(flagTargetRPC, "", "RPC address of the target chain")
@@ -77,6 +80,8 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagTargetAccount, "", "Target Account")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
 	c.Flags().BoolP(flagReset, "r", false, "Reset the relayer config")
+	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
+	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
 	return c
@@ -299,8 +304,11 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 	var (
+		sourceClientID, _ = cmd.Flags().GetString(flagSourceClientID)
+		targetClientID, _ = cmd.Flags().GetString(flagTargetClientID)
+		reset, _          = cmd.Flags().GetBool(flagReset)
+
 		questions []cliquiz.Question
-		reset, _  = cmd.Flags().GetBool(flagReset)
 	)
 
 	// get information from prompt if flag not provided
@@ -386,6 +394,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		sourceGasPrice,
 		sourceGasLimit,
 		sourceAddressPrefix,
+		sourceClientID,
 	)
 	if err != nil {
 		return err
@@ -402,6 +411,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		targetGasPrice,
 		targetGasLimit,
 		targetAddressPrefix,
+		targetClientID,
 	)
 	if err != nil {
 		return err
@@ -425,7 +435,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	// create the connection configuration
-	id, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
+	id, err := sourceChain.Connect(targetChain, channelOptions...)
 	if err != nil {
 		return err
 	}
@@ -447,7 +457,8 @@ func initChain(
 	faucetAddr,
 	gasPrice string,
 	gasLimit int64,
-	addressPrefix string,
+	addressPrefix,
+	clientID string,
 ) (*relayer.Chain, error) {
 	defer session.StopSpinner()
 	session.StartSpinner("Initializing chain...")
@@ -460,6 +471,7 @@ func initChain(
 		relayer.WithGasPrice(gasPrice),
 		relayer.WithGasLimit(gasLimit),
 		relayer.WithAddressPrefix(addressPrefix),
+		relayer.WithClientID(clientID),
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
