@@ -236,23 +236,25 @@ html {
     } 
 
     &[data-theme='dark'] .menu__link{ @apply text-mutedLight}
+    .theme-doc-sidebar-item-link .menu__link[target="_blank"]{
+        &::after {
+            content:"\2197";
+            @apply ml-1;
+        }
+        
+        
+    }
     .menu__link{
         @apply text-muted;
         &:hover { 
             text-shadow: 0.1px 0.1px 0 var(--ifm-font-color-base), -0.1px -0.1px 0 var(--ifm-font-color-base), 0.1px -0.1px 0 var(--ifm-font-color-base), -0.1px 0.1px 0 var(--ifm-font-color-base), -0.1px 0 0 var(--ifm-font-color-base), 0.1px 0 0 var(--ifm-font-color-base), 0 0.1px 0 var(--ifm-font-color-base), 0 -0.1px 0 var(--ifm-font-color-base);
             @apply text-docusaurusColorBase; 
         }
-
-        &[target="_blank"]{
-            &::after {
-                content:"\2197";
-                @apply ml-1;
-            }
-            
-            & > svg {
-                @apply hidden;
-            }
+ 
+        & > svg {
+            @apply hidden;
         }
+        
     }
 
     .menu__link--sublist-caret{
