@@ -24,38 +24,22 @@ const (
 
 	adapterType = "postgres"
 
-	queryBlockHeight = `
+	sqlSelectBlockHeight = `
 		SELECT COALESCE(MAX(height), 0)
 		FROM tx
 	`
-	queryInsertTX = `
+	sqlInsertTX = `
 		INSERT INTO tx (hash, index, height, block_time)
 		VALUES ($1, $2, $3, $4)
 	`
-	queryInsertAttr = `
+	sqlInsertAttr = `
 		INSERT INTO attribute (tx_hash, event_type, event_index, name, value)
 		VALUES ($1, $2, $3, $4, $5)
 	`
-	querySchemaExists = `
-		SELECT EXISTS (
-			SELECT FROM information_schema.tables
-			WHERE table_schema = 'public' AND table_name = 'schema'
-		)
-	`
-	querySchemaVersion = `
-		SELECT COALESCE(MAX(version), 0)
-		FROM schema
-	`
-	queryInsertRawTX = `
+	sqlInsertRawTX = `
 		INSERT INTO raw_tx (hash, data)
 		VALUES ($1, $2)
 	`
-
-	// Latest schema version that the adapter should apply.
-	// This version should be updated when new schema/*.sql files are added
-	// to match the name of the latest file, otherwise the new schemas won't
-	// be applied. All schema file names MUST be numeric.
-	schemaVersion = 1
 )
 
 //go:embed schemas/*
@@ -117,7 +101,9 @@ func NewAdapter(database string, options ...Option) (Adapter, error) {
 	adapter := Adapter{
 		host:            DefaultHost,
 		port:            DefaultPort,
+		database:        database,
 		saveConcurrency: DefaultSaveConcurrency,
+		schemas:         NewSchemas(fsSchemas, ""),
 	}
 
 	for _, o := range options {
@@ -141,6 +127,24 @@ type Adapter struct {
 	params                         map[string]string
 	saveConcurrency                int
 	db                             *sql.DB
+	schemas                        Schemas
+}
+
+// UpdateSchema updates the database schema to the latest version available.
+// It applies all available schemas that were not applied already starting from a specific version.
+func (a Adapter) UpdateSchema(ctx context.Context, fromVersion uint64, s Schemas) error {
+	db, err := a.getDB()
+	if err != nil {
+		return err
+	}
+
+	return s.WalkFrom(fromVersion, func(version uint64, script []byte) error {
+		if _, err := db.ExecContext(ctx, string(script)); err != nil {
+			return fmt.Errorf("error applying schema version %d: %w", version, err)
+		}
+
+		return nil
+	})
 }
 
 func (a Adapter) GetType() string {
@@ -148,25 +152,12 @@ func (a Adapter) GetType() string {
 }
 
 func (a Adapter) Init(ctx context.Context) error {
-	current, err := a.getSchemaVersion(ctx)
+	v, err := a.getCurrentSchemaVersion(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to read schema version: %w", err)
+		return fmt.Errorf("failed to read current schema version: %w", err)
 	}
 
-	if current == schemaVersion {
-		return nil
-	} else if current > schemaVersion {
-		return fmt.Errorf("latest schema version is v%d, found v%d", schemaVersion, current)
-	}
-
-	for i := current + 1; i <= schemaVersion; i++ {
-		name := fmt.Sprintf("%d.sql", i)
-		if err := a.applySchema(ctx, name); err != nil {
-			return fmt.Errorf("error applying schema %s: %w", name, err)
-		}
-	}
-
-	return nil
+	return a.UpdateSchema(ctx, v+1, a.schemas)
 }
 
 func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
@@ -185,14 +176,14 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 	defer sqlTx.Rollback()
 
 	// Prepare insert statements to speed up "bulk" saving times
-	txStmt, err := sqlTx.PrepareContext(ctx, queryInsertTX)
+	txStmt, err := sqlTx.PrepareContext(ctx, sqlInsertTX)
 	if err != nil {
 		return err
 	}
 
 	defer txStmt.Close()
 
-	attrStmt, err := sqlTx.PrepareContext(ctx, queryInsertAttr)
+	attrStmt, err := sqlTx.PrepareContext(ctx, sqlInsertAttr)
 	if err != nil {
 		return err
 	}
@@ -228,7 +219,7 @@ func (a Adapter) GetLatestHeight(ctx context.Context) (height int64, err error) 
 		return 0, err
 	}
 
-	row := db.QueryRowContext(ctx, queryBlockHeight)
+	row := db.QueryRowContext(ctx, sqlSelectBlockHeight)
 	if err = row.Scan(&height); err != nil {
 		return 0, err
 	}
@@ -264,14 +255,15 @@ func (a Adapter) getDB() (*sql.DB, error) {
 	return a.db, nil
 }
 
-func (a Adapter) getSchemaVersion(ctx context.Context) (version uint, err error) {
+func (a Adapter) getCurrentSchemaVersion(ctx context.Context) (version uint64, err error) {
 	db, err := a.getDB()
 	if err != nil {
 		return 0, err
 	}
 
+	// Check if the schema table is already created
 	exists := false
-	row := db.QueryRowContext(ctx, querySchemaExists)
+	row := db.QueryRowContext(ctx, a.schemas.GetTableExistsSQL())
 	if err = row.Scan(&exists); err != nil {
 		return 0, err
 	}
@@ -280,28 +272,13 @@ func (a Adapter) getSchemaVersion(ctx context.Context) (version uint, err error)
 		return 0, nil
 	}
 
-	row = db.QueryRowContext(ctx, querySchemaVersion)
+	// Get the current schema version
+	row = db.QueryRowContext(ctx, a.schemas.GetSchemaVersionSQL())
 	if err = row.Scan(&version); err != nil {
 		return 0, err
 	}
 
 	return version, nil
-}
-
-func (a Adapter) applySchema(ctx context.Context, filename string) error {
-	script, err := fsSchemas.ReadFile(fmt.Sprintf("schemas/%s", filename))
-	if err != nil {
-		return err
-	}
-
-	db, err := a.getDB()
-	if err != nil {
-		return err
-	}
-
-	_, err = db.ExecContext(ctx, string(script))
-
-	return err
 }
 
 func createPostgresURI(a Adapter) string {
@@ -339,7 +316,7 @@ func saveRawTX(ctx context.Context, sqlTx *sql.Tx, rtx *ctypes.ResultTx) error {
 		return fmt.Errorf("failed to encode raw TX %s: %w", hash, err)
 	}
 
-	if _, err := sqlTx.ExecContext(ctx, queryInsertRawTX, hash, raw); err != nil {
+	if _, err := sqlTx.ExecContext(ctx, sqlInsertRawTX, hash, raw); err != nil {
 		return fmt.Errorf("error saving raw TX %s: %w", hash, err)
 	}
 
