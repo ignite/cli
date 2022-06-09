@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query"
 )
 
 // Saver is the interface that wraps the transactions save method.
@@ -32,4 +33,7 @@ type Adapter interface {
 
 	// GetLatestHeight returns the height of the latest block known by the data backend.
 	GetLatestHeight(context.Context) (int64, error)
+
+	// Query executes a query in the data backend.
+	Query(context.Context, query.Query) (query.Cursor, error)
 }

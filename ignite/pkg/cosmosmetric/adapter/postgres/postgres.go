@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"golang.org/x/sync/errgroup"
 
@@ -139,8 +140,7 @@ type Adapter struct {
 	port                           uint
 	params                         map[string]string
 	saveConcurrency                int
-
-	db *sql.DB
+	db                             *sql.DB
 }
 
 func (a Adapter) GetType() string {
@@ -234,6 +234,26 @@ func (a Adapter) GetLatestHeight(ctx context.Context) (height int64, err error) 
 	}
 
 	return height, nil
+}
+
+func (a Adapter) Query(ctx context.Context, q query.Query) (query.Cursor, error) {
+	db, err := a.getDB()
+	if err != nil {
+		return nil, err
+	}
+
+	query, err := parseQuery(q)
+	if err != nil {
+		return nil, err
+	}
+
+	args := extractQueryArgs(q)
+	rows, err := db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cursor{rows}, nil
 }
 
 func (a Adapter) getDB() (*sql.DB, error) {
@@ -346,4 +366,21 @@ func saveTX(ctx context.Context, txStmt, attrStmt *sql.Stmt, tx cosmosclient.TX)
 	}
 
 	return nil
+}
+
+func extractQueryArgs(q query.Query) (args []any) {
+	// When the query is a call to a postgres function
+	// add the arguments before the filter values
+	if call := q.GetCall(); len(call.Args) > 0 {
+		args = append(args, call.Args...)
+	}
+
+	// Add the values from the filters
+	for _, f := range q.GetFilters() {
+		if a := f.GetValue(); a != nil {
+			args = append(args, a)
+		}
+	}
+
+	return args
 }
