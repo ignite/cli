@@ -159,9 +159,19 @@ html {
     &[data-theme='dark'] .DocSearch-Button-Key{ @apply text-inactiveLight border-inactiveLight;}
 
     /* BREADCRUMBS */
-    .breadcrumbs__item:not(:last-child):after {
-        content: '/';
-        @apply bg-none;
+    .breadcrumbs__item{
+        &:first-child{
+            & > a {
+                &::after {
+                    content: "Docs"
+                }
+                & > svg { @apply hidden;}
+            } 
+        }
+        &:not(:last-child)::after {
+            content: '/';
+            @apply bg-none;
+        }
     }
     .theme-doc-breadcrumbs{
         @media (min-width: 997px){
