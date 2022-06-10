@@ -82,6 +82,7 @@ module.exports = {
       inherit: "inherit",
       gray: {
         0: "#FFFFFF",
+        30: "rgba(0, 0, 0, 0.03)",
         1000: "#000000",
       },
       card: "#F7F7F7",
@@ -91,6 +92,7 @@ module.exports = {
       muted: "#555555",
       mutedLight: "rgba(255, 255, 255, 0.67)",
       fg: "rgba(24, 24, 24, 0.67)",
+      lightfg: "rgba(24, 24, 24, 0.67)",
       link: "#000000",
       linkHover: "#555555",
       docusaurusColorBase: "var(--ifm-font-color-base)",

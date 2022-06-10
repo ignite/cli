@@ -60,9 +60,26 @@ html {
         }
     }
 
+    /* IGNT */
+    .ignt-backlink {
+        @apply text-2 text-muted pl-6 order-last;
+        & > svg { @apply hidden; }
+    }
+
+    /* Banner */
+
+    #__docusaurus > div[role="banner"] {
+        @apply bg-gray-30 text-gray-1000 font-normal ;
+        & > div { @apply flex py-3;}
+        a { @apply no-underline block w-full text-2 ;}
+        @media (min-width: 997px){
+            @apply hidden;
+        }
+    }
+
     /* MAINNAV */
     .navbar {
-        @apply py-5 mx-6 px-0 h-auto border-b border-b-docusaurusColorBorder shadow-none bg-docusaurusBgColor;
+        @apply py-6 mx-6 px-0 h-auto border-b border-b-docusaurusColorBorder shadow-none bg-docusaurusBgColor;
         @media (min-width: 997px){
             @apply mx-0;
         }
@@ -72,7 +89,9 @@ html {
                 @apply hidden;
             }
         }
-        /* &__brand { @apply hidden; } to remove when in website */
+        &__brand { 
+            & + * { @apply ml-auto}
+        }
         &__link--active { @apply text-muted; }
         &__items:not(:last-child) {
             @apply justify-between;
@@ -151,11 +170,11 @@ html {
     .DocSearch-Search-Icon path { @apply fill-transparent; }
     .navbar-sidebar{
         @apply w-full;
-        &__brand { @apply py-7 px-6 h-auto; }
+        &__brand { @apply pb-7 pt-9 px-6 h-auto; }
         &__item { @apply px-6 w-full; }
-        &__back { @apply px-0; }
+        &__back { @apply px-0 hidden; }
         &__close { 
-            @apply bg-gray-1000 rounded-s h-8 w-8 flex justify-center items-center;
+            @apply bg-gray-1000 rounded-s h-8 w-8 flex justify-center items-center ml-0;
             & > svg > g{
                 @apply stroke-gray-0;
             } 
