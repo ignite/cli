@@ -193,7 +193,7 @@ html {
             } 
         }
         &:not(:last-child)::after {
-            content: '/';
+            content: '>';
             @apply bg-none;
         }
     }
