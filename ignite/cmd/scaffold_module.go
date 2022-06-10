@@ -35,6 +35,7 @@ func NewScaffoldModule() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
@@ -67,6 +68,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	params, err := cmd.Flags().GetStringSlice(flagParams)
+	if err != nil {
+		return err
+	}
+
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
 	}
@@ -114,7 +120,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.CreateModule(placeholder.New(), name, options...)
+	sm, err := sc.CreateModule(cacheStorage, placeholder.New(), name, options...)
 	s.Stop()
 	if err != nil {
 		var validationErr validation.Error

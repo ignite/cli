@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
@@ -58,6 +59,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
+		NewNetworkClient(),
 	)
 
 	return c
@@ -81,6 +83,12 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 	return func(builder *NetworkBuilder) {
 		builder.ev = ev
 	}
+}
+
+func flagSetSPNAccountPrefixes() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	return fs
 }
 
 func newNetworkBuilder(cmd *cobra.Command, options ...NetworkBuilderOption) (NetworkBuilder, error) {

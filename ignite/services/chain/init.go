@@ -66,7 +66,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	// overwrite configuration changes from Starport's config.yml to
+	// overwrite configuration changes from Ignite CLI's config.yml to
 	// over app's sdk configs.
 
 	if err := c.plugin.Configure(home, conf); err != nil {

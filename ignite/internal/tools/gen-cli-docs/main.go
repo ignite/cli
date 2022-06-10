@@ -5,7 +5,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -21,11 +20,8 @@ import (
 )
 
 const head = `---
-order: 1
-description: Ignite CLI docs. 
-parent:
-  order: 8
-  title: CLI Reference
+sidebar_position: 7
+description: Ignite CLI docs.
 ---
 
 # CLI Reference
@@ -37,7 +33,7 @@ func main() {
 	outPath := flag.String("out", ".", ".md file path to place Ignite CLI docs inside")
 	flag.Parse()
 
-	if err := generate(ignitecmd.New(context.Background()), *outPath); err != nil {
+	if err := generate(ignitecmd.New(), *outPath); err != nil {
 		log.Fatal(err)
 	}
 }

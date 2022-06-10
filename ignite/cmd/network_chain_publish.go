@@ -8,11 +8,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
-	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/ignite-hq/cli/ignite/services/network"
 	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
@@ -41,6 +39,7 @@ func NewNetworkChainPublish() *cobra.Command {
 		RunE:  networkChainPublishHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().String(flagBranch, "", "Git branch to use for the repo")
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
@@ -54,6 +53,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
 	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -80,11 +80,23 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
+		amount, _                 = cmd.Flags().GetString(flagAmount)
 	)
+
+	// parse the amount.
+	amountCoins, err := sdk.ParseCoinsNormalized(amount)
+	if err != nil {
+		return errors.Wrap(err, "error parsing amount")
+	}
 
 	source, err := xurl.MightHTTPS(args[0])
 	if err != nil {
 		return fmt.Errorf("invalid source url format: %w", err)
+	}
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
 	}
 
 	if campaign != 0 && campaignTotalSupplyStr != "" {
@@ -197,12 +209,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentageRequired(sharesStr)
+		sharePercentages, err := network.ParseSharePercents(sharesStr)
 		if err != nil {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithShares(campaigntypes.NewSharesFromCoins(coins)))
+		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
 	}
 
 	// init the chain.
@@ -213,7 +225,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
+	} else if err := c.Init(cmd.Context(), cacheStorage); err != nil { // initialize the chain for checking.
 		return err
 	}
 
@@ -224,24 +236,31 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
 
-	if !rewardCoins.Empty() && rewardDuration > 0 {
+	if !rewardCoins.IsZero() && rewardDuration > 0 {
 		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
+			return err
+		}
+	}
+
+	if !amountCoins.IsZero() {
+		if err := n.SendAccountRequestForCoordinator(launchID, amountCoins); err != nil {
 			return err
 		}
 	}
 
 	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
-	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
-	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)
+	} else {
+		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
 	}
+	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 
 	return nil
 }

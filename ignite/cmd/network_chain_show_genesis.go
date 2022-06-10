@@ -19,6 +19,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 		RunE:  networkChainShowGenesisHandler,
 	}
 
+	flagSetClearCache(c)
 	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
 
 	return c
@@ -29,6 +30,11 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	out, _ := cmd.Flags().GetString(flagOut)
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {
@@ -54,6 +60,11 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	spnChainID, err := n.ChainID(cmd.Context())
+	if err != nil {
+		return err
+	}
+
 	// check if the genesis already exists
 	if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
 		// fetch the information to construct genesis
@@ -71,8 +82,24 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 
 		c.SetHome(tmpHome)
 
-		err = c.Prepare(cmd.Context(), genesisInformation)
+		rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+			cmd.Context(),
+			launchID,
+			chainLaunch.ConsumerRevisionHeight,
+		)
 		if err != nil {
+			return err
+		}
+
+		if err = c.Prepare(
+			cmd.Context(),
+			cacheStorage,
+			genesisInformation,
+			rewardsInfo,
+			spnChainID,
+			lastBlockHeight,
+			unboundingTime,
+		); err != nil {
 			return err
 		}
 

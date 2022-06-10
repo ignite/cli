@@ -13,6 +13,7 @@ import (
 	"github.com/tendermint/flutter/v2"
 	"github.com/tendermint/vue"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cache"
 	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite-hq/cli/ignite/pkg/localfs"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
@@ -21,7 +22,7 @@ import (
 )
 
 var (
-	commitMessage = "Initialized with Starport"
+	commitMessage = "Initialized with Ignite CLI"
 	devXAuthor    = &object.Signature{
 		Name:  "Developer Experience team at Tendermint",
 		Email: "hello@tendermint.com",
@@ -30,7 +31,7 @@ var (
 )
 
 // Init initializes a new app with name and given options.
-func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
+func Init(cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
 	if root, err = filepath.Abs(root); err != nil {
 		return "", err
 	}
@@ -47,7 +48,7 @@ func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaul
 		return "", err
 	}
 
-	if err := finish(path, pathInfo.RawPath); err != nil {
+	if err := finish(cacheStorage, path, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 

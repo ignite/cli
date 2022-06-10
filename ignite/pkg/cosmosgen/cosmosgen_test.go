@@ -3,9 +3,10 @@ package cosmosgen
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
-	"github.com/stretchr/testify/require"
 )
 
 func TestVuexStoreModulePath(t *testing.T) {
