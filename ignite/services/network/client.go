@@ -65,7 +65,7 @@ func (n Network) RewardIBCInfo(ctx context.Context, launchID uint64) (networktyp
 
 	clientID := clientStates[0]
 
-	connections, err := n.clientConnections(ctx, clientID)
+	connections, err := n.node.clientConnections(ctx, clientID)
 	if err != nil && err != ErrObjectNotFound {
 		return networktypes.RewardIBCInfo{}, err
 	}
@@ -75,7 +75,7 @@ func (n Network) RewardIBCInfo(ctx context.Context, launchID uint64) (networktyp
 
 	connectionID := connections[0]
 
-	channels, err := n.connectionChannels(ctx, connectionID)
+	channels, err := n.node.connectionChannels(ctx, connectionID)
 	if err != nil && err != ErrObjectNotFound {
 		return networktypes.RewardIBCInfo{}, err
 	}
