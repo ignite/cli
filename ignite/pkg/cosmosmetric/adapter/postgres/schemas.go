@@ -15,14 +15,8 @@ const (
 
 	defaultSchemasTableName = "schema"
 
-	tplSchemaTableExistsSQL = `
-		SELECT EXISTS (
-			SELECT FROM information_schema.tables
-			WHERE table_schema = 'public' AND table_name = '%s'
-		)
-	`
 	tplSchemaTableDDL = `
-		CREATE TABLE %[1]v (
+		CREATE TABLE IF NOT EXISTS %[1]v (
 			version     SMALLINT NOT NULL,
 			created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -39,7 +33,7 @@ const (
 type SchemasWalkFunc func(version uint64, script []byte) error
 
 // NewSchemas creates a new embedded SQL schema manager.
-// The embeded FS is used to iterate the schema files.
+// The embedded FS is used to iterate the schema files.
 // By default the applied schema versions are stored in the "schema"
 // table but the name can have a prefix namespace when different
 // packages are storing the schemas in the same database.
@@ -63,11 +57,6 @@ type Schemas struct {
 // GetTableDDL returns the DDL to create the schemas table.
 func (s Schemas) GetTableDDL() string {
 	return fmt.Sprintf(tplSchemaTableDDL, s.tableName)
-}
-
-// GetTableExistsSQL return the SQL query to check if the schema table exists.
-func (s Schemas) GetTableExistsSQL() string {
-	return fmt.Sprintf(tplSchemaTableExistsSQL, s.tableName)
 }
 
 // GetSchemaVersionSQL returns the SQL query to get the current schema version.

@@ -261,19 +261,13 @@ func (a Adapter) getCurrentSchemaVersion(ctx context.Context) (version uint64, e
 		return 0, err
 	}
 
-	// Check if the schema table is already created
-	exists := false
-	row := db.QueryRowContext(ctx, a.schemas.GetTableExistsSQL())
-	if err = row.Scan(&exists); err != nil {
+	// Create the schema table if it doesn't exists
+	if _, err := db.ExecContext(ctx, a.schemas.GetTableDDL()); err != nil {
 		return 0, err
 	}
 
-	if !exists {
-		return 0, nil
-	}
-
 	// Get the current schema version
-	row = db.QueryRowContext(ctx, a.schemas.GetSchemaVersionSQL())
+	row := db.QueryRowContext(ctx, a.schemas.GetSchemaVersionSQL())
 	if err = row.Scan(&version); err != nil {
 		return 0, err
 	}
