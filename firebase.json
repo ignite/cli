@@ -7,7 +7,7 @@
   },
   "hosting": {
     "target": "docs.ignite.com",
-    "public": "docs/.vuepress/dist",
+    "public": "docs/build",
     "cleanUrls": true
   }
 }
