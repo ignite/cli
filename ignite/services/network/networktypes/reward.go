@@ -11,8 +11,9 @@ type (
 		ValidatorSet   spntypes.ValidatorSet
 		RevisionHeight uint64
 	}
-	// Relayer is the relayer connection info.
-	Relayer struct {
+
+	// RewardIBCInfo holds IBC info to relay packets to claim rewards.
+	RewardIBCInfo struct {
 		ChainID      string
 		ClientID     string
 		ConnectionID string

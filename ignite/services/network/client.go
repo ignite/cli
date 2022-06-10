@@ -53,33 +53,41 @@ func (n Network) verifiedClientIDs(ctx context.Context, launchID uint64) ([]stri
 	return res.ClientIds, nil
 }
 
-// FindClientID find client, connection and channel id by the chain launch id
-func (n Network) FindClientID(ctx context.Context, launchID uint64) (relayer networktypes.Relayer, err error) {
+// RewardIBCInfo returns IBC info to relay packets for a chain to claim rewards.
+func (n Network) RewardIBCInfo(ctx context.Context, launchID uint64) (networktypes.RewardIBCInfo, error) {
 	clientStates, err := n.verifiedClientIDs(ctx, launchID)
 	if err != nil {
-		return relayer, err
+		return networktypes.RewardIBCInfo{}, err
 	}
 	if len(clientStates) == 0 {
-		return relayer, ErrObjectNotFound
+		return networktypes.RewardIBCInfo{}, ErrObjectNotFound
 	}
-	relayer.ClientID = clientStates[0]
 
-	connections, err := n.node.clientConnections(ctx, relayer.ClientID)
+	clientID := clientStates[0]
+
+	connections, err := n.node.clientConnections(ctx, clientID)
 	if err != nil && err != ErrObjectNotFound {
-		return relayer, err
+		return networktypes.RewardIBCInfo{}, err
 	}
 	if err == ErrObjectNotFound || len(connections) == 0 {
-		return relayer, nil
+		return networktypes.RewardIBCInfo{}, nil
 	}
-	relayer.ConnectionID = connections[0]
 
-	channels, err := n.node.connectionChannels(ctx, relayer.ConnectionID)
+	connectionID := connections[0]
+
+	channels, err := n.node.connectionChannels(ctx, connectionID)
 	if err != nil && err != ErrObjectNotFound {
-		return relayer, err
+		return networktypes.RewardIBCInfo{}, err
 	}
 	if err == ErrObjectNotFound || len(connections) == 0 {
-		return relayer, nil
+		return networktypes.RewardIBCInfo{}, nil
 	}
-	relayer.ChannelID = channels[0]
-	return relayer, nil
+
+	info := networktypes.RewardIBCInfo{
+		ClientID:     clientID,
+		ConnectionID: connectionID,
+		ChannelID:    channels[0],
+	}
+
+	return info, nil
 }
