@@ -20,11 +20,8 @@ import (
 )
 
 const head = `---
-order: 1
-description: Ignite CLI docs. 
-parent:
-  order: 8
-  title: CLI Reference
+sidebar_position: 7
+description: Ignite CLI docs.
 ---
 
 # CLI Reference

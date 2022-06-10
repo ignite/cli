@@ -55,25 +55,20 @@ func (am AppModule) OnChanOpenTry(
 	channelID string,
 	chanCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
-	version,
 	counterpartyVersion string,
-) error {
+) (string, error) {
 	<%= if (ibcOrdering != "NONE") { %>if order != channeltypes.<%= ibcOrdering %> {
-		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.<%= ibcOrdering %>, order)
+		return "", sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.<%= ibcOrdering %>, order)
 	}<% } %>
 
 	// Require portID is the portID module is bound to
 	boundPort := am.keeper.GetPort(ctx)
 	if boundPort != portID {
-		return sdkerrors.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
-	}
-
-	if version != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "got: %s, expected %s", version, types.Version)
+		return "", sdkerrors.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
 	}
 
 	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: got: %s, expected %s", counterpartyVersion, types.Version)
+		return "", sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: got: %s, expected %s", counterpartyVersion, types.Version)
 	}
 
 	// Module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
@@ -83,11 +78,11 @@ func (am AppModule) OnChanOpenTry(
 	if !am.keeper.AuthenticateCapability(ctx, chanCap, host.ChannelCapabilityPath(portID, channelID)) {
 		// Only claim channel capability passed back by IBC module if we do not already own it
 		if err := am.keeper.ClaimCapability(ctx, chanCap, host.ChannelCapabilityPath(portID, channelID)); err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	return nil
+	return types.Version, nil
 }
 
 // OnChanOpenAck implements the IBCModule interface
@@ -95,6 +90,7 @@ func (am AppModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
 	channelID string,
+	_,
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
@@ -235,15 +231,4 @@ func (am AppModule) OnTimeoutPacket(
     }
 
     return nil
-}
-
-func (am AppModule) NegotiateAppVersion(
-	ctx sdk.Context,
-	order channeltypes.Order,
-	connectionID string,
-	portID string,
-	counterparty channeltypes.Counterparty,
-	proposedVersion string,
-) (version string, err error) {
-	return proposedVersion, nil
 }
