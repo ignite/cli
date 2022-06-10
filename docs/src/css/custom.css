@@ -410,16 +410,26 @@ html {
         a { @apply underline underline-offset-2 hover:text-linkHover hover:decoration-linkHover; }
         ol, ul { @apply my-6; }
         ul li { @apply relative pl-6 mb-4 before:absolute before:block before:w-[4px] before:h-[4px] before:bg-current before:left-0 before:top-[calc(1em/2)]; }
-        li li { @apply last:mb-6 before:border before:border-current before:bg-transparent; }
+        ul li li { @apply last:mb-6 before:border before:border-current before:bg-transparent; }
         li:last-child li { @apply last:mb-0 }
         ol {
+            list-style-type: none;
             counter-reset: item;
             & > li { 
                 @apply relative pl-8 mb-5.5;
                 &::before {
                     counter-increment: item;
                     content: counters(item, '.', decimal-leading-zero) '.';
-                    @apply absolute flex left-0 top-0 text-3 font-semibold tracking-tight;
+                    @apply absolute flex left-0 top-[.2rem] text-3 font-semibold tracking-tight;
+                  }
+            }
+        }
+        ol ol {
+            counter-reset: subitem;
+            & > li { 
+                &::before {
+                    counter-increment: subitem;
+                    content: counters(subitem, '.', decimal-leading-zero) '.';
                   }
             }
         }
