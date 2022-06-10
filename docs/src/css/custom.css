@@ -76,6 +76,9 @@ html {
             @apply hidden;
         }
     }
+    &[data-theme='dark'] #__docusaurus > div[role="banner"] {
+        @apply bg-fg text-mutedLight font-normal ;
+    }
 
     /* MAINNAV */
     .navbar {
