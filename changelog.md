@@ -1,10 +1,16 @@
 # Changelog
 
+## [`v0.22.1`](https://github.com/ignite-hq/cli/releases/tag/v0.22.1)
+
+### Fixes 
+
+- Fix IBC module scaffolding interface in templates
+
 ## [`v0.22.0`](https://github.com/ignite-hq/cli/releases/tag/v0.22.0)
 
 ### Features 
 
-- Optimized the build system. The `c serve`, `chain build`, `chain generate` commands and other variants are way faster now
+- Optimized the build system. The `chain serve`, `chain build`, `chain generate` commands and other variants are way faster now
 - Upgraded CLI and templates to use IBC v3
 
 ### Fixes 
