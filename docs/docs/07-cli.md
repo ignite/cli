@@ -1,6 +1,6 @@
 ---
 sidebar_position: 7
-description: Ignite CLI docs. 
+description: Ignite CLI docs.
 ---
 
 # CLI Reference
@@ -23,7 +23,7 @@ ignite scaffold chain github.com/username/mars
 **Options**
 
 ```
-  -h, --help   help for ignite 
+  -h, --help   help for ignite
 ```
 
 **SEE ALSO**
