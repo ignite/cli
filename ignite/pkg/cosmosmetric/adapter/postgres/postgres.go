@@ -12,15 +12,13 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"golang.org/x/sync/errgroup"
 
 	_ "github.com/lib/pq" // required to register postgres sql driver
 )
 
 const (
-	DefaultPort            = 5432
-	DefaultHost            = "127.0.0.1"
-	DefaultSaveConcurrency = 0 // no limit
+	DefaultPort = 5432
+	DefaultHost = "127.0.0.1"
 
 	adapterType = "postgres"
 
@@ -32,9 +30,13 @@ const (
 		INSERT INTO tx (hash, index, height, block_time)
 		VALUES ($1, $2, $3, $4)
 	`
-	sqlInsertAttr = `
-		INSERT INTO attribute (tx_hash, event_type, event_index, name, value)
-		VALUES ($1, $2, $3, $4, $5)
+	sqlInsertEvent = `
+		INSERT INTO event (tx_hash, type, index)
+		VALUES ($1, $2, $3) RETURNING id
+	`
+	sqlInsertEventAttr = `
+		INSERT INTO attribute (event_id, name, value)
+		VALUES ($1, $2, $3)
 	`
 	sqlInsertRawTX = `
 		INSERT INTO raw_tx (hash, data)
@@ -88,22 +90,13 @@ func WithParams(params map[string]string) Option {
 	}
 }
 
-// WithSaveConcurrency configures the max number of parallel
-// INSERT statements allowed during save.
-func WithSaveConcurrency(concurrency int) Option {
-	return func(a *Adapter) {
-		a.saveConcurrency = concurrency
-	}
-}
-
 // NewAdapter creates a new PostgreSQL adapter.
 func NewAdapter(database string, options ...Option) (Adapter, error) {
 	adapter := Adapter{
-		host:            DefaultHost,
-		port:            DefaultPort,
-		database:        database,
-		saveConcurrency: DefaultSaveConcurrency,
-		schemas:         NewSchemas(fsSchemas, ""),
+		host:     DefaultHost,
+		port:     DefaultPort,
+		database: database,
+		schemas:  NewSchemas(fsSchemas, ""),
 	}
 
 	for _, o := range options {
@@ -125,7 +118,6 @@ type Adapter struct {
 	host, user, password, database string
 	port                           uint
 	params                         map[string]string
-	saveConcurrency                int
 	db                             *sql.DB
 	schemas                        Schemas
 }
@@ -183,31 +175,31 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 
 	defer txStmt.Close()
 
-	attrStmt, err := sqlTx.PrepareContext(ctx, sqlInsertAttr)
+	evtStmt, err := sqlTx.PrepareContext(ctx, sqlInsertEvent)
+	if err != nil {
+		return err
+	}
+
+	defer evtStmt.Close()
+
+	attrStmt, err := sqlTx.PrepareContext(ctx, sqlInsertEventAttr)
 	if err != nil {
 		return err
 	}
 
 	defer attrStmt.Close()
 
-	wg, groupCtx := errgroup.WithContext(ctx)
-	if a.saveConcurrency > 0 {
-		wg.SetLimit(a.saveConcurrency)
-	}
-
+	// All the transactions are saved within the context of the same database
+	// transactions and because of that either all block transactions are
+	// saved or none of them.
 	for _, tx := range txs {
-		tx := tx
+		if err := saveRawTX(ctx, sqlTx, tx.Raw); err != nil {
+			return err
+		}
 
-		wg.Go(func() error {
-			return saveRawTX(groupCtx, sqlTx, tx.Raw)
-		})
-		wg.Go(func() error {
-			return saveTX(groupCtx, txStmt, attrStmt, tx)
-		})
-	}
-
-	if err := wg.Wait(); err != nil {
-		return err
+		if err := saveTX(ctx, txStmt, evtStmt, attrStmt, tx); err != nil {
+			return err
+		}
 	}
 
 	return sqlTx.Commit()
@@ -317,7 +309,7 @@ func saveRawTX(ctx context.Context, sqlTx *sql.Tx, rtx *ctypes.ResultTx) error {
 	return nil
 }
 
-func saveTX(ctx context.Context, txStmt, attrStmt *sql.Stmt, tx cosmosclient.TX) error {
+func saveTX(ctx context.Context, txStmt, evtStmt, attrStmt *sql.Stmt, tx cosmosclient.TX) error {
 	hash := tx.Raw.Hash.String()
 	if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime); err != nil {
 		return fmt.Errorf("error saving TX %s: %w", hash, err)
@@ -329,8 +321,20 @@ func saveTX(ctx context.Context, txStmt, attrStmt *sql.Stmt, tx cosmosclient.TX)
 	}
 
 	for i, evt := range events {
+		var evtID int
+
+		row := evtStmt.QueryRowContext(ctx, hash, evt.Type, i)
+		if err := row.Err(); err != nil {
+			fmt.Println(hash, evt.Type, i)
+			return fmt.Errorf("error saving event '%s': %w", evt.Type, err)
+		}
+
+		if err := row.Scan(&evtID); err != nil {
+			return fmt.Errorf("error reading event ID: %w", err)
+		}
+
 		for _, attr := range evt.Attributes {
-			if _, err := attrStmt.ExecContext(ctx, hash, evt.Type, i, attr.Key, attr.Value); err != nil {
+			if _, err := attrStmt.ExecContext(ctx, evtID, attr.Key, attr.Value); err != nil {
 				return fmt.Errorf("error saving event attr '%s.%s': %w", evt.Type, attr.Key, err)
 			}
 		}
