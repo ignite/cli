@@ -1,14 +1,25 @@
 ---
 order: 1
-title: v0.20.0
+title: v0.22.0
 parent:
   title: Migration
   order: 3
-description: For chains that were scaffolded with Ignite CLI versions lower than v0.20.0, changes are required to use Ignite CLI v0.20.0. 
+description: For chains that were scaffolded with Ignite CLI versions lower than v0.22.0, changes are required to use Ignite CLI v0.22.0. 
 ---
 
-# Upgrading a blockchain to use Ignite CLI v0.20.2
+# Upgrading a blockchain to use Ignite CLI v0.22.0
 
-1. Upgrade your Cosmos SDK version to [v0.45.3](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.3).
+1. Open your `go.mod` and change the Ignite CLI line with `github.com/ignite-hq/cli v0.22.0`
 
-2. Update your `SetOrderBeginBlockers` and `SetOrderEndBlockers` in your `app/app.go` to explicitly add entries for all the modules you use in your chain.
+1. Upgrade your IBC version to [v3](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0).
+
+    1. Search for `github.com/cosmos/ibc-go/v2` in the import statements of your `.go` files and replace `v2` in the end with `v3`
+
+    1. Open your `app.go`,
+
+        - Update your transfer keeper by adding another `app.IBCKeeper.ChannelKeeper` as an argument after `app.IBCKeeper.ChannelKeeper`
+
+        - Define `var transferIBCModule = transfer.NewIBCModule(app.TransferKeeper)` in your `New()` func, and update your existent IBC router to use it: `ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)` 
+
+    1. Open your `go.mod` and change the IBC line with `github.com/cosmos/ibc-go/v3 v3.0.0`
+ 
