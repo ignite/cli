@@ -72,12 +72,6 @@ const config = {
           srcDark: "img/header-logo-docs-dark.svg",
         },
         items: [
-          //   {
-          //     type: "doc",
-          //     docId: "index",
-          //     position: "left",
-          //     label: "Docs",
-          //   },
           {
             href: "https://github.com/ignite-hq/cli",
             html: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="github-icon">
@@ -204,14 +198,14 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
-      //   algolia: {
-      //     appId: "YOUR_APP_ID",
-      //     apiKey: "YOUR_SEARCH_API_KEY",
-      //     indexName: "YOUR_INDEX_NAME",
-      //   },
+      algolia: {
+        appId: "VVETP7QCVE",
+        apiKey: "a9c466699c13052d35581030138f9fdc",
+        indexName: "ignite-cli",
+        contextualSearch: false,
+      },
     }),
   plugins: [
-    require.resolve("@cmfcmf/docusaurus-search-local"),
     async function myPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
