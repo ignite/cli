@@ -105,7 +105,7 @@ func IsHTTP(address string) bool {
 
 func parseURL(s string) (*url.URL, error) {
 	if s == "" {
-		return nil, errors.New("url is empty")
+		panic(errors.New("url is empty"))
 	}
 
 	// Handle the case where the URI is an IP:PORT or HOST:PORT

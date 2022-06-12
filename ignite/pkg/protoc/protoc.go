@@ -131,6 +131,9 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 	var existentIncludePaths []string
 
+	gopath := os.Getenv("GOPATH") + "/src"
+	includePaths = append(includePaths, gopath)
+
 	// skip if a third party proto source actually doesn't exist on the filesystem.
 	for _, path := range includePaths {
 		if _, err := os.Stat(path); os.IsNotExist(err) {

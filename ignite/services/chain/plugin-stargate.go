@@ -100,21 +100,23 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 
 func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
+	var err error
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
 	}
 
-	// rpcAddr, err := xurl.TCP(conf.Host.RPC)
-	// if err != nil {
-	// 	return fmt.Errorf("invalid rpc address format %s: %w", conf.Host.RPC, err)
-	// }
+	val := conf.Validators[0]
+	rpcAddr, err := xurl.TCP(val.RPC())
+	if err != nil {
+		return fmt.Errorf("invalid rpc address format %s: %w", val.RPC(), err)
+	}
 
-	// p2pAddr, err := xurl.TCP(conf.Host.P2P)
-	// if err != nil {
-	// 	return fmt.Errorf("invalid p2p address format %s: %w", conf.Host.P2P, err)
-	// }
+	p2pAddr, err := xurl.TCP(val.P2P())
+	if err != nil {
+		return fmt.Errorf("invalid p2p address format %s: %w", val.P2P(), err)
+	}
 
 	config.Set("mode", "validator")
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
@@ -122,16 +124,16 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 	config.Set("consensus.timeout_propose", "1s")
 
 	// We can ignore this step as its now baked into the validator parse
-	// config.Set("rpc.laddr", rpcAddr)
-	// config.Set("p2p.laddr", p2pAddr)
-	// config.Set("rpc.pprof_laddr", conf.Host.Prof)
 
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
+	config.Set("rpc.laddr", rpcAddr)
+	config.Set("p2p.laddr", p2pAddr)
+
+	// config.Set("rpc.pprof_laddr", conf.Host.Prof)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-
 	_, err = config.WriteTo(file)
 	return err
 }

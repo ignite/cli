@@ -66,13 +66,6 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	// overwrite configuration changes from Ignite CLI's config.yml to
-	// over app's sdk configs.
-
-	if err := c.plugin.Configure(home, conf); err != nil {
-		return err
-	}
-
 	// make sure that chain id given during chain.New() has the most priority.
 	if conf.Genesis != nil {
 		conf.Genesis["chain_id"] = chainID
@@ -122,6 +115,13 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		if err := cf.Save(conf); err != nil {
 			return err
 		}
+	}
+
+	// overwrite configuration changes from Ignite CLI's config.yml to
+	// over app's sdk configs.
+
+	if err := c.plugin.Configure(home, conf); err != nil {
+		return err
 	}
 
 	return nil

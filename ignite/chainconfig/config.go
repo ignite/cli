@@ -10,7 +10,8 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
+	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 )
 
 // internal type alias for convienence
@@ -59,8 +60,6 @@ var DefaultConf = Config{
 
 				"pprof_laddr": "0.0.0.0:6060",
 			},
-
-			Client: configmap{},
 		},
 	},
 	Build: Build{
@@ -136,7 +135,8 @@ type Validator struct {
 }
 
 func (v Validator) API() string {
-	return v.getConfigItemWithNamespace(v.App, "api", "address")
+	str, _ := xurl.TCP(v.getConfigItemWithNamespace(v.App, "api", "address"))
+	return str
 }
 
 func (v Validator) GRPC() string {
@@ -148,11 +148,13 @@ func (v Validator) GRPCWeb() string {
 }
 
 func (v Validator) RPC() string {
-	return v.getConfigItemWithNamespace(v.Config, "rpc", "laddr")
+	str, _ := xurl.TCP(v.getConfigItemWithNamespace(v.Config, "rpc", "laddr"))
+	return str
 }
 
 func (v Validator) P2P() string {
-	return v.getConfigItemWithNamespace(v.Config, "p2p", "laddr")
+	str, _ := xurl.TCP(v.getConfigItemWithNamespace(v.Config, "p2p", "laddr"))
+	return str
 }
 
 func (v Validator) Pprof() string {
@@ -322,10 +324,27 @@ func Parse(r io.Reader) (Config, error) {
 	if err := yaml.NewDecoder(r).Decode(&conf); err != nil {
 		return conf, err
 	}
-	if err := mergo.Merge(&conf, DefaultConf, mergo.WithSliceDeepCopy, mergoWithoutOverwrite); err != nil {
+	if err := mergo.Merge(&conf, DefaultConf); err != nil {
+		return Config{}, err
+	}
+	conf, err := mergeValidators(conf)
+	if err != nil {
 		return Config{}, err
 	}
 	return conf, validate(conf)
+}
+
+func mergeValidators(conf Config) (Config, error) {
+	//only first validator for now
+	if len(conf.Validators) == 0 {
+		return Config{}, &ValidationError{"at least one validator is required"}
+	}
+	val := conf.Validators[0]
+	if err := mergo.Merge(&val, DefaultConf.Validators[0]); err != nil {
+		return Config{}, err
+	}
+	conf.Validators[0] = val
+	return conf, nil
 }
 
 // ParseFile parses config.yml from the path.
