@@ -1,15 +1,10 @@
 package ignitecmd
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -53,7 +48,7 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	}
 
 	// get all campaign accounts
-	mainnetAccs, err := getAccounts(cmd.Context(), n, campaignID)
+	mainnetAccs, err := n.MainnetAccounts(cmd.Context(), campaignID)
 	if err != nil {
 		return err
 	}
@@ -76,28 +71,4 @@ func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) err
 	}
 
 	return nil
-}
-
-// getAccounts get all campaign mainnet accounts.
-func getAccounts(
-	ctx context.Context,
-	n network.Network,
-	campaignID uint64,
-) (
-	[]networktypes.MainnetAccount,
-	error,
-) {
-	// start serving components.
-	g, ctx := errgroup.WithContext(ctx)
-	var (
-		mainnetAccs []networktypes.MainnetAccount
-		err         error
-	)
-	// get all campaign mainnet accounts
-	g.Go(func() error {
-		mainnetAccs, err = n.MainnetAccounts(ctx, campaignID)
-		return err
-	})
-
-	return mainnetAccs, g.Wait()
 }
