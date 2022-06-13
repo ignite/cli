@@ -5,25 +5,32 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/adapter"
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query/call"
 )
 
 const (
-	entityTX        = "tx"
+	entityEvent     = "event"
 	entityEventAttr = "attribute"
 
-	fieldCreatedAt      = "created_at"
-	fieldEventAttrName  = "name"
-	fieldEventAttrValue = "value"
-	fieldEventIndex     = "event_index"
-	fieldEventTXHash    = "tx_hash"
-	fieldEventType      = "event_type"
-	fieldTXBlockHeight  = "height"
-	fieldTXBlockTime    = "block_time"
-	fieldTXHash         = "hash"
-	fieldTXIndex        = "index"
+	fieldEventAttrName  = "attribute.name"
+	fieldEventAttrValue = "attribute.value"
+	fieldEventCreatedAt = "event.created_at"
+	fieldEventID        = "event.id"
+	fieldEventIndex     = "event.index"
+	fieldEventTXHash    = "event.tx_hash"
+	fieldEventType      = "event.type"
+	fieldTXCreatedAt    = "tx.created_at"
+	fieldTXBlockHeight  = "tx.height"
+	fieldTXBlockTime    = "tx.block_time"
+	fieldTXHash         = "tx.hash"
+	fieldTXIndex        = "tx.index"
 
 	sqlSelectAll = "SELECT *"
+	sqlFromTX    = "FROM tx"
+
+	tplFromEventSQL = "FROM %[1]v INNER JOIN %[2]v ON %[1]v.id = %[2]v.event_id"
 )
 
 var (
@@ -32,23 +39,19 @@ var (
 )
 
 var (
-	entityMap = map[query.Entity]string{
-		query.EntityTX:        entityTX,
-		query.EntityEventAttr: entityEventAttr,
-	}
-
 	fieldMap = map[query.Field]string{
-		query.FieldTXHash:          fieldTXHash,
-		query.FieldTXIndex:         fieldTXIndex,
-		query.FieldTXBlockHeight:   fieldTXBlockHeight,
-		query.FieldTXBlockTime:     fieldTXBlockTime,
-		query.FieldTXCreateTime:    fieldCreatedAt,
-		query.FieldEventTXHash:     fieldEventTXHash,
-		query.FieldEventType:       fieldEventType,
-		query.FieldEventIndex:      fieldEventIndex,
-		query.FieldEventAttrName:   fieldEventAttrName,
-		query.FieldEventAttrValue:  fieldEventAttrValue,
-		query.FieldEventCreateTime: fieldCreatedAt,
+		adapter.FieldTXHash:          fieldTXHash,
+		adapter.FieldTXIndex:         fieldTXIndex,
+		adapter.FieldTXBlockHeight:   fieldTXBlockHeight,
+		adapter.FieldTXBlockTime:     fieldTXBlockTime,
+		adapter.FieldTXCreateTime:    fieldTXCreatedAt,
+		adapter.FieldEventID:         fieldEventID,
+		adapter.FieldEventTXHash:     fieldEventTXHash,
+		adapter.FieldEventType:       fieldEventType,
+		adapter.FieldEventIndex:      fieldEventIndex,
+		adapter.FieldEventAttrName:   fieldEventAttrName,
+		adapter.FieldEventAttrValue:  fieldEventAttrValue,
+		adapter.FieldEventCreateTime: fieldEventCreatedAt,
 	}
 )
 
@@ -62,11 +65,12 @@ func parseQuery(q query.Query) (string, error) {
 }
 
 func parseCallQuery(q query.Query) (string, error) {
+	call := q.GetCall()
 	sections := []string{
 		// Add SELECT
-		parseFields(q.GetFields()),
+		parseCustomFields(call.Fields()),
 		// Add FROM
-		parseCall(q.GetCall()),
+		parseCall(call),
 	}
 
 	// Add WHERE
@@ -93,6 +97,7 @@ func parseCallQuery(q query.Query) (string, error) {
 }
 
 func parseEntityQuery(q query.Query) (string, error) {
+	// TODO: entities can be inferred from the fields
 	fromEntity, err := parseEntity(q.GetEntity())
 	if err != nil {
 		return "", err
@@ -128,12 +133,16 @@ func parseEntityQuery(q query.Query) (string, error) {
 	return strings.Join(sections, " "), nil
 }
 
-func parseFields(fields []query.Field) string {
+func parseCustomFields(fields []string) string {
 	if len(fields) == 0 {
 		// By default select all fields
 		return sqlSelectAll
 	}
 
+	return fmt.Sprintf("SELECT DISTINCT %s", strings.Join(fields, ", "))
+}
+
+func parseFields(fields []query.Field) string {
 	var names []string
 
 	for _, f := range fields {
@@ -142,20 +151,21 @@ func parseFields(fields []query.Field) string {
 		}
 	}
 
-	return fmt.Sprintf("SELECT %s", strings.Join(names, ", "))
+	return parseCustomFields(names)
 }
 
-func parseCall(c query.Call) string {
-	var params []string
+func parseCall(c call.Call) string {
+	args := c.Args()
+	params := make([]string, len(args))
 
 	// Init the function call placeholders for the arguments
-	for i := range c.Args {
-		params = append(params, fmt.Sprintf("$%d", i+1))
+	for i := range args {
+		params[i] = fmt.Sprintf("$%d", i+1)
 	}
 
 	// When there are arguments it means it is a postgres function
 	// call otherwise the call is treated as a view
-	s := fmt.Sprintf("FROM %s", c.Name)
+	s := fmt.Sprintf("FROM %s", c.Name())
 	if len(params) > 0 {
 		s = fmt.Sprintf("%s(%s)", s, strings.Join(params, ", "))
 	}
@@ -164,8 +174,11 @@ func parseCall(c query.Call) string {
 }
 
 func parseEntity(e query.Entity) (string, error) {
-	if name := entityMap[e]; name != "" {
-		return fmt.Sprintf("FROM %s", name), nil
+	switch e {
+	case adapter.EntityTX:
+		return sqlFromTX, nil
+	case adapter.EntityEvent:
+		return fmt.Sprintf(tplFromEventSQL, entityEvent, entityEventAttr), nil
 	}
 
 	return "", ErrUnknownEntity
@@ -176,12 +189,10 @@ func parseFilters(filters []query.Filter) string {
 		return ""
 	}
 
-	var (
-		items []string
-		pos   uint
-	)
+	pos := 0
+	items := make([]string, len(filters))
 
-	for _, f := range filters {
+	for i, f := range filters {
 		// Render the filter so it can be applied to the query
 		expr := f.String()
 
@@ -193,7 +204,7 @@ func parseFilters(filters []query.Filter) string {
 			pos++
 		}
 
-		items = append(items, expr)
+		items[i] = expr
 	}
 
 	return fmt.Sprintf("WHERE %s", strings.Join(items, " AND "))
