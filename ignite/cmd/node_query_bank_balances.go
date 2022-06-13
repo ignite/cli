@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/spf13/cobra"
 )
 
@@ -26,25 +25,12 @@ func NewNodeQueryBankBalances() *cobra.Command {
 }
 
 func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
-	var (
-		inputAccount   = args[0]
-		prefix         = getAddressPrefix(cmd)
-		node           = getRPC(cmd)
-		home           = getHome(cmd)
-		keyringBackend = getKeyringBackend(cmd)
-		keyringDir     = getKeyringDir(cmd)
-	)
+	inputAccount := args[0]
+
 	session := cliui.New()
 	defer session.Cleanup()
 
-	client, err := cosmosclient.New(
-		cmd.Context(),
-		cosmosclient.WithAddressPrefix(prefix),
-		cosmosclient.WithHome(home),
-		cosmosclient.WithKeyringBackend(keyringBackend),
-		cosmosclient.WithKeyringDir(keyringDir),
-		cosmosclient.WithNodeAddress(node),
-	)
+	client, err := newNodeCosmosClient(cmd)
 	if err != nil {
 		return err
 	}

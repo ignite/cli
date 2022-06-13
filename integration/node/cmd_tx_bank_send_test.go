@@ -4,54 +4,116 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/alecthomas/assert"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite-hq/cli/integration"
 )
 
 func TestNodeTxBankSend(t *testing.T) {
 	var (
-		env           = envtest.New(t)
-		path          = env.Scaffold("github.com/test/blog", "--address-prefix", testPrefix)
-		servers       = env.RandomizeServerPorts(path, "")
-		rndWorkdir    = t.TempDir() // To make sure we can run these commands from anywhere
+		name  = "blog"
+		alice = "alice"
+		bob   = "bob"
+
+		env     = envtest.New(t)
+		app     = env.Scaffold(name, "--address-prefix", testPrefix)
+		home    = env.AppHome(name)
+		servers = app.RandomizeServerPorts()
+
 		accKeyringDir = t.TempDir()
 	)
 
-	env.SetKeyringBackend(path, "", keyring.BackendTest)
-	env.SetConfigMnemonic(path, "", "alice", aliceMnemonic)
-	env.SetConfigMnemonic(path, "", "bob", bobMnemonic)
+	node, err := xurl.HTTP(servers.RPC)
+	require.NoError(t, err)
+
+	defer env.RequireExpectations()
+
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringDirPath(filepath.Join(home, keyringTestDirName)),
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringTest),
+	)
+	require.NoError(t, err)
+
+	aliceAccount, aliceMnemonic, err := ca.Create(alice)
+	require.NoError(t, err)
+
+	bobAccount, bobMnemonic, err := ca.Create(bob)
+	require.NoError(t, err)
+
+	app.EditConfig(func(conf *chainconfig.Config) {
+		conf.Accounts = []chainconfig.Account{
+			{
+				Name:     alice,
+				Mnemonic: aliceMnemonic,
+				Coins:    []string{"500a", "600b"},
+			},
+			{
+				Name:     bob,
+				Mnemonic: bobMnemonic,
+				Coins:    []string{"2500a", "2600b"},
+			},
+		}
+		conf.Init.KeyringBackend = keyring.BackendTest
+	})
+
+	env.Must(env.Exec("import alice",
+		step.NewSteps(step.New(
+			step.Exec(
+				envtest.IgniteApp,
+				"account",
+				"import",
+				"alice",
+				"--keyring-dir",
+				accKeyringDir,
+				"--non-interactive",
+				"--secret", aliceMnemonic,
+			),
+		)),
+	))
+
+	env.Must(env.Exec("import bob",
+		step.NewSteps(step.New(
+			step.Exec(
+				envtest.IgniteApp,
+				"account",
+				"import",
+				"bob",
+				"--keyring-dir",
+				accKeyringDir,
+				"--non-interactive",
+				"--secret", bobMnemonic,
+			),
+		)),
+	))
 
 	var (
-		ctx, cancel = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		isBackendAliveErr error
 	)
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr := env.IsAppServed(ctx, servers)
-		require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+
+		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+			return
+		}
 
 		// error "account doesn't have any balances" occurs if a sleep is not included
+		// TODO find another way without sleep, with retry+ctx routine.
 		time.Sleep(time.Second * 1)
 
-		env.Must(env.Exec("import alice",
-			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "account", "import", "alice", "--keyring-dir", accKeyringDir, "--non-interactive", "--secret", aliceMnemonic),
-			)),
-		))
-		env.Must(env.Exec("import bob",
-			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "account", "import", "bob", "--keyring-dir", accKeyringDir, "--non-interactive", "--secret", bobMnemonic),
-			)),
-		))
-
-		env.Must(env.Exec("send 100token from alice to bob",
+		env.Exec("send 100token from alice to bob",
 			step.NewSteps(step.New(
 				step.Exec(
 					envtest.IgniteApp,
@@ -64,18 +126,21 @@ func TestNodeTxBankSend(t *testing.T) {
 					"100token",
 					"--from",
 					"alice",
-					"--rpc",
-					"http://"+servers.RPC,
+					"--node",
+					node,
 					"--keyring-dir",
 					accKeyringDir,
 					"--address-prefix",
 					testPrefix,
 				),
-				step.Workdir(rndWorkdir),
 			)),
-		))
+		)
 
-		env.Must(env.Exec("send 2stake from bob to alice using addresses",
+		if env.HasFailed() {
+			return
+		}
+
+		env.Exec("send 2stake from bob to alice using addresses",
 			step.NewSteps(step.New(
 				step.Exec(
 					envtest.IgniteApp,
@@ -83,23 +148,26 @@ func TestNodeTxBankSend(t *testing.T) {
 					"tx",
 					"bank",
 					"send",
-					bobAddress,
-					aliceAddress,
+					bobAccount.Address(testPrefix),
+					aliceAccount.Address(testPrefix),
 					"2stake",
 					"--from",
 					"bob",
-					"--rpc",
-					"http://"+servers.RPC,
+					"--node",
+					node,
 					"--keyring-dir",
 					accKeyringDir,
 					"--address-prefix",
 					testPrefix,
 				),
-				step.Workdir(rndWorkdir),
 			)),
-		))
+		)
 
-		env.Must(env.Exec("send 5token from alice to bob using a combination of address and account",
+		if env.HasFailed() {
+			return
+		}
+
+		env.Exec("send 5token from alice to bob using a combination of address and account",
 			step.NewSteps(step.New(
 				step.Exec(
 					envtest.IgniteApp,
@@ -108,25 +176,30 @@ func TestNodeTxBankSend(t *testing.T) {
 					"bank",
 					"send",
 					"alice",
-					bobAddress,
+					bobAccount.Address(testPrefix),
 					"5token",
 					"--from",
 					"alice",
-					"--rpc",
-					"http://"+servers.RPC,
+					"--node",
+					node,
 					"--keyring-dir",
 					accKeyringDir,
 					"--address-prefix",
 					testPrefix,
 				),
-				step.Workdir(rndWorkdir),
 			)),
-		))
+		)
 
+		if env.HasFailed() {
+			return
+		}
+
+		// TODO find another way without sleep, with retry+ctx routine.
 		time.Sleep(time.Second * 1)
 
-		var aliceBalanceCheckBuffer = &bytes.Buffer{}
-		env.Must(env.Exec("query bank balances for alice",
+		b := &bytes.Buffer{}
+
+		env.Exec("query bank balances for alice",
 			step.NewSteps(step.New(
 				step.Exec(
 					envtest.IgniteApp,
@@ -142,16 +215,23 @@ func TestNodeTxBankSend(t *testing.T) {
 					"--address-prefix",
 					testPrefix,
 				),
-				step.Workdir(rndWorkdir),
 			)),
-			envtest.ExecStdout(aliceBalanceCheckBuffer),
-		))
-		require.True(t, strings.Contains(aliceBalanceCheckBuffer.String(), `Amount 		Denom 	
-100000002 	stake 	
-19895 		token`))
+			envtest.ExecStdout(b),
+		)
 
-		var bobBalanceCheckBuffer = &bytes.Buffer{}
-		env.Must(env.Exec("query bank balances for bob",
+		assert.True(t, envtest.Contains(b.String(), `
+Amount 		Denom 	
+100000002 	stake 	
+19895 		token`,
+		))
+
+		if env.HasFailed() {
+			return
+		}
+
+		b.Reset()
+
+		env.Exec("query bank balances for bob",
 			step.NewSteps(step.New(
 				step.Exec(
 					envtest.IgniteApp,
@@ -167,39 +247,48 @@ func TestNodeTxBankSend(t *testing.T) {
 					"--address-prefix",
 					testPrefix,
 				),
-				step.Workdir(rndWorkdir),
 			)),
-			envtest.ExecStdout(bobBalanceCheckBuffer),
-		))
-		require.True(t, strings.Contains(bobBalanceCheckBuffer.String(), `Amount 		Denom 	
+			envtest.ExecStdout(b),
+		)
+
+		assert.True(t, strings.Contains(b.String(), `
+Amount 		Denom 	
 99999998 	stake 	
-10105 		token`))
+10105 		token`,
+		))
 
 	}()
-	env.Must(env.Serve("should serve with Stargate version", path, "", "", envtest.ExecCtx(ctx)))
+
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
 func TestNodeTxBankSendGenerateOnly(t *testing.T) {
 	var (
-		env           = envtest.New(t)
-		path          = env.Scaffold("github.com/test/blog", "--address-prefix", testPrefix)
-		servers       = env.RandomizeServerPorts(path, "")
-		rndWorkdir    = t.TempDir() // To make sure we can run these commands from anywhere
+		name  = "blog"
+		alice = "alice"
+		bob   = "bob"
+
+		env     = envtest.New(t)
+		app     = env.Scaffold(name, "--address-prefix", testPrefix)
+		home    = env.AppHome(name)
+		servers = app.RandomizeServerPorts()
+
 		accKeyringDir = t.TempDir()
 	)
 
-	env.SetKeyringBackend(path, "", keyring.BackendTest)
-	env.SetConfigMnemonic(path, "", "alice", aliceMnemonic)
-	env.SetConfigMnemonic(path, "", "bob", bobMnemonic)
-
 	var (
-		ctx, cancel = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		isBackendAliveErr error
 	)
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr := env.IsAppServed(ctx, servers)
-		require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+
+		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+			return
+		}
 
 		// error "account doesn't exist" occurs if a sleep is not included
 		time.Sleep(time.Second * 1)
@@ -245,20 +334,37 @@ func TestNodeTxBankSendGenerateOnly(t *testing.T) {
 	}()
 
 	env.Must(env.Serve("should serve with Stargate version", path, "", "", envtest.ExecCtx(ctx)))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
 func TestNodeTxBankSendWithGas(t *testing.T) {
 	var (
-		env           = envtest.New(t)
-		path          = env.Scaffold("github.com/test/blog", "--address-prefix", testPrefix)
-		servers       = env.RandomizeServerPorts(path, "")
-		rndWorkdir    = t.TempDir() // To make sure we can run these commands from anywhere
+		name  = "blog"
+		alice = "alice"
+		bob   = "bob"
+
+		env     = envtest.New(t)
+		app     = env.Scaffold(name, "--address-prefix", testPrefix)
+		home    = env.AppHome(name)
+		servers = app.RandomizeServerPorts()
+
 		accKeyringDir = t.TempDir()
 	)
 
-	env.SetKeyringBackend(path, "", keyring.BackendTest)
-	env.SetConfigMnemonic(path, "", "alice", aliceMnemonic)
-	env.SetConfigMnemonic(path, "", "bob", bobMnemonic)
+	node, err := xurl.HTTP(servers.RPC)
+	require.NoError(t, err)
+
+	defer env.RequireExpectations()
+
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringDirPath(filepath.Join(home, keyringTestDirName)),
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringTest),
+	)
+	require.NoError(t, err)
+
+	aliceAccount, aliceMnemonic, err := ca.Create(alice)
+	require.NoError(t, err)
 
 	var (
 		ctx, cancel = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -373,5 +479,8 @@ func TestNodeTxBankSendWithGas(t *testing.T) {
 		require.True(t, strings.Contains(generateOutput.String(), `"fee":{"amount":[{"denom":"stake","amount":"178004"}],"gas_limit":"2000034"`))
 
 	}()
+
 	env.Must(env.Serve("should serve with Stargate version", path, "", "", envtest.ExecCtx(ctx)))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

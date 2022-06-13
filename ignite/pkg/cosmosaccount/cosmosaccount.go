@@ -61,7 +61,7 @@ type Registry struct {
 // Option configures your registry.
 type Option func(*Registry)
 
-func WithKeyringDir(path string) Option {
+func WithKeyringDirPath(path string) Option {
 	return func(c *Registry) {
 		c.keyringDir = path
 	}
@@ -105,7 +105,7 @@ func NewStandalone(options ...Option) (Registry, error) {
 	return New(
 		append([]Option{
 			WithKeyringServiceName(KeyringServiceName),
-			WithKeyringDir(KeyringHome),
+			WithKeyringDirPath(KeyringHome),
 		}, options...)...,
 	)
 }
