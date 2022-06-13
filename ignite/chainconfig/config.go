@@ -17,6 +17,35 @@ import (
 // internal type alias for convienence
 type configmap = map[string]interface{}
 
+const (
+	// how much the default port mappings should skip
+	// for each validator that uses the default ports
+	portDelta = 10
+)
+
+var (
+	// DefaultPortMargin is the default incremental margin for the the port number.
+	DefaultPortMargin = 10
+
+	// GRPCPort is the default port number of GRPC.
+	GRPCPort = 9090
+
+	// GRPCWebPort is the default port number of GRPC-Web.
+	GRPCWebPort = 9091
+
+	// APIPort is the default port number of API.
+	APIPort = 1317
+
+	// RPCPort is the default port number of RPC.
+	RPCPort = 26657
+
+	// P2PPort is the default port number of P2P.
+	P2PPort = 26656
+
+	// PPROFPort is the default port number of Prof.
+	PPROFPort = 6060
+)
+
 var (
 	// ConfigDirPath returns the path of configuration directory of Ignite.
 	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
@@ -33,34 +62,7 @@ var ErrCouldntLocateConfig = errors.New(
 // DefaultConf holds default configuration.
 var DefaultConf = Config{
 	Validators: []Validator{
-		{
-			// when in Docker on MacOS, it only works with 0.0.0.0.
-			App: configmap{
-				"grpc": configmap{
-					"address": "0.0.0.0:9090",
-				},
-
-				"grpc-web": configmap{
-					"address": "0.0.0.0:9091",
-				},
-
-				"api": configmap{
-					"address": "0.0.0.0:1317",
-				},
-			},
-
-			Config: configmap{
-				"rpc": configmap{
-					"laddr": "0.0.0.0:26657",
-				},
-
-				"p2p": configmap{
-					"laddr": "0.0.0.0:26656",
-				},
-
-				"pprof_laddr": "0.0.0.0:6060",
-			},
-		},
+		makeDefaultValidator(),
 	},
 	Build: Build{
 		Proto: Proto{
@@ -132,6 +134,45 @@ type Validator struct {
 
 	// GenTx overwrites the default gentx transaction info.
 	GenTx GenTx `yaml:"gentx"`
+}
+
+// makeDefaultValidator returns a new validator instance based on the
+// DefaultConf Validator values.
+// It takes an *optional* argument diff to increment the default
+// port values.
+func makeDefaultValidator(diff ...int) Validator {
+	diffVal := 0
+	if len(diff) > 0 {
+		diffVal = diff[0]
+	}
+	return Validator{
+		// when in Docker on MacOS, it only works with 0.0.0.0.
+		App: configmap{
+			"grpc": configmap{
+				"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort+diffVal),
+			},
+
+			"grpc-web": configmap{
+				"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort+diffVal),
+			},
+
+			"api": configmap{
+				"address": fmt.Sprintf("0.0.0.0:%d", APIPort+diffVal),
+			},
+		},
+
+		Config: configmap{
+			"rpc": configmap{
+				"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort+diffVal),
+			},
+
+			"p2p": configmap{
+				"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort+diffVal),
+			},
+
+			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort+diffVal),
+		},
+	}
 }
 
 func (v Validator) API() string {
@@ -307,17 +348,6 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
-// note(jsimnz): Using github.com/imdario/mergo to merge the config struct with the default struct
-// has a problem with the change to Validators being a slice instead of a struct. There is a mergo
-// option `mergo.WithSliceDeepCopy` which will correctly handle merging the default validator slice
-// with the defined one in the config, but it has a side-effect of setting `config.Overwrite` true
-// on the `mergo.Config` struct. So we need to add an additional functional option call to set
-// `config.Overwrite` back to false, otherwise other parts of the config don't get merged correctly
-// like Faucet.
-func mergoWithoutOverwrite(config *mergo.Config) {
-	config.Overwrite = false
-}
-
 // Parse parses config.yml into UserConfig.
 func Parse(r io.Reader) (Config, error) {
 	var conf Config
@@ -339,11 +369,15 @@ func mergeValidators(conf Config) (Config, error) {
 	if len(conf.Validators) == 0 {
 		return Config{}, &ValidationError{"at least one validator is required"}
 	}
-	val := conf.Validators[0]
-	if err := mergo.Merge(&val, DefaultConf.Validators[0]); err != nil {
-		return Config{}, err
+
+	for i, val := range conf.Validators {
+		diff := i * portDelta
+		defaultVal := makeDefaultValidator(diff)
+		if err := mergo.Merge(&val, defaultVal); err != nil {
+			return Config{}, err
+		}
+		conf.Validators[i] = val
 	}
-	conf.Validators[0] = val
 	return conf, nil
 }
 
