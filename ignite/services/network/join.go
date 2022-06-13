@@ -61,11 +61,11 @@ func (n Network) Join(
 		apply(&o)
 	}
 
-	isCustomGentx := o.gentxPath != ""
 	var (
-		nodeID = o.nodeID
-		peer   launchtypes.Peer
-		err    error
+		isCustomGentx = o.gentxPath != ""
+		nodeID        = o.nodeID
+		peer          launchtypes.Peer
+		err           error
 	)
 
 	if nodeID == "" {
@@ -95,12 +95,6 @@ func (n Network) Join(
 	gentxInfo, gentx, err := cosmosutil.GentxFromPath(o.gentxPath)
 	if err != nil {
 		return err
-	}
-
-	if isCustomGentx {
-		if peer, err = ParsePeerAddress(gentxInfo.Memo); err != nil {
-			return err
-		}
 	}
 
 	// get the chain genesis path from the home folder

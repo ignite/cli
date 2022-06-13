@@ -403,6 +403,11 @@ func TestIsTCP(t *testing.T) {
 			arg:  "invalid:tcp",
 			want: false,
 		},
+		{
+			name: "empty string",
+			arg:  "",
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

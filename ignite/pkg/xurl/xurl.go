@@ -106,6 +106,9 @@ func IsHTTP(address string) bool {
 // IsTCP checks if addresss is a valid ipv4 or ipv6 string with tcp port specified
 // examples: [FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:22555, 46.71.165.179:26656
 func IsTCP(address string) bool {
+	if address == "" {
+		return false
+	}
 	_, err := net.ResolveTCPAddr("tcp", address)
 	return err == nil
 }
