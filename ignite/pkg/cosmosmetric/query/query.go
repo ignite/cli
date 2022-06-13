@@ -1,32 +1,16 @@
 package query
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query/call"
+)
 
 const (
 	DefaultPageSize = 30
 
 	SortOrderAsc  = "asc"
 	SortOrderDesc = "desc"
-)
-
-const (
-	EntityTX Entity = iota
-	EntityEventAttr
-)
-
-const (
-	FieldTXHash Field = iota
-	FieldTXIndex
-	FieldTXBlockHeight
-	FieldTXBlockTime
-	FieldTXCreateTime
-
-	FieldEventTXHash
-	FieldEventType
-	FieldEventIndex
-	FieldEventAttrName
-	FieldEventAttrValue
-	FieldEventCreateTime
 )
 
 // Entity defines a data backend entity.
@@ -41,52 +25,44 @@ type SortBy struct {
 	Order string
 }
 
-// Call defines a data backend function or view call to get the query results.
-type Call struct {
-	Name string
-	Args []any
-}
-
 // Filter describes a filter to apply to a query.
 type Filter interface {
 	fmt.Stringer
 
-	// GetField returns the filtered field.
-	GetField() Field
+	// GetField returns the name of the filtered field.
+	GetField() string
 
 	// GetValue returns the value to use for filtering.
 	GetValue() any
 }
 
-// New creates a new data backend query.
-func New(e Entity) Query {
+// New creates a new query.
+func New(e Entity, f ...Field) Query {
 	return Query{
 		entity:   e,
+		fields:   f,
 		pageSize: DefaultPageSize,
 		atPage:   1,
 	}
 }
 
-// NewCall creates a new data backend query that selects a function or view.
-func NewCall(name string, args ...any) Query {
+// NewCall creates a new query that selects results from a view or function.
+func NewCall(c call.Call) Query {
 	return Query{
-		call: Call{
-			Name: name,
-			Args: args,
-		},
+		call:     c,
 		pageSize: DefaultPageSize,
 		atPage:   1,
 	}
 }
 
-// Query describes a data backend query.
+// Query describes a how to select values from a data backend.
 type Query struct {
 	entity   Entity
 	fields   []Field
 	sortBy   []SortBy
 	pageSize uint64
 	atPage   uint64
-	call     Call
+	call     call.Call
 	filters  []Filter
 }
 
@@ -95,7 +71,7 @@ func (q Query) GetEntity() Entity {
 	return q.entity
 }
 
-// GetFields returns list of fields to select.
+// GetFields returns list of data entity fields to select.
 func (q Query) GetFields() []Field {
 	return q.fields
 }
@@ -116,7 +92,7 @@ func (q Query) GetAtPage() uint64 {
 }
 
 // GetCall returns the function or view to query.
-func (q Query) GetCall() Call {
+func (q Query) GetCall() call.Call {
 	return q.call
 }
 
@@ -132,7 +108,7 @@ func (q Query) IsPagingEnabled() bool {
 
 // IsCall checks if the query is a call to a function or view.
 func (q Query) IsCall() bool {
-	return q.call.Name != ""
+	return q.call.Name() != ""
 }
 
 // AtPage assigns a page to select.
@@ -165,13 +141,6 @@ func (q Query) AppendSortBy(order string, fields ...Field) Query {
 			Order: order,
 		})
 	}
-
-	return q
-}
-
-// AppendFields appends one or more fields to select.
-func (q Query) AppendFields(f ...Field) Query {
-	q.fields = append(q.fields, f...)
 
 	return q
 }
