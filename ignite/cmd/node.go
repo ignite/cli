@@ -1,14 +1,14 @@
 package ignitecmd
 
 import (
+	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite-hq/cli/ignite/pkg/xurl"
 	"github.com/spf13/cobra"
 )
 
-var rpcAddress string
-
 const (
-	flagRPC         = "rpc"
-	rpcAddressLocal = "tcp://localhost:26657"
+	flagNode         = "node"
+	cosmosRPCAddress = "https://rpc.cosmos.network"
 )
 
 func NewNode() *cobra.Command {
@@ -18,7 +18,7 @@ func NewNode() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	c.PersistentFlags().StringVar(&rpcAddress, flagRPC, rpcAddressLocal, "<host>:<port> to tendermint rpc interface for this chain")
+	c.PersistentFlags().String(flagNode, cosmosRPCAddress, "<host>:<port> to tendermint rpc interface for this chain")
 
 	c.AddCommand(NewNodeQuery())
 	c.AddCommand(NewNodeTx())
@@ -26,7 +26,36 @@ func NewNode() *cobra.Command {
 	return c
 }
 
+func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
+	var (
+		home           = getHome(cmd)
+		prefix         = getAddressPrefix(cmd)
+		node           = getRPC(cmd)
+		keyringBackend = getKeyringBackend(cmd)
+		keyringDir     = getKeyringDir(cmd)
+		gas            = getGas(cmd)
+		gasPrices      = getGasPrices(cmd)
+	)
+
+	options := []cosmosclient.Option{
+		cosmosclient.WithAddressPrefix(prefix),
+		cosmosclient.WithHome(home),
+		cosmosclient.WithKeyringBackend(keyringBackend),
+		cosmosclient.WithKeyringDir(keyringDir),
+		cosmosclient.WithNodeAddress(xurl.HTTPEnsurePort(node)),
+	}
+
+	if gas != "" {
+		options = append(options, cosmosclient.WithGas(gas))
+	}
+	if gasPrices != "" {
+		options = append(options, cosmosclient.WithGasPrices(gasPrices))
+	}
+
+	return cosmosclient.New(cmd.Context(), options...)
+}
+
 func getRPC(cmd *cobra.Command) (rpc string) {
-	rpc, _ = cmd.Flags().GetString(flagRPC)
+	rpc, _ = cmd.Flags().GetString(flagNode)
 	return
 }

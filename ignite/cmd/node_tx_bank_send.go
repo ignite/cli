@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
 	"github.com/spf13/cobra"
 )
 
@@ -33,15 +32,8 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		fromAccountInput = args[0]
 		toAccountInput   = args[1]
 		amount           = args[2]
-		home             = getHome(cmd)
-		prefix           = getAddressPrefix(cmd)
 		from             = getFrom(cmd)
-		node             = getRPC(cmd)
-		keyringBackend   = getKeyringBackend(cmd)
-		keyringDir       = getKeyringDir(cmd)
 		generateOnly     = getGenerateOnly(cmd)
-		gas              = getGas(cmd)
-		gasPrices        = getGasPrices(cmd)
 	)
 
 	session := cliui.New()
@@ -49,15 +41,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 
 	session.StartSpinner("Sending transaction...")
 
-	client, err := cosmosclient.New(cmd.Context(),
-		cosmosclient.WithAddressPrefix(prefix),
-		cosmosclient.WithHome(home),
-		cosmosclient.WithKeyringBackend(keyringBackend),
-		cosmosclient.WithKeyringDir(keyringDir),
-		cosmosclient.WithNodeAddress(node),
-		cosmosclient.WithGas(gas),
-		cosmosclient.WithGasPrices(gasPrices),
-	)
+	client, err := newNodeCosmosClient(cmd)
 	if err != nil {
 		return err
 	}
