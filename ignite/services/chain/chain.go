@@ -2,12 +2,14 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/pkg/errors"
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
@@ -51,6 +53,9 @@ type Chain struct {
 	// app holds info about blockchain app.
 	app App
 
+	// validator holds info about the target validator
+	validator chainconfig.Validator
+
 	options chainOptions
 
 	Version cosmosver.Version
@@ -89,6 +94,9 @@ type chainOptions struct {
 
 	// path of a custom config file
 	ConfigFile string
+
+	// target validator
+	validator string
 }
 
 // Option configures Chain.
@@ -105,6 +113,13 @@ func LogLevel(level LogLvl) Option {
 func ID(id string) Option {
 	return func(c *Chain) {
 		c.options.chainID = id
+	}
+}
+
+// ServeValidator allows to set the specific validator to serve the chain from
+func SetValidator(val string) Option {
+	return func(c *Chain) {
+		c.options.validator = val
 	}
 }
 
@@ -185,6 +200,32 @@ func New(path string, options ...Option) (*Chain, error) {
 		return nil, sperrors.ErrOnlyStargateSupported
 	}
 
+	// get the target validator to serve from
+	// If none is provided, default is to use the first
+	// validator in the set.
+	conf, err := c.Config()
+	if err != nil {
+		return nil, err
+	}
+	if c.options.validator != "" {
+		found := false
+		// check that it exists otherwise err
+		for _, val := range conf.Validators {
+			if c.options.validator == val.Name {
+				found = true
+				c.validator = val
+			}
+		}
+		if !found {
+			return nil, &CannotStartAppError{
+				AppName: c.app.Name,
+				Err:     errors.WithStack(fmt.Errorf("Invalid validator name: %s", c.options.validator)),
+			}
+		}
+	} else {
+		c.validator = conf.Validators[0]
+	}
+
 	// initialize the plugin depending on the version of the chain
 	c.plugin = c.pickPlugin()
 
@@ -208,11 +249,7 @@ func (c *Chain) appVersion() (v version, err error) {
 func (c *Chain) RPCPublicAddress() (string, error) {
 	rpcAddress := os.Getenv("RPC_ADDRESS")
 	if rpcAddress == "" {
-		conf, err := c.Config()
-		if err != nil {
-			return "", err
-		}
-		rpcAddress = conf.Validators[0].RPC()
+		rpcAddress = c.validator.RPC()
 	}
 	return rpcAddress, nil
 }
@@ -312,16 +349,11 @@ func (c *Chain) Home() (string, error) {
 // DefaultHome returns the blockchain node's default home dir when not specified in the app
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
-	config, err := c.Config()
-	if err != nil {
-		return "", err
-	}
-	val := config.Validators[0]
-	if val.Home != "" {
-		return val.Home, nil
+	if c.validator.Home != "" {
+		return c.validator.Home, nil
 	}
 
-	return c.plugin.Home(), nil
+	return filepath.Join(c.plugin.Home(), c.validator.Name), nil
 }
 
 // DefaultGentxPath returns default gentx.json path of the app.
@@ -385,12 +417,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return c.options.keyringBackend, nil
 	}
 
-	config, err := c.Config()
-	if err != nil {
-		return "", err
-	}
-
-	val := config.Validators[0]
+	val := c.validator
 
 	// 2nd.
 	if val.KeyringBackend != "" {
@@ -448,12 +475,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	config, err := c.Config()
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
-	}
-
-	val := config.Validators[0]
+	val := c.validator
 	nodeAddr, err := xurl.TCP(val.RPC())
 	if err != nil {
 		return chaincmdrunner.Runner{}, err

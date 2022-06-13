@@ -28,6 +28,7 @@ func NewChainServe() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
+	c.Flags().AddFlagSet(flagSetValidator())
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")

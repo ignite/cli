@@ -103,9 +103,13 @@ func IsHTTP(address string) bool {
 	return strings.HasPrefix(address, "http")
 }
 
+func Parse(s string) (*url.URL, error) {
+	return parseURL(s)
+}
+
 func parseURL(s string) (*url.URL, error) {
 	if s == "" {
-		panic(errors.New("url is empty"))
+		return nil, errors.New("url is empty")
 	}
 
 	// Handle the case where the URI is an IP:PORT or HOST:PORT

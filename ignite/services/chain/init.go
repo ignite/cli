@@ -91,7 +91,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 
 	// todo: update for each validator
 	// now: hard code first validator
-	validator := conf.Validators[0]
+	validator := c.validator
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
@@ -173,7 +173,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 
 	// todo: for each validator
 	// now: hardcode validator
-	validator := conf.Validators[0]
+	validator := c.validator
 	_, err = c.IssueGentx(ctx, Validator{
 		Name:          validator.Name,
 		StakingAmount: validator.Bonded,

@@ -33,6 +33,7 @@ const (
 	flagYes           = "yes"
 	flagClearCache    = "clear-cache"
 	flagSkipProto     = "skip-proto"
+	flagValidator     = "validator"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -161,7 +162,23 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
+func flagSetValidator() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagValidator, "", "Validator to serve the chain from")
+	return fs
+}
+
+func getValidator(cmd *cobra.Command) (validator string) {
+	validator, _ = cmd.Flags().GetString(flagValidator)
+	return
+}
+
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+	// Check if validator is provided
+	if validator := getValidator(cmd); validator != "" {
+		chainOption = append(chainOption, chain.SetValidator(validator))
+	}
+
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))

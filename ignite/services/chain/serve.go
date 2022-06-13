@@ -58,6 +58,7 @@ type serveOptions struct {
 	forceReset bool
 	resetOnce  bool
 	skipProto  bool
+	validator  string
 }
 
 func newServeOption() serveOptions {
@@ -146,7 +147,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err = c.serve(serveCtx, cacheStorage, shouldReset, serveOptions.skipProto)
+				err = c.serve(serveCtx, cacheStorage, shouldReset, serveOptions.skipProto, serveOptions.validator)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -192,7 +193,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
 If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "ignite chain serve --reset-once")
 
-						return fmt.Errorf("cannot run %s", startErr.AppName)
+						return fmt.Errorf("cannot run1 %s", startErr.AppName)
 					}
 
 					// return the clear parsed error
@@ -255,12 +256,14 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset, skipProto bool) error {
+func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset, skipProto bool, validatorName string) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
 
+	// note(jsimnz): Might initialize target validator here
+	fmt.Fprintf(c.stdLog().out, "💿 Running app as validator %v...\n", c.validator.Name)
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -422,7 +425,7 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 
 	// note: address format errors are handled by the
 	// error group, so they can be safely ignored here
-	val := config.Validators[0]
+	val := c.validator
 	rpcAddr, _ := xurl.HTTP(val.RPC())
 	apiAddr, _ := xurl.HTTP(val.API())
 
