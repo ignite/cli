@@ -123,14 +123,25 @@ type Adapter struct {
 }
 
 // UpdateSchema updates the database schema to the latest version available.
-// It applies all available schemas that were not applied already starting from a specific version.
-func (a Adapter) UpdateSchema(ctx context.Context, fromVersion uint64, s Schemas) error {
+// It applies all available schemas that were not applied already.
+func (a Adapter) UpdateSchema(ctx context.Context, s Schemas) error {
 	db, err := a.getDB()
 	if err != nil {
 		return err
 	}
 
-	return s.WalkFrom(fromVersion, func(version uint64, script []byte) error {
+	// Create the schema table if it doesn't exists
+	if _, err := db.ExecContext(ctx, s.GetTableDDL()); err != nil {
+		return fmt.Errorf("failed to check schema table: %w", err)
+	}
+
+	// Get the current schema version
+	var v uint64
+	if err := db.QueryRowContext(ctx, s.GetSchemaVersionSQL()).Scan(&v); err != nil {
+		return fmt.Errorf("failed to read current schema version: %w", err)
+	}
+
+	return s.WalkFrom(v+1, func(version uint64, script []byte) error {
 		if _, err := db.ExecContext(ctx, string(script)); err != nil {
 			return fmt.Errorf("error applying schema version %d: %w", version, err)
 		}
@@ -144,12 +155,7 @@ func (a Adapter) GetType() string {
 }
 
 func (a Adapter) Init(ctx context.Context) error {
-	v, err := a.getCurrentSchemaVersion(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to read current schema version: %w", err)
-	}
-
-	return a.UpdateSchema(ctx, v+1, a.schemas)
+	return a.UpdateSchema(ctx, a.schemas)
 }
 
 func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
@@ -247,26 +253,6 @@ func (a Adapter) getDB() (*sql.DB, error) {
 	return a.db, nil
 }
 
-func (a Adapter) getCurrentSchemaVersion(ctx context.Context) (version uint64, err error) {
-	db, err := a.getDB()
-	if err != nil {
-		return 0, err
-	}
-
-	// Create the schema table if it doesn't exists
-	if _, err := db.ExecContext(ctx, a.schemas.GetTableDDL()); err != nil {
-		return 0, err
-	}
-
-	// Get the current schema version
-	row := db.QueryRowContext(ctx, a.schemas.GetSchemaVersionSQL())
-	if err = row.Scan(&version); err != nil {
-		return 0, err
-	}
-
-	return version, nil
-}
-
 func createPostgresURI(a Adapter) string {
 	uri := url.URL{
 		Scheme: adapterType,
@@ -346,8 +332,8 @@ func saveTX(ctx context.Context, txStmt, evtStmt, attrStmt *sql.Stmt, tx cosmosc
 func extractQueryArgs(q query.Query) (args []any) {
 	// When the query is a call to a postgres function
 	// add the arguments before the filter values
-	if call := q.GetCall(); len(call.Args) > 0 {
-		args = append(args, call.Args...)
+	if call := q.GetCall(); len(call.Args()) > 0 {
+		args = append(args, call.Args()...)
 	}
 
 	// Add the values from the filters
