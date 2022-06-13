@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -15,6 +16,14 @@ const (
 
 	defaultSchemasTableName = "schema"
 
+	sqlBeginTX       = "BEGIN"
+	sqlCommitTX      = "COMMIT"
+	sqlCommandSuffix = ";"
+
+	tplSchemaInsertSQL = `
+		INSERT INTO %s(version)
+		VALUES(%d)
+	`
 	tplSchemaTableDDL = `
 		CREATE TABLE IF NOT EXISTS %[1]v (
 			version     SMALLINT NOT NULL,
@@ -93,8 +102,54 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 			return fmt.Errorf("failed to read schema '%s': %w", path, err)
 		}
 
-		return fn(version, script)
+		// Create the SQL script to change the schema to the
+		// current version within a single transaction
+		b := ScriptBuilder{}
+		b.BeginTX()
+		b.AppendCommand(s.getSchemaVersionInsertSQL(version))
+		b.AppendScript(script)
+		b.CommitTX()
+
+		return fn(version, b.Bytes())
 	})
+}
+
+func (s Schemas) getSchemaVersionInsertSQL(version uint64) string {
+	return fmt.Sprintf(tplSchemaInsertSQL, s.tableName, version)
+}
+
+// ScriptBuilder helps building database DDL/SQL scripts that execute multiple commands.
+type ScriptBuilder struct {
+	buf bytes.Buffer
+}
+
+// BeginTX appends a command to start a database transaction.
+func (b *ScriptBuilder) BeginTX() {
+	b.AppendCommand(sqlBeginTX)
+}
+
+// CommitTX appends a command to commit a database transaction.
+func (b *ScriptBuilder) CommitTX() {
+	b.AppendCommand(sqlCommitTX)
+}
+
+// AppendCommand appends a command to the stript.
+func (b *ScriptBuilder) AppendCommand(cmd string) {
+	if strings.HasSuffix(cmd, sqlCommandSuffix) {
+		b.buf.WriteString(cmd)
+	} else {
+		b.buf.WriteString(cmd + sqlCommandSuffix)
+	}
+}
+
+// AppendScript appends a database DDL/SQL stript.
+func (b *ScriptBuilder) AppendScript(s []byte) {
+	b.buf.Write(s)
+}
+
+// Bytes returns the whole script as bytes.
+func (b *ScriptBuilder) Bytes() []byte {
+	return b.buf.Bytes()
 }
 
 func extractSchemaVersion(fileName string) uint64 {

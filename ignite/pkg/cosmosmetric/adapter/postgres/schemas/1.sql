@@ -1,7 +1,3 @@
-BEGIN;
-
-INSERT INTO schema (version) VALUES (1);
-
 CREATE TABLE tx (
     hash        CHAR(64) NOT NULL,
     "index"     BIGINT NOT NULL,
@@ -48,5 +44,3 @@ CREATE TABLE raw_tx (
 
     CONSTRAINT raw_tx_pk PRIMARY KEY (hash)
 );
-
-COMMIT;
