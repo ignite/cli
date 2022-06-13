@@ -376,3 +376,38 @@ func Test_addressPort(t *testing.T) {
 		})
 	}
 }
+
+func TestIsTCP(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  string
+		want bool
+	}{
+		{
+			name: "valid tcp6",
+			arg:  "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:22555",
+			want: true,
+		},
+		{
+			name: "valid tcp6 collapsed",
+			arg:  "[FE80::0202:B3FF:FE1E:8329]:22555",
+			want: true,
+		},
+		{
+			name: "valid tcp4",
+			arg:  "46.71.165.179:26656",
+			want: true,
+		},
+		{
+			name: "invalid tcp",
+			arg:  "invalid:tcp",
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ok := IsTCP(tt.arg)
+			require.Equal(t, tt.want, ok)
+		})
+	}
+}

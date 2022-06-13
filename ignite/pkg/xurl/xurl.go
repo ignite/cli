@@ -103,6 +103,13 @@ func IsHTTP(address string) bool {
 	return strings.HasPrefix(address, "http")
 }
 
+// IsTCP checks if addresss is a valid ipv4 or ipv6 string with tcp port specified
+// examples: [FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:22555, 46.71.165.179:26656
+func IsTCP(address string) bool {
+	_, err := net.ResolveTCPAddr("tcp", address)
+	return err == nil
+}
+
 func parseURL(s string) (*url.URL, error) {
 	if s == "" {
 		return nil, errors.New("url is empty")

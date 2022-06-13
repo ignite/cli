@@ -77,10 +77,12 @@ func (n Network) Join(
 	switch {
 	case xurl.IsHTTP(o.publicAddress):
 		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
+	case xurl.IsTCP(o.publicAddress):
+		peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
 	case o.publicAddress == "":
 		peer = launchtypes.NewPeerEmpty(nodeID)
 	default:
-		peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
+		return fmt.Errorf("unsupported public address format: %s", o.publicAddress)
 	}
 
 	if !isCustomGentx {
