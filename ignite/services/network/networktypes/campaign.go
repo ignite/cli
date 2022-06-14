@@ -44,22 +44,3 @@ func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 		Shares:  acc.Shares,
 	}
 }
-
-// MainnetVestingAccount represents the campaign mainnet vesting account of a chain on SPN
-type MainnetVestingAccount struct {
-	Address     string               `json:"Address"`
-	TotalShares campaigntypes.Shares `json:"TotalShares"`
-	Vesting     campaigntypes.Shares `json:"Vesting"`
-	EndTime     int64                `json:"EndTime"`
-}
-
-// ToMainnetVestingAccount converts a mainnet vesting account data from SPN and returns a MainnetVestingAccount object
-func ToMainnetVestingAccount(acc campaigntypes.MainnetVestingAccount) MainnetVestingAccount {
-	delaydVesting := acc.VestingOptions.GetDelayedVesting()
-	return MainnetVestingAccount{
-		Address:     acc.Address,
-		TotalShares: delaydVesting.TotalShares,
-		Vesting:     delaydVesting.Vesting,
-		EndTime:     delaydVesting.EndTime,
-	}
-}

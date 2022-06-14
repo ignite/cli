@@ -76,7 +76,6 @@ message Comment {
 }
 ```
 
-
 ## Add a comment to a post
 
 To create a new message that adds a comment to the existing post, run:
@@ -97,6 +96,8 @@ modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_comment.go
 modify x/blog/handler.go
 create x/blog/keeper/msg_server_create_comment.go
+modify x/blog/module_simulation.go
+create x/blog/simulation/create_comment.go
 modify x/blog/types/codec.go
 create x/blog/types/message_create_comment.go
 create x/blog/types/message_create_comment_test.go
@@ -125,7 +126,7 @@ message MsgCreateCommentResponse {
 }
 ```
 
- You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, PostID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+ You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
 ```go
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
@@ -160,13 +161,11 @@ import (
 
 func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComment) (*types.MsgCreateCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	post := k.GetPost(ctx, msg.PostID)
-	postId := post.Id
 	
 	// Check if the Post Exists for which a comment is being created
-	if msg.PostID == 0 {
-		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
+	post, found := k.GetPost(ctx, msg.PostId)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
 
 	// Create variable of type comment
@@ -195,7 +194,7 @@ When the Comment validity is checked, it throws 2 error messages - `ErrID` and `
 //...
 var (
 	ErrCommentOld = sdkerrors.Register(ModuleName, 1300, "")
-	ErrID = sdkerrors.Register(ModuleName, 1400, "")
+	ErrID         = sdkerrors.Register(ModuleName, 1400, "")
 )
 ```
 
@@ -255,24 +254,23 @@ In `x/blog/keeper/post.go`, add a new function to get the post:
 ```go
 import (
 	"encoding/binary"
-	"github.com/username/blog/x/blog/types"
+	"blog/x/blog/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 //...
 
-func (k Keeper) GetPost(ctx sdk.Context, id uint64) (post types.Post) {
-	// Get the store using storeKey (which is "blog") and PostKey (which is "Post-")
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostKey))
-	// Convert the post ID into bytes
-	byteKey := make([]byte, 8)
-	binary.BigEndian.PutUint64(byteKey, id)
-	// Get the post bytes using post ID as a key
-	bz := store.Get(byteKey)
-	// Unmarshal the post bytes into the post object
-	k.cdc.MustUnmarshal(bz, &post)
-	return post
+func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	b := store.Get(bz)
+	if b == nil {
+		return val, false
+	}
+	k.cdc.MustUnmarshal(b, &val)
+	return val, true
 }
 ```
 
@@ -301,14 +299,16 @@ The `message` commands accepts `commentID` and `postID` as arguments.
 
 Here, `commentID` and `postID` are the references to previously created comment and blog post.
 
-```bash
 The `message` command has created and modified several files:
 
+```bash
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_delete_comment.go
 modify x/blog/handler.go
 create x/blog/keeper/msg_server_delete_comment.go
+modify x/blog/module_simulation.go
+create x/blog/simulation/delete_comment.go
 modify x/blog/types/codec.go
 create x/blog/types/message_delete_comment.go
 create x/blog/types/message_delete_comment_test.go
@@ -350,7 +350,7 @@ package keeper
 	"context"
 	"encoding/binary"
 
-	"github.com/username/blog/x/blog/types"
+	"blog/x/blog/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -409,11 +409,12 @@ message QueryCommentsResponse {
 After the types are defined in proto files, you can implement post querying logic in `x/blog/keeper/grpc_query_comments.go` by registering the `Comments` function:
 
 ```go
+package keeper
 
 import (
 	"context"
 
-	"github.com/username/blog/x/blog/types"
+	"blog/x/blog/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -442,7 +443,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 	commentStore := prefix.NewStore(store, []byte(types.CommentKey))
 
 	// Get the post by ID 
-	post := k.GetPost(ctx, req.Id)
+	post, _ := k.GetPost(ctx, req.Id)
 
 	// Get the post ID
 	postID := post.Id
@@ -478,7 +479,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 
 Try it out! 
 
-If the chain is yet not started, run `ignite chain serve`.
+If the chain is yet not started, run `ignite chain serve -r`.
 
 Create a post:
 
@@ -489,15 +490,7 @@ blogd tx blog create-post Uno "This is the first post" --from alice
 As before, you are prompted to confirm the transaction:
 
 ```bash
-"body":{"messages":[{"@type":"/username.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
-
-confirm transaction before signing and broadcasting [y/N]: y
-```
-
-The transaction output:
-
-```bash
-{"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","title":"Uno","body":"This is the first post","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 Create a comment:
@@ -507,37 +500,13 @@ blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```
 
 ```bash
-{"body":{"messages":[{"@type":"/username.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","PostID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreateComment","creator":"cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","postID":"0","title":"Uno","body":"This is the first comment","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 When prompted, press Enter to confirm the transaction:
 
 ```bash
 confirm transaction before signing and broadcasting [y/N]: y
-```
-
-The command output shows the results of the transaction:
-
-```bash
-code: 0
-codespace: ""
-data: 0A270A252F636F736D6F6E6175742E626C6F672E626C6F672E4D7367437265617465436F6D6D656E74
-gas_used: "45891"
-gas_wanted: "200000"
-height: "118"
-info: ""
-logs:
-- events:
-  - attributes:
-    - key: action
-      value: CreateComment
-    type: message
-  log: ""
-  msg_index: 0
-raw_log: '[{"events":[{"type":"message","attributes":[{"key":"action","value":"CreateComment"}]}]}]'
-timestamp: ""
-tx: null
-txhash: 0CAFC113D1C73BC0210EFEA5964EBD2EB530311169FB442C5CBF0B5E92521C41
 ```
 
 ## Display post and comment
@@ -550,48 +519,27 @@ The results are output:
 
 ```bash
 Comment:
-- body: Let us add random comment
-  createdAt: "14094"
-  creator: cosmos1g7x9cpj6w0jklshe3se57tlwydx6yfl8ex5g7n
+- body: This is the first comment
+  createdAt: "58"
+  creator: cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
   id: "0"
   postID: "0"
-  title: comment
+  title: Uno
 Post:
   body: This is the first post
-  createdAt: "14046"
-  creator: cosmos1g7x9cpj6w0jklshe3se57tlwydx6yfl8ex5g7n
+  createdAt: "51"
+  creator: cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
   id: "0"
   title: Uno
+pagination:
+  next_key: null
+  total: "1"
 ```
 
 ## Delete comment
 
 ```bash
 blogd tx blog delete-comment 0 0 --from alice -y
-```
-
-The results are output:
-
-```bash
-code: 0
-codespace: ""
-data: 0A270A252F636F736D6F6E6175742E626C6F672E626C6F672E4D736744656C657465436F6D6D656E74
-gas_used: "40125"
-gas_wanted: "200000"
-height: "253"
-info: ""
-logs:
-- events:
-  - attributes:
-    - key: action
-      value: DeleteComment
-    type: message
-  log: ""
-  msg_index: 0
-raw_log: '[{"events":[{"type":"message","attributes":[{"key":"action","value":"DeleteComment"}]}]}]'
-timestamp: ""
-tx: null
-txhash: 0312234CBB9EEA1A59D474496E100AFC5A460A0E60E7D009D3E9417530148A75
 ```
 
 ## Display the post and all associated comments
@@ -603,14 +551,16 @@ blogd q blog comments 0
 The results are output:
 
 ```bash
-Comment:
-[]
+Comment: []
 Post:
   body: This is the first post
-  createdAt: "14046"
-  creator: cosmos1g7x9cpj6w0jklshe3se57tlwydx6yfl8ex5g7n
+  createdAt: "12"
+  creator: cosmos12s696u0wutt42kc297td5naxgxtvtxdlsg07n2
   id: "0"
   title: Uno
+pagination:
+  next_key: null
+  total: "0"
 ```
 
 ## Edge cases
@@ -624,18 +574,34 @@ blogd tx blog create-comment 53 "Edge1"  "This is the 53 comment" --from alice -
 The transaction is not able to be completed because the blog id does not exist:
 
 ```bash
-code: 1400
-codespace: blog
+code: 22
+codespace: sdk
 data: ""
-gas_used: "38151"
+events:
+- attributes:
+  - index: false
+    key: ZmVl
+    value: ""
+  type: tx
+- attributes:
+  - index: false
+    key: YWNjX3NlcQ==
+    value: Y29zbW9zMXVhbXE5ZDZ6ajVwN2x2enloanVnZzhkcmtyY3Fja3h0dmo5OWFjLzQ=
+  type: tx
+- attributes:
+  - index: false
+    key: c2lnbmF0dXJl
+    value: NEdGejY1WGFjc0cvR1BEOVgxSDh4NmU5NTZEM1hxZ0txdnlWcmVVZ2JSRThTbkRHNjdmN29rNm9uWDhhVjgzb3NFcDh2eWg3RnNIRE1CaU9VL3QwMlE9PQ==
+  type: tx
+gas_used: "41385"
 gas_wanted: "200000"
-height: "1019"
+height: "90"
 info: ""
 logs: []
-raw_log: 'failed to execute message; message index: 0: Post Blog Id 53 does not exist for which comment was made: '
+raw_log: 'failed to execute message; message index: 0: key 0 doesn''t exist: key not
+  found'
 timestamp: ""
 tx: null
-txhash: B99BD295A0B08DF58B9FEC8EB41D467C2F28BD4EC8CDB56FBF30DB728B877ABA
 ```
 
 1. Add comment to a blog post that is older than 100 blocks:
@@ -650,15 +616,32 @@ The transaction is not executed:
 code: 1300
 codespace: blog
 data: ""
-gas_used: "38101"
+events:
+- attributes:
+  - index: false
+    key: ZmVl
+    value: ""
+  type: tx
+- attributes:
+  - index: false
+    key: YWNjX3NlcQ==
+    value: Y29zbW9zMXVhbXE5ZDZ6ajVwN2x2enloanVnZzhkcmtyY3Fja3h0dmo5OWFjLzEy
+  type: tx
+- attributes:
+  - index: false
+    key: c2lnbmF0dXJl
+    value: TFR3OXFQbm9KYUVmZ2EyZWlrWWZ5SmFiM0VvZDUwVlU0L3hJUExpbCtUWXN5NFNvQzhKaWJTeW5Eb2RkOExqU3NPaXhsVjlUZmtvNmJMbHArcVZZTWc9PQ==
+  type: tx
+gas_used: "41569"
 gas_wanted: "200000"
-height: "1191"
+height: "154"
 info: ""
 logs: []
-raw_log: 'failed to execute message; message index: 0: Comment created at 1191 is older than post created at 1047:'
+raw_log: 'failed to execute message; message index: 0: Comment created at 154 is older
+  than post created at 51: '
 timestamp: ""
 tx: null
-txhash: A87AAD5E2E6A26F9B80796D013139E9A18DB286D9CF769BC6AA6601DD64C6A35
+txhash: 5BFBEE017952376851D7989E7AF5B60A29B98AD2F7812EC271C154575F386AD6
 ```
 
 ## Conclusion

@@ -184,26 +184,6 @@ func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAcc
 	return genAccs, nil
 }
 
-// MainnetVestingAccounts returns the list of campaign mainnet vesting accounts for a launch from SPN
-func (n Network) MainnetVestingAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetVestingAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet vesting accounts"))
-	res, err := n.campaignQuery.
-		MainnetVestingAccountAll(ctx,
-			&campaigntypes.QueryAllMainnetVestingAccountRequest{
-				CampaignID: campaignID,
-			},
-		)
-	if err != nil {
-		return genAccs, err
-	}
-
-	for _, acc := range res.MainnetVestingAccount {
-		genAccs = append(genAccs, networktypes.ToMainnetVestingAccount(acc))
-	}
-
-	return genAccs, nil
-}
-
 // ChainReward fetches the chain reward from SPN by launch id
 func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.RewardPool, error) {
 	res, err := n.rewardQuery.
