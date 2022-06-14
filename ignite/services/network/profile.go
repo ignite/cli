@@ -109,33 +109,10 @@ func (n Network) MainnetAccountBalance(
 	return
 }
 
-// CampaignAccountBalance returns the spn mainnet account or mainnet
-// vesting account balance by address from SPN
-func (n Network) CampaignAccountBalance(
-	ctx context.Context,
-	campaignID uint64,
-	address string,
-) (shares campaigntypes.Shares, vestingShares campaigntypes.Shares, err error) {
-	acc, err := n.MainnetAccount(ctx, campaignID, address)
-	switch {
-	case err == ErrObjectNotFound:
-		accVest, err := n.MainnetVestingAccount(ctx, campaignID, address)
-		if err != nil && err != ErrObjectNotFound {
-			return nil, nil, err
-		}
-		shares = accVest.TotalShares
-		vestingShares = accVest.Vesting
-	case err != nil:
-		return nil, nil, err
-	default:
-		shares = acc.Shares
-	}
-	return
-}
-
 // Profile returns the address profile info
 func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) (networktypes.Profile, error) {
 	address := n.account.Address(networktypes.SPN)
+
 	vouchers, err := n.Balances(ctx, address)
 	if err != nil {
 		return networktypes.Profile{}, err
@@ -143,10 +120,10 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 
 	var (
 		shares             campaigntypes.Shares
-		vestingShares      campaigntypes.Shares
 		chainShares        []networktypes.ChainShare
 		chainVestingShares []networktypes.ChainShare
 	)
+
 	if campaign {
 		campaignChains, err := n.CampaignChains(ctx, campaignID)
 		if err == ErrObjectNotFound {
@@ -154,10 +131,13 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 		} else if err != nil {
 			return networktypes.Profile{}, err
 		}
-		shares, vestingShares, err = n.CampaignAccountBalance(ctx, campaignID, address)
+
+		acc, err := n.MainnetAccount(ctx, campaignID, address)
 		if err != nil && err != ErrObjectNotFound {
 			return networktypes.Profile{}, err
 		}
+		shares = acc.Shares
+
 		for _, chain := range campaignChains.Chains {
 			balance, vesting, err := n.MainnetAccountBalance(ctx, chain, address)
 			if err != nil && err != ErrObjectNotFound {
@@ -186,5 +166,5 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 	} else if err != nil {
 		return networktypes.Profile{}, err
 	}
-	return p.ToProfile(campaignID, vouchers, shares, vestingShares, chainShares, chainVestingShares), nil
+	return p.ToProfile(campaignID, vouchers, shares, chainShares, chainVestingShares), nil
 }

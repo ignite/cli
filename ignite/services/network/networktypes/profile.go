@@ -20,8 +20,7 @@ type Validator struct {
 func (v Validator) ToProfile(
 	campaignID uint64,
 	vouchers sdk.Coins,
-	shares,
-	vestingShares campaigntypes.Shares,
+	shares campaigntypes.Shares,
 	chainShares,
 	chainVestingShares []ChainShare,
 ) Profile {
@@ -35,7 +34,6 @@ func (v Validator) ToProfile(
 		SecurityContact:    v.SecurityContact,
 		Vouchers:           vouchers,
 		Shares:             shares,
-		VestingShares:      vestingShares,
 		ChainShares:        chainShares,
 		ChainVestingShares: chainVestingShares,
 	}
@@ -67,8 +65,7 @@ type Coordinator struct {
 func (c Coordinator) ToProfile(
 	campaignID uint64,
 	vouchers sdk.Coins,
-	shares,
-	vestingShares campaigntypes.Shares,
+	shares campaigntypes.Shares,
 	chainShares,
 	chainVestingShares []ChainShare,
 ) Profile {
@@ -80,7 +77,6 @@ func (c Coordinator) ToProfile(
 		Details:            c.Details,
 		Vouchers:           vouchers,
 		Shares:             shares,
-		VestingShares:      vestingShares,
 		ChainShares:        chainShares,
 		ChainVestingShares: chainVestingShares,
 	}
@@ -116,7 +112,6 @@ type (
 		SecurityContact    string               `json:"SecurityContact,omitempty"`
 		Vouchers           sdk.Coins            `json:"Vouchers,omitempty"`
 		Shares             campaigntypes.Shares `json:"Shares,omitempty"`
-		VestingShares      campaigntypes.Shares `json:"VestingShares,omitempty"`
 		ChainShares        []ChainShare         `json:"ChainShares,omitempty"`
 		ChainVestingShares []ChainShare         `json:"ChainVestingShares,omitempty"`
 	}
@@ -126,8 +121,7 @@ type (
 		ToProfile(
 			campaignID uint64,
 			vouchers sdk.Coins,
-			shares,
-			vestingShares campaigntypes.Shares,
+			shares campaigntypes.Shares,
 			ChainShares,
 			ChainVestingShares []ChainShare,
 		) Profile

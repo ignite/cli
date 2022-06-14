@@ -191,31 +191,6 @@ func (n Network) MainnetAccount(
 	return networktypes.ToMainnetAccount(res.MainnetAccount), nil
 }
 
-// MainnetVestingAccount returns the campaign mainnet vesting account for a launch from SPN
-func (n Network) MainnetVestingAccount(
-	ctx context.Context,
-	campaignID uint64,
-	address string,
-) (acc networktypes.MainnetVestingAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing,
-		fmt.Sprintf("Fetching campaign %d mainnet vesting account %s", campaignID, address)),
-	)
-	res, err := n.campaignQuery.
-		MainnetVestingAccount(ctx,
-			&campaigntypes.QueryGetMainnetVestingAccountRequest{
-				CampaignID: campaignID,
-				Address:    address,
-			},
-		)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return networktypes.MainnetVestingAccount{}, ErrObjectNotFound
-	} else if err != nil {
-		return acc, err
-	}
-
-	return networktypes.ToMainnetVestingAccount(res.MainnetVestingAccount), nil
-}
-
 // MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN
 func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetAccount, err error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet accounts"))
@@ -231,26 +206,6 @@ func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAcc
 
 	for _, acc := range res.MainnetAccount {
 		genAccs = append(genAccs, networktypes.ToMainnetAccount(acc))
-	}
-
-	return genAccs, nil
-}
-
-// MainnetVestingAccounts returns the list of campaign mainnet vesting accounts for a launch from SPN
-func (n Network) MainnetVestingAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetVestingAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet vesting accounts"))
-	res, err := n.campaignQuery.
-		MainnetVestingAccountAll(ctx,
-			&campaigntypes.QueryAllMainnetVestingAccountRequest{
-				CampaignID: campaignID,
-			},
-		)
-	if err != nil {
-		return genAccs, err
-	}
-
-	for _, acc := range res.MainnetVestingAccount {
-		genAccs = append(genAccs, networktypes.ToMainnetVestingAccount(acc))
 	}
 
 	return genAccs, nil
