@@ -141,7 +141,7 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 }
 
 func flagSetClearCache(cmd *cobra.Command) {
-	cmd.PersistentFlags().Bool(flagClearCache, false, "clears the cache")
+	cmd.PersistentFlags().Bool(flagClearCache, false, "Clear the build cache (advanced)")
 }
 
 func flagGetClearCache(cmd *cobra.Command) bool {
