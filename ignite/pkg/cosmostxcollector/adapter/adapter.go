@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/query"
 )
 
 // Saver is the interface that wraps the transactions save method.

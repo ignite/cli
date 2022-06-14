@@ -1,10 +1,10 @@
-package cosmosmetric
+package cosmostxcollector
 
 import (
 	"context"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/adapter"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/adapter"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -15,12 +15,12 @@ type TXsCollecter interface {
 	CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) error
 }
 
-// NewCollector creates a new transactions collector.
-func NewCollector(db adapter.Saver, client TXsCollecter) Collector {
+// New creates a new Cosmos transaction collector.
+func New(db adapter.Saver, client TXsCollecter) Collector {
 	return Collector{db, client}
 }
 
-// Collector defines a type to collect and save block transactions in a data backend.
+// Collector defines a type to collect and save Cosmos transactions in a data backend.
 type Collector struct {
 	db     adapter.Saver
 	client TXsCollecter

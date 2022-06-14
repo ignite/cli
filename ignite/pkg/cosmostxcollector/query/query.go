@@ -3,7 +3,7 @@ package query
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query/call"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/query/call"
 )
 
 const (

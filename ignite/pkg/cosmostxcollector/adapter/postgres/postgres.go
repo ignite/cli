@@ -10,7 +10,7 @@ import (
 	"net/url"
 
 	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosmetric/query"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/query"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	_ "github.com/lib/pq" // required to register postgres sql driver
