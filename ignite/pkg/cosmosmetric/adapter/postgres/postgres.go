@@ -19,9 +19,13 @@ import (
 const (
 	DefaultPort = 5432
 	DefaultHost = "127.0.0.1"
+)
 
+const (
 	adapterType = "postgres"
+)
 
+const (
 	sqlSelectBlockHeight = `
 		SELECT COALESCE(MAX(height), 0)
 		FROM tx
@@ -311,7 +315,6 @@ func saveTX(ctx context.Context, txStmt, evtStmt, attrStmt *sql.Stmt, tx cosmosc
 
 		row := evtStmt.QueryRowContext(ctx, hash, evt.Type, i)
 		if err := row.Err(); err != nil {
-			fmt.Println(hash, evt.Type, i)
 			return fmt.Errorf("error saving event '%s': %w", evt.Type, err)
 		}
 

@@ -10,16 +10,20 @@ import (
 	"strings"
 )
 
+// SchemasDir defines the name for the embedded schema directory
+const SchemasDir = "schemas"
+
 const (
-	// SchemasDir defines the name for the embedded schema directory
-	SchemasDir = "schemas"
-
 	defaultSchemasTableName = "schema"
+)
 
+const (
 	sqlBeginTX       = "BEGIN"
 	sqlCommitTX      = "COMMIT"
 	sqlCommandSuffix = ";"
+)
 
+const (
 	tplSchemaInsertSQL = `
 		INSERT INTO %s(version)
 		VALUES(%d)

@@ -8,7 +8,9 @@ import (
 
 const (
 	DefaultPageSize = 30
+)
 
+const (
 	SortOrderAsc  = "asc"
 	SortOrderDesc = "desc"
 )

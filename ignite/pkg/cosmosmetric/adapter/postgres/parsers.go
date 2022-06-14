@@ -13,7 +13,9 @@ import (
 const (
 	entityEvent     = "event"
 	entityEventAttr = "attribute"
+)
 
+const (
 	fieldEventAttrName  = "attribute.name"
 	fieldEventAttrValue = "attribute.value"
 	fieldEventCreatedAt = "event.created_at"
@@ -26,10 +28,14 @@ const (
 	fieldTXBlockTime    = "tx.block_time"
 	fieldTXHash         = "tx.hash"
 	fieldTXIndex        = "tx.index"
+)
 
+const (
 	sqlSelectAll = "SELECT *"
 	sqlFromTX    = "FROM tx"
+)
 
+const (
 	tplFromEventSQL = "FROM %[1]v INNER JOIN %[2]v ON %[1]v.id = %[2]v.event_id"
 )
 

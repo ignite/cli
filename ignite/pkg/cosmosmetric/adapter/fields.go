@@ -13,7 +13,6 @@ const (
 	FieldTXBlockHeight
 	FieldTXBlockTime
 	FieldTXCreateTime
-
 	FieldEventID
 	FieldEventTXHash
 	FieldEventType
