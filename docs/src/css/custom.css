@@ -6,26 +6,29 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #000000;
-  --ifm-color-primary-dark: #000000;
-  --ifm-color-primary-darker: #000000;
-  --ifm-color-primary-darkest: #000000;
-  --ifm-color-primary-light: #000000;
-  --ifm-color-primary-lighter: #000000;
-  --ifm-color-primary-lightest: #000000;
+  --ifm-color-primary: theme(colors.gray.1000);
+  --ifm-color-primary-dark: theme(colors.gray.1000);
+  --ifm-color-primary-darker: theme(colors.gray.1000);
+  --ifm-color-primary-darkest: theme(colors.gray.1000);
+  --ifm-color-primary-light: theme(colors.gray.1000);
+  --ifm-color-primary-lighter: theme(colors.gray.1000);
+  --ifm-color-primary-lightest: theme(colors.gray.1000);
   --ifm-code-font-size: 95%;
   --ifm-breadcrumb-item-background-active: transparent;
   --ifm-breadcrumb-padding-horizontal:0;
   --ifm-list-paragraph-margin: 0;
-  --ifm-spacing-horizontal: 32px;
-  --ifm-blockquote-border-color: #000000;
+  --ifm-spacing-horizontal: theme(spacing.7);
+  --ifm-blockquote-border-color: theme(colors.gray.1000);
   --ifm-menu-link-padding-vertical: .6rem;
-  --ifm-background-color: #ffffff;
+  --ifm-background-color: theme(colors.gray.0);
   --ifm-footer-link-color: var(--ifm-font-color-base);
   --ifm-menu-link-sublist-icon: url('~/img/ico-chevron.svg');
   --docsearch-searchbox-background: #F7F7F7;
+  --docsearch-modal-background: theme(colors.card) !important;
   --ifm-navbar-height: 5.563rem;
   --ifm-navbar-sidebar-width: 100vw;
+  --docsearch-highlight-color: theme(colors.fg) !important;
+  --docsearch-searchbox-shadow: inset 0 0 0 1px var(--docsearch-primary-color);
 
   /* temp: local search bar */
   --aa-primary-color-rgb: 0,0,0;
@@ -40,15 +43,21 @@
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 html[data-theme='dark'] {
-  --ifm-color-primary: #ffffff;
+  --ifm-color-primary: theme(colors.gray.0);
   --ifm-color-primary-dark: #e6e6e6;
   --ifm-color-primary-darker: #d9d9d9;
   --ifm-color-primary-darkest: #b3b3b3;
-  --ifm-color-primary-light: #ffffff;
-  --ifm-color-primary-lighter: #ffffff;
-  --ifm-color-primary-lightest: #ffffff;
-  --ifm-background-color: #000000;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary-light: theme(colors.gray.0);
+  --ifm-color-primary-lighter: theme(colors.gray.0);
+  --ifm-color-primary-lightest: theme(colors.gray.0);
+  --ifm-background-color: theme(colors.gray.1000);
+  --docusaurus-highlighted-code-line-bg: theme(colors.inactive);
+  --docsearch-modal-background: theme(colors.gray.1000) !important;
+  --docsearch-highlight-color: theme(colors.inactiveLight) !important;
+  --docsearch-hit-background: theme(colors.lightfg) !important;
+  --docsearch-searchbox-shadow: inset 0 0 0 1px var(--docsearch-primary-color);
+  --docsearch-key-gradient: linear-gradient(-26.5deg,#5d5d5d,#3c3c3c) !important;
+  --docsearch-key-shadow: inset 0 -2px 0 0 #353535,inset 0 0 1px 1px #7a7a7b,0 2px 2px 0 rgba(45, 45, 45, 0.3) !important;
 }
 
 html {
@@ -113,64 +122,38 @@ html {
     .github-icon { @apply hover:opacity-50; }
 
     /* SEARCHBAR */
-    /* local search */
-    .dsla-search-wrapper { @apply m-0; }
-    .aa-DetachedSearchButton{ 
-        @apply text-inactive rounded-sm h-8 w-8 bg-card border-none; 
-        &:focus {
-            @apply shadow-[0_0_2px_0_rgba(0,0,0,0.3)] border-link;
-        }
-        @media (min-width: 997px){
-            @apply w-auto justify-between; 
-        }
-    }
-    .aa-DetachedSearchButtonPlaceholder {
-        @apply hidden;
-        @media (min-width: 997px){
-            @apply block pr-8 pl-3 order-1;
-        }
-    }
-    .aa-DetachedCancelButton:hover { @apply shadow-none text-muted;}
-    .aa-DetachedSearchButtonIcon {@apply order-2; }
-    .aa-DetachedOverlay{ @apply max-w-none bg-inactive; }
-    .aa-Form:focus-within{
-        @apply shadow-[0_0_2px_0_rgba(0,0,0,0.3)] border-link;
-    }
-
-    .aa-DetachedFormContainer {@apply border-0 shadow-none;}
-    &[data-theme='dark'] .aa-DetachedSearchButtonPlaceholder{@apply text-card;}
-    &[data-theme='dark'] .aa-DetachedOverlay{ @apply bg-fg; }
-    &[data-theme='dark'] .aa-DetachedSearchButton{@apply bg-fg;}
-    &[data-theme='dark'] .aa-DetachedContainer, &[data-theme='dark'] .aa-DetachedContainer .aa-Panel { @apply bg-gray-1000 shadow-inner border border-muted; }
-    &[data-theme='dark'] .aa-Form{@apply text-gray-0 border-0 bg-fg shadow-none;} 
-    &[data-theme='dark'] .aa-Input {@apply text-gray-0;}
-    &[data-theme='dark'] .aa-Input::placeholder {@apply text-gray-0;}
     /* algolia */
-    .DocSearch-Button {
-        @apply text-inactive rounded-sm h-8 w-8 bg-card justify-center mr-3;
-        @media (min-width: 997px){
-            @apply w-auto justify-between; 
-        }
-        .DocSearch-Search-Icon { 
+    .DocSearch{
+        &-Hits mark{ @apply text-docusaurusColorBase; }
+        &-Button {
+            @apply text-inactive rounded-sm h-8 w-8 bg-card justify-center mr-3;
             @media (min-width: 997px){
-                @apply hidden; 
+                @apply w-auto justify-between; 
+            }
+            .DocSearch-Search-Icon { 
+                @media (min-width: 997px){
+                    @apply hidden; 
+                }
+            }
+            .DocSearch-Button-Placeholder { @apply pr-8; }
+            .DocSearch-Button-Key{
+                background: none;
+                @apply shadow-none bg-transparent border border-inactive text-inactive p-3 text-2 rounded-s h-6 w-6;
+            }
+            .DocSearch-Button-Keys,
+            .DocSearch-Button-Placeholder {
+                @apply hidden;
+                @media (min-width: 997px){
+                    @apply flex; 
+                }
             }
         }
-        .DocSearch-Button-Placeholder { @apply pr-8; }
-        .DocSearch-Button-Key{
-            background: none;
-            @apply shadow-none bg-transparent border border-inactive text-inactive p-3 text-2 rounded-s h-6 w-6;
-        }
-        .DocSearch-Button-Keys,
-        .DocSearch-Button-Placeholder {
-            @apply hidden;
-            @media (min-width: 997px){
-                @apply flex; 
-            }
-         }
 
+        &-Search-Icon path { @apply fill-transparent; }
+        path{ @apply fill-transparent;}
+        &-Logo path{@apply fill-docusaurusColorBase;}
     }
-    .DocSearch-Search-Icon path { @apply fill-transparent; }
+
     .navbar-sidebar{
         @apply w-full;
         &__brand { @apply pb-7 pt-9 px-6 h-auto; }
