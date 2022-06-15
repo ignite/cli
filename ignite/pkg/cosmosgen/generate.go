@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	defaultSdkImport     = "github.com/cosmos/cosmos-sdk"
+	defaultSDKImport     = "github.com/cosmos/cosmos-sdk"
 	moduleCacheNamespace = "generate.setup.module"
+	ibcImport            = "github.com/cosmos/ibc-go/v3"
 )
 
 type ModulesInPath struct {
@@ -43,10 +44,12 @@ func (g *generator) setup() (err error) {
 		return err
 	}
 
-	g.sdkImport = defaultSdkImport
-	// look for any cosmos-sdk replace directive in mod file
+	g.sdkImport = defaultSDKImport
+
+	// Check if the Cosmos SDK import path points to a different path
+	// and if so change the default one to the new location.
 	for _, r := range modfile.Replace {
-		if r.Old.Path == defaultSdkImport {
+		if r.Old.Path == defaultSDKImport {
 			g.sdkImport = r.New.Path
 			break
 		}
@@ -109,14 +112,30 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
+func (g *generator) resolveDepencyInclude() ([]string, error) {
+	protoPaths := append([]string{g.protoDir}, g.o.includeDirs...)
+
+	// Create a list of proto import paths for the dependencies.
+	// The paths in this list will be available to be imported from the chain app's proto files.
+	dependencies := []string{g.sdkImport, ibcImport}
+	modules := make([]protopath.Module, len(dependencies))
+
+	for i, p := range dependencies {
+		modules[i] = protopath.NewModule(p, protoPaths...)
+	}
+
+	return protopath.ResolveDependencyPaths(g.ctx, g.cacheStorage, g.appPath, g.deps, modules...)
+}
+
 func (g *generator) resolveInclude(path string) (paths []string, err error) {
+	// Append chain app's proto paths
 	paths = append(paths, filepath.Join(path, g.protoDir))
 	for _, p := range g.o.includeDirs {
 		paths = append(paths, filepath.Join(path, p))
 	}
 
-	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.cacheStorage, g.appPath, g.deps,
-		protopath.NewModule(g.sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
+	// Append paths for dependencies that have protocol buffer files
+	includePaths, err := g.resolveDepencyInclude()
 	if err != nil {
 		return nil, err
 	}
