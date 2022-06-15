@@ -1,3 +1,5 @@
+//go:build !relayer
+
 package chain_test
 
 import (
