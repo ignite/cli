@@ -209,39 +209,39 @@ func clientCreate(
 	launchID uint64,
 	nodeAPI,
 	spnChainID string,
-) (networktypes.Relayer, networktypes.Relayer, error) {
+) (networktypes.RewardIBCInfo, networktypes.RewardIBCInfo, error) {
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
+		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
 
 	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
+		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
 	node := network.NewNode(nodeClient)
 
-	chainRelayer, err := node.FindClientID(cmd.Context())
+	chainRelayer, err := node.RewardIBCInfo(cmd.Context())
 	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
+		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
 
 	rewardsInfo, chainID, unboundingTime, err := node.RewardsInfo(cmd.Context())
 	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
+		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
 
 	n, err := nb.Network()
 	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
+		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
 
-	spnRelayer, err := n.FindClientID(cmd.Context(), launchID)
+	spnRelayer, err := n.RewardIBCInfo(cmd.Context(), launchID)
 	if err == network.ErrObjectNotFound {
 		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	}
 	if err != nil {
-		return networktypes.Relayer{}, networktypes.Relayer{}, err
+		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
 
 	chainRelayer.ChainID = chainID
@@ -281,7 +281,7 @@ func spnRelayerConfig(
 	srcChain,
 	dstChain relayer.Chain,
 	srcChannel,
-	dstChannel networktypes.Relayer,
+	dstChannel networktypes.RewardIBCInfo,
 ) (string, relayerconf.Config, error) {
 	var (
 		pathID = relayer.PathID(srcChain.ID, dstChain.ID)
