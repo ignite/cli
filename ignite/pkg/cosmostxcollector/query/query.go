@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	// DefaultPageSize defines the default number of results to select per page.
 	DefaultPageSize = 30
 )
 
@@ -114,15 +115,25 @@ func (q Query) IsCall() bool {
 }
 
 // AtPage assigns a page to select.
+// Pages start from page one, so assigning page zero selects the first page.
 func (q Query) AtPage(page uint32) Query {
-	q.atPage = page
+	if page == 0 {
+		q.atPage = 1
+	} else {
+		q.atPage = page
+	}
 
 	return q
 }
 
 // WithPageSize assigns the number of results to select per page.
+// The default page size is used when size zero is assigned.
 func (q Query) WithPageSize(size uint32) Query {
-	q.pageSize = size
+	if size == 0 {
+		q.pageSize = DefaultPageSize
+	} else {
+		q.pageSize = size
+	}
 
 	return q
 }
