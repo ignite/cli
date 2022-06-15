@@ -62,8 +62,8 @@ type Query struct {
 	entity   Entity
 	fields   []Field
 	sortBy   []SortBy
-	pageSize uint64
-	atPage   uint64
+	pageSize uint32
+	atPage   uint32
 	call     call.Call
 	filters  []Filter
 }
@@ -84,12 +84,12 @@ func (q Query) GetSortBy() []SortBy {
 }
 
 // GetPageSize returns the size for each query result set.
-func (q Query) GetPageSize() uint64 {
+func (q Query) GetPageSize() uint32 {
 	return q.pageSize
 }
 
 // GetAtPage returns the result set page to query.
-func (q Query) GetAtPage() uint64 {
+func (q Query) GetAtPage() uint32 {
 	return q.atPage
 }
 
@@ -114,14 +114,14 @@ func (q Query) IsCall() bool {
 }
 
 // AtPage assigns a page to select.
-func (q Query) AtPage(page uint64) Query {
+func (q Query) AtPage(page uint32) Query {
 	q.atPage = page
 
 	return q
 }
 
 // WithPageSize assigns the number of results to select per page.
-func (q Query) WithPageSize(size uint64) Query {
+func (q Query) WithPageSize(size uint32) Query {
 	q.pageSize = size
 
 	return q
