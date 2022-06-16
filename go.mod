@@ -10,9 +10,9 @@ require (
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/cosmos/cosmos-sdk v0.45.4
+	github.com/cosmos/cosmos-sdk v0.45.5
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v3 v3.0.0
+	github.com/cosmos/ibc-go/v3 v3.0.1
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.13.0
@@ -46,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.4
-	github.com/tendermint/spn v0.2.1-0.20220610090138-44b136f042c4
+	github.com/tendermint/spn v0.2.1-0.20220616145726-f3f4098de61f
 	github.com/tendermint/tendermint v0.34.19
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tendermint/vue v0.3.5
