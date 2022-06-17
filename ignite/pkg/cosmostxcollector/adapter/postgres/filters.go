@@ -68,11 +68,11 @@ func (f Filter) String() string {
 	return fmt.Sprintf("%s = %s", f.applyModifiers(f.field), filterPlaceholder)
 }
 
-func (f Filter) GetField() string {
+func (f Filter) Field() string {
 	return f.field
 }
 
-func (f Filter) GetValue() any {
+func (f Filter) Value() any {
 	return f.value
 }
 

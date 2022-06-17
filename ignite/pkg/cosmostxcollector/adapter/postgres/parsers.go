@@ -204,7 +204,7 @@ func parseFilters(filters []query.Filter) string {
 
 		// When the filter has a value replace the "?" by a positional
 		// postgres placeholder like "$1", "$2", and so on
-		if v := f.GetValue(); v != nil {
+		if v := f.Value(); v != nil {
 			index := strings.LastIndex(expr, filterPlaceholder)
 			expr = expr[:index] + fmt.Sprintf("$%d", pos+1) + expr[index+1:]
 			pos++

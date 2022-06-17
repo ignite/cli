@@ -341,7 +341,7 @@ func extractQueryArgs(q query.Query) (args []any) {
 
 	// Add the values from the filters
 	for _, f := range q.GetFilters() {
-		if a := f.GetValue(); a != nil {
+		if a := f.Value(); a != nil {
 			args = append(args, a)
 		}
 	}

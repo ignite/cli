@@ -32,11 +32,11 @@ type SortBy struct {
 type Filter interface {
 	fmt.Stringer
 
-	// GetField returns the name of the filtered field.
-	GetField() string
+	// Field returns the name of the filtered field.
+	Field() string
 
-	// GetValue returns the value to use for filtering.
-	GetValue() any
+	// Value returns the value to use for filtering.
+	Value() any
 }
 
 // New creates a new query.
