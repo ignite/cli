@@ -30,6 +30,27 @@ func (f Foo) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Response
 }
 `)
 
+	GenericAppFile = []byte(`
+package foo
+
+type Foo[T any] struct {
+	FooKeeper foo.keeper
+	i         T
+}
+
+func (f Foo[T]) RegisterAPIRoutes()         {}
+func (f Foo[T]) RegisterTxService()         {}
+func (f Foo[T]) RegisterTendermintService() {}
+func (f Foo[T]) Name() string               { return app.BaseApp.Name() }
+func (f Foo[T]) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return app.mm.BeginBlock(ctx, req)
+}
+func (f Foo[T]) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	return app.mm.EndBlock(ctx, req)
+}
+
+`)
+
 	NoAppFile = []byte(`
 package foo
 
@@ -244,6 +265,17 @@ func TestCheckKeeper(t *testing.T) {
 	err = app.CheckKeeper(tmpDir, "FooKeeper")
 	require.NoError(t, err)
 	err = app.CheckKeeper(tmpDir, "BarKeeper")
+	require.Error(t, err)
+
+	// Test with a source file containing an app with generics
+	tmpDirGenericApp := t.TempDir()
+	tmpFileGenericApp := filepath.Join(tmpDirGenericApp, "app.go")
+	err = os.WriteFile(tmpFileGenericApp, GenericAppFile, 0644)
+	require.NoError(t, err)
+
+	err = app.CheckKeeper(tmpDirGenericApp, "FooKeeper")
+	require.NoError(t, err)
+	err = app.CheckKeeper(tmpDirGenericApp, "BarKeeper")
 	require.Error(t, err)
 
 	// No app in source must return an error
