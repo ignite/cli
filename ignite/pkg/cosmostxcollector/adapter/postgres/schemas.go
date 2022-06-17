@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"io/fs"
 	"path/filepath"
@@ -50,7 +49,7 @@ type SchemasWalkFunc func(version uint64, script []byte) error
 // By default the applied schema versions are stored in the "schema"
 // table but the name can have a prefix namespace when different
 // packages are storing the schemas in the same database.
-func NewSchemas(fs embed.FS, namespace string) Schemas {
+func NewSchemas(fs fs.FS, namespace string) Schemas {
 	tableName := defaultSchemasTableName
 	if namespace != "" {
 		tableName = fmt.Sprintf("%s_%s", namespace, tableName)
@@ -64,7 +63,7 @@ func NewSchemas(fs embed.FS, namespace string) Schemas {
 // of each schema file must be numeric, where the number represents the version.
 type Schemas struct {
 	tableName string
-	fs        embed.FS
+	fs        fs.FS
 }
 
 // GetTableDDL returns the DDL to create the schemas table.
@@ -101,7 +100,7 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 		}
 
 		// Read the SQL script from the schema file
-		script, err := s.fs.ReadFile(path)
+		script, err := fs.ReadFile(s.fs, path)
 		if err != nil {
 			return fmt.Errorf("failed to read schema '%s': %w", path, err)
 		}
