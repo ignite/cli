@@ -83,7 +83,7 @@ func (c Chain) Prepare(
 		return err
 	}
 
-	cmd, err := c.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (c Chain) applyGenesisAccounts(
 ) error {
 	var err error
 
-	cmd, err := c.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (c Chain) applyVestingAccounts(
 	vestingAccs []networktypes.VestingAccount,
 	addressPrefix string,
 ) error {
-	cmd, err := c.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	}
 
 	// gather gentxs
-	cmd, err := c.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return err
 	}

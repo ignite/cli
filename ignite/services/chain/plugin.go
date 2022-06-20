@@ -17,10 +17,10 @@ type Plugin interface {
 	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// Configure configures config defaults.
-	Configure(string, chainconfig.Config) error
+	Configure(string, chainconfig.Validator) error
 
 	// Start returns step.Exec configuration to start servers.
-	Start(context.Context, chaincmdrunner.Runner, chainconfig.Config) error
+	Start(context.Context, chaincmdrunner.Runner, chainconfig.Validator) error
 
 	// Home returns the blockchain node's home dir.
 	Home() string

@@ -99,6 +99,15 @@ func (c Config) AccountByName(name string) (acc Account, found bool) {
 	return Account{}, false
 }
 
+func (c Config) ValidatorByName(name string) (Validator, bool) {
+	for _, val := range c.Validators {
+		if val.Name == name {
+			return val, true
+		}
+	}
+	return Validator{}, false
+}
+
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`
@@ -202,6 +211,13 @@ func (v Validator) Pprof() string {
 	return v.getConfigItem(v.Config, "pprof_laddr")
 }
 
+func (v Validator) Moniker() string {
+	if v.GenTx.Moniker != "" {
+		return v.GenTx.Moniker
+	}
+	return v.Name
+}
+
 // we can generalize these getter into a single recursive map field getter
 // func that accepts an abritrary depth, but we only ever seem to either
 // do 1 or two deep, so that might be overkill.
@@ -241,7 +257,7 @@ type GenTx struct {
 	CommisionRate           string `yaml:"rate"`
 	CommissionMaxRate       string `yaml:"max-rate"`
 	CommissionMaxChangeRate string `yaml:"max-change-rate"`
-	MinDelegation           string `yaml:"min-delegation"`
+	MinSelfDelegation       string `yaml:"min-delegation"`
 	GasPrices               string `yaml:"gas-prices"`
 	Details                 string `yaml:"details"`
 	Identity                string `yaml:"identity"`
@@ -399,6 +415,7 @@ func validate(conf Config) error {
 	if len(conf.Validators) == 0 || conf.Validators[0].Name == "" {
 		return &ValidationError{"at least one validator is required"}
 	}
+	// todo: Verify validators have unique names/ports
 	return nil
 }
 

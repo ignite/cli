@@ -48,17 +48,17 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, conf chainconfig.Config) error {
-	if err := p.appTOML(homePath, conf); err != nil {
+func (p *stargatePlugin) Configure(homePath string, val chainconfig.Validator) error {
+	if err := p.appTOML(homePath, val); err != nil {
 		return err
 	}
 	if err := p.clientTOML(homePath); err != nil {
 		return err
 	}
-	return p.configTOML(homePath, conf)
+	return p.configTOML(homePath, val)
 }
 
-func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error {
+func (p *stargatePlugin) appTOML(homePath string, val chainconfig.Validator) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -66,9 +66,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 		return err
 	}
 
-	// todo: validator selector or FOR EACH
-	validator := conf.Validators[0]
-	api := validator.API()
+	api := val.API()
 	apiAddr, err := xurl.TCP(api)
 	if err != nil {
 		return fmt.Errorf("invalid api address format %s: %w", api, err)
@@ -78,10 +76,10 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", apiAddr)
-	config.Set("grpc.address", validator.GRPC())
-	config.Set("grpc-web.address", validator.GRPCWeb())
+	config.Set("grpc.address", val.GRPC())
+	config.Set("grpc-web.address", val.GRPCWeb())
 
-	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
+	staked, err := sdktypes.ParseCoinNormalized(val.Bonded)
 	if err != nil {
 		return err
 	}
@@ -98,7 +96,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) error {
+func (p *stargatePlugin) configTOML(homePath string, val chainconfig.Validator) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	var err error
 	path := filepath.Join(homePath, "config/config.toml")
@@ -107,7 +105,6 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 		return err
 	}
 
-	val := conf.Validators[0]
 	rpcAddr, err := xurl.TCP(val.RPC())
 	if err != nil {
 		return fmt.Errorf("invalid rpc address format %s: %w", val.RPC(), err)
@@ -158,8 +155,7 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf chainconfig.Config) error {
-	val := conf.Validators[0]
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, val chainconfig.Validator) error {
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",

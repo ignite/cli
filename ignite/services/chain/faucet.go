@@ -37,7 +37,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		return cosmosfaucet.Faucet{}, err
 	}
 
-	commands, err := c.Commands(ctx)
+	commands, err := c.Commands(ctx, c.validator)
 	if err != nil {
 		return cosmosfaucet.Faucet{}, err
 	}

@@ -83,7 +83,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		}
 	} else {
 		// default genesis is used, init CLI command is used to generate it
-		cmd, err := c.chain.Commands(ctx)
+		cmd, err := c.chain.Commands(ctx, c.chain.Validator())
 		if err != nil {
 			return err
 		}
@@ -107,7 +107,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 // checkGenesis checks the stored genesis is valid
 func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	// perform static analysis of the chain with the validate-genesis command.
-	chainCmd, err := c.chain.Commands(ctx)
+	chainCmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return err
 	}

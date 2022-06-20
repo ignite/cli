@@ -328,105 +328,108 @@ func (c *Chain) SetHome(home string) {
 
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() (string, error) {
-	// check if home is explicitly defined for the app
-	home := c.options.homePath
-	if home == "" {
-		// return default home otherwise
-		var err error
-		home, err = c.DefaultHome()
-		if err != nil {
-			return "", err
-		}
-
-	}
-
-	// expand environment variables in home
-	home = os.ExpandEnv(home)
-
-	return home, nil
+	return c.homeForValidator(c.validator), nil
 }
 
 // DefaultHome returns the blockchain node's default home dir when not specified in the app
-func (c *Chain) DefaultHome() (string, error) {
-	// check if home is defined in config
-	if c.validator.Home != "" {
-		return c.validator.Home, nil
+func (c *Chain) homeForValidator(v chainconfig.Validator) string {
+	home := c.options.homePath
+	if home != "" {
+		filepath.Join(home, v.Name)
 	}
 
-	return filepath.Join(c.plugin.Home(), c.validator.Name), nil
+	// check if home is defined in config
+	if v.Home != "" {
+		return os.ExpandEnv(v.Home)
+	}
+
+	// use the default path
+	return filepath.Join(c.DefaultHome(), v.Name)
+}
+
+// AppHome returns the app root home path.
+func (c *Chain) AppHome() string {
+	home := c.options.homePath
+	if home != "" {
+		return home
+	}
+	return c.DefaultHome()
+}
+
+func (c *Chain) DefaultHome() string {
+	return c.plugin.Home()
 }
 
 // DefaultGentxPath returns default gentx.json path of the app.
 func (c *Chain) DefaultGentxPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "config/gentx/gentx.json"), nil
+	// home, err := c.Home()
+	// if err != nil {
+	// 	return "", err
+	// }
+	return filepath.Join(c.AppHome(), "config/gentx/gentx.json"), nil
 }
 
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "config/genesis.json"), nil
+	return filepath.Join(c.AppHome(), "config/genesis.json"), nil
 }
 
 // GentxsPath returns the directory where gentxs are stored for the app.
 func (c *Chain) GentxsPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "config/gentx"), nil
+	return filepath.Join(c.AppHome(), "config/gentx"), nil
 }
 
-// AppTOMLPath returns app.toml path of the app.
+// AppTOMLPath returns app.toml path of the app relative to the primary validator.
 func (c *Chain) AppTOMLPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
+	return c.appTOMLPathForValidator(c.validator)
+}
+
+// appTOMLPathForValidator returns the app.toml for the given validator
+// note: Doesn't take into account CLI flags or environment variables.
+func (c *Chain) appTOMLPathForValidator(v chainconfig.Validator) (string, error) {
+	home := c.homeForValidator(v)
 	return filepath.Join(home, "config/app.toml"), nil
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
 func (c *Chain) ConfigTOMLPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
+	return c.configTOMLPathForValidator(c.validator)
+}
+
+func (c *Chain) configTOMLPathForValidator(v chainconfig.Validator) (string, error) {
+	home := c.homeForValidator(v)
 	return filepath.Join(home, "config/config.toml"), nil
 }
 
 // ClientTOMLPath returns client.toml path of the app.
 func (c *Chain) ClientTOMLPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
+	return c.clientTOMLPathForValidator(c.validator)
+}
+
+func (c *Chain) clientTOMLPathForValidator(v chainconfig.Validator) (string, error) {
+	home := c.homeForValidator(v)
 	return filepath.Join(home, "config/client.toml"), nil
 }
 
 // KeyringBackend returns the keyring backend chosen for the chain.
 func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
+	return c.keyringBackendForValidator(c.validator)
+}
+
+func (c *Chain) keyringBackendForValidator(v chainconfig.Validator) (chaincmd.KeyringBackend, error) {
 	// 1st.
 	if c.options.keyringBackend != "" {
 		return c.options.keyringBackend, nil
 	}
 
-	val := c.validator
-
 	// 2nd.
-	if val.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(val.KeyringBackend)
+	if v.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(v.KeyringBackend)
 	}
 
 	// 3rd.
-	if val.Client != nil {
-		if backend, ok := val.Client["keyring-backend"]; ok {
+	if v.Client != nil {
+		if backend, ok := v.Client["keyring-backend"]; ok {
 			if backendStr, ok := backend.(string); ok {
 				return chaincmd.KeyringBackendFromString(backendStr)
 			}
@@ -434,7 +437,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 4th.
-	configTOMLPath, err := c.ClientTOMLPath()
+	configTOMLPath, err := c.clientTOMLPathForValidator(v)
 	if err != nil {
 		return "", err
 	}
@@ -454,29 +457,25 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 }
 
 // Commands returns the runner execute commands on the chain's binary
-func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
+func (c *Chain) Commands(ctx context.Context, v chainconfig.Validator, chainCmdOpts ...chaincmd.Option) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	home, err := c.Home()
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
-	}
+	home := c.homeForValidator(v)
 
 	binary, err := c.Binary()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	backend, err := c.KeyringBackend()
+	backend, err := c.keyringBackendForValidator(v)
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	val := c.validator
-	nodeAddr, err := xurl.TCP(val.RPC())
+	nodeAddr, err := xurl.TCP(v.RPC())
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
@@ -488,6 +487,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithNodeAddress(nodeAddr),
 		chaincmd.WithKeyringBackend(backend),
 	}
+	chainCommandOptions = append(chainCommandOptions, chainCmdOpts...)
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
@@ -501,4 +501,12 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	}
 
 	return chaincmdrunner.New(ctx, cc, ccrOptions...)
+}
+
+func (c *Chain) IsPrimaryValidator(v chainconfig.Validator) bool {
+	return c.validator.Name == v.Name
+}
+
+func (c *Chain) Validator() chainconfig.Validator {
+	return c.validator
 }

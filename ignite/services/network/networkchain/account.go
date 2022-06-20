@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xos"
-	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
@@ -19,12 +19,12 @@ const (
 )
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
-func (c Chain) InitAccount(ctx context.Context, v chain.Validator, accountName string) (string, error) {
+func (c Chain) InitAccount(ctx context.Context, v chainconfig.Validator, accountName string) (string, error) {
 	if !c.isInitialized {
 		return "", errors.New("the blockchain must be initialized to initialize an account")
 	}
 
-	chainCmd, err := c.chain.Commands(ctx)
+	chainCmd, err := c.chain.Commands(ctx, v)
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +36,7 @@ func (c Chain) InitAccount(ctx context.Context, v chain.Validator, accountName s
 	}
 
 	// add account into the genesis
-	err = chainCmd.AddGenesisAccount(ctx, address, v.StakingAmount)
+	err = chainCmd.AddGenesisAccount(ctx, address, v.Bonded)
 	if err != nil {
 		return "", err
 	}
@@ -76,7 +76,7 @@ func (c *Chain) ImportAccount(ctx context.Context, name string) (string, error) 
 	}
 
 	// import the key file into the chain.
-	chainCmd, err := c.chain.Commands(ctx)
+	chainCmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +88,7 @@ func (c *Chain) ImportAccount(ctx context.Context, name string) (string, error) 
 // detectPrefix detects the account address prefix for the chain
 // the method create a sample account and parse the address prefix from it
 func (c Chain) detectPrefix(ctx context.Context) (string, error) {
-	chainCmd, err := c.chain.Commands(ctx)
+	chainCmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return "", err
 	}

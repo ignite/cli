@@ -71,7 +71,7 @@ func (c Chain) SimulateRequests(
 // SimulateChainStart simulates and verify the chain start by starting it with a simulation config
 // and checking if the gentxs execution is successful
 func (c Chain) simulateChainStart(ctx context.Context) error {
-	cmd, err := c.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return err
 	}

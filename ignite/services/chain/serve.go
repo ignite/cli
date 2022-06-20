@@ -131,7 +131,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 				return ctx.Err()
 
 			case <-c.serveRefresher:
-				commands, err := c.Commands(ctx)
+				commands, err := c.Commands(ctx, c.validator)
 				if err != nil {
 					return err
 				}
@@ -264,7 +264,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 
 	// note(jsimnz): Might initialize target validator here
 	fmt.Fprintf(c.stdLog().out, "💿 Running app as validator %v...\n", c.validator.Name)
-	commands, err := c.Commands(ctx)
+	commands, err := c.Commands(ctx, c.validator)
 	if err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 }
 
 func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
-	commands, err := c.Commands(ctx)
+	commands, err := c.Commands(ctx, c.validator)
 	if err != nil {
 		return err
 	}
@@ -398,7 +398,7 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, config) })
+	g.Go(func() error { return c.plugin.Start(ctx, commands, c.validator) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)

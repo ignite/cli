@@ -21,6 +21,7 @@ const (
 // Init initializes the chain and applies all optional configurations.
 func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 	conf, err := c.Config()
+
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
@@ -48,88 +49,152 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// cleanup persistent data from previous `serve`.
-	home, err := c.Home()
-	if err != nil {
-		return err
-	}
+	home := c.AppHome()
 	if err := os.RemoveAll(home); err != nil {
 		return err
 	}
 
-	commands, err := c.Commands(ctx)
-	if err != nil {
-		return err
+	// for each validator
+	for _, validator := range conf.Validators {
+		commands, err := c.Commands(ctx, validator)
+		if err != nil {
+			return err
+		}
+
+		// init node.
+		if err := commands.Init(ctx, validator.Moniker()); err != nil {
+			return err
+		}
+
+		// make sure that chain id given during chain.New() has the most priority.
+		if conf.Genesis != nil {
+			conf.Genesis["chain_id"] = chainID
+		}
+
+		// todo: update for each validator
+		// now: hard code first validator
+		// validator := c.validator
+		appTOMLPath, err := c.appTOMLPathForValidator(validator)
+		if err != nil {
+			return err
+		}
+		clientTOMLPath, err := c.clientTOMLPathForValidator(validator)
+		if err != nil {
+			return err
+		}
+		configTOMLPath, err := c.configTOMLPathForValidator(validator)
+		if err != nil {
+			return err
+		}
+		appconfigs := []appconfig{
+			{confile.DefaultTOMLEncodingCreator, appTOMLPath, validator.App},
+			{confile.DefaultTOMLEncodingCreator, clientTOMLPath, validator.Client},
+			{confile.DefaultTOMLEncodingCreator, configTOMLPath, validator.Config},
+		}
+
+		for _, ac := range appconfigs {
+			applyConfig(ac)
+		}
+
+		vhome := c.homeForValidator(validator)
+		if err := c.plugin.Configure(vhome, validator); err != nil {
+			return err
+		}
 	}
 
-	// init node.
-	if err := commands.Init(ctx, moniker); err != nil {
-		return err
-	}
-
-	// make sure that chain id given during chain.New() has the most priority.
-	if conf.Genesis != nil {
-		conf.Genesis["chain_id"] = chainID
-	}
-
-	// Initilize app config
 	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
-	appTOMLPath, err := c.AppTOMLPath()
-	if err != nil {
-		return err
-	}
-	clientTOMLPath, err := c.ClientTOMLPath()
-	if err != nil {
-		return err
-	}
-	configTOMLPath, err := c.ConfigTOMLPath()
-	if err != nil {
-		return err
-	}
+	keyringPath := filepath.Join(c.AppHome(), "keyring-test")
+	genTxPath := filepath.Join(c.AppHome(), "config/gentx")
 
-	// todo: update for each validator
-	// now: hard code first validator
-	validator := c.validator
-	appconfigs := []struct {
-		ec      confile.EncodingCreator
-		path    string
-		changes map[string]interface{}
-	}{
-		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, validator.App},
-		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, validator.Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, validator.Config},
-	}
+	for i, val := range conf.Validators {
+		vhome := c.homeForValidator(val)
+		vgenesisPath := filepath.Join(vhome, "config/genesis.json")
+		vkeyringPath := filepath.Join(vhome, "keyring-test")
+		vgenTxPath := filepath.Join(vhome, "config/gentx")
 
-	for _, ac := range appconfigs {
-		cf := confile.New(ac.ec, ac.path)
-		var conf map[string]interface{}
-		if err := cf.Load(&conf); err != nil {
+		// copy the initialized genesis from the first validator into the app home
+		if i == 0 { // only run on first validator
+			buf, err := os.ReadFile(vgenesisPath)
+			if err != nil {
+				return err
+			}
+
+			appConfigPath := filepath.Join(c.AppHome(), "config")
+			// ensure the config folder exists
+			if err := ensureDirectory(appConfigPath); err != nil {
+				return err
+			}
+			// copy the genesis path to the app root config
+			if err := os.WriteFile(genesisPath, buf, 0644); err != nil {
+				return err
+			}
+
+			// ensure the keyring-test folder exists
+			if err := ensureDirectory(keyringPath); err != nil {
+				return err
+			}
+
+			// ensure the gentx folder exists
+			if err := ensureDirectory(genTxPath); err != nil {
+				return err
+			}
+
+		}
+
+		// delete it from all
+		// then symlink back
+		if err := os.Remove(vgenesisPath); err != nil {
 			return err
 		}
-		if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
+
+		// symlink the root genesis path into each validator config path
+		if err := os.Symlink(genesisPath, vgenesisPath); err != nil {
 			return err
 		}
-		if err := cf.Save(conf); err != nil {
+
+		// symlink the root gentx path into each validator config gentx path
+		if err := os.Symlink(genTxPath, vgenTxPath); err != nil {
+			return err
+		}
+
+		// symlink the root keyring path into each validator keyring path
+		if err := os.Symlink(keyringPath, vkeyringPath); err != nil {
 			return err
 		}
 	}
 
 	// overwrite configuration changes from Ignite CLI's config.yml to
 	// over app's sdk configs.
-
-	if err := c.plugin.Configure(home, conf); err != nil {
+	ac := appconfig{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis}
+	if err := applyConfig(ac); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+func applyConfig(ac appconfig) error {
+	cf := confile.New(ac.ec, ac.path)
+	var conf map[string]interface{}
+	if err := cf.Load(&conf); err != nil {
+		return err
+	}
+	if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
+		return err
+	}
+	if err := cf.Save(conf); err != nil {
+		return err
+	}
+	return nil
+}
+
 // InitAccounts initializes the chain accounts and creates validator gentxs
 func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error {
-	commands, err := c.Commands(ctx)
+
+	commands, err := c.Commands(ctx, c.validator)
 	if err != nil {
 		return err
 	}
@@ -171,31 +236,42 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		}
 	}
 
-	// todo: for each validator
-	// now: hardcode validator
-	validator := c.validator
-	_, err = c.IssueGentx(ctx, Validator{
-		Name:          validator.Name,
-		StakingAmount: validator.Bonded,
-	})
-	return err
+	for _, v := range conf.Validators {
+		// todo: for each validator
+		// now: hardcode validator
+		_, err = c.IssueGentx(ctx, v)
+		if err != nil {
+			return err
+		}
+	}
+
+	return c.CollectGentxs(ctx)
+	// return nil
 }
 
-// IssueGentx generates a gentx from the validator information in chain config and import it in the chain genesis
-func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
-	commands, err := c.Commands(ctx)
+// IssueGentx generates a gentx from the validator information in chain config.
+// *Does not* run `collect-gentxs`.
+func (c Chain) IssueGentx(ctx context.Context, v chainconfig.Validator) (string, error) {
+	commands, err := c.Commands(ctx, v)
 	if err != nil {
 		return "", err
 	}
 
 	// create the gentx from the validator from the config
-	gentxPath, err := c.plugin.Gentx(ctx, commands, v)
+	return c.plugin.Gentx(ctx, commands, Validator{
+		Name:          v.Name,
+		StakingAmount: v.Bonded,
+		Moniker:       v.Moniker(),
+	})
+}
+
+func (c Chain) CollectGentxs(ctx context.Context) error {
+	commands, err := c.Commands(ctx, c.validator)
 	if err != nil {
-		return "", err
+		return nil
 	}
 
-	// import the gentx into the genesis
-	return gentxPath, commands.CollectGentxs(ctx)
+	return commands.CollectGentxs(ctx)
 }
 
 // IsInitialized checks if the chain is initialized
@@ -233,6 +309,26 @@ type Validator struct {
 	SecurityContact         string
 }
 
+// ToConfig converts this type to chainconfig.Validator
+func (v Validator) ToConfig() chainconfig.Validator {
+	return chainconfig.Validator{
+		Name:   v.Name,
+		Bonded: v.StakingAmount,
+		GenTx: chainconfig.GenTx{
+			Moniker:                 v.Moniker,
+			CommisionRate:           v.CommissionRate,
+			CommissionMaxRate:       v.CommissionMaxRate,
+			CommissionMaxChangeRate: v.CommissionMaxChangeRate,
+			MinSelfDelegation:       v.MinSelfDelegation,
+			GasPrices:               v.GasPrices,
+			Details:                 v.Details,
+			Identity:                v.Identity,
+			Website:                 v.Website,
+			SecurityContact:         v.SecurityContact,
+		},
+	}
+}
+
 // Account represents an account in the chain.
 type Account struct {
 	Name     string
@@ -240,4 +336,21 @@ type Account struct {
 	Mnemonic string `json:"mnemonic"`
 	CoinType string
 	Coins    string
+}
+
+type appconfig struct {
+	ec      confile.EncodingCreator
+	path    string
+	changes map[string]interface{}
+}
+
+func ensureDirectory(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := os.Mkdir(path, 0755); err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	}
+	return nil
 }

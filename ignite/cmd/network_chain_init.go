@@ -137,7 +137,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 	session.StartSpinner("Generating your Gentx")
 
-	gentxPath, err := c.InitAccount(cmd.Context(), v, validatorAccount)
+	gentxPath, err := c.InitAccount(cmd.Context(), v.ToConfig(), validatorAccount)
 	if err != nil {
 		return err
 	}

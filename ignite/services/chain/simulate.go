@@ -65,7 +65,7 @@ func (c *Chain) Simulate(ctx context.Context, options ...SimappOption) error {
 		apply(&simappOptions)
 	}
 
-	commands, err := c.Commands(ctx)
+	commands, err := c.Commands(ctx, c.validator)
 	if err != nil {
 		return err
 	}

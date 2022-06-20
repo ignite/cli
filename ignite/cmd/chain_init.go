@@ -55,10 +55,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	home, err := c.Home()
-	if err != nil {
-		return err
-	}
+	home := c.AppHome()
 
 	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 

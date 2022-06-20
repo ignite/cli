@@ -255,7 +255,7 @@ func (c Chain) IsHomeDirExist() (ok bool, err error) {
 
 // NodeID returns the chain node id
 func (c Chain) NodeID(ctx context.Context) (string, error) {
-	chainCmd, err := c.chain.Commands(ctx)
+	chainCmd, err := c.chain.Commands(ctx, c.chain.Validator())
 	if err != nil {
 		return "", err
 	}
