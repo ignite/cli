@@ -64,7 +64,7 @@ Using the `moonlight` prefix, account addresses on your blockchain look like thi
 To change the prefix after the blockchain has been scaffolded, modify the `AccountAddressPrefix` in the `app/prefix.go` file.
 
 1. Change the `AccountAddressPrefix` variable in the `/app/prefix.go` file. Be sure to preserve other variables in the file.
-2. To recognize the new prefix, change the `VUE_APP_ADDRESS_PREFIX` variable in `/vue/.env`.
+2. To recognize the new prefix, change the `VITE_ADDRESS_PREFIX` variable in `/vue/.env`.
 
 ## Cosmos SDK version
 
