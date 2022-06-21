@@ -43,13 +43,15 @@ func (c Collector) Collect(ctx context.Context, fromHeight int64) error {
 	// kept in memory. Also they are saved sequentially to avoid block height
 	// gaps that can occur if a group of transactions from a previous block
 	// fail to be saved.
-	for txs := range tc {
-		if err := c.db.Save(ctx, txs); err != nil {
-			return err
+	wg.Go(func() error {
+		for txs := range tc {
+			if err := c.db.Save(ctx, txs); err != nil {
+				return err
+			}
 		}
-	}
 
-	// Any collection error is returned after the successfully
-	// collected transactions are saved.
+		return nil
+	})
+
 	return wg.Wait()
 }
