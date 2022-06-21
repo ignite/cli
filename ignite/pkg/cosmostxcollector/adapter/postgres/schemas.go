@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -79,7 +80,11 @@ func (s Schemas) GetSchemaVersionSQL() string {
 // WalkFrom calls a function for SQL schemas starting from a specific version.
 // This is useful to apply newer schemas that are not yet applied.
 func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
-	return fs.WalkDir(s.fs, SchemasDir, func(path string, d fs.DirEntry, err error) error {
+	// Stores schema file paths by version
+	paths := map[uint64]string{}
+
+	// Index the paths to the schemas with the matching versions
+	err := fs.WalkDir(s.fs, SchemasDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed to read schema %s: %w", path, err)
 		}
@@ -94,27 +99,44 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 			return fmt.Errorf("invalid schema file name '%s'", path)
 		}
 
-		// Skip current schema file
-		if version < fromVersion {
-			return nil
+		if fromVersion <= version {
+			paths[version] = path
 		}
 
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(paths) == 0 {
+		return nil
+	}
+
+	for _, ver := range sortedSchemaVersions(paths) {
+		p := paths[ver]
+
 		// Read the SQL script from the schema file
-		script, err := fs.ReadFile(s.fs, path)
+		script, err := fs.ReadFile(s.fs, p)
 		if err != nil {
-			return fmt.Errorf("failed to read schema '%s': %w", path, err)
+			return fmt.Errorf("failed to read schema '%s': %w", p, err)
 		}
 
 		// Create the SQL script to change the schema to the
 		// current version within a single transaction
 		b := ScriptBuilder{}
 		b.BeginTX()
-		b.AppendCommand(s.getSchemaVersionInsertSQL(version))
+		b.AppendCommand(s.getSchemaVersionInsertSQL(ver))
 		b.AppendScript(script)
 		b.CommitTX()
 
-		return fn(version, b.Bytes())
-	})
+		if err := fn(ver, b.Bytes()); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s Schemas) getSchemaVersionInsertSQL(version uint64) string {
@@ -168,4 +190,17 @@ func extractSchemaVersion(fileName string) uint64 {
 	}
 
 	return version
+}
+
+func sortedSchemaVersions(paths map[uint64]string) []uint64 {
+	versions := make([]uint64, 0, len(paths))
+	for ver := range paths {
+		versions = append(versions, ver)
+	}
+
+	sort.Slice(versions, func(i, j int) bool {
+		return versions[i] < versions[j]
+	})
+
+	return versions
 }
