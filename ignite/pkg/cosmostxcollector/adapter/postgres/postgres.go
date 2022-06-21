@@ -112,6 +112,7 @@ func NewAdapter(database string, options ...Option) (Adapter, error) {
 		return Adapter{}, err
 	}
 
+	// TODO: Move DB outside Adapter to use "postgres_test" package to test this file?
 	adapter.db = db
 
 	return adapter, nil
