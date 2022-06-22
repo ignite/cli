@@ -1,6 +1,7 @@
 package cosmosgen
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -9,13 +10,11 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/protopath"
 )
 
 const (
 	defaultSDKImport     = "github.com/cosmos/cosmos-sdk"
 	moduleCacheNamespace = "generate.setup.module"
-	ibcImport            = "github.com/cosmos/ibc-go/v3"
 )
 
 type ModulesInPath struct {
@@ -112,19 +111,38 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
-func (g *generator) resolveDepencyInclude() ([]string, error) {
-	protoPaths := append([]string{g.protoDir}, g.o.includeDirs...)
+func (g *generator) resolveDepencyInclude() (paths []string, err error) {
+	// Relative paths to proto directories
+	protoDirs := append([]string{g.protoDir}, g.o.includeDirs...)
 
 	// Create a list of proto import paths for the dependencies.
-	// The paths in this list will be available to be imported from the chain app's proto files.
-	dependencies := []string{g.sdkImport, ibcImport}
-	modules := make([]protopath.Module, len(dependencies))
+	// These paths will be available to be imported from the chain app's proto files.
+	for rootPath, m := range g.thirdModules {
+		// Skip modules without proto files
+		if m == nil {
+			continue
+		}
 
-	for i, p := range dependencies {
-		modules[i] = protopath.NewModule(p, protoPaths...)
+		// Check each one of the possible proto directory names for the
+		// current module and append them only when the directory exists.
+		for _, d := range protoDirs {
+			p := filepath.Join(rootPath, d)
+			f, err := os.Stat(p)
+			if err != nil {
+				if os.IsNotExist(err) {
+					continue
+				}
+
+				return nil, err
+			}
+
+			if f.IsDir() {
+				paths = append(paths, p)
+			}
+		}
 	}
 
-	return protopath.ResolveDependencyPaths(g.ctx, g.cacheStorage, g.appPath, g.deps, modules...)
+	return paths, nil
 }
 
 func (g *generator) resolveInclude(path string) (paths []string, err error) {
@@ -141,6 +159,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 	}
 
 	paths = append(paths, includePaths...)
+
 	return paths, nil
 }
 
