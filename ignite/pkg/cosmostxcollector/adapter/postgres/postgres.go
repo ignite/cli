@@ -247,7 +247,7 @@ func (a Adapter) Query(ctx context.Context, q query.Query) (query.Cursor, error)
 		return nil, err
 	}
 
-	return &cursor{rows}, nil
+	return rows, nil
 }
 
 func (a Adapter) getDB() (*sql.DB, error) {
