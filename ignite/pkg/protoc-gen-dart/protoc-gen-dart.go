@@ -3,8 +3,8 @@ package protocgendart
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc-gen-dart/data"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/protoc-gen-dart/data"
 )
 
 // Name of the plugin.

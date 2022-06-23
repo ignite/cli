@@ -7,17 +7,17 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	sperrors "github.com/ignite-hq/cli/ignite/errors"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/chainconfig"
+	sperrors "github.com/ignite/cli/ignite/errors"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.

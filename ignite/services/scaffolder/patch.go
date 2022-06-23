@@ -6,8 +6,8 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
 // supportSimulation checks if module_simulation.go exists

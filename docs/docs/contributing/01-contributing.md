@@ -11,7 +11,7 @@ To set up your environment for success, follow the [technical setup](02-technica
 
 ## Using this repo
 
-Review existing [Ignite CLI issues](https://github.com/ignite-hq/cli/issues) to see if your question has already been asked and answered.
+Review existing [Ignite CLI issues](https://github.com/ignite/cli/issues) to see if your question has already been asked and answered.
 
 - To provide feedback, file an issue and provide generous details to help us understand how we can make it better.
 - To provide a fix, make a direct contribution. If you're not a member or maintainer, fork the repo and then submit a pull request (PR) from your forked repo to the `develop` branch.
@@ -63,7 +63,7 @@ As always, work-in-progress content might be happening in other locations and re
 
 The Ignite product team developers are focused on building Ignite CLI and improving the developer experience. The Ignite Ecosystem Development team owns the technical content and tutorials and manages developer onboarding.
 
-Meet the [people behind Ignite CLI and our contributors](https://github.com/ignite-hq/cli/graphs/contributors).
+Meet the [people behind Ignite CLI and our contributors](https://github.com/ignite/cli/graphs/contributors).
 
 ## Viewing docs builds
 

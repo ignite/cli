@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 )
 
 // Simulation run the chain simulation.

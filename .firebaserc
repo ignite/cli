@@ -1,9 +1,9 @@
 {
   "projects": {
-    "default": "ignite-hq"
+    "default": "ignite"
   },
   "targets": {
-    "ignite-hq": {
+    "ignite": {
       "hosting": {
         "docs.ignite.com": [
           "ignite-go-docs"
