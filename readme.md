@@ -6,7 +6,7 @@
 
 ## Quick start
 
-Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite-hq/cli/tree/master) (or open [nightly version](https://gitpod.io/#https://github.com/ignite-hq/cli/)), or [install the latest release](https://docs.ignite.com/guide/install.html). 
+Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or open [nightly version](https://gitpod.io/#https://github.com/ignite/cli/)), or [install the latest release](https://docs.ignite.com/guide/install.html). 
 
 To create and start a blockchain:
 
@@ -24,7 +24,7 @@ To learn how to use Ignite CLI, check out the [Ignite CLI docs](https://docs.ign
 
 To install Ignite CLI locally on GNU, Linux, or macOS, see [Install Ignite CLI](https://docs.ignite.com/guide/install.html).
 
-To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [ignite-hq/web](https://github.com/ignite-hq/web).
+To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [ignite-hq/web](https://github.com/ignite/web).
 
 ## Questions
 
@@ -49,7 +49,7 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request.
 
-Our [Ignite CLI bounty program](docs/bounty/index.md) provides incentives for your participation and pays rewards. Track new, in-progress, and completed bounties on the [Bounty board](https://github.com/ignite-hq/cli/projects/5) in GitHub.
+Our [Ignite CLI bounty program](docs/bounty/index.md) provides incentives for your participation and pays rewards. Track new, in-progress, and completed bounties on the [Bounty board](https://github.com/ignite/cli/projects/5) in GitHub.
 
 **Important** Before you start implementing a new Ignite CLI feature, the first step is to create an issue on GitHub that describes the proposed changes.
 

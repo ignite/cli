@@ -3,7 +3,7 @@ package network
 import (
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
 
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 func (n Network) CreateClient(

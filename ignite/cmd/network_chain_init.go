@@ -5,14 +5,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 const (

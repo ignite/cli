@@ -10,7 +10,7 @@ import (
 	"github.com/buger/jsonparser"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 )
 
 func TestChainGenesis_HasAccount(t *testing.T) {
