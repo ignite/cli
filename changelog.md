@@ -8,7 +8,6 @@
 
 ### Changes
 
-- Bump Cosmos-SDK version to `v0.45.5` and IBC version to `v3.0.1`
 - Rename `ignite-hq` to `ignite`
 
 
