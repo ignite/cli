@@ -45,7 +45,7 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 	latest, _, err := github.
 		NewClient(nil).
 		Repositories.
-		GetLatestRelease(ctx, "ignite-hq", "cli")
+		GetLatestRelease(ctx, "ignite", "cli")
 
 	if err != nil {
 		return false, "", err

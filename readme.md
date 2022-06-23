@@ -24,7 +24,7 @@ To learn how to use Ignite CLI, check out the [Ignite CLI docs](https://docs.ign
 
 To install Ignite CLI locally on GNU, Linux, or macOS, see [Install Ignite CLI](https://docs.ignite.com/guide/install.html).
 
-To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [ignite-hq/web](https://github.com/ignite/web).
+To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [ignite/web](https://github.com/ignite/web).
 
 ## Questions
 
