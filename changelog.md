@@ -1,5 +1,16 @@
 # Changelog
 
+## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
+
+### Features 
+
+- templates/ci: enable Darwin ARM 64 target for chain binary releases 
+
+### Changes
+
+- chore: rename `ignite-hq` to `ignite`
+
+
 ## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
 
 ### Fixes 
