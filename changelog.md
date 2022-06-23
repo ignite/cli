@@ -4,11 +4,12 @@
 
 ### Features 
 
-- templates/ci: enable Darwin ARM 64 target for chain binary releases 
+- Enable Darwin ARM 64 target for chain binary releases in CI templates
 
 ### Changes
 
-- chore: rename `ignite-hq` to `ignite`
+- Bump Cosmos-SDK version to `v0.45.5` and IBC version to `v3.0.1`
+- Rename `ignite-hq` to `ignite`
 
 
 ## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
