@@ -12,9 +12,9 @@ import (
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -180,26 +180,6 @@ func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAcc
 
 	for _, acc := range res.MainnetAccount {
 		genAccs = append(genAccs, networktypes.ToMainnetAccount(acc))
-	}
-
-	return genAccs, nil
-}
-
-// MainnetVestingAccounts returns the list of campaign mainnet vesting accounts for a launch from SPN
-func (n Network) MainnetVestingAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetVestingAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet vesting accounts"))
-	res, err := n.campaignQuery.
-		MainnetVestingAccountAll(ctx,
-			&campaigntypes.QueryAllMainnetVestingAccountRequest{
-				CampaignID: campaignID,
-			},
-		)
-	if err != nil {
-		return genAccs, err
-	}
-
-	for _, acc := range res.MainnetVestingAccount {
-		genAccs = append(genAccs, networktypes.ToMainnetVestingAccount(acc))
 	}
 
 	return genAccs, nil
