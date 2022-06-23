@@ -29,7 +29,7 @@ func TestProtoPackageName(t *testing.T) {
 			name:   "path with dash",
 			app:    "ignite/c-li",
 			module: "test",
-			want:   "ignitehq.cli.test",
+			want:   "ignite.cli.test",
 		},
 		{
 			name:   "path with number prefix",
@@ -41,7 +41,7 @@ func TestProtoPackageName(t *testing.T) {
 			name:   "path with number prefix and dash",
 			app:    "0ignite/cli",
 			module: "test",
-			want:   "_0ignitehq.cli.test",
+			want:   "_0ignite.cli.test",
 		},
 		{
 			name:   "module with dash",
