@@ -31,7 +31,7 @@ jobs:
         uses: ignite-hq/cli/actions/cli@develop
         if: ${{ steps.vars.outputs.should_release == 'true' }}
         with:
-          args: chain build --release --release.prefix ${{ steps.vars.outputs.tarball_prefix }} -t linux:amd64 -t darwin:amd64
+          args: chain build --release --release.prefix ${{ steps.vars.outputs.tarball_prefix }} -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
       - name: Delete the "latest" Release
         uses: dev-drprasad/delete-tag-and-release@v0.2.0

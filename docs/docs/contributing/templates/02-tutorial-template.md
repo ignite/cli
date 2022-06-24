@@ -12,7 +12,7 @@ We admire, respect, and rely on these resources:
 - Google developer documentation [style guide](https://developers.google.com/style)
 - Digital Ocean style guide [do.co/style](https://do.co/style)
 
-[Create an issue](https://github.com/ignite-hq/cli/issues/new/choose) to let us know if you have questions. 
+[Create an issue](https://github.com/ignite/cli/issues/new/choose) to let us know if you have questions. 
 
 -->
 
