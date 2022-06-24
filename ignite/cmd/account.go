@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 const (
@@ -60,7 +60,7 @@ func getKeyringBackend(cmd *cobra.Command) cosmosaccount.KeyringBackend {
 
 func flagSetAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, "cosmos", "Account address prefix")
+	fs.String(flagAddressPrefix, cosmosaccount.AccountPrefixCosmos, "Account address prefix")
 	return fs
 }
 

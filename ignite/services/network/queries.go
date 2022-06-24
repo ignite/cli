@@ -5,15 +5,16 @@ import (
 	"sort"
 	"sync"
 
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -21,7 +22,7 @@ var (
 	ErrObjectNotFound = errors.New("query object not found")
 )
 
-// ChainLaunch fetches the chain launch from Starport Network by launch id.
+// ChainLaunch fetches the chain launch from Network by launch id.
 func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.ChainLaunch, error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chain information"))
 
@@ -38,7 +39,7 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 	return networktypes.ToChainLaunch(res.Chain), nil
 }
 
-// ChainLaunchesWithReward fetches the chain launches with rewards from Starport Network
+// ChainLaunchesWithReward fetches the chain launches with rewards from Network
 func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -184,26 +185,6 @@ func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAcc
 	return genAccs, nil
 }
 
-// MainnetVestingAccounts returns the list of campaign mainnet vesting accounts for a launch from SPN
-func (n Network) MainnetVestingAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetVestingAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet vesting accounts"))
-	res, err := n.campaignQuery.
-		MainnetVestingAccountAll(ctx,
-			&campaigntypes.QueryAllMainnetVestingAccountRequest{
-				CampaignID: campaignID,
-			},
-		)
-	if err != nil {
-		return genAccs, err
-	}
-
-	for _, acc := range res.MainnetVestingAccount {
-		genAccs = append(genAccs, networktypes.ToMainnetVestingAccount(acc))
-	}
-
-	return genAccs, nil
-}
-
 // ChainReward fetches the chain reward from SPN by launch id
 func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.RewardPool, error) {
 	res, err := n.rewardQuery.
@@ -219,4 +200,56 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 		return rewardtypes.RewardPool{}, err
 	}
 	return res.RewardPool, nil
+}
+
+// stakingParams fetches the staking module params
+func (n Network) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
+	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
+	if err != nil {
+		return stakingtypes.Params{}, err
+	}
+	return res.Params, nil
+}
+
+// RewardsInfo Fetches the consensus state with the validator set,
+// the unbounding time, and the last block height from chain rewards.
+func (n Network) RewardsInfo(
+	ctx context.Context,
+	launchID uint64,
+	height int64,
+) (
+	rewardsInfo networktypes.Reward,
+	lastRewardHeight int64,
+	unboundingTime int64,
+	err error,
+) {
+	rewardsInfo, err = RewardsInfo(ctx, n.cosmos, height)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+
+	stakingParams, err := n.stakingParams(ctx)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	unboundingTime = int64(stakingParams.UnbondingTime.Seconds())
+
+	chainReward, err := n.ChainReward(ctx, launchID)
+	if err == ErrObjectNotFound {
+		return rewardsInfo, 1, unboundingTime, nil
+	} else if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	lastRewardHeight = chainReward.LastRewardHeight
+
+	return
+}
+
+// ChainID fetches the network chain id
+func (n Network) ChainID(ctx context.Context) (string, error) {
+	status, err := n.cosmos.Status(ctx)
+	if err != nil {
+		return "", err
+	}
+	return status.NodeInfo.Network, nil
 }

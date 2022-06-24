@@ -3,14 +3,15 @@ package ignitecmd
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -58,6 +59,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
+		NewNetworkClient(),
 	)
 
 	return c
@@ -81,6 +83,12 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 	return func(builder *NetworkBuilder) {
 		builder.ev = ev
 	}
+}
+
+func flagSetSPNAccountPrefixes() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	return fs
 }
 
 func newNetworkBuilder(cmd *cobra.Command, options ...NetworkBuilderOption) (NetworkBuilder, error) {

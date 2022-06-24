@@ -20,15 +20,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/availableport"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite-hq/cli/ignite/pkg/xexec"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/availableport"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
+	"github.com/ignite/cli/ignite/pkg/xexec"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 const (
@@ -220,7 +220,7 @@ func (e Env) Scaffold(name string, flags ...string) (appPath string) {
 
 	appDir := path.Base(name)
 
-	// Cleanup the home directory of the app
+	// Cleanup the home directory and cache of the app
 	e.t.Cleanup(func() {
 		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appDir)))
 	})

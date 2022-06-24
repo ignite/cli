@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 // NewRelayer returns a new relayer command.
@@ -15,8 +15,10 @@ func NewRelayer() *cobra.Command {
 		Short:   "Connect blockchains by using IBC protocol",
 	}
 
-	c.AddCommand(NewRelayerConfigure())
-	c.AddCommand(NewRelayerConnect())
+	c.AddCommand(
+		NewRelayerConfigure(),
+		NewRelayerConnect(),
+	)
 
 	return c
 }

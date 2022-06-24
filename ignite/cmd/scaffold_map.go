@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 const (
@@ -20,6 +20,7 @@ func NewScaffoldMap() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
 

@@ -6,13 +6,14 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/ibc"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/ibc"
 )
 
 const (
@@ -43,6 +44,7 @@ func OracleWithSigner(signer string) OracleOption {
 
 // AddOracle adds a new BandChain oracle envtest.
 func (s *Scaffolder) AddOracle(
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName string,
@@ -106,7 +108,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 func (s Scaffolder) installBandPacket() error {

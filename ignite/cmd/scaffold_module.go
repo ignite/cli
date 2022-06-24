@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/validation"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/services/scaffolder"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
 const (
@@ -35,6 +35,7 @@ func NewScaffoldModule() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
@@ -67,6 +68,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	params, err := cmd.Flags().GetStringSlice(flagParams)
+	if err != nil {
+		return err
+	}
+
+	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
 	}
@@ -114,7 +120,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.CreateModule(placeholder.New(), name, options...)
+	sm, err := sc.CreateModule(cacheStorage, placeholder.New(), name, options...)
 	s.Stop()
 	if err != nil {
 		var validationErr validation.Error
@@ -143,7 +149,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 // in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 // therefore we must warn the user to manually move the definition if it's the case
-// https://github.com/ignite-hq/cli/issues/818#issuecomment-865736052
+// https://github.com/ignite/cli/issues/818#issuecomment-865736052
 const govWarning = `⚠️ If your app has been scaffolded with Ignite CLI 0.16.x or below
 Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
 

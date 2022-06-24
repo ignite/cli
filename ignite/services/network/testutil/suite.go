@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 
-	"github.com/ignite-hq/cli/ignite/services/network/mocks"
+	"github.com/ignite/cli/ignite/services/network/mocks"
 )
 
 // Suite is a mocks container, used to write less code for tests setup
@@ -16,6 +16,7 @@ type Suite struct {
 	CampaignQueryMock *mocks.CampaignClient
 	ProfileQueryMock  *mocks.ProfileClient
 	RewardClient      *mocks.RewardClient
+	StakingClient     *mocks.StakingClient
 }
 
 // AssertAllMocks asserts all suite mocks expectations
@@ -26,6 +27,7 @@ func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.CosmosClientMock.AssertExpectations(t)
 	s.CampaignQueryMock.AssertExpectations(t)
 	s.RewardClient.AssertExpectations(t)
+	s.StakingClient.AssertExpectations(t)
 }
 
 // NewSuite creates new suite with mocks
@@ -39,5 +41,6 @@ func NewSuite() Suite {
 		CampaignQueryMock: new(mocks.CampaignClient),
 		ProfileQueryMock:  new(mocks.ProfileClient),
 		RewardClient:      new(mocks.RewardClient),
+		StakingClient:     new(mocks.StakingClient),
 	}
 }

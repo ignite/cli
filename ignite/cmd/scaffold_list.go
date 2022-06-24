@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 // NewScaffoldList returns a new command to scaffold a list.
@@ -16,6 +16,7 @@ func NewScaffoldList() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c

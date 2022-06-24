@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -13,9 +14,9 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 )
 
 // Start starts the blockchain.
@@ -236,6 +237,12 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 
 // Export exports the state of the chain into the specified file
 func (r Runner) Export(ctx context.Context, exportedFile string) error {
+	// Make sure the path exists
+	dir := filepath.Dir(exportedFile)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
 	stdout, stderr := &bytes.Buffer{}, &bytes.Buffer{}
 	if err := r.run(ctx, runOptions{stdout: stdout, stderr: stderr}, r.chainCmd.ExportCommand()); err != nil {
 		return err

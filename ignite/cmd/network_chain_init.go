@@ -5,14 +5,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 const (
@@ -34,6 +34,8 @@ func NewNetworkChainInit() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInitHandler,
 	}
+
+	flagSetClearCache(c)
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
 	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
@@ -87,6 +89,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	n, err := nb.Network()
 	if err != nil {
 		return err
@@ -102,7 +109,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Init(cmd.Context()); err != nil {
+	if err := c.Init(cmd.Context(), cacheStorage); err != nil {
 		return err
 	}
 

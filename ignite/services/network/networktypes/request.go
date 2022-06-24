@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/xtime"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 )
 
 type (
@@ -80,11 +81,11 @@ func VerifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator)
 	}
 
 	// Check validator address
-	if !info.PubKey.Equal(consPubKey) {
+	if !info.PubKey.Equals(ed25519.PubKey(consPubKey)) {
 		return fmt.Errorf(
 			"the consensus pub key %s doesn't match the one inside the gentx %s",
-			string(consPubKey),
-			string(info.PubKey),
+			ed25519.PubKey(consPubKey).String(),
+			info.PubKey.String(),
 		)
 	}
 

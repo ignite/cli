@@ -12,10 +12,10 @@ import (
 	"github.com/blang/semver"
 	"github.com/google/go-github/v37/github"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/pkg/xexec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/pkg/xexec"
 )
 
 const (
@@ -26,17 +26,17 @@ const (
 const prefix = "v"
 
 var (
-	// Version is the semantic version of Starport.
+	// Version is the semantic version of Ignite CLI.
 	Version = versionDev
 
-	// Date is the build date of Starport.
+	// Date is the build date of Ignite CLI.
 	Date = "-"
 
 	// Head is the HEAD of the current branch.
 	Head = "-"
 )
 
-// CheckNext checks whether there is a new version of Starport.
+// CheckNext checks whether there is a new version of Ignite CLI.
 func CheckNext(ctx context.Context) (isAvailable bool, version string, err error) {
 	if Version == versionDev || Version == versionNightly {
 		return false, "", nil
@@ -45,7 +45,7 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 	latest, _, err := github.
 		NewClient(nil).
 		Repositories.
-		GetLatestRelease(ctx, "ignite-hq", "cli")
+		GetLatestRelease(ctx, "ignite", "cli")
 
 	if err != nil {
 		return false, "", err

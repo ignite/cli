@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc/data"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/ignite/pkg/protoc/data"
 )
 
 // Option configures Generate configs.
@@ -23,6 +23,7 @@ type configs struct {
 	pluginPath             string
 	isGeneratedDepsEnabled bool
 	pluginOptions          []string
+	env                    []string
 }
 
 // Plugin configures a plugin for code generation.
@@ -38,6 +39,13 @@ func Plugin(path string, options ...string) Option {
 func GenerateDependencies() Option {
 	return func(c *configs) {
 		c.isGeneratedDepsEnabled = true
+	}
+}
+
+// Env assigns environment values during the code generation.
+func Env(v ...string) Option {
+	return func(c *configs) {
+		c.env = v
 	}
 }
 
@@ -119,10 +127,15 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		command = append(command, files...)
 		command = append(command, c.pluginOptions...)
 
-		if err := exec.Exec(ctx, command,
+		execOpts := []exec.Option{
 			exec.StepOption(step.Workdir(outDir)),
 			exec.IncludeStdLogsToError(),
-		); err != nil {
+		}
+		if c.env != nil {
+			execOpts = append(execOpts, exec.StepOption(step.Env(c.env...)))
+		}
+
+		if err := exec.Exec(ctx, command, execOpts...); err != nil {
 			return err
 		}
 	}

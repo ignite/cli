@@ -5,8 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 )
 
 var (
@@ -22,12 +23,16 @@ func newNetworkChainShowAccounts() *cobra.Command {
 		RunE:  networkChainShowAccountsHandler,
 	}
 
+	c.Flags().AddFlagSet(flagSetSPNAccountPrefixes())
+
 	return c
 }
 
 func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
+
+	addressPrefix := getAddressPrefix(cmd)
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {
@@ -53,12 +58,22 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 
 	genesisAccEntries := make([][]string, 0)
 	for _, acc := range genesisAccs {
-		genesisAccEntries = append(genesisAccEntries, []string{acc.Address, acc.Coins})
+		address, err := cosmosutil.ChangeAddressPrefix(acc.Address, addressPrefix)
+		if err != nil {
+			return err
+		}
+
+		genesisAccEntries = append(genesisAccEntries, []string{address, acc.Coins})
 	}
 	genesisVestingAccEntries := make([][]string, 0)
 	for _, acc := range vestingAccs {
+		address, err := cosmosutil.ChangeAddressPrefix(acc.Address, addressPrefix)
+		if err != nil {
+			return err
+		}
+
 		genesisVestingAccEntries = append(genesisVestingAccEntries, []string{
-			acc.Address,
+			address,
 			acc.TotalBalance,
 			acc.Vesting,
 			strconv.FormatInt(acc.EndTime, 10),

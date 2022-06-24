@@ -5,11 +5,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/relayer"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/relayer"
+	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
 )
 
 const (
@@ -31,6 +32,9 @@ const (
 	flagSourceAddressPrefix = "source-prefix"
 	flagTargetAddressPrefix = "target-prefix"
 	flagOrdered             = "ordered"
+	flagReset               = "reset"
+	flagSourceClientID      = "source-client-id"
+	flagTargetClientID      = "target-client-id"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -56,6 +60,7 @@ func NewRelayerConfigure() *cobra.Command {
 		Aliases: []string{"conf"},
 		RunE:    relayerConfigureHandler,
 	}
+
 	c.Flags().BoolP(flagAdvanced, "a", false, "Advanced configuration options for custom IBC modules")
 	c.Flags().String(flagSourceRPC, "", "RPC address of the source chain")
 	c.Flags().String(flagTargetRPC, "", "RPC address of the target chain")
@@ -74,6 +79,9 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceAccount, "", "Source Account")
 	c.Flags().String(flagTargetAccount, "", "Target Account")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
+	c.Flags().BoolP(flagReset, "r", false, "Reset the relayer config")
+	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
+	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
 	return c
@@ -295,8 +303,13 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
+	var (
+		sourceClientID, _ = cmd.Flags().GetString(flagSourceClientID)
+		targetClientID, _ = cmd.Flags().GetString(flagTargetClientID)
+		reset, _          = cmd.Flags().GetBool(flagReset)
 
-	var questions []cliquiz.Question
+		questions []cliquiz.Question
+	)
 
 	// get information from prompt if flag not provided
 	if sourceAccount == "" {
@@ -358,6 +371,12 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
+	if reset {
+		if err := relayerconfig.Delete(); err != nil {
+			return err
+		}
+	}
+
 	session.StartSpinner("Fetching chain info...")
 
 	session.Println()
@@ -375,6 +394,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		sourceGasPrice,
 		sourceGasLimit,
 		sourceAddressPrefix,
+		sourceClientID,
 	)
 	if err != nil {
 		return err
@@ -391,6 +411,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		targetGasPrice,
 		targetGasLimit,
 		targetAddressPrefix,
+		targetClientID,
 	)
 	if err != nil {
 		return err
@@ -414,7 +435,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	// create the connection configuration
-	id, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
+	id, err := sourceChain.Connect(targetChain, channelOptions...)
 	if err != nil {
 		return err
 	}
@@ -436,7 +457,8 @@ func initChain(
 	faucetAddr,
 	gasPrice string,
 	gasLimit int64,
-	addressPrefix string,
+	addressPrefix,
+	clientID string,
 ) (*relayer.Chain, error) {
 	defer session.StopSpinner()
 	session.StartSpinner("Initializing chain...")
@@ -449,6 +471,7 @@ func initChain(
 		relayer.WithGasPrice(gasPrice),
 		relayer.WithGasLimit(gasLimit),
 		relayer.WithAddressPrefix(addressPrefix),
+		relayer.WithClientID(clientID),
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)

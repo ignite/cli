@@ -3,6 +3,7 @@ package cosmosclient
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -26,13 +27,18 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	"github.com/tendermint/tendermint/libs/bytes"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 )
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
@@ -243,6 +249,65 @@ func (r Response) Decode(message proto.Message) error {
 		TypeUrl: resData.MsgType + "Response",
 		Value:   resData.Data,
 	}, message)
+}
+
+// ConsensusInfo is the validator consensus info
+type ConsensusInfo struct {
+	Timestamp          string                `json:"Timestamp"`
+	Root               string                `json:"Root"`
+	NextValidatorsHash string                `json:"NextValidatorsHash"`
+	ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
+}
+
+// ConsensusInfo returns the appropriate tendermint consensus state by given height
+// and the validator set for the next height
+func (c Client) ConsensusInfo(ctx context.Context, height int64) (ConsensusInfo, error) {
+	node, err := c.Context().GetNode()
+	if err != nil {
+		return ConsensusInfo{}, err
+	}
+
+	commit, err := node.Commit(ctx, &height)
+	if err != nil {
+		return ConsensusInfo{}, err
+	}
+
+	var (
+		page  = 1
+		count = 10_000
+	)
+	validators, err := node.Validators(ctx, &height, &page, &count)
+	if err != nil {
+		return ConsensusInfo{}, err
+	}
+
+	protoValset, err := tmtypes.NewValidatorSet(validators.Validators).ToProto()
+	if err != nil {
+		return ConsensusInfo{}, err
+	}
+
+	heightNext := height + 1
+	validatorsNext, err := node.Validators(ctx, &heightNext, &page, &count)
+	if err != nil {
+		return ConsensusInfo{}, err
+	}
+
+	var (
+		hash = tmtypes.NewValidatorSet(validatorsNext.Validators).Hash()
+		root = commitmenttypes.NewMerkleRoot(commit.AppHash)
+	)
+
+	return ConsensusInfo{
+		Timestamp:          commit.Time.Format(time.RFC3339Nano),
+		NextValidatorsHash: bytes.HexBytes(hash).String(),
+		Root:               base64.StdEncoding.EncodeToString(root.Hash),
+		ValidatorSet:       protoValset,
+	}, nil
+}
+
+// Status returns the node status
+func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
+	return c.RPC.Status(ctx)
 }
 
 // BroadcastTx creates and broadcasts a tx with given messages for account.

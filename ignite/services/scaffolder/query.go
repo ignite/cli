@@ -6,16 +6,18 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/query"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/query"
 )
 
 // AddQuery adds a new query to scaffolded app
 func (s Scaffolder) AddQuery(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName,
@@ -85,5 +87,5 @@ func (s Scaffolder) AddQuery(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }

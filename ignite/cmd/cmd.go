@@ -9,20 +9,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	"github.com/ignite-hq/cli/ignite/version"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/version"
 )
 
 const (
@@ -30,15 +31,15 @@ const (
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
+	flagClearCache    = "clear-cache"
 
 	checkVersionTimeout = time.Millisecond * 600
+	cacheFileName       = "ignite_cache.db"
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
-func New(ctx context.Context) *cobra.Command {
+func New() *cobra.Command {
 	cobra.EnableCommandSorting = false
-
-	checkNewVersion(ctx)
 
 	c := &cobra.Command{
 		Use:   "ignite",
@@ -53,6 +54,12 @@ ignite scaffold chain github.com/username/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Check for new versions only when shell completion scripts are not being
+			// generated to avoid invalid output to stdout when a new version is available
+			if cmd.Use != "completions" {
+				checkNewVersion(cmd.Context())
+			}
+
 			return goenv.ConfigurePath()
 		},
 	}
@@ -131,6 +138,15 @@ func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
 	return isEnabled
+}
+
+func flagSetClearCache(cmd *cobra.Command) {
+	cmd.PersistentFlags().Bool(flagClearCache, false, "Clear the build cache (advanced)")
+}
+
+func flagGetClearCache(cmd *cobra.Command) bool {
+	clearCache, _ := cmd.Flags().GetBool(flagClearCache)
+	return clearCache
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
@@ -264,4 +280,24 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 
 func printSection(session cliui.Session, title string) error {
 	return session.Printf("------\n%s\n------\n\n", title)
+}
+
+func newCache(cmd *cobra.Command) (cache.Storage, error) {
+	cacheRootDir, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	if err != nil {
+		return cache.Storage{}, err
+	}
+
+	if flagGetClearCache(cmd) {
+		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+	}
+
+	return storage, nil
 }

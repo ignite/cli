@@ -8,13 +8,13 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	"github.com/ignite-hq/cli/ignite/templates/typed"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
@@ -93,7 +93,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v2/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)

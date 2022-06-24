@@ -2,28 +2,29 @@ package network
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL  string
-	chainID     string
-	campaignID  uint64
-	noCheck     bool
-	metadata    string
-	totalSupply sdk.Coins
-	shares      campaigntypes.Shares
-	mainnet     bool
+	genesisURL       string
+	chainID          string
+	campaignID       uint64
+	noCheck          bool
+	metadata         string
+	totalSupply      sdk.Coins
+	sharePercentages SharePercents
+	mainnet          bool
 }
 
 // PublishOption configures chain creation.
@@ -71,10 +72,10 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 	}
 }
 
-// WithShares enables minting vouchers for shares.
-func WithShares(shares campaigntypes.Shares) PublishOption {
+// WithPercentageShares enables minting vouchers for shares.
+func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	return func(c *publishOptions) {
-		c.shares = shares
+		c.sharePercentages = sharePercentages
 	}
 }
 
@@ -86,7 +87,7 @@ func Mainnet() PublishOption {
 }
 
 // Publish submits Genesis to SPN to announce a new network.
-func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID, mainnetID uint64, err error) {
+func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID uint64, err error) {
 	o := publishOptions{}
 	for _, apply := range options {
 		apply(&o)
@@ -102,11 +103,11 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if o.genesisURL != "" {
 		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
 
@@ -119,7 +120,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if chainID == "" {
 		chainID, err = c.ChainID()
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
 
@@ -140,10 +141,10 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			"",
 		)
 		if _, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCoordinator); err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	} else if err != nil {
-		return 0, 0, 0, err
+		return 0, 0, err
 	}
 
 	if campaignID != 0 {
@@ -152,61 +153,114 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				CampaignID: o.campaignID,
 			})
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	} else {
 		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
 
-	msgCreateChain := launchtypes.NewMsgCreateChain(
-		n.account.Address(networktypes.SPN),
-		chainID,
-		c.SourceURL(),
-		c.SourceHash(),
-		o.genesisURL,
-		genesisHash,
-		true,
-		campaignID,
-		nil,
-	)
+	// mint vouchers
+	if !o.sharePercentages.Empty() {
+		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
+		if err != nil {
+			return 0, 0, err
+		}
 
-	msgs := []sdk.Msg{msgCreateChain}
-
-	if !o.shares.Empty() {
+		var coins []sdk.Coin
+		for _, percentage := range o.sharePercentages {
+			coin, err := percentage.Share(totalSharesResp.TotalShares)
+			if err != nil {
+				return 0, 0, err
+			}
+			coins = append(coins, coin)
+		}
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
 		// consider ways to refactor to accomplish a better API and efficiency.
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			n.account.Address(networktypes.SPN),
 			campaignID,
-			o.shares,
+			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
-		msgs = append(msgs, msgMintVouchers)
-	}
-
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msgs...)
-	if err != nil {
-		return 0, 0, 0, err
-	}
-
-	var createChainRes launchtypes.MsgCreateChainResponse
-	if err := res.Decode(&createChainRes); err != nil {
-		return 0, 0, 0, err
-	}
-
-	if err := c.CacheBinary(createChainRes.LaunchID); err != nil {
-		return 0, 0, 0, err
-
-	}
-
-	if o.mainnet {
-		mainnetID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		_, err = n.cosmos.BroadcastTx(n.account.Name, msgMintVouchers)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, err
 		}
 	}
-	return createChainRes.LaunchID, campaignID, mainnetID, nil
+
+	// depending on mainnet flag initialize mainnet or testnet
+	if o.mainnet {
+		launchID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		if err != nil {
+			return 0, 0, err
+		}
+	} else {
+		msgCreateChain := launchtypes.NewMsgCreateChain(
+			n.account.Address(networktypes.SPN),
+			chainID,
+			c.SourceURL(),
+			c.SourceHash(),
+			o.genesisURL,
+			genesisHash,
+			true,
+			campaignID,
+			nil,
+		)
+		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
+		if err != nil {
+			return 0, 0, err
+		}
+		var createChainRes launchtypes.MsgCreateChainResponse
+		if err := res.Decode(&createChainRes); err != nil {
+			return 0, 0, err
+		}
+		launchID = createChainRes.LaunchID
+	}
+	if err := c.CacheBinary(launchID); err != nil {
+		return 0, 0, err
+	}
+
+	return launchID, campaignID, nil
+}
+
+func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {
+	return n.sendAccountRequest(launchID, n.account.Address(networktypes.SPN), amount)
+}
+
+// SendAccountRequest creates an add AddAccount request message.
+func (n Network) sendAccountRequest(
+	launchID uint64,
+	address string,
+	amount sdk.Coins,
+) error {
+	msg := launchtypes.NewMsgRequestAddAccount(
+		n.account.Address(networktypes.SPN),
+		launchID,
+		address,
+		amount,
+	)
+
+	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgRequestAddAccountResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+	} else {
+		n.ev.Send(events.New(events.StatusDone,
+			fmt.Sprintf("Request %d to add account to the network has been submitted!",
+				requestRes.RequestID),
+		))
+	}
+	return nil
 }

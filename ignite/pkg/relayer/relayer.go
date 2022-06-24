@@ -11,12 +11,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/ctxticker"
-	tsrelayer "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-relayer"
-	relayerconf "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/ctxticker"
+	tsrelayer "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-relayer"
+	relayerconf "github.com/ignite/cli/ignite/pkg/relayer/config"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 const (
@@ -31,11 +31,9 @@ type Relayer struct {
 
 // New creates a new IBC relayer and uses ca to access accounts.
 func New(ca cosmosaccount.Registry) Relayer {
-	r := Relayer{
+	return Relayer{
 		ca: ca,
 	}
-
-	return r
 }
 
 // Link links all chains that has a path to each other.
@@ -119,7 +117,7 @@ func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
 }
 
 func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayerconf.Path, action string) (
-	relayerconf.Path, error) {
+	reply relayerconf.Path, err error) {
 	srcChain, srcKey, err := r.prepare(ctx, conf, path.Src.ChainID)
 	if err != nil {
 		return relayerconf.Path{}, err
@@ -130,17 +128,14 @@ func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayer
 		return relayerconf.Path{}, err
 	}
 
-	var reply relayerconf.Path
-
-	err = tsrelayer.Call(ctx, action, []interface{}{
+	args := []interface{}{
 		path,
 		srcChain,
 		dstChain,
 		srcKey,
 		dstKey,
-	}, &reply)
-
-	return reply, err
+	}
+	return reply, tsrelayer.Call(ctx, action, args, &reply)
 }
 
 func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID string) (

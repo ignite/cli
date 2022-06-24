@@ -10,13 +10,15 @@ import (
 	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/sta"
-	tsproto "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-proto"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
+	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 var (
@@ -29,7 +31,10 @@ var (
 	}
 )
 
-const vuexRootMarker = "vuex-root"
+const (
+	vuexRootMarker          = "vuex-root"
+	dirchangeCacheNamespace = "generate.javascript.dirchange"
+)
 
 type jsGenerator struct {
 	g *generator
@@ -60,10 +65,28 @@ func (g *jsGenerator) generateModules() error {
 
 	gg := &errgroup.Group{}
 
+	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
 	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
 			m := m
-			gg.Go(func() error { return g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m) })
+			gg.Go(func() error {
+				cacheKey := m.Pkg.Path
+				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
+				changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
+				if err != nil {
+					return err
+				}
+
+				if !changed {
+					return nil
+				}
+
+				if err := g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m); err != nil {
+					return err
+				}
+
+				return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
+			})
 		}
 	}
 
@@ -103,6 +126,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		includePaths,
 		tsOut,
 		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
+		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
 	)
 	if err != nil {
 		return err

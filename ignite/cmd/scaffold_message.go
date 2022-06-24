@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 const flagSigner = "signer"
@@ -22,6 +22,7 @@ func NewScaffoldMessage() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
@@ -43,6 +44,11 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	var options []scaffolder.MessageOption
 
@@ -66,7 +72,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddMessage(cmd.Context(), placeholder.New(), module, args[0], args[1:], resFields, options...)
+	sm, err := sc.AddMessage(cmd.Context(), cacheStorage, placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
 	}

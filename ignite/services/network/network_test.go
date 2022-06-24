@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/services/network/testutil"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/services/network/testutil"
 )
 
 func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
@@ -19,6 +19,7 @@ func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
 		WithLaunchQueryClient(suite.LaunchQueryMock),
 		WithProfileQueryClient(suite.ProfileQueryMock),
 		WithRewardQueryClient(suite.RewardClient),
+		WithStakingQueryClient(suite.StakingClient),
 	)
 }
 
@@ -62,4 +63,10 @@ func TestParseID(t *testing.T) {
 			require.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func SampleSharePercent(t *testing.T, denom string, nominator, denominator uint64) SharePercent {
+	sp, err := NewSharePercent(denom, nominator, denominator)
+	require.NoError(t, err)
+	return sp
 }

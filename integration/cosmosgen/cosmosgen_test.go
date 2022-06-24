@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/integration"
 )
 
 func TestCosmosGen(t *testing.T) {
@@ -116,6 +116,7 @@ func TestCosmosGen(t *testing.T) {
 
 	var expectedCosmosModules = []string{
 		"cosmos.auth.v1beta1",
+		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
 		"cosmos.base.tendermint.v1beta1",
 		"cosmos.crisis.v1beta1",

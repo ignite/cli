@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 const (
@@ -26,6 +26,7 @@ func NewScaffoldPacket() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetClearCache(c)
 	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
@@ -63,6 +64,11 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	var options []scaffolder.PacketOption
 	if noMessage {
 		options = append(options, scaffolder.PacketWithoutMessage())
@@ -75,7 +81,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, options...)
+	sm, err := sc.AddPacket(cmd.Context(), cacheStorage, placeholder.New(), module, packet, packetFields, ackFields, options...)
 	if err != nil {
 		return err
 	}

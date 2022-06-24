@@ -5,12 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 // NewNetworkChainInstall returns a new command to install a chain's binary by the launch id.
@@ -21,6 +21,8 @@ func NewNetworkChainInstall() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInstallHandler,
 	}
+
+	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	return c
 }
@@ -28,6 +30,11 @@ func NewNetworkChainInstall() *cobra.Command {
 func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -55,7 +62,7 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	binaryName, err := c.Build(cmd.Context())
+	binaryName, err := c.Build(cmd.Context(), cacheStorage)
 	if err != nil {
 		return err
 	}
