@@ -3,7 +3,7 @@ package testutil
 import (
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient/mocks"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient/mocks"
 	"github.com/stretchr/testify/mock"
 )
 

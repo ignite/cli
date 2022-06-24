@@ -6,7 +6,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

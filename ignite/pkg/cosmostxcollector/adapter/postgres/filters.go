@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/adapter"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 )
 
 const (

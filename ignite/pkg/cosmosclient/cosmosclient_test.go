@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient/testutil"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient/testutil"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"

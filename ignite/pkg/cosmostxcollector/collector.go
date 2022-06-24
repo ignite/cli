@@ -3,8 +3,8 @@ package cosmostxcollector
 import (
 	"context"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/adapter"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter"
 	"golang.org/x/sync/errgroup"
 )
 

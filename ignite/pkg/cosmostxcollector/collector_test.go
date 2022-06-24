@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmostxcollector/mocks"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	cosmosclient "github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	cosmosclient "github.com/ignite/cli/ignite/pkg/cosmosclient"
 	mock "github.com/stretchr/testify/mock"
 
 	testing "testing"
