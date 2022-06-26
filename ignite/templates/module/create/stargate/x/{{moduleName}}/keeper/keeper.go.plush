@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	<%= if (isIBC) { %>"github.com/ignite-hq/cli/ignite/pkg/cosmosibckeeper"<% } %>
+	<%= if (isIBC) { %>"github.com/ignite/cli/ignite/pkg/cosmosibckeeper"<% } %>
 )
 
 type (

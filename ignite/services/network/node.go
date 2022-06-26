@@ -7,7 +7,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
 
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // Node is node builder.
