@@ -10,7 +10,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 func TestVerifyAddValidatorRequest(t *testing.T) {

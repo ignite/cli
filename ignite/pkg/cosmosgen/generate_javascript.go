@@ -10,15 +10,15 @@ import (
 	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/sta"
-	tsproto "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-proto"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
+	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 var (
