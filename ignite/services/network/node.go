@@ -25,6 +25,9 @@ func NewNodeClient(cosmos CosmosClient) (Node, error) {
 
 // RewardsInfo Fetches the consensus state with the validator set
 func RewardsInfo(ctx context.Context, client CosmosClient, height int64) (networktypes.Reward, error) {
+	if height == 0 {
+		return networktypes.Reward{RevisionHeight: 1}, nil
+	}
 	consensusState, err := client.ConsensusInfo(ctx, height)
 	if err != nil {
 		return networktypes.Reward{}, err
