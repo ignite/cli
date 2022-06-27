@@ -9,9 +9,9 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/chainconfig"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/confile"
 )
 
 const (

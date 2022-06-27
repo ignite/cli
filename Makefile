@@ -5,8 +5,8 @@ PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go'
 HEAD = $(shell git rev-parse HEAD)
-LD_FLAGS = -X github.com/ignite-hq/cli/ignite/version.Head='$(HEAD)' \
-	-X github.com/ignite-hq/cli/ignite/version.Date='$(DATE)'
+LD_FLAGS = -X github.com/ignite/cli/ignite/version.Head='$(HEAD)' \
+	-X github.com/ignite/cli/ignite/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
 
@@ -37,7 +37,7 @@ govet:
 format:
 	@echo Formatting...
 	@find . $(FIND_ARGS) | xargs gofmt -d -s
-	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/ignite-hq/cli
+	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/ignite/cli
 
 ## lint: Run Golang CI Lint.
 lint:

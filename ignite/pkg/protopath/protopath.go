@@ -7,9 +7,9 @@ import (
 
 	"golang.org/x/mod/module"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 var (

@@ -5,7 +5,7 @@ description: Steps to install Ignite CLI on your local computer.
 
 # Install Ignite CLI 
 
-You can run [Ignite CLI](https://github.com/ignite-hq/cli) in a web-based Gitpod IDE or you can install Ignite CLI on your local computer.
+You can run [Ignite CLI](https://github.com/ignite/cli) in a web-based Gitpod IDE or you can install Ignite CLI on your local computer.
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ curl https://get.ignite.com/cli! | bash
 
 This command invokes `curl` to download the install script and pipes the output to `bash` to perform the installation. The `ignite` binary is installed in `/usr/local/bin`.
 
-To learn more or customize the installation process, see the [installer docs](https://github.com/ignite-hq/installer) on GitHub.
+To learn more or customize the installation process, see the [installer docs](https://github.com/ignite/installer) on GitHub.
 
 ### Write permission
 
@@ -87,14 +87,14 @@ To remove the current Ignite CLI installation:
 
 After all existing Ignite CLI installations are removed, follow the  [Installing Ignite CLI](#installing-ignite-cli) instructions.
 
-For details on version features and changes, see the [changelog.md](https://github.com/ignite-hq/cli/blob/develop/changelog.md) in the repo.
+For details on version features and changes, see the [changelog.md](https://github.com/ignite/cli/blob/develop/changelog.md) in the repo.
 
 ## Build from source
 
 To experiment with the source code, you can build from source:
 
 ```bash
-git clone https://github.com/ignite-hq/cli --depth=1
+git clone https://github.com/ignite/cli --depth=1
 cd cli && make install
 ```
 

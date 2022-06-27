@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 )
 
 var (
