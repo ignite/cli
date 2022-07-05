@@ -31,18 +31,28 @@ docker run -ti ignitehq/cli chain serve
 
 When Docker is installed, you can build a blockchain with a single command.
 
+Ignite CLI, and the chains you serve with Ignite CLI, persist some files.
+When using the CLI binary directly, those files are located in `$HOME/.ignite`
+and `$HOME/.cache`, but in the context of docker it's better to use an other
+directory than `$HOME`, so we use `$HOME/sdh`. This folder should be created
+manually prior to the docker commands below, or else docker creates it with the
+root user.
+
+```bash
+mkdir $HOME/sdh
+```
+
 To scaffold a blockchain `planet` in the `/apps` directory in the container, run this command in a terminal window:
 
 ```bash
-docker run -ti -w /app -v $HOME/sdh:/home/tendermint -v $PWD:/app ignitehq/cli:0.16.0 app github.com/hello/planet
+docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps ignitehq/cli:0.16.0 scaffold chain github.com/hello/planet
 ```
 
 Be patient, this command takes a minute or two to run because it does everything for you:
 
 - Creates a container that runs from the `ignitehq/cli:0.16.0` image.
 - Executes the Ignite CLI binary inside the image.
-- `-w /apps` sets the current directory in the container to `/app`
-- `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. Ignite CLI, and the chains you serve with Ignite CLI, persist some files.
+- `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. 
 - `-v $PWD:/app` maps the current directory in the terminal window on the host machine to the `/app` directory in the container. You can optionally specify an absolute path instead of `$PWD`.
 
     Using `-w` and `-v` together provides file persistence on the host machine. The application source code on the Docker container is mirrored to the file system of the host machine.
@@ -54,7 +64,7 @@ Be patient, this command takes a minute or two to run because it does everything
 To start the blockchain node in the Docker container you just created, run this command:
 
 ```bash
-docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 ignitehq/cli:0.16.0 serve -p planet
+docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 ignitehq/cli:0.16.0 chain serve -p planet
 ```
 
 This command does the following:
@@ -80,7 +90,7 @@ For example, if latest release is [v0.15.1](https://github.com/ignite/cli/releas
 
 ### Specific version
 
-You can specify to use a specific version of Ignite CLI. All available tags are in the [ignitehq/cli image](https://hub.docker.com/repository/docker/ignite/cli/tags?page=1&ordering=last_updated) on Docker Hub.
+You can specify to use a specific version of Ignite CLI. All available tags are in the [ignitehq/cli image](https://hub.docker.com/r/ignitehq/cli/tags?page=1&ordering=last_updated) on Docker Hub.
 
 For example:
 
