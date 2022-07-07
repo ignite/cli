@@ -1,3 +1,4 @@
+
 image:
   file: .gitpod.Dockerfile
 
@@ -51,3 +52,8 @@ ports:
   - port: 7575
     visibility: public
   - port: 4500
+
+vscode:
+  extensions:
+    - denoland.vscode-deno
+    - redhat.vscode-debug-adapter-apache-camel
