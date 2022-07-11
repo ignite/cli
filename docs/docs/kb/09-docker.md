@@ -33,9 +33,8 @@ When Docker is installed, you can build a blockchain with a single command.
 
 Ignite CLI, and the chains you serve with Ignite CLI, persist some files.
 When using the CLI binary directly, those files are located in `$HOME/.ignite`
-and `$HOME/.cache`, but in the context of docker it's better to use an other
-directory than `$HOME`, so we use `$HOME/sdh`. This folder should be created
-manually prior to the docker commands below, or else docker creates it with the
+and `$HOME/.cache`, but in the context of Docker it's better to use a directory different than `$HOME`, so we use `$HOME/sdh`. This folder should be created
+manually prior to the docker commands below, or else Docker creates it with the
 root user.
 
 ```bash
