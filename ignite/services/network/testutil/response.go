@@ -10,7 +10,7 @@ import (
 	prototypes "github.com/gogo/protobuf/types"
 	"google.golang.org/protobuf/runtime/protoiface"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 )
 
 // NewResponse creates cosmosclient.Response object from proto struct
