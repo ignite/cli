@@ -52,7 +52,7 @@ Be patient, this command takes a minute or two to run because it does everything
 - Creates a container that runs from the `ignitehq/cli:0.16.0` image.
 - Executes the Ignite CLI binary inside the image.
 - `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. 
-- `-v $PWD:/app` maps the current directory in the terminal window on the host machine to the `/app` directory in the container. You can optionally specify an absolute path instead of `$PWD`.
+- `-v $PWD:/apps` maps the current directory in the terminal window on the host machine to the `/apps` directory in the container. You can optionally specify an absolute path instead of `$PWD`.
 
     Using `-w` and `-v` together provides file persistence on the host machine. The application source code on the Docker container is mirrored to the file system of the host machine.
 
