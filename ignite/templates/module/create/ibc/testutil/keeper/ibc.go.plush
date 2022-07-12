@@ -1,0 +1,154 @@
+package keeper
+
+import (
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
+	tmdb "github.com/tendermint/tm-db"
+)
+
+// ProtocolVersionSetter mock
+type ProtocolVersionSetter struct{}
+
+func (vs ProtocolVersionSetter) SetProtocolVersion(uint64) {}
+
+var moduleAccountPerms = map[string][]string{
+	authtypes.FeeCollectorName:     nil,
+	distrtypes.ModuleName:          nil,
+	minttypes.ModuleName:           {authtypes.Minter},
+	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+}
+
+// ModuleAccountAddrs returns all the app's module account addresses.
+func ModuleAccountAddrs(maccPerms map[string][]string) map[string]bool {
+	modAccAddrs := make(map[string]bool)
+	for acc := range maccPerms {
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+	}
+
+	return modAccAddrs
+}
+
+func Upgrade(
+	db *tmdb.MemDB,
+	store store.CommitMultiStore,
+	cdc codec.BinaryCodec,
+) upgradekeeper.Keeper {
+	storeKey := sdk.NewKVStoreKey(upgradetypes.StoreKey)
+	store.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+
+	skipUpgradeHeights := make(map[int64]bool)
+	vs := ProtocolVersionSetter{}
+
+	return upgradekeeper.NewKeeper(skipUpgradeHeights, storeKey, cdc, "", vs)
+}
+
+func Params(
+	db *tmdb.MemDB,
+	store store.CommitMultiStore,
+	cdc codec.BinaryCodec,
+	legacyAmino *codec.LegacyAmino,
+) paramskeeper.Keeper {
+	storeKey := sdk.NewKVStoreKey(paramstypes.StoreKey)
+	tkeys := sdk.NewTransientStoreKey(paramstypes.TStoreKey)
+
+	store.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+	store.MountStoreWithDB(tkeys, sdk.StoreTypeTransient, db)
+	return paramskeeper.NewKeeper(cdc, legacyAmino, storeKey, tkeys)
+}
+
+func Auth(
+	db *tmdb.MemDB,
+	store store.CommitMultiStore,
+	cdc codec.BinaryCodec,
+	paramKeeper paramskeeper.Keeper,
+) authkeeper.AccountKeeper {
+	storeKey := sdk.NewKVStoreKey(authtypes.StoreKey)
+	store.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+
+	paramKeeper.Subspace(authtypes.ModuleName)
+	authSubspace, _ := paramKeeper.GetSubspace(authtypes.ModuleName)
+
+	return authkeeper.NewAccountKeeper(cdc, storeKey, authSubspace, authtypes.ProtoBaseAccount, moduleAccountPerms)
+}
+
+func Bank(
+	db *tmdb.MemDB,
+	store store.CommitMultiStore,
+	cdc codec.BinaryCodec,
+	paramKeeper paramskeeper.Keeper,
+	authKeeper authkeeper.AccountKeeper,
+) bankkeeper.Keeper {
+	storeKey := sdk.NewKVStoreKey(banktypes.StoreKey)
+	store.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+
+	paramKeeper.Subspace(banktypes.ModuleName)
+	bankSubspace, _ := paramKeeper.GetSubspace(banktypes.ModuleName)
+
+	modAccAddrs := ModuleAccountAddrs(moduleAccountPerms)
+
+	return bankkeeper.NewBaseKeeper(cdc, storeKey, authKeeper, bankSubspace, modAccAddrs)
+}
+
+func Staking(
+	db *tmdb.MemDB,
+	store store.CommitMultiStore,
+	cdc codec.BinaryCodec,
+	authKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper,
+	paramKeeper paramskeeper.Keeper,
+) stakingkeeper.Keeper {
+	storeKey := sdk.NewKVStoreKey(stakingtypes.StoreKey)
+	store.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+
+	paramKeeper.Subspace(stakingtypes.ModuleName)
+	stakingSubspace, _ := paramKeeper.GetSubspace(stakingtypes.ModuleName)
+
+	return stakingkeeper.NewKeeper(cdc, storeKey, authKeeper, bankKeeper, stakingSubspace)
+}
+
+func IBC(
+	db *tmdb.MemDB,
+	store store.CommitMultiStore,
+	cdc codec.BinaryCodec,
+	legacyAmino *codec.LegacyAmino,
+	capabilityKeeper capabilitykeeper.Keeper,
+) *ibckeeper.Keeper {
+	var (
+		upgradeKeeper = Upgrade(db, store, cdc)
+		paramKeeper   = Params(db, store, cdc, legacyAmino)
+		authKeeper    = Auth(db, store, cdc, paramKeeper)
+		bankKeeper    = Bank(db, store, cdc, paramKeeper, authKeeper)
+		stakingKeeper = Staking(db, store, cdc, authKeeper, bankKeeper, paramKeeper)
+	)
+
+	storeKey := sdk.NewKVStoreKey(ibchost.StoreKey)
+	store.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+
+	return ibckeeper.NewKeeper(
+		cdc,
+		storeKey,
+		paramKeeper.Subspace(ibchost.ModuleName),
+		stakingKeeper,
+		upgradeKeeper,
+		capabilityKeeper.ScopeToModule(ibchost.ModuleName),
+	)
+}
