@@ -25,7 +25,7 @@ func CheckKeeper(path, keeperName string) error {
 		return err
 	}
 	if len(appImpl) != 1 {
-		return errors.New("app.go should contain a single app")
+		return fmt.Errorf("app.go should contain a single app (got %d)", len(appImpl))
 	}
 	appTypeName := appImpl[0]
 
