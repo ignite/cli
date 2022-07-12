@@ -415,6 +415,12 @@ In the `x/blog/module.go` file:
 
 Now that you have implemented logic for creating and querying posts, you can interact with your blog chain using the command line. The blog chain binary is `blogd`.
 
+First, start the chain on your development machine by running the following command in the `blog` directory:
+
+```bash
+ignite chain serve
+```
+
 To create a post at the command line:
 
 ```bash
