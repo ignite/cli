@@ -1,5 +1,19 @@
 # Changelog
 
+## [`v0.22.3`](https://github.com/ignite/cli/releases/tag/v0.22.3)
+
+### Features
+
+- Apps can now use generics
+
+### Fixes
+
+- Fix `pkg/cosmosanalysis` to support apps with generics
+
+### Changes
+
+- Improve docs for Docker related commands
+
 ## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
 
 ### Features 
