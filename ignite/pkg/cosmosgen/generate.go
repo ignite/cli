@@ -10,11 +10,19 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
 	defaultSDKImport     = "github.com/cosmos/cosmos-sdk"
 	moduleCacheNamespace = "generate.setup.module"
+)
+
+var (
+	protocGlobalInclude = xfilepath.List(
+		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
+		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
+	)
 )
 
 type ModulesInPath struct {
@@ -111,7 +119,13 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
-func (g *generator) resolveDepencyInclude() (paths []string, err error) {
+func (g *generator) resolveDepencyInclude() ([]string, error) {
+	// Init paths with the global include paths for protoc
+	paths, err := protocGlobalInclude()
+	if err != nil {
+		return nil, err
+	}
+
 	// Relative paths to proto directories
 	protoDirs := append([]string{g.protoDir}, g.o.includeDirs...)
 
