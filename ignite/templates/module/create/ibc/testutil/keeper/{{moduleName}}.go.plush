@@ -5,18 +5,47 @@ import (
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	ibcexported "github.com/cosmos/ibc-go/v3/modules/core/exported"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 )
+
+// <%= moduleName %>ChannelKeeper is a stub of cosmosibckeeper.ChannelKeeper.
+type <%= moduleName %>ChannelKeeper struct{}
+
+func (<%= moduleName %>ChannelKeeper) GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool) {
+	return channeltypes.Channel{}, false
+}
+func (<%= moduleName %>ChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool) {
+	return 0, false
+}
+func (<%= moduleName %>ChannelKeeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet ibcexported.PacketI) error {
+	return nil
+}
+func (<%= moduleName %>ChannelKeeper) ChanCloseInit(ctx sdk.Context, portID, channelID string, chanCap *capabilitytypes.Capability) error {
+	return nil
+}
+
+// <%= moduleName %>portKeeper is a stub of cosmosibckeeper.PortKeeper
+type <%= moduleName %>PortKeeper struct{}
+
+func (<%= moduleName %>PortKeeper) BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability {
+	return &capabilitytypes.Capability{}
+}
+
+
 
 func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 	logger := log.NewNopLogger()
@@ -34,8 +63,6 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	appCodec := codec.NewProtoCodec(registry)
 	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
 
-	IBCKeeper := IBC(db, stateStore, appCodec, types.Amino, *capabilityKeeper)
-
 	paramsSubspace := typesparams.NewSubspace(appCodec,
 		types.Amino,
 		storeKey,
@@ -47,8 +74,8 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
         storeKey,
         memStoreKey,
         paramsSubspace,
-		IBCKeeper.ChannelKeeper,
-		&IBCKeeper.PortKeeper,
+        <%= moduleName %>ChannelKeeper{},
+        <%= moduleName %>PortKeeper{},
         capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )
