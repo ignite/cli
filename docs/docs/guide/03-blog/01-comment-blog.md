@@ -359,7 +359,7 @@ package keeper
  func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	comment, exist := k.GetComment(ctx, msg.Id)
+	comment, exist := k.GetComment(ctx, msg.CommentID)
 	if !exist {
 		return nil, sdkerrors.Wrapf(types.ErrID, "Comment doesnt exist")
 	}
