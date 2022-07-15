@@ -152,7 +152,7 @@ Start with the proto file that defines the structure of the IBC packet.
 To identify the creator of the post in the receiving blockchain, add the `creator` field inside the packet. This field was not specified directly in the command because it would automatically become a parameter in the `SendIbcPost` CLI command.
 
 ```proto
-// planet/proto/blog/packet.proto
+// proto/blog/packet.proto
 message IbcPostPacketData {
     string title = 1;
     string content = 2;
@@ -167,11 +167,13 @@ To make sure the receiving chain has content on the creator of a blog post, add 
 
 ```go
 // x/blog/keeper/msg_server_ibc_post.go
-// Construct the packet
+
+    // Construct the packet
     var packet types.IbcPostPacketData
     packet.Title = msg.Title
     packet.Content = msg.Content
     packet.Creator = msg.Creator // < ---
+
     // Transmit the packet
     err := k.TransmitIbcPostPacket(
         ctx,
@@ -185,7 +187,7 @@ To make sure the receiving chain has content on the creator of a blog post, add 
 
 ### Receive the post
 
-The methods for primary transaction logic are in the `planet/x/blog/keeper/ibc_post.go` file. Use these methods to manage IBC packets:
+The methods for primary transaction logic are in the `x/blog/keeper/ibc_post.go` file. Use these methods to manage IBC packets:
 
 - `TransmitIbcPostPacket` is called manually to send the packet over IBC. This method also defines the logic before the packet is sent over IBC to another blockchain app.
 - `OnRecvIbcPostPacket` hook is automatically called when a packet is received on the chain. This method defines the packet reception logic.
