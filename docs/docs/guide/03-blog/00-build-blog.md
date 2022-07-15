@@ -22,10 +22,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.20.0 use the following command:
+This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.22.2 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.22.1! | bash
+curl https://get.ignite.com/cli@v0.22.2! | bash
 ```
 
 ## Create your blog chain
@@ -162,7 +162,9 @@ Create the `proto/blog/post.proto` file and define the `Post` message:
 
 ```go
 syntax = "proto3";
+
 package blog.blog;
+
 option go_package = "blog/x/blog/types";
 
 message Post {
@@ -175,8 +177,8 @@ message Post {
 
 The contents of the `post.proto` file are standard. The file defines:
 
-- A package name `username.blog.blog` that is used to identify messages
-- The Go package `go_package = "github.com/username/blog/x/blog/types"` where new files are generated 
+- A package name `blog.blog` that is used to identify messages
+- The Go package `go_package = "blog/x/blog/types"` where new files are generated 
 - The message `message Post`
 
 Continue developing your blog chain.
@@ -196,7 +198,8 @@ Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and a
 ```go
 const (
   //...
-	// Keep track of the index of posts  
+
+  // Keep track of the index of posts  
   PostKey      = "Post-value-"
   PostCountKey = "Post-count-"
 )
@@ -264,7 +267,9 @@ package keeper
 
 import (
   "encoding/binary"
+
   "blog/x/blog/types"
+
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -315,31 +320,31 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-    ```go
-    import "blog/post.proto";
-    ```
+```go
+import "blog/post.proto";
+```
 
 2. Add pagination to the post request:
 
-    ```go
-    message QueryPostsRequest {
-      // Adding pagination to request
-      cosmos.base.query.v1beta1.PageRequest pagination = 1;
-    }
-    ```
+```go
+message QueryPostsRequest {
+  // Adding pagination to request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+```
 
 3. Add pagination to the post response:
 
-    ```go
-    message QueryPostsResponse {
-      // Returning a list of posts
-      repeated Post Post = 1;
-      // Adding pagination to response
-      cosmos.base.query.v1beta1.PageResponse pagination = 2;
-    }
-    ```
+```go
+message QueryPostsResponse {
+  // Returning a list of posts
+  repeated Post Post = 1;
+  // Adding pagination to response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+```
 
-To implement post querying logic in the `grpc_query_posts.go` file, delete the contents of that file and replace it with:
+To implement post querying logic in the `x/blog/keeper/grpc_query_posts.go` file, delete the contents of that file and replace it with:
 
 ```go
 package keeper
@@ -393,21 +398,22 @@ In the `x/blog/module.go` file:
 
 1. Add `"context"` to the imports, don't save the file yet.
 
-    ```go
-    import (
-	    "context"
-	// ... other imports
-    )
-    ```
+```go
+import (
+	"context"
+
+  // ... other imports
+)
+```
 
 2. Update the `RegisterGRPCGatewayRoutes` function to register the query handler client:
 
-    ```go
-    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-    }
-    ```
+```go
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+```
 
 3. Now that you've modified the file with the two updates, now it's safe to save the file. 
 
@@ -419,6 +425,12 @@ First, start the chain on your development machine by running the following comm
 
 ```bash
 ignite chain serve
+```
+
+The binary is built by the `ignite chain serve` command bit it can also be built by running:
+
+```bash
+ignite chain build
 ```
 
 To create a post at the command line:
