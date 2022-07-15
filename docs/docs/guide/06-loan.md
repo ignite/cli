@@ -238,34 +238,35 @@ When a loan is created, a certain message input validation is required. You want
 
 You can describe message validation errors in the modules `types` directory.
 
-Add the following code to the `ValidateBasic()` function in the `/x/loan/types/message_request_loan.go` file:
+Add the following code to the `ValidateBasic()` function in the `x/loan/types/message_request_loan.go` file:
 
 ```go
 func (msg *MsgRequestLoan) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Creator)
-
-	amount, err := sdk.ParseCoinsNormalized(msg.Amount)
-	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
-	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
-
-	if err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
+
+	amount, _ := sdk.ParseCoinsNormalized(msg.Amount)
 	if !amount.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is not a valid Coins object")
 	}
 	if amount.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
 	}
+
+	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
 	if !fee.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
 	}
+
+	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
 	if !collateral.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
 	}
 	if collateral.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is empty")
 	}
+
 	return nil
 }
 ```
@@ -525,7 +526,7 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 	fee, _ := sdk.ParseCoinsNormalized(loan.Fee)
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
 
-	err = k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
+	err := k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrWrongLoanState, "Cannot send coins")
 	}
