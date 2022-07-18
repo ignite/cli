@@ -22,7 +22,7 @@ Messages must satisfy the following interface:
 ```go
 // Transactions messages must fulfill the Msg
 type Msg interface {
-  proto.Message
+	proto.Message
 
 	// ValidateBasic does a simple validation check that
 	// doesn't require access to any other information.
@@ -87,15 +87,19 @@ where:
 - name defines the name that the user can buy, sell, and delete
 - bid is the price the user bids to buy a name
 
-The `ignite scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
+The `ignite scaffold message buy-name name bid` command creates and modifies several files:
 
-- modify `proto/nameservice/tx.proto`
-- modify `x/nameservice/client/cli/tx.go`
-- create `x/nameservice/client/cli/tx_buy_name.go`
-- modify `x/nameservice/handler.go`
-- create `x/nameservice/keeper/msg_server_buy_name.go`
-- modify `x/nameservice/types/codec.go`
-- create `x/nameservice/types/message_buy_name.go`
+```bash
+modify proto/nameservice/tx.proto
+modify x/nameservice/client/cli/tx.go
+create x/nameservice/client/cli/tx_buy_name.go
+modify x/nameservice/handler.go
+create x/nameservice/keeper/msg_server_buy_name.go
+modify x/nameservice/types/codec.go
+create x/nameservice/types/message_buy_name.go
+```
+
+These are the changes for each one of these files:
 
 - `proto/nameservice/tx.proto`
     - Adds `MsgBuyName` and `MsgBuyNameResponse` proto messages.
@@ -113,15 +117,15 @@ The `ignite scaffold message buy-name name bid` command creates and modifies sev
 
     // Msg defines the Msg service.
     service Msg {
-    	// this line is used by starport scaffolding # proto/tx/rpc
-    rpc BuyName(MsgBuyName) returns (MsgBuyNameResponse);
+      // this line is used by starport scaffolding # proto/tx/rpc
+      rpc BuyName(MsgBuyName) returns (MsgBuyNameResponse);
     }
 
     // this line is used by starport scaffolding # proto/tx/message
     message MsgBuyName {
-    string creator = 1;
-    string name = 2;
-    string bid = 3;
+      string creator = 1;
+      string name = 2;
+      string bid = 3;
     }
 
     message MsgBuyNameResponse {
