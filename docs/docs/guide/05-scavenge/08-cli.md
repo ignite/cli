@@ -8,7 +8,7 @@ A command line interface (CLI) lets you interact with your app after it is runni
 
 The CLI also comes with the ability to query the state of that module. When combined with the rest of the app, the CLI lets you do things like generate keys for a new account or check the status of an interaction you already had with the application.
 
-The CLI for the scavenge module is present in the `tx.go` and `query.go` files in the `./x/scavenge/client/cli/` directory.
+The CLI for the scavenge module is present in the `tx.go` and `query.go` files in the `x/scavenge/client/cli/` directory.
 
 - The `tx.go` file is for making transactions that contain messages that will ultimately update the state.
 - The `query.go` file is for making queries let you read information from the state.
@@ -24,27 +24,26 @@ This method makes it easier to incorporate different modules for different reaso
 ## Commit solution
 
 ```go
- // x/scavenge/client/cli/tx_commit_solution.go
-
+// x/scavenge/client/cli/tx_commit_solution.go
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"strconv"
 
-	"github.com/spf13/cobra"
+	"scavenge/x/scavenge/types"
 
-	"github.com/username/scavenge/x/scavenge/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/spf13/cobra"
 )
 
 func CmdCommitSolution() *cobra.Command {
 	cmd := &cobra.Command{
-    // pass a solution as the only argument
+		// pass a solution as the only argument
 		Use:   "commit-solution [solution]",
 		Short: "Broadcast message commit-solution",
-    // set the number of arguments to 1
+		// set the number of arguments to 1
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -52,22 +51,22 @@ func CmdCommitSolution() *cobra.Command {
 				return err
 			}
 			solution := args[0]
-      // find a hash of the solution
+			// find a hash of the solution
 			solutionHash := sha256.Sum256([]byte(solution))
-      // convert the solution hash to string
+			// convert the solution hash to string
 			solutionHashString := hex.EncodeToString(solutionHash[:])
-      // convert a scavenger address to string
+			// convert a scavenger address to string
 			var scavenger = clientCtx.GetFromAddress().String()
-      // find the hash of solution and scavenger address
+			// find the hash of solution and scavenger address
 			var solutionScavengerHash = sha256.Sum256([]byte(solution + scavenger))
-      // convert the hash to string
+			// convert the hash to string
 			var solutionScavengerHashString = hex.EncodeToString(solutionScavengerHash[:])
-      // create a new message
+			// create a new message
 			msg := types.NewMsgCommitSolution(clientCtx.GetFromAddress().String(), string(solutionHashString), string(solutionScavengerHashString))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
-      // broadcast the transaction with the message to the blockchain
+			// broadcast the transaction with the message to the blockchain
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -87,12 +86,12 @@ import (
 	"encoding/hex"
 	"strconv"
 
-	"github.com/spf13/cobra"
+	"scavenge/x/scavenge/types"
 
-	"github.com/username/scavenge/x/scavenge/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/spf13/cobra"
 )
 
 func CmdSubmitScavenge() *cobra.Command {
@@ -105,18 +104,18 @@ func CmdSubmitScavenge() *cobra.Command {
 			if err != nil {
 				return err
 			}
-      // find a hash of the solution
+			// find a hash of the solution
 			solutionHash := sha256.Sum256([]byte(args[0]))
-      // convert the hash to string
+			// convert the hash to string
 			solutionHashString := hex.EncodeToString(solutionHash[:])
 			argsDescription := string(args[1])
 			argsReward := string(args[2])
-      // create a new message
+			// create a new message
 			msg := types.NewMsgSubmitScavenge(clientCtx.GetFromAddress().String(), string(solutionHashString), string(argsDescription), string(argsReward))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
-      // broadcast the transaction with the message to the blockchain
+			// broadcast the transaction with the message to the blockchain
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
