@@ -1,15 +1,17 @@
 package cosmosgen
 
 import (
+	"bytes"
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
-	"github.com/ignite-hq/cli/ignite/pkg/protopath"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/protopath"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -31,10 +33,13 @@ func (g *generator) setup() (err error) {
 	// app's dependencies are download by 'go mod' and cached under the local filesystem.
 	// and then, it determines which version of the SDK is used by the app and what is the absolute path
 	// of its source code.
+	var errb bytes.Buffer
 	if err := cmdrunner.
-		New(cmdrunner.DefaultWorkdir(g.appPath)).
-		Run(g.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
-		return err
+		New(
+			cmdrunner.DefaultStderr(&errb),
+			cmdrunner.DefaultWorkdir(g.appPath),
+		).Run(g.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
+		return errors.Wrap(err, errb.String())
 	}
 
 	// parse the go.mod of the app and extract dependencies.

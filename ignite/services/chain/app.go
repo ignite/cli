@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 // App keeps info about chain.

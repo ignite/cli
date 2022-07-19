@@ -1,7 +1,7 @@
 package datatype
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
 )
 
 const (

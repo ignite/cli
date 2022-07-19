@@ -5,8 +5,8 @@ import (
 
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // CreateClient send create client message to SPN

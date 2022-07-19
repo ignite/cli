@@ -11,8 +11,8 @@ import (
 	spntypes "github.com/tendermint/spn/pkg/types"
 	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // Node is node builder.

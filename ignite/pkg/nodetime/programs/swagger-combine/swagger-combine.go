@@ -7,8 +7,8 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite-hq/cli/ignite/pkg/nodetime"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/nodetime"
 )
 
 // Config represent swagger-combine config.
