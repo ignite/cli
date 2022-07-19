@@ -76,14 +76,14 @@ import (
 	"fmt"
 	"log"
 
-	// importing the types package of your blog blockchain
-	"blog/x/blog/types"
 	// importing the general purpose Cosmos blockchain client
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+
+	// importing the types package of your blog blockchain
+	"blog/x/blog/types"
 )
 
 func main() {
-
 	// create an instance of cosmosclient
 	cosmos, err := cosmosclient.New(context.Background())
 	if err != nil {

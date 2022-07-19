@@ -139,14 +139,17 @@ You need to do two things:
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
   // Get the context
   ctx := sdk.UnwrapSDKContext(goCtx)
+
   // Create variable of type Post
   var post = types.Post{
      Creator: msg.Creator,
      Title:   msg.Title,
      Body:    msg.Body,
   }
+
   // Add a post to the store and get back the ID
   id := k.AppendPost(ctx, post)
+
   // Return the ID of the post
   return &types.MsgCreatePostResponse{Id: id}, nil
 }
@@ -231,14 +234,18 @@ First, implement `GetPostCount`:
 func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
   // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
+
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
+
   // Get the value of the count
   bz := store.Get(byteKey)
+
   // Return zero if the count value is not found (for example, it's the first post)
   if bz == nil {
     return 0
   }
+
   // Convert the count into a uint64
   return binary.BigEndian.Uint64(bz)
 }
@@ -250,11 +257,14 @@ Now that `GetPostCount` returns the correct number of posts in the store, implem
 func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
+
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
+
   // Convert count from uint64 to string and get bytes
   bz := make([]byte, 8)
   binary.BigEndian.PutUint64(bz, count)
+
   // Set the value of Post-count- to count
   store.Set(byteKey, bz)
 }
@@ -268,26 +278,32 @@ package keeper
 import (
   "encoding/binary"
 
-  "blog/x/blog/types"
-
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
+
+  "blog/x/blog/types"
 )
 
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   // Get the current number of posts in the store
   count := k.GetPostCount(ctx)
+
   // Assign an ID to the post based on the number of posts in the store
   post.Id = count
+
   // Get the store
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostKey))
+
   // Convert the post ID into bytes
   byteKey := make([]byte, 8)
   binary.BigEndian.PutUint64(byteKey, post.Id)
+
   // Marshal the post into bytes
   appendedValue := k.cdc.MustMarshal(&post)
+
   // Insert the post bytes using post ID as a key
   store.Set(byteKey, appendedValue)
+
   // Update the post count
   k.SetPostCount(ctx, count+1)
   return count
@@ -339,6 +355,7 @@ message QueryPostsRequest {
 message QueryPostsResponse {
   // Returning a list of posts
   repeated Post Post = 1;
+
   // Adding pagination to response
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -351,14 +368,14 @@ package keeper
 
 import (
   "context"
-
-  "blog/x/blog/types"
   
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
   "github.com/cosmos/cosmos-sdk/types/query"  
   "google.golang.org/grpc/codes"
   "google.golang.org/grpc/status"
+
+  "blog/x/blog/types"
 )
 
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -366,27 +383,36 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   if req == nil {
     return nil, status.Error(codes.InvalidArgument, "invalid request")
   }
+
   // Define a variable that will store a list of posts
   var posts []*types.Post
+
   // Get context with the information about the environment
   ctx := sdk.UnwrapSDKContext(c)
+
   // Get the key-value module store using the store key (in our case store key is "chain")
   store := ctx.KVStore(k.storeKey)
+
   // Get the part of the store that keeps posts (using post key, which is "Post-value-")
   postStore := prefix.NewStore(store, []byte(types.PostKey))
+
   // Paginate the posts store based on PageRequest
   pageRes, err := query.Paginate(postStore, req.Pagination, func(key []byte, value []byte) error {
     var post types.Post
     if err := k.cdc.Unmarshal(value, &post); err != nil {
       return err
     }
+
     posts = append(posts, &post)
+
     return nil
   })
+
   // Throw an error if pagination failed
   if err != nil {
     return nil, status.Error(codes.Internal, err.Error())
   }
+
   // Return a struct containing a list of posts and pagination info
   return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
 }
@@ -402,7 +428,7 @@ In the `x/blog/module.go` file:
 import (
 	"context"
 
-  // ... other imports
+	// ... other imports
 )
 ```
 

@@ -25,17 +25,18 @@ This method makes it easier to incorporate different modules for different reaso
 
 ```go
 // x/scavenge/client/cli/tx_commit_solution.go
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"strconv"
 
-	"scavenge/x/scavenge/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
+
+	"scavenge/x/scavenge/types"
 )
 
 func CmdCommitSolution() *cobra.Command {
@@ -50,27 +51,37 @@ func CmdCommitSolution() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			solution := args[0]
+
 			// find a hash of the solution
 			solutionHash := sha256.Sum256([]byte(solution))
+
 			// convert the solution hash to string
 			solutionHashString := hex.EncodeToString(solutionHash[:])
+
 			// convert a scavenger address to string
 			var scavenger = clientCtx.GetFromAddress().String()
+
 			// find the hash of solution and scavenger address
 			var solutionScavengerHash = sha256.Sum256([]byte(solution + scavenger))
+
 			// convert the hash to string
 			var solutionScavengerHashString = hex.EncodeToString(solutionScavengerHash[:])
+
 			// create a new message
 			msg := types.NewMsgCommitSolution(clientCtx.GetFromAddress().String(), string(solutionHashString), string(solutionScavengerHashString))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
+
 			// broadcast the transaction with the message to the blockchain
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
 	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 ```
@@ -81,17 +92,18 @@ Note that this file makes use of the `sha256` library for hashing the plain text
 
 ```go
 // x/scavenge/client/cli/tx_submit_scavenge.go
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"strconv"
 
-	"scavenge/x/scavenge/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
+
+	"scavenge/x/scavenge/types"
 )
 
 func CmdSubmitScavenge() *cobra.Command {
@@ -104,22 +116,28 @@ func CmdSubmitScavenge() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			// find a hash of the solution
 			solutionHash := sha256.Sum256([]byte(args[0]))
+
 			// convert the hash to string
 			solutionHashString := hex.EncodeToString(solutionHash[:])
 			argsDescription := string(args[1])
 			argsReward := string(args[2])
+
 			// create a new message
 			msg := types.NewMsgSubmitScavenge(clientCtx.GetFromAddress().String(), string(solutionHashString), string(argsDescription), string(argsReward))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
+
 			// broadcast the transaction with the message to the blockchain
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
 	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 ```

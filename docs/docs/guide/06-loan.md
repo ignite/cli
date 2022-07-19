@@ -175,8 +175,9 @@ package keeper
 import (
 	"context"
 
-	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"loan/x/loan/types"
 )
 
 func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan) (*types.MsgRequestLoanResponse, error) {
@@ -344,9 +345,10 @@ import (
 	"context"
 	"fmt"
 
-	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"loan/x/loan/types"
 )
 
 func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan) (*types.MsgApproveLoanResponse, error) {
@@ -498,9 +500,10 @@ import (
 	"context"
 	"fmt"
 
-	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"loan/x/loan/types"
 )
 
 func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*types.MsgRepayLoanResponse, error) {
@@ -657,9 +660,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"loan/x/loan/types"
 )
 
 func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateLoan) (*types.MsgLiquidateLoanResponse, error) {
@@ -816,9 +820,10 @@ import (
 	"context"
 	"fmt"
 
-	"loan/x/loan/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"loan/x/loan/types"
 )
 
 func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (*types.MsgCancelLoanResponse, error) {

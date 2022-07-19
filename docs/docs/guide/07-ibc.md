@@ -166,7 +166,7 @@ To make sure the receiving chain has content on the creator of a blog post, add 
 - The sender is verified as the signer of the message, so you can add the `msg.Sender` as the creator to the new packet before it is sent over IBC.
 
 ```go
-// x/blog/keeper/msg_server_ibc_post.go
+    // x/blog/keeper/msg_server_ibc_post.go
 
     // Construct the packet
     var packet types.IbcPostPacketData
@@ -217,6 +217,7 @@ In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below `
 // x/blog/keeper/ibc_post.go
 import (
   //...
+
   "strconv"
 )
 ```
@@ -229,6 +230,7 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
     if err := data.ValidateBasic(); err != nil {
         return packetAck, err
     }
+
     id := k.AppendPost(
         ctx,
         types.Post{
@@ -237,7 +239,9 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
             Content: data.Content,
         },
     )
+
     packetAck.PostID = strconv.FormatUint(id, 10)
+
     return packetAck, nil
 }
 ```
@@ -265,6 +269,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
+
 		k.AppendSentPost(
 			ctx,
 			types.SentPost{
@@ -274,6 +279,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 				Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
 			},
 		)
+
 		return nil
 	default:
 		return errors.New("the counter-party module does not implement the correct acknowledgment format")
@@ -296,6 +302,7 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 			Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
 		},
 	)
+
 	return nil
 }
 
@@ -391,20 +398,20 @@ First, configure the relayer. Use the Ignite CLI `configure` command with the `-
 
 ```bash
 ignite relayer configure -a \
---source-rpc "http://0.0.0.0:26657" \
---source-faucet "http://0.0.0.0:4500" \
---source-port "blog" \
---source-version "blog-1" \
---source-gasprice "0.0000025stake" \
---source-prefix "cosmos" \
---source-gaslimit 300000 \
---target-rpc "http://0.0.0.0:26659" \
---target-faucet "http://0.0.0.0:4501" \
---target-port "blog" \
---target-version "blog-1" \
---target-gasprice "0.0000025stake" \
---target-prefix "cosmos" \
---target-gaslimit 300000
+  --source-rpc "http://0.0.0.0:26657" \
+  --source-faucet "http://0.0.0.0:4500" \
+  --source-port "blog" \
+  --source-version "blog-1" \
+  --source-gasprice "0.0000025stake" \
+  --source-prefix "cosmos" \
+  --source-gaslimit 300000 \
+  --target-rpc "http://0.0.0.0:26659" \
+  --target-faucet "http://0.0.0.0:4501" \
+  --target-port "blog" \
+  --target-version "blog-1" \
+  --target-gasprice "0.0000025stake" \
+  --target-prefix "cosmos" \
+  --target-gaslimit 300000
 ```
 
 When prompted, press Enter to accept the default values for `Source Account` and `Target Account`. 

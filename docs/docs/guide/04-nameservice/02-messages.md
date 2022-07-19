@@ -32,7 +32,7 @@ type Msg interface {
 	// CONTRACT: All signatures must be present to be valid
 	GetSigners() []AccAddress
 
-  // Legacy methods
+	// Legacy methods
 	Type() string
 	Route() string
 	GetSignBytes() []byte
@@ -109,6 +109,7 @@ These are the changes for each one of these files:
 
     ```go
     syntax = "proto3";
+
     package username.nameservice.nameservice;
 
     // this line is used by starport scaffolding # proto/tx/import
