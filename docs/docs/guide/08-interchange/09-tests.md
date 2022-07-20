@@ -15,12 +15,13 @@ go test -timeout 30s ./x/dex/types
 
 ## Order Book Tests
 
-Create a new `order_book_test.go` file in the `types` directory.
+Create a new `x/dex/types/order_book_test.go` file in the `types` directory.
 
 Add the following testsuite:
 
 ```go
-// types/order_book_test.go
+// x/dex/types/order_book_test.go
+
 package types_test
 
 import (
@@ -30,7 +31,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/username/interchange/x/dex/types"
+
+	"interchange/x/dex/types"
 )
 
 func GenString(n int) string {
@@ -40,6 +42,7 @@ func GenString(n int) string {
 	for i := range buf {
 		buf[i] = alpha[rand.Intn(len(alpha))]
 	}
+
 	return string(buf)
 }
 
@@ -135,18 +138,20 @@ func TestRemoveOrderFromID(t *testing.T) {
 
 ## Buy Order Tests
 
-Create a new `buy_order_book_test.go` file in the `types` directory to add the tests for the Buy Order Book:
+Create a new `x/dex/types/buy_order_book_test.go` file in the `types` directory to add the tests for the Buy Order Book:
 
 ```go
-// types/buy_order_book_test.go
+// x/dex/types/buy_order_book_test.go
+
 package types_test
 
 import (
-	"testing"
 	"sort"
+	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/username/interchange/x/dex/types"
+
+	"interchange/x/dex/types"
 )
 
 func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
@@ -427,17 +432,20 @@ func TestFillSellOrder(t *testing.T) {
 
 ## Sell Order Tests
 
-Create a new testsuite for Sell Orders in a new file `types/sell_order_book_test.go`:
+Create a new testsuite for Sell Orders in a new file `x/dex/types/sell_order_book_test.go`:
 
 ```go
-// types/sell_order_book_test.go
+// x/dex/types/sell_order_book_test.go
+
 package types_test
 
 import (
-	"github.com/tendermint/interchange/x/dex/types"
-	"testing"
-	"github.com/stretchr/testify/require"
 	"sort"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"interchange/x/dex/types"
 )
 
 func OrderListToSellOrderBook(list []types.Order) types.SellOrderBook {
