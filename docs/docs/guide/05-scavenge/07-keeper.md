@@ -51,7 +51,7 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
 	moduleAcct := sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
 
 	// convert the message creator address from a string into sdk.AccAddress
-	scavenger, err := sdk.AccAddressFromBech32(scavenge.Scavenger)
+	scavenger, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
 	}
