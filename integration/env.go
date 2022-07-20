@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -24,6 +25,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -31,11 +33,32 @@ import (
 
 const (
 	ServeTimeout = time.Minute * 15
-	IgniteApp    = "ignite"
 	ConfigYML    = "config.yml"
 )
 
-var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
+var (
+	isCI, _   = strconv.ParseBool(os.Getenv("CI"))
+	IgniteApp string
+)
+
+func init() {
+	wd, _ := os.Getwd()
+	_, appPath, err := gomodulepath.Find(wd)
+	if err != nil {
+		panic(err)
+	}
+	// Build the ignite binary
+	tmp, err := os.MkdirTemp("", "integration-bin")
+	if err != nil {
+		panic(err)
+	}
+	IgniteApp = path.Join(tmp, "ignite")
+	command := exec.Command("go", "build",
+		"-o", IgniteApp, appPath+"/ignite/cmd/ignite")
+	if err := command.Run(); err != nil {
+		panic(err)
+	}
+}
 
 // Env provides an isolated testing environment and what's needed to
 // make it possible.
