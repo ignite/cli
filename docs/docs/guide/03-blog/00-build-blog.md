@@ -22,10 +22,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.20.0 use the following command:
+This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.22.2 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.22.1! | bash
+curl https://get.ignite.com/cli@v0.22.2! | bash
 ```
 
 ## Create your blog chain
@@ -139,14 +139,17 @@ You need to do two things:
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
   // Get the context
   ctx := sdk.UnwrapSDKContext(goCtx)
+
   // Create variable of type Post
   var post = types.Post{
      Creator: msg.Creator,
      Title:   msg.Title,
      Body:    msg.Body,
   }
+
   // Add a post to the store and get back the ID
   id := k.AppendPost(ctx, post)
+
   // Return the ID of the post
   return &types.MsgCreatePostResponse{Id: id}, nil
 }
@@ -162,7 +165,9 @@ Create the `proto/blog/post.proto` file and define the `Post` message:
 
 ```go
 syntax = "proto3";
+
 package blog.blog;
+
 option go_package = "blog/x/blog/types";
 
 message Post {
@@ -175,8 +180,8 @@ message Post {
 
 The contents of the `post.proto` file are standard. The file defines:
 
-- A package name `username.blog.blog` that is used to identify messages
-- The Go package `go_package = "github.com/username/blog/x/blog/types"` where new files are generated 
+- A package name `blog.blog` that is used to identify messages
+- The Go package `go_package = "blog/x/blog/types"` where new files are generated 
 - The message `message Post`
 
 Continue developing your blog chain.
@@ -196,7 +201,8 @@ Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and a
 ```go
 const (
   //...
-	// Keep track of the index of posts  
+
+  // Keep track of the index of posts  
   PostKey      = "Post-value-"
   PostCountKey = "Post-count-"
 )
@@ -228,14 +234,18 @@ First, implement `GetPostCount`:
 func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
   // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
+
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
+
   // Get the value of the count
   bz := store.Get(byteKey)
+
   // Return zero if the count value is not found (for example, it's the first post)
   if bz == nil {
     return 0
   }
+
   // Convert the count into a uint64
   return binary.BigEndian.Uint64(bz)
 }
@@ -247,11 +257,14 @@ Now that `GetPostCount` returns the correct number of posts in the store, implem
 func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
+
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
+
   // Convert count from uint64 to string and get bytes
   bz := make([]byte, 8)
   binary.BigEndian.PutUint64(bz, count)
+
   // Set the value of Post-count- to count
   store.Set(byteKey, bz)
 }
@@ -264,25 +277,33 @@ package keeper
 
 import (
   "encoding/binary"
-  "blog/x/blog/types"
+
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
+
+  "blog/x/blog/types"
 )
 
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   // Get the current number of posts in the store
   count := k.GetPostCount(ctx)
+
   // Assign an ID to the post based on the number of posts in the store
   post.Id = count
+
   // Get the store
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostKey))
+
   // Convert the post ID into bytes
   byteKey := make([]byte, 8)
   binary.BigEndian.PutUint64(byteKey, post.Id)
+
   // Marshal the post into bytes
   appendedValue := k.cdc.MustMarshal(&post)
+
   // Insert the post bytes using post ID as a key
   store.Set(byteKey, appendedValue)
+
   // Update the post count
   k.SetPostCount(ctx, count+1)
   return count
@@ -315,45 +336,46 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-    ```go
-    import "blog/post.proto";
-    ```
+```go
+import "blog/post.proto";
+```
 
 2. Add pagination to the post request:
 
-    ```go
-    message QueryPostsRequest {
-      // Adding pagination to request
-      cosmos.base.query.v1beta1.PageRequest pagination = 1;
-    }
-    ```
+```go
+message QueryPostsRequest {
+  // Adding pagination to request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+```
 
 3. Add pagination to the post response:
 
-    ```go
-    message QueryPostsResponse {
-      // Returning a list of posts
-      repeated Post Post = 1;
-      // Adding pagination to response
-      cosmos.base.query.v1beta1.PageResponse pagination = 2;
-    }
-    ```
+```go
+message QueryPostsResponse {
+  // Returning a list of posts
+  repeated Post Post = 1;
 
-To implement post querying logic in the `grpc_query_posts.go` file, delete the contents of that file and replace it with:
+  // Adding pagination to response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+```
+
+To implement post querying logic in the `x/blog/keeper/grpc_query_posts.go` file, delete the contents of that file and replace it with:
 
 ```go
 package keeper
 
 import (
   "context"
-
-  "blog/x/blog/types"
   
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
   "github.com/cosmos/cosmos-sdk/types/query"  
   "google.golang.org/grpc/codes"
   "google.golang.org/grpc/status"
+
+  "blog/x/blog/types"
 )
 
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -361,27 +383,36 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   if req == nil {
     return nil, status.Error(codes.InvalidArgument, "invalid request")
   }
+
   // Define a variable that will store a list of posts
   var posts []*types.Post
+
   // Get context with the information about the environment
   ctx := sdk.UnwrapSDKContext(c)
+
   // Get the key-value module store using the store key (in our case store key is "chain")
   store := ctx.KVStore(k.storeKey)
+
   // Get the part of the store that keeps posts (using post key, which is "Post-value-")
   postStore := prefix.NewStore(store, []byte(types.PostKey))
+
   // Paginate the posts store based on PageRequest
   pageRes, err := query.Paginate(postStore, req.Pagination, func(key []byte, value []byte) error {
     var post types.Post
     if err := k.cdc.Unmarshal(value, &post); err != nil {
       return err
     }
+
     posts = append(posts, &post)
+
     return nil
   })
+
   // Throw an error if pagination failed
   if err != nil {
     return nil, status.Error(codes.Internal, err.Error())
   }
+
   // Return a struct containing a list of posts and pagination info
   return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
 }
@@ -393,21 +424,22 @@ In the `x/blog/module.go` file:
 
 1. Add `"context"` to the imports, don't save the file yet.
 
-    ```go
-    import (
-	    "context"
+```go
+import (
+	"context"
+
 	// ... other imports
-    )
-    ```
+)
+```
 
 2. Update the `RegisterGRPCGatewayRoutes` function to register the query handler client:
 
-    ```go
-    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-    }
-    ```
+```go
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+```
 
 3. Now that you've modified the file with the two updates, now it's safe to save the file. 
 
@@ -419,6 +451,12 @@ First, start the chain on your development machine by running the following comm
 
 ```bash
 ignite chain serve
+```
+
+The binary is built by the `ignite chain serve` command bit it can also be built by running:
+
+```bash
+ignite chain build
 ```
 
 To create a post at the command line:

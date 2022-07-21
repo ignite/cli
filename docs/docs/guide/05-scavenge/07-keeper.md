@@ -20,46 +20,55 @@ Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.g
 import (
   "context"
 
-  "github.com/username/scavenge/x/scavenge/types"
   sdk "github.com/cosmos/cosmos-sdk/types"
   sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
   "github.com/tendermint/tendermint/crypto"
+
+  "scavenge/x/scavenge/types"
 )
 
 func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitScavenge) (*types.MsgSubmitScavengeResponse, error) {
-  // get context that contains information about the environment, such as block height
+	// get context that contains information about the environment, such as block height
 	ctx := sdk.UnwrapSDKContext(goCtx)
-  // create a new scavenge from the data in the MsgSubmitScavenge message
+
+	// create a new scavenge from the data in the MsgSubmitScavenge message
 	var scavenge = types.Scavenge{
 		Index:        msg.SolutionHash,
 		Description:  msg.Description,
 		SolutionHash: msg.SolutionHash,
 		Reward:       msg.Reward,
 	}
-  // try getting a scavenge from the store using the solution hash as the key
+
+	// try getting a scavenge from the store using the solution hash as the key
 	_, isFound := k.GetScavenge(ctx, scavenge.SolutionHash)
-  // return an error if a scavenge already exists in the store
+
+	// return an error if a scavenge already exists in the store
 	if isFound {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Scavenge with that solution hash already exists")
 	}
-  // get address of the Scavenge module account
+
+	// get address of the Scavenge module account
 	moduleAcct := sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
-  // convert the message creator address from a string into sdk.AccAddress
-	scavenger, err := sdk.AccAddressFromBech32(scavenge.Scavenger)
+
+	// convert the message creator address from a string into sdk.AccAddress
+	scavenger, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
 	}
-  // convert tokens from string into sdk.Coins
+
+	// convert tokens from string into sdk.Coins
 	reward, err := sdk.ParseCoinsNormalized(scavenge.Reward)
 	if err != nil {
 		panic(err)
 	}
-  // send tokens from the scavenge creator to the module account
+
+	// send tokens from the scavenge creator to the module account
 	sdkError := k.bankKeeper.SendCoins(ctx, scavenger, moduleAcct, reward)
 	if sdkError != nil {
 		return nil, sdkError
 	}
-  // write the scavenge to the store
+
+	// write the scavenge to the store
 	k.SetScavenge(ctx, scavenge)
 	return &types.MsgSubmitScavengeResponse{}, nil
 }
@@ -95,26 +104,31 @@ Make the required changes in the `x/scavenge/keeper/msg_server_commit_solution.g
 import (
 	"context"
 
-	"github.com/username/scavenge/x/scavenge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"scavenge/x/scavenge/types"
 )
 
 func (k msgServer) CommitSolution(goCtx context.Context, msg *types.MsgCommitSolution) (*types.MsgCommitSolutionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-  // create a new commit from the information in the MsgCommitSolution message
+
+	// create a new commit from the information in the MsgCommitSolution message
 	var commit = types.Commit{
 		Index:                 msg.SolutionScavengerHash,
 		SolutionHash:          msg.SolutionHash,
 		SolutionScavengerHash: msg.SolutionScavengerHash,
 	}
-  // try getting a commit from the store using the solution+scavenger hash as the key
+
+	// try getting a commit from the store using the solution+scavenger hash as the key
 	_, isFound := k.GetCommit(ctx, commit.SolutionScavengerHash)
+
 	// return an error if a commit already exists in the store
 	if isFound {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Commit with that hash already exists")
 	}
-  // write commit to the store
+
+	// write commit to the store
 	k.SetCommit(ctx, commit)
 	return &types.MsgCommitSolutionResponse{}, nil
 }
@@ -132,70 +146,90 @@ Make the required changes in the `x/scavenge/keeper/msg_server_reveal_solution.g
 
 ```go
 // x/scavenge/keeper/msg_server_reveal_solution.go
+
 import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 
-	"github.com/username/scavenge/x/scavenge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/crypto"
+
+	"scavenge/x/scavenge/types"
 )
 
 func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSolution) (*types.MsgRevealSolutionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-  // concatenate a solution and a scavenger address and convert it to bytes
+
+	// concatenate a solution and a scavenger address and convert it to bytes
 	var solutionScavengerBytes = []byte(msg.Solution + msg.Creator)
-  // find the hash of solution and address
+
+	// find the hash of solution and address
 	var solutionScavengerHash = sha256.Sum256(solutionScavengerBytes)
-  // convert the hash to a string
+
+	// convert the hash to a string
 	var solutionScavengerHashString = hex.EncodeToString(solutionScavengerHash[:])
-  // try getting a commit using the the hash of solution and address
+
+	// try getting a commit using the the hash of solution and address
 	_, isFound := k.GetCommit(ctx, solutionScavengerHashString)
-  // return an error if a commit doesn't exist
+
+	// return an error if a commit doesn't exist
 	if !isFound {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Commit with that hash doesn't exists")
 	}
-  // find a hash of the solution
+
+	// find a hash of the solution
 	var solutionHash = sha256.Sum256([]byte(msg.Solution))
-  // encode the solution hash to string
+
+	// encode the solution hash to string
 	var solutionHashString = hex.EncodeToString(solutionHash[:])
 	var scavenge types.Scavenge
-  // get a scavenge from the stre using the solution hash
+
+	// get a scavenge from the stre using the solution hash
 	scavenge, isFound = k.GetScavenge(ctx, solutionHashString)
-  // return an error if the solution doesn't exist
+
+	// return an error if the solution doesn't exist
 	if !isFound {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Scavenge with that solution hash doesn't exists")
 	}
-  // check that the scavenger property contains a valid address
+
+	// check that the scavenger property contains a valid address
 	_, err := sdk.AccAddressFromBech32(scavenge.Scavenger)
-  // return an error if a scavenge has already been solved
+
+	// return an error if a scavenge has already been solved
 	if err == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Scavenge has already been solved")
 	}
-  // save the scavebger address to the scavenge
+
+	// save the scavebger address to the scavenge
 	scavenge.Scavenger = msg.Creator
-  // save the correct solution to the scavenge
+
+	// save the correct solution to the scavenge
 	scavenge.Solution = msg.Solution
-  // get address of the module account
+
+	// get address of the module account
 	moduleAcct := sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
-  // convert scavenger address from string to sdk.AccAddress
+
+	// convert scavenger address from string to sdk.AccAddress
 	scavenger, err := sdk.AccAddressFromBech32(scavenge.Scavenger)
 	if err != nil {
 		panic(err)
 	}
-  // parse tokens from a string to sdk.Coins
+
+	// parse tokens from a string to sdk.Coins
 	reward, err := sdk.ParseCoinsNormalized(scavenge.Reward)
 	if err != nil {
 		panic(err)
 	}
-  // send tokens from a module account to the scavenger
+
+	// send tokens from a module account to the scavenger
 	sdkError := k.bankKeeper.SendCoins(ctx, moduleAcct, scavenger, reward)
 	if sdkError != nil {
 		return nil, sdkError
 	}
-  // save the udpated scavenge to the store
+
+	// save the udpated scavenge to the store
 	k.SetScavenge(ctx, scavenge)
 	return &types.MsgRevealSolutionResponse{}, nil
 }
