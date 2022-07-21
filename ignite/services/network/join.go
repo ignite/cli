@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -17,25 +16,19 @@ import (
 
 type joinOptions struct {
 	accountAmount sdk.Coins
-	gentxPath     string
 	publicAddress string
 }
 
 type JoinOption func(*joinOptions)
 
+// WithAccountRequest allows to join the chain by requesting a genesis account with the specified amount of tokens
 func WithAccountRequest(amount sdk.Coins) JoinOption {
 	return func(o *joinOptions) {
 		o.accountAmount = amount
 	}
 }
 
-// TODO accept struct not file path
-func WithCustomGentxPath(path string) JoinOption {
-	return func(o *joinOptions) {
-		o.gentxPath = path
-	}
-}
-
+// WithPublicAddress allows to specify a peer public address for the node
 func WithPublicAddress(addr string) JoinOption {
 	return func(o *joinOptions) {
 		o.publicAddress = addr
@@ -47,6 +40,7 @@ func (n Network) Join(
 	ctx context.Context,
 	c Chain,
 	launchID uint64,
+	gentxPath string,
 	options ...JoinOption,
 ) error {
 	o := joinOptions{}
@@ -54,15 +48,20 @@ func (n Network) Join(
 		apply(&o)
 	}
 
-	isCustomGentx := o.gentxPath != ""
 	var (
 		nodeID string
 		peer   launchtypes.Peer
 		err    error
 	)
 
-	// if the custom gentx is not provided, get the chain default from the chain home folder.
-	if !isCustomGentx {
+	// parse the gentx content
+	gentxInfo, gentx, err := cosmosutil.GentxFromPath(gentxPath)
+	if err != nil {
+		return err
+	}
+
+	// get the peer address
+	if o.publicAddress != "" {
 		if nodeID, err = c.NodeID(ctx); err != nil {
 			return err
 		}
@@ -71,21 +70,9 @@ func (n Network) Join(
 			peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
 		} else {
 			peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
-
 		}
-
-		if o.gentxPath, err = c.DefaultGentxPath(); err != nil {
-			return err
-		}
-	}
-
-	// parse the gentx content
-	gentxInfo, gentx, err := cosmosutil.GentxFromPath(o.gentxPath)
-	if err != nil {
-		return err
-	}
-
-	if isCustomGentx {
+	} else {
+		// if the peer address is not specified, we parse it from the gentx memo
 		if peer, err = ParsePeerAddress(gentxInfo.Memo); err != nil {
 			return err
 		}
@@ -104,50 +91,30 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.ensureAccount(
-			ctx,
-			genesisPath,
-			isCustomGentx,
-			launchID,
-			accountAddress,
-			o.accountAmount,
-		); err != nil {
+		if err := n.ensureAccount(genesisPath, launchID, accountAddress, o.accountAmount); err != nil {
 			return err
 		}
 	}
 
-	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
+	return n.sendValidatorRequest(launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
 // ensureAccount creates an add AddAccount request message.
 func (n Network) ensureAccount(
-	ctx context.Context,
 	genesisPath string,
-	isCustomGentx bool,
 	launchID uint64,
 	address string,
 	amount sdk.Coins,
 ) (err error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
-	// if is custom gentx path, avoid to check account into genesis from the home folder
-	var accExist bool
-	if !isCustomGentx {
-		accExist, err = cosmosutil.CheckGenesisContainsAddress(genesisPath, address)
-		if err != nil {
-			return err
-		}
-		if accExist {
-			return fmt.Errorf("account %s already exist", address)
-		}
-	}
-	// check if account exists as a genesis account in SPN chain launch information
-	hasAccount, err := n.hasAccount(ctx, launchID, address)
+	// the account may already exist in the initial genesis, we chack it from the generated genesis
+	accExist, err := cosmosutil.CheckGenesisContainsAddress(genesisPath, address)
 	if err != nil {
 		return err
 	}
-	if hasAccount {
-		return fmt.Errorf("account %s already exist", address)
+	if accExist {
+		return fmt.Errorf("account %s already exist in the initial genesis", address)
 	}
 
 	return n.sendAccountRequest(launchID, address, amount)
@@ -155,22 +122,12 @@ func (n Network) ensureAccount(
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
 func (n Network) sendValidatorRequest(
-	ctx context.Context,
 	launchID uint64,
 	peer launchtypes.Peer,
 	valAddress string,
 	gentx []byte,
 	gentxInfo cosmosutil.GentxInfo,
 ) error {
-	// Check if the validator request already exist
-	hasValidator, err := n.hasValidator(ctx, launchID, valAddress)
-	if err != nil {
-		return err
-	}
-	if hasValidator {
-		return fmt.Errorf("validator %s already exist", valAddress)
-	}
-
 	msg := launchtypes.NewMsgRequestAddValidator(
 		n.account.Address(networktypes.SPN),
 		launchID,
@@ -202,42 +159,4 @@ func (n Network) sendValidatorRequest(
 		))
 	}
 	return nil
-}
-
-// hasValidator verify if the validator already exist into the SPN store
-func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
-		LaunchID: launchID,
-		Address:  address,
-	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-// hasAccount verify if the account already exist into the SPN store
-func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
-		LaunchID: launchID,
-		Address:  address,
-	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	_, err = n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
-		LaunchID: launchID,
-		Address:  address,
-	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-	return true, nil
 }
