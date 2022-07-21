@@ -63,7 +63,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 	defer os.RemoveAll(tmpHome)
 
 	c.SetHome(tmpHome)
-	
+
 	if err := prepareFromGenesisInformation(
 		cmd,
 		cacheStorage,
