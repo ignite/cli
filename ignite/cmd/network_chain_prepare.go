@@ -119,19 +119,28 @@ func prepareFromGenesisInformation(
 	c *networkchain.Chain,
 	chainLaunch networktypes.ChainLaunch,
 ) error {
+	var (
+		rewardsInfo           networktypes.Reward
+		lastBlockHeight       int64
+		consumerUnbondingTime int64
+	)
+
 	// fetch the information to construct genesis
 	genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
 	if err != nil {
 		return err
 	}
 
-	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
-		cmd.Context(),
-		launchID,
-		chainLaunch.ConsumerRevisionHeight,
-	)
-	if err != nil {
-		return err
+	// fetch the info for rewards if the consumer revision height is defined
+	if chainLaunch.ConsumerRevisionHeight > 0 {
+		rewardsInfo, lastBlockHeight, consumerUnbondingTime, err = n.RewardsInfo(
+			cmd.Context(),
+			launchID,
+			chainLaunch.ConsumerRevisionHeight,
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	spnChainID, err := n.ChainID(cmd.Context())
@@ -146,6 +155,6 @@ func prepareFromGenesisInformation(
 		rewardsInfo,
 		spnChainID,
 		lastBlockHeight,
-		unboundingTime,
+		consumerUnbondingTime,
 	)
 }
