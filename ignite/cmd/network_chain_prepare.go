@@ -6,12 +6,14 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 const (
@@ -78,34 +80,13 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// fetch the information to construct genesis
-	genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
-	if err != nil {
-		return err
-	}
-
-	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
-		cmd.Context(),
-		launchID,
-		chainLaunch.ConsumerRevisionHeight,
-	)
-	if err != nil {
-		return err
-	}
-
-	spnChainID, err := n.ChainID(cmd.Context())
-	if err != nil {
-		return err
-	}
-
-	if err := c.Prepare(
-		cmd.Context(),
+	if err := prepareFromGenesisInformation(
+		cmd,
 		cacheStorage,
-		genesisInformation,
-		rewardsInfo,
-		spnChainID,
-		lastBlockHeight,
-		unboundingTime,
+		launchID,
+		n,
+		c,
+		chainLaunch,
 	); err != nil {
 		return err
 	}
@@ -127,4 +108,44 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session.Printf("\t%s/%s\n", binaryDir, colors.Info(commandStr))
 
 	return nil
+}
+
+// prepareFromGenesisInformation prepares the genesis of the chain from the queried the genesis information from the launch ID of the chain
+func prepareFromGenesisInformation(
+	cmd *cobra.Command,
+	cacheStorage cache.Storage,
+	launchID uint64,
+	n network.Network,
+	c *networkchain.Chain,
+	chainLaunch networktypes.ChainLaunch,
+) error {
+	// fetch the information to construct genesis
+	genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
+	if err != nil {
+		return err
+	}
+
+	rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
+		cmd.Context(),
+		launchID,
+		chainLaunch.ConsumerRevisionHeight,
+	)
+	if err != nil {
+		return err
+	}
+
+	spnChainID, err := n.ChainID(cmd.Context())
+	if err != nil {
+		return err
+	}
+
+	return c.Prepare(
+		cmd.Context(),
+		cacheStorage,
+		genesisInformation,
+		rewardsInfo,
+		spnChainID,
+		lastBlockHeight,
+		unboundingTime,
+	)
 }
