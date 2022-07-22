@@ -94,14 +94,20 @@ func main() {
 	accountName := "alice"
 
 	// get account from the keyring by account name and return a bech32 address
-	address, err := cosmos.Address(accountName)
+	account, err := cosmos.Address(accountName)
 	if err != nil {
+		log.Fatal(err)
+	}
+	
+	// get the bech32 version of the account with proper prefix
+	address := cosmos.Address("cosmos")
+	if address != nil {
 		log.Fatal(err)
 	}
 
 	// define a message to create a post
 	msg := &types.MsgCreatePost{
-		Creator: address.String(),
+		Creator: address,
 		Title:   "Hello!",
 		Body:    "This is the first post",
 	}
