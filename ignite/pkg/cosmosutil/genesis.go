@@ -50,6 +50,9 @@ type (
 					BondDenom string `json:"bond_denom"`
 				} `json:"params"`
 			} `json:"staking"`
+			GenUtil struct {
+				GenTxs []struct{} `json:"gen_txs"`
+			} `json:"genutil""`
 		} `json:"app_state"`
 	}
 
@@ -59,7 +62,7 @@ type (
 	GenesisField func(fields)
 )
 
-// HasAccount check if account exist into the genesis account
+// HasAccount checks if account exist into the genesis account
 func (g Genesis) HasAccount(address string) bool {
 	for _, account := range g.Accounts {
 		if account == address {
@@ -67,6 +70,11 @@ func (g Genesis) HasAccount(address string) bool {
 		}
 	}
 	return false
+}
+
+// GenTxCount returns the number of gentxs inside the genesis
+func (cg ChainGenesis) GenTxCount() int {
+	return len(cg.AppState.GenUtil.GenTxs)
 }
 
 // WithKeyValue sets key and value field to genesis file
