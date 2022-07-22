@@ -101,9 +101,6 @@ func main() {
 	
 	// get the bech32 version of the account with proper prefix
 	address := cosmos.Address("cosmos")
-	if address != nil {
-		log.Fatal(err)
-	}
 
 	// define a message to create a post
 	msg := &types.MsgCreatePost{
