@@ -58,14 +58,14 @@ func TestParseChainGenesis(t *testing.T) {
 		Address string `json:"address"`
 	}{{Address: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"}}
 	genesis1.AppState.Staking.Params.BondDenom = "stake"
-	genesis1.AppState.GenUtil.GenTxs = []struct{}{{}} // 1 gentx
+	genesis1.AppState.Genutil.GenTxs = []struct{}{{}} // 1 gentx
 
 	genesis2 := cosmosutil.ChainGenesis{ChainID: "earth-1"}
 	genesis2.AppState.Auth.Accounts = []struct {
 		Address string `json:"address"`
 	}{{Address: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"}}
 	genesis2.AppState.Staking.Params.BondDenom = "stake"
-	genesis2.AppState.GenUtil.GenTxs = []struct{}{{}} // 1 gentx
+	genesis2.AppState.Genutil.GenTxs = []struct{}{{}} // 1 gentx
 
 	tests := []struct {
 		name        string
