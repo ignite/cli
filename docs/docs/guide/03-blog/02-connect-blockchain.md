@@ -94,7 +94,7 @@ func main() {
 	accountName := "alice"
 
 	// get account from the keyring by account name and return a bech32 address
-	account, err := cosmos.Address(accountName)
+	account, err := cosmos.Account(accountName)
 	if err != nil {
 		log.Fatal(err)
 	}
