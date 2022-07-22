@@ -52,7 +52,7 @@ type (
 			} `json:"staking"`
 			Genutil struct {
 				GenTxs []struct{} `json:"gen_txs"`
-			} `json:"genutil""`
+			} `json:"genutil"`
 		} `json:"app_state"`
 	}
 
