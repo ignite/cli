@@ -346,8 +346,8 @@ func TestChainGenesis_GenTxCount(t *testing.T) {
 	// create a genesis with 10 gentx
 	testChainGenesis := cosmosutil.ChainGenesis{}
 	for i := 0; i < 10; i++ {
-		testChainGenesis.AppState.GenUtil.GenTxs = append(
-			testChainGenesis.AppState.GenUtil.GenTxs,
+		testChainGenesis.AppState.Genutil.GenTxs = append(
+			testChainGenesis.AppState.Genutil.GenTxs,
 			struct{}{},
 		)
 	}

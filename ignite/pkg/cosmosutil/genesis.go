@@ -50,7 +50,7 @@ type (
 					BondDenom string `json:"bond_denom"`
 				} `json:"params"`
 			} `json:"staking"`
-			GenUtil struct {
+			Genutil struct {
 				GenTxs []struct{} `json:"gen_txs"`
 			} `json:"genutil""`
 		} `json:"app_state"`
@@ -74,7 +74,7 @@ func (g Genesis) HasAccount(address string) bool {
 
 // GenTxCount returns the number of gentxs inside the genesis
 func (cg ChainGenesis) GenTxCount() int {
-	return len(cg.AppState.GenUtil.GenTxs)
+	return len(cg.AppState.Genutil.GenTxs)
 }
 
 // WithKeyValue sets key and value field to genesis file
