@@ -247,7 +247,7 @@ func TestPublish(t *testing.T) {
 		var (
 			account              = testutil.NewTestAccount(t, testutil.TestAccountName)
 			customGenesisChainID = "test-custom-1"
-			customGenesisHash    = "72a80a32e33513cd74423354502cef035e96b0bff59c754646b453b201d12d07"
+			customGenesisHash    = "61da86775013bd18d6a019b533eedf1304b778fe8005090a0a0223720adfd8eb"
 			gts                  = startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
 			suite, network       = newSuite(account)
 		)
