@@ -100,7 +100,7 @@ func main() {
 	}
 	
 	// get the bech32 version of the account with proper prefix
-	address := cosmos.Address("cosmos")
+	address := account.Address("cosmos")
 
 	// define a message to create a post
 	msg := &types.MsgCreatePost{
