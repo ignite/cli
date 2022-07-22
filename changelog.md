@@ -9,10 +9,15 @@
 ### Fixes
 
 - Fix `pkg/cosmosanalysis` to support apps with generics
+- Remove `ignite-hq/cli` from dependency list in scaffolded chains
 
 ### Changes
 
+- Change `pkg/cosmosgen` to allow importing IBC proto files
 - Improve docs for Docker related commands
+- Improve and fix documentation issues in developer tutorials
+- Add migration docs for v0.22.2
+- Improve `go mod download` error report in `pkg/cosmosgen`
 
 ## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
 
