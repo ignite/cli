@@ -93,7 +93,7 @@ func main() {
 	// account `alice` was initialized during `ignite chain serve`
 	accountName := "alice"
 
-	// get account from the keyring by account name and return a bech32 address
+	// get account from the keyring by account name
 	account, err := cosmos.Account(accountName)
 	if err != nil {
 		log.Fatal(err)
