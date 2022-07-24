@@ -1,6 +1,6 @@
 # Changelog
 
-## [`v0.22.3`](https://github.com/ignite/cli/releases/tag/v0.22.3)
+## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
 ### Features
 
