@@ -41,4 +41,4 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGNITE_HQ }}"
           expires: 7d
           target: docs.ignite.com
-          projectId: ignite
+          projectId: ignite-hq

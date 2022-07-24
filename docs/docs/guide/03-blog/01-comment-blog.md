@@ -63,7 +63,7 @@ modify x/blog/types/keys.go
 🎉 comment added.
 ```
 
-Make a small modification in proto/blog/comment.proto to change createdAt to int64:
+Make a small modification in `proto/blog/comment.proto` to change `createdAt` to int64:
 
 ```go
 message Comment {
@@ -156,6 +156,7 @@ You need to do the following things:
 ```go
 import (
     //...
+
     sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -163,7 +164,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	
 	// Check if the Post Exists for which a comment is being created
-	post, found := k.GetPost(ctx, msg.PostId)
+	post, found := k.GetPost(ctx, msg.PostID)
 	if !found {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
@@ -205,6 +206,7 @@ In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
 	// Get the context
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// Create variable of type Post
 	var post = types.Post{
 		Creator:   msg.Creator,
@@ -213,8 +215,10 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 		Body:      msg.Body,
 		CreatedAt: ctx.BlockHeight(),
 	}
+
 	// Add a post to the store and get back the ID
 	id := k.AppendPost(ctx, post)
+
 	// Return the ID of the post
 	return &types.MsgCreatePostResponse{Id: id}, nil
 }
@@ -254,21 +258,26 @@ In `x/blog/keeper/post.go`, add a new function to get the post:
 ```go
 import (
 	"encoding/binary"
-	"blog/x/blog/types"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"blog/x/blog/types"
 )
 
 //...
 
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, id)
+
 	b := store.Get(bz)
 	if b == nil {
 		return val, false
 	}
+
 	k.cdc.MustUnmarshal(b, &val)
 	return val, true
 }
@@ -350,16 +359,17 @@ package keeper
 	"context"
 	"encoding/binary"
 
-	"blog/x/blog/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"blog/x/blog/types"
  )
 
  func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	comment, exist := k.GetComment(ctx, msg.Id)
+	comment, exist := k.GetComment(ctx, msg.CommentID)
 	if !exist {
 		return nil, sdkerrors.Wrapf(types.ErrID, "Comment doesnt exist")
 	}
@@ -392,16 +402,20 @@ Also in `proto/blog/query.proto`, make these updates:
 import "blog/post.proto";
 
 message QueryCommentsRequest {
-	uint64 id = 1;
-    // Adding pagination to request
-    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+  uint64 id = 1;
+
+  // Adding pagination to request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
+
 //...
 message QueryCommentsResponse {
   Post Post = 1;
-  	// Returning a list of comments
+
+  // Returning a list of comments
   repeated Comment Comment = 2;
-    // Adding pagination to response
+
+  // Adding pagination to response
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 ```
@@ -414,17 +428,16 @@ package keeper
 import (
 	"context"
 
-	"blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	"blog/x/blog/types"
 )
 
 func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*types.QueryCommentsResponse, error) {
-
 	// Throw an error if request is nil
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -470,7 +483,6 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 	// Return a struct containing a list of posts and pagination info
 	return &types.QueryCommentsResponse{Post: &post, Comment: comments, Pagination: pageRes}, nil
 }
-
 ```
 
 **Note:** Since gRPC has been already added to module handler in the previous tutorial, you don't need to add it again.

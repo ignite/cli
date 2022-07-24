@@ -22,9 +22,9 @@ func (f Foo) bar() {}
 func (f Foo) foobar() {}
 
 type Bar struct {}
-func (b Bar) foo() {}
-func (b Bar) bar() {}
-func (b Bar) barfoo() {}
+func (b *Bar) foo() {}
+func (b *Bar) bar() {}
+func (b *Bar) barfoo() {}
 `)
 
 	file2 = []byte(`
@@ -35,7 +35,22 @@ func (f Foobar) foo() {}
 func (f Foobar) bar() {}
 func (f Foobar) foobar() {}
 func (f Foobar) barfoo() {}
+
+type Generic[T any] struct {
+	i T
+}
+func (Generic[T]) foo(){}
+func (Generic[T]) bar() {}
+func (Generic[T]) foobar() {}
+
+type GenericP[T any] struct {
+	i T
+}
+func (*GenericP[T]) foo(){}
+func (*GenericP[T]) bar() {}
+func (*GenericP[T]) foobar() {}
 `)
+
 	noImplementation = []byte(`
 package foo
 type Foo struct {}
@@ -93,9 +108,7 @@ func TestFindImplementation(t *testing.T) {
 	// find in dir
 	found, err := cosmosanalysis.FindImplementation(tmpDir, expectedinterface)
 	require.NoError(t, err)
-	require.Len(t, found, 2)
-	require.Contains(t, found, "Foo")
-	require.Contains(t, found, "Foobar")
+	require.ElementsMatch(t, found, []string{"Foo", "Foobar", "Generic", "GenericP"})
 
 	// empty directory
 	emptyDir := t.TempDir()
