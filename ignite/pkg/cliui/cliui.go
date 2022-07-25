@@ -172,7 +172,7 @@ func (s Session) printLoop() {
 
 		case events.StatusNeutral:
 			resume := s.PauseSpinner()
-			fmt.Fprintf(s.out, event.Text())
+			fmt.Fprint(s.out, event.Text())
 			resume()
 		}
 
