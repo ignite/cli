@@ -42,7 +42,7 @@ format:
 ## lint: Run Golang CI Lint.
 lint:
 	@echo Running gocilint...
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.47.2
 	@golangci-lint run --out-format=tab --issues-exit-code=0
 
 ## test-unit: Run the unit tests.
