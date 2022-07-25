@@ -1,5 +1,10 @@
 package foo
 
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+)
+
 type Foo struct {
 	FooKeeper foo.keeper
 }

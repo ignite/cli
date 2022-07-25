@@ -21,6 +21,98 @@ import (
 	envtest "github.com/ignite/cli/integration"
 )
 
+func TestSignTxWithDashedAppName(t *testing.T) {
+
+	var (
+		env         = envtest.New(t)
+		appname     = "dashed-app-name"
+		path        = env.Scaffold(appname)
+		host        = env.RandomizeServerPorts(path, "")
+		ctx, cancel = context.WithCancel(env.Ctx())
+	)
+
+	nodeAddr, err := xurl.TCP(host.RPC)
+	if err != nil {
+		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", host.RPC, err)
+	}
+
+	env.Exec("scaffold a simple list",
+		step.NewSteps(step.New(
+			step.Workdir(path),
+			step.Exec(
+				envtest.IgniteApp,
+				"scaffold",
+				"list",
+				"item",
+				"str",
+				"--yes",
+			),
+		)),
+	)
+
+	var (
+		output            = &bytes.Buffer{}
+		isTxBodyRetrieved bool
+		txResponse        struct {
+			Code   int
+			RawLog string `json:"raw_log"`
+		}
+	)
+	// sign tx to add an item to the list.
+	steps := step.NewSteps(
+		step.New(
+			step.Exec(
+				appname+"d",
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				return env.IsAppServed(ctx, host)
+			}),
+		),
+		step.New(
+			step.Stdout(output),
+			step.PreExec(func() error {
+				err := env.IsAppServed(ctx, host)
+				return err
+			}),
+			step.Exec(
+				appname+"d",
+				"tx",
+				"dashedappname",
+				"create-item",
+				"helloworld",
+				"--from", "alice",
+				"--node", nodeAddr,
+				"--yes",
+			),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
+				}
+				err := json.Unmarshal(output.Bytes(), &txResponse)
+				if err != nil {
+					return fmt.Errorf("unmarshling tx response: %w", err)
+				}
+				return nil
+			}),
+		),
+	)
+
+	go func() {
+		defer cancel()
+		isTxBodyRetrieved = env.Exec("sign a tx", steps, envtest.ExecRetry())
+	}()
+
+	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
+
+	if !isTxBodyRetrieved {
+		t.FailNow()
+	}
+	require.Equal(t, 0, txResponse.Code,
+		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
+}
+
 func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)

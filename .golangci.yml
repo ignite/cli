@@ -22,11 +22,11 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - interfacer
+    # - interfacer
     # - maligned
     - misspell
     - nakedret
-    - scopelint
+    - exportloopref
     - staticcheck
     - structcheck
     - stylecheck
