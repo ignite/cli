@@ -110,7 +110,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// prepareFromGenesisInformation prepares the genesis of the chain from the queried the genesis information from the launch ID of the chain
+// prepareFromGenesisInformation prepares the genesis of the chain from the queried genesis information from the launch ID of the chain
 func prepareFromGenesisInformation(
 	cmd *cobra.Command,
 	cacheStorage cache.Storage,
