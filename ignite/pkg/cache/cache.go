@@ -51,7 +51,7 @@ func Key(keyParts ...string) string {
 
 // Clear deletes all namespaces and cached values
 func (s Storage) Clear() error {
-	db, err := openDb(s.storagePath)
+	db, err := openDB(s.storagePath)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (s Storage) Clear() error {
 // Put sets key to value within the namespace
 // If the key already exists, it will be overwritten
 func (c Cache[T]) Put(key string, value T) error {
-	db, err := openDb(c.storage.storagePath)
+	db, err := openDB(c.storage.storagePath)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (c Cache[T]) Put(key string, value T) error {
 // Get fetches the value of key within the namespace.
 // If no value exists, it will return found == false
 func (c Cache[T]) Get(key string) (val T, err error) {
-	db, err := openDb(c.storage.storagePath)
+	db, err := openDB(c.storage.storagePath)
 	if err != nil {
 		return
 	}
@@ -128,7 +128,7 @@ func (c Cache[T]) Get(key string) (val T, err error) {
 
 // Delete removes a value for key within the namespace
 func (c Cache[T]) Delete(key string) error {
-	db, err := openDb(c.storage.storagePath)
+	db, err := openDB(c.storage.storagePath)
 	if err != nil {
 		return err
 	}
@@ -144,6 +144,6 @@ func (c Cache[T]) Delete(key string) error {
 	})
 }
 
-func openDb(path string) (*bolt.DB, error) {
+func openDB(path string) (*bolt.DB, error) {
 	return bolt.Open(path, 0640, &bolt.Options{Timeout: 1 * time.Minute})
 }
