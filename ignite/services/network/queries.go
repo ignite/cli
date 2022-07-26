@@ -313,20 +313,6 @@ func (n Network) RewardsInfo(
 	return
 }
 
-// CampaignChains fetches the campaign chains
-func (n Network) CampaignChains(ctx context.Context, campaignID uint64) (networktypes.CampaignChains, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign chains"))
-	res, err := n.campaignQuery.CampaignChains(ctx, &campaigntypes.QueryGetCampaignChainsRequest{
-		CampaignID: campaignID,
-	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return networktypes.CampaignChains{}, ErrObjectNotFound
-	} else if err != nil {
-		return networktypes.CampaignChains{}, err
-	}
-	return networktypes.ToCampaignChains(res.CampaignChains), nil
-}
-
 // ChainID fetches the network chain id
 func (n Network) ChainID(ctx context.Context) (string, error) {
 	status, err := n.cosmos.Status(ctx)

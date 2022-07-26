@@ -2,8 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -86,37 +84,24 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 	return res.Balances, nil
 }
 
-// MainnetAccountBalance returns the spn account or vesting account balance by address from SPN
-func (n Network) MainnetAccountBalance(
-	ctx context.Context,
-	launchID uint64,
-	address string,
-) (balance sdk.Coins, vesting sdk.Coins, err error) {
-	acc, err := n.GenesisAccount(ctx, launchID, address)
-	switch {
-	case err == ErrObjectNotFound:
-		accVest, err := n.VestingAccount(ctx, launchID, address)
-		if err != nil && err != ErrObjectNotFound {
-			return nil, nil, err
-		}
-		balance = accVest.TotalBalance
-		vesting = accVest.Vesting
-	case err != nil:
-		return nil, nil, err
-	default:
-		balance = acc.Coins
-	}
-	return
-}
-
 // Profile returns the address profile info
-func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) (networktypes.Profile, error) {
+func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.Profile, error) {
 	address := n.account.Address(networktypes.SPN)
 
-	vouchers, err := n.Balances(ctx, address)
+	// fetch vouchers held by the account
+	coins, err := n.Balances(ctx, address)
 	if err != nil {
 		return networktypes.Profile{}, err
 	}
+	vouchers := sdk.NewCoins()
+	for _, coin := range coins {
+		// parse the coin to filter all non-voucher coins from the balance
+		_, err := campaigntypes.VoucherCampaign(coin.Denom)
+		if err == nil {
+			vouchers = append(vouchers, coin)
+		}
+	}
+	vouchers = vouchers.Sort()
 
 	var (
 		shares             campaigntypes.Shares
@@ -124,34 +109,13 @@ func (n Network) Profile(ctx context.Context, campaign bool, campaignID uint64) 
 		chainVestingShares []networktypes.ChainShare
 	)
 
-	if campaign {
-		campaignChains, err := n.CampaignChains(ctx, campaignID)
-		if err == ErrObjectNotFound {
-			return networktypes.Profile{}, fmt.Errorf("invalid campaign id %d", campaignID)
-		} else if err != nil {
-			return networktypes.Profile{}, err
-		}
-
+	// if a campaign ID is specified, fetches the shares of the campaign
+	if campaignID > 0 {
 		acc, err := n.MainnetAccount(ctx, campaignID, address)
 		if err != nil && err != ErrObjectNotFound {
 			return networktypes.Profile{}, err
 		}
 		shares = acc.Shares
-
-		for _, chain := range campaignChains.Chains {
-			balance, vesting, err := n.MainnetAccountBalance(ctx, chain, address)
-			if err != nil && err != ErrObjectNotFound {
-				return networktypes.Profile{}, err
-			}
-			chainShares = append(chainShares, networktypes.ChainShare{
-				LaunchID: chain,
-				Shares:   balance,
-			})
-			chainVestingShares = append(chainVestingShares, networktypes.ChainShare{
-				LaunchID: chain,
-				Shares:   vesting,
-			})
-		}
 	}
 
 	var p networktypes.ProfileAcc
