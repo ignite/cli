@@ -74,6 +74,7 @@ func (e Env) Scaffold(name string, flags ...string) App {
 
 func (e Env) App(path string, options ...AppOption) App {
 	app := App{
+		env:  e,
 		path: path,
 	}
 
