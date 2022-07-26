@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
 
 var (

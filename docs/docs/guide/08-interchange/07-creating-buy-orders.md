@@ -13,6 +13,7 @@ Add the buyer to the proto file definition:
 
 ```proto
 // proto/dex/packet.proto
+
 message BuyOrderPacketData {
   // ...
   string buyer = 5;
@@ -22,7 +23,7 @@ message BuyOrderPacketData {
 Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
 
 ```bash
-ignite generate proto-go
+ignite generate proto-go --yes
 ```
 
 ## IBC Message Handling in SendBuyOrder
@@ -34,33 +35,44 @@ ignite generate proto-go
 
 ```go
 // x/dex/keeper/msg_server_buy_order.go
+
 import (
-  //...
-  "errors"
+	"context"
+	"errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"interchange/x/dex/types"
 )
 
 func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrder) (*types.MsgSendBuyOrderResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// Cannot send a order if the pair doesn't exist
 	pairIndex := types.OrderBookIndex(msg.Port, msg.ChannelID, msg.AmountDenom, msg.PriceDenom)
 	_, found := k.GetBuyOrderBook(ctx, pairIndex)
 	if !found {
 		return &types.MsgSendBuyOrderResponse{}, errors.New("the pair doesn't exist")
 	}
+
 	// Lock the token to send
 	sender, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
+
   // Use SafeBurn to ensure no new native tokens are minted
 	if err := k.SafeBurn(ctx, msg.Port, msg.ChannelID, sender, msg.PriceDenom, msg.Amount*msg.Price); err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
+
 	// Save the voucher received on the other chain, to have the ability to resolve it into the original denom
 	k.SaveVoucherDenom(ctx, msg.Port, msg.ChannelID, msg.PriceDenom)
+
 	// Construct the packet
 	var packet types.BuyOrderPacketData
 	packet.Buyer = msg.Creator
+
   // Transmit an IBC packet...
 	return &types.MsgSendBuyOrderResponse{}, nil
 }
@@ -74,25 +86,30 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 
 ```go
 // x/dex/keeper/buy_order.go
+
 func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) (packetAck types.BuyOrderPacketAck, err error) {
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
 	}
+
 	// Check if the sell order book exists
 	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
 	book, found := k.GetSellOrderBook(ctx, pairIndex)
 	if !found {
 		return packetAck, errors.New("the pair doesn't exist")
 	}
+
 	// Fill buy order
 	remaining, liquidated, purchase, _ := book.FillBuyOrder(types.Order{
 		Amount: data.Amount,
 		Price: data.Price,
 	})
+
 	// Return remaining amount and gains
 	packetAck.RemainingAmount = remaining.Amount
 	packetAck.Purchase = purchase
+
 	// Before distributing gains, we resolve the denom
 	// First we check if the denom received comes from this chain originally
 	finalPriceDenom, saved := k.OriginalDenom(ctx, packet.DestinationPort, packet.DestinationChannel, data.PriceDenom)
@@ -100,6 +117,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 		// If it was not from this chain we use voucher as denom
 		finalPriceDenom = VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
 	}
+
 	// Dispatch liquidated buy order
 	for _, liquidation := range liquidated {
 		liquidation := liquidation
@@ -107,6 +125,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 		if err != nil {
 			return packetAck, err
 		}
+
 		if err := k.SafeMint(
 			ctx,
 			packet.DestinationPort,
@@ -118,8 +137,10 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 			return packetAck, err
 		}
 	}
+
 	// Save the new order book
 	k.SetSellOrderBook(ctx, book)
+
 	return packetAck, nil
 }
 ```
@@ -130,6 +151,7 @@ The `FillSellOrder` function tries to fill the buy order with the order book and
 
 ```go
 // x/dex/types/buy_order_book.go
+
 func (b *BuyOrderBook) FillSellOrder(order Order) (
 	remainingSellOrder Order,
 	liquidated []Order,
@@ -172,6 +194,7 @@ The `LiquidateFromSellOrder` function liquidates the first sell order of the boo
 
 ```go
 // x/dex/types/buy_order_book.go
+
 func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 	 remainingSellOrder Order,
 	 liquidatedBuyOrder Order,
@@ -208,6 +231,7 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 		 } else {
 			 b.Book.Orders[orderCount-1] = highestBid
 		 }
+
 		 return remainingSellOrder, liquidatedBuyOrder, gain, true, true
 	 }
 
@@ -232,6 +256,7 @@ After a buy order acknowledgement is received, chain `Mars`:
 
 ```go
 // x/dex/keeper/buy_order.go
+
 func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -240,6 +265,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 		if err != nil {
 			return err
 		}
+
 		if err := k.SafeMint(
 			ctx,
 			packet.SourcePort,
@@ -250,6 +276,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 		); err != nil {
 			return err
 		}
+
 		return nil
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
@@ -259,12 +286,14 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
+
 		// Get the sell order book
 		pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
 		book, found := k.GetBuyOrderBook(ctx, pairIndex)
 		if !found {
 			panic("buy order book must exist")
 		}
+
 		// Append the remaining amount of the order
 		if packetAck.RemainingAmount > 0 {
 			_, err := book.AppendOrder(
@@ -275,20 +304,24 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 			if err != nil {
 				return err
 			}
+
 			// Save the new order book
 			k.SetBuyOrderBook(ctx, book)
 		}
+
 		// Mint the purchase
 		if packetAck.Purchase > 0 {
 			receiver, err := sdk.AccAddressFromBech32(data.Buyer)
 			if err != nil {
 				return err
 			}
+
 			finalAmountDenom, saved := k.OriginalDenom(ctx, packet.SourcePort, packet.SourceChannel, data.AmountDenom)
 			if !saved {
 				// If it was not from this chain we use voucher as denom
 				finalAmountDenom = VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
 			}
+
 			if err := k.SafeMint(
 				ctx,
 				packet.SourcePort,
@@ -300,6 +333,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 				return err
 			}
 		}
+
 		return nil
 	default:
 		// The counter-party module doesn't implement the correct acknowledgment format
@@ -309,10 +343,11 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 ```
 
 `AppendOrder` appends an order in the buy order book.
-Add the following function to the `buy_order_book.go` file in the `types` directory.
+Add the following function to the `x/dex/types/buy_order_book.go` file in the `types` directory.
 
 ```go
 // x/dex/types/buy_order_book.go
+
 func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
   return b.Book.appendOrder(creator, amount, price, Increasing)
 }
@@ -324,6 +359,7 @@ If a timeout occurs, mint back the native token:
 
 ```go
 // x/dex/keeper/buy_order.go
+
 func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) error {
 	// In case of error we mint back the native token
 	receiver, err := sdk.AccAddressFromBech32(data.Buyer)
