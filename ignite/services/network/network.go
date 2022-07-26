@@ -127,10 +127,10 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 func ParseID(id string) (uint64, error) {
 	objID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return 0, errors.Wrap(err, "error parsing launchID")
+		return 0, errors.Wrap(err, "error parsing ID")
 	}
 	if objID == 0 {
-		return 0, errors.New("launch ID must be greater than 0")
+		return 0, errors.New("ID must be greater than 0")
 	}
 	return objID, nil
 }
