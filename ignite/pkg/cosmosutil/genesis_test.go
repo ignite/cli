@@ -10,7 +10,7 @@ import (
 	"github.com/buger/jsonparser"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 )
 
 func TestChainGenesis_HasAccount(t *testing.T) {
@@ -58,12 +58,14 @@ func TestParseChainGenesis(t *testing.T) {
 		Address string `json:"address"`
 	}{{Address: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"}}
 	genesis1.AppState.Staking.Params.BondDenom = "stake"
+	genesis1.AppState.Genutil.GenTxs = []struct{}{{}} // 1 gentx
 
 	genesis2 := cosmosutil.ChainGenesis{ChainID: "earth-1"}
 	genesis2.AppState.Auth.Accounts = []struct {
 		Address string `json:"address"`
 	}{{Address: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"}}
 	genesis2.AppState.Staking.Params.BondDenom = "stake"
+	genesis2.AppState.Genutil.GenTxs = []struct{}{{}} // 1 gentx
 
 	tests := []struct {
 		name        string
@@ -336,6 +338,39 @@ func TestUpdateGenesis(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, val, value)
 			}
+		})
+	}
+}
+
+func TestChainGenesis_GenTxCount(t *testing.T) {
+	// create a genesis with 10 gentx
+	testChainGenesis := cosmosutil.ChainGenesis{}
+	for i := 0; i < 10; i++ {
+		testChainGenesis.AppState.Genutil.GenTxs = append(
+			testChainGenesis.AppState.Genutil.GenTxs,
+			struct{}{},
+		)
+	}
+
+	tests := []struct {
+		name         string
+		chainGenesis cosmosutil.ChainGenesis
+		expected     int
+	}{
+		{
+			name:         "should return 0 for initialized chain genesis",
+			chainGenesis: cosmosutil.ChainGenesis{},
+			expected:     0,
+		},
+		{
+			name:         "should return the number of gentxs",
+			chainGenesis: testChainGenesis,
+			expected:     10,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.EqualValues(t, tt.expected, tt.chainGenesis.GenTxCount())
 		})
 	}
 }

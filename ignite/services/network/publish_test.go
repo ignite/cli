@@ -15,10 +15,10 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/ignite-hq/cli/ignite/services/network/testutil"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/services/network/testutil"
 )
 
 func startGenesisTestServer(genesis cosmosutil.ChainGenesis) *httptest.Server {
@@ -262,7 +262,7 @@ func TestPublish(t *testing.T) {
 		var (
 			account              = testutil.NewTestAccount(t, testutil.TestAccountName)
 			customGenesisChainID = "test-custom-1"
-			customGenesisHash    = "72a80a32e33513cd74423354502cef035e96b0bff59c754646b453b201d12d07"
+			customGenesisHash    = "61da86775013bd18d6a019b533eedf1304b778fe8005090a0a0223720adfd8eb"
 			gts                  = startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
 			suite, network       = newSuite(account)
 		)

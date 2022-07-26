@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"

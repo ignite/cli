@@ -6,9 +6,9 @@ import (
 
 	gomodmodule "golang.org/x/mod/module"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 // generateOptions used to configure code generation.

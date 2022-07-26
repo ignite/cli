@@ -8,11 +8,11 @@ import (
 
 	"github.com/manifoldco/promptui"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 // Session controls command line interaction with users.
@@ -172,7 +172,7 @@ func (s Session) printLoop() {
 
 		case events.StatusNeutral:
 			resume := s.PauseSpinner()
-			fmt.Fprintf(s.out, event.Text())
+			fmt.Fprint(s.out, event.Text())
 			resume()
 		}
 

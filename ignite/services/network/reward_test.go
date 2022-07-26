@@ -9,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
-	"github.com/ignite-hq/cli/ignite/services/network/testutil"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/services/network/testutil"
 )
 
 func TestSetReward(t *testing.T) {
