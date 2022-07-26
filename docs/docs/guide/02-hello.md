@@ -11,10 +11,10 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite/cli), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.20.0 use the following command:
+This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For example, to install Ignite CLI v0.22.2 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.21.2! | bash
+curl https://get.ignite.com/cli@v0.22.2! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.

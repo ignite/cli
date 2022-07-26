@@ -1,5 +1,4 @@
 //go:build !relayer
-// +build !relayer
 
 package app_test
 

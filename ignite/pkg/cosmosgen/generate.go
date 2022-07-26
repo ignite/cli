@@ -2,21 +2,30 @@ package cosmosgen
 
 import (
 	"bytes"
+	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/protopath"
-	"github.com/pkg/errors"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
-	defaultSdkImport     = "github.com/cosmos/cosmos-sdk"
+	defaultSDKImport     = "github.com/cosmos/cosmos-sdk"
 	moduleCacheNamespace = "generate.setup.module"
+)
+
+var (
+	protocGlobalInclude = xfilepath.List(
+		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
+		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
+	)
 )
 
 type ModulesInPath struct {
@@ -48,10 +57,12 @@ func (g *generator) setup() (err error) {
 		return err
 	}
 
-	g.sdkImport = defaultSdkImport
-	// look for any cosmos-sdk replace directive in mod file
+	g.sdkImport = defaultSDKImport
+
+	// Check if the Cosmos SDK import path points to a different path
+	// and if so change the default one to the new location.
 	for _, r := range modfile.Replace {
-		if r.Old.Path == defaultSdkImport {
+		if r.Old.Path == defaultSDKImport {
 			g.sdkImport = r.New.Path
 			break
 		}
@@ -114,19 +125,61 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
+func (g *generator) resolveDepencyInclude() ([]string, error) {
+	// Init paths with the global include paths for protoc
+	paths, err := protocGlobalInclude()
+	if err != nil {
+		return nil, err
+	}
+
+	// Relative paths to proto directories
+	protoDirs := append([]string{g.protoDir}, g.o.includeDirs...)
+
+	// Create a list of proto import paths for the dependencies.
+	// These paths will be available to be imported from the chain app's proto files.
+	for rootPath, m := range g.thirdModules {
+		// Skip modules without proto files
+		if m == nil {
+			continue
+		}
+
+		// Check each one of the possible proto directory names for the
+		// current module and append them only when the directory exists.
+		for _, d := range protoDirs {
+			p := filepath.Join(rootPath, d)
+			f, err := os.Stat(p)
+			if err != nil {
+				if os.IsNotExist(err) {
+					continue
+				}
+
+				return nil, err
+			}
+
+			if f.IsDir() {
+				paths = append(paths, p)
+			}
+		}
+	}
+
+	return paths, nil
+}
+
 func (g *generator) resolveInclude(path string) (paths []string, err error) {
+	// Append chain app's proto paths
 	paths = append(paths, filepath.Join(path, g.protoDir))
 	for _, p := range g.o.includeDirs {
 		paths = append(paths, filepath.Join(path, p))
 	}
 
-	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.cacheStorage, g.appPath, g.deps,
-		protopath.NewModule(g.sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
+	// Append paths for dependencies that have protocol buffer files
+	includePaths, err := g.resolveDepencyInclude()
 	if err != nil {
 		return nil, err
 	}
 
 	paths = append(paths, includePaths...)
+
 	return paths, nil
 }
 

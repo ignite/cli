@@ -47,11 +47,11 @@ module github.com/username/blogclient
 go 1.17
 
 require (
-	github.com/username/blog v0.0.0-00010101000000-000000000000
+	blog v0.0.0-00010101000000-000000000000
 	github.com/ignite/cli v0.22.2
 )
 
-replace github.com/username/blog => ../blog
+replace blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
@@ -76,14 +76,14 @@ import (
 	"fmt"
 	"log"
 
-	// importing the types package of your blog blockchain
-	"github.com/username/blog/x/blog/types"
 	// importing the general purpose Cosmos blockchain client
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+
+	// importing the types package of your blog blockchain
+	"blog/x/blog/types"
 )
 
 func main() {
-
 	// create an instance of cosmosclient
 	cosmos, err := cosmosclient.New(context.Background())
 	if err != nil {
@@ -118,7 +118,7 @@ func main() {
 	fmt.Println(txResp)
 
 	// instantiate a query client for your `blog` blockchain
-	queryClient := types.NewQueryClient(cosmos.Context)
+	queryClient := types.NewQueryClient(cosmos.Context())
 
 	// query the blockchain using the client's `Posts` method to get all posts
 	// store all posts in queryResp
@@ -157,7 +157,6 @@ go run main.go
 If successful, the results of running the command are printed to the terminal:
 
 ```bash
-go run main.go
 # github.com/keybase/go-keychain
 ### Some warnings might be displayed which can be ignored
 MsgCreatePost:
@@ -196,5 +195,3 @@ pagination:
 ```
 
 Congratulations, you have just created a post using a separate app.
-
-When you publish your blockchain project to GitHub, you won't need to use the replace function in your `go.mod` file anymore and can directly use your GitHub repository to fetch the types and interact with your program.
