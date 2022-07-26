@@ -1,7 +1,6 @@
 //go:build !relayer
-// +build !relayer
 
-package app_test
+package chain_test
 
 import (
 	"context"
