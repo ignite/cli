@@ -1,5 +1,4 @@
 //go:build !relayer
-// +build !relayer
 
 package list_test
 
@@ -17,6 +16,13 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		path = env.Scaffold("github.com/test/blog")
 	)
 
+	env.Must(env.Exec("create a module",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
@@ -24,9 +30,19 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a list with custom path",
+	env.Must(env.Exec("create a list with custom path and module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "AppPath", "email", "--path", "blog"),
+			step.Exec(envtest.IgniteApp,
+				"s",
+				"list",
+				"--yes",
+				"AppPath",
+				"email",
+				"--path",
+				"blog",
+				"--module",
+				"example",
+			),
 			step.Workdir(filepath.Dir(path)),
 		)),
 	))
@@ -58,14 +74,30 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("create a list with bool",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "document", "signed:bool"),
+			step.Exec(envtest.IgniteApp,
+				"s",
+				"list",
+				"--yes",
+				"document",
+				"signed:bool",
+				"--module",
+				"example",
+			),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a list with custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "custom", "document:Document"),
+			step.Exec(envtest.IgniteApp,
+				"s",
+				"list",
+				"--yes",
+				"custom",
+				"document:Document",
+				"--module",
+				"example",
+			),
 			step.Workdir(path),
 		)),
 	))
@@ -117,47 +149,9 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		)),
 	))
 
-	env.EnsureAppIsSteady(path)
-}
-
-func TestCreateListInCustomModuleWithStargate(t *testing.T) {
-	var (
-		env  = envtest.New(t)
-		path = env.Scaffold("github.com/test/blog")
-	)
-
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a list",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a list in the app's module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
-			step.Workdir(path),
-		)),
-	))
-
 	env.Must(env.Exec("should prevent creating a list in a non existent module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "idontexist"),
-			step.Workdir(path),
-		)),
-		envtest.ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating an existing list",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 		envtest.ExecShouldError(),
