@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
