@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
@@ -48,6 +49,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	var (
+		joinOptions  []network.JoinOption
 		gentxPath, _ = cmd.Flags().GetString(flagGentx)
 		amount, _    = cmd.Flags().GetString(flagAmount)
 	)
@@ -63,10 +65,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	joinOptions := []network.JoinOption{
-		network.WithCustomGentxPath(gentxPath),
-	}
-
 	// if there is no custom gentx, we need to detect the public address.
 	if gentxPath == "" {
 		// get the peer public address for the validator.
@@ -76,6 +74,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 
 		joinOptions = append(joinOptions, network.WithPublicAddress(publicAddr))
+	}
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
 	}
 
 	n, err := nb.Network()
@@ -90,6 +93,28 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
+		return err
+	}
+
+	// use the default gentx path from chain home if not provided
+	if gentxPath == "" {
+		gentxPath, err = c.DefaultGentxPath()
+		if err != nil {
+			return err
+		}
+	}
+
+	// create a temporary directory for the chain home and genesis
+	// create the chain in a temp dir
+	tmpHome, err := os.MkdirTemp("", "*-spn")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpHome)
+	c.SetHome(tmpHome)
+
+	// initialize the genesis under a temporary repository
+	if err := c.Init(cmd.Context(), cacheStorage); err != nil {
 		return err
 	}
 
@@ -111,11 +136,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
+		_ = session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
 	}
 
 	// create the message to add the validator.
-	return n.Join(cmd.Context(), c, launchID, joinOptions...)
+	return n.Join(cmd.Context(), c, launchID, gentxPath, joinOptions...)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
