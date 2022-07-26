@@ -39,17 +39,17 @@ func TestParseID(t *testing.T) {
 		{
 			name: "invalid uint",
 			id:   "-10",
-			err:  errors.New("error parsing launchID: strconv.ParseUint: parsing \"-10\": invalid syntax"),
+			err:  errors.New("error parsing ID: strconv.ParseUint: parsing \"-10\": invalid syntax"),
 		},
 		{
 			name: "invalid string",
 			id:   "test",
-			err:  errors.New("error parsing launchID: strconv.ParseUint: parsing \"test\": invalid syntax"),
+			err:  errors.New("error parsing ID: strconv.ParseUint: parsing \"test\": invalid syntax"),
 		},
 		{
 			name: "invalid launch id",
 			id:   "0",
-			err:  errors.New("launch ID must be greater than 0"),
+			err:  errors.New("ID must be greater than 0"),
 		},
 	}
 	for _, tt := range tests {
