@@ -103,11 +103,7 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 	}
 	vouchers = vouchers.Sort()
 
-	var (
-		shares             campaigntypes.Shares
-		chainShares        []networktypes.ChainShare
-		chainVestingShares []networktypes.ChainShare
-	)
+	var shares campaigntypes.Shares
 
 	// if a campaign ID is specified, fetches the shares of the campaign
 	if campaignID > 0 {
@@ -130,5 +126,5 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 	} else if err != nil {
 		return networktypes.Profile{}, err
 	}
-	return p.ToProfile(campaignID, vouchers, shares, chainShares, chainVestingShares), nil
+	return p.ToProfile(campaignID, vouchers, shares), nil
 }

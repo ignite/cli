@@ -21,21 +21,17 @@ func (v Validator) ToProfile(
 	campaignID uint64,
 	vouchers sdk.Coins,
 	shares campaigntypes.Shares,
-	chainShares,
-	chainVestingShares []ChainShare,
 ) Profile {
 	return Profile{
-		CampaignID:         campaignID,
-		Address:            v.Address,
-		Identity:           v.Identity,
-		Website:            v.Website,
-		Details:            v.Details,
-		Moniker:            v.Moniker,
-		SecurityContact:    v.SecurityContact,
-		Vouchers:           vouchers,
-		Shares:             shares,
-		ChainShares:        chainShares,
-		ChainVestingShares: chainVestingShares,
+		CampaignID:      campaignID,
+		Address:         v.Address,
+		Identity:        v.Identity,
+		Website:         v.Website,
+		Details:         v.Details,
+		Moniker:         v.Moniker,
+		SecurityContact: v.SecurityContact,
+		Vouchers:        vouchers,
+		Shares:          shares,
 	}
 }
 
@@ -66,19 +62,15 @@ func (c Coordinator) ToProfile(
 	campaignID uint64,
 	vouchers sdk.Coins,
 	shares campaigntypes.Shares,
-	chainShares,
-	chainVestingShares []ChainShare,
 ) Profile {
 	return Profile{
-		CampaignID:         campaignID,
-		Address:            c.Address,
-		Identity:           c.Identity,
-		Website:            c.Website,
-		Details:            c.Details,
-		Vouchers:           vouchers,
-		Shares:             shares,
-		ChainShares:        chainShares,
-		ChainVestingShares: chainVestingShares,
+		CampaignID: campaignID,
+		Address:    c.Address,
+		Identity:   c.Identity,
+		Website:    c.Website,
+		Details:    c.Details,
+		Vouchers:   vouchers,
+		Shares:     shares,
 	}
 }
 
@@ -103,17 +95,15 @@ type (
 
 	// Profile represents the address profile on SPN
 	Profile struct {
-		Address            string               `json:"Address"`
-		CampaignID         uint64               `json:"CampaignID,omitempty"`
-		Identity           string               `json:"Identity,omitempty"`
-		Website            string               `json:"Website,omitempty"`
-		Details            string               `json:"Details,omitempty"`
-		Moniker            string               `json:"Moniker,omitempty"`
-		SecurityContact    string               `json:"SecurityContact,omitempty"`
-		Vouchers           sdk.Coins            `json:"Vouchers,omitempty"`
-		Shares             campaigntypes.Shares `json:"Shares,omitempty"`
-		ChainShares        []ChainShare         `json:"ChainShares,omitempty"`
-		ChainVestingShares []ChainShare         `json:"ChainVestingShares,omitempty"`
+		Address         string               `json:"Address"`
+		CampaignID      uint64               `json:"CampaignID,omitempty"`
+		Identity        string               `json:"Identity,omitempty"`
+		Website         string               `json:"Website,omitempty"`
+		Details         string               `json:"Details,omitempty"`
+		Moniker         string               `json:"Moniker,omitempty"`
+		SecurityContact string               `json:"SecurityContact,omitempty"`
+		Vouchers        sdk.Coins            `json:"Vouchers,omitempty"`
+		Shares          campaigntypes.Shares `json:"Shares,omitempty"`
 	}
 
 	// ProfileAcc represents the address profile method interface
@@ -122,8 +112,6 @@ type (
 			campaignID uint64,
 			vouchers sdk.Coins,
 			shares campaigntypes.Shares,
-			ChainShares,
-			ChainVestingShares []ChainShare,
 		) Profile
 	}
 )
