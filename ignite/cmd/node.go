@@ -1,8 +1,8 @@
 package ignitecmd
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 	"github.com/spf13/cobra"
 )
 

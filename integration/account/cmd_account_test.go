@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/randstr"
-	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/randstr"
+	envtest "github.com/ignite/cli/integration"
 	"github.com/stretchr/testify/require"
 )
 

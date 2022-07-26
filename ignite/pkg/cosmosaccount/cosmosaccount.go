@@ -51,7 +51,7 @@ const (
 
 // Registry for accounts.
 type Registry struct {
-	keyringDir         string
+	homePath           string
 	keyringServiceName string
 	keyringBackend     KeyringBackend
 
@@ -61,9 +61,9 @@ type Registry struct {
 // Option configures your registry.
 type Option func(*Registry)
 
-func WithKeyringDirPath(path string) Option {
+func WithHome(path string) Option {
 	return func(c *Registry) {
-		c.keyringDir = path
+		c.homePath = path
 	}
 }
 
@@ -84,7 +84,7 @@ func New(options ...Option) (Registry, error) {
 	r := Registry{
 		keyringServiceName: sdktypes.KeyringServiceName(),
 		keyringBackend:     KeyringTest,
-		keyringDir:         KeyringHome,
+		homePath:           KeyringHome,
 	}
 
 	for _, apply := range options {
@@ -93,7 +93,7 @@ func New(options ...Option) (Registry, error) {
 
 	var err error
 
-	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.keyringDir, os.Stdin)
+	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, os.Stdin)
 	if err != nil {
 		return Registry{}, err
 	}
@@ -105,7 +105,7 @@ func NewStandalone(options ...Option) (Registry, error) {
 	return New(
 		append([]Option{
 			WithKeyringServiceName(KeyringServiceName),
-			WithKeyringDirPath(KeyringHome),
+			WithHome(KeyringHome),
 		}, options...)...,
 	)
 }

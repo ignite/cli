@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/spf13/cobra"
 )
 

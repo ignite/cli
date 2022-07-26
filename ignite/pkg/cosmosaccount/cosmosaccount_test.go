@@ -1,17 +1,18 @@
 package cosmosaccount_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 const testAccountName = "myTestAccount"
 
 func TestRegistry(t *testing.T) {
 	tmpDir := t.TempDir()
-	registry, err := cosmosaccount.New(cosmosaccount.WithKeyringDir(tmpDir))
+	registry, err := cosmosaccount.New(cosmosaccount.WithHome(tmpDir))
 	require.NoError(t, err)
 
 	account, mnemonic, err := registry.Create(testAccountName)
@@ -24,7 +25,7 @@ func TestRegistry(t *testing.T) {
 	require.True(t, getAccount.Info.GetAddress().Equals(account.Info.GetAddress()))
 
 	secondTmpDir := t.TempDir()
-	secondRegistry, err := cosmosaccount.New(cosmosaccount.WithKeyringDir(secondTmpDir))
+	secondRegistry, err := cosmosaccount.New(cosmosaccount.WithHome(secondTmpDir))
 	require.NoError(t, err)
 
 	importedAccount, err := secondRegistry.Import(testAccountName, mnemonic, "")

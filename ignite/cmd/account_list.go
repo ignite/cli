@@ -28,7 +28,7 @@ func accountListHandler(cmd *cobra.Command, args []string) error {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(keyringBackend),
-		cosmosaccount.WithKeyringDir(keyringDir),
+		cosmosaccount.WithHome(keyringDir),
 	)
 	if err != nil {
 		return err

@@ -210,7 +210,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.AccountRegistry, err = cosmosaccount.New(
 		cosmosaccount.WithKeyringServiceName(c.keyringServiceName),
 		cosmosaccount.WithKeyringBackend(c.keyringBackend),
-		cosmosaccount.WithKeyringDir(c.keyringDir),
+		cosmosaccount.WithHome(c.keyringDir),
 	)
 	if err != nil {
 		return Client{}, err

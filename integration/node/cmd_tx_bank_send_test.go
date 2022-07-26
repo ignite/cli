@@ -9,15 +9,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alecthomas/assert"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/xurl"
+	envtest "github.com/ignite/cli/integration"
 )
 
 func TestNodeTxBankSend(t *testing.T) {
@@ -40,7 +40,7 @@ func TestNodeTxBankSend(t *testing.T) {
 	defer env.RequireExpectations()
 
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringDirPath(filepath.Join(home, keyringTestDirName)),
+		cosmosaccount.WithHome(filepath.Join(home, keyringTestDirName)),
 		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringTest),
 	)
 	require.NoError(t, err)
@@ -358,7 +358,7 @@ func TestNodeTxBankSendWithGas(t *testing.T) {
 	defer env.RequireExpectations()
 
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringDirPath(filepath.Join(home, keyringTestDirName)),
+		cosmosaccount.WithHome(filepath.Join(home, keyringTestDirName)),
 		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringTest),
 	)
 	require.NoError(t, err)

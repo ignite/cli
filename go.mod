@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.1.1
-	github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
 	github.com/buger/jsonparser v1.1.1
@@ -71,8 +70,6 @@ require (
 	github.com/Microsoft/hcsshim v0.9.2 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/alecthomas/chroma v0.8.2 // indirect
-	github.com/alecthomas/colour v0.0.0-20160524082231-60882d9e2721 // indirect
-	github.com/alecthomas/repr v0.0.0-20180818092828-117648cd9897 // indirect
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect

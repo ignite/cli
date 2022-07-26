@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/stretchr/testify/assert"
 )
 
