@@ -108,7 +108,7 @@ func (n Network) ensureAccount(
 ) (err error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
-	// the account may already exist in the initial genesis, we chack it from the generated genesis
+	// the account may already exist in the initial genesis, we check it from the generated genesis
 	accExist, err := cosmosutil.CheckGenesisContainsAddress(genesisPath, address)
 	if err != nil {
 		return err
