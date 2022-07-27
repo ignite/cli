@@ -270,10 +270,11 @@ func TestNodeTxBankSendGenerateOnly(t *testing.T) {
 		alice = "alice"
 		bob   = "bob"
 
-		env     = envtest.New(t)
-		app     = env.Scaffold(name, "--address-prefix", testPrefix)
-		home    = env.AppHome(name)
-		servers = app.RandomizeServerPorts()
+		env        = envtest.New(t)
+		app        = env.Scaffold(name, "--address-prefix", testPrefix)
+		home       = env.AppHome(name)
+		servers    = app.RandomizeServerPorts()
+		rndWorkdir = env.TmpDir()
 
 		accKeyringDir = t.TempDir()
 	)
@@ -333,7 +334,7 @@ func TestNodeTxBankSendGenerateOnly(t *testing.T) {
 		require.True(t, strings.Contains(generateOutput.String(), `"signatures":[]`))
 	}()
 
-	env.Must(env.Serve("should serve with Stargate version", path, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -349,6 +350,7 @@ func TestNodeTxBankSendWithGas(t *testing.T) {
 		home    = env.AppHome(name)
 		servers = app.RandomizeServerPorts()
 
+		rndWorkdir    = env.TmpDir()
 		accKeyringDir = t.TempDir()
 	)
 
@@ -480,7 +482,7 @@ func TestNodeTxBankSendWithGas(t *testing.T) {
 
 	}()
 
-	env.Must(env.Serve("should serve with Stargate version", path, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

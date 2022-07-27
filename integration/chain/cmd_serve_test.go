@@ -19,14 +19,14 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("github.com/test/sgblog")
-		servers = env.RandomizeServerPorts(apath, "")
+		app     = env.Scaffold("github.com/test/sgblog")
+		servers = app.RandomizeServerPorts()
 	)
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
-			step.Workdir(apath),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -38,7 +38,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -46,8 +46,8 @@ func TestServeStargateWithWasm(t *testing.T) {
 func TestServeStargateWithCustomHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("github.com/test/sgblog2")
-		servers = env.RandomizeServerPorts(apath, "")
+		app     = env.Scaffold("github.com/test/sgblog2")
+		servers = app.RandomizeServerPorts()
 	)
 
 	var (
@@ -58,7 +58,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -66,12 +66,9 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 func TestServeStargateWithConfigHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("github.com/test/sgblog3")
-		servers = env.RandomizeServerPorts(apath, "")
+		app     = env.Scaffold("github.com/test/sgblog3")
+		servers = app.RandomizeServerPorts()
 	)
-
-	// Set config homes
-	env.SetRandomHomeConfig(apath, "")
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -81,7 +78,7 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -90,19 +87,16 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	var (
-		env   = envtest.New(t)
-		apath = env.Scaffold("github.com/test/sgblog4")
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/sgblog4")
 	)
 	// Move config
 	newConfig := "new_config.yml"
 	newConfigPath := filepath.Join(tmpDir, newConfig)
-	err := os.Rename(filepath.Join(apath, "config.yml"), newConfigPath)
+	err := os.Rename(filepath.Join(app.SourcePath(), "config.yml"), newConfigPath)
 	require.NoError(t, err)
 
-	servers := env.RandomizeServerPorts(tmpDir, newConfig)
-
-	// Set config homes
-	env.SetRandomHomeConfig(tmpDir, newConfig)
+	servers := app.RandomizeServerPorts()
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -112,7 +106,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", newConfigPath, envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -121,11 +115,9 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 func TestServeStargateWithName(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		apath   = env.Scaffold("sgblog5")
-		servers = env.RandomizeServerPorts(apath, "")
+		app     = env.Scaffold("sgblog5")
+		servers = app.RandomizeServerPorts()
 	)
-
-	env.SetRandomHomeConfig(apath, "")
 
 	ctx, cancel := context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 
@@ -137,7 +129,7 @@ func TestServeStargateWithName(t *testing.T) {
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
 
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
