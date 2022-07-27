@@ -436,8 +436,8 @@ func (_m *StakingClient) Validators(ctx context.Context, in *types.QueryValidato
 	return r0, r1
 }
 
-// NewQueryClient creates a new instance of StakingClient. It also registers a cleanup function to assert the mocks expectations.
-func NewQueryClient(t testing.TB) *StakingClient {
+// NewStakingClient creates a new instance of StakingClient. It also registers a cleanup function to assert the mocks expectations.
+func NewStakingClient(t testing.TB) *StakingClient {
 	mock := &StakingClient{}
 
 	t.Cleanup(func() { mock.AssertExpectations(t) })

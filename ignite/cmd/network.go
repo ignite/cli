@@ -60,6 +60,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkRequest(),
 		NewNetworkReward(),
 		NewNetworkClient(),
+		NewNetworkProfile(),
 	)
 
 	return c

@@ -17,6 +17,7 @@ type Suite struct {
 	ProfileQueryMock  *mocks.ProfileClient
 	RewardClient      *mocks.RewardClient
 	StakingClient     *mocks.StakingClient
+	BankClient        *mocks.BankClient
 }
 
 // AssertAllMocks asserts all suite mocks expectations
@@ -28,6 +29,7 @@ func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.CampaignQueryMock.AssertExpectations(t)
 	s.RewardClient.AssertExpectations(t)
 	s.StakingClient.AssertExpectations(t)
+	s.BankClient.AssertExpectations(t)
 }
 
 // NewSuite creates new suite with mocks
@@ -42,5 +44,6 @@ func NewSuite() Suite {
 		ProfileQueryMock:  new(mocks.ProfileClient),
 		RewardClient:      new(mocks.RewardClient),
 		StakingClient:     new(mocks.StakingClient),
+		BankClient:        new(mocks.BankClient),
 	}
 }

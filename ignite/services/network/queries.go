@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"sync"
 
@@ -165,6 +166,31 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	return genVals, nil
 }
 
+// MainnetAccount returns the campaign mainnet account for a launch from SPN
+func (n Network) MainnetAccount(
+	ctx context.Context,
+	campaignID uint64,
+	address string,
+) (acc networktypes.MainnetAccount, err error) {
+	n.ev.Send(events.New(events.StatusOngoing,
+		fmt.Sprintf("Fetching campaign %d mainnet account %s", campaignID, address)),
+	)
+	res, err := n.campaignQuery.
+		MainnetAccount(ctx,
+			&campaigntypes.QueryGetMainnetAccountRequest{
+				CampaignID: campaignID,
+				Address:    address,
+			},
+		)
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return networktypes.MainnetAccount{}, ErrObjectNotFound
+	} else if err != nil {
+		return acc, err
+	}
+
+	return networktypes.ToMainnetAccount(res.MainnetAccount), nil
+}
+
 // MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN
 func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetAccount, err error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet accounts"))
@@ -183,6 +209,48 @@ func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAcc
 	}
 
 	return genAccs, nil
+}
+
+func (n Network) GenesisAccount(ctx context.Context, launchID uint64, address string) (networktypes.GenesisAccount, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis accounts"))
+	res, err := n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
+		LaunchID: launchID,
+		Address:  address,
+	})
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return networktypes.GenesisAccount{}, ErrObjectNotFound
+	} else if err != nil {
+		return networktypes.GenesisAccount{}, err
+	}
+	return networktypes.ToGenesisAccount(res.GenesisAccount), nil
+}
+
+func (n Network) VestingAccount(ctx context.Context, launchID uint64, address string) (networktypes.VestingAccount, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching vesting accounts"))
+	res, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
+		LaunchID: launchID,
+		Address:  address,
+	})
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return networktypes.VestingAccount{}, ErrObjectNotFound
+	} else if err != nil {
+		return networktypes.VestingAccount{}, err
+	}
+	return networktypes.ToVestingAccount(res.VestingAccount)
+}
+
+func (n Network) GenesisValidator(ctx context.Context, launchID uint64, address string) (networktypes.GenesisValidator, error) {
+	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis validator"))
+	res, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
+		LaunchID: launchID,
+		Address:  address,
+	})
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return networktypes.GenesisValidator{}, ErrObjectNotFound
+	} else if err != nil {
+		return networktypes.GenesisValidator{}, err
+	}
+	return networktypes.ToGenesisValidator(res.GenesisValidator), nil
 }
 
 // ChainReward fetches the chain reward from SPN by launch id
