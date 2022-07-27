@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -21,20 +22,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-// Network is network builder.
-type Network struct {
-	node                    Node
-	cosmos                  CosmosClient
-	ev                      events.Bus
-	account                 cosmosaccount.Account
-	campaignQuery           campaigntypes.QueryClient
-	launchQuery             launchtypes.QueryClient
-	profileQuery            profiletypes.QueryClient
-	rewardQuery             rewardtypes.QueryClient
-	monitoringConsumerQuery monitoringctypes.QueryClient
-	monitoringProviderQuery monitoringptypes.QueryClient
-}
-
 //go:generate mockery --name CosmosClient --case underscore
 type CosmosClient interface {
 	Account(accountName string) (cosmosaccount.Account, error)
@@ -44,6 +31,22 @@ type CosmosClient interface {
 	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
 	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
+}
+
+// Network is network builder.
+type Network struct {
+	node                    Node
+	ev                      events.Bus
+	cosmos                  CosmosClient
+	account                 cosmosaccount.Account
+	campaignQuery           campaigntypes.QueryClient
+	launchQuery             launchtypes.QueryClient
+	profileQuery            profiletypes.QueryClient
+	rewardQuery             rewardtypes.QueryClient
+	stakingQuery            stakingtypes.QueryClient
+	bankQuery               banktypes.QueryClient
+	monitoringConsumerQuery monitoringctypes.QueryClient
+	monitoringProviderQuery monitoringptypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -101,6 +104,12 @@ func WithMonitoringConsumerQueryClient(client monitoringctypes.QueryClient) Opti
 	}
 }
 
+func WithBankQueryClient(client banktypes.QueryClient) Option {
+	return func(n *Network) {
+		n.bankQuery = client
+	}
+}
+
 // CollectEvents collects events from the network builder.
 func CollectEvents(ev events.Bus) Option {
 	return func(n *Network) {
@@ -118,6 +127,8 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 		launchQuery:             launchtypes.NewQueryClient(cosmos.Context()),
 		profileQuery:            profiletypes.NewQueryClient(cosmos.Context()),
 		rewardQuery:             rewardtypes.NewQueryClient(cosmos.Context()),
+		stakingQuery:            stakingtypes.NewQueryClient(cosmos.Context()),
+		bankQuery:               banktypes.NewQueryClient(cosmos.Context()),
 		monitoringConsumerQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
@@ -129,10 +140,10 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 func ParseID(id string) (uint64, error) {
 	objID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return 0, errors.Wrap(err, "error parsing launchID")
+		return 0, errors.Wrap(err, "error parsing ID")
 	}
 	if objID == 0 {
-		return 0, errors.New("launch ID must be greater than 0")
+		return 0, errors.New("ID must be greater than 0")
 	}
 	return objID, nil
 }

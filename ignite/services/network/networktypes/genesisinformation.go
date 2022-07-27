@@ -21,32 +21,32 @@ type GenesisInformation struct {
 
 // GenesisAccount represents an account with initial coin allocation for the chain for the chain genesis
 type GenesisAccount struct {
-	Address string
-	Coins   string
+	Address string    `json:"Address,omitempty"`
+	Coins   sdk.Coins `json:"Coins,omitempty"`
 }
 
 // VestingAccount represents a vesting account with initial coin allocation  and vesting option for the chain genesis
 // VestingAccount supports currently only delayed vesting option
 type VestingAccount struct {
-	Address      string
-	TotalBalance string
-	Vesting      string
-	EndTime      int64
+	Address      string    `json:"Address,omitempty"`
+	TotalBalance sdk.Coins `json:"TotalBalance,omitempty"`
+	Vesting      sdk.Coins `json:"Vesting,omitempty"`
+	EndTime      int64     `json:"EndTime,omitempty"`
 }
 
 // GenesisValidator represents a genesis validator associated with a gentx in the chain genesis
 type GenesisValidator struct {
-	Address        string
-	Gentx          []byte
-	Peer           launchtypes.Peer
-	SelfDelegation sdk.Coin
+	Address        string           `json:"Address,omitempty"`
+	Gentx          []byte           `json:"Gentx,omitempty"`
+	Peer           launchtypes.Peer `json:"Peer,omitempty"`
+	SelfDelegation sdk.Coin         `json:"SelfDelegation,omitempty"`
 }
 
 // ToGenesisAccount converts genesis account from SPN
 func ToGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.Address,
-		Coins:   acc.Coins.String(),
+		Coins:   acc.Coins,
 	}
 }
 
@@ -59,8 +59,8 @@ func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 
 	return VestingAccount{
 		Address:      acc.Address,
-		TotalBalance: delayedVesting.TotalBalance.String(),
-		Vesting:      delayedVesting.Vesting.String(),
+		TotalBalance: delayedVesting.TotalBalance,
+		Vesting:      delayedVesting.Vesting,
 		EndTime:      delayedVesting.EndTime,
 	}, nil
 }
