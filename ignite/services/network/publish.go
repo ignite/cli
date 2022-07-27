@@ -9,7 +9,6 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
@@ -129,11 +128,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
 
-	_, err = n.profileQuery.
-		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
-			Address: coordinatorAddress,
-		})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); err == ErrObjectNotFound {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
