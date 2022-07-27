@@ -173,7 +173,7 @@ Response:
 
 All posts:
 
-Post:<creator:"cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 > 
+Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 > 
 ```
 
 You can confirm the new post with using the `blogd query blog posts` command that you learned about in the previous chapter.
@@ -182,11 +182,11 @@ The result looks similar to:
 ```bash
 Post:
 - body: bar
-  creator: cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
+  creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
   id: "0"
   title: foo
 - body: This is the first post
-  creator: cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
+  creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
   id: "1"
   title: Hello!
 pagination:
