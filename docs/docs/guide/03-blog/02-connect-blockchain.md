@@ -30,7 +30,7 @@ Create your `blogclient` directory first, change your current working directory,
 ```bash
 mkdir blogclient
 cd blogclient
-go mod init github.com/username/blogclient
+go mod init blogclient
 touch main.go
 ```
 
@@ -42,7 +42,7 @@ Your blockchain client has only two dependencies:
 - `ignite` for the `cosmosclient` blockchain client
 
 ```go
-module github.com/username/blogclient
+module blogclient
 
 go 1.17
 
