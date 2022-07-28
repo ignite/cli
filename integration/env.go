@@ -3,6 +3,7 @@ package envtest
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -78,6 +79,9 @@ func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}
+		if HasTestVerboseFlag() {
+			fmt.Printf("IsAppServed at %s: %v\n", addr, err)
+		}
 		return err
 	}
 
@@ -129,4 +133,8 @@ func (e Env) RequireExpectations() {
 
 func Contains(s, partial string) bool {
 	return strings.Contains(s, strings.TrimSpace(partial))
+}
+
+func HasTestVerboseFlag() bool {
+	return flag.Lookup("test.v").Value.String() == "true"
 }

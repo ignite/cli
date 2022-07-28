@@ -75,6 +75,10 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 		cmdrunner.DefaultStdout(io.MultiWriter(stdout, opts.stdout)),
 		cmdrunner.DefaultStderr(io.MultiWriter(stderr, opts.stderr)),
 	}
+	if HasTestVerboseFlag() {
+		fmt.Printf("Executing %d step(s) for %q\n", len(steps), msg)
+		copts = append(copts, cmdrunner.EnableDebug())
+	}
 	if isCI {
 		copts = append(copts, cmdrunner.EndSignal(os.Kill))
 	}
