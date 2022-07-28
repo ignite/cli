@@ -112,7 +112,7 @@ func (r Relayer) Start(
 	postExecute func(path relayerconf.Config) error,
 ) error {
 	wg, ctx := errgroup.WithContext(ctx)
-	start := func(id string) error {
+	start := func() error {
 		path, err := conf.PathByID(pathID)
 		if err != nil {
 			return err
@@ -130,7 +130,7 @@ func (r Relayer) Start(
 		return nil
 	}
 	wg.Go(func() error {
-		return ctxticker.DoNow(ctx, relayDuration, func() error { return start(pathID) })
+		return ctxticker.DoNow(ctx, relayDuration, start)
 	})
 	return wg.Wait()
 }
