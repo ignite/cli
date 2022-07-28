@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
 
@@ -66,20 +67,20 @@ func (n Network) RewardIBCInfo(ctx context.Context, launchID uint64) (networktyp
 	clientID := clientStates[0]
 
 	connections, err := n.node.clientConnections(ctx, clientID)
-	if err != nil && err != ErrObjectNotFound {
+	if err != nil && !errors.Is(err, ErrObjectNotFound) {
 		return networktypes.RewardIBCInfo{}, err
 	}
-	if err == ErrObjectNotFound || len(connections) == 0 {
+	if errors.Is(err, ErrObjectNotFound) || len(connections) == 0 {
 		return networktypes.RewardIBCInfo{}, nil
 	}
 
 	connectionID := connections[0]
 
 	channels, err := n.node.connectionChannels(ctx, connectionID)
-	if err != nil && err != ErrObjectNotFound {
+	if err != nil && !errors.Is(err, ErrObjectNotFound) {
 		return networktypes.RewardIBCInfo{}, err
 	}
-	if err == ErrObjectNotFound || len(connections) == 0 {
+	if errors.Is(err, ErrObjectNotFound) || len(connections) == 0 {
 		return networktypes.RewardIBCInfo{}, nil
 	}
 

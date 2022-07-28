@@ -237,7 +237,7 @@ func clientCreate(
 	}
 
 	spnRelayer, err := n.RewardIBCInfo(cmd.Context(), launchID)
-	if err == network.ErrObjectNotFound {
+	if errors.Is(err, network.ErrObjectNotFound) {
 		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
 	}
 	if err != nil {

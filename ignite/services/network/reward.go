@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -93,7 +94,7 @@ func (n Network) RewardsInfo(
 	unboundingTime = int64(stakingParams.UnbondingTime.Seconds())
 
 	chainReward, err := n.ChainReward(ctx, launchID)
-	if err == ErrObjectNotFound {
+	if errors.Is(err, ErrObjectNotFound) {
 		return rewardsInfo, 1, unboundingTime, nil
 	} else if err != nil {
 		return rewardsInfo, 0, 0, err
