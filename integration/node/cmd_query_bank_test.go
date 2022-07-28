@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -37,12 +39,9 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	node, err := xurl.HTTP(servers.RPC)
 	require.NoError(t, err)
 
-	defer env.RequireExpectations()
-
-	// TODO use INMEM
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithHome(filepath.Join(home, keyringTestDirName)),
-		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringTest),
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringMemory),
 	)
 	require.NoError(t, err)
 
@@ -54,9 +53,10 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
-				Coins:    []string{"5600a", "1200b"},
+				Coins:    []string{"5600atoken", "1200btoken", "100000000stake"},
 			},
 		}
+		conf.Faucet = chainconfig.Faucet{}
 		conf.Init.KeyringBackend = keyring.BackendTest
 	})
 
@@ -67,11 +67,9 @@ func TestNodeQueryBankBalances(t *testing.T) {
 				"account",
 				"import",
 				alice,
-				"--keyring-dir",
-				accKeyringDir,
+				"--keyring-dir", accKeyringDir,
 				"--non-interactive",
-				"--secret",
-				aliceMnemonic,
+				"--secret", aliceMnemonic,
 			),
 		)),
 	))
@@ -104,22 +102,20 @@ func TestNodeQueryBankBalances(t *testing.T) {
 					"bank",
 					"balances",
 					"alice",
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
-					"--address-prefix",
-					testPrefix,
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
+					"--address-prefix", testPrefix,
 				),
 			)),
 			envtest.ExecStdout(b),
 		)
 
-		assert.True(t, envtest.Contains(b.String(), `
-Amount 		Denom 	
-5600		a	
-1200		b`,
-		))
+		var expectedBalances strings.Builder
+		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
+			[]string{"5600", "atoken"},
+			[]string{"1200", "btoken"},
+		)
+		assert.Contains(t, b.String(), expectedBalances.String())
 
 		if env.HasFailed() {
 			return
@@ -136,22 +132,15 @@ Amount 		Denom
 					"bank",
 					"balances",
 					aliceAccount.Address(testPrefix),
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
-					"--address-prefix",
-					testPrefix,
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
+					"--address-prefix", testPrefix,
 				),
 			)),
 			envtest.ExecStdout(b),
 		)
 
-		assert.True(t, envtest.Contains(b.String(), `,
-Amount 		Denom 	
-5600		a	
-1200		b`,
-		))
+		assert.Contains(t, b.String(), expectedBalances.String())
 
 		if env.HasFailed() {
 			return
@@ -168,26 +157,22 @@ Amount 		Denom
 					"bank",
 					"balances",
 					"alice",
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
-					"--address-prefix",
-					testPrefix,
-					"--limit",
-					"1",
-					"--page",
-					"1",
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
+					"--address-prefix", testPrefix,
+					"--limit", "1",
+					"--page", "1",
 				),
 			)),
 			envtest.ExecStdout(b),
 		)
 
-		assert.True(t, envtest.Contains(b.String(), `
-Amount 		Denom 	
-5600		a`,
-		))
-		assert.False(t, envtest.Contains(b.String(), `token`))
+		expectedBalances.Reset()
+		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
+			[]string{"5600", "atoken"},
+		)
+		assert.Contains(t, b.String(), expectedBalances.String())
+		assert.NotContains(t, b.String(), "btoken")
 
 		if env.HasFailed() {
 			return
@@ -204,26 +189,22 @@ Amount 		Denom
 					"bank",
 					"balances",
 					"alice",
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
-					"--address-prefix",
-					testPrefix,
-					"--limit",
-					"1",
-					"--page",
-					"2",
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
+					"--address-prefix", testPrefix,
+					"--limit", "1",
+					"--page", "2",
 				),
 			)),
 			envtest.ExecStdout(b),
 		)
 
-		assert.True(t, envtest.Contains(b.String(), `
-Amount 	Denom 	
-1200	b`,
-		))
-		assert.False(t, envtest.Contains(b.String(), `stake`))
+		expectedBalances.Reset()
+		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
+			[]string{"1200", "btoken"},
+		)
+		assert.Contains(t, b.String(), expectedBalances.String())
+		assert.NotContains(t, b.String(), "atoken")
 
 		if env.HasFailed() {
 			return
@@ -240,12 +221,9 @@ Amount 	Denom
 					"bank",
 					"balances",
 					"nonexistentaccount",
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
-					"--address-prefix",
-					testPrefix,
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
+					"--address-prefix", testPrefix,
 				),
 			)),
 			envtest.ExecShouldError(),
@@ -264,12 +242,9 @@ Amount 	Denom
 					"bank",
 					"balances",
 					testPrefix+"1gspvt8qsk8cryrsxnqt452cjczjm5ejdgla24e",
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
-					"--address-prefix",
-					testPrefix,
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
+					"--address-prefix", testPrefix,
 				),
 			)),
 			envtest.ExecShouldError(),
@@ -288,10 +263,8 @@ Amount 	Denom
 					"bank",
 					"balances",
 					"alice",
-					"--node",
-					node,
-					"--keyring-dir",
-					accKeyringDir,
+					"--node", node,
+					"--keyring-dir", accKeyringDir,
 					// the default prefix will fail this test, which is on purpose.
 				),
 			)),
