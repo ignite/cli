@@ -253,7 +253,7 @@ func (r Registry) GetByName(name string) (Account, error) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
 	if err != nil {
-		return Account{}, nil
+		return Account{}, err
 	}
 
 	acc := Account{
