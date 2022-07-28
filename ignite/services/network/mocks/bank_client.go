@@ -16,6 +16,11 @@ type BankClient struct {
 	mock.Mock
 }
 
+func (_m *BankClient) DenomOwners(ctx context.Context, in *types.QueryDenomOwnersRequest, opts ...grpc.CallOption) (*types.QueryDenomOwnersResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 // AllBalances provides a mock function with given fields: ctx, in, opts
 func (_m *BankClient) AllBalances(ctx context.Context, in *types.QueryAllBalancesRequest, opts ...grpc.CallOption) (*types.QueryAllBalancesResponse, error) {
 	_va := make([]interface{}, len(opts))
