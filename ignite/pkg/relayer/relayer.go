@@ -9,8 +9,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/ctxticker"
@@ -111,8 +109,7 @@ func (r Relayer) Start(
 	pathID string,
 	postExecute func(path relayerconf.Config) error,
 ) error {
-	wg, ctx := errgroup.WithContext(ctx)
-	start := func() error {
+	return ctxticker.DoNow(ctx, relayDuration, func() error {
 		path, err := conf.PathByID(pathID)
 		if err != nil {
 			return err
@@ -128,11 +125,7 @@ func (r Relayer) Start(
 			return postExecute(conf)
 		}
 		return nil
-	}
-	wg.Go(func() error {
-		return ctxticker.DoNow(ctx, relayDuration, start)
 	})
-	return wg.Wait()
 }
 
 func (r Relayer) call(
