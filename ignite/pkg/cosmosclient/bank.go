@@ -14,7 +14,7 @@ func (c Client) BankBalances(ctx context.Context, address string, pagination *qu
 		Pagination: pagination,
 	}
 
-	resp, err := performQuery[*banktypes.QueryAllBalancesResponse](c, func() (*banktypes.QueryAllBalancesResponse, error) {
+	resp, err := performQuery(c, func() (*banktypes.QueryAllBalancesResponse, error) {
 		return banktypes.NewQueryClient(c.context).AllBalances(ctx, req)
 	})
 	if err != nil {

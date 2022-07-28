@@ -16,6 +16,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
 )
@@ -25,12 +26,12 @@ const testPrefix = "testpref"
 
 func TestNodeQueryBankBalances(t *testing.T) {
 	var (
-		name  = "blog"
-		alice = "alice"
+		appname = randstr.Runes(10)
+		alice   = "alice"
 
 		env     = envtest.New(t)
-		app     = env.Scaffold(name, "--address-prefix", testPrefix)
-		home    = env.AppHome(name)
+		app     = env.Scaffold(appname, "--address-prefix", testPrefix)
+		home    = env.AppHome(appname)
 		servers = app.RandomizeServerPorts()
 
 		accKeyringDir = t.TempDir()
@@ -122,7 +123,6 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		}
 
 		b.Reset()
-
 		env.Exec("query bank balances by address",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -147,7 +147,6 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		}
 
 		b.Reset()
-
 		env.Exec("query bank balances with pagination -page 1",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -179,7 +178,6 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		}
 
 		b.Reset()
-
 		env.Exec("query bank balances with pagination -page 2",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -211,7 +209,6 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		}
 
 		b.Reset()
-
 		env.Exec("query bank balances fail with non-existent account name",
 			step.NewSteps(step.New(
 				step.Exec(

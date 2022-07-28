@@ -181,11 +181,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			return
 		}
 
-		// TODO find another way without sleep, with retry+ctx routine.
-		time.Sleep(time.Second * 1)
-
 		b := &bytes.Buffer{}
-
 		env.Exec("query bank balances for alice",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -215,7 +211,6 @@ func TestNodeTxBankSend(t *testing.T) {
 		}
 
 		b.Reset()
-
 		env.Exec("query bank balances for bob",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -241,7 +236,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		assert.Contains(t, b.String(), expectedBalances.String())
 
 		// check generated tx
-		var generateOutput = &bytes.Buffer{}
+		b.Reset()
 		env.Exec("generate unsigned tx",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -259,14 +254,14 @@ func TestNodeTxBankSend(t *testing.T) {
 					"--generate-only",
 				),
 			)),
-			envtest.ExecStdout(generateOutput),
+			envtest.ExecStdout(b),
 		)
 
-		require.Contains(t, generateOutput.String(),
+		require.Contains(t, b.String(),
 			fmt.Sprintf(`"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"%s","to_address":"%s","amount":[{"denom":"token","amount":"5"}]}]`,
 				aliceAccount.Address(testPrefix), bobAccount.Address(testPrefix)),
 		)
-		require.Contains(t, generateOutput.String(), `"signatures":[]`)
+		require.Contains(t, b.String(), `"signatures":[]`)
 
 		// test with gas
 		env.Exec("send 100token from bob to alice with gas flags",
@@ -313,7 +308,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			envtest.ExecShouldError(),
 		)
 
-		generateOutput.Reset()
+		b.Reset()
 		env.Exec("generate bank send tx with gas flags",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -334,9 +329,9 @@ func TestNodeTxBankSend(t *testing.T) {
 					"--generate-only",
 				),
 			)),
-			envtest.ExecStdout(generateOutput),
+			envtest.ExecStdout(b),
 		)
-		require.Contains(t, generateOutput.String(), `"fee":{"amount":[{"denom":"stake","amount":"178004"}],"gas_limit":"2000034"`)
+		require.Contains(t, b.String(), `"fee":{"amount":[{"denom":"stake","amount":"178004"}],"gas_limit":"2000034"`)
 
 	}()
 
