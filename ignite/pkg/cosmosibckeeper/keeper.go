@@ -1,6 +1,7 @@
 package cosmosibckeeper
 
 import (
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -11,7 +12,7 @@ import (
 // Keeper defines the IBC Keeper
 type Keeper struct {
 	portKey       []byte
-	storeKey      sdk.StoreKey
+	storeKey      storetypes.StoreKey
 	ChannelKeeper ChannelKeeper
 	PortKeeper    PortKeeper
 	ScopedKeeper  ScopedKeeper
@@ -20,7 +21,7 @@ type Keeper struct {
 // NewKeeper create an IBC Keeper
 func NewKeeper(
 	portKey []byte,
-	storeKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
 	channelKeeper ChannelKeeper,
 	portKeeper PortKeeper,
 	scopedKeeper ScopedKeeper,

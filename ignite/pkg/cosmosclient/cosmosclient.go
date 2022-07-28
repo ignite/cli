@@ -205,7 +205,7 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	if err != nil {
 		return sdktypes.AccAddress{}, err
 	}
-	return account.Info.GetAddress(), nil
+	return account.Record.GetAddress()
 }
 
 func (c Client) Context() client.Context {
@@ -359,7 +359,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 
 	// Return the provision function
 	return gas, func() (Response, error) {
-		txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
+		txUnsigned, err := txf.BuildUnsignedTx(msgs...)
 		if err != nil {
 			return Response{}, err
 		}

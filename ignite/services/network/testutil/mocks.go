@@ -30,5 +30,5 @@ type RewardClient interface {
 
 //go:generate mockery --name AccountInfo --case underscore --output ../mocks
 type AccountInfo interface {
-	keyring.Info
+	keyring.Record
 }

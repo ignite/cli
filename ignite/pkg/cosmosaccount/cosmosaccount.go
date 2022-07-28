@@ -1,11 +1,15 @@
 package cosmosaccount
 
 import (
+	"bufio"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
 
 	dkeyring "github.com/99designs/keyring"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -92,8 +96,10 @@ func New(options ...Option) (Registry, error) {
 	}
 
 	var err error
-
-	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, os.Stdin)
+	inBuf := bufio.NewReader(os.Stdin)
+	interfaceRegistry := types.NewInterfaceRegistry()
+	cdc := codec.NewProtoCodec(interfaceRegistry)
+	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, inBuf, cdc)
 	if err != nil {
 		return Registry{}, err
 	}
@@ -123,8 +129,8 @@ type Account struct {
 	// Name of the account.
 	Name string
 
-	// Info holds additional info about the account.
-	Info keyring.Info
+	// Record holds additional info about the account.
+	Record *keyring.Record
 }
 
 // Address returns the address of the account from given prefix.
@@ -133,12 +139,18 @@ func (a Account) Address(accPrefix string) string {
 		accPrefix = AccountPrefixCosmos
 	}
 
-	return toBench32(accPrefix, a.Info.GetPubKey().Address())
+	// TODO: handle error
+	pk, _ := a.Record.GetPubKey()
+
+	return toBench32(accPrefix, pk.Address())
 }
 
 // PubKey returns a public key for account.
 func (a Account) PubKey() string {
-	return a.Info.GetPubKey().String()
+	// TODO: handle error
+	pk, _ := a.Record.GetPubKey()
+
+	return pk.String()
 }
 
 func toBench32(prefix string, addr []byte) string {
@@ -186,14 +198,14 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	if err != nil {
 		return Account{}, "", err
 	}
-	info, err := r.Keyring.NewAccount(name, mnemonic, "", r.hdPath(), algo)
+	record, err := r.Keyring.NewAccount(name, mnemonic, "", r.hdPath(), algo)
 	if err != nil {
 		return Account{}, "", err
 	}
 
 	acc = Account{
-		Name: name,
-		Info: info,
+		Name:   name,
+		Record: record,
 	}
 
 	return acc, mnemonic, nil
@@ -243,12 +255,21 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 		return "", err
 	}
 
-	return keyring.NewUnsafe(r.Keyring).UnsafeExportPrivKeyHex(name)
+	return unsafeExportPrivKeyHex(r.Keyring, name, passphrase)
+}
+
+func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey string, err error) {
+	priv, err := kr.ExportPrivKeyArmor(uid, passphrase)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString([]byte(priv)), nil
 }
 
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
-	info, err := r.Keyring.Key(name)
+	record, err := r.Keyring.Key(name)
 	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
@@ -257,8 +278,8 @@ func (r Registry) GetByName(name string) (Account, error) {
 	}
 
 	acc := Account{
-		Name: name,
-		Info: info,
+		Name:   name,
+		Record: record,
 	}
 
 	return acc, nil
@@ -266,17 +287,17 @@ func (r Registry) GetByName(name string) (Account, error) {
 
 // List lists all accounts.
 func (r Registry) List() ([]Account, error) {
-	info, err := r.Keyring.List()
+	records, err := r.Keyring.List()
 	if err != nil {
 		return nil, err
 	}
 
 	var accounts []Account
 
-	for _, accinfo := range info {
+	for _, record := range records {
 		accounts = append(accounts, Account{
-			Name: accinfo.GetName(),
-			Info: accinfo,
+			Name:   record.Name,
+			Record: record,
 		})
 	}
 
