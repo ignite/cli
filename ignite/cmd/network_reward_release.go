@@ -111,7 +111,7 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	)
 
 	session.StartSpinner("Creating network relayer client ID...")
-	chain, spn, err := clientCreate(cmd, session, launchID, chainRPC, spnChainID)
+	chain, spn, err := createClient(cmd, n, session, launchID, chainRPC, spnChainID)
 	if err != nil {
 		return err
 	}
@@ -203,18 +203,14 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	return r.Start(cmd.Context(), cfg, pathID, nil)
 }
 
-func clientCreate(
+func createClient(
 	cmd *cobra.Command,
+	n network.Network,
 	session cliui.Session,
 	launchID uint64,
 	nodeAPI,
 	spnChainID string,
 ) (networktypes.RewardIBCInfo, networktypes.RewardIBCInfo, error) {
-	nb, err := newNetworkBuilder(cmd)
-	if err != nil {
-		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
-	}
-
 	nodeClient, err := cosmosclient.New(cmd.Context(), cosmosclient.WithNodeAddress(nodeAPI))
 	if err != nil {
 		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
@@ -227,11 +223,6 @@ func clientCreate(
 	}
 
 	rewardsInfo, chainID, unboundingTime, err := node.RewardsInfo(cmd.Context())
-	if err != nil {
-		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
-	}
-
-	n, err := nb.Network()
 	if err != nil {
 		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
 	}
