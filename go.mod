@@ -19,8 +19,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
-	github.com/gobuffalo/logger v1.0.3
-	github.com/gobuffalo/packd v0.3.0
+	github.com/gobuffalo/logger v1.0.6
+	github.com/gobuffalo/packd v1.0.1
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.9.4
@@ -53,7 +53,7 @@ require (
 	github.com/vektra/mockery/v2 v2.14.0
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
-	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
+	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.48.0
@@ -86,7 +86,6 @@ require (
 	github.com/charmbracelet/bubbletea v0.13.1 // indirect
 	github.com/charmbracelet/charm v0.8.6 // indirect
 	github.com/charmbracelet/glamour v0.2.1-0.20210311152407-2b8307dcb400 // indirect
-	github.com/chris-ramon/douceur v0.2.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.7.0 // indirect
@@ -122,12 +121,11 @@ require (
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/gobuffalo/envy v1.8.1 // indirect
-	github.com/gobuffalo/flect v0.2.0 // indirect
-	github.com/gobuffalo/github_flavored_markdown v1.1.0 // indirect
-	github.com/gobuffalo/helpers v0.5.0 // indirect
-	github.com/gobuffalo/tags v2.1.7+incompatible // indirect
-	github.com/gobuffalo/uuid v2.0.5+incompatible // indirect
-	github.com/gobuffalo/validate v2.0.3+incompatible // indirect
+	github.com/gobuffalo/flect v0.2.5 // indirect
+	github.com/gobuffalo/github_flavored_markdown v1.1.1 // indirect
+	github.com/gobuffalo/helpers v0.6.5 // indirect
+	github.com/gobuffalo/tags/v3 v3.1.3 // indirect
+	github.com/gobuffalo/validate/v3 v3.3.2 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/gogo/gateway v1.1.0 // indirect
@@ -173,7 +171,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/meowgorithm/babyenv v1.3.1 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
-	github.com/microcosm-cc/bluemonday v1.0.4 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.16 // indirect
 	github.com/mikesmitty/edkey v0.0.0-20170222072505-3356ea4e686a // indirect
 	github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
@@ -209,8 +207,7 @@ require (
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.2.1-0.20190427202633-1595213edefa // indirect
 	github.com/segmentio/ksuid v1.0.3 // indirect
-	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 // indirect
-	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
