@@ -20,6 +20,7 @@ func NewNodeTxBankSend() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetGenerateOnly())
 	c.Flags().AddFlagSet(flagSetGasFlags())
+	c.Flags().String(flagFees, "", "Fees to pay along with transaction; eg: 10uatom")
 
 	return c
 }

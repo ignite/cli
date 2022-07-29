@@ -86,6 +86,7 @@ type Client struct {
 
 	gas       string
 	gasPrices string
+	fees      string
 }
 
 // Option configures your client.
@@ -161,6 +162,13 @@ func WithGas(gas string) Option {
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
+	}
+}
+
+// WithFees sets the fees (e.g. 10uatom)
+func WithFees(fees string) Option {
+	return func(c *Client) {
+		c.fees = fees
 	}
 }
 
@@ -337,10 +345,11 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 			return TxService{}, err
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an additional amount to endure sufficient gas is provided
-		gas += 10000
+		// we add an additional amount to ensure sufficient gas is provided
+		gas += 20000
 	}
 	txf = txf.WithGas(gas)
+	txf = txf.WithFees(c.fees)
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
