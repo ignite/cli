@@ -27,12 +27,6 @@ func NewNodeTx() *cobra.Command {
 	return c
 }
 
-func flagSetTxFrom() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagFrom, "", "Account name to use for sending transactions")
-	return fs
-}
-
 func flagSetGenerateOnly() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.Bool(flagGenerateOnly, false, "Build an unsigned transaction and write it to STDOUT")
