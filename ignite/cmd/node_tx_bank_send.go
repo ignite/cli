@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/spf13/cobra"
 )
@@ -43,19 +42,10 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	// toAccountInput can be an account of the keyring or a raw address
-	var toAddress string
-	toAccount, err := client.Account(toAccountInput)
-	if err != nil {
-		// account not found in the keyring, ensure it is a raw address
-		_, _, err := bech32.DecodeAndConvert(toAccountInput)
-		if err != nil {
-			return err
-		}
-		toAddress = toAccountInput
-	} else {
-		toAddress = toAccount.Info.GetAddress().String()
-	}
+	toAddress, err := lookupAddress(client, toAccountInput)
+
 	coins, err := sdk.ParseCoinsNormalized(amount)
 	if err != nil {
 		return err
