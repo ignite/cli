@@ -22,11 +22,20 @@ build:
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 
+## mocks: generate mocks
+mocks:
+	@echo Generating mocks
+	@go install github.com/vektra/mockery/v2@latest
+	@go generate ./...
+
+
 ## clean: Clean build files. Also runs `go clean` internally.
 clean:
 	@echo Cleaning build cache...
 	@-rm -rf $(BUILD_FOLDER) 2> /dev/null
 	@go clean ./...
+
+.PHONY: install build mocks clean
 
 ## govet: Run go vet.
 govet:
@@ -45,6 +54,8 @@ lint:
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.47.2
 	@golangci-lint run --out-format=tab --issues-exit-code=0
 
+.PHONY: govet format lint
+
 ## test-unit: Run the unit tests.
 test-unit:
 	@echo Running unit tests...
@@ -58,11 +69,15 @@ test-integration: install
 ## test: Run unit and integration tests.
 test: govet test-unit test-integration
 
+.PHONY: test-unit test-integration test
+
 help: Makefile
 	@echo
 	@echo " Choose a command run in "$(PROJECT_NAME)", or just run 'make' for install"
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
+
+.PHONY: help
 
 .DEFAULT_GOAL := install
