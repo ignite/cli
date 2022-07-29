@@ -62,7 +62,7 @@ export default class Relayer {
                       ]: [Path, Chain, Chain, string, string]): Promise<Path> {
         const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
         const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
-        const link = await this.create(srcClient, dstClient, srcChain.client_id, dstChain.client_id);
+        const link = await Relayer.create(srcClient, dstClient, srcChain.client_id, dstChain.client_id);
 
         const channels = await link.createChannel(
             'A',
@@ -138,7 +138,7 @@ export default class Relayer {
         );
     }
 
-    public async create(
+    private static async create(
         nodeA: IbcClient,
         nodeB: IbcClient,
         clientA: string,

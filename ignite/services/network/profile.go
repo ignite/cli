@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -117,9 +118,9 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 
 	var p networktypes.ProfileAcc
 	p, err = n.Validator(ctx, address)
-	if err == ErrObjectNotFound {
+	if errors.Is(err, ErrObjectNotFound) {
 		p, err = n.Coordinator(ctx, address)
-		if err == ErrObjectNotFound {
+		if errors.Is(err, ErrObjectNotFound) {
 			p = networktypes.Coordinator{Address: address}
 		} else if err != nil {
 			return networktypes.Profile{}, err
