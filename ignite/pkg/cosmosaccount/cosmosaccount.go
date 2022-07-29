@@ -140,7 +140,10 @@ func (a Account) Address(accPrefix string) string {
 	}
 
 	// TODO: handle error
-	pk, _ := a.Record.GetPubKey()
+	pk, err := a.Record.GetPubKey()
+	if err != nil {
+		panic(err)
+	}
 
 	return toBench32(accPrefix, pk.Address())
 }
@@ -148,7 +151,10 @@ func (a Account) Address(accPrefix string) string {
 // PubKey returns a public key for account.
 func (a Account) PubKey() string {
 	// TODO: handle error
-	pk, _ := a.Record.GetPubKey()
+	pk, err := a.Record.GetPubKey()
+	if err != nil {
+		panic(err)
+	}
 
 	return pk.String()
 }
