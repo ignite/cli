@@ -24,6 +24,22 @@ func TestRegistry(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, getAccount.Info.GetAddress().Equals(account.Info.GetAddress()))
 
+	addr := account.Info.GetAddress().String()
+	getAccount, err = registry.GetByAddress(addr)
+	require.NoError(t, err)
+	require.True(t, getAccount.Info.GetAddress().Equals(account.Info.GetAddress()))
+	require.Equal(t, getAccount.Name, testAccountName)
+	require.Equal(t, getAccount.Name, account.Name)
+	require.Equal(t, getAccount.Name, account.Info.GetName())
+
+	addr = account.Address("cosmos")
+	getAccount, err = registry.GetByAddress(addr)
+	require.NoError(t, err)
+	require.True(t, getAccount.Info.GetAddress().Equals(account.Info.GetAddress()))
+	require.Equal(t, getAccount.Name, testAccountName)
+	require.Equal(t, getAccount.Name, account.Name)
+	require.Equal(t, getAccount.Name, account.Info.GetName())
+
 	secondTmpDir := t.TempDir()
 	secondRegistry, err := cosmosaccount.New(cosmosaccount.WithHome(secondTmpDir))
 	require.NoError(t, err)
@@ -47,5 +63,8 @@ func TestRegistry(t *testing.T) {
 
 	_, err = registry.GetByName(testAccountName)
 	var expectedErr *cosmosaccount.AccountDoesNotExistError
+	require.ErrorAs(t, err, &expectedErr)
+
+	_, err = registry.GetByAddress(addr)
 	require.ErrorAs(t, err, &expectedErr)
 }

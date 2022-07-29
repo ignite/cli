@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 	"github.com/ignite/cli/ignite/services/network/testutil"
 )
@@ -44,7 +45,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -97,7 +98,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -146,7 +147,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -201,7 +202,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -225,7 +226,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddAccount{
 					Creator:  account.Address(networktypes.SPN),
 					LaunchID: testutil.LaunchID,
@@ -295,6 +296,57 @@ func TestJoin(t *testing.T) {
 				testutil.PeerAddress,
 			)
 			gentxPath      = gentx.SaveTo(t, tmp)
+			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
+			suite, network = newSuite(account)
+			expectedError  = errors.New("failed to create account")
+		)
+
+		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
+		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
+		suite.ChainMock.On("DefaultGentxPath").Return(gentxPath, nil).Once()
+
+		suite.LaunchQueryMock.
+			On(
+				"VestingAccount",
+				context.Background(),
+				&launchtypes.QueryGetVestingAccountRequest{
+					Address:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+				}).
+			Return(nil, cosmoserror.ErrNotFound).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account,
+				&launchtypes.MsgRequestAddAccount{
+					Creator:  account.Address(networktypes.SPN),
+					LaunchID: testutil.LaunchID,
+					Address:  account.Address(networktypes.SPN),
+					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))),
+				},
+			).
+			Return(
+				testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{}),
+				expectedError,
+			).
+			Once()
+
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
+			WithPublicAddress(testutil.TCPAddress),
+		)
+		require.Error(t, joinErr)
+		require.Equal(t, expectedError, joinErr)
+		suite.AssertAllMocks(t)
+	})
+
+	t.Run("failed to send join request, failed to read node id", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
 			expectedError  = errors.New("failed to get node id")
 		)

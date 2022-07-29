@@ -1,9 +1,8 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +19,6 @@ func NewNodeTxBankSend() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
-	c.Flags().AddFlagSet(flagSetTxFrom())
 	c.Flags().AddFlagSet(flagSetGenerateOnly())
 	c.Flags().AddFlagSet(flagSetGasFlags())
 
@@ -32,7 +30,6 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		fromAccountInput = args[0]
 		toAccountInput   = args[1]
 		amount           = args[2]
-		from             = getFrom(cmd)
 		generateOnly     = getGenerateOnly(cmd)
 	)
 
@@ -41,35 +38,30 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// If from flag is missing, check if the "from account" argument is an account name and use that instead
-	if from == "" {
-		fromInputIsAccount, err := client.AccountExists(fromAccountInput)
+	// fromAccountInput must be an account of the keyring
+	fromAccount, err := client.Account(fromAccountInput)
+	if err != nil {
+		return err
+	}
+	// toAccountInput can be an account of the keyring or a raw address
+	var toAddress string
+	toAccount, err := client.Account(toAccountInput)
+	if err != nil {
+		// account not found in the keyring, ensure it is a raw address
+		_, _, err := bech32.DecodeAndConvert(toAccountInput)
 		if err != nil {
 			return err
 		}
-		if fromInputIsAccount {
-			from = fromAccountInput
-		} else {
-			return fmt.Errorf("\"--%s\" flag is required when from address is not an account name", flagFrom)
-		}
+		toAddress = toAccountInput
+	} else {
+		toAddress = toAccount.Info.GetAddress().String()
 	}
-
-	fromAddress, err := client.Bech32Address(fromAccountInput)
-	if err != nil {
-		return err
-	}
-
-	toAddress, err := client.Bech32Address(toAccountInput)
-	if err != nil {
-		return err
-	}
-
 	coins, err := sdk.ParseCoinsNormalized(amount)
 	if err != nil {
 		return err
 	}
 
-	tx, err := client.BankSendTx(fromAddress, toAddress, coins, from)
+	tx, err := client.BankSendTx(fromAccount, toAddress, coins)
 	if err != nil {
 		return err
 	}

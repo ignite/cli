@@ -66,27 +66,27 @@ func (_m *CosmosClient) Address(accountName string) (types.AccAddress, error) {
 	return r0, r1
 }
 
-// BroadcastTx provides a mock function with given fields: accountName, msgs
-func (_m *CosmosClient) BroadcastTx(accountName string, msgs ...types.Msg) (cosmosclient.Response, error) {
+// BroadcastTx provides a mock function with given fields: account, msgs
+func (_m *CosmosClient) BroadcastTx(account cosmosaccount.Account, msgs ...types.Msg) (cosmosclient.Response, error) {
 	_va := make([]interface{}, len(msgs))
 	for _i := range msgs {
 		_va[_i] = msgs[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, accountName)
+	_ca = append(_ca, account)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 cosmosclient.Response
-	if rf, ok := ret.Get(0).(func(string, ...types.Msg) cosmosclient.Response); ok {
-		r0 = rf(accountName, msgs...)
+	if rf, ok := ret.Get(0).(func(cosmosaccount.Account, ...types.Msg) cosmosclient.Response); ok {
+		r0 = rf(account, msgs...)
 	} else {
 		r0 = ret.Get(0).(cosmosclient.Response)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, ...types.Msg) error); ok {
-		r1 = rf(accountName, msgs...)
+	if rf, ok := ret.Get(1).(func(cosmosaccount.Account, ...types.Msg) error); ok {
+		r1 = rf(account, msgs...)
 	} else {
 		r1 = ret.Error(1)
 	}

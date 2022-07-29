@@ -27,7 +27,7 @@ type CosmosClient interface {
 	Account(accountName string) (cosmosaccount.Account, error)
 	Address(accountName string) (sdktypes.AccAddress, error)
 	Context() client.Context
-	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
+	BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
 	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
 }

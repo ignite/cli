@@ -32,10 +32,11 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	address, err := client.Bech32Address(inputAccount)
+	account, err := client.Account(inputAccount)
 	if err != nil {
 		return err
 	}
+	address := account.Info.GetAddress().String()
 
 	pagination, err := getPagination(cmd)
 	if err != nil {

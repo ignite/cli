@@ -140,7 +140,7 @@ func (n Network) sendValidatorRequest(
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
 
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}

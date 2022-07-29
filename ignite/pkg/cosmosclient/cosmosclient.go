@@ -21,7 +21,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -222,8 +221,13 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	return c, nil
 }
 
-func (c Client) Account(accountName string) (cosmosaccount.Account, error) {
-	return c.AccountRegistry.GetByName(accountName)
+// Account returns the account with name or address equal to nameOrAddress.
+func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
+	a, err := c.AccountRegistry.GetByName(nameOrAddress)
+	if err == nil {
+		return a, nil
+	}
+	return c.AccountRegistry.GetByAddress(nameOrAddress)
 }
 
 // Address returns the account address from account name.
@@ -233,39 +237,6 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 		return sdktypes.AccAddress{}, err
 	}
 	return account.Info.GetAddress(), nil
-}
-
-func (c Client) AccountExists(accountName string) (bool, error) {
-	_, err := c.Account(accountName)
-	var accErr *cosmosaccount.AccountDoesNotExistError
-	errNotFound := errors.As(err, &accErr)
-	if errNotFound {
-		return false, nil
-	}
-
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
-// Bech32Address returns the bech32 address, with the correct prefix, from account name or address.
-func (c Client) Bech32Address(accountNameOrAddress string) (string, error) {
-	defer c.lockBech32Prefix()()
-
-	_, _, err := bech32.DecodeAndConvert(accountNameOrAddress)
-	if err == nil {
-		// Already bech32
-		return accountNameOrAddress, nil
-	}
-
-	account, err := c.Account(accountNameOrAddress)
-	if err != nil {
-		return "", err
-	}
-
-	return account.Address(c.addressPrefix), nil
 }
 
 func (c Client) Context() client.Context {
@@ -333,8 +304,8 @@ func performQuery[T any](c Client, q func() (T, error)) (T, error) {
 	return q()
 }
 
-func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response, error) {
-	txService, err := c.CreateTx(accountName, msgs...)
+func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
+	txService, err := c.CreateTx(account, msgs...)
 	if err != nil {
 		return Response{}, err
 	}
@@ -342,17 +313,12 @@ func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response,
 	return txService.Broadcast()
 }
 
-func (c Client) CreateTx(accountName string, msgs ...sdktypes.Msg) (TxService, error) {
+func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
-	accountAddress, err := c.Address(accountName)
-	if err != nil {
-		return TxService{}, err
-	}
-
 	ctx := c.context.
-		WithFromName(accountName).
-		WithFromAddress(accountAddress)
+		WithFromName(account.Name).
+		WithFromAddress(account.Info.GetAddress())
 
 	txf, err := prepareFactory(ctx, c.Factory)
 	if err != nil {
