@@ -432,14 +432,14 @@ func (c *Client) checkAccountBalance(ctx context.Context, address string) error 
 func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			return errors.New("make sure that your SPN account has enough balance")
+			return errors.New("make sure that your account has enough balance")
 		}
 
 		return err
 	}
 
 	if resp.Code > 0 {
-		return fmt.Errorf("SPN error with '%d' code: %s", resp.Code, resp.RawLog)
+		return fmt.Errorf("error code: '%d' msg: '%s'", resp.Code, resp.RawLog)
 	}
 	return nil
 }
