@@ -36,11 +36,6 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		generateOnly     = getGenerateOnly(cmd)
 	)
 
-	session := cliui.New()
-	defer session.Cleanup()
-
-	session.StartSpinner("Sending transaction...")
-
 	client, err := newNodeCosmosClient(cmd)
 	if err != nil {
 		return err
@@ -79,6 +74,8 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	session := cliui.New()
+	defer session.Cleanup()
 	if generateOnly {
 		json, err := tx.EncodeJSON()
 		if err != nil {
@@ -89,6 +86,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return session.Println(string(json))
 	}
 
+	session.StartSpinner("Sending transaction...")
 	if _, err := tx.Broadcast(); err != nil {
 		return err
 	}
