@@ -46,6 +46,9 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 
 	// toAccountInput can be an account of the keyring or a raw address
 	toAddress, err := lookupAddress(client, toAccountInput)
+	if err != nil {
+		return err
+	}
 
 	coins, err := sdk.ParseCoinsNormalized(amount)
 	if err != nil {
