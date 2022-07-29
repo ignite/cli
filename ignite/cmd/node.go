@@ -62,7 +62,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 
 // lookupAddress returns a bech32 address from an account name or
 // address, or accountNameOrAddress directly if it wasn't found in the keyring
-// and if it's a valid becch32 address.
+// and if it's a valid bech32 address.
 func lookupAddress(client cosmosclient.Client, accountNameOrAddress string) (string, error) {
 	a, err := client.Account(accountNameOrAddress)
 	if err == nil {
