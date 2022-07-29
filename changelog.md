@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+- Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
+
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
 ### Features
