@@ -11,6 +11,8 @@ import (
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
+	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -33,15 +35,18 @@ type CosmosClient interface {
 
 // Network is network builder.
 type Network struct {
-	ev            events.Bus
-	cosmos        CosmosClient
-	account       cosmosaccount.Account
-	campaignQuery campaigntypes.QueryClient
-	launchQuery   launchtypes.QueryClient
-	profileQuery  profiletypes.QueryClient
-	rewardQuery   rewardtypes.QueryClient
-	stakingQuery  stakingtypes.QueryClient
-	bankQuery     banktypes.QueryClient
+	node                    Node
+	ev                      events.Bus
+	cosmos                  CosmosClient
+	account                 cosmosaccount.Account
+	campaignQuery           campaigntypes.QueryClient
+	launchQuery             launchtypes.QueryClient
+	profileQuery            profiletypes.QueryClient
+	rewardQuery             rewardtypes.QueryClient
+	stakingQuery            stakingtypes.QueryClient
+	bankQuery               banktypes.QueryClient
+	monitoringConsumerQuery monitoringctypes.QueryClient
+	monitoringProviderQuery monitoringptypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -89,7 +94,13 @@ func WithRewardQueryClient(client rewardtypes.QueryClient) Option {
 
 func WithStakingQueryClient(client stakingtypes.QueryClient) Option {
 	return func(n *Network) {
-		n.stakingQuery = client
+		n.node.stakingQuery = client
+	}
+}
+
+func WithMonitoringConsumerQueryClient(client monitoringctypes.QueryClient) Option {
+	return func(n *Network) {
+		n.monitoringConsumerQuery = client
 	}
 }
 
@@ -109,14 +120,16 @@ func CollectEvents(ev events.Bus) Option {
 // New creates a Builder.
 func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
 	n := Network{
-		cosmos:        cosmos,
-		account:       account,
-		campaignQuery: campaigntypes.NewQueryClient(cosmos.Context()),
-		launchQuery:   launchtypes.NewQueryClient(cosmos.Context()),
-		profileQuery:  profiletypes.NewQueryClient(cosmos.Context()),
-		rewardQuery:   rewardtypes.NewQueryClient(cosmos.Context()),
-		stakingQuery:  stakingtypes.NewQueryClient(cosmos.Context()),
-		bankQuery:     banktypes.NewQueryClient(cosmos.Context()),
+		cosmos:                  cosmos,
+		account:                 account,
+		node:                    NewNode(cosmos),
+		campaignQuery:           campaigntypes.NewQueryClient(cosmos.Context()),
+		launchQuery:             launchtypes.NewQueryClient(cosmos.Context()),
+		profileQuery:            profiletypes.NewQueryClient(cosmos.Context()),
+		rewardQuery:             rewardtypes.NewQueryClient(cosmos.Context()),
+		stakingQuery:            stakingtypes.NewQueryClient(cosmos.Context()),
+		bankQuery:               banktypes.NewQueryClient(cosmos.Context()),
+		monitoringConsumerQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
 	}
 	for _, opt := range options {
 		opt(&n)

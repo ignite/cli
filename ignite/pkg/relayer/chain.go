@@ -100,7 +100,7 @@ func WithClientID(clientID string) Option {
 }
 
 // NewChain creates a new chain on relayer or uses the existing matching chain.
-func (r Relayer) NewChain(ctx context.Context, accountName, rpcAddress string, options ...Option) (
+func (r Relayer) NewChain(accountName, rpcAddress string, options ...Option) (
 	*Chain, cosmosaccount.Account, error) {
 	c := &Chain{
 		accountName: accountName,
@@ -111,10 +111,6 @@ func (r Relayer) NewChain(ctx context.Context, accountName, rpcAddress string, o
 	// apply user options.
 	for _, o := range options {
 		o(c)
-	}
-
-	if err := c.ensureChainSetup(ctx); err != nil {
-		return nil, cosmosaccount.Account{}, err
 	}
 
 	account, err := r.ca.GetByName(accountName)
@@ -138,6 +134,18 @@ func (c *Chain) TryRetrieve(ctx context.Context) (sdk.Coins, error) {
 		return nil, err
 	}
 	return c.r.balance(ctx, c.rpcAddress, c.accountName, c.addressPrefix)
+}
+
+func (c *Chain) Config() relayerconfig.Chain {
+	return relayerconfig.Chain{
+		ID:            c.ID,
+		Account:       c.accountName,
+		AddressPrefix: c.addressPrefix,
+		RPCAddress:    c.rpcAddress,
+		GasPrice:      c.gasPrice,
+		GasLimit:      c.gasLimit,
+		ClientID:      c.clientID,
+	}
 }
 
 // channelOptions represents options for configuring the IBC channel between two chains
@@ -215,7 +223,7 @@ func (c *Chain) Connect(dst *Chain, options ...ChannelOption) (id string, err er
 	// determine a unique path name from chain ids with incremental numbers. e.g.:
 	// - src-dst
 	// - src-dst-2
-	pathID := fmt.Sprintf("%s-%s", c.ID, dst.ID)
+	pathID := PathID(c.ID, dst.ID)
 	var suffix string
 	i := 2
 	for {
@@ -252,8 +260,8 @@ func (c *Chain) Connect(dst *Chain, options ...ChannelOption) (id string, err er
 	return pathID, nil
 }
 
-// ensureChainSetup sets up the new or existing chain.
-func (c *Chain) ensureChainSetup(ctx context.Context) error {
+// EnsureChainSetup sets up the new or existing chain.
+func (c *Chain) EnsureChainSetup(ctx context.Context) error {
 	client, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(c.rpcAddress))
 	if err != nil {
 		return err
@@ -264,16 +272,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	}
 	c.ID = status.NodeInfo.Network
 
-	confChain := relayerconfig.Chain{
-		ID:            c.ID,
-		Account:       c.accountName,
-		AddressPrefix: c.addressPrefix,
-		RPCAddress:    c.rpcAddress,
-		GasPrice:      c.gasPrice,
-		GasLimit:      c.gasLimit,
-		ClientID:      c.clientID,
-	}
-
+	confChain := c.Config()
 	conf, err := relayerconfig.Get()
 	if err != nil {
 		return err
@@ -301,4 +300,9 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	}
 
 	return relayerconfig.Save(conf)
+}
+
+// PathID creates path name from chain ids
+func PathID(srcChainID, dstChainID string) string {
+	return fmt.Sprintf("%s-%s", srcChainID, dstChainID)
 }
