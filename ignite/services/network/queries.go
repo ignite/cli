@@ -6,7 +6,6 @@ import (
 	"sort"
 	"sync"
 
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -268,49 +267,6 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 		return rewardtypes.RewardPool{}, err
 	}
 	return res.RewardPool, nil
-}
-
-// stakingParams fetches the staking module params
-func (n Network) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
-	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
-	if err != nil {
-		return stakingtypes.Params{}, err
-	}
-	return res.Params, nil
-}
-
-// RewardsInfo Fetches the consensus state with the validator set,
-// the unbounding time, and the last block height from chain rewards.
-func (n Network) RewardsInfo(
-	ctx context.Context,
-	launchID uint64,
-	height int64,
-) (
-	rewardsInfo networktypes.Reward,
-	lastRewardHeight int64,
-	unboundingTime int64,
-	err error,
-) {
-	rewardsInfo, err = RewardsInfo(ctx, n.cosmos, height)
-	if err != nil {
-		return rewardsInfo, 0, 0, err
-	}
-
-	stakingParams, err := n.stakingParams(ctx)
-	if err != nil {
-		return rewardsInfo, 0, 0, err
-	}
-	unboundingTime = int64(stakingParams.UnbondingTime.Seconds())
-
-	chainReward, err := n.ChainReward(ctx, launchID)
-	if err == ErrObjectNotFound {
-		return rewardsInfo, 1, unboundingTime, nil
-	} else if err != nil {
-		return rewardsInfo, 0, 0, err
-	}
-	lastRewardHeight = chainReward.LastRewardHeight
-
-	return
 }
 
 // ChainID fetches the network chain id
