@@ -46,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.4
-	github.com/tendermint/spn v0.2.1-0.20220731230443-6225f03c4982
+	github.com/tendermint/spn v0.2.1-0.20220801133447-6737a26cb12d
 	github.com/tendermint/tendermint v0.34.20
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tendermint/vue v0.3.5
@@ -57,7 +57,7 @@ require (
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.48.0
-	google.golang.org/protobuf v1.28.0
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
@@ -225,14 +225,14 @@ require (
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	github.com/yuin/goldmark v1.4.1 // indirect
 	github.com/yuin/goldmark-emoji v1.0.1 // indirect
-	github.com/zondax/hid v0.9.0 // indirect
+	github.com/zondax/hid v0.9.1-0.20220302062450-5552068d2266 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
 	golang.org/x/tools v0.1.11 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/genproto v0.0.0-20220719170305-83ca9fad585f // indirect
+	google.golang.org/genproto v0.0.0-20220728213248-dd149ef739b9 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

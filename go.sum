@@ -1851,10 +1851,10 @@ github.com/tendermint/flutter/v2 v2.0.4/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMons
 github.com/tendermint/fundraising v0.3.1-0.20220613014523-03b4a2d4481a h1:DIxap6r3z89JLoaLp6TTtt8XS7Zgfy4XACfG6b+4plE=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
-github.com/tendermint/spn v0.2.1-0.20220727170053-6bff6689d24b h1:N8YboWStsHIH1j4mt1wBXqrYfueeE6y6T5eKPrVtuYc=
-github.com/tendermint/spn v0.2.1-0.20220727170053-6bff6689d24b/go.mod h1:CKuU0tBKGWZGGjf755gb1oAUvBoEREBJOxDBoJTBF0g=
 github.com/tendermint/spn v0.2.1-0.20220731230443-6225f03c4982 h1:E7SrURN8Hz4Z/WRyMUN9NUO5rsZyzwsAhjIimrwXVkI=
 github.com/tendermint/spn v0.2.1-0.20220731230443-6225f03c4982/go.mod h1:24sBUpSUhbZXPlCGOSSdzV/Ra9s+hBsGgYz/4pThwlE=
+github.com/tendermint/spn v0.2.1-0.20220801133447-6737a26cb12d h1:O1QJdTIl1Hc8WY4zXf1srmNpgFfbCZWPnUUD2AI1brU=
+github.com/tendermint/spn v0.2.1-0.20220801133447-6737a26cb12d/go.mod h1:nRnES6yZCzmvYTCa4GspOVCyvrS2/MOQ4qMhS3/On2Q=
 github.com/tendermint/tendermint v0.34.20 h1:/pmvJhO3IqOxhbi8iRXudTjA2YKpaMqrLwFNkyxDSzw=
 github.com/tendermint/tendermint v0.34.20/go.mod h1:KtOwCLYJcsS1ymtAfnjjAtXfXClbqcqjdqzFt2Em1Ac=
 github.com/tendermint/tm-db v0.6.6/go.mod h1:wP8d49A85B7/erz/r4YbKssKw6ylsO/hKtFk7E1aWZI=
@@ -1958,6 +1958,7 @@ github.com/yvasiyarov/gorelic v0.0.0-20141212073537-a9bba5b9ab50/go.mod h1:NUSPS
 github.com/yvasiyarov/newrelic_platform_go v0.0.0-20140908184405-b21fdbd4370f/go.mod h1:GlGEuHIJweS1mbCqG+7vt2nvWLzLLnRHbXz5JKd/Qbg=
 github.com/zondax/hid v0.9.0 h1:eiT3P6vNxAEVxXMw66eZUAAnU2zD33JBkfG/EnfAKl8=
 github.com/zondax/hid v0.9.0/go.mod h1:l5wttcP0jwtdLjqjMMWFVEE7d1zO0jvSPA9OPZxWpEM=
+github.com/zondax/hid v0.9.1-0.20220302062450-5552068d2266/go.mod h1:l5wttcP0jwtdLjqjMMWFVEE7d1zO0jvSPA9OPZxWpEM=
 gitlab.com/bosi/decorder v0.2.1/go.mod h1:6C/nhLSbF6qZbYD8bRmISBwc6vcWdNsiIBkRvjJFrH0=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
@@ -2690,6 +2691,7 @@ google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3/go.mod h1:RAyBrSAP
 google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd/go.mod h1:RAyBrSAP7Fh3Nc84ghnVLDPuV51xc9agzmm4Ph6i0Q4=
 google.golang.org/genproto v0.0.0-20220719170305-83ca9fad585f h1:P8EiVSxZwC6xH2niv2N66aqwMtYFg+D54gbjpcqKJtM=
 google.golang.org/genproto v0.0.0-20220719170305-83ca9fad585f/go.mod h1:GkXuJDJ6aQ7lnJcRF+SJVgFdQhypqgl3LB1C9vabdRE=
+google.golang.org/genproto v0.0.0-20220728213248-dd149ef739b9/go.mod h1:iHe1svFLAZg9VWz891+QbRMwUv9O/1Ww+/mngYeThbc=
 google.golang.org/grpc v0.0.0-20160317175043-d3ddb4469d5a/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
 google.golang.org/grpc v1.8.0/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
 google.golang.org/grpc v1.17.0/go.mod h1:6QZJwpn2B+Zp71q/5VxRsJ6NXXVCE5NRUHRo+f3cWCs=
@@ -2751,6 +2753,7 @@ google.golang.org/protobuf v1.27.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQ
 google.golang.org/protobuf v1.27.1/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.28.0 h1:w43yiav+6bVFTBQFZX0r7ipe9JQ1QsbMgHwbBziscLw=
 google.golang.org/protobuf v1.28.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.28.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/airbrake/gobrake.v2 v2.0.9/go.mod h1:/h5ZAUhDkGaJfjzjKLSjv6zCL6O0LLBxU4K+aSYdM/U=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
