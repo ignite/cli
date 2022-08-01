@@ -132,8 +132,7 @@ func (a Account) Address(accPrefix string) string {
 	if accPrefix == "" {
 		accPrefix = AccountPrefixCosmos
 	}
-
-	return toBench32(accPrefix, a.Info.GetPubKey().Address())
+	return toBech32(accPrefix, a.Info.GetPubKey().Address())
 }
 
 // PubKey returns a public key for account.
@@ -141,7 +140,7 @@ func (a Account) PubKey() string {
 	return a.Info.GetPubKey().String()
 }
 
-func toBench32(prefix string, addr []byte) string {
+func toBech32(prefix string, addr []byte) string {
 	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
 	if err != nil {
 		panic(err)
