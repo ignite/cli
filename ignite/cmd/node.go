@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -60,7 +62,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	return cosmosclient.New(cmd.Context(), options...)
 }
 
-// lookupAddress returns a bech32 address from an account name or
+// lookupAddress returns a bech32 address from an account name or an
 // address, or accountNameOrAddress directly if it wasn't found in the keyring
 // and if it's a valid bech32 address.
 func lookupAddress(client cosmosclient.Client, accountNameOrAddress string) (string, error) {
@@ -70,7 +72,10 @@ func lookupAddress(client cosmosclient.Client, accountNameOrAddress string) (str
 	}
 	// account not found in the keyring, ensure it is a bech32 address
 	_, _, err = bech32.DecodeAndConvert(accountNameOrAddress)
-	return accountNameOrAddress, err
+	if err != nil {
+		return "", fmt.Errorf("'%s' not an account nor a bech32 address: %w", accountNameOrAddress, err)
+	}
+	return accountNameOrAddress, nil
 }
 
 func getRPC(cmd *cobra.Command) (rpc string) {
