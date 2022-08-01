@@ -58,6 +58,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -215,6 +216,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 
 		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
+	}
+
+	// TODO: Issue an error or warning when this flag is used with "no-check"?
+	//       The "check-dependencies" flag is ignored when the "no-check" one is present.
+	if flagGetCheckDependencies(cmd) {
+		initOptions = append(initOptions, networkchain.CheckDependencies())
 	}
 
 	// init the chain.
