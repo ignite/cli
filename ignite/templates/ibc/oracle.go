@@ -88,7 +88,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		// Recv packet dispatch
 		templateRecv := `oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()).Error())
+		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()))
 	} else if ack != oracleAck {
 		return oracleAck
 	}
@@ -330,7 +330,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 	case types.%[3]vClientIDKey:
 		var %[2]vResult types.%[3]vResult
 		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
-			ack = channeltypes.NewErrorAcknowledgement(err.Error())
+			ack = channeltypes.NewErrorAcknowledgement(err)
 			return ack, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest,
 				"cannot decode the %[2]v received packet")
 		}
