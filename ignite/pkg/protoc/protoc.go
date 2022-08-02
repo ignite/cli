@@ -24,6 +24,7 @@ type configs struct {
 	isGeneratedDepsEnabled bool
 	pluginOptions          []string
 	env                    []string
+	command                Cmd
 }
 
 // Plugin configures a plugin for code generation.
@@ -49,9 +50,29 @@ func Env(v ...string) Option {
 	}
 }
 
+// WithCommand assigns a protoc command to use for code generation.
+// This allows to use a single protoc binary in multiple code generation calls.
+// Otherwise `Generate` creates a new protoc binary each time it is called.
+func WithCommand(command Cmd) Option {
+	return func(c *configs) {
+		c.command = command
+	}
+}
+
+// Cmd contains the information necessary to execute the protoc command.
 type Cmd struct {
-	Command  []string
-	Included []string
+	command  []string
+	includes []string
+}
+
+// Command returns the strings to execute the `protoc` command.
+func (c Cmd) Command() []string {
+	return c.command
+}
+
+// Includes returns the proto files import paths.
+func (c Cmd) Includes() []string {
+	return c.includes
 }
 
 // Command sets the protoc binary up and returns the command needed to execute c.
@@ -73,8 +94,8 @@ func Command() (command Cmd, cleanup func(), err error) {
 	}
 
 	command = Cmd{
-		Command:  []string{path, "-I", include},
-		Included: []string{include},
+		command:  []string{path, "-I", include},
+		includes: []string{include},
 	}
 
 	return command, cleanup, nil
@@ -88,13 +109,23 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		o(&c)
 	}
 
-	cmd, cleanup, err := Command()
-	if err != nil {
-		return err
-	}
-	defer cleanup()
+	var command, includes []string
 
-	command := cmd.Command
+	// init the string to run the protoc command and the proto files import path
+	if c.command.Command() == nil {
+		cmd, cleanup, err := Command()
+		if err != nil {
+			return err
+		}
+
+		defer cleanup()
+
+		command = cmd.Command()
+		includes = cmd.Includes()
+	} else {
+		command = c.command.Command()
+		includes = c.command.Includes()
+	}
 
 	// add plugin if set.
 	if c.pluginPath != "" {
@@ -116,7 +147,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 
 	// find out the list of proto files to generate code for and perform code generation.
-	files, err := discoverFiles(ctx, c, protoPath, append(cmd.Included, existentIncludePaths...), protoanalysis.NewCache())
+	files, err := discoverFiles(ctx, c, protoPath, append(includes, existentIncludePaths...), protoanalysis.NewCache())
 	if err != nil {
 		return err
 	}
