@@ -109,10 +109,11 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		o(&c)
 	}
 
-	var command, includes []string
-
 	// init the string to run the protoc command and the proto files import path
-	if c.command.Command() == nil {
+	command := c.command.Command()
+	includes := c.command.Includes()
+
+	if command == nil {
 		cmd, cleanup, err := Command()
 		if err != nil {
 			return err
@@ -122,9 +123,6 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 
 		command = cmd.Command()
 		includes = cmd.Includes()
-	} else {
-		command = c.command.Command()
-		includes = c.command.Includes()
 	}
 
 	// add plugin if set.
