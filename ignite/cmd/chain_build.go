@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -12,10 +13,11 @@ import (
 )
 
 const (
-	flagOutput         = "output"
-	flagRelease        = "release"
-	flagReleaseTargets = "release.targets"
-	flagReleasePrefix  = "release.prefix"
+	flagCheckDependencies = "check-dependencies"
+	flagOutput            = "output"
+	flagRelease           = "release"
+	flagReleasePrefix     = "release.prefix"
+	flagReleaseTargets    = "release.targets"
 )
 
 // NewChainBuild returns a new build command to build a blockchain app.
@@ -42,6 +44,7 @@ Sample usages:
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
@@ -66,6 +69,10 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 
 	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
+	}
+
+	if flagGetCheckDependencies(cmd) {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	c, err := newChainWithHomeFlags(cmd, chainOption...)
@@ -102,4 +109,16 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	return nil
+}
+
+func flagSetCheckDependencies() *flag.FlagSet {
+	usage := "Verify that cached dependencies have not been modified since they were downloaded"
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagCheckDependencies, false, usage)
+	return fs
+}
+
+func flagGetCheckDependencies(cmd *cobra.Command) (check bool) {
+	check, _ = cmd.Flags().GetBool(flagCheckDependencies)
+	return
 }

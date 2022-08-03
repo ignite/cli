@@ -40,6 +40,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -91,7 +92,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}
