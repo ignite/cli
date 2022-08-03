@@ -46,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/takuoki/gocase v1.0.0
 	github.com/tendermint/flutter/v2 v2.0.4
-	github.com/tendermint/spn v0.2.1-0.20220801133447-6737a26cb12d
+	github.com/tendermint/spn v0.2.1-0.20220803133735-b3f8e9e4590a
 	github.com/tendermint/tendermint v0.34.20
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tendermint/vue v0.3.5
