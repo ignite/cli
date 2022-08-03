@@ -36,9 +36,7 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var (
-		campaignID uint64
-	)
+	var campaignID uint64
 	if len(args) > 0 {
 		campaignID, err = network.ParseID(args[0])
 		if err != nil {

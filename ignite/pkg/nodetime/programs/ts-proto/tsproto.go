@@ -34,7 +34,7 @@ func BinaryPath() (path string, cleanup func(), err error) {
 %s "$@"
 `, strings.Join(command, " "))
 
-	err = os.WriteFile(path, []byte(script), 0755)
+	err = os.WriteFile(path, []byte(script), 0o755)
 
 	return
 }

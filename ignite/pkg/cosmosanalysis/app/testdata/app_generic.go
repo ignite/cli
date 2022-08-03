@@ -17,6 +17,7 @@ func (f Foo[T]) Name() string               { return app.BaseApp.Name() }
 func (f Foo[T]) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
+
 func (f Foo[T]) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }

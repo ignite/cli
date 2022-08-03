@@ -21,7 +21,7 @@ func NewResponse(data protoiface.MessageV1) cosmosclient.Response {
 	txData := &sdk.TxMsgData{Data: []*sdk.MsgData{
 		{
 			Data: anyEncoded.Value,
-			//TODO: Find a better way
+			// TODO: Find a better way
 			MsgType: strings.TrimSuffix(anyEncoded.TypeUrl, "Response"),
 		},
 	}}

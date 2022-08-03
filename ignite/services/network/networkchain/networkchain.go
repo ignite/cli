@@ -299,7 +299,6 @@ func (c *Chain) CacheBinary(launchID uint64) error {
 		return err
 	}
 	binaryChecksum, err := checksum.Binary(binaryName)
-
 	if err != nil {
 		return err
 	}
@@ -320,7 +319,7 @@ func fetchSource(
 	}
 
 	// ensure the path for chain source exists
-	if err := os.MkdirAll(path, 0755); err != nil {
+	if err := os.MkdirAll(path, 0o755); err != nil {
 		return "", "", err
 	}
 

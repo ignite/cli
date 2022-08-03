@@ -164,7 +164,6 @@ func NewRootCmd(
 
 			if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig); err != nil {
 				return err
-
 			}
 
 			startProxyForTunneledPeers(initClientCtx, cmd)
@@ -387,7 +386,6 @@ func (a appCreator) appExport(
 	jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions,
 ) (servertypes.ExportedApp, error) {
-
 	var exportableApp ExportableApp
 
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)

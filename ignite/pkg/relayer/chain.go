@@ -21,9 +21,7 @@ const (
 	OrderingOrdered   = "ORDER_ORDERED"
 )
 
-var (
-	errEndpointExistsWithDifferentChainID = errors.New("rpc endpoint already exists with a different chain id")
-)
+var errEndpointExistsWithDifferentChainID = errors.New("rpc endpoint already exists with a different chain id")
 
 // Chain represents a chain in relayer.
 type Chain struct {
@@ -101,7 +99,8 @@ func WithClientID(clientID string) Option {
 
 // NewChain creates a new chain on relayer or uses the existing matching chain.
 func (r Relayer) NewChain(accountName, rpcAddress string, options ...Option) (
-	*Chain, cosmosaccount.Account, error) {
+	*Chain, cosmosaccount.Account, error,
+) {
 	c := &Chain{
 		accountName: accountName,
 		rpcAddress:  fixRPCAddress(rpcAddress),

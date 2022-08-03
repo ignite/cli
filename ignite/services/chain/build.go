@@ -113,7 +113,7 @@ func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, ou
 		}
 	}
 
-	if err := os.MkdirAll(releasePath, 0755); err != nil {
+	if err := os.MkdirAll(releasePath, 0o755); err != nil {
 		return "", err
 	}
 

@@ -21,11 +21,9 @@ const (
 	moduleCacheNamespace = "generate.setup.module"
 )
 
-var (
-	protocGlobalInclude = xfilepath.List(
-		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
-		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
-	)
+var protocGlobalInclude = xfilepath.List(
+	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
+	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
 
 type ModulesInPath struct {

@@ -310,7 +310,7 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0o755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
@@ -336,7 +336,7 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 	port, err := availableport.Find(1)
 	require.NoError(e.t, err)
 
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0o755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
@@ -364,7 +364,7 @@ func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	}
 
 	// update config.yml with the generated temporary directories
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0o755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
