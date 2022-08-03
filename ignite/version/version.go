@@ -46,7 +46,6 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		NewClient(nil).
 		Repositories.
 		GetLatestRelease(ctx, "ignite", "cli")
-
 	if err != nil {
 		return false, "", err
 	}

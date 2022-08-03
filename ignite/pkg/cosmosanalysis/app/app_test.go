@@ -59,7 +59,7 @@ func TestCheckKeeper(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
 			tmpFile := filepath.Join(tmpDir, "app.go")
-			err := os.WriteFile(tmpFile, tt.appFile, 0644)
+			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
 			require.NoError(t, err)
 
 			err = app.CheckKeeper(tmpDir, tt.keeperName)
@@ -77,11 +77,11 @@ func TestGetRegisteredModules(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, AppFullFile, 0644)
+	err := os.WriteFile(tmpFile, AppFullFile, 0o644)
 	require.NoError(t, err)
 
 	tmpNoAppFile := filepath.Join(tmpDir, "someOtherFile.go")
-	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0644)
+	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0o644)
 	require.NoError(t, err)
 
 	registeredModules, err := app.FindRegisteredModules(tmpDir)

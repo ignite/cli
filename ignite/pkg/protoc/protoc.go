@@ -56,7 +56,7 @@ type Cmd struct {
 
 // Command sets the protoc binary up and returns the command needed to execute c.
 func Command() (command Cmd, cleanup func(), err error) {
-	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0755)
+	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0o755)
 	if err != nil {
 		return Cmd{}, nil, err
 	}
@@ -150,7 +150,8 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 // ones may need to be discovered as well. some protoc plugins already do this discovery internally but
 // for the ones that don't, it needs to be handled here if GenerateDependencies() is enabled.
 func discoverFiles(ctx context.Context, c configs, protoPath string, includePaths []string, cache protoanalysis.Cache) (
-	discovered []string, err error) {
+	discovered []string, err error,
+) {
 	packages, err := protoanalysis.Parse(ctx, cache, protoPath)
 	if err != nil {
 		return nil, err

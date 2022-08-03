@@ -56,7 +56,7 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := os.WriteFile(path, []byte(armored), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(armored), 0o644); err != nil {
 		return err
 	}
 

@@ -25,9 +25,7 @@ const (
 // KeyringHome used to store account related data.
 var KeyringHome = os.ExpandEnv("$HOME/.ignite/accounts")
 
-var (
-	ErrAccountExists = errors.New("account already exists")
-)
+var ErrAccountExists = errors.New("account already exists")
 
 const (
 	AccountPrefixCosmos = "cosmos"
@@ -234,7 +232,6 @@ func (r Registry) Export(name, passphrase string) (key string, err error) {
 	}
 
 	return r.Keyring.ExportPrivKeyArmor(name, passphrase)
-
 }
 
 // ExportHex exports an account as a private key in hex.
