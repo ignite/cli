@@ -11,7 +11,7 @@ import (
 
 // handleOraclePacket handles the result of the received BandChain oracles
 // packet and saves the data into the KV database
-func (am AppModule) handleOraclePacket(
+func (im IBCModule) handleOraclePacket(
 	ctx sdk.Context,
 	modulePacket channeltypes.Packet,
 ) (channeltypes.Acknowledgement, error) {
@@ -41,7 +41,7 @@ func (am AppModule) handleOraclePacket(
 
 // handleOracleAcknowledgment handles the acknowledgment result from the BandChain
 // request and saves the request-id into the KV database
-func (am AppModule) handleOracleAcknowledgment(
+func (im IBCModule) handleOracleAcknowledgment(
 	ctx sdk.Context,
 	ack channeltypes.Acknowledgement,
 	modulePacket channeltypes.Packet,
