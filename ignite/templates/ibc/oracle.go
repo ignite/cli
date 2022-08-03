@@ -19,10 +19,8 @@ import (
 	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
-var (
-	//go:embed oracle/* oracle/**/*
-	fsOracle embed.FS
-)
+//go:embed oracle/* oracle/**/*
+var fsOracle embed.FS
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
 type OracleOptions struct {

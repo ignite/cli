@@ -89,7 +89,6 @@ func toolsProxy(ctx context.Context, command []string) error {
 }
 
 func NewToolsCompletions() *cobra.Command {
-
 	// completionCmd represents the completion command
 	c := &cobra.Command{
 		Use:   "completions",

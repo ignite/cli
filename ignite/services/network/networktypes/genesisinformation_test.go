@@ -11,9 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-var (
-	sampleCoins = sdk.NewCoins(sdk.NewCoin("bar", sdk.NewInt(1000)), sdk.NewCoin("foo", sdk.NewInt(2000)))
-)
+var sampleCoins = sdk.NewCoins(sdk.NewCoin("bar", sdk.NewInt(1000)), sdk.NewCoin("foo", sdk.NewInt(2000)))
 
 func TestToGenesisAccount(t *testing.T) {
 	tests := []struct {

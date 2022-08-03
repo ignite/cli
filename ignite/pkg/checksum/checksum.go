@@ -38,7 +38,7 @@ func Sum(dirPath, outPath string) error {
 		}
 	}
 
-	return os.WriteFile(outPath, b.Bytes(), 0666)
+	return os.WriteFile(outPath, b.Bytes(), 0o666)
 }
 
 // Binary returns SHA256 hash of executable file, file is searched by name in PATH
