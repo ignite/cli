@@ -21,6 +21,7 @@ func NewChainInit() *cobra.Command {
 	flagSetPath(c)
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -29,6 +30,10 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	if flagGetCheckDependencies(cmd) {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	c, err := newChainWithHomeFlags(cmd, chainOption...)
