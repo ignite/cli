@@ -206,8 +206,12 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 	}
 
 	if modChanged {
-		if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
-			return nil, err
+		// By default no dependencies are checked to avoid issues with module
+		// ziphash files in case a Go workspace is being used.
+		if c.options.checkDependencies {
+			if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
+				return nil, err
+			}
 		}
 
 		if err := dirchange.SaveDirChecksum(dirCache, modChecksumKey, c.app.Path, "go.mod"); err != nil {

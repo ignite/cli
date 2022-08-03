@@ -37,7 +37,8 @@ type Chain struct {
 
 	keyringBackend chaincmd.KeyringBackend
 
-	isInitialized bool
+	isInitialized     bool
+	checkDependencies bool
 
 	ref plumbing.ReferenceName
 
@@ -125,6 +126,15 @@ func CollectEvents(ev events.Bus) Option {
 	}
 }
 
+// CheckDependencies checks that cached Go dependencies of the chain have
+// not been modified since they were downloaded. Dependencies are checked
+// by running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.checkDependencies = true
+	}
+}
+
 // New initializes a network blockchain from source and options.
 func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, options ...Option) (*Chain, error) {
 	c := &Chain{
@@ -149,6 +159,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		chain.ID(c.id),
 		chain.HomePath(c.home),
 		chain.LogLevel(chain.LogSilent),
+	}
+
+	if c.checkDependencies {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
