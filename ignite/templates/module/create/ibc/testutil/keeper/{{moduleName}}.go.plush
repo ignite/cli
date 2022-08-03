@@ -50,8 +50,8 @@ func (<%= moduleName %>PortKeeper) BindPort(ctx sdk.Context, portID string) *cap
 func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 	logger := log.NewNopLogger()
 
-	storeKey := sdk.NewKVStoreKey(storetypes.StoreKey)
-	memStoreKey := storetypes.NewMemoryStoreKey(storetypes.MemStoreKey)
+	storeKey := sdk.NewKVStoreKey(types.StoreKey)
+	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
 	db := tmdb.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db)
