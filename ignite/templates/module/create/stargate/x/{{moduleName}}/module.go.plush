@@ -25,7 +25,7 @@ import (
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
-	<%= if (isIBC) { %>_ porttypes.IBCModule   = AppModule{}<% } %>
+	<%= if (isIBC) { %>_ porttypes.IBCModule   = IBCModule{}<% } %>
 )
 
 // ----------------------------------------------------------------------------
