@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Make `go mod verify` optional, so Ignite CLI can work in a Go workspace context [#2685](https://github.com/ignite/cli/pull/2685)
+
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
 ### Features
