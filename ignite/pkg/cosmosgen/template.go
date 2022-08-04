@@ -75,7 +75,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 		out := filepath.Join(destDir, strings.TrimSuffix(filepath.Base(path), ".tpl"))
 
-		f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0766)
+		f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o766)
 		if err != nil {
 			return err
 		}

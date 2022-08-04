@@ -26,7 +26,6 @@ func TestAll(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-
 			file, err := os.CreateTemp("", "")
 			require.NoError(t, err)
 			defer func() {
@@ -51,5 +50,4 @@ func TestAll(t *testing.T) {
 			require.Equal(t, "cosmos", d2.Hello)
 		})
 	}
-
 }

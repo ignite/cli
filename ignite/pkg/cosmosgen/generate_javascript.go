@@ -128,7 +128,7 @@ func (g *jsGenerator) generateModule(
 		return err
 	}
 
-	if err := os.MkdirAll(typesOut, 0766); err != nil {
+	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 

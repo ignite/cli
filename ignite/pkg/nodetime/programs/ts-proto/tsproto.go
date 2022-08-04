@@ -59,7 +59,7 @@ func BinaryPath() (path string, cleanup func(), err error) {
 	// located in a random temporary directory.
 	script := fmt.Sprintf(scriptTemplate, strings.Join(command, " "))
 	path = filepath.Join(tmpDir, pluginName)
-	err = os.WriteFile(path, []byte(script), 0755)
+	err = os.WriteFile(path, []byte(script), 0o755)
 
 	return path, cleanup, err
 }

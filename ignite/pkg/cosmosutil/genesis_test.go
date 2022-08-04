@@ -317,7 +317,7 @@ func TestUpdateGenesis(t *testing.T) {
 					),
 				)
 			}
-			require.NoError(t, os.WriteFile(tmpGenesis, []byte(tt.args.genesis), 0644))
+			require.NoError(t, os.WriteFile(tmpGenesis, []byte(tt.args.genesis), 0o644))
 			err := cosmosutil.UpdateGenesis(tmpGenesis, tt.args.options...)
 			if tt.err != nil {
 				require.Error(t, err)

@@ -480,7 +480,7 @@ func (c *Chain) chainSavePath() (string, error) {
 	chainSavePath := filepath.Join(savePath, chainID)
 
 	// ensure the path exists
-	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
+	if err := os.MkdirAll(savePath, 0o700); err != nil && !os.IsExist(err) {
 		return "", err
 	}
 

@@ -139,7 +139,7 @@ func (c Chain) setSimulationConfig() (string, error) {
 	config.Set("api.address", apiAddr)
 	config.Set("grpc.address", genAddr(ports[1]))
 
-	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return "", err
 	}
@@ -176,7 +176,7 @@ func (c Chain) setSimulationConfig() (string, error) {
 	config.Set("p2p.laddr", p2pAddr)
 	config.Set("rpc.pprof_laddr", genAddr(ports[4]))
 
-	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return "", err
 	}
