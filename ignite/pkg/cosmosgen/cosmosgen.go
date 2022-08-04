@@ -148,7 +148,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	return nil
-
 }
 
 // VuexStoreModulePath generates Vuex store module paths for Cosmos SDK modules.

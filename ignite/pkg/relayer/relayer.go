@@ -135,7 +135,8 @@ func (r Relayer) call(
 	path relayerconf.Path,
 	action string,
 ) (
-	reply relayerconf.Path, err error) {
+	reply relayerconf.Path, err error,
+) {
 	srcChain, srcKey, err := r.prepare(ctx, conf, path.Src.ChainID)
 	if err != nil {
 		return relayerconf.Path{}, err
@@ -157,7 +158,8 @@ func (r Relayer) call(
 }
 
 func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID string) (
-	chain relayerconf.Chain, privKey string, err error) {
+	chain relayerconf.Chain, privKey string, err error,
+) {
 	chain, err = conf.ChainByID(chainID)
 	if err != nil {
 		return relayerconf.Chain{}, "", err

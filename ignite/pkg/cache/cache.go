@@ -29,7 +29,7 @@ type Cache[T any] struct {
 // path is the full path (including filename) to the database file to ues
 // It does not need to be closed as this happens automatically in each call to the cache
 func NewStorage(path string) (Storage, error) {
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return Storage{}, err
 	}
 
@@ -145,5 +145,5 @@ func (c Cache[T]) Delete(key string) error {
 }
 
 func openDB(path string) (*bolt.DB, error) {
-	return bolt.Open(path, 0640, &bolt.Options{Timeout: 1 * time.Minute})
+	return bolt.Open(path, 0o640, &bolt.Options{Timeout: 1 * time.Minute})
 }

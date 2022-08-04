@@ -137,7 +137,7 @@ func UpdateGenesis(genesisPath string, options ...GenesisField) error {
 			return err
 		}
 	}
-	return os.WriteFile(genesisPath, genesisBytes, 0644)
+	return os.WriteFile(genesisPath, genesisBytes, 0o644)
 }
 
 // ParseGenesisFromPath parse ChainGenesis object from a genesis file
