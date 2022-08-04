@@ -51,7 +51,7 @@ func (c *Chain) build(ctx context.Context, cacheStorage cache.Storage, output st
 		}
 	}()
 
-	if err := c.generateAll(ctx, cacheStorage); err != nil {
+	if err := c.generateFromConfig(ctx, cacheStorage, true); err != nil {
 		return err
 	}
 

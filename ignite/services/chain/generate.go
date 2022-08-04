@@ -55,39 +55,49 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) error {
+// generateFromConfig makes code generation from proto files from the given config
+func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateGo bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
 
-	var additionalTargets []GenerateTarget
+	var targets []GenerateTarget
 
+	// generate Go pb files
+	if generateGo {
+		targets = append(targets, GenerateGo())
+	}
+
+	// parse config for additional target
 	if conf.Client.Vuex.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex())
+		targets = append(targets, GenerateVuex())
 	}
 
 	if conf.Client.Dart.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateDart())
+		targets = append(targets, GenerateDart())
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateOpenAPI())
+		targets = append(targets, GenerateOpenAPI())
 	}
 
-	return c.Generate(ctx, cacheStorage, GenerateGo(), additionalTargets...)
+	return c.Generate(ctx, cacheStorage, targets...)
 }
 
-// Generate makes code generation from proto files for given target and additionalTargets.
+// Generate makes code generation from proto files for given targets.
 func (c *Chain) Generate(
 	ctx context.Context,
 	cacheStorage cache.Storage,
-	target GenerateTarget,
-	additionalTargets ...GenerateTarget,
+	targets ...GenerateTarget,
 ) error {
-	var targetOptions generateOptions
+	// nothing to generate
+	if len(targets) == 0 {
+		return nil
+	}
 
-	for _, apply := range append(additionalTargets, target) {
+	var targetOptions generateOptions
+	for _, apply := range targets {
 		apply(&targetOptions)
 	}
 
