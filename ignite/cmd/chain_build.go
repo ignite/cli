@@ -45,6 +45,7 @@ Sample usages:
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
+	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
@@ -96,7 +97,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	binaryName, err := c.Build(cmd.Context(), cacheStorage, output)
+	binaryName, err := c.Build(cmd.Context(), cacheStorage, output, !flagGetSkipProto(cmd))
 	if err != nil {
 		return err
 	}
