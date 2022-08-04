@@ -5,6 +5,10 @@
 ### Fixes
 
 - Make `go mod verify` optional, so Ignite CLI can work in a Go workspace context [#2685](https://github.com/ignite/cli/pull/2685)
+- The `monitoringp` module has been removed from the default template (removed dependency on `tenderming/spn`) [#2648](https://github.com/ignite/cli/pull/2648)
+- Added a call to `RegisterMsgServer` in the default module's template (to match what's specified in the docs) [#2636](https://github.com/ignite/cli/pull/2636)
+- Fix query scaffolding by using the correct query context in the chain's CLI package [#2668](https://github.com/ignite/cli/pull/2668/)
+- Updated keyring dependency to match what Cosmos SDK is using [#2655](https://github.com/ignite/cli/pull/2655)
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
