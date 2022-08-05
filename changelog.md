@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
 ### Features
