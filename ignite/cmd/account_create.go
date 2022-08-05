@@ -28,12 +28,12 @@ func accountCreateHandler(cmd *cobra.Command, args []string) error {
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create registry: %w", err)
 	}
 
 	_, mnemonic, err := ca.Create(name)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create account: %w", err)
 	}
 
 	fmt.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)
