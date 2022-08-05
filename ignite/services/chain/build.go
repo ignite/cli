@@ -62,7 +62,7 @@ func (c *Chain) build(
 	}()
 
 	// generate from proto files
-	if err := c.generateFromConfig(ctx, cacheStorage, true); err != nil {
+	if err := c.generateFromConfig(ctx, cacheStorage, generateProtoGo); err != nil {
 		return err
 	}
 
