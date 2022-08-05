@@ -7,14 +7,16 @@ import (
 	"fmt"
 	"os"
 
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 )
 
@@ -96,6 +98,7 @@ func New(options ...Option) (Registry, error) {
 	var err error
 	inBuf := bufio.NewReader(os.Stdin)
 	interfaceRegistry := types.NewInterfaceRegistry()
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, inBuf, cdc)
 	if err != nil {
@@ -122,7 +125,7 @@ func NewInMemory(options ...Option) (Registry, error) {
 	)
 }
 
-// Account represents an Cosmos SDK account.
+// Account represents a Cosmos SDK account.
 type Account struct {
 	// Name of the account.
 	Name string
@@ -188,7 +191,6 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	if !errors.As(err, &accErr) {
 		return Account{}, "", err
 	}
-
 	entropySeed, err := bip39.NewEntropy(256)
 	if err != nil {
 		return Account{}, "", err
@@ -197,7 +199,6 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	if err != nil {
 		return Account{}, "", err
 	}
-
 	algo, err := r.algo()
 	if err != nil {
 		return Account{}, "", err
