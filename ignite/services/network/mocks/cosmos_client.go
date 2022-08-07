@@ -25,50 +25,6 @@ type CosmosClient struct {
 	mock.Mock
 }
 
-// Account provides a mock function with given fields: accountName
-func (_m *CosmosClient) Account(accountName string) (cosmosaccount.Account, error) {
-	ret := _m.Called(accountName)
-
-	var r0 cosmosaccount.Account
-	if rf, ok := ret.Get(0).(func(string) cosmosaccount.Account); ok {
-		r0 = rf(accountName)
-	} else {
-		r0 = ret.Get(0).(cosmosaccount.Account)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(accountName)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Address provides a mock function with given fields: accountName
-func (_m *CosmosClient) Address(accountName string) (types.AccAddress, error) {
-	ret := _m.Called(accountName)
-
-	var r0 types.AccAddress
-	if rf, ok := ret.Get(0).(func(string) types.AccAddress); ok {
-		r0 = rf(accountName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(types.AccAddress)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(accountName)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // BroadcastTx provides a mock function with given fields: account, msgs
 func (_m *CosmosClient) BroadcastTx(account cosmosaccount.Account, msgs ...types.Msg) (cosmosclient.Response, error) {
 	_va := make([]interface{}, len(msgs))

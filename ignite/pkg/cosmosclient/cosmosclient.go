@@ -231,6 +231,12 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 
 // Account returns the account with name or address equal to nameOrAddress.
 func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
+	defer c.lockBech32Prefix()()
+
+	return c.account(nameOrAddress)
+}
+
+func (c Client) account(nameOrAddress string) (cosmosaccount.Account, error) {
 	a, err := c.AccountRegistry.GetByName(nameOrAddress)
 	if err == nil {
 		return a, nil
@@ -239,12 +245,14 @@ func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
 }
 
 // Address returns the account address from account name.
-func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
-	account, err := c.Account(accountName)
+func (c Client) Address(accountName string) (string, error) {
+	defer c.lockBech32Prefix()()
+
+	account, err := c.account(accountName)
 	if err != nil {
-		return sdktypes.AccAddress{}, err
+		return "", err
 	}
-	return account.Info.GetAddress(), nil
+	return account.Info.GetAddress().String(), nil
 }
 
 func (c Client) Context() client.Context {
@@ -380,7 +388,7 @@ func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []s
 	//  }
 	//  }
 
-	account, err := c.Account(accountName)
+	account, err := c.account(accountName)
 	if err != nil {
 		return err
 	}

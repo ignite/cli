@@ -32,9 +32,10 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	address, err := lookupAddress(client, inputAccount)
+	// inputAccount can be an account of the keyring or a raw address
+	address, err := client.Address(inputAccount)
 	if err != nil {
-		return err
+		address = inputAccount
 	}
 
 	pagination, err := getPagination(cmd)

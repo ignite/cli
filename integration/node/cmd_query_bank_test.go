@@ -111,16 +111,16 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 
+		if env.HasFailed() {
+			return
+		}
+
 		var expectedBalances strings.Builder
 		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
 			[]string{"5600", "atoken"},
 			[]string{"1200", "btoken"},
 		)
 		assert.Contains(t, b.String(), expectedBalances.String())
-
-		if env.HasFailed() {
-			return
-		}
 
 		b.Reset()
 		env.Exec("query bank balances by address",
@@ -140,11 +140,11 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 
-		assert.Contains(t, b.String(), expectedBalances.String())
-
 		if env.HasFailed() {
 			return
 		}
+
+		assert.Contains(t, b.String(), expectedBalances.String())
 
 		b.Reset()
 		env.Exec("query bank balances with pagination -page 1",
@@ -166,16 +166,16 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 
+		if env.HasFailed() {
+			return
+		}
+
 		expectedBalances.Reset()
 		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
 			[]string{"5600", "atoken"},
 		)
 		assert.Contains(t, b.String(), expectedBalances.String())
 		assert.NotContains(t, b.String(), "btoken")
-
-		if env.HasFailed() {
-			return
-		}
 
 		b.Reset()
 		env.Exec("query bank balances with pagination -page 2",
@@ -197,16 +197,16 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 
+		if env.HasFailed() {
+			return
+		}
+
 		expectedBalances.Reset()
 		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
 			[]string{"1200", "btoken"},
 		)
 		assert.Contains(t, b.String(), expectedBalances.String())
 		assert.NotContains(t, b.String(), "atoken")
-
-		if env.HasFailed() {
-			return
-		}
 
 		b.Reset()
 		env.Exec("query bank balances fail with non-existent account name",
