@@ -151,6 +151,9 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
+		// NOTE(tb) need a small sleep or else alice account sequence is wrong
+		// Maybe implement something like a WaitBlockHeight or WaitNextBlock?
+		time.Sleep(time.Second)
 
 		env.Exec("send 5token from alice to bob using a combination of address and account",
 			step.NewSteps(step.New(
@@ -173,6 +176,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
+		time.Sleep(time.Second)
 
 		b := &bytes.Buffer{}
 		env.Exec("query bank balances for alice",
