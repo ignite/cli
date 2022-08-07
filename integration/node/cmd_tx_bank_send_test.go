@@ -5,16 +5,13 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/randstr"
@@ -195,12 +192,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 
-		var expectedBalances strings.Builder
-		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
-			[]string{"2", "stake"},
-			[]string{"1895", "token"},
-		)
-		assert.Contains(t, b.String(), expectedBalances.String())
+		assertBankBalanceOutput(t, b.String(), "2stake,1895token")
 
 		if env.HasFailed() {
 			return
@@ -224,12 +216,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 
-		expectedBalances.Reset()
-		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
-			[]string{"99999998", "stake"},
-			[]string{"10105", "token"},
-		)
-		assert.Contains(t, b.String(), expectedBalances.String())
+		assertBankBalanceOutput(t, b.String(), "99999998stake,10105token")
 
 		// check generated tx
 		b.Reset()
@@ -314,7 +301,6 @@ func TestNodeTxBankSend(t *testing.T) {
 					"alice",
 					"bob",
 					"100token",
-					"--from", "alice",
 					"--node", node,
 					"--keyring-dir", accKeyringDir,
 					"--address-prefix", testPrefix,

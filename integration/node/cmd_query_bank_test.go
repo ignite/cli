@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -23,6 +24,18 @@ import (
 
 const keyringTestDirName = "keyring-test"
 const testPrefix = "testpref"
+
+func assertBankBalanceOutput(t *testing.T, output string, balances string) {
+	var table [][]string
+	coins, err := sdktypes.ParseCoinsNormalized(balances)
+	require.NoError(t, err, "wrong balances %s", balances)
+	for _, c := range coins {
+		table = append(table, []string{c.Amount.String(), c.Denom})
+	}
+	var expectedBalances strings.Builder
+	entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"}, table...)
+	assert.Contains(t, output, expectedBalances.String())
+}
 
 func TestNodeQueryBankBalances(t *testing.T) {
 	var (
@@ -115,12 +128,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			return
 		}
 
-		var expectedBalances strings.Builder
-		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
-			[]string{"5600", "atoken"},
-			[]string{"1200", "btoken"},
-		)
-		assert.Contains(t, b.String(), expectedBalances.String())
+		assertBankBalanceOutput(t, b.String(), "5600atoken,1200btoken")
 
 		b.Reset()
 		env.Exec("query bank balances by address",
@@ -144,7 +152,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			return
 		}
 
-		assert.Contains(t, b.String(), expectedBalances.String())
+		assertBankBalanceOutput(t, b.String(), "5600atoken,1200btoken")
 
 		b.Reset()
 		env.Exec("query bank balances with pagination -page 1",
@@ -170,11 +178,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			return
 		}
 
-		expectedBalances.Reset()
-		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
-			[]string{"5600", "atoken"},
-		)
-		assert.Contains(t, b.String(), expectedBalances.String())
+		assertBankBalanceOutput(t, b.String(), "5600atoken")
 		assert.NotContains(t, b.String(), "btoken")
 
 		b.Reset()
@@ -201,11 +205,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			return
 		}
 
-		expectedBalances.Reset()
-		entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"},
-			[]string{"1200", "btoken"},
-		)
-		assert.Contains(t, b.String(), expectedBalances.String())
+		assertBankBalanceOutput(t, b.String(), "1200btoken")
 		assert.NotContains(t, b.String(), "atoken")
 
 		b.Reset()
