@@ -61,14 +61,21 @@ func (n Network) Join(
 	}
 
 	// get the peer address
-	if nodeID, err = c.NodeID(ctx); err != nil {
-		return err
-	}
+	if o.publicAddress != "" {
+		if nodeID, err = c.NodeID(ctx); err != nil {
+			return err
+		}
 
-	if xurl.IsHTTP(o.publicAddress) {
-		peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
+		if xurl.IsHTTP(o.publicAddress) {
+			peer = launchtypes.NewPeerTunnel(nodeID, networkchain.HTTPTunnelChisel, o.publicAddress)
+		} else {
+			peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
+		}
 	} else {
-		peer = launchtypes.NewPeerConn(nodeID, o.publicAddress)
+		// if the peer address is not specified, we parse it from the gentx memo
+		if peer, err = ParsePeerAddress(gentxInfo.Memo); err != nil {
+			return err
+		}
 	}
 
 	// get the chain genesis path from the home folder
