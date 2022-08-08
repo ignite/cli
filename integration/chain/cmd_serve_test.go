@@ -95,6 +95,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	newConfigPath := filepath.Join(tmpDir, newConfig)
 	err := os.Rename(filepath.Join(app.SourcePath(), "config.yml"), newConfigPath)
 	require.NoError(t, err)
+	app.SetConfigPath(newConfigPath)
 
 	servers := app.RandomizeServerPorts()
 

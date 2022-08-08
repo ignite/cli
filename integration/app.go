@@ -95,6 +95,10 @@ func (a App) SourcePath() string {
 	return a.path
 }
 
+func (a *App) SetConfigPath(path string) {
+	a.configPath = path
+}
+
 // Binary returns the binary name of the app. Can be executed directly w/o any
 // path after app.Serve is called, since it should be in the $PATH.
 func (a App) Binary() string {
