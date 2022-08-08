@@ -17,10 +17,8 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-var (
-	// ErrObjectNotFound is returned when the query returns a not found error.
-	ErrObjectNotFound = errors.New("query object not found")
-)
+// ErrObjectNotFound is returned when the query returns a not found error.
+var ErrObjectNotFound = errors.New("query object not found")
 
 // ChainLaunch fetches the chain launch from Network by launch id.
 func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.ChainLaunch, error) {

@@ -57,11 +57,19 @@ func (g *generator) generateJS() error {
 }
 
 func (g *jsGenerator) generateModules() error {
-	tsprotoPluginPath, cleanup, err := tsproto.BinaryPath()
+	protocCmd, cleanupProtoc, err := protoc.Command()
 	if err != nil {
 		return err
 	}
-	defer cleanup()
+
+	defer cleanupProtoc()
+
+	tsprotoPluginPath, cleanupPlugin, err := tsproto.BinaryPath()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupPlugin()
 
 	gg := &errgroup.Group{}
 
@@ -81,7 +89,8 @@ func (g *jsGenerator) generateModules() error {
 					return nil
 				}
 
-				if err := g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m); err != nil {
+				err = g.generateModule(g.g.ctx, protocCmd, tsprotoPluginPath, sourcePath, m)
+				if err != nil {
 					return err
 				}
 
@@ -102,7 +111,12 @@ func (g *jsGenerator) generateModules() error {
 }
 
 // generateModule generates generates JS code for a module.
-func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
+func (g *jsGenerator) generateModule(
+	ctx context.Context,
+	cmd protoc.Cmd,
+	tsprotoPluginPath, appPath string,
+	m module.Module,
+) error {
 	var (
 		out          = g.g.o.jsOut(m)
 		storeDirPath = filepath.Dir(out)
@@ -114,7 +128,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		return err
 	}
 
-	if err := os.MkdirAll(typesOut, 0766); err != nil {
+	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 
@@ -127,6 +141,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		tsOut,
 		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
 		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
+		protoc.WithCommand(cmd),
 	)
 	if err != nil {
 		return err
@@ -145,6 +160,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		m.Pkg.Path,
 		includePaths,
 		jsOpenAPIOut,
+		protoc.WithCommand(cmd),
 	)
 	if err != nil {
 		return err

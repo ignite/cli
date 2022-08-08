@@ -7,9 +7,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-var (
-	campaignMainnetsAccSummaryHeader = []string{"Mainnet Account", "Shares"}
-)
+var campaignMainnetsAccSummaryHeader = []string{"Mainnet Account", "Shares"}
 
 // NewNetworkCampaignAccount creates a new campaign account command that holds some other
 // sub commands related to account for a campaign.

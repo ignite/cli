@@ -74,7 +74,7 @@ func toolsProtocProxy(cmd *cobra.Command, args []string) error {
 	}
 	defer cleanup()
 
-	return toolsProxy(cmd.Context(), append(command.Command, args...))
+	return toolsProxy(cmd.Context(), append(command.Command(), args...))
 }
 
 func toolsProxy(ctx context.Context, command []string) error {
@@ -89,7 +89,6 @@ func toolsProxy(ctx context.Context, command []string) error {
 }
 
 func NewToolsCompletions() *cobra.Command {
-
 	// completionCmd represents the completion command
 	c := &cobra.Command{
 		Use:   "completions",

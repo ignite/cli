@@ -72,7 +72,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 					use = append(use, path.ID)
 					break
 				}
-
 			}
 		}
 	}

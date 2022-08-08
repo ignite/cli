@@ -83,6 +83,10 @@ type chainOptions struct {
 	// for 3rd party modules. SDK modules are also considered as a 3rd party.
 	isThirdPartyModuleCodegenEnabled bool
 
+	// checkDependencies checks that cached Go dependencies of the chain have not
+	// been modified since they were downloaded.
+	checkDependencies bool
+
 	// path of a custom config file
 	ConfigFile string
 }
@@ -133,6 +137,15 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
+// CheckDependencies checks that cached Go dependencies of the chain have not
+// been modified since they were downloaded. Dependencies are checked by
+// running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.options.checkDependencies = true
+	}
+}
+
 // New initializes a new Chain with options that its source lives at path.
 func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
@@ -179,7 +192,6 @@ func New(path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-
 	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err

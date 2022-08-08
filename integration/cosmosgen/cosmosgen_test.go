@@ -114,7 +114,7 @@ func TestCosmosGen(t *testing.T) {
 		)),
 	))
 
-	var expectedCosmosModules = []string{
+	expectedCosmosModules := []string{
 		"cosmos.auth.v1beta1",
 		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
@@ -133,7 +133,7 @@ func TestCosmosGen(t *testing.T) {
 		"cosmos.vesting.v1beta1",
 	}
 
-	var expectedCustomModules = []string{
+	expectedCustomModules := []string{
 		"test.blog.blog",
 		"test.blog.withmsg",
 		"test.blog.withoutmsg",

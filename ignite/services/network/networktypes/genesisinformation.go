@@ -96,6 +96,7 @@ func (gi GenesisInformation) ContainsGenesisAccount(address string) bool {
 	}
 	return false
 }
+
 func (gi GenesisInformation) ContainsVestingAccount(address string) bool {
 	for _, account := range gi.VestingAccounts {
 		if account.Address == address {
@@ -104,6 +105,7 @@ func (gi GenesisInformation) ContainsVestingAccount(address string) bool {
 	}
 	return false
 }
+
 func (gi GenesisInformation) ContainsGenesisValidator(address string) bool {
 	for _, account := range gi.GenesisValidators {
 		if account.Address == address {

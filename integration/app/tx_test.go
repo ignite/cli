@@ -21,7 +21,6 @@ import (
 )
 
 func TestSignTxWithDashedAppName(t *testing.T) {
-
 	var (
 		env         = envtest.New(t)
 		appname     = "dashed-app-name"

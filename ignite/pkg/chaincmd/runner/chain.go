@@ -239,7 +239,7 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	// Make sure the path exists
 	dir := filepath.Dir(exportedFile)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 
@@ -257,7 +257,7 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	}
 
 	// Save the new state
-	return os.WriteFile(exportedFile, exportedState, 0644)
+	return os.WriteFile(exportedFile, exportedState, 0o644)
 }
 
 // EventSelector is used to query events.

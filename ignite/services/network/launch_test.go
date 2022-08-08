@@ -244,5 +244,4 @@ func TestRevertLaunch(t *testing.T) {
 		require.Equal(t, expectedError, revertError)
 		suite.AssertAllMocks(t)
 	})
-
 }

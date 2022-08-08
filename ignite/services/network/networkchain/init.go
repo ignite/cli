@@ -78,7 +78,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		}
 
 		// replace the default genesis with the fetched genesis
-		if err := os.WriteFile(genesisPath, genesis, 0644); err != nil {
+		if err := os.WriteFile(genesisPath, genesis, 0o644); err != nil {
 			return err
 		}
 	} else {
