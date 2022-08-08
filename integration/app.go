@@ -260,7 +260,7 @@ func (a App) UseRandomHomeDir() (homeDirPath string) {
 }
 
 func (a App) EditConfig(apply func(*chainconfig.Config)) {
-	f, err := os.OpenFile(a.configPath, os.O_RDWR|os.O_CREATE, 0755)
+	f, err := os.OpenFile(a.configPath, os.O_RDWR|os.O_CREATE, 0o755)
 	require.NoError(a.env.t, err)
 	defer f.Close()
 

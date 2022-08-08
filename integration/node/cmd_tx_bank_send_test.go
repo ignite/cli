@@ -311,7 +311,6 @@ func TestNodeTxBankSend(t *testing.T) {
 			envtest.ExecStdout(b),
 		)
 		require.Contains(t, b.String(), `"fee":{"amount":[{"denom":"stake","amount":"178004"}],"gas_limit":"2000034"`)
-
 	}()
 
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))

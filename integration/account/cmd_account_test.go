@@ -26,7 +26,7 @@ func TestAccount(t *testing.T) {
 		)),
 	))
 
-	var listOutputBuffer = &bytes.Buffer{}
+	listOutputBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("list accounts",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "account", "list", "--keyring-dir", tmpDir),
@@ -41,7 +41,7 @@ func TestAccount(t *testing.T) {
 		)),
 	))
 
-	var listOutputAfterDeleteBuffer = &bytes.Buffer{}
+	listOutputAfterDeleteBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("list accounts after delete",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "account", "list", "--keyring-dir", tmpDir),
@@ -56,7 +56,7 @@ func TestAccount(t *testing.T) {
 		)),
 	))
 
-	var listOutputAfterImportBuffer = &bytes.Buffer{}
+	listOutputAfterImportBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("list accounts after import",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "account", "list", "--keyring-dir", tmpDir),
@@ -68,7 +68,7 @@ testaccount42 	cosmos1ytnkpns7mfd6jjkvq9ztdvjdrt2xvmft2qxzqd 	PubKeySecp256k1{02
 
 `, listOutputAfterImportBuffer.String())
 
-	var showOutputBuffer = &bytes.Buffer{}
+	showOutputBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("show account",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "account", "show", "testaccount42", "--keyring-dir", tmpDir),
@@ -80,7 +80,7 @@ testaccount42 	cosmos1ytnkpns7mfd6jjkvq9ztdvjdrt2xvmft2qxzqd 	PubKeySecp256k1{02
 
 `, showOutputBuffer.String())
 
-	var showOutputWithDifferentPrefixBuffer = &bytes.Buffer{}
+	showOutputWithDifferentPrefixBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("show account with address prefi",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "account", "show", "testaccount42", "--keyring-dir", tmpDir, "--address-prefix", "test"),

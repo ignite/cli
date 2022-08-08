@@ -80,5 +80,4 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	session.StopSpinner()
 	session.Println("Transaction broadcast successful!")
 	return session.Printf("%s sent from %s to %s\n", amount, fromAccountInput, toAccountInput)
-
 }

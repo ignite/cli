@@ -22,8 +22,10 @@ import (
 	envtest "github.com/ignite/cli/integration"
 )
 
-const keyringTestDirName = "keyring-test"
-const testPrefix = "testpref"
+const (
+	keyringTestDirName = "keyring-test"
+	testPrefix         = "testpref"
+)
 
 func assertBankBalanceOutput(t *testing.T, output string, balances string) {
 	var table [][]string
