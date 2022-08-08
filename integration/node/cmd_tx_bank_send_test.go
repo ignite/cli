@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
@@ -104,9 +103,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			return
 		}
 
-		// error "account doesn't have any balances" occurs if a sleep is not included
-		// TODO find another way without sleep, with retry+ctx routine.
-		time.Sleep(time.Second * 1)
+		app.WaitNBlocks(1, "--node", node)
 
 		env.Exec("send 100token from alice to bob",
 			step.NewSteps(step.New(
@@ -151,9 +148,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
-		// NOTE(tb) need a small sleep or else alice account sequence is wrong
-		// Maybe implement something like a WaitBlockHeight or WaitNextBlock?
-		time.Sleep(time.Second)
+		app.WaitNBlocks(1, "--node", node)
 
 		env.Exec("send 5token from alice to bob using a combination of address and account",
 			step.NewSteps(step.New(
@@ -176,7 +171,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
-		time.Sleep(time.Second)
+		app.WaitNBlocks(1, "--node", node)
 
 		b := &bytes.Buffer{}
 		env.Exec("query bank balances for alice",

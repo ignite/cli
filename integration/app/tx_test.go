@@ -61,7 +61,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"config",
 				"output", "json",
 			),
@@ -76,7 +76,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				return err
 			}),
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"tx",
 				"dashedappname",
 				"create-item",
@@ -144,7 +144,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"config",
 				"output", "json",
 			),
@@ -154,7 +154,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		),
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"keys",
 				"list",
 				"--keyring-backend", "test",
@@ -192,7 +192,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				// endpoint by asserting denom and amount.
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
-						appname+"d",
+						app.Binary(),
 						"tx",
 						"bank",
 						"send",
