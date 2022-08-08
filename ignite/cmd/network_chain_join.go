@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
