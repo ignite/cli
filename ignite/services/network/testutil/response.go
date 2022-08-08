@@ -2,12 +2,10 @@ package testutil
 
 import (
 	"encoding/hex"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	prototypes "github.com/gogo/protobuf/types"
 	"google.golang.org/protobuf/runtime/protoiface"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -17,14 +15,10 @@ import (
 // for using as a return result for a cosmosclient mock
 func NewResponse(data protoiface.MessageV1) cosmosclient.Response {
 	marshaler := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
-	anyEncoded, _ := prototypes.MarshalAny(data)
-	txData := &sdk.TxMsgData{Data: []*sdk.MsgData{
-		{
-			Data: anyEncoded.Value,
-			// TODO: Find a better way
-			MsgType: strings.TrimSuffix(anyEncoded.TypeUrl, "Response"),
-		},
-	}}
+	anyEncoded, _ := codectypes.NewAnyWithValue(data)
+
+	txData := &sdk.TxMsgData{MsgResponses: []*codectypes.Any{anyEncoded}}
+
 	encodedTxData, _ := marshaler.Marshal(txData)
 	resp := cosmosclient.Response{
 		Codec: marshaler,

@@ -221,14 +221,16 @@ type Response struct {
 }
 
 // Decode decodes the proto func response defined in your Msg service into your message type.
-// message needs be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
+// message needs to be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
 //
 // e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
 // ```proto
-// service Msg {
-//   rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
-// }
+//
+//	service Msg {
+//	  rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
+//	}
+//
 // ```
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
@@ -241,14 +243,23 @@ func (r Response) Decode(message proto.Message) error {
 		return err
 	}
 
-	resData := txMsgData.Data[0]
+	// check deprecated Data
+	if len(txMsgData.Data) != 0 {
+		resData := txMsgData.Data[0]
+		return prototypes.UnmarshalAny(&prototypes.Any{
+			// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
+			// https://github.com/cosmos/cosmos-sdk/issues/10496
+			TypeUrl: resData.MsgType + "Response",
+			Value:   resData.Data,
+		}, message)
+	}
 
+	resData := txMsgData.MsgResponses[0]
 	return prototypes.UnmarshalAny(&prototypes.Any{
-		// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
-		// https://github.com/cosmos/cosmos-sdk/issues/10496
-		TypeUrl: resData.MsgType + "Response",
-		Value:   resData.Data,
+		TypeUrl: resData.TypeUrl,
+		Value:   resData.Value,
 	}, message)
+
 }
 
 // ConsensusInfo is the validator consensus info
