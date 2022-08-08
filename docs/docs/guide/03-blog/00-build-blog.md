@@ -35,10 +35,12 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-ignite scaffold chain blog
+ignite scaffold chain blog --address-prefix blog
 ```
 
 The `blog` directory is created with the default directory structure.
+
+The new blockchain is scaffolded with the `--address-prefix blog` flag to use "blog" instead of the default "cosmos" address prefix.
 
 ## High-level transaction review
 
@@ -468,7 +470,7 @@ blogd tx blog create-post foo bar --from alice
 The transaction is output to the terminal. You are prompted to confirm the transaction:
 
 ```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"cosmos1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
@@ -490,7 +492,7 @@ The result:
 ```bash
 Post:
 - body: bar
-  creator: cosmos1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
+  creator: blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
   id: "0"
   title: foo
 pagination:
