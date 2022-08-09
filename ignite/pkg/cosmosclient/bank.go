@@ -10,18 +10,17 @@ import (
 )
 
 func (c Client) BankBalances(ctx context.Context, address string, pagination *query.PageRequest) (sdk.Coins, error) {
+	defer c.lockBech32Prefix()()
+
 	req := &banktypes.QueryAllBalancesRequest{
 		Address:    address,
 		Pagination: pagination,
 	}
 
-	resp, err := performQuery(c, func() (*banktypes.QueryAllBalancesResponse, error) {
-		return banktypes.NewQueryClient(c.context).AllBalances(ctx, req)
-	})
+	resp, err := banktypes.NewQueryClient(c.context).AllBalances(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-
 	return resp.Balances, nil
 }
 

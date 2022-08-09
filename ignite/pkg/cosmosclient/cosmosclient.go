@@ -273,9 +273,11 @@ type Response struct {
 // e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
 // ```proto
-// service Msg {
-//   rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
-// }
+//
+//	service Msg {
+//	  rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
+//	}
+//
 // ```
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
@@ -312,12 +314,6 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
 
 	return mconf.Unlock
-}
-
-func performQuery[T any](c Client, q func() (T, error)) (T, error) {
-	defer c.lockBech32Prefix()()
-
-	return q()
 }
 
 func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
