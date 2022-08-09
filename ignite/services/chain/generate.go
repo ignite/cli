@@ -55,7 +55,8 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) error {
+// generateFromConfig makes code generation from proto files from the given config
+func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
@@ -63,6 +64,7 @@ func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) err
 
 	var additionalTargets []GenerateTarget
 
+	// parse config for additional target
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
 	}

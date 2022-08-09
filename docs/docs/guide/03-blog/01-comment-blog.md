@@ -502,7 +502,7 @@ blogd tx blog create-post Uno "This is the first post" --from alice
 As before, you are prompted to confirm the transaction:
 
 ```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","title":"Uno","body":"This is the first post","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","title":"Uno","body":"This is the first post","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 Create a comment:
@@ -512,7 +512,7 @@ blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```
 
 ```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreateComment","creator":"cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","postID":"0","title":"Uno","body":"This is the first comment","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreateComment","creator":"blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","postID":"0","title":"Uno","body":"This is the first comment","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 When prompted, press Enter to confirm the transaction:
@@ -533,14 +533,14 @@ The results are output:
 Comment:
 - body: This is the first comment
   createdAt: "58"
-  creator: cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
+  creator: blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
   id: "0"
   postID: "0"
   title: Uno
 Post:
   body: This is the first post
   createdAt: "51"
-  creator: cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
+  creator: blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
   id: "0"
   title: Uno
 pagination:
@@ -567,7 +567,7 @@ Comment: []
 Post:
   body: This is the first post
   createdAt: "12"
-  creator: cosmos12s696u0wutt42kc297td5naxgxtvtxdlsg07n2
+  creator: blog12s696u0wutt42kc297td5naxgxtvtxdlsg07n2
   id: "0"
   title: Uno
 pagination:

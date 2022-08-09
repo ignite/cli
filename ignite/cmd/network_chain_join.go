@@ -3,7 +3,6 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
-	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
@@ -109,20 +108,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	// create a temporary directory for the chain home and genesis
-	// create the chain in a temp dir
-	tmpHome, err := os.MkdirTemp("", "*-spn")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(tmpHome)
-	c.SetHome(tmpHome)
-
-	// initialize the genesis under a temporary repository
-	if err := c.Init(cmd.Context(), cacheStorage); err != nil {
-		return err
+	} else {
+		// if a custom gentx is provided, we initialize the chain home in order to check accounts
+		if err := c.Init(cmd.Context(), cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	if amount != "" {
