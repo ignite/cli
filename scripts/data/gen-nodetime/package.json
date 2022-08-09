@@ -9,7 +9,6 @@
 	"dependencies": {
 		"@confio/relayer": "0.5.1",
 		"@cosmjs/crypto": "0.28.9",
-		"@cosmjs/launchpad": "0.25.0",
 		"@cosmjs/proto-signing": "0.28.9",
 		"@cosmjs/stargate": "0.28.9",
 		"@cosmjs/tendermint-rpc": "0.28.9",
