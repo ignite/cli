@@ -22,6 +22,7 @@ func NewChainInit() *cobra.Command {
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
+	c.Flags().AddFlagSet(flagSetSkipProto())
 
 	return c
 }
@@ -46,7 +47,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if _, err := c.Build(cmd.Context(), cacheStorage, ""); err != nil {
+	if _, err := c.Build(cmd.Context(), cacheStorage, "", flagGetSkipProto(cmd)); err != nil {
 		return err
 	}
 

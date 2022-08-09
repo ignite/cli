@@ -30,19 +30,29 @@ const (
 )
 
 // Build builds and installs app binaries.
-func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage, output string) (binaryName string, err error) {
+func (c *Chain) Build(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	output string,
+	skipProto bool,
+) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
 		return "", err
 	}
 
 	return c.Binary()
 }
 
-func (c *Chain) build(ctx context.Context, cacheStorage cache.Storage, output string) (err error) {
+func (c *Chain) build(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	output string,
+	skipProto bool,
+) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
@@ -51,8 +61,11 @@ func (c *Chain) build(ctx context.Context, cacheStorage cache.Storage, output st
 		}
 	}()
 
-	if err := c.generateAll(ctx, cacheStorage); err != nil {
-		return err
+	// generate from proto files
+	if !skipProto {
+		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	buildFlags, err := c.preBuild(ctx, cacheStorage)
