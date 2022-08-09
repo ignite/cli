@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 	"github.com/ignite/cli/ignite/services/network/testutil"
 )
@@ -136,6 +137,7 @@ func TestJoin(t *testing.T) {
 			context.Background(),
 			suite.ChainMock,
 			testutil.LaunchID,
+			gentxPath,
 			WithPublicAddress(testutil.TCPAddress),
 			WithNodeID(TestCustomNodeID),
 		)
@@ -198,7 +200,13 @@ func TestJoin(t *testing.T) {
 			}), nil).
 			Once()
 
-		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(""))
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			gentxPath,
+			WithPublicAddress(""),
+		)
 		require.NoError(t, joinErr)
 		suite.AssertAllMocks(t)
 	})
@@ -281,7 +289,13 @@ func TestJoin(t *testing.T) {
 			Return(nil, nil).
 			Once()
 
-		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			gentxPath,
+			WithPublicAddress(testutil.TCPAddress),
+		)
 		require.Errorf(t, joinErr, "validator %s already exist", account.Address(networktypes.SPN))
 		suite.AssertAllMocks(t)
 	})
@@ -318,7 +332,13 @@ func TestJoin(t *testing.T) {
 			Return(nil, expectedError).
 			Once()
 
-		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress(testutil.TCPAddress))
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			gentxPath,
+			WithPublicAddress(testutil.TCPAddress),
+		)
 		require.Error(t, joinErr)
 		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
@@ -567,12 +587,27 @@ func TestJoin(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
-			expectedError  = errors.New("unsupported public address format: invalid")
+			tmp            = t.TempDir()
+			gentx          = testutil.NewGentx(
+				account.Address(networktypes.SPN),
+				TestDenom,
+				TestAmountString,
+				"",
+				"",
+			)
+			gentxPath     = gentx.SaveTo(t, tmp)
+			expectedError = errors.New("unsupported public address format: invalid")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
 
-		joinErr := network.Join(context.Background(), suite.ChainMock, testutil.LaunchID, WithPublicAddress("invalid"))
+		joinErr := network.Join(
+			context.Background(),
+			suite.ChainMock,
+			testutil.LaunchID,
+			gentxPath,
+			WithPublicAddress("invalid"),
+		)
 		require.Error(t, joinErr)
 		require.Equal(t, expectedError, joinErr)
 		suite.AssertAllMocks(t)
