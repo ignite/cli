@@ -248,6 +248,7 @@ func (r Response) Decode(message proto.Message) error {
 		resData := txMsgData.Data[0]
 		return prototypes.UnmarshalAny(&prototypes.Any{
 			// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
+			// https://github.com/ignite/cli/issues/2098
 			// https://github.com/cosmos/cosmos-sdk/issues/10496
 			TypeUrl: resData.MsgType + "Response",
 			Value:   resData.Data,
