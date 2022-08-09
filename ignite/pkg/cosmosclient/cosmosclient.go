@@ -516,15 +516,6 @@ func newContext(
 		WithInput(os.Stdin).
 		WithOutput(out).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
-		// NOTE(tb): Temporary comment for reviewers:
-		//
-		// BroadcastBlock mode doesn't work well with real nodes because it
-		// triggers a timeout, as explained in the godoc of the method
-		// client.Context.BroadcastTxCommit.
-		//
-		// Switching to BroadcastTxSync removes the timeout issue, that said I
-		// I don't know all the consequences of this change, hence this comment.
-		// WithBroadcastMode(flags.BroadcastBlock).
 		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(home).
 		WithClient(c).
