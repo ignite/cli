@@ -32,6 +32,7 @@ const (
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
 	flagClearCache    = "clear-cache"
+	flagSkipProto     = "skip-proto"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -139,6 +140,17 @@ func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
 	return isEnabled
+}
+
+func flagSetSkipProto() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagSkipProto, false, "Skip file generation from proto")
+	return fs
+}
+
+func flagGetSkipProto(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagSkipProto)
+	return skip
 }
 
 func flagSetClearCache(cmd *cobra.Command) {
