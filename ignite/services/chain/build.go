@@ -34,13 +34,13 @@ func (c *Chain) Build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	output string,
-	generateProtoGo bool,
+	skipProto bool,
 ) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output, generateProtoGo); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
 		return "", err
 	}
 
@@ -51,7 +51,7 @@ func (c *Chain) build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	output string,
-	generateProtoGo bool,
+	skipProto bool,
 ) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
@@ -62,8 +62,10 @@ func (c *Chain) build(
 	}()
 
 	// generate from proto files
-	if err := c.generateFromConfig(ctx, cacheStorage, generateProtoGo); err != nil {
-		return err
+	if !skipProto {
+		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	buildFlags, err := c.preBuild(ctx, cacheStorage)

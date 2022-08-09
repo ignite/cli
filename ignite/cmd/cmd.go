@@ -143,7 +143,7 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 
 func flagSetSkipProto() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagSkipProto, false, "Skip Go generation from proto")
+	fs.Bool(flagSkipProto, false, "Skip file generation from proto")
 	return fs
 }
 

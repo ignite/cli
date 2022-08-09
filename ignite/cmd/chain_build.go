@@ -97,7 +97,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	binaryName, err := c.Build(cmd.Context(), cacheStorage, output, !flagGetSkipProto(cmd))
+	binaryName, err := c.Build(cmd.Context(), cacheStorage, output, flagGetSkipProto(cmd))
 	if err != nil {
 		return err
 	}

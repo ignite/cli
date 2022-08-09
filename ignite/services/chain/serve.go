@@ -336,7 +336,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, cacheStorage, "", !skipProto); err != nil {
+		if err := c.build(ctx, cacheStorage, "", skipProto); err != nil {
 			return err
 		}
 	}
