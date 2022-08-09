@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
