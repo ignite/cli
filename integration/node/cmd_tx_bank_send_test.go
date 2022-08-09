@@ -13,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
@@ -102,8 +103,13 @@ func TestNodeTxBankSend(t *testing.T) {
 		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
 			return
 		}
+		client, err := cosmosclient.New(context.Background(),
+			cosmosclient.WithAddressPrefix(testPrefix),
+			cosmosclient.WithNodeAddress(node),
+		)
+		require.NoError(t, err)
 
-		app.WaitNBlocks(1, "--node", node)
+		require.NoError(t, client.WaitForNextBlock())
 
 		env.Exec("send 100token from alice to bob",
 			step.NewSteps(step.New(
@@ -148,7 +154,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
-		app.WaitNBlocks(1, "--node", node)
+		require.NoError(t, client.WaitForNextBlock())
 
 		env.Exec("send 5token from alice to bob using a combination of address and account",
 			step.NewSteps(step.New(
@@ -171,7 +177,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
-		app.WaitNBlocks(1, "--node", node)
+		require.NoError(t, client.WaitForNextBlock())
 
 		b := &bytes.Buffer{}
 		env.Exec("query bank balances for alice",

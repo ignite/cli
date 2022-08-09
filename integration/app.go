@@ -1,8 +1,6 @@
 package envtest
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -103,48 +101,6 @@ func (a *App) SetConfigPath(path string) {
 // path after app.Serve is called, since it should be in the $PATH.
 func (a App) Binary() string {
 	return path.Base(a.path) + "d"
-}
-
-// BlockHeight returns the current block height of a running app.
-// Must be called after app.Serve()
-func (a App) BlockHeight(flags ...string) int64 {
-	b := &bytes.Buffer{}
-	ok := a.env.Exec("get current block",
-		step.NewSteps(step.New(
-			step.Exec(a.Binary(), append([]string{"q", "block"}, flags...)...),
-			step.Stdout(b),
-			step.Stderr(b),
-		)),
-	)
-	if !ok {
-		a.env.t.Fatalf("error while %s query block: %s", a.Binary(), b.String())
-	}
-	var res struct {
-		Block *struct {
-			Height int64
-		}
-	}
-	err := json.Unmarshal(b.Bytes(), &res)
-	if err != nil {
-		a.env.t.Fatalf("error while unmarshalling block: %v", err)
-	}
-	if res.Block == nil {
-		return 0
-	}
-	return res.Block.Height
-}
-
-// WaitNBlocks reads the current block height and then waits for anothers n
-// blocks. Useful to ensure transactions are properly handled by the app.
-// Must be called after app.Serve().
-func (a App) WaitNBlocks(n int64, flags ...string) {
-	start := a.BlockHeight(flags...)
-	for {
-		time.Sleep(time.Second)
-		if start+n >= a.BlockHeight(flags...) {
-			break
-		}
-	}
 }
 
 // Serve serves an application lives under path with options where msg describes the
