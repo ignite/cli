@@ -55,15 +55,19 @@ Now, add the logic to check for an existing order book for a particular pair of 
 
 ```go
 // x/dex/keeper/msg_server_create_pair.go
+
 import (
   "errors"
+
   //...
 )
 
 func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreatePair) (*types.MsgSendCreatePairResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// Get an order book index
 	pairIndex := types.OrderBookIndex(msg.Port, msg.ChannelID, msg.SourceDenom, msg.TargetDenom)
+
 	// If an order book is found, return an error
 	_, found := k.GetSellOrderBook(ctx, pairIndex)
 	if found {
@@ -118,10 +122,12 @@ Create a new `order.proto` file in the `proto/dex` directory and add the content
 
 ```proto
 // proto/dex/order.proto
-syntax = "proto3";
-package username.interchange.dex;
 
-option go_package = "github.com/username/interchange/x/dex/types";
+syntax = "proto3";
+
+package interchange.dex;
+
+option go_package = "interchange/x/dex/types";
 
 message OrderBook {
   int32 idCount = 1;
@@ -143,6 +149,8 @@ Don't forget to add the import as well.
 
 ```proto
 // proto/dex/buy_order_book.proto
+
+// ...
 import "dex/order.proto";
 
 message BuyOrderBook {
@@ -157,6 +165,7 @@ The proto definition for the `SellOrderBook` looks like:
 
 ```proto
 // proto/dex/sell_order_book.proto
+
 // ...
 import "dex/order.proto";
 
@@ -169,7 +178,7 @@ message SellOrderBook {
 Now, use Ignite CLI to build the proto files for the `send-create-pair` command:
 
 ```bash
-ignite generate proto-go
+ignite generate proto-go --yes
 ```
 
 Start enhancing the functions for the IBC packets.
@@ -180,6 +189,7 @@ Add the new order book function to the corresponding Go file:
 
 ```go
 // x/dex/types/order_book.go
+
 package types
 
 func NewOrderBook() OrderBook {
@@ -193,6 +203,7 @@ To create a new buy order book type, define `NewBuyOrderBook` in a new file `x/d
 
 ```go
 // x/dex/types/buy_order_book.go
+
 package types
 
 func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
@@ -210,19 +221,25 @@ When an IBC packet is received on the target chain, the module must check whethe
 
 ```go
 // x/dex/keeper/create_pair.go
+
 func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData) (packetAck types.CreatePairPacketAck, err error) {
   // ...
+
   // Get an order book index
   pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
+
   // If an order book is found, return an error
   _, found := k.GetBuyOrderBook(ctx, pairIndex)
   if found {
     return packetAck, errors.New("the pair already exist")
   }
+
   // Create a new buy order book for source and target denoms
   book := types.NewBuyOrderBook(data.SourceDenom, data.TargetDenom)
+
   // Assign order book index
   book.Index = pairIndex
+
   // Save the order book to the store
   k.SetBuyOrderBook(ctx, book)
   return packetAck, nil
@@ -239,6 +256,7 @@ Insert the `NewSellOrderBook` function which creates a new sell order book.
 
 ```go
 // x/dex/types/sell_order_book.go
+
 package types
 
 func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
@@ -251,10 +269,11 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 }
 ```
 
-Modify the Acknowledgement function in the `keeper/create_pair.go` file:
+Modify the Acknowledgement function in the `x/dex/keeper/create_pair.go` file:
 
 ```go
 // x/dex/keeper/create_pair.go
+
 func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -266,11 +285,13 @@ func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channe
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
+
 		// Set the sell order book
 		pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
 		book := types.NewSellOrderBook(data.SourceDenom, data.TargetDenom)
 		book.Index = pairIndex
 		k.SetSellOrderBook(ctx, book)
+
 		return nil
 	default:
 		// The counter-party module doesn't implement the correct acknowledgment format
@@ -288,6 +309,7 @@ In this section, you implemented the logic behind the new `send-create-pair` com
 
 ```go
 // x/dex/types/order_book.go
+
 package types
 
 import (
@@ -326,18 +348,22 @@ The `AppendOrder` function initializes and appends a new order to an order book 
 
 ```go
 // x/dex/types/order_book.go
+
 func (book *OrderBook) appendOrder(creator string, amount int32, price int32, ordering Ordering) (int32, error) {
 	if err := checkAmountAndPrice(amount, price); err != nil {
 		return 0, err
 	}
+
 	// Initialize the order
 	var order Order
 	order.Id = book.GetNextOrderID()
 	order.Creator = creator
 	order.Amount = amount
 	order.Price = price
+
 	// Increment ID tracker
 	book.IncrementNextOrderID()
+
 	// Insert the order
 	book.insertOrder(order, ordering)
 	return order.Id, nil
@@ -350,6 +376,7 @@ The `checkAmountAndPrice` function checks for the correct amount or price:
 
 ```go
 // x/dex/types/order_book.go
+
 func checkAmountAndPrice(amount int32, price int32) error {
 	if amount == int32(0) {
 		return ErrZeroAmount
@@ -357,12 +384,14 @@ func checkAmountAndPrice(amount int32, price int32) error {
 	if amount > MaxAmount {
 		return ErrMaxAmount
 	}
+
 	if price == int32(0) {
 		return ErrZeroPrice
 	}
 	if price > MaxPrice {
 		return ErrMaxPrice
 	}
+
 	return nil
 }
 ```
@@ -373,6 +402,7 @@ The `GetNextOrderID` function gets the ID of the next order to append:
 
 ```go
 // x/dex/types/order_book.go
+
 func (book OrderBook) GetNextOrderID() int32 {
 	return book.IdCount
 }
@@ -384,6 +414,7 @@ The `IncrementNextOrderID` function updates the ID count for orders:
 
 ```go
 // x/dex/types/order_book.go
+
 func (book *OrderBook) IncrementNextOrderID() {
 	// Even numbers to have different ID than buy orders
 	book.IdCount++
@@ -396,15 +427,18 @@ The `insertOrder` function inserts the order in the book with the provided order
 
 ```go
 // x/dex/types/order_book.go
+
 func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 	if len(book.Orders) > 0 {
 		var i int
+
 		// get the index of the new order depending on the provided ordering
 		if ordering == Increasing {
 			i = sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price > order.Price })
 		} else {
 			i = sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price < order.Price })
 		}
+
 		// insert order
 		orders := append(book.Orders, &order)
 		copy(orders[i+1:], orders[i:])

@@ -14,7 +14,7 @@ In this chapter, you create the basic blockchain module for the interchain excha
 Scaffold a new blockchain called `interchange`:
 
 ```bash
-ignite scaffold chain github.com/username/interchange --no-module
+ignite scaffold chain interchange --no-module
 ```
 
 A new directory named `interchange` is created. 
@@ -57,7 +57,7 @@ The values are:
 - `amountDenom`: the token to be sold and in which quantity
 - `priceDenom`: the token selling price
 
-The `--indexed` flag creates an "indexed type". Without this flag, a type is implemented like a list with new items appended. Indexed types act like key-value stores.
+The `--no-message` flag specifies to skip the message creation. Custom messages will be created in the next steps.
 
 The `--module dex` flag specifies to scaffold the type in the `dex` module.
 

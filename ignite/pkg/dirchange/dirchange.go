@@ -102,7 +102,6 @@ func ChecksumFromPaths(workdir string, paths ...string) ([]byte, error) {
 
 			return nil
 		})
-
 		if err != nil {
 			return []byte{}, err
 		}

@@ -11,8 +11,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/gitpod"
-	"github.com/ignite/cli/ignite/pkg/xchisel"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
@@ -44,6 +42,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -53,12 +52,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	var (
-		customGentxPath, _   = cmd.Flags().GetString(flagGentx)
 		amount, _            = cmd.Flags().GetString(flagAmount)
 		customPeerAddress, _ = cmd.Flags().GetString(flagPeerAddress)
 		nodeID, _            = cmd.Flags().GetString(flagNodeID)
 		hidePeerAddress, _   = cmd.Flags().GetBool(flagHidePeerAddress)
 		publicAddr           string
+		gentxPath, _         = cmd.Flags().GetString(flagGentx)
 	)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -72,8 +71,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if gitpod.IsOnGitpod() {
-		publicAddr, err = gitpod.URLForPort(cmd.Context(), xchisel.DefaultServerPort)
+	// if there is no custom gentx, we need to detect the public address.
+	if gentxPath == "" {
+		// get the peer public address for the validator.
+		publicAddr, err = askPublicAddress(cmd, session)
 		if err != nil {
 			return errors.Wrap(err, "cannot read public Gitpod address of the node")
 		}
@@ -88,6 +89,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
 	n, err := nb.Network()
 	if err != nil {
 		return err
@@ -98,15 +104,33 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}
 
 	joinOptions := []network.JoinOption{
-		network.WithCustomGentxPath(customGentxPath),
 		network.WithPublicAddress(publicAddr),
 		network.WithNodeID(nodeID),
+	}
+
+	// use the default gentx path from chain home if not provided
+	if gentxPath == "" {
+		gentxPath, err = c.DefaultGentxPath()
+		if err != nil {
+			return err
+		}
+	} else {
+		// if a custom gentx is provided, we initialize the chain home in order to check accounts
+		if err := c.Init(cmd.Context(), cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	if amount != "" {
@@ -130,11 +154,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
+		_ = session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
 	}
 
 	// create the message to add the validator.
-	return n.Join(cmd.Context(), c, launchID, joinOptions...)
+	return n.Join(cmd.Context(), c, launchID, gentxPath, joinOptions...)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress

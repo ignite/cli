@@ -9,7 +9,6 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
@@ -129,11 +128,9 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
 
-	_, err = n.profileQuery.
-		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
-			Address: coordinatorAddress,
-		})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	// a coordinator profile is necessary to publish a chain
+	// if the user doesn't have an associated coordinator profile, we create one
+	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); err == ErrObjectNotFound {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -147,6 +144,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		return 0, 0, err
 	}
 
+	// check if a campaign associated to the chain is provided
 	if campaignID != 0 {
 		_, err = n.campaignQuery.
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
@@ -155,7 +153,9 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		if err != nil {
 			return 0, 0, err
 		}
-	} else {
+	} else if o.mainnet {
+		// a mainnet is always associated to a campaign
+		// if no campaign is provided, we create one, and we directly initialize the mainnet
 		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
 			return 0, 0, err
@@ -163,7 +163,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	// mint vouchers
-	if !o.sharePercentages.Empty() {
+	if campaignID != 0 && !o.sharePercentages.Empty() {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
 			return 0, 0, err
@@ -205,7 +205,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			c.SourceHash(),
 			o.genesisURL,
 			genesisHash,
-			true,
+			campaignID != 0,
 			campaignID,
 			nil,
 		)

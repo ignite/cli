@@ -9,7 +9,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -36,88 +35,108 @@ func New(ca cosmosaccount.Registry) Relayer {
 	}
 }
 
-// Link links all chains that has a path to each other.
+// LinkPaths links all chains that has a path from config file to each other.
 // paths are optional and acts as a filter to only link some chains.
 // calling Link multiple times for the same paths does not have any side effects.
-func (r Relayer) Link(ctx context.Context, pathIDs ...string) error {
+func (r Relayer) LinkPaths(
+	ctx context.Context,
+	pathIDs ...string,
+) error {
 	conf, err := relayerconf.Get()
 	if err != nil {
 		return err
 	}
 
 	for _, id := range pathIDs {
-		path, err := conf.PathByID(id)
+		conf, err = r.Link(ctx, conf, id)
 		if err != nil {
-			return err
-		}
-
-		if path.Src.ChannelID != "" { // already linked.
-			continue
-		}
-
-		if path, err = r.call(ctx, conf, path, "link"); err != nil {
-			return err
-		}
-
-		if err := conf.UpdatePath(path); err != nil {
 			return err
 		}
 		if err := relayerconf.Save(conf); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
-// Start relays packets for linked paths until ctx is canceled.
-func (r Relayer) Start(ctx context.Context, pathIDs ...string) error {
+// Link links chain path to each other.
+func (r Relayer) Link(
+	ctx context.Context,
+	conf relayerconf.Config,
+	pathID string,
+) (relayerconf.Config, error) {
+	path, err := conf.PathByID(pathID)
+	if err != nil {
+		return conf, err
+	}
+
+	if path.Src.ChannelID != "" {
+		return conf, fmt.Errorf("path %s already linked", path.ID)
+	}
+
+	if path, err = r.call(ctx, conf, path, "link"); err != nil {
+		return conf, err
+	}
+
+	return conf, conf.UpdatePath(path)
+}
+
+// StartPaths relays packets for linked paths from config file until ctx is canceled.
+func (r Relayer) StartPaths(ctx context.Context, pathIDs ...string) error {
 	conf, err := relayerconf.Get()
 	if err != nil {
 		return err
 	}
 
-	wg, ctx := errgroup.WithContext(ctx)
 	var m sync.Mutex // protects relayerconf.Path.
-
-	start := func(id string) error {
-		path, err := conf.PathByID(id)
+	for _, id := range pathIDs {
+		id := id
+		err := r.Start(ctx, conf, id, func(path relayerconf.Config) error {
+			m.Lock()
+			defer m.Unlock()
+			return relayerconf.Save(conf)
+		})
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
 
-		if path, err = r.call(ctx, conf, path, "start"); err != nil {
-			return err
-		}
-
-		m.Lock()
-		defer m.Unlock()
-
-		conf, err := relayerconf.Get()
+// Start relays packets for linked path until ctx is canceled.
+func (r Relayer) Start(
+	ctx context.Context,
+	conf relayerconf.Config,
+	pathID string,
+	postExecute func(path relayerconf.Config) error,
+) error {
+	return ctxticker.DoNow(ctx, relayDuration, func() error {
+		path, err := conf.PathByID(pathID)
 		if err != nil {
 			return err
 		}
-
+		path, err = r.call(ctx, conf, path, "start")
+		if err != nil {
+			return err
+		}
 		if err := conf.UpdatePath(path); err != nil {
 			return err
 		}
-
-		return relayerconf.Save(conf)
-	}
-
-	for _, id := range pathIDs {
-		id := id
-
-		wg.Go(func() error {
-			return ctxticker.DoNow(ctx, relayDuration, func() error { return start(id) })
-		})
-	}
-
-	return wg.Wait()
+		if postExecute != nil {
+			return postExecute(conf)
+		}
+		return nil
+	})
 }
 
-func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayerconf.Path, action string) (
-	reply relayerconf.Path, err error) {
+func (r Relayer) call(
+	ctx context.Context,
+	conf relayerconf.Config,
+	path relayerconf.Path,
+	action string,
+) (
+	reply relayerconf.Path, err error,
+) {
 	srcChain, srcKey, err := r.prepare(ctx, conf, path.Src.ChainID)
 	if err != nil {
 		return relayerconf.Path{}, err
@@ -139,7 +158,8 @@ func (r Relayer) call(ctx context.Context, conf relayerconf.Config, path relayer
 }
 
 func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID string) (
-	chain relayerconf.Chain, privKey string, err error) {
+	chain relayerconf.Chain, privKey string, err error,
+) {
 	chain, err = conf.ChainByID(chainID)
 	if err != nil {
 		return relayerconf.Chain{}, "", err

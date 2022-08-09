@@ -29,8 +29,8 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
+	spnNodeAddressNightly   = "http://178.128.251.28:26657"
+	spnFaucetAddressNightly = "http://178.128.251.28:4500"
 
 	spnNodeAddressLocal   = "http://0.0.0.0:26657"
 	spnFaucetAddressLocal = "http://0.0.0.0:4500"
@@ -59,7 +59,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
-		NewNetworkClient(),
+		NewNetworkProfile(),
 	)
 
 	return c

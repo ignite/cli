@@ -11,10 +11,8 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
 
-var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
-)
+//go:embed stargate/* stargate/**/*
+var fsStargate embed.FS
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {

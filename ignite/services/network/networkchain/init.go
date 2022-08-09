@@ -2,6 +2,7 @@ package networkchain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -77,7 +78,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		}
 
 		// replace the default genesis with the fetched genesis
-		if err := os.WriteFile(genesisPath, genesis, 0644); err != nil {
+		if err := os.WriteFile(genesisPath, genesis, 0o644); err != nil {
 			return err
 		}
 	} else {
@@ -94,8 +95,8 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 
 	}
 
-	// check the genesis is valid
-	if err := c.checkGenesis(ctx); err != nil {
+	// check the initial genesis is valid
+	if err := c.checkInitialGenesis(ctx); err != nil {
 		return err
 	}
 
@@ -104,11 +105,28 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 }
 
 // checkGenesis checks the stored genesis is valid
-func (c *Chain) checkGenesis(ctx context.Context) error {
+func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	// perform static analysis of the chain with the validate-genesis command.
 	chainCmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return err
+	}
+
+	// the chain initial genesis should not contain gentx, gentxs should be added through requests
+	genesisPath, err := c.chain.GenesisPath()
+	if err != nil {
+		return err
+	}
+	genesisFile, err := os.ReadFile(genesisPath)
+	if err != nil {
+		return err
+	}
+	chainGenesis, err := cosmosutil.ParseChainGenesis(genesisFile)
+	if err != nil {
+		return err
+	}
+	if chainGenesis.GenTxCount() > 0 {
+		return errors.New("the initial genesis for the chain should not contain gentx")
 	}
 
 	return chainCmd.ValidateGenesis(ctx)

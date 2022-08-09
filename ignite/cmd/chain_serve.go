@@ -26,6 +26,8 @@ func NewChainServe() *cobra.Command {
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
+	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
@@ -41,6 +43,10 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 
 	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
+	}
+
+	if flagGetCheckDependencies(cmd) {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	// check if custom config is defined
@@ -78,6 +84,10 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	}
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
+	}
+
+	if flagGetSkipProto(cmd) {
+		serveOptions = append(serveOptions, chain.ServeSkipProto())
 	}
 
 	return c.Serve(cmd.Context(), cacheStorage, serveOptions...)

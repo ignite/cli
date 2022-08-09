@@ -132,7 +132,7 @@ func parseURL(s string) (*url.URL, error) {
 
 func addressPort(s string) (string, bool) {
 	// Check that the value doesn't contain a URI path
-	if strings.Index(s, "/") != -1 {
+	if strings.Contains(s, "/") {
 		return "", false
 	}
 

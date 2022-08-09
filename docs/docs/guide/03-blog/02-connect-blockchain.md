@@ -30,7 +30,7 @@ Create your `blogclient` directory first, change your current working directory,
 ```bash
 mkdir blogclient
 cd blogclient
-go mod init github.com/username/blogclient
+go mod init blogclient
 touch main.go
 ```
 
@@ -42,16 +42,16 @@ Your blockchain client has only two dependencies:
 - `ignite` for the `cosmosclient` blockchain client
 
 ```go
-module github.com/username/blogclient
+module blogclient
 
-go 1.17
+go 1.18
 
 require (
-	github.com/username/blog v0.0.0-00010101000000-000000000000
+	blog v0.0.0-00010101000000-000000000000
 	github.com/ignite/cli v0.22.2
 )
 
-replace github.com/username/blog => ../blog
+replace blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
@@ -76,58 +76,66 @@ import (
 	"fmt"
 	"log"
 
-	// importing the types package of your blog blockchain
-	"github.com/username/blog/x/blog/types"
-	// importing the general purpose Cosmos blockchain client
+	// Importing the general purpose Cosmos blockchain client
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+
+	// Importing the types package of your blog blockchain
+	"blog/x/blog/types"
 )
 
 func main() {
+	// Prefix to use for account addresses.
+	// The address prefix was assigned to the blog blockchain
+	// using the `--address-prefix` flag during scaffolding.
+	addressPrefix := "blog"
 
-	// create an instance of cosmosclient
-	cosmos, err := cosmosclient.New(context.Background())
+	// Create a Cosmos client instance
+	cosmos, err := cosmosclient.New(
+		context.Background(),
+		cosmosclient.WithAddressPrefix(addressPrefix),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// account `alice` was initialized during `ignite chain serve`
+	// Account `alice` was initialized during `ignite chain serve`
 	accountName := "alice"
 
-	// get account from the keyring by account name and return a bech32 address
-	address, err := cosmos.Address(accountName)
+	// Get account from the keyring
+	account, err := cosmos.Account(accountName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// define a message to create a post
+	// Define a message to create a post
 	msg := &types.MsgCreatePost{
-		Creator: address.String(),
+		Creator: account.Address(addressPrefix),
 		Title:   "Hello!",
 		Body:    "This is the first post",
 	}
 
-	// broadcast a transaction from account `alice` with the message to create a post
-	// store response in txResp
+	// Broadcast a transaction from account `alice` with the message
+	// to create a post store response in txResp
 	txResp, err := cosmos.BroadcastTx(accountName, msg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// print response from broadcasting a transaction
+	// Print response from broadcasting a transaction
 	fmt.Print("MsgCreatePost:\n\n")
 	fmt.Println(txResp)
 
-	// instantiate a query client for your `blog` blockchain
-	queryClient := types.NewQueryClient(cosmos.Context)
+	// Instantiate a query client for your `blog` blockchain
+	queryClient := types.NewQueryClient(cosmos.Context())
 
-	// query the blockchain using the client's `Posts` method to get all posts
-	// store all posts in queryResp
+	// Query the blockchain using the client's `Posts` method
+	// to get all posts store all posts in queryResp
 	queryResp, err := queryClient.Posts(context.Background(), &types.QueryPostsRequest{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// print response from querying all the posts
+	// Print response from querying all the posts
 	fmt.Print("\n\nAll posts:\n\n")
 	fmt.Println(queryResp)
 }
@@ -157,7 +165,6 @@ go run main.go
 If successful, the results of running the command are printed to the terminal:
 
 ```bash
-go run main.go
 # github.com/keybase/go-keychain
 ### Some warnings might be displayed which can be ignored
 MsgCreatePost:
@@ -174,7 +181,7 @@ Response:
 
 All posts:
 
-Post:<creator:"cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 > 
+Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 > 
 ```
 
 You can confirm the new post with using the `blogd query blog posts` command that you learned about in the previous chapter.
@@ -183,11 +190,11 @@ The result looks similar to:
 ```bash
 Post:
 - body: bar
-  creator: cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
+  creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
   id: "0"
   title: foo
 - body: This is the first post
-  creator: cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
+  creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
   id: "1"
   title: Hello!
 pagination:
@@ -196,5 +203,3 @@ pagination:
 ```
 
 Congratulations, you have just created a post using a separate app.
-
-When you publish your blockchain project to GitHub, you won't need to use the replace function in your `go.mod` file anymore and can directly use your GitHub repository to fetch the types and interact with your program.
