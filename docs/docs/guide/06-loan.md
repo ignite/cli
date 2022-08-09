@@ -411,7 +411,7 @@ import (
 
 // x/loan module sentinel errors
 var (
-	ErrWrongLoanState = sdkerrors.Register(ModuleName, 1, "wrong loan state")
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
 )
 ```
 
@@ -717,8 +717,8 @@ import (
 
 // x/loan module sentinel errors
 var (
-	ErrWrongLoanState = sdkerrors.Register(ModuleName, 1, "wrong loan state")
-	ErrDeadline       = sdkerrors.Register(ModuleName, 2, "deadline")
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
+	ErrDeadline       = sdkerrors.Register(ModuleName, 3, "deadline")
 )
 ```
 
