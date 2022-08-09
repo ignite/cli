@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -35,7 +35,7 @@ func startInvalidJSONServer() *httptest.Server {
 }
 
 func TestPublish(t *testing.T) {
-	t.Run("publish chain", func(t *testing.T) {
+	t.Run("publish chain without campaign", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
@@ -67,132 +67,23 @@ func TestPublish(t *testing.T) {
 					SourceHash:     testutil.ChainSourceHash,
 					GenesisURL:     "",
 					GenesisHash:    "",
-					HasCampaign:    true,
-					CampaignID:     testutil.CampaignID,
+					HasCampaign:    false,
+					CampaignID:     0,
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
 				LaunchID: testutil.LaunchID,
 			}), nil).
 			Once()
-		suite.CosmosClientMock.
-			On(
-				"BroadcastTx",
-				account.Name,
-				&campaigntypes.MsgCreateCampaign{
-					Coordinator:  account.Address(networktypes.SPN),
-					CampaignName: testutil.ChainName,
-					Metadata:     []byte{},
-				},
-			).
-			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-				CampaignID: testutil.CampaignID,
-			}), nil).
-			Once()
 		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
-		suite.ChainMock.On("Name").Return(testutil.ChainName).Once()
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
-		suite.AssertAllMocks(t)
-	})
-
-	t.Run("publish chain with shares", func(t *testing.T) {
-		var (
-			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
-			suite, network = newSuite(account)
-		)
-
-		suite.ProfileQueryMock.
-			On(
-				"CoordinatorByAddress",
-				context.Background(),
-				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
-				},
-			).
-			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
-				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
-					CoordinatorID: 1,
-				},
-			}, nil).
-			Once()
-		suite.CampaignQueryMock.
-			On(
-				"TotalShares",
-				context.Background(),
-				&campaigntypes.QueryTotalSharesRequest{},
-			).
-			Return(&campaigntypes.QueryTotalSharesResponse{
-				TotalShares: 100000,
-			}, nil).
-			Once()
-		suite.CosmosClientMock.
-			On(
-				"BroadcastTx",
-				account.Name,
-				campaigntypes.NewMsgMintVouchers(
-					account.Address(networktypes.SPN),
-					testutil.CampaignID,
-					campaigntypes.NewSharesFromCoins(sdk.NewCoins(sdk.NewInt64Coin("foo", 2000), sdk.NewInt64Coin("staking", 50000))),
-				),
-			).
-			Return(testutil.NewResponse(&campaigntypes.MsgMintVouchersResponse{}), nil).
-			Once()
-		suite.CosmosClientMock.
-			On(
-				"BroadcastTx",
-				account.Name,
-				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
-					GenesisChainID: testutil.ChainID,
-					SourceURL:      testutil.ChainSourceURL,
-					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
-					HasCampaign:    true,
-					CampaignID:     testutil.CampaignID,
-				},
-			).
-			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
-				LaunchID: testutil.LaunchID,
-			}), nil).
-			Once()
-		suite.CosmosClientMock.
-			On(
-				"BroadcastTx",
-				account.Name,
-				&campaigntypes.MsgCreateCampaign{
-					Coordinator:  account.Address(networktypes.SPN),
-					CampaignName: testutil.ChainName,
-					Metadata:     []byte{},
-				},
-			).
-			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-				CampaignID: testutil.CampaignID,
-			}), nil).
-			Once()
-		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
-		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
-		suite.ChainMock.On("Name").Return(testutil.ChainName).Once()
-		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
-		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
-
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock,
-			WithPercentageShares([]SharePercent{
-				SampleSharePercent(t, "foo", 2, 100),
-				SampleSharePercent(t, "staking", 50, 100),
-			}),
-		)
-		require.NoError(t, publishError)
-		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
+		require.Equal(t, uint64(0), campaignID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -258,6 +149,95 @@ func TestPublish(t *testing.T) {
 		suite.AssertAllMocks(t)
 	})
 
+	t.Run("publish chain with a pre created campaign with shares", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		suite.ProfileQueryMock.
+			On(
+				"CoordinatorByAddress",
+				context.Background(),
+				&profiletypes.QueryGetCoordinatorByAddressRequest{
+					Address: account.Address(networktypes.SPN),
+				},
+			).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       account.Address(networktypes.SPN),
+					CoordinatorID: 1,
+				},
+			}, nil).
+			Once()
+		suite.CampaignQueryMock.
+			On(
+				"Campaign",
+				context.Background(),
+				&campaigntypes.QueryGetCampaignRequest{
+					CampaignID: testutil.CampaignID,
+				},
+			).
+			Return(nil, nil).
+			Once()
+		suite.CampaignQueryMock.
+			On(
+				"TotalShares",
+				context.Background(),
+				&campaigntypes.QueryTotalSharesRequest{},
+			).
+			Return(&campaigntypes.QueryTotalSharesResponse{
+				TotalShares: 100000,
+			}, nil).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				campaigntypes.NewMsgMintVouchers(
+					account.Address(networktypes.SPN),
+					testutil.CampaignID,
+					campaigntypes.NewSharesFromCoins(sdk.NewCoins(sdk.NewInt64Coin("foo", 2000), sdk.NewInt64Coin("staking", 50000))),
+				),
+			).
+			Return(testutil.NewResponse(&campaigntypes.MsgMintVouchersResponse{}), nil).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account.Name,
+				&launchtypes.MsgCreateChain{
+					Coordinator:    account.Address(networktypes.SPN),
+					GenesisChainID: testutil.ChainID,
+					SourceURL:      testutil.ChainSourceURL,
+					SourceHash:     testutil.ChainSourceHash,
+					GenesisURL:     "",
+					GenesisHash:    "",
+					HasCampaign:    true,
+					CampaignID:     testutil.CampaignID,
+				},
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
+				LaunchID: testutil.LaunchID,
+			}), nil).
+			Once()
+		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
+		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
+		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
+		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
+
+		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithCampaign(testutil.CampaignID),
+			WithPercentageShares([]SharePercent{
+				SampleSharePercent(t, "foo", 2, 100),
+				SampleSharePercent(t, "staking", 50, 100),
+			}),
+		)
+		require.NoError(t, publishError)
+		require.Equal(t, testutil.LaunchID, launchID)
+		require.Equal(t, testutil.CampaignID, campaignID)
+		suite.AssertAllMocks(t)
+	})
+
 	t.Run("publish chain with custom genesis", func(t *testing.T) {
 		var (
 			account              = testutil.NewTestAccount(t, testutil.TestAccountName)
@@ -294,37 +274,22 @@ func TestPublish(t *testing.T) {
 					SourceHash:     testutil.ChainSourceHash,
 					GenesisURL:     gts.URL,
 					GenesisHash:    customGenesisHash,
-					HasCampaign:    true,
-					CampaignID:     testutil.CampaignID,
+					HasCampaign:    false,
+					CampaignID:     0,
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
 				LaunchID: testutil.LaunchID,
 			}), nil).
 			Once()
-		suite.CosmosClientMock.
-			On(
-				"BroadcastTx",
-				account.Name,
-				&campaigntypes.MsgCreateCampaign{
-					Coordinator:  account.Address(networktypes.SPN),
-					CampaignName: testutil.ChainName,
-					Metadata:     []byte{},
-				},
-			).
-			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-				CampaignID: testutil.CampaignID,
-			}), nil).
-			Once()
 		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
-		suite.ChainMock.On("Name").Return(testutil.ChainName).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithCustomGenesis(gts.URL))
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
+		require.Equal(t, uint64(0), campaignID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -360,37 +325,22 @@ func TestPublish(t *testing.T) {
 					SourceHash:     testutil.ChainSourceHash,
 					GenesisURL:     "",
 					GenesisHash:    "",
-					HasCampaign:    true,
-					CampaignID:     testutil.CampaignID,
+					HasCampaign:    false,
+					CampaignID:     0,
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
 				LaunchID: testutil.LaunchID,
 			}), nil).
 			Once()
-		suite.CosmosClientMock.
-			On(
-				"BroadcastTx",
-				account.Name,
-				&campaigntypes.MsgCreateCampaign{
-					Coordinator:  account.Address(networktypes.SPN),
-					CampaignName: testutil.ChainName,
-					Metadata:     []byte{},
-				},
-			).
-			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-				CampaignID: testutil.CampaignID,
-			}), nil).
-			Once()
 		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
-		suite.ChainMock.On("Name").Return(testutil.ChainName).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
 		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithChainID(testutil.ChainID))
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
+		require.Equal(t, uint64(0), campaignID)
 		suite.AssertAllMocks(t)
 	})
 
