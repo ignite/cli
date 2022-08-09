@@ -85,9 +85,6 @@ func (n Network) Join(
 		return fmt.Errorf("unsupported public address format: %s", o.publicAddress)
 	}
 
-	// TODO: support peer parsing form memo
-	// peer, err = ParsePeerAddress(gentxInfo.Memo)
-
 	// get the chain genesis path from the home folder
 	genesisPath, err := c.GenesisPath()
 	if err != nil {

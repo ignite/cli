@@ -56,7 +56,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		customPeerAddress, _ = cmd.Flags().GetString(flagPeerAddress)
 		nodeID, _            = cmd.Flags().GetString(flagNodeID)
 		hidePeerAddress, _   = cmd.Flags().GetBool(flagHidePeerAddress)
-		publicAddr           string
 		gentxPath, _         = cmd.Flags().GetString(flagGentx)
 	)
 
@@ -69,24 +68,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
-	}
-
-	// if there is no custom gentx, we need to detect the public address.
-	if gentxPath == "" {
-		// get the peer public address for the validator.
-		publicAddr, err = askPublicAddress(cmd, session)
-		if err != nil {
-			return errors.Wrap(err, "cannot read public Gitpod address of the node")
-		}
-	} else if !hidePeerAddress {
-		if customPeerAddress != "" {
-			publicAddr = customPeerAddress
-		} else {
-			publicAddr, err = askPublicAddress(cmd, session)
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	cacheStorage, err := newCache(cmd)
@@ -115,9 +96,24 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	joinOptions := []network.JoinOption{
-		network.WithPublicAddress(publicAddr),
-		network.WithNodeID(nodeID),
+	var joinOptions []network.JoinOption
+
+	// parse the peer
+	if !hidePeerAddress {
+		var publicAddr string
+		if customPeerAddress != "" {
+			publicAddr = customPeerAddress
+		} else {
+			publicAddr, err = askPublicAddress(cmd, session)
+			if err != nil {
+				return err
+			}
+		}
+		joinOptions = append(joinOptions, network.WithPublicAddress(publicAddr))
+	}
+
+	if nodeID != "" {
+		joinOptions = append(joinOptions, network.WithNodeID(nodeID))
 	}
 
 	// use the default gentx path from chain home if not provided
