@@ -23,7 +23,7 @@ import (
 func (r Runner) Start(ctx context.Context, args ...string) error {
 	return r.run(
 		ctx,
-		runOptions{wrappedStdErrMaxLen: 50000},
+		runOptions{wrappedStdErrMaxLen: 50000, stdout: os.Stdout, stderr: os.Stderr},
 		r.chainCmd.StartCommand(args...),
 	)
 }
