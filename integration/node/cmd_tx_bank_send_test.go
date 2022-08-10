@@ -61,9 +61,9 @@ func TestNodeTxBankSend(t *testing.T) {
 				Coins:    []string{"10000token", "100000000stake"},
 			},
 		}
+		conf.Faucet = chainconfig.Faucet{}
 		conf.Init.KeyringBackend = keyring.BackendTest
 	})
-
 	env.Must(env.Exec("import alice",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -108,7 +108,6 @@ func TestNodeTxBankSend(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-
 		require.NoError(t, client.WaitForNextBlock())
 
 		env.Exec("send 100token from alice to bob",
@@ -154,7 +153,6 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
-		require.NoError(t, client.WaitForNextBlock())
 
 		env.Exec("send 5token from alice to bob using a combination of address and account",
 			step.NewSteps(step.New(
@@ -177,7 +175,6 @@ func TestNodeTxBankSend(t *testing.T) {
 		if env.HasFailed() {
 			return
 		}
-		require.NoError(t, client.WaitForNextBlock())
 
 		b := &bytes.Buffer{}
 		env.Exec("query bank balances for alice",

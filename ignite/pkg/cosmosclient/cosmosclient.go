@@ -564,7 +564,7 @@ func newContext(
 		WithInput(os.Stdin).
 		WithOutput(out).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastSync).
+		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(home).
 		WithClient(c).
 		WithSkipConfirmation(true)

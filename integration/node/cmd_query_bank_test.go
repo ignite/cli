@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +16,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
@@ -57,7 +57,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithHome(filepath.Join(home, keyringTestDirName)),
-		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringMemory),
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringTest),
 	)
 	require.NoError(t, err)
 
@@ -103,9 +103,12 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			return
 		}
 
-		// error "account doesn't have any balances" occurs if a sleep is not included
-		// TODO find another way without sleep, with retry+ctx routine.
-		time.Sleep(time.Second * 1)
+		client, err := cosmosclient.New(context.Background(),
+			cosmosclient.WithAddressPrefix(testPrefix),
+			cosmosclient.WithNodeAddress(node),
+		)
+		require.NoError(t, err)
+		require.NoError(t, client.WaitForNextBlock())
 
 		b := &bytes.Buffer{}
 

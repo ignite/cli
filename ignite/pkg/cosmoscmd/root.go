@@ -136,7 +136,7 @@ func NewRootCmd(
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastSync).
+		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(defaultNodeHome).
 		WithViper(rootOptions.envPrefix)
 
