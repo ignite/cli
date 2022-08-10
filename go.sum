@@ -1851,8 +1851,8 @@ github.com/tendermint/flutter/v2 v2.0.4/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMons
 github.com/tendermint/fundraising v0.3.1-0.20220613014523-03b4a2d4481a h1:DIxap6r3z89JLoaLp6TTtt8XS7Zgfy4XACfG6b+4plE=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
-github.com/tendermint/spn v0.2.1-0.20220803133735-b3f8e9e4590a h1:iqhJgeoLqGIWSH2msnie6tAgxNWRY2qksi+uF8Fv5+c=
-github.com/tendermint/spn v0.2.1-0.20220803133735-b3f8e9e4590a/go.mod h1:GKNjpa89RInBaZVYuO+BNgMc2sQTXll1+LwPetA8uEM=
+github.com/tendermint/spn v0.2.1-0.20220810115111-9366849c5177 h1:19OWWP2ZKcMVJLouAJWFaDUsONEiNKWixnLB1Vx6oSk=
+github.com/tendermint/spn v0.2.1-0.20220810115111-9366849c5177/go.mod h1:MsMe/uJO8D0P48l0sZDKocSiCmBsSbuswD8sP+IEQ+w=
 github.com/tendermint/tendermint v0.34.20 h1:/pmvJhO3IqOxhbi8iRXudTjA2YKpaMqrLwFNkyxDSzw=
 github.com/tendermint/tendermint v0.34.20/go.mod h1:KtOwCLYJcsS1ymtAfnjjAtXfXClbqcqjdqzFt2Em1Ac=
 github.com/tendermint/tm-db v0.6.6/go.mod h1:wP8d49A85B7/erz/r4YbKssKw6ylsO/hKtFk7E1aWZI=
@@ -2687,8 +2687,8 @@ google.golang.org/genproto v0.0.0-20220421151946-72621c1f0bd3/go.mod h1:8w6bsBMX
 google.golang.org/genproto v0.0.0-20220429170224-98d788798c3e/go.mod h1:8w6bsBMX6yCPbAVTeqQHvzxW0EIFigd5lZyahWgyfDo=
 google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3/go.mod h1:RAyBrSAP7Fh3Nc84ghnVLDPuV51xc9agzmm4Ph6i0Q4=
 google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd/go.mod h1:RAyBrSAP7Fh3Nc84ghnVLDPuV51xc9agzmm4Ph6i0Q4=
-google.golang.org/genproto v0.0.0-20220728213248-dd149ef739b9 h1:d3fKQZK+1rWQMg3xLKQbPMirUCo29I/NRdI2WarSzTg=
-google.golang.org/genproto v0.0.0-20220728213248-dd149ef739b9/go.mod h1:iHe1svFLAZg9VWz891+QbRMwUv9O/1Ww+/mngYeThbc=
+google.golang.org/genproto v0.0.0-20220805133916-01dd62135a58 h1:sRT5xdTkj1Kbk30qbYC7VyMj73N5pZYsw6v+Nrzdhno=
+google.golang.org/genproto v0.0.0-20220805133916-01dd62135a58/go.mod h1:iHe1svFLAZg9VWz891+QbRMwUv9O/1Ww+/mngYeThbc=
 google.golang.org/grpc v0.0.0-20160317175043-d3ddb4469d5a/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
 google.golang.org/grpc v1.8.0/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
 google.golang.org/grpc v1.17.0/go.mod h1:6QZJwpn2B+Zp71q/5VxRsJ6NXXVCE5NRUHRo+f3cWCs=
