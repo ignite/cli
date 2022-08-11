@@ -84,9 +84,10 @@ type Client struct {
 	keyringBackend     cosmosaccount.KeyringBackend
 	keyringDir         string
 
-	gas       string
-	gasPrices string
-	fees      string
+	gas           string
+	gasPrices     string
+	fees          string
+	broadcastMode string
 }
 
 // Option configures your client.
@@ -172,6 +173,13 @@ func WithFees(fees string) Option {
 	}
 }
 
+// WithBroadcastMode sets the broadcast mode
+func WithBroadcastMode(broadcastMode string) Option {
+	return func(c *Client) {
+		c.broadcastMode = broadcastMode
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -183,6 +191,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		faucetMinAmount: defaultFaucetMinAmount,
 		out:             io.Discard,
 		gas:             strconv.Itoa(defaultGasLimit),
+		broadcastMode:   flags.BroadcastBlock,
 	}
 
 	var err error
@@ -223,7 +232,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		return Client{}, err
 	}
 
-	c.context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
+	c.context = c.newContext()
 	c.Factory = newFactory(c.context)
 
 	return c, nil
@@ -535,12 +544,7 @@ func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error
 	return txf, nil
 }
 
-func newContext(
-	c *rpchttp.HTTP,
-	out io.Writer,
-	chainID,
-	home string,
-) client.Context {
+func (c Client) newContext() client.Context {
 	var (
 		amino             = codec.NewLegacyAmino()
 		interfaceRegistry = codectypes.NewInterfaceRegistry()
@@ -556,18 +560,19 @@ func newContext(
 	banktypes.RegisterInterfaces(interfaceRegistry)
 
 	return client.Context{}.
-		WithChainID(chainID).
+		WithChainID(c.chainID).
 		WithInterfaceRegistry(interfaceRegistry).
 		WithCodec(marshaler).
 		WithTxConfig(txConfig).
 		WithLegacyAmino(amino).
 		WithInput(os.Stdin).
-		WithOutput(out).
+		WithOutput(c.out).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(home).
-		WithClient(c).
-		WithSkipConfirmation(true)
+		WithBroadcastMode(c.broadcastMode).
+		WithHomeDir(c.homePath).
+		WithClient(c.RPC).
+		WithSkipConfirmation(true).
+		WithKeyring(c.AccountRegistry.Keyring)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {

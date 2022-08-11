@@ -26,6 +26,7 @@ func NewNodeQuery() *cobra.Command {
 	}
 
 	c.AddCommand(NewNodeQueryBank())
+	c.AddCommand(NewNodeQueryTx())
 
 	return c
 }

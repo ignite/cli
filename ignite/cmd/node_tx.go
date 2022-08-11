@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 )
@@ -10,10 +11,11 @@ import (
 const (
 	flagGenerateOnly = "generate-only"
 
-	gasFlagAuto   = "auto"
-	flagGasPrices = "gas-prices"
-	flagGas       = "gas"
-	flagFees      = "fees"
+	gasFlagAuto       = "auto"
+	flagGasPrices     = "gas-prices"
+	flagGas           = "gas"
+	flagFees          = "fees"
+	flagBroadcastMode = "broadcast-mode"
 )
 
 func NewNodeTx() *cobra.Command {
@@ -21,6 +23,14 @@ func NewNodeTx() *cobra.Command {
 		Use:   "tx",
 		Short: "Transactions subcommands",
 	}
+	c.PersistentFlags().AddFlagSet(flagSetHome())
+	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
+	c.PersistentFlags().AddFlagSet(flagSetAccountPrefixes())
+	c.PersistentFlags().AddFlagSet(flagSetKeyringDir())
+	c.PersistentFlags().AddFlagSet(flagSetGenerateOnly())
+	c.PersistentFlags().AddFlagSet(flagSetGasFlags())
+	c.PersistentFlags().String(flagFees, "", "Fees to pay along with transaction; eg: 10uatom")
+	c.PersistentFlags().String(flagBroadcastMode, flags.BroadcastBlock, "Transaction broadcasting mode (sync|async|block), use sync if you encounter timeouts")
 
 	c.AddCommand(NewNodeTxBank())
 
@@ -58,4 +68,9 @@ func getGas(cmd *cobra.Command) string {
 func getFees(cmd *cobra.Command) string {
 	fees, _ := cmd.Flags().GetString(flagFees)
 	return fees
+}
+
+func getBroadcastMode(cmd *cobra.Command) string {
+	broadcastMode, _ := cmd.Flags().GetString(flagBroadcastMode)
+	return broadcastMode
 }
