@@ -262,11 +262,7 @@ func (c *Chain) ID() (string, error) {
 
 // ChainID returns the default network chain's id.
 func (c *Chain) ChainID() (string, error) {
-	chainID, err := c.ID()
-	if err != nil {
-		return "", err
-	}
-	return chainid.NewGenesisChainID(chainID, 1), nil
+	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
 // Name returns the chain's name
