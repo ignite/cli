@@ -77,7 +77,7 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 	}
 
 	// set the config with random ports to test the start command
-	addressAPI, err := c.setSimulationConfig()
+	rpcAddr, err := c.setSimulationConfig()
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 	// routine to check the app is listening
 	go func() {
 		defer cancel()
-		exit <- isChainListening(ctx, addressAPI)
+		exit <- isChainListening(ctx, rpcAddr)
 	}()
 
 	// routine chain start
@@ -184,18 +184,18 @@ func (c Chain) setSimulationConfig() (string, error) {
 
 	_, err = config.WriteTo(file)
 
-	return genAddr(ports[0]), err
+	return genAddr(ports[2]), err
 }
 
-// isChainListening checks if the chain is listening for API queries on the specified address
-func isChainListening(ctx context.Context, addressAPI string) error {
+// isChainListening checks if the chain is listening for RPC queries on the specified address
+func isChainListening(ctx context.Context, rpcAddr string) error {
 	checkAlive := func() error {
-		addr, err := xurl.HTTP(addressAPI)
+		addr, err := xurl.HTTP(rpcAddr)
 		if err != nil {
-			return fmt.Errorf("invalid api address format %s: %w", addressAPI, err)
+			return fmt.Errorf("invalid rpc address format %s: %w", rpcAddr, err)
 		}
 
-		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/node_info", addr))
+		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/health", addr))
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}
