@@ -34,6 +34,10 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	const minPassLength = 8
+	if len(passphrase) < minPassLength {
+		return fmt.Errorf("passphrase must be at least %d characters", minPassLength)
+	}
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
