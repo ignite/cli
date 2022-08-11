@@ -219,9 +219,20 @@ Your blog is now updated to take these actions when a `Post` message is sent to 
 
 ## Write data to the store
 
-Now, after the `import` section in the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
+In the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
 
 ```go
+package keeper
+
+import (
+  "encoding/binary"
+
+  "github.com/cosmos/cosmos-sdk/store/prefix"
+  sdk "github.com/cosmos/cosmos-sdk/types"
+
+  "blog/x/blog/types"
+)
+
 // func (k Keeper) AppendPost() uint64 {
 // 	 count := k.GetPostCount()
 // 	 store.Set()
@@ -275,17 +286,6 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 Now that you have implemented functions for getting the number of posts and setting the post count, at the top of the same `x/blog/keeper/post.go` file, implement the logic behind the `AppendPost` function:
 
 ```go
-package keeper
-
-import (
-  "encoding/binary"
-
-  "github.com/cosmos/cosmos-sdk/store/prefix"
-  sdk "github.com/cosmos/cosmos-sdk/types"
-
-  "blog/x/blog/types"
-)
-
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   // Get the current number of posts in the store
   count := k.GetPostCount(ctx)
