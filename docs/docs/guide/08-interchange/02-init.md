@@ -154,7 +154,8 @@ host:
   rpc: ":26659"
   p2p: ":26658"
   prof: ":6061"
-  grpc: ":9091"
+  grpc: ":9092"
+  grpc-web: ":9093"
   api: ":1318"
 genesis:
   chain_id: "venus"

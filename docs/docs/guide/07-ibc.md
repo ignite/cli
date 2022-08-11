@@ -53,7 +53,7 @@ Use Ignite CLI to scaffold the blockchain app and the blog module.
 To scaffold a new blockchain named `planet`:
 
 ```go
-ignite scaffold chain github.com/username/planet --no-module
+ignite scaffold chain planet --no-module
 cd planet
 ```
 
