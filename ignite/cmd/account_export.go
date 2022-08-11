@@ -18,8 +18,7 @@ func NewAccountExport() *cobra.Command {
 		RunE:  accountExportHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetAccountImportExport())
+	c.Flags().AddFlagSet(flagSetAccountExport())
 	c.Flags().String(flagPath, "", "path to export private key. default: ./key_[name]")
 
 	return c
@@ -38,6 +37,7 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
