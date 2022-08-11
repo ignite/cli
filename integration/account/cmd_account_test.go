@@ -67,7 +67,7 @@ func TestAccount(t *testing.T) {
 				"--non-interactive",
 				"--keyring-dir", tmpDir,
 				"--secret", "testdata/key",
-				"--passphrase", "pass",
+				"--passphrase", "passpass",
 			),
 		)),
 	))

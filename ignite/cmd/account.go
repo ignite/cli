@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -120,6 +121,11 @@ func getPassphrase(cmd *cobra.Command) (string, error) {
 			)); err != nil {
 			return "", err
 		}
+	}
+
+	const minPassLength = 8
+	if len(pass) < minPassLength {
+		return "", fmt.Errorf("passphrase must be at least %d characters", minPassLength)
 	}
 
 	return pass, nil
