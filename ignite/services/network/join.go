@@ -78,12 +78,6 @@ func (n Network) Join(
 		}
 	}
 
-	// get the chain genesis path from the home folder
-	genesisPath, err := c.GenesisPath()
-	if err != nil {
-		return err
-	}
-
 	// change the chain address prefix to spn
 	accountAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networktypes.SPN)
 	if err != nil {
@@ -91,33 +85,12 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.ensureAccount(genesisPath, launchID, accountAddress, o.accountAmount); err != nil {
+		if err := n.sendAccountRequest(launchID, accountAddress, o.accountAmount); err != nil {
 			return err
 		}
 	}
 
 	return n.sendValidatorRequest(launchID, peer, accountAddress, gentx, gentxInfo)
-}
-
-// ensureAccount creates an add AddAccount request message.
-func (n Network) ensureAccount(
-	genesisPath string,
-	launchID uint64,
-	address string,
-	amount sdk.Coins,
-) (err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
-
-	// the account may already exist in the initial genesis, we check it from the generated genesis
-	accExist, err := cosmosutil.CheckGenesisContainsAddress(genesisPath, address)
-	if err != nil {
-		return err
-	}
-	if accExist {
-		return fmt.Errorf("account %s already exist in the initial genesis", address)
-	}
-
-	return n.sendAccountRequest(launchID, address, amount)
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
