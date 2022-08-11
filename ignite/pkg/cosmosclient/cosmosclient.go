@@ -248,17 +248,14 @@ func (c Client) LatestBlockHeight() (int64, error) {
 }
 
 // WaitForNextBlock waits until next block is committed.
-// WaitForNextBlock reads the current block height and then waits for another
-// block to be committed.
-// Useful to ensure transactions are properly handled by the app.
+// It reads the current block height and then waits for another block to be
+// committed.
 func (c Client) WaitForNextBlock() error {
 	return c.WaitForNBlocks(1)
 }
 
 // WaitForNBlocks reads the current block height and then waits for anothers n
 // blocks to be committed.
-// Useful to ensure transactions are properly handled by the app.
-// Must be called after app.Serve().
 func (c Client) WaitForNBlocks(n int64) error {
 	start, err := c.LatestBlockHeight()
 	if err != nil {
