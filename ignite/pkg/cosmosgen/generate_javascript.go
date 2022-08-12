@@ -180,8 +180,8 @@ func (g *jsGenerator) generateModule(
 		outREST = filepath.Join(out, "rest.ts")
 	)
 
-	err = sta.Generate(g.g.ctx, outREST, srcspec, "-1", sta.WithCommand(staCmd))
-	if err != nil { // -1 removes the route namespace.
+	err = sta.Generate(g.g.ctx, outREST, srcspec, sta.WithCommand(staCmd))
+	if err != nil {
 		return err
 	}
 

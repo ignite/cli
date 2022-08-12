@@ -12,7 +12,7 @@ import (
 // Option configures Generate configs.
 type Option func(*configs)
 
-// configs holds Generate configs.
+// Configs holds Generate configs.
 type configs struct {
 	command Cmd
 }
@@ -44,7 +44,7 @@ func Command() (command Cmd, cleanup func(), err error) {
 }
 
 // Generate generates client code and TS types to outPath from an OpenAPI spec that resides at specPath.
-func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string, options ...Option) error {
+func Generate(ctx context.Context, outPath, specPath string, options ...Option) error {
 	c := configs{}
 
 	for _, o := range options {
@@ -69,7 +69,7 @@ func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string, op
 	// command constructs the sta command.
 	command = append(command, []string{
 		"--module-name-index",
-		moduleNameIndex,
+		"-1", // -1 removes the route namespace
 		"-p",
 		specPath,
 		"-o",
