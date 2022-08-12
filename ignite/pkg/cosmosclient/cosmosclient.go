@@ -208,6 +208,7 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	if err != nil {
 		return sdktypes.AccAddress{}, err
 	}
+
 	return account.Record.GetAddress()
 }
 
@@ -219,6 +220,7 @@ func (c Client) Context() client.Context {
 // SetConfigAddressPrefix sets the account prefix in the SDK global config
 func (c Client) SetConfigAddressPrefix() {
 	// TODO find a better way if possible.
+	// https://github.com/ignite/cli/issues/2744
 	mconf.Lock()
 	defer mconf.Unlock()
 	config := sdktypes.GetConfig()
