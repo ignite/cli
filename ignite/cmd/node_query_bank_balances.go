@@ -9,7 +9,7 @@ import (
 
 func NewNodeQueryBankBalances() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "balances [account-name|address]",
+		Use:   "balances [from_account_or_address]",
 		Short: "Query for account balances by account name or address",
 		RunE:  nodeQueryBankBalancesHandler,
 		Args:  cobra.ExactArgs(1),
