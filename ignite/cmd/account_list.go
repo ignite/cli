@@ -13,22 +13,15 @@ func NewAccountList() *cobra.Command {
 		RunE:  accountListHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 
 	return c
 }
 
 func accountListHandler(cmd *cobra.Command, args []string) error {
-	var (
-		keyringBackend = getKeyringBackend(cmd)
-		keyringDir     = getKeyringDir(cmd)
-	)
-
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(keyringBackend),
-		cosmosaccount.WithHome(keyringDir),
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err

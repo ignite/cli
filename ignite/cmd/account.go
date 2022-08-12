@@ -30,6 +30,9 @@ Ignite CLI uses accounts to interact with the Ignite blockchain, use an IBC rela
 		Args:    cobra.ExactArgs(1),
 	}
 
+	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
+	c.PersistentFlags().AddFlagSet(flagSetKeyringDir())
+
 	c.AddCommand(NewAccountCreate())
 	c.AddCommand(NewAccountDelete())
 	c.AddCommand(NewAccountShow())
@@ -86,10 +89,17 @@ func getFrom(cmd *cobra.Command) string {
 	return prefix
 }
 
-func flagSetAccountImportExport() *flag.FlagSet {
+func flagSetAccountImport() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.Bool(flagNonInteractive, false, "Do not enter into interactive mode")
-	fs.String(flagPassphrase, "", "Account passphrase")
+	fs.String(flagPassphrase, "", "Passphrase to decrypt the imported key (ignored when secret is a mnemonic)")
+	return fs
+}
+
+func flagSetAccountExport() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagNonInteractive, false, "Do not enter into interactive mode")
+	fs.String(flagPassphrase, "", "Passphrase to encrypt the exported key")
 	return fs
 }
 

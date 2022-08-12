@@ -3,7 +3,6 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -251,7 +250,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	// write gentxs
 	for i, val := range genesisVals {
 		gentxPath := filepath.Join(gentxDir, fmt.Sprintf("gentx%d.json", i))
-		if err = ioutil.WriteFile(gentxPath, val.Gentx, 0o666); err != nil {
+		if err = os.WriteFile(gentxPath, val.Gentx, 0o666); err != nil {
 			return err
 		}
 	}

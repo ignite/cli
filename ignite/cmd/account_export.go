@@ -18,9 +18,7 @@ func NewAccountExport() *cobra.Command {
 		RunE:  accountExportHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetKeyringDir())
-	c.Flags().AddFlagSet(flagSetAccountImportExport())
+	c.Flags().AddFlagSet(flagSetAccountExport())
 	c.Flags().String(flagPath, "", "path to export private key. default: ./key_[name]")
 
 	return c
@@ -28,20 +26,22 @@ func NewAccountExport() *cobra.Command {
 
 func accountExportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name           = args[0]
-		path           = flagGetPath(cmd)
-		keyringBackend = getKeyringBackend(cmd)
-		keyringDir     = getKeyringDir(cmd)
+		name = args[0]
+		path = flagGetPath(cmd)
 	)
 
 	passphrase, err := getPassphrase(cmd)
 	if err != nil {
 		return err
 	}
+	const minPassLength = 8
+	if len(passphrase) < minPassLength {
+		return fmt.Errorf("passphrase must be at least %d characters", minPassLength)
+	}
 
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(keyringBackend),
-		cosmosaccount.WithHome(keyringDir),
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err

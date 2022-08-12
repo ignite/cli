@@ -33,7 +33,10 @@ func main() {
 	outPath := flag.String("out", ".", ".md file path to place Ignite CLI docs inside")
 	flag.Parse()
 
-	if err := generate(ignitecmd.New(), *outPath); err != nil {
+	// Run ExecuteC so cobra adds the completion command.
+	cmd, _ := ignitecmd.New().ExecuteC()
+
+	if err := generate(cmd, *outPath); err != nil {
 		log.Fatal(err)
 	}
 }
