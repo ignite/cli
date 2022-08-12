@@ -226,9 +226,11 @@ type Response struct {
 // e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
 // ```proto
-// service Msg {
-//   rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
-// }
+//
+//	service Msg {
+//	  rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
+//	}
+//
 // ```
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
