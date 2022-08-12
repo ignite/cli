@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Rename copy sourcePath to destPath and then delete sourcePath.
+// Rename copy oldpath to newpath and then delete oldpath.
 // Unlike os.Rename, it doesn't fail when the oldpath and newpath are in
 // different partitions (error: invalid cross-device link).
 func Rename(oldpath, newpath string) error {
