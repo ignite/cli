@@ -192,6 +192,9 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
 	c.Factory = newFactory(c.context)
 
+	// set address prefix in SDK global config
+	c.SetConfigAddressPrefix()
+
 	return c, nil
 }
 
@@ -205,11 +208,23 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	if err != nil {
 		return sdktypes.AccAddress{}, err
 	}
+
 	return account.Record.GetAddress()
 }
 
+// Context returns client context
 func (c Client) Context() client.Context {
 	return c.context
+}
+
+// SetConfigAddressPrefix sets the account prefix in the SDK global config
+func (c Client) SetConfigAddressPrefix() {
+	// TODO find a better way if possible.
+	// https://github.com/ignite/cli/issues/2744
+	mconf.Lock()
+	defer mconf.Unlock()
+	config := sdktypes.GetConfig()
+	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
 }
 
 // Response of your broadcasted transaction.
@@ -341,11 +356,8 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		return 0, nil, err
 	}
 
-	// TODO find a better way if possible.
-	mconf.Lock()
-	defer mconf.Unlock()
-	config := sdktypes.GetConfig()
-	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
+	// set address prefix in SDK global config
+	c.SetConfigAddressPrefix()
 
 	accountAddress, err := c.Address(accountName)
 	if err != nil {
