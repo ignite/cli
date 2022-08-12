@@ -66,7 +66,7 @@ commands that scaffold CRUD functionality for a type: list, map, and single.
 These commands create four messages (one for each CRUD action), and the logic to
 add, delete, and fetch the data from the store. If you want to scaffold only the
 logic, for example, you've decided to scaffold messages separately, you can do
-that as well with a flag.
+that as well with the "--no-message" flag.
 
 Reading data from a blockchain happens with a help of queries. Similar to how
 you can scaffold messages to write data, you can scaffold queries to read the
