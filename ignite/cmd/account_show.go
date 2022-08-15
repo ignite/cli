@@ -14,7 +14,6 @@ func NewAccountShow() *cobra.Command {
 		RunE:  accountShowHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 
 	return c
@@ -25,6 +24,7 @@ func accountShowHandler(cmd *cobra.Command, args []string) error {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
