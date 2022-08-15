@@ -27,7 +27,7 @@ For better randomizations, you can define a random seed. The simulation with the
 To create a new chain:
 
 ```shell
-ignite scaffold chain github.com/username/mars
+ignite scaffold chain mars
 ```
 
 Review the empty `x/mars/simulation` folder and the `x/mars/module_simulation.go` file to see that a simulation is not registered. 

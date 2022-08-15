@@ -50,7 +50,7 @@ When you scaffold a BandChain oracle module, the following files and directories
 First, scaffold a chain but don't scaffold a default module:
 
 ```bash
-ignite scaffold chain github.com/username/oracle --no-module 
+ignite scaffold chain oracle --no-module 
 ```
 
 Next, change to the new `oracle` directory and scaffold an IBC-enabled module named `consuming`:
@@ -78,7 +78,7 @@ Now it's time to change the data.
 
 The output of the `ignite scaffold band coinRates --module consuming` command prompts you to update the `keys.go` file.
 
-In the `x/oracle/types/keys.go` file, update the `Version` variable in the `const` block to the required version that the IBC module supports:
+In the `x/consuming/types/keys.go` file, update the `Version` variable in the `const` block to the required version that the IBC module supports:
 
 ```go
 const (
@@ -211,9 +211,9 @@ In the `proto/consuming/gold_price.proto` file:
 
 ```protobuf
 syntax = "proto3";
-package username.oracle.consuming;
+package oracle.consuming;
 
-option go_package = "github.com/username/oracle/x/consuming/types";
+option go_package = "oracle/x/consuming/types";
 
 message GoldPriceCallData {
   uint64 multiplier = 2;
@@ -232,13 +232,13 @@ package cli
 import (
 	"strconv"
 
-	"github.com/spf13/cobra"
-
-	"github.com/username/oracle/x/consuming/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
+
+	"oracle/x/consuming/types"
 )
 
 // CmdRequestGoldPriceData creates and broadcast a GoldPrice request transaction
