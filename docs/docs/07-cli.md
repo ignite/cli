@@ -18,7 +18,9 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-ignite scaffold chain github.com/username/mars
+```
+ignite scaffold chain mars
+```
 
 **Options**
 
@@ -678,14 +680,16 @@ Create a new application-specific Cosmos SDK blockchain.
 
 For example, the following command will create a blockchain called "hello" in the "hello/" directory:
 
-  ignite scaffold chain hello
+```
+ignite scaffold chain hello
+```
 
 A project name can be a simple name or a URL. The name will be used as the Go module path for the project. Examples of project names:
 
-  ignite scaffold chain foo
-  ignite scaffold chain foo/bar
-  ignite scaffold chain example.org/foo
-  ignite scaffold chain github.com/username/foo
+  - ignite scaffold chain foo
+  - ignite scaffold chain foo/bar
+  - ignite scaffold chain example.org/foo
+  - ignite scaffold chain github.com/username/foo
 		
 A new directory with source code files will be created in the current directory. To use a different path use the "--path" flag.
 
