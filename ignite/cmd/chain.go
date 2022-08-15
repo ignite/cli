@@ -37,13 +37,6 @@ source code directory for file changes and intelligently
 re-builds/initializes/starts the chain, essentially providing "code-reloading".
 The "serve" command is meant only for development purposes, not production.
 
-The "faucet" command lets you send tokens to an address from the "faucet"
-account defined in "config.yml". Alternatively, you can use the chain's binary
-to send token from any other account that exists on chain.
-
-The "simulate" command helps you start a simulation testing process for your
-chain.
-
 To distinguish between production and development consider the following.
 
 In production, blockchains often run the same software on many validator nodes
@@ -55,6 +48,13 @@ During development, a blockchain can be started locally on a single validator
 node. This convenient process lets you restart a chain quickly and iterate
 faster. Starting a chain on a single node in development is similar to starting
 a traditional web application on a local server.
+
+The "faucet" command lets you send tokens to an address from the "faucet"
+account defined in "config.yml". Alternatively, you can use the chain's binary
+to send token from any other account that exists on chain.
+
+The "simulate" command helps you start a simulation testing process for your
+chain.
 `,
 		Aliases: []string{"c"},
 		Args:    cobra.ExactArgs(1),
