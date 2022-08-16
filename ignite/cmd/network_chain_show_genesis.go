@@ -8,6 +8,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/xos"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
@@ -85,7 +86,7 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := os.Rename(genesisPath, out); err != nil {
+	if err := xos.Rename(genesisPath, out); err != nil {
 		return err
 	}
 
