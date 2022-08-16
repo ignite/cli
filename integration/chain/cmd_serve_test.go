@@ -93,7 +93,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	// Move config
 	newConfig := "new_config.yml"
 	newConfigPath := filepath.Join(tmpDir, newConfig)
-	err := xos.Rename(filepath.Join(apath, "config.yml"), newConfigPath)
+	err := xos.Rename(filepath.Join(app.SourcePath(), "config.yml"), newConfigPath)
 	require.NoError(t, err)
 	app.SetConfigPath(newConfigPath)
 
