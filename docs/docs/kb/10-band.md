@@ -82,16 +82,20 @@ In the `x/consuming/types/keys.go` file, update the `Version` variable in the `c
 
 ```go
 const (
-    
+    // ...
+
     // Version defines the current version the IBC module supports
     Version = "bandchain-1"
+
+    // ...
+)
 ```
 
 ## Start your chain in development
 
 To run the chain from the `oracle` directory:
 
-```shell
+```bash
 ignite chain serve
 ```
 
@@ -134,7 +138,7 @@ When prompted, press Enter to accept the default source and target accounts.
 
 The command output confirms the relayer is successfully configured:
 
-```bash
+```
 ? Source Account default
 ? Target Account default
 
@@ -159,7 +163,7 @@ ignite relayer connect
 
 You can see the paths of the `oracle` port on the testnet and the `consuming` port on your local oracle module in the relayer connection status that is output to the terminal:
 
-```bash
+```
 ------
 Paths
 ------
@@ -179,7 +183,7 @@ Leave this terminal tab open so you can monitor the relayer.
 
 In another terminal tab, use the `oracled` binary to make a request transaction. Because BandChain has multiple scripts already deployed into the network, you can request any data using the BandChain script id. In this case, use script 37 for Coin Rates:
 
-```shell
+```bash
 # Coin Rates (script 37 into the testnet)
 oracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "BTC,ETH,XRP,BCH" --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
 ```
@@ -188,7 +192,7 @@ You can check the last request id that was returned by ack:
 
 ```bash
 oracled query consuming last-coin-rates-id
-request_id: "101276"
+# output: request_id: "101276"
 ```
 
 Now you can check the data by request id to receive the data packet:
@@ -203,13 +207,13 @@ You can scaffold multiples oracles by module. After scaffold, you must change th
 
 To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
 
-```shell
+```bash
 ignite scaffold band goldPrice --module consuming
 ```
 
 In the `proto/consuming/gold_price.proto` file:
 
-```protobuf
+```proto
 syntax = "proto3";
 package oracle.consuming;
 
@@ -341,20 +345,20 @@ func CmdRequestGoldPriceData() *cobra.Command {
 
 Make the request transaction:
 
-```shell
+```bash
 # Gold Price (script 33 into the testnet)
 oracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
 ```
 
 Check the last request id that was returned by ack:
 
-```shell
+```bash
 oracled query consuming last-gold-price-id
-request_id: "101290"
+# output: request_id: "101290"
 ```
 
 Request the package data:
 
-```shell
+```bash
 oracled query consuming gold-price-result 101290
 ```

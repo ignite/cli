@@ -725,6 +725,6 @@ func TestFillBuyOrder(t *testing.T) {
 
 When the tests are successful, your output is:
 
-```go
+```
 ok      interchange/x/dex/types       0.550s
 ```

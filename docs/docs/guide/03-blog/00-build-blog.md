@@ -68,7 +68,7 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-```bash
+```
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_post.go
@@ -85,7 +85,7 @@ create x/blog/types/message_create_post_test.go
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
-```go
+```proto
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -165,7 +165,7 @@ When you define the `Post` type in a proto file, Ignite CLI (with the help of `p
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 
-```go
+```proto
 syntax = "proto3";
 
 package blog.blog;
@@ -202,7 +202,7 @@ Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and a
 
 ```go
 const (
-  //...
+  // ...
 
   // Keep track of the index of posts  
   PostKey      = "Post-value-"
@@ -338,13 +338,13 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-```go
+```proto
 import "blog/post.proto";
 ```
 
 2. Add pagination to the post request:
 
-```go
+```proto
 message QueryPostsRequest {
   // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
@@ -430,7 +430,7 @@ In the `x/blog/module.go` file:
 import (
 	"context"
 
-	// ... other imports
+	// ...
 )
 ```
 
@@ -469,7 +469,7 @@ blogd tx blog create-post foo bar --from alice
 
 The transaction is output to the terminal. You are prompted to confirm the transaction:
 
-```bash
+```
 {"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
@@ -489,7 +489,7 @@ blogd q blog posts
 
 The result: 
 
-```bash
+```yaml
 Post:
 - body: bar
   creator: blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w

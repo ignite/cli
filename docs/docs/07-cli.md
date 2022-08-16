@@ -18,8 +18,9 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-```bash
+```
 ignite scaffold chain mars
+```
 
 **Options**
 
@@ -681,6 +682,7 @@ For example, the following command will create a blockchain called "hello" in th
 
 ```bash
 ignite scaffold chain hello
+```
 
 A project name can be a simple name or a URL. The name will be used as the Go module path for the project. Examples of project names:
 

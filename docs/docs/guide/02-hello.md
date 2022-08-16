@@ -239,10 +239,12 @@ Make the required changes to the `x/hello/module.go` file.
 
     ```go
     import (
-      "encoding/json"
-      "fmt"
-      //...
+      // ...
+
       "context"
+
+      // ...
+    )
     ```
 
     Do not save the file yet, you need to continue with these modifications.
@@ -259,7 +261,7 @@ Make the required changes to the `x/hello/module.go` file.
 
 2. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
 
-    ```go
+    ```json
     {
       "text": "Hello, Ignite CLI!",
     }

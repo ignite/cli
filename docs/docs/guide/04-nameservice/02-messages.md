@@ -89,7 +89,7 @@ where:
 
 The `ignite scaffold message buy-name name bid` command creates and modifies several files:
 
-```bash
+```
 modify proto/nameservice/tx.proto
 modify x/nameservice/client/cli/tx.go
 create x/nameservice/client/cli/tx_buy_name.go
