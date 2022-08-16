@@ -18,9 +18,8 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-```
+```bash
 ignite scaffold chain mars
-```
 
 **Options**
 
