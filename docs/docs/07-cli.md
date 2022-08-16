@@ -680,9 +680,8 @@ Create a new application-specific Cosmos SDK blockchain.
 
 For example, the following command will create a blockchain called "hello" in the "hello/" directory:
 
-```
+```bash
 ignite scaffold chain hello
-```
 
 A project name can be a simple name or a URL. The name will be used as the Go module path for the project. Examples of project names:
 
