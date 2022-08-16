@@ -24,10 +24,7 @@ import (
 
 const (
 	IgniteApp = "ignite"
-)
-
-const (
-	Stargate = "stargate"
+	Stargate  = "stargate"
 )
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
