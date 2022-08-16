@@ -4,13 +4,13 @@ package chain_test
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/xos"
 	envtest "github.com/ignite/cli/integration"
 )
 
@@ -93,7 +93,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	// Move config
 	newConfig := "new_config.yml"
 	newConfigPath := filepath.Join(tmpDir, newConfig)
-	err := os.Rename(filepath.Join(app.SourcePath(), "config.yml"), newConfigPath)
+	err := xos.Rename(filepath.Join(apath, "config.yml"), newConfigPath)
 	require.NoError(t, err)
 	app.SetConfigPath(newConfigPath)
 
