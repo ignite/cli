@@ -213,7 +213,7 @@ ignite scaffold band goldPrice --module consuming
 
 In the `proto/consuming/gold_price.proto` file:
 
-```proto
+```protobuf
 syntax = "proto3";
 package oracle.consuming;
 

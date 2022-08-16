@@ -105,7 +105,7 @@ When showing the contents of a file, try to show only the relevant parts and exp
 
 Modify the title by changing the contents of the `<title>` tag:
 
-```proto
+```protobuf
 // ...
 
 message Post {

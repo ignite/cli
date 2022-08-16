@@ -151,7 +151,7 @@ Start with the proto file that defines the structure of the IBC packet.
 
 To identify the creator of the post in the receiving blockchain, add the `creator` field inside the packet. This field was not specified directly in the command because it would automatically become a parameter in the `SendIbcPost` CLI command.
 
-```proto
+```protobuf
 // proto/blog/packet.proto
 message IbcPostPacketData {
     string title = 1;

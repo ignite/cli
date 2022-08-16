@@ -85,7 +85,7 @@ create x/blog/types/message_create_post_test.go
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
-```proto
+```protobuf
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -165,7 +165,7 @@ When you define the `Post` type in a proto file, Ignite CLI (with the help of `p
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 
-```proto
+```protobuf
 syntax = "proto3";
 
 package blog.blog;
@@ -338,13 +338,13 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-```proto
+```protobuf
 import "blog/post.proto";
 ```
 
 2. Add pagination to the post request:
 
-```proto
+```protobuf
 message QueryPostsRequest {
   // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;

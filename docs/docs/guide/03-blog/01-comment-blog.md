@@ -65,7 +65,7 @@ modify x/blog/types/keys.go
 
 Make a small modification in `proto/blog/comment.proto` to change `createdAt` to int64:
 
-```proto
+```protobuf
 message Comment {
   uint64 id = 1;
   string creator = 2; 
@@ -112,7 +112,7 @@ In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
 * Add `id`
 * Define the `id` for `message MsgCreateCommentResponse`:
 
-```proto
+```protobuf
 message MsgCreateComment {
   string creator = 1;
   uint64 postID = 2;
@@ -128,13 +128,13 @@ message MsgCreateCommentResponse {
 
  You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
-```proto
+```protobuf
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
 
 Now, add the `id` field to `MsgCreatePost`: 
 
-```proto
+```protobuf
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -239,7 +239,7 @@ Each file save triggers an automatic rebuild.  Now, after you build and start yo
 
 Also, make a small modification in `proto/blog/post.proto` to add `createdAt`:
 
-```proto
+```protobuf
 // ...
 
 message Post {
@@ -333,7 +333,7 @@ In the `proto/blog/tx.proto` file, edit `MsgDeleteComment` to:
 * Add `id`
 * Define the `id` for `message MsgDeleteCommentResponse`:
 
-```proto
+```protobuf
 message MsgDeleteComment {
   string creator = 1;
   uint64 commentID = 2;
@@ -401,7 +401,7 @@ ignite scaffold query comments id:uint --response title,body
 
 Also in `proto/blog/query.proto`, make these updates:
 
-```proto
+```protobuf
 import "blog/post.proto";
 
 message QueryCommentsRequest {

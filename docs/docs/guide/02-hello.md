@@ -154,7 +154,7 @@ git commit -am "Scaffolded a hello query with Ignite CLI"
 
 In the `proto/hello/query.proto` file, the `Hello` rpc has been added to the `Query` service.
 
-```proto
+```protobuf
 service Query {
 	rpc Hello(QueryHelloRequest) returns (QueryHelloResponse) {
 		option (google.api.http).get = "/hello/hello/hello";
@@ -173,7 +173,7 @@ Here's how the `Hello` rpc for the `Query` service works:
 
 Now, take a look at the following request and response types:
 
-```proto
+```protobuf
 message QueryHelloRequest {
 }
 
