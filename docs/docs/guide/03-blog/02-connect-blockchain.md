@@ -41,21 +41,21 @@ Your blockchain client has only two dependencies:
 - The `blog` blockchain `types` for message types and a query client
 - `ignite` for the `cosmosclient` blockchain client
 
-```go
+```go-module
 module blogclient
 
 go 1.18
 
 require (
 	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.22.2
+	github.com/ignite/cli v0.23.0
 )
 
 replace blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
-The `replace` directive uses the package from the local `blog` directory and is specified as a relative path.
+The `replace` directive uses the package from the local `blog` directory and is specified as a relative path to the `blogclient` directory.
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct dependency.
 
@@ -164,7 +164,7 @@ go run main.go
 
 If successful, the results of running the command are printed to the terminal:
 
-```bash
+```
 # github.com/keybase/go-keychain
 ### Some warnings might be displayed which can be ignored
 MsgCreatePost:
@@ -187,7 +187,7 @@ Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"ba
 You can confirm the new post with using the `blogd query blog posts` command that you learned about in the previous chapter.
 The result looks similar to:
 
-```bash
+```yaml
 Post:
 - body: bar
   creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n

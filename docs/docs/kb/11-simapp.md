@@ -26,15 +26,15 @@ For better randomizations, you can define a random seed. The simulation with the
 
 To create a new chain:
 
-```shell
-ignite scaffold chain github.com/username/mars
+```bash
+ignite scaffold chain mars
 ```
 
 Review the empty `x/mars/simulation` folder and the `x/mars/module_simulation.go` file to see that a simulation is not registered. 
 
 Now, scaffold a new message:
 
-```shell
+```bash
 ignite scaffold list user address balance:uint state
 ```
 
@@ -46,13 +46,13 @@ For this example, change the `defaultWeightMsgDeleteUser` to 30 and the `default
 
 Run the `BenchmarkSimulation` method into `app/simulation_test.go` to run simulation tests for all modules:
 
-```shell
+```bash
 ignite chain simulate
 ```
 
 You can also define flags that are provided by the simulation. Flags are defined by the method `simapp.GetSimulatorFlags()`:
 
-```shell
+```bash
 ignite chain simulate -v --numBlocks 200 --blockSize 50 --seed 33
 ```
 
@@ -60,7 +60,7 @@ Wait for the entire simulation to finish and check the result of the messages.
 
 The default `go test` command works to run the simulation:
 
-```shell
+```bash
 go test -v -benchmem -run=^$ -bench ^BenchmarkSimulation -cpuprofile cpu.out ./app -Commit=true
 ```
 
@@ -72,7 +72,7 @@ Use logic to avoid sending a message without returning an error. Return only `si
 
 Scaffolding a module with params automatically adds the module in the `module_simulaton.go` file:
 
-```shell
+```bash
 ignite s module earth --params channel:string,minLaunch:uint,maxLaunch:int
 ```
 

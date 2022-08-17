@@ -89,7 +89,7 @@ where:
 
 The `ignite scaffold message buy-name name bid` command creates and modifies several files:
 
-```bash
+```
 modify proto/nameservice/tx.proto
 modify x/nameservice/client/cli/tx.go
 create x/nameservice/client/cli/tx_buy_name.go
@@ -110,11 +110,11 @@ These are the changes for each one of these files:
     ```go
     syntax = "proto3";
 
-    package username.nameservice.nameservice;
+    package nameservice.nameservice;
 
     // this line is used by starport scaffolding # proto/tx/import
 
-    option go_package = "github.com/username/nameservice/x/nameservice/types";
+    option go_package = "nameservice/x/nameservice/types";
 
     // Msg defines the Msg service.
     service Msg {

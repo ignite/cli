@@ -235,6 +235,9 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.context = c.newContext()
 	c.Factory = newFactory(c.context)
 
+	// set address prefix in SDK global config
+	c.SetConfigAddressPrefix()
+
 	return c, nil
 }
 
@@ -310,11 +313,26 @@ func (c Client) Address(accountName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return account.Info.GetAddress().String(), nil
+	sdkaddr, err := account.Record.GetAddress()
+	if err != nil {
+		return "", err
+	}
+	return sdkaddr.String(), nil
 }
 
+// Context returns client context
 func (c Client) Context() client.Context {
 	return c.context
+}
+
+// SetConfigAddressPrefix sets the account prefix in the SDK global config
+func (c Client) SetConfigAddressPrefix() {
+	// TODO find a better way if possible.
+	// https://github.com/ignite/cli/issues/2744
+	mconf.Lock()
+	defer mconf.Unlock()
+	config := sdktypes.GetConfig()
+	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
 }
 
 // Response of your broadcasted transaction.
@@ -326,7 +344,7 @@ type Response struct {
 }
 
 // Decode decodes the proto func response defined in your Msg service into your message type.
-// message needs be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
+// message needs to be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
 //
 // e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
@@ -348,13 +366,22 @@ func (r Response) Decode(message proto.Message) error {
 		return err
 	}
 
-	resData := txMsgData.Data[0]
+	// check deprecated Data
+	if len(txMsgData.Data) != 0 {
+		resData := txMsgData.Data[0]
+		return prototypes.UnmarshalAny(&prototypes.Any{
+			// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
+			// https://github.com/ignite/cli/issues/2098
+			// https://github.com/cosmos/cosmos-sdk/issues/10496
+			TypeUrl: resData.MsgType + "Response",
+			Value:   resData.Data,
+		}, message)
+	}
 
+	resData := txMsgData.MsgResponses[0]
 	return prototypes.UnmarshalAny(&prototypes.Any{
-		// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
-		// https://github.com/cosmos/cosmos-sdk/issues/10496
-		TypeUrl: resData.MsgType + "Response",
-		Value:   resData.Data,
+		TypeUrl: resData.TypeUrl,
+		Value:   resData.Value,
 	}, message)
 }
 
@@ -370,7 +397,6 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	mconf.Lock()
 	config := sdktypes.GetConfig()
 	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
-
 	return mconf.Unlock
 }
 
@@ -386,9 +412,14 @@ func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg)
 func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
+	sdkaddr, err := account.Record.GetAddress()
+	if err != nil {
+		return TxService{}, err
+	}
+
 	ctx := c.context.
 		WithFromName(account.Name).
-		WithFromAddress(account.Info.GetAddress())
+		WithFromAddress(sdkaddr)
 
 	txf, err := prepareFactory(ctx, c.Factory)
 	if err != nil {

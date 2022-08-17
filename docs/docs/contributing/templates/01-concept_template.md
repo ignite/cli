@@ -94,7 +94,7 @@ This is `inline code`. Use it for referencing package names and commands.
 
 Here's a command someone types on a command line:
 
-```command
+```bash
 which go
 ```
 
