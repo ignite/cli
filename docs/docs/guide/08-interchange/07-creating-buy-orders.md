@@ -11,7 +11,7 @@ In this chapter, you implement the creation of buy orders. The logic is very sim
 
 Add the buyer to the proto file definition:
 
-```proto
+```protobuf
 // proto/dex/packet.proto
 
 message BuyOrderPacketData {
