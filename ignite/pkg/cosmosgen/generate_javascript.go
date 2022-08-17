@@ -71,6 +71,13 @@ func (g *jsGenerator) generateModules() error {
 
 	defer cleanupPlugin()
 
+	staCmd, cleanupSTA, err := sta.Command()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupSTA()
+
 	gg := &errgroup.Group{}
 
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
@@ -89,7 +96,7 @@ func (g *jsGenerator) generateModules() error {
 					return nil
 				}
 
-				err = g.generateModule(g.g.ctx, protocCmd, tsprotoPluginPath, sourcePath, m)
+				err = g.generateModule(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)
 				if err != nil {
 					return err
 				}
@@ -113,7 +120,8 @@ func (g *jsGenerator) generateModules() error {
 // generateModule generates generates JS code for a module.
 func (g *jsGenerator) generateModule(
 	ctx context.Context,
-	cmd protoc.Cmd,
+	protocCmd protoc.Cmd,
+	staCmd sta.Cmd,
 	tsprotoPluginPath, appPath string,
 	m module.Module,
 ) error {
@@ -141,7 +149,7 @@ func (g *jsGenerator) generateModule(
 		tsOut,
 		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
 		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
-		protoc.WithCommand(cmd),
+		protoc.WithCommand(protocCmd),
 	)
 	if err != nil {
 		return err
@@ -160,7 +168,7 @@ func (g *jsGenerator) generateModule(
 		m.Pkg.Path,
 		includePaths,
 		jsOpenAPIOut,
-		protoc.WithCommand(cmd),
+		protoc.WithCommand(protocCmd),
 	)
 	if err != nil {
 		return err
@@ -172,7 +180,8 @@ func (g *jsGenerator) generateModule(
 		outREST = filepath.Join(out, "rest.ts")
 	)
 
-	if err := sta.Generate(g.g.ctx, outREST, srcspec, "-1"); err != nil { // -1 removes the route namespace.
+	err = sta.Generate(g.g.ctx, outREST, srcspec, sta.WithCommand(staCmd))
+	if err != nil {
 		return err
 	}
 
