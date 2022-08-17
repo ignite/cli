@@ -48,14 +48,14 @@ go 1.18
 
 require (
 	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.22.2
+	github.com/ignite/cli v0.23.0
 )
 
 replace blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
-The `replace` directive uses the package from the local `blog` directory and is specified as a relative path.
+The `replace` directive uses the package from the local `blog` directory and is specified as a relative path to the `blogclient` directory.
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct dependency.
 

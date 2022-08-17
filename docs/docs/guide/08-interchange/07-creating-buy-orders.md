@@ -36,6 +36,8 @@ ignite generate proto-go --yes
 ```go
 // x/dex/keeper/msg_server_buy_order.go
 
+package keeper
+
 import (
 	"context"
 	"errors"

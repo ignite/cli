@@ -109,14 +109,14 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 		// Recv packet dispatch
 		templateRecv := `case *types.%[2]vPacketData_%[3]vPacket:
-	packetAck, err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+	packetAck, err := im.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
-		ack = channeltypes.NewErrorAcknowledgement(err.Error())
+		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
 		// Encode packet acknowledgment
 		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
 		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error()).Error())
+			return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error()))
 		}
 		ack = channeltypes.NewResultAcknowledgement(sdk.MustSortJSON(packetAckBytes))
 	}
@@ -138,7 +138,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 		// Ack packet dispatch
 		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
+	err := im.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 		// Timeout packet dispatch
 		templateTimeout := `case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+	err := im.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		return err
 	}
