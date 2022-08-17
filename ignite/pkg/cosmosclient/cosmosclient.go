@@ -448,7 +448,7 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 		txf = txf.WithGasPrices(c.gasPrices)
 	}
 
-	txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
+	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
 		return TxService{}, err
 	}
