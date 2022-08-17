@@ -1,5 +1,4 @@
 //go:build !relayer
-// +build !relayer
 
 package map_test
 

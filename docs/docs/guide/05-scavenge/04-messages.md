@@ -134,6 +134,7 @@ create x/scavenge/simulation/commit_solution.go
 modify x/scavenge/types/codec.go
 create x/scavenge/types/message_commit_solution.go
 create x/scavenge/types/message_commit_solution_test.go
+
 🎉 Created a message `commit-solution`.
 ```
 
@@ -159,4 +160,3 @@ Now is a good time to store your project in a git commit:
 git add .
 git commit -m "add scavenge messages"
 ```
-

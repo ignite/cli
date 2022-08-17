@@ -243,9 +243,11 @@ type Response struct {
 // e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
 // ```proto
-// service Msg {
-//   rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
-// }
+//
+//	service Msg {
+//	  rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
+//	}
+//
 // ```
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
@@ -340,7 +342,8 @@ func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response,
 var mconf sync.Mutex
 
 func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (
-	gas uint64, broadcast func() (Response, error), err error) {
+	gas uint64, broadcast func() (Response, error), err error,
+) {
 	if err := c.prepareBroadcast(context.Background(), accountName, msgs); err != nil {
 		return 0, nil, err
 	}

@@ -37,7 +37,8 @@ type Chain struct {
 
 	keyringBackend chaincmd.KeyringBackend
 
-	isInitialized bool
+	isInitialized     bool
+	checkDependencies bool
 
 	ref plumbing.ReferenceName
 
@@ -125,6 +126,15 @@ func CollectEvents(ev events.Bus) Option {
 	}
 }
 
+// CheckDependencies checks that cached Go dependencies of the chain have
+// not been modified since they were downloaded. Dependencies are checked
+// by running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.checkDependencies = true
+	}
+}
+
 // New initializes a network blockchain from source and options.
 func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, options ...Option) (*Chain, error) {
 	c := &Chain{
@@ -149,6 +159,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		chain.ID(c.id),
 		chain.HomePath(c.home),
 		chain.LogLevel(chain.LogSilent),
+	}
+
+	if c.checkDependencies {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -276,7 +290,7 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 	c.ev.Send(events.New(events.StatusOngoing, "Building the chain's binary"))
 
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, cacheStorage, ""); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
 		return "", err
 	}
 
@@ -299,7 +313,6 @@ func (c *Chain) CacheBinary(launchID uint64) error {
 		return err
 	}
 	binaryChecksum, err := checksum.Binary(binaryName)
-
 	if err != nil {
 		return err
 	}
@@ -320,7 +333,7 @@ func fetchSource(
 	}
 
 	// ensure the path for chain source exists
-	if err := os.MkdirAll(path, 0755); err != nil {
+	if err := os.MkdirAll(path, 0o755); err != nil {
 		return "", "", err
 	}
 

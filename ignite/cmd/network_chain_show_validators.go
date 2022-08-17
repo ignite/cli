@@ -9,9 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network"
 )
 
-var (
-	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
-)
+var chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
 
 func newNetworkChainShowValidators() *cobra.Command {
 	c := &cobra.Command{

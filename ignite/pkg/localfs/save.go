@@ -1,10 +1,9 @@
 package localfs
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
-
-	"io/fs"
 )
 
 // SaveTemp saves file system f to a temporary path in the local file system
@@ -64,7 +63,7 @@ func Save(f fs.FS, path string) error {
 		out := filepath.Join(path, wpath)
 
 		if d.IsDir() {
-			return os.MkdirAll(out, 0744)
+			return os.MkdirAll(out, 0o744)
 		}
 
 		content, err := fs.ReadFile(f, wpath)
@@ -72,6 +71,6 @@ func Save(f fs.FS, path string) error {
 			return err
 		}
 
-		return os.WriteFile(out, content, 0644)
+		return os.WriteFile(out, content, 0o644)
 	})
 }
