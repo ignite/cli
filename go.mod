@@ -12,7 +12,6 @@ require (
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v3 v3.2.0
 	github.com/cosmos/ibc-go/v5 v5.0.0-beta1
 	github.com/docker/docker v20.10.17+incompatible
 	github.com/emicklei/proto v1.9.0
