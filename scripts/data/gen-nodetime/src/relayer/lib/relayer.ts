@@ -10,26 +10,12 @@ import {orderFromJSON} from "@confio/relayer/build/codec/ibc/core/channel/v1/cha
 // local imports.
 import ConsoleLogger from './logger';
 
-const calcGasLimits = (limit: number) => ({
-    initClient: 150000,
-    updateClient: 600000,
-    initConnection: 150000,
-    connectionHandshake: limit,
-    initChannel: 150000,
-    channelHandshake: limit,
-    receivePacket: limit,
-    ackPacket: limit,
-    timeoutPacket: limit,
-    transfer: 180000
-});
-
 type Chain = {
     id: string;
     account: string,
     address_prefix: string;
     rpc_address: string;
     gas_price: string;
-    gas_limit: number;
     client_id: string;
 };
 
@@ -132,8 +118,7 @@ export default class Relayer {
             account.address,
             {
                 prefix: chain.address_prefix,
-                gasPrice: chainGP,
-                gasLimits: calcGasLimits(chain.gas_limit)
+                gasPrice: chainGP
             }
         );
     }
