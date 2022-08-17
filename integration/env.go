@@ -259,7 +259,7 @@ func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 			return err
 		}
 
-		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/node_info", addr))
+		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/cosmos/base/tendermint/v1beta1/node_info", addr))
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}
