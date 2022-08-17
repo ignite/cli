@@ -120,7 +120,7 @@ First, add the proto buffer files to build the Go code files. You can modify the
 
 Create a new `order.proto` file in the `proto/dex` directory and add the content:
 
-```proto
+```protobuf
 // proto/dex/order.proto
 
 syntax = "proto3";
@@ -147,7 +147,7 @@ Don't forget to add the import as well.
 
 **Tip:** Don't forget to add the import as well.
 
-```proto
+```protobuf
 // proto/dex/buy_order_book.proto
 
 // ...
@@ -163,7 +163,7 @@ Modify the `sell_order_book.proto` file to add the order book into the buy order
 
 The proto definition for the `SellOrderBook` looks like:
 
-```proto
+```protobuf
 // proto/dex/sell_order_book.proto
 
 // ...

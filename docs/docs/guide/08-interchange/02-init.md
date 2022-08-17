@@ -83,7 +83,7 @@ Cancelling orders is done locally in the network, there is no packet to send.
 
 Use the `message` command to create a message to cancel a sell or buy order:
 
-```go
+```bash
 ignite scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module dex
 ignite scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module dex
 ```
@@ -101,7 +101,7 @@ The token denoms must have the same behavior as described in the `ibc-transfer` 
 
 For a `voucher` you store, define the source port ID, source channel ID, and the original denom:
 
-```go
+```bash
 ignite scaffold map denom-trace port channel origin --no-message --module dex
 ```
 

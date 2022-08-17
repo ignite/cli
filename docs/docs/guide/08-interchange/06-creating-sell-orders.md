@@ -9,7 +9,7 @@ In this chapter, you implement the logic for creating sell orders.
 
 The packet proto file for a sell order is already generated. Add the seller information:
 
-```proto
+```protobuf
 // proto/dex/packet.proto
 
 message SellOrderPacketData {

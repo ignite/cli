@@ -17,7 +17,7 @@ The `ignite chain serve` command automatically generates Go code from proto file
 
 Third-party proto files, including those of Cosmos SDK and Tendermint, are bundled with Ignite CLI. To import third-party proto files in your custom proto files:
 
-```proto
+```protobuf
 import "cosmos/base/query/v1beta1/pagination.proto";
 ```
 

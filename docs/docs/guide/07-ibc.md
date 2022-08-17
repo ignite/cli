@@ -52,7 +52,7 @@ Use Ignite CLI to scaffold the blockchain app and the blog module.
 
 To scaffold a new blockchain named `planet`:
 
-```go
+```bash
 ignite scaffold chain planet --no-module
 cd planet
 ```
@@ -65,7 +65,7 @@ Next, use Ignite CLI to scaffold a blog module with IBC capabilities. The blog m
 
 To scaffold a module named `blog`:
 
-```go
+```bash
 ignite scaffold module blog --ibc
 ```
 
@@ -81,19 +81,19 @@ These `ignite scaffold list` commands create CRUD code for the following transac
 
 - Creating blog posts
 
-  ```go
+  ```bash
   ignite scaffold list post title content creator --no-message --module blog
   ```
 
 - Processing acknowledgments for sent posts
 
-  ```go
+  ```bash
   ignite scaffold list sentPost postID title chain creator --no-message --module blog
   ```
 
 - Managing post timeouts
 
-  ```go
+  ```bash
   ignite scaffold list timedoutPost title chain creator --no-message --module blog
   ```
 
@@ -101,7 +101,7 @@ The scaffolded code includes proto files for defining data structures, messages,
 
 ### Ignite CLI Scaffold List Command Overview
 
-```go
+```
 ignite scaffold list [typeName] [field1] [field2] ... [flags]
 ```
 
@@ -125,7 +125,7 @@ The `ignite packet` command creates the logic for an IBC packet that can be sent
 
 To scaffold a sendable and interpretable IBC packet:
 
-```go
+```bash
 ignite scaffold packet ibcPost title content --ack postID --module blog
 ```
 
@@ -137,7 +137,7 @@ Notice the fields in the `ibcPost` packet match the fields in the `post` type th
 
 The `ignite packet` command also scaffolds the CLI command that is capable of sending an IBC packet:
 
-```go
+```bash
 planetd tx blog send-ibcPost [portID] [channelID] [title] [content]
 ```
 
@@ -151,7 +151,7 @@ Start with the proto file that defines the structure of the IBC packet.
 
 To identify the creator of the post in the receiving blockchain, add the `creator` field inside the packet. This field was not specified directly in the command because it would automatically become a parameter in the `SendIbcPost` CLI command.
 
-```proto
+```protobuf
 // proto/blog/packet.proto
 message IbcPostPacketData {
     string title = 1;
@@ -219,6 +219,8 @@ import (
   //...
 
   "strconv"
+
+  //...
 )
 ```
 
@@ -418,7 +420,7 @@ When prompted, press Enter to accept the default values for `Source Account` and
 
 The output looks like:
 
-```bash
+```
 ---------------------------------------------
 Setting up chains
 ---------------------------------------------
@@ -444,7 +446,7 @@ ignite relayer connect
 
 Results:
 
-```bash
+```
 ------
 Paths
 ------
@@ -474,7 +476,7 @@ planetd q blog list-post --node tcp://localhost:26659
 
 The packet has been received:
 
-```bash
+```yaml
 Post:
 - content: Hello Mars, I'm Alice from Earth
   creator: blog-channel-0-cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
@@ -493,7 +495,7 @@ planetd q blog list-sent-post
 
 Output:
 
-```bash
+```yaml
 SentPost:
 - chain: blog-channel-0
   creator: cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
@@ -519,7 +521,7 @@ planetd q blog list-timedout-post
 
 Results:
 
-```bash
+```yaml
 TimedoutPost:
 - chain: blog-channel-0
   creator: cosmos1fhpcsxn0g8uask73xpcgwxlfxtuunn3ey5ptjv
@@ -544,7 +546,7 @@ planetd q blog list-post
 
 Results:
 
-```bash
+```yaml
 Post:
 - content: Hello Earth, I'm Alice from Mars
   creator: blog-channel-0-cosmos1xtpx43l826348s59au24p22pxg6q248638q2tf
