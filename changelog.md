@@ -1,15 +1,42 @@
 # Changelog
 
-## Unreleased
+## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Changes
 
+- Refactor `templates/app` to remove monitoringp module from template
+- Update keyring dependencies to match w/ Cosmos SDK
+- Speed up the integration tests
+- Refactor ignite network and fix genesis generation bug
+- Implement `network profile` command
+- Make Go dependency validation optional during build by adding the `--check-dependencies` flag
+- Temporary SPN address change for nightly
+- Rename rename generated `simapp.go.plush` simulation file to `helpers.go.plush`
+- Remove campaign creation from the `network chain publish` command
 - Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
+- Optimized JavaScript generator to use a single typescript API generator binary
+- Improve documentation and add support for protocol buffers and Go modules syntax
+- Add inline documentation for `scaffold` and `scaffold module` CLI commands
+- Change `cmd/account` to skip passphrase prompt when importing from mnemonic
+- Remove usage of deprecated `io/ioutil` package
+- Add nodejs version in the output of ignite version
 
 ### Features
 
+- Change chain init to check that no gentx are present in the initial genesis
+- Add `network rewards release` command
+- Add "make mocks" target to Makefile
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 
+### Fixes
+
+- Change templates to add missing call to RegisterMsgServer
+- Fix cosmoscmd appID parameter value to sign a transaction correctly
+- Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
+- Fix flaky integration tests issue that failed with "text file busy"
+- Fix default chain ID for publish
+- Replace os.Rename with xos.Rename
+- Fix CLI reference generation to add `ignite completion` documentation
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
@@ -39,7 +66,6 @@
 ### Changes
 
 - Rename `ignite-hq` to `ignite`
-
 
 ## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
 
