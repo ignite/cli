@@ -54,20 +54,20 @@ than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 
 build:
-	main: custom/path/to/main
+  main: custom/path/to/main
 
 By default the binary name will match the top-level module name (specified in
 go.mod) with a suffix "d". This can be customized in config.yml:
 
 build:
-	binary: mychaind
+  binary: mychaind
 
 You can also specify custom linker flags:
 
 build:
-	ldflags:
-		- "-X main.Version=development"
-		- "-X main.Date=01/05/2022T19:54"
+  ldflags:
+    - "-X main.Version=development"
+    - "-X main.Date=01/05/2022T19:54"
 
 To build binaries for a release, use the --release flag. The binaries for one or
 more specified release targets are built in a "release/" directory in the
