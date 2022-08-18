@@ -1,15 +1,16 @@
-package v0
+package testdata
 
 import (
 	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
-var v = "bob"
+var faucetName = "bob"
 
-func GetInitialV0Config() *Config {
-	return &Config{
-		Validator: Validator{
+func GetInitialV0Config() *v0.Config {
+	return &v0.Config{
+		Validator: v0.Validator{
 			Name:   "alice",
 			Staked: "100000000stake",
 		},
@@ -39,7 +40,7 @@ func GetInitialV0Config() *Config {
 				},
 			},
 			Faucet: common.Faucet{
-				Name:     &v,
+				Name:     &faucetName,
 				Host:     "0.0.0.0:4500",
 				Coins:    []string{"20000token", "200000000stake"},
 				CoinsMax: []string{"10000token", "100000000stake"},
@@ -78,12 +79,16 @@ func GetConvertedLatestConfig() *v1.Config {
 				Name:   "alice",
 				Bonded: "100000000stake",
 				Client: map[string]interface{}{"test-client": "test-client"},
-				App: map[string]interface{}{"grpc": map[string]interface{}{"address": "localhost:53831"},
-					"grpc-web": map[string]interface{}{"address": "localhost:46531"}, "api": map[string]interface{}{"address": "localhost:51028"},
+				App: map[string]interface{}{
+					"grpc":     map[string]interface{}{"address": "localhost:53831"},
+					"grpc-web": map[string]interface{}{"address": "localhost:46531"},
+					"api":      map[string]interface{}{"address": "localhost:51028"},
 					"test-app": "test-app",
 				},
-				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "localhost:53803"},
-					"p2p": map[string]interface{}{"laddr": "localhost:50198"}, "pprof_laddr": "localhost:53030",
+				Config: map[string]interface{}{
+					"rpc":         map[string]interface{}{"laddr": "localhost:53803"},
+					"p2p":         map[string]interface{}{"laddr": "localhost:50198"},
+					"pprof_laddr": "localhost:53030",
 					"test-config": "test-config",
 				},
 			},
@@ -100,7 +105,7 @@ func GetConvertedLatestConfig() *v1.Config {
 				},
 			},
 			Faucet: common.Faucet{
-				Name:     &v,
+				Name:     &faucetName,
 				Host:     "0.0.0.0:4500",
 				Coins:    []string{"20000token", "200000000stake"},
 				CoinsMax: []string{"10000token", "100000000stake"},

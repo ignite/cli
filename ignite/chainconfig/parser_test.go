@@ -1,4 +1,4 @@
-package chainconfig
+package chainconfig_test
 
 import (
 	"fmt"
@@ -7,10 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
 func TestParse(t *testing.T) {
@@ -25,7 +27,7 @@ validator:
   staked: "100000000stake"
 `
 
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 
 	require.NoError(t, err)
 	require.Equal(t, []common.Account{
@@ -40,14 +42,21 @@ validator:
 	}, conf.ListAccounts())
 
 	require.Equal(t, []v1.Validator{
-		v1.Validator{
+		{
 			Name:   "user1",
 			Bonded: "100000000stake",
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
-				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-		}}, conf.Validators)
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": "0.0.0.0:9090"},
+				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"},
+				"api":      map[string]interface{}{"address": "0.0.0.0:1317"},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": "0.0.0.0:26657"},
+				"p2p":         map[string]interface{}{"laddr": "0.0.0.0:26656"},
+				"pprof_laddr": "0.0.0.0:6060",
+			},
+		},
+	}, conf.Validators)
 }
 
 func TestCoinTypeParse(t *testing.T) {
@@ -65,7 +74,7 @@ validator:
   staked: "100000000stake"
 `
 
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 
 	require.NoError(t, err)
 	require.Equal(t, []common.Account{
@@ -82,14 +91,21 @@ validator:
 		},
 	}, conf.ListAccounts())
 	require.Equal(t, []v1.Validator{
-		v1.Validator{
+		{
 			Name:   "user1",
 			Bonded: "100000000stake",
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
-				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-		}}, conf.Validators)
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": "0.0.0.0:9090"},
+				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"},
+				"api":      map[string]interface{}{"address": "0.0.0.0:1317"},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": "0.0.0.0:26657"},
+				"p2p":         map[string]interface{}{"laddr": "0.0.0.0:26656"},
+				"pprof_laddr": "0.0.0.0:6060",
+			},
+		},
+	}, conf.Validators)
 }
 
 func TestParseInvalid(t *testing.T) {
@@ -101,8 +117,8 @@ accounts:
     coins: ["5000token"]
 `
 
-	_, err := Parse(strings.NewReader(confyml))
-	require.Equal(t, &ValidationError{"validator is required"}, err)
+	_, err := chainconfig.Parse(strings.NewReader(confyml))
+	require.Equal(t, &chainconfig.ValidationError{"validator is required"}, err)
 }
 
 func TestFaucetHost(t *testing.T) {
@@ -118,9 +134,9 @@ validator:
 faucet:
   host: "0.0.0.0:4600"
 `
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, "0.0.0.0:4600", FaucetHost(conf))
+	require.Equal(t, "0.0.0.0:4600", chainconfig.FaucetHost(conf))
 
 	confyml = `
 accounts:
@@ -134,9 +150,9 @@ validator:
 faucet:
   port: 4700
 `
-	conf, err = Parse(strings.NewReader(confyml))
+	conf, err = chainconfig.Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, ":4700", FaucetHost(conf))
+	require.Equal(t, ":4700", chainconfig.FaucetHost(conf))
 
 	// Port must be higher priority
 	confyml = `
@@ -152,9 +168,9 @@ faucet:
   host: "0.0.0.0:4600"
   port: 4700
 `
-	conf, err = Parse(strings.NewReader(confyml))
+	conf, err = chainconfig.Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, ":4700", FaucetHost(conf))
+	require.Equal(t, ":4700", chainconfig.FaucetHost(conf))
 }
 
 func TestParseWithMigration(t *testing.T) {
@@ -199,7 +215,7 @@ genesis:
       params:
         evm_denom: "aevmos"
 `
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
 	require.Equal(t, common.Version(1), conf.Version())
 	require.Equal(t, []common.Account{
@@ -217,38 +233,73 @@ genesis:
 	// The default value of Host has been filled in for Faucet.
 	require.Equal(t, "0.0.0.0:4500", conf.Faucet.Host)
 	// The default values have been filled in for Build.
-	require.Equal(t, common.Build{Binary: "evmosd",
+	require.Equal(t, common.Build{
+		Binary: "evmosd",
 		Proto: common.Proto{
 			Path: "proto",
 			ThirdPartyPaths: []string{
 				"third_party/proto",
 				"proto_vendor",
 			},
-		}}, conf.Build)
+		},
+	}, conf.Build)
 
 	// The validator is filled with the default values for grpc, grpc-web, api, rpc, p2p and pprof_laddr.
 	// The init.app and init.home are moved under the validator as well.
 	require.Equal(t, []v1.Validator{
-		v1.Validator{
+		{
 			Name:   "alice",
 			Bonded: "100000000000000000000aevmos",
 			Home:   "$HOME/.evmosd",
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": "0.0.0.0:9090"},
 				"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"},
 				"api":      map[string]interface{}{"address": "0.0.0.0:1317"},
-				"evm-rpc":  map[interface{}]interface{}{"address": "0.0.0.0:8545", "ws-address": "0.0.0.0:8546"}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-				"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
-		}}, conf.Validators)
+				"evm-rpc": map[interface{}]interface{}{
+					"address":    "0.0.0.0:8545",
+					"ws-address": "0.0.0.0:8546",
+				},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": "0.0.0.0:26657"},
+				"p2p":         map[string]interface{}{"laddr": "0.0.0.0:26656"},
+				"pprof_laddr": "0.0.0.0:6060",
+			},
+		},
+	}, conf.Validators)
 
-	require.Equal(t, map[string]interface{}{"app_state": map[interface{}]interface{}{"crisis": map[interface{}]interface{}{"constant_fee": map[interface{}]interface{}{"denom": "aevmos"}},
-		"evm":     map[interface{}]interface{}{"params": map[interface{}]interface{}{"evm_denom": "aevmos"}},
-		"gov":     map[interface{}]interface{}{"deposit_params": map[interface{}]interface{}{"min_deposit": []interface{}{map[interface{}]interface{}{"amount": "10000000", "denom": "aevmos"}}}},
-		"mint":    map[interface{}]interface{}{"params": map[interface{}]interface{}{"mint_denom": "aevmos"}},
-		"staking": map[interface{}]interface{}{"params": map[interface{}]interface{}{"bond_denom": "aevmos"}}},
-		"chain_id": "evmosd_9000-1"},
+	require.Equal(t, map[string]interface{}{
+		"app_state": map[interface{}]interface{}{
+			"crisis": map[interface{}]interface{}{
+				"constant_fee": map[interface{}]interface{}{"denom": "aevmos"},
+			},
+			"evm": map[interface{}]interface{}{
+				"params": map[interface{}]interface{}{"evm_denom": "aevmos"},
+			},
+			"gov": map[interface{}]interface{}{
+				"deposit_params": map[interface{}]interface{}{
+					"min_deposit": []interface{}{
+						map[interface{}]interface{}{
+							"amount": "10000000",
+							"denom":  "aevmos",
+						},
+					},
+				},
+			},
+			"mint": map[interface{}]interface{}{
+				"params": map[interface{}]interface{}{
+					"mint_denom": "aevmos",
+				},
+			},
+			"staking": map[interface{}]interface{}{
+				"params": map[interface{}]interface{}{
+					"bond_denom": "aevmos",
+				},
+			},
+		},
+		"chain_id": "evmosd_9000-1",
+	},
 		conf.Genesis)
-
 }
 
 func TestParseWithVersion(t *testing.T) {
@@ -305,13 +356,13 @@ validators:
   - name: user1
     bonded: "100000000stake"
 `,
-		ExpectedError:   &UnsupportedVersionError{Message: "the version is not available in the supported list"},
+		ExpectedError:   &chainconfig.UnsupportedVersionError{Message: "the version is not available in the supported list"},
 		ExpectedVersion: 0,
 	}}
 
 	for _, test := range tests {
 		t.Run(test.TestName, func(t *testing.T) {
-			conf, err := Parse(strings.NewReader(test.Input))
+			conf, err := chainconfig.Parse(strings.NewReader(test.Input))
 			if conf != nil {
 				require.Equal(t, test.ExpectedVersion, conf.Version())
 			}
@@ -344,22 +395,30 @@ validators:
 		ExpectedFirstValidator: v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
 				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort)},
-				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
+				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
 				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort)},
-				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort)},
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort),
+			},
 		},
 		ExpectedSecondValidator: v1.Validator{
 			Name:   "user2",
 			Bonded: "100000000stake",
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort+v1.DefaultPortMargin)},
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort+v1.DefaultPortMargin)},
 				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort+v1.DefaultPortMargin)},
-				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort+v1.DefaultPortMargin)}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort+v1.DefaultPortMargin)},
+				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort+v1.DefaultPortMargin)},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort+v1.DefaultPortMargin)},
 				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort+v1.DefaultPortMargin)},
-				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort+v1.DefaultPortMargin)},
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort+v1.DefaultPortMargin),
+			},
 		},
 	}, {
 		TestName: "Parse the config yaml with all the addresses for the validator",
@@ -405,28 +464,36 @@ validators:
 		ExpectedFirstValidator: v1.Validator{
 			Name:   "user1",
 			Bonded: "100000000stake",
-			App: map[string]interface{}{"grpc": map[interface{}]interface{}{"address": "localhost:8080"},
+			App: map[string]interface{}{
+				"grpc":     map[interface{}]interface{}{"address": "localhost:8080"},
 				"grpc-web": map[interface{}]interface{}{"address": "localhost:80802"},
-				"api":      map[interface{}]interface{}{"address": "localhost:80801"}},
-			Config: map[string]interface{}{"rpc": map[interface{}]interface{}{"laddr": "localhost:80807"},
+				"api":      map[interface{}]interface{}{"address": "localhost:80801"},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[interface{}]interface{}{"laddr": "localhost:80807"},
 				"p2p":         map[interface{}]interface{}{"laddr": "localhost:80804"},
-				"pprof_laddr": "localhost:80809"},
+				"pprof_laddr": "localhost:80809",
+			},
 		},
 		ExpectedSecondValidator: v1.Validator{
 			Name:   "user2",
 			Bonded: "100000000stake",
-			App: map[string]interface{}{"grpc": map[interface{}]interface{}{"address": "localhost:8180"},
+			App: map[string]interface{}{
+				"grpc":     map[interface{}]interface{}{"address": "localhost:8180"},
 				"grpc-web": map[interface{}]interface{}{"address": "localhost:81802"},
-				"api":      map[interface{}]interface{}{"address": "localhost:81801"}},
-			Config: map[string]interface{}{"rpc": map[interface{}]interface{}{"laddr": "localhost:81807"},
+				"api":      map[interface{}]interface{}{"address": "localhost:81801"},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[interface{}]interface{}{"laddr": "localhost:81807"},
 				"p2p":         map[interface{}]interface{}{"laddr": "localhost:81804"},
-				"pprof_laddr": "localhost:81809"},
+				"pprof_laddr": "localhost:81809",
+			},
 		},
 	}}
 
 	for _, test := range tests {
 		t.Run(test.TestName, func(t *testing.T) {
-			conf, err := Parse(strings.NewReader(test.Input))
+			conf, err := chainconfig.Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
 			require.Equal(t, common.Version(1), conf.Version())
 			require.Equal(t, test.ExpectedFirstValidator, conf.Validators[0])
@@ -456,7 +523,7 @@ faucet:
   port: 4700
 `
 
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 	assert.Nil(t, err)
 	require.Equal(t, 1, len(conf.Validators))
 	validator := conf.Validators[0]
@@ -468,16 +535,16 @@ faucet:
 
 func TestIsConfigLatest(t *testing.T) {
 	path := "testdata/configv0.yaml"
-	version, latest, err := IsConfigLatest(path)
+	version, latest, err := chainconfig.IsConfigLatest(path)
 	require.NoError(t, err)
 	require.Equal(t, false, latest)
 	require.Equal(t, common.Version(0), version)
 
 	path = "testdata/configv1.yaml"
-	version, latest, err = IsConfigLatest(path)
+	version, latest, err = chainconfig.IsConfigLatest(path)
 	require.NoError(t, err)
 	require.Equal(t, true, latest)
-	require.Equal(t, LatestVersion, version)
+	require.Equal(t, chainconfig.LatestVersion, version)
 }
 
 func TestMigrateLatest(t *testing.T) {
@@ -492,10 +559,10 @@ func TestMigrateLatest(t *testing.T) {
 	err = MigrateLatest(tempFile)
 	require.NoError(t, err)
 
-	targetFile, err := ParseFile(tempFile)
+	targetFile, err := chainconfig.ParseFile(tempFile)
 	require.NoError(t, err)
 
-	expectedFile, err := ParseFile("testdata/configv1.yaml")
+	expectedFile, err := chainconfig.ParseFile("testdata/configv1.yaml")
 	require.NoError(t, err)
 
 	require.Equal(t, expectedFile, targetFile)
@@ -537,7 +604,7 @@ validators:
       min-self-delegation: MinSelfDelegation-1
 `
 
-	conf, err := Parse(strings.NewReader(confyml))
+	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 	assert.Nil(t, err)
 	require.Equal(t, 1, len(conf.Validators))
 	validator := conf.Validators[0]

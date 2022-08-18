@@ -1,15 +1,17 @@
-package v1
+package v1_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
 func TestValidators(t *testing.T) {
-	conf := Config{
-		Validators: []Validator{
+	conf := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "test-name",
 				Bonded: "101ATOM",
@@ -21,26 +23,33 @@ func TestValidators(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, []Validator{
-		Validator{
+	require.Equal(t, []v1.Validator{
+		{
 			Name:   "test-name",
 			Bonded: "101ATOM",
-		}, Validator{
+		}, {
 			Name:   "test-name-1",
 			Bonded: "102ATOM",
-		}}, conf.Validators)
+		},
+	}, conf.Validators)
 }
 
 func TestGetAddressPort(t *testing.T) {
-	conf := Config{
-		Validators: []Validator{
+	conf := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "test-name-1",
 				Bonded: "102ATOM",
-				App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
-					"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
-				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-					"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
+				App: map[string]interface{}{
+					"grpc":     map[string]interface{}{"address": "0.0.0.0:9090"},
+					"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"},
+					"api":      map[string]interface{}{"address": "0.0.0.0:1317"},
+				},
+				Config: map[string]interface{}{
+					"rpc":         map[string]interface{}{"laddr": "0.0.0.0:26657"},
+					"p2p":         map[string]interface{}{"laddr": "0.0.0.0:26656"},
+					"pprof_laddr": "0.0.0.0:6060",
+				},
 			},
 		},
 	}
@@ -76,8 +85,8 @@ func TestGetAddressPort(t *testing.T) {
 }
 
 func TestClone(t *testing.T) {
-	config := &Config{
-		Validators: []Validator{
+	config := &v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
@@ -87,31 +96,37 @@ func TestClone(t *testing.T) {
 	clone := config.Clone()
 	require.Equal(t, config, clone)
 
-	clone.(*Config).Validators = []Validator{
-		Validator{
+	clone.(*v1.Config).Validators = []v1.Validator{
+		{
 			Name:   "test",
 			Bonded: "stakedvalue",
 		},
 	}
 	require.NotEqual(t, config, clone)
-	require.Equal(t, []Validator{
-		Validator{
+	require.Equal(t, []v1.Validator{
+		{
 			Name:   "test",
 			Bonded: "stakedvalue",
 		},
-	}, clone.(*Config).Validators)
+	}, clone.(*v1.Config).Validators)
 }
 
 func TestChangeValidators(t *testing.T) {
-	conf := Config{
-		Validators: []Validator{
+	conf := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "test-name-1",
 				Bonded: "102ATOM",
-				App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:9090"},
-					"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"}, "api": map[string]interface{}{"address": "0.0.0.0:1317"}},
-				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:26657"},
-					"p2p": map[string]interface{}{"laddr": "0.0.0.0:26656"}, "pprof_laddr": "0.0.0.0:6060"},
+				App: map[string]interface{}{
+					"grpc":     map[string]interface{}{"address": "0.0.0.0:9090"},
+					"grpc-web": map[string]interface{}{"address": "0.0.0.0:9091"},
+					"api":      map[string]interface{}{"address": "0.0.0.0:1317"},
+				},
+				Config: map[string]interface{}{
+					"rpc":         map[string]interface{}{"laddr": "0.0.0.0:26657"},
+					"p2p":         map[string]interface{}{"laddr": "0.0.0.0:26656"},
+					"pprof_laddr": "0.0.0.0:6060",
+				},
 			},
 		},
 	}
@@ -128,20 +143,26 @@ func TestChangeValidators(t *testing.T) {
 func TestFillValidatorsDefaults(t *testing.T) {
 	tests := []struct {
 		TestName         string
-		InputConf        Config
-		DefaultValidator Validator
-		ExpectedConf     Config
+		InputConf        v1.Config
+		DefaultValidator v1.Validator
+		ExpectedConf     v1.Config
 	}{{
 		TestName: "Config contains the validator with the ports defined",
-		InputConf: Config{
-			Validators: []Validator{
+		InputConf: v1.Config{
+			Validators: []v1.Validator{
 				{
 					Name:   "test-name-1",
 					Bonded: "102ATOM",
-					App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:19090"},
-						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19091"}, "api": map[string]interface{}{"address": "0.0.0.0:2317"}},
-					Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:36657"},
-						"p2p": map[string]interface{}{"laddr": "0.0.0.0:36656"}, "pprof_laddr": "0.0.0.0:7060"},
+					App: map[string]interface{}{
+						"grpc":     map[string]interface{}{"address": "0.0.0.0:19090"},
+						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19091"},
+						"api":      map[string]interface{}{"address": "0.0.0.0:2317"},
+					},
+					Config: map[string]interface{}{
+						"rpc":         map[string]interface{}{"laddr": "0.0.0.0:36657"},
+						"p2p":         map[string]interface{}{"laddr": "0.0.0.0:36656"},
+						"pprof_laddr": "0.0.0.0:7060",
+					},
 				},
 				{
 					Name:   "test-name-2",
@@ -153,46 +174,68 @@ func TestFillValidatorsDefaults(t *testing.T) {
 				},
 			},
 		},
-		DefaultValidator: Validator{
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
-				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
-				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
-				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort)},
-				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort)},
+		DefaultValidator: v1.Validator{
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
+				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort)},
+				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
+				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort)},
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort),
+			},
 		},
-		ExpectedConf: Config{
-			Validators: []Validator{
+		ExpectedConf: v1.Config{
+			Validators: []v1.Validator{
 				{
 					Name:   "test-name-1",
 					Bonded: "102ATOM",
-					App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:19090"},
-						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19091"}, "api": map[string]interface{}{"address": "0.0.0.0:2317"}},
-					Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:36657"},
-						"p2p": map[string]interface{}{"laddr": "0.0.0.0:36656"}, "pprof_laddr": "0.0.0.0:7060"},
+					App: map[string]interface{}{
+						"grpc":     map[string]interface{}{"address": "0.0.0.0:19090"},
+						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19091"},
+						"api":      map[string]interface{}{"address": "0.0.0.0:2317"},
+					},
+					Config: map[string]interface{}{
+						"rpc":         map[string]interface{}{"laddr": "0.0.0.0:36657"},
+						"p2p":         map[string]interface{}{"laddr": "0.0.0.0:36656"},
+						"pprof_laddr": "0.0.0.0:7060",
+					},
 				},
 				{
 					Name:   "test-name-2",
 					Bonded: "103ATOM",
-					App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:19100"},
-						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19101"}, "api": map[string]interface{}{"address": "0.0.0.0:2327"}},
-					Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:36667"},
-						"p2p": map[string]interface{}{"laddr": "0.0.0.0:36666"}, "pprof_laddr": "0.0.0.0:7070"},
+					App: map[string]interface{}{
+						"grpc":     map[string]interface{}{"address": "0.0.0.0:19100"},
+						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19101"},
+						"api":      map[string]interface{}{"address": "0.0.0.0:2327"},
+					},
+					Config: map[string]interface{}{
+						"rpc":         map[string]interface{}{"laddr": "0.0.0.0:36667"},
+						"p2p":         map[string]interface{}{"laddr": "0.0.0.0:36666"},
+						"pprof_laddr": "0.0.0.0:7070",
+					},
 				},
 				{
 					Name:   "test-name-3",
 					Bonded: "104ATOM",
-					App: map[string]interface{}{"grpc": map[string]interface{}{"address": "0.0.0.0:19110"},
-						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19111"}, "api": map[string]interface{}{"address": "0.0.0.0:2337"}},
-					Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": "0.0.0.0:36677"},
-						"p2p": map[string]interface{}{"laddr": "0.0.0.0:36676"}, "pprof_laddr": "0.0.0.0:7080"},
+					App: map[string]interface{}{
+						"grpc":     map[string]interface{}{"address": "0.0.0.0:19110"},
+						"grpc-web": map[string]interface{}{"address": "0.0.0.0:19111"},
+						"api":      map[string]interface{}{"address": "0.0.0.0:2337"},
+					},
+					Config: map[string]interface{}{
+						"rpc":         map[string]interface{}{"laddr": "0.0.0.0:36677"},
+						"p2p":         map[string]interface{}{"laddr": "0.0.0.0:36676"},
+						"pprof_laddr": "0.0.0.0:7080",
+					},
 				},
 			},
 		},
 	}, {
 		TestName: "Config contains the validator with the ports undefined",
-		InputConf: Config{
-			Validators: []Validator{
+		InputConf: v1.Config{
+			Validators: []v1.Validator{
 				{
 					Name:   "test-name-1",
 					Bonded: "102ATOM",
@@ -203,35 +246,47 @@ func TestFillValidatorsDefaults(t *testing.T) {
 				},
 			},
 		},
-		DefaultValidator: Validator{
-			App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
-				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
-				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)}},
-			Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
-				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort)},
-				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort)},
+		DefaultValidator: v1.Validator{
+			App: map[string]interface{}{
+				"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
+				"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort)},
+				"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)},
+			},
+			Config: map[string]interface{}{
+				"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
+				"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort)},
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort),
+			},
 		},
-		ExpectedConf: Config{
-			Validators: []Validator{
+		ExpectedConf: v1.Config{
+			Validators: []v1.Validator{
 				{
 					Name:   "test-name-1",
 					Bonded: "102ATOM",
-					App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
-						"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
-						"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)}},
-					Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
-						"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort)},
-						"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort)},
+					App: map[string]interface{}{
+						"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort)},
+						"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort)},
+						"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort)},
+					},
+					Config: map[string]interface{}{
+						"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort)},
+						"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort)},
+						"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort),
+					},
 				},
 				{
 					Name:   "test-name-2",
 					Bonded: "103ATOM",
-					App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort+DefaultPortMargin)},
-						"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort+DefaultPortMargin)},
-						"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort+DefaultPortMargin)}},
-					Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort+DefaultPortMargin)},
-						"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort+DefaultPortMargin)},
-						"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort+DefaultPortMargin)},
+					App: map[string]interface{}{
+						"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCPort+v1.DefaultPortMargin)},
+						"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.GRPCWebPort+v1.DefaultPortMargin)},
+						"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", v1.APIPort+v1.DefaultPortMargin)},
+					},
+					Config: map[string]interface{}{
+						"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.RPCPort+v1.DefaultPortMargin)},
+						"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", v1.P2PPort+v1.DefaultPortMargin)},
+						"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", v1.PPROFPort+v1.DefaultPortMargin),
+					},
 				},
 			},
 		},
@@ -243,5 +298,4 @@ func TestFillValidatorsDefaults(t *testing.T) {
 			require.Equal(t, test.ExpectedConf, test.InputConf)
 		})
 	}
-
 }

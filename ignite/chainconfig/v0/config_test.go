@@ -1,16 +1,17 @@
-package v0
+package v0_test
 
 import (
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
-
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 )
 
 func TestClone(t *testing.T) {
-	config := &Config{
-		Validator: Validator{
+	config := &v0.Config{
+		Validator: v0.Validator{
 			Name:   "alice",
 			Staked: "100000000stake",
 		},
@@ -23,12 +24,12 @@ func TestClone(t *testing.T) {
 	clone := config.Clone()
 	require.Equal(t, config, clone)
 
-	clone.(*Config).Validator = Validator{
+	clone.(*Config).Validator = v0.Validator{
 		Name:   "test",
 		Staked: "stakedvalue",
 	}
 	require.NotEqual(t, config, clone)
-	require.Equal(t, Validator{
+	require.Equal(t, v0.Validator{
 		Name:   "test",
 		Staked: "stakedvalue",
 	}, clone.(*Config).Validator)
