@@ -16,6 +16,8 @@ Move to the keeper directory and edit the `x/dex/keeper/msg_server_cancel_sell_o
 ```go
 // x/dex/keeper/msg_server_cancel_sell_order.go
 
+package keeper
+
 import (
 	"context"
 	"errors"
@@ -111,6 +113,8 @@ To cancel a buy order, you have to get the ID of the specific buy order. Then yo
 
 ```go
 // x/dex/keeper/msg_server_cancel_buy_order.go
+
+package keeper
 
 import (
 	"context"

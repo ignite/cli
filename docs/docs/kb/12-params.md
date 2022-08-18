@@ -13,7 +13,7 @@ You can use Ignite CLI to scaffold parameters to be accessible for the module. P
 
 To scaffold a module with params using the `--params` flag:
 
-```shell
+```bash
 ignite scaffold module launch --params minLaunch:uint,maxLaunch:int
 ```
 
