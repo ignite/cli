@@ -135,37 +135,35 @@ type Account struct {
 }
 
 // Address returns the address of the account from given prefix.
-func (a Account) Address(accPrefix string) string {
+func (a Account) Address(accPrefix string) (string, error) {
 	if accPrefix == "" {
 		accPrefix = AccountPrefixCosmos
 	}
 
-	// TODO: handle error
 	pk, err := a.Record.GetPubKey()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	return toBench32(accPrefix, pk.Address())
+	return toBech32(accPrefix, pk.Address())
 }
 
 // PubKey returns a public key for account.
-func (a Account) PubKey() string {
-	// TODO: handle error
+func (a Account) PubKey() (string, error) {
 	pk, err := a.Record.GetPubKey()
 	if err != nil {
-		panic(err)
+		return "", nil
 	}
 
-	return pk.String()
+	return pk.String(), nil
 }
 
-func toBench32(prefix string, addr []byte) string {
+func toBech32(prefix string, addr []byte) (string, error) {
 	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return bech32Addr
+	return bech32Addr, nil
 }
 
 // EnsureDefaultAccount ensures that default account exists.
