@@ -98,7 +98,7 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagHome, "", "Home directory used for blockchains")
+	fs.String(flagHome, "", "home directory used for blockchains")
 	return fs
 }
 
@@ -127,7 +127,7 @@ func getYes(cmd *cobra.Command) (ok bool) {
 func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
-	info := "Enables proto code generation for 3rd party modules used in your chain"
+	info := "enables proto code generation for 3rd party modules used in your chain"
 	if additionalInfo != "" {
 		info += ". " + additionalInfo
 	}
@@ -143,7 +143,7 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 
 func flagSetSkipProto() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagSkipProto, false, "Skip file generation from proto")
+	fs.Bool(flagSkipProto, false, "skip file generation from proto")
 	return fs
 }
 
@@ -153,7 +153,7 @@ func flagGetSkipProto(cmd *cobra.Command) bool {
 }
 
 func flagSetClearCache(cmd *cobra.Command) {
-	cmd.PersistentFlags().Bool(flagClearCache, false, "Clear the build cache (advanced)")
+	cmd.PersistentFlags().Bool(flagClearCache, false, "clear the build cache (advanced)")
 }
 
 func flagGetClearCache(cmd *cobra.Command) bool {
