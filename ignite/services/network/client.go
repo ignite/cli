@@ -16,8 +16,13 @@ func (n Network) CreateClient(
 	unbondingTime int64,
 	rewardsInfo networktypes.Reward,
 ) (string, error) {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return "", err
+	}
+
 	msgCreateClient := monitoringctypes.NewMsgCreateClient(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		rewardsInfo.ConsensusState,
 		rewardsInfo.ValidatorSet,

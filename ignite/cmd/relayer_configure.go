@@ -486,7 +486,10 @@ func initChain(
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
-	accountAddr := account.Address(addressPrefix)
+	accountAddr, err := account.Address(addressPrefix)
+	if err != nil {
+		return nil, err
+	}
 
 	session.StopSpinner()
 	session.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)

@@ -28,6 +28,9 @@ func TestTriggerLaunch(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
@@ -36,7 +39,7 @@ func TestTriggerLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   account.Address(networktypes.SPN),
+				Coordinator:   addr,
 				LaunchID:      testutil.LaunchID,
 				RemainingTime: TestMaxRemainingTime,
 			}).
@@ -105,6 +108,9 @@ func TestTriggerLaunch(t *testing.T) {
 			expectedError  = errors.New("Failed to fetch")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
@@ -113,7 +119,7 @@ func TestTriggerLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   account.Address(networktypes.SPN),
+				Coordinator:   addr,
 				LaunchID:      testutil.LaunchID,
 				RemainingTime: TestMaxRemainingTime,
 			}).
@@ -133,6 +139,9 @@ func TestTriggerLaunch(t *testing.T) {
 			expectedError  = errors.New("failed to fetch")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
@@ -141,7 +150,7 @@ func TestTriggerLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   account.Address(networktypes.SPN),
+				Coordinator:   addr,
 				LaunchID:      testutil.LaunchID,
 				RemainingTime: TestMaxRemainingTime,
 			}).
@@ -182,10 +191,13 @@ func TestRevertLaunch(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
+				Coordinator: addr,
 				LaunchID:    testutil.LaunchID,
 			}).
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
@@ -203,9 +215,12 @@ func TestRevertLaunch(t *testing.T) {
 			expectedError  = errors.New("failed to revert launch")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
+				Coordinator: addr,
 				LaunchID:    testutil.LaunchID,
 			}).
 			Return(
@@ -227,13 +242,16 @@ func TestRevertLaunch(t *testing.T) {
 			expectedError  = errors.New("failed to reset genesis time")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ChainMock.
 			On("ResetGenesisTime").
 			Return(expectedError).
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
+				Coordinator: addr,
 				LaunchID:    testutil.LaunchID,
 			}).
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).

@@ -24,8 +24,13 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 		),
 	))
 
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := rewardtypes.NewMsgSetRewards(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		lastRewardHeight,
 		coins,

@@ -22,12 +22,15 @@ func TestSetReward(t *testing.T) {
 			lastRewarHeight = int64(10)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
 				account.Name,
 				&rewardtypes.MsgSetRewards{
-					Provider:         account.Address(networktypes.SPN),
+					Provider:         addr,
 					LaunchID:         testutil.LaunchID,
 					Coins:            coins,
 					LastRewardHeight: lastRewarHeight,
@@ -53,12 +56,16 @@ func TestSetReward(t *testing.T) {
 			lastRewarHeight = int64(10)
 			expectedErr     = errors.New("failed to set reward")
 		)
+
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
 				account.Name,
 				&rewardtypes.MsgSetRewards{
-					Provider:         account.Address(networktypes.SPN),
+					Provider:         addr,
 					LaunchID:         testutil.LaunchID,
 					Coins:            coins,
 					LastRewardHeight: lastRewarHeight,
