@@ -2,11 +2,13 @@ package relayer
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -19,6 +21,7 @@ import (
 )
 
 const (
+	algoSecp256k1       = "secp256k1"
 	ibcSetupGas   int64 = 2256000
 	relayDuration       = time.Second * 5
 )
@@ -200,12 +203,25 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		}
 	}
 
-	key, err := r.ca.ExportHex(chain.Account, "")
+	// Get the key in ASCII armored format
+	passphrase := ""
+	key, err := r.ca.Export(chain.Account, passphrase)
 	if err != nil {
 		return relayerconf.Chain{}, "", err
 	}
 
-	return chain, key, nil
+	// Unarmor the key to be able to read it as bytes
+	priv, algo, err := crypto.UnarmorDecryptPrivKey(key, passphrase)
+	if err != nil {
+		return relayerconf.Chain{}, "", err
+	}
+
+	// Check the algorithm because the TS relayer expects a secp256k1 private key
+	if algo != algoSecp256k1 {
+		return relayerconf.Chain{}, "", fmt.Errorf("private key algorithm must be secp256k1 instead of %s", algo)
+	}
+
+	return chain, hex.EncodeToString(priv.Bytes()), nil
 }
 
 func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix string) (sdk.Coins, error) {

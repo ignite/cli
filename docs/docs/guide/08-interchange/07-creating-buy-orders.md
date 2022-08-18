@@ -11,7 +11,7 @@ In this chapter, you implement the creation of buy orders. The logic is very sim
 
 Add the buyer to the proto file definition:
 
-```proto
+```protobuf
 // proto/dex/packet.proto
 
 message BuyOrderPacketData {
@@ -35,6 +35,8 @@ ignite generate proto-go --yes
 
 ```go
 // x/dex/keeper/msg_server_buy_order.go
+
+package keeper
 
 import (
 	"context"

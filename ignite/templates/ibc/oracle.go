@@ -84,9 +84,9 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		}
 
 		// Recv packet dispatch
-		templateRecv := `oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
+		templateRecv := `oracleAck, err := im.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()).Error())
+		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()))
 	} else if ack != oracleAck {
 		return oracleAck
 	}
@@ -95,7 +95,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		content := replacer.ReplaceOnce(f.String(), PlaceholderOraclePacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
-		templateAck := `sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
+		templateAck := `sdkResult, err := im.handleOracleAcknowledgment(ctx, ack, modulePacket)
 	if err != nil {
 		return err
 	}
@@ -328,11 +328,11 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 	case types.%[3]vClientIDKey:
 		var %[2]vResult types.%[3]vResult
 		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
-			ack = channeltypes.NewErrorAcknowledgement(err.Error())
+			ack = channeltypes.NewErrorAcknowledgement(err)
 			return ack, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest,
 				"cannot decode the %[2]v received packet")
 		}
-		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
+		im.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
 	
 		// TODO: %[3]v oracle data reception logic
 %[1]v`
@@ -348,7 +348,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 			return nil, sdkerrors.Wrap(err,
 				"cannot decode the %[2]v oracle acknowledgment packet")
 		}
-		am.keeper.SetLast%[3]vID(ctx, requestID)
+		im.keeper.SetLast%[3]vID(ctx, requestID)
 		return &sdk.Result{}, nil
 %[1]v`
 		replacementInterface := fmt.Sprintf(templateAck, PlaceholderOracleModuleAck,

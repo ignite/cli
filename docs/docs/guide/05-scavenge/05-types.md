@@ -22,7 +22,7 @@ ignite scaffold map scavenge solutionHash solution description reward scavenger 
 
 The `ignite scaffold map` command creates and modifies several files:
 
-```bash
+```
 modify proto/scavenge/genesis.proto
 modify proto/scavenge/query.proto
 create proto/scavenge/scavenge.proto

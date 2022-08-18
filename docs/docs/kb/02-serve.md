@@ -72,7 +72,7 @@ Specify a custom home directory.
 
 ## Start a blockchain node in production
 
-The `ignite chain serve` and `ignite chain build` commands compile the source code of the chain in a binary file and install the binary in `~/go/bin`. By default, the binary name is the name of the repository appended with `d`. For example, if you scaffold a chain using `ignite scaffold chain github.com/alice/chain`, then the binary is named `chaind`.
+The `ignite chain serve` and `ignite chain build` commands compile the source code of the chain in a binary file and install the binary in `~/go/bin`. By default, the binary name is the name of the repository appended with `d`. For example, if you scaffold a chain using `ignite scaffold chain mars`, then the binary is named `marsd`.
 
 You can customize the binary name in `config.yml`:
 

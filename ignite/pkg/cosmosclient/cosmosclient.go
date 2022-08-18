@@ -27,7 +27,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
@@ -192,6 +192,9 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
 	c.Factory = newFactory(c.context)
 
+	// set address prefix in SDK global config
+	c.SetConfigAddressPrefix()
+
 	return c, nil
 }
 
@@ -205,11 +208,23 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	if err != nil {
 		return sdktypes.AccAddress{}, err
 	}
-	return account.Info.GetAddress(), nil
+
+	return account.Record.GetAddress()
 }
 
+// Context returns client context
 func (c Client) Context() client.Context {
 	return c.context
+}
+
+// SetConfigAddressPrefix sets the account prefix in the SDK global config
+func (c Client) SetConfigAddressPrefix() {
+	// TODO find a better way if possible.
+	// https://github.com/ignite/cli/issues/2744
+	mconf.Lock()
+	defer mconf.Unlock()
+	config := sdktypes.GetConfig()
+	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
 }
 
 // Response of your broadcasted transaction.
@@ -221,7 +236,7 @@ type Response struct {
 }
 
 // Decode decodes the proto func response defined in your Msg service into your message type.
-// message needs be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
+// message needs to be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
 //
 // e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
@@ -243,14 +258,24 @@ func (r Response) Decode(message proto.Message) error {
 		return err
 	}
 
-	resData := txMsgData.Data[0]
+	// check deprecated Data
+	if len(txMsgData.Data) != 0 {
+		resData := txMsgData.Data[0]
+		return prototypes.UnmarshalAny(&prototypes.Any{
+			// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
+			// https://github.com/ignite/cli/issues/2098
+			// https://github.com/cosmos/cosmos-sdk/issues/10496
+			TypeUrl: resData.MsgType + "Response",
+			Value:   resData.Data,
+		}, message)
+	}
 
+	resData := txMsgData.MsgResponses[0]
 	return prototypes.UnmarshalAny(&prototypes.Any{
-		// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
-		// https://github.com/cosmos/cosmos-sdk/issues/10496
-		TypeUrl: resData.MsgType + "Response",
-		Value:   resData.Data,
+		TypeUrl: resData.TypeUrl,
+		Value:   resData.Value,
 	}, message)
+
 }
 
 // ConsensusInfo is the validator consensus info
@@ -331,11 +356,8 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		return 0, nil, err
 	}
 
-	// TODO find a better way if possible.
-	mconf.Lock()
-	defer mconf.Unlock()
-	config := sdktypes.GetConfig()
-	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
+	// set address prefix in SDK global config
+	c.SetConfigAddressPrefix()
 
 	accountAddress, err := c.Address(accountName)
 	if err != nil {
@@ -362,7 +384,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 
 	// Return the provision function
 	return gas, func() (Response, error) {
-		txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
+		txUnsigned, err := txf.BuildUnsignedTx(msgs...)
 		if err != nil {
 			return Response{}, err
 		}
