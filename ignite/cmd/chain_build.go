@@ -25,24 +25,60 @@ func NewChainBuild() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "build",
 		Short: "Build a node binary",
-		Long: `By default, build your node binaries
-and add the binaries to your $(go env GOPATH)/bin path.
+		Long: `
+The build command compiles the source code of the project into a binary and
+installs the binary in the $(go env GOPATH)/bin directory.
 
-To build binaries for a release, use the --release flag. The app binaries
-for one or more specified release targets are built in a release/ dir under the app's
-source. Specify the release targets with GOOS:GOARCH build tags.
-If the optional --release.targets is not specified, a binary is created for your current environment.
+You can customize the output directory for the binary using a flag:
 
-Sample usages:
-	- ignite chain build
-	- ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64`,
+  ignite chain build --output dist
+
+To compile the binary Ignite first compiles protocol buffer (proto) files into
+Go source code. Proto files contain required type and services definitions. If
+you're using another program to compile proto files, you can use a flag to tell
+Ignite to skip the proto compilation step:
+
+  ignite chain build --skip-proto
+
+Afterwards, Ignite install dependencies specified in the go.mod file. By default
+Ignite doesn't check that dependencies of the main module stored in the module
+cache have not been modified since they were downloaded. To enforce dependency
+checking (essentially, running "go mod verify") use a flag:
+
+  ignite chain build --check-dependencies
+
+Next, Ignite identifies the "main" package of the project. By default the "main"
+package is located in "cmd/{app}d" directory, where "{app}" is the name of the
+scaffolded project and "d" stands for daemon. If your your project contains more
+than one "main" package, specify the path to the one that Ignite should compile
+in config.yml:
+
+build: main: custom/path/to/main
+
+By default the binary name will match the top-level module name (specified in
+go.mod) with a suffix "d". This can be customized in config.yml:
+
+build: binary: mychaind
+
+You can also specify custom linker flags:
+
+build: ldflags: [ "-X main.Version=development", "-X main.Date=01/05/2022T19:54"
+  ]
+
+To build binaries for a release, use the --release flag. The binaries for one or
+more specified release targets are built in a "release/" directory in the
+project's source directory. Specify the release targets with GOOS:GOARCH build
+tags. If the optional --release.targets is not specified, a binary is created
+for your current environment.
+
+  ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+`,
 		Args: cobra.NoArgs,
 		RunE: chainBuildHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
-	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
@@ -50,7 +86,7 @@ Sample usages:
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().StringP(flagOutput, "o", "", "binary output path")
-	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+	c.Flags().BoolP("verbose", "v", false, "verbose output")
 
 	return c
 }
@@ -113,7 +149,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 }
 
 func flagSetCheckDependencies() *flag.FlagSet {
-	usage := "Verify that cached dependencies have not been modified since they were downloaded"
+	usage := "verify that cached dependencies have not been modified since they were downloaded"
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.Bool(flagCheckDependencies, false, usage)
 	return fs
