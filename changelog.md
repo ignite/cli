@@ -11,7 +11,7 @@
 - Implement `network profile` command
 - Make Go dependency validation optional during build by adding the `--check-dependencies` flag
 - Temporary SPN address change for nightly
-- Rename rename generated `simapp.go.plush` simulation file to `helpers.go.plush`
+- Rename `simapp.go.plush` simulation file template to `helpers.go.plush`
 - Remove campaign creation from the `network chain publish` command
 - Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
 - Optimized JavaScript generator to use a single typescript API generator binary
