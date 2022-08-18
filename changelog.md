@@ -4,12 +4,13 @@
 
 ### Changes
 
-- Refactor `templates/app` to remove monitoringp module from template
-- Update keyring dependencies to match w/ Cosmos SDK
+- Refactor `templates/app` to remove `monitoringp` module from the default template
+- Updated keyring dependency to match what Cosmos SDK is using
 - Speed up the integration tests
 - Refactor ignite network and fix genesis generation bug
 - Implement `network profile` command
-- Make Go dependency validation optional during build by adding the `--check-dependencies` flag
+- Make Go dependency verification optional during build by adding the `--check-dependencies` flag
+  so Ignite CLI can work in a Go workspace context.
 - Temporary SPN address change for nightly
 - Rename `simapp.go.plush` simulation file template to `helpers.go.plush`
 - Remove campaign creation from the `network chain publish` command
@@ -30,7 +31,7 @@
 
 ### Fixes
 
-- Change templates to add missing call to RegisterMsgServer
+- Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
 - Fix cosmoscmd appID parameter value to sign a transaction correctly
 - Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
 - Fix flaky integration tests issue that failed with "text file busy"
