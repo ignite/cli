@@ -2,7 +2,7 @@
 
 import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient, DeliverTxResponse } from "@cosmjs/stargate";
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { EncodeObject, GeneratedType } from "@cosmjs/proto-signing";
 import { msgTypes } from './registry';
 import { IgniteClient } from "../client"
 import { Api } from "./rest";
@@ -22,17 +22,53 @@ type {{ camelCase .Name }}Params = {
 };
 {{ end }}
 
-class SDKModule extends Api<any> {
-	private _client: SigningStargateClient;
-	private _addr: string;
-	public registry;
+export const MissingWalletError = new Error("wallet is required");
 
-	constructor(client: IgniteClient) {
-		super({
-			baseUrl: client.env.apiURL
-		})
-		this._client = client.client;
+const defaultFee = {
+  amount: [],
+  gas: "200000",
+};
+
+interface TxClientOptions {
+  addr: string
+}
+
+interface SignAndBroadcastOptions {
+  fee: StdFee,
+  memo?: string
+}
+
+const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
+  if (!wallet) throw MissingWalletError;
+  let client;
+  if (addr) {
+    client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
+  }else{
+    client = await SigningStargateClient.offline( wallet, { registry });
+  }
+  const { address } = (await wallet.getAccounts())[0];
+
+  return {
+    signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ""}) => client.signAndBroadcast(address, msgs, fee,memo),
+    {{ range .Module.Msgs }}{{ camelCase .Name }}: (data: {{ .Name }}): EncodeObject => ({ typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( data ) }),
+    {{ end }}
+  };
+};
+
+const queryClient = async ({ addr: addr }: QueryClientOptions = { addr: "http://localhost:1317" }) => {
+  return new Api({ baseUrl: addr });
+};
+
+class SDKModule {
+	private _signingClient: SigningStargateClient;
+	private _rpcAddr: string;
+	private _apiAddr: string;
+	public registry: Array<[string, GeneratedType]>;
+
+	constructor(client: IgniteClient) {		
+		this._signingClient = client.client;
 		this._addr = client.env.rpcURL;
+
 	}
 
 

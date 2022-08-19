@@ -12,17 +12,17 @@ export class IgniteClient {
   static plugin<T extends Module | Module[]>(plugin: T) {
     const currentPlugins = this.plugins;
 
-    class NewTest extends this {
+    class AugmentedClient extends this {
       static plugins = currentPlugins.concat(plugin);
     }
 
     if (Array.isArray(plugin)) {
       type Extension = UnionToIntersection<Return<T>['module']>
-      return NewTest as typeof NewTest & Constructor<Extension>;  
+      return AugmentedClient as typeof AugmentedClient & Constructor<Extension>;  
     }
 
     type Extension = Return<T>['module']
-    return NewTest as typeof NewTest & Constructor<Extension>;
+    return AugmentedClient as typeof AugmentedClient & Constructor<Extension>;
   }
   constructor(env: Env) {
     this.env = env;
