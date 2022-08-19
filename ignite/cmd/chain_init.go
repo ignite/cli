@@ -34,13 +34,13 @@ them in config.yml:
 
 init:
   app:
-    minimum-gas-prices: '0.025stake'
+    minimum-gas-prices: "0.025stake"
   config:
     consensus:
-      timeout_commit: '5s'
-      timeout_propose: '5s'
+      timeout_commit: "5s"
+      timeout_propose: "5s"
   client:
-    output: 'json'
+    output: "json"
 
 The configuration above changes the minimum gas price of the validator (by
 default the gas price is set to 0 to allow "free" transactions), sets the block
