@@ -588,10 +588,9 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		if err != nil {
 			return err
 		}
-
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
+		content := replacer.ReplaceIfExists(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `case *types.MsgCreate%[2]v:
 					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)

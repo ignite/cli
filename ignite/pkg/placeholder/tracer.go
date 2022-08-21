@@ -43,6 +43,7 @@ type Replacer interface {
 	Replace(content, placeholder, replacement string) string
 	ReplaceAll(content, placeholder, replacement string) string
 	ReplaceOnce(content, placeholder, replacement string) string
+	ReplaceIfExists(content, placeholder, replacement string) string
 	AppendMiscError(miscError string)
 }
 
@@ -77,6 +78,13 @@ func (t *Tracer) Replace(content, placeholder, replacement string) string {
 func (t *Tracer) ReplaceOnce(content, placeholder, replacement string) string {
 	if !strings.Contains(content, replacement) {
 		return t.Replace(content, placeholder, replacement)
+	}
+	return content
+}
+
+func (t *Tracer) ReplaceIfExists(content, placeholder, replacement string) string {
+	if !strings.Contains(content, replacement) {
+		strings.Replace(content, placeholder, replacement, 1)
 	}
 	return content
 }
