@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/imdario/mergo"
+	"github.com/tendermint/tendermint/p2p"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
@@ -15,7 +16,8 @@ import (
 )
 
 const (
-	moniker = "mynode"
+	moniker  = "mynode"
+	localnet = "0.0.0.0"
 )
 
 // Init initializes the chain and applies all optional configurations.
@@ -54,8 +56,10 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
+	validatorNodeIDs := make([]p2p.ID, len(conf.Validators))
+
 	// for each validator
-	for _, validator := range conf.Validators {
+	for i, validator := range conf.Validators {
 		commands, err := c.Commands(ctx, validator)
 		if err != nil {
 			return err
@@ -100,6 +104,14 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		if err := c.plugin.Configure(vhome, validator); err != nil {
 			return err
 		}
+
+		// collect Validator NodeID
+		nodeKeyPath := filepath.Join(vhome, "config/node_key.json")
+		nodeKey, err := p2p.LoadNodeKey(nodeKeyPath)
+		if err != nil {
+			return err
+		}
+		validatorNodeIDs[i] = nodeKey.ID()
 	}
 
 	genesisPath, err := c.GenesisPath()
@@ -108,6 +120,14 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 	keyringPath := filepath.Join(c.AppHome(), "keyring-test")
 	genTxPath := filepath.Join(c.AppHome(), "config/gentx")
+
+	configSymlink := []string{
+		"config/app.toml",
+		"config/client.toml",
+		"config/config.toml",
+		"config/node_key.json",
+		"config/priv_validator_key.json",
+	}
 
 	for i, val := range conf.Validators {
 		vhome := c.homeForValidator(val)
@@ -142,6 +162,14 @@ func (c *Chain) InitChain(ctx context.Context) error {
 				return err
 			}
 
+			// symlink the root validator's config into the main config folder
+			for _, cfgpath := range configSymlink {
+				rootPath := filepath.Join(c.AppHome(), cfgpath)
+				valPath := filepath.Join(vhome, cfgpath)
+				if err := os.Symlink(valPath, rootPath); err != nil {
+					return err
+				}
+			}
 		}
 
 		// delete it from all
@@ -162,6 +190,37 @@ func (c *Chain) InitChain(ctx context.Context) error {
 
 		// symlink the root keyring path into each validator keyring path
 		if err := os.Symlink(keyringPath, vkeyringPath); err != nil {
+			return err
+		}
+
+		// apply persistent peers to each validator config
+		var persistentPeers string
+		for j, nodeID := range validatorNodeIDs {
+			// skip matching validators
+			if i == j {
+				continue
+			}
+
+			peer := formatPeerID(val, string(nodeID))
+			persistentPeers += peer
+
+			// if we aren't at the end, include a comma
+			if j < len(validatorNodeIDs) {
+				persistentPeers += ","
+			}
+		}
+
+		// apply persistentpeers to validator config
+		configTOMLPath, err := c.configTOMLPathForValidator(val)
+		if err != nil {
+			return err
+		}
+		p2pConfig := val.Config["p2p"]
+		if cfg, ok := p2pConfig.(map[string]interface{}); ok {
+			cfg["persistent_peers"] = persistentPeers
+		}
+		ac := appconfig{confile.DefaultTOMLEncodingCreator, configTOMLPath, val.Config}
+		if err := applyConfig(ac); err != nil {
 			return err
 		}
 	}
@@ -353,4 +412,13 @@ func ensureDirectory(path string) error {
 		return err
 	}
 	return nil
+}
+
+func formatPeerID(validator chainconfig.Validator, nodeID string) string {
+	var laddr string
+	p2pConfig := validator.Config["p2p"]
+	if cfg, ok := p2pConfig.(map[string]interface{}); ok {
+		laddr = cfg["laddr"].(string)
+	}
+	return fmt.Sprintf("%s@%s", nodeID, laddr)
 }
