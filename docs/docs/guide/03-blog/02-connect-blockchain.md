@@ -116,7 +116,7 @@ func main() {
 
 	// Broadcast a transaction from account `alice` with the message
 	// to create a post store response in txResp
-	txResp, err := cosmos.BroadcastTx(accountName, msg)
+	txResp, err := cosmos.BroadcastTx(account, msg)
 	if err != nil {
 		log.Fatal(err)
 	}

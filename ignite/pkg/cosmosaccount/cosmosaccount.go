@@ -146,7 +146,7 @@ func (a Account) Address(accPrefix string) string {
 		panic(err)
 	}
 
-	return toBench32(accPrefix, pk.Address())
+	return toBech32(accPrefix, pk.Address())
 }
 
 // PubKey returns a public key for account.
@@ -160,7 +160,7 @@ func (a Account) PubKey() string {
 	return pk.String()
 }
 
-func toBench32(prefix string, addr []byte) string {
+func toBech32(prefix string, addr []byte) string {
 	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
 	if err != nil {
 		panic(err)
@@ -287,6 +287,25 @@ func (r Registry) GetByName(name string) (Account, error) {
 	}
 
 	return acc, nil
+}
+
+// GetByAddress returns an account by its address.
+func (r Registry) GetByAddress(address string) (Account, error) {
+	sdkAddr, err := sdktypes.AccAddressFromBech32(address)
+	if err != nil {
+		return Account{}, err
+	}
+	record, err := r.Keyring.KeyByAddress(sdkAddr)
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
+		return Account{}, &AccountDoesNotExistError{address}
+	}
+	if err != nil {
+		return Account{}, err
+	}
+	return Account{
+		Name:   record.Name,
+		Record: record,
+	}, nil
 }
 
 // List lists all accounts.
