@@ -1,3 +1,4 @@
+# foo
 # syntax = docker/dockerfile:1.2
 # WARNING! Use `DOCKER_BUILDKIT=1` with `docker build` to enable --mount feature.
 
