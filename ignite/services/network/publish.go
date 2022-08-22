@@ -140,7 +140,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			"",
 			"",
 		)
-		if _, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCoordinator); err != nil {
+		if _, err := n.cosmos.BroadcastTx(n.account, msgCreateCoordinator); err != nil {
 			return 0, 0, err
 		}
 	} else if err != nil {
@@ -194,7 +194,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			campaignID,
 			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
-		_, err = n.cosmos.BroadcastTx(n.account.Name, msgMintVouchers)
+		_, err = n.cosmos.BroadcastTx(n.account, msgMintVouchers)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -223,7 +223,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			campaignID,
 			nil,
 		)
-		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
+		res, err := n.cosmos.BroadcastTx(n.account, msgCreateChain)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -268,7 +268,7 @@ func (n Network) sendAccountRequest(
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}

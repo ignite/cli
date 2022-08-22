@@ -28,7 +28,7 @@ func TestSetReward(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&rewardtypes.MsgSetRewards{
 					Provider:         addr,
 					LaunchID:         testutil.LaunchID,
@@ -63,7 +63,7 @@ func TestSetReward(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&rewardtypes.MsgSetRewards{
 					Provider:         addr,
 					LaunchID:         testutil.LaunchID,

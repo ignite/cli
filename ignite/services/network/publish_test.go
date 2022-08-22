@@ -62,7 +62,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
@@ -127,7 +127,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
@@ -202,7 +202,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				campaigntypes.NewMsgMintVouchers(
 					addr,
 					testutil.CampaignID,
@@ -214,7 +214,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
@@ -278,7 +278,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: customGenesisChainID,
@@ -332,7 +332,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
@@ -389,7 +389,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&campaigntypes.MsgCreateCampaign{
 					Coordinator:  addr,
 					CampaignName: testutil.ChainName,
@@ -403,7 +403,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&campaigntypes.MsgInitializeMainnet{
 					Coordinator:    addr,
 					CampaignID:     testutil.CampaignID,
@@ -457,7 +457,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&campaigntypes.MsgCreateCampaign{
 					Coordinator:  addr,
 					CampaignName: testutil.ChainName,
@@ -471,7 +471,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&campaigntypes.MsgInitializeMainnet{
 					Coordinator:    addr,
 					CampaignID:     testutil.CampaignID,
@@ -528,7 +528,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
@@ -547,7 +547,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&profiletypes.MsgCreateCoordinator{
 					Address: addr,
 				},
@@ -674,7 +674,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
@@ -728,7 +728,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,

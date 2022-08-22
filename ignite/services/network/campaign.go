@@ -91,7 +91,7 @@ func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (u
 		totalSupply,
 		[]byte(metadata),
 	)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
+	res, err := n.cosmos.BroadcastTx(n.account, msgCreateCampaign)
 	if err != nil {
 		return 0, err
 	}
@@ -125,7 +125,7 @@ func (n Network) InitializeMainnet(
 		mainnetChainID,
 	)
 
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return 0, err
 	}
@@ -173,7 +173,7 @@ func (n Network) UpdateCampaign(
 		))
 	}
 
-	if _, err := n.cosmos.BroadcastTx(n.account.Name, msgs...); err != nil {
+	if _, err := n.cosmos.BroadcastTx(n.account, msgs...); err != nil {
 		return err
 	}
 	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(

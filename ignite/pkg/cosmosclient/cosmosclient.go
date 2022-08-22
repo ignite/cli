@@ -3,12 +3,12 @@ package cosmosclient
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,21 +21,16 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
-	"github.com/tendermint/tendermint/libs/bytes"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
@@ -87,6 +82,12 @@ type Client struct {
 	homePath           string
 	keyringServiceName string
 	keyringBackend     cosmosaccount.KeyringBackend
+	keyringDir         string
+
+	gas           string
+	gasPrices     string
+	fees          string
+	broadcastMode string
 }
 
 // Option configures your client.
@@ -113,6 +114,13 @@ func WithKeyringServiceName(name string) Option {
 func WithKeyringBackend(backend cosmosaccount.KeyringBackend) Option {
 	return func(c *Client) {
 		c.keyringBackend = backend
+	}
+}
+
+// WithKeyringDir sets the directory of the keyring. By default, it uses cosmosaccount.KeyringHome
+func WithKeyringDir(keyringDir string) Option {
+	return func(c *Client) {
+		c.keyringDir = keyringDir
 	}
 }
 
@@ -143,6 +151,35 @@ func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 	}
 }
 
+// WithGas sets an explicit gas-limit on transactions.
+// Set to "auto" to calculate automatically
+func WithGas(gas string) Option {
+	return func(c *Client) {
+		c.gas = gas
+	}
+}
+
+// WithGasPrices sets the price per gas (e.g. 0.1uatom)
+func WithGasPrices(gasPrices string) Option {
+	return func(c *Client) {
+		c.gasPrices = gasPrices
+	}
+}
+
+// WithFees sets the fees (e.g. 10uatom)
+func WithFees(fees string) Option {
+	return func(c *Client) {
+		c.fees = fees
+	}
+}
+
+// WithBroadcastMode sets the broadcast mode
+func WithBroadcastMode(broadcastMode string) Option {
+	return func(c *Client) {
+		c.broadcastMode = broadcastMode
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -153,6 +190,8 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		faucetDenom:     defaultFaucetDenom,
 		faucetMinAmount: defaultFaucetMinAmount,
 		out:             io.Discard,
+		gas:             strconv.Itoa(defaultGasLimit),
+		broadcastMode:   flags.BroadcastBlock,
 	}
 
 	var err error
@@ -180,16 +219,20 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		c.homePath = filepath.Join(home, "."+c.chainID)
 	}
 
+	if c.keyringDir == "" {
+		c.keyringDir = c.homePath
+	}
+
 	c.AccountRegistry, err = cosmosaccount.New(
 		cosmosaccount.WithKeyringServiceName(c.keyringServiceName),
 		cosmosaccount.WithKeyringBackend(c.keyringBackend),
-		cosmosaccount.WithHome(c.homePath),
+		cosmosaccount.WithHome(c.keyringDir),
 	)
 	if err != nil {
 		return Client{}, err
 	}
 
-	c.context = newContext(c.RPC, c.out, c.chainID, c.homePath).WithKeyring(c.AccountRegistry.Keyring)
+	c.context = c.newContext()
 	c.Factory = newFactory(c.context)
 
 	// set address prefix in SDK global config
@@ -198,18 +241,83 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	return c, nil
 }
 
-func (c Client) Account(accountName string) (cosmosaccount.Account, error) {
-	return c.AccountRegistry.GetByName(accountName)
+// LatestBlockHeight returns the lastest block height of the app.
+func (c Client) LatestBlockHeight() (int64, error) {
+	resp, err := c.Status(context.Background())
+	if err != nil {
+		return 0, err
+	}
+	return resp.SyncInfo.LatestBlockHeight, nil
+}
+
+// WaitForNextBlock waits until next block is committed.
+// It reads the current block height and then waits for another block to be
+// committed.
+func (c Client) WaitForNextBlock() error {
+	return c.WaitForNBlocks(1)
+}
+
+// WaitForNBlocks reads the current block height and then waits for anothers n
+// blocks to be committed.
+func (c Client) WaitForNBlocks(n int64) error {
+	start, err := c.LatestBlockHeight()
+	if err != nil {
+		return err
+	}
+	return c.WaitForBlockHeight(start + n)
+}
+
+// WaitForBlockHeight waits until block height h is committed, or return an
+// error if a timeout is reached (10s).
+func (c Client) WaitForBlockHeight(h int64) error {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	timeout := time.After(10 * time.Second)
+
+	for {
+		status, err := c.RPC.Status(context.Background())
+		if err != nil {
+			return err
+		}
+		if status.SyncInfo.LatestBlockHeight >= h {
+			return nil
+		}
+		select {
+		case <-timeout:
+			return errors.New("timeout exceeded waiting for block")
+		case <-ticker.C:
+		}
+	}
+}
+
+// Account returns the account with name or address equal to nameOrAddress.
+func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
+	defer c.lockBech32Prefix()()
+
+	return c.account(nameOrAddress)
+}
+
+func (c Client) account(nameOrAddress string) (cosmosaccount.Account, error) {
+	a, err := c.AccountRegistry.GetByName(nameOrAddress)
+	if err == nil {
+		return a, nil
+	}
+	return c.AccountRegistry.GetByAddress(nameOrAddress)
 }
 
 // Address returns the account address from account name.
-func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
-	account, err := c.Account(accountName)
-	if err != nil {
-		return sdktypes.AccAddress{}, err
-	}
+func (c Client) Address(accountName string) (string, error) {
+	defer c.lockBech32Prefix()()
 
-	return account.Record.GetAddress()
+	account, err := c.account(accountName)
+	if err != nil {
+		return "", err
+	}
+	sdkaddr, err := account.Record.GetAddress()
+	if err != nil {
+		return "", err
+	}
+	return sdkaddr.String(), nil
 }
 
 // Context returns client context
@@ -275,61 +383,6 @@ func (r Response) Decode(message proto.Message) error {
 		TypeUrl: resData.TypeUrl,
 		Value:   resData.Value,
 	}, message)
-
-}
-
-// ConsensusInfo is the validator consensus info
-type ConsensusInfo struct {
-	Timestamp          string                `json:"Timestamp"`
-	Root               string                `json:"Root"`
-	NextValidatorsHash string                `json:"NextValidatorsHash"`
-	ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
-}
-
-// ConsensusInfo returns the appropriate tendermint consensus state by given height
-// and the validator set for the next height
-func (c Client) ConsensusInfo(ctx context.Context, height int64) (ConsensusInfo, error) {
-	node, err := c.Context().GetNode()
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	commit, err := node.Commit(ctx, &height)
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	var (
-		page  = 1
-		count = 10_000
-	)
-	validators, err := node.Validators(ctx, &height, &page, &count)
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	protoValset, err := tmtypes.NewValidatorSet(validators.Validators).ToProto()
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	heightNext := height + 1
-	validatorsNext, err := node.Validators(ctx, &heightNext, &page, &count)
-	if err != nil {
-		return ConsensusInfo{}, err
-	}
-
-	var (
-		hash = tmtypes.NewValidatorSet(validatorsNext.Validators).Hash()
-		root = commitmenttypes.NewMerkleRoot(commit.AppHash)
-	)
-
-	return ConsensusInfo{
-		Timestamp:          commit.Time.Format(time.RFC3339Nano),
-		NextValidatorsHash: bytes.HexBytes(hash).String(),
-		Root:               base64.StdEncoding.EncodeToString(root.Hash),
-		ValidatorSet:       protoValset,
-	}, nil
 }
 
 // Status returns the node status
@@ -337,81 +390,76 @@ func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
 	return c.RPC.Status(ctx)
 }
 
-// BroadcastTx creates and broadcasts a tx with given messages for account.
-func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response, error) {
-	_, broadcast, err := c.BroadcastTxWithProvision(accountName, msgs...)
-	if err != nil {
-		return Response{}, err
-	}
-	return broadcast()
-}
-
 // protects sdktypes.Config.
 var mconf sync.Mutex
 
-func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (
-	gas uint64, broadcast func() (Response, error), err error,
-) {
-	if err := c.prepareBroadcast(context.Background(), accountName, msgs); err != nil {
-		return 0, nil, err
+func (c Client) lockBech32Prefix() (unlockFn func()) {
+	mconf.Lock()
+	config := sdktypes.GetConfig()
+	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
+	return mconf.Unlock
+}
+
+func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
+	txService, err := c.CreateTx(account, msgs...)
+	if err != nil {
+		return Response{}, err
 	}
 
-	// set address prefix in SDK global config
-	c.SetConfigAddressPrefix()
+	return txService.Broadcast()
+}
 
-	accountAddress, err := c.Address(accountName)
+func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+	defer c.lockBech32Prefix()()
+
+	sdkaddr, err := account.Record.GetAddress()
 	if err != nil {
-		return 0, nil, err
+		return TxService{}, err
 	}
 
 	ctx := c.context.
-		WithFromName(accountName).
-		WithFromAddress(accountAddress)
+		WithFromName(account.Name).
+		WithFromAddress(sdkaddr)
 
 	txf, err := prepareFactory(ctx, c.Factory)
 	if err != nil {
-		return 0, nil, err
+		return TxService{}, err
 	}
 
-	_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
-	if err != nil {
-		return 0, nil, err
+	var gas uint64
+	if c.gas != "" && c.gas != "auto" {
+		gas, err = strconv.ParseUint(c.gas, 10, 64)
+		if err != nil {
+			return TxService{}, err
+		}
+	} else {
+		_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
+		if err != nil {
+			return TxService{}, err
+		}
+		// the simulated gas can vary from the actual gas needed for a real transaction
+		// we add an additional amount to ensure sufficient gas is provided
+		gas += 20000
 	}
-	// the simulated gas can vary from the actual gas needed for a real transaction
-	// we add an additional amount to endure sufficient gas is provided
-	gas += 10000
 	txf = txf.WithGas(gas)
+	txf = txf.WithFees(c.fees)
 
-	// Return the provision function
-	return gas, func() (Response, error) {
-		txUnsigned, err := txf.BuildUnsignedTx(msgs...)
-		if err != nil {
-			return Response{}, err
-		}
+	if c.gasPrices != "" {
+		txf = txf.WithGasPrices(c.gasPrices)
+	}
 
-		txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
-		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
-			return Response{}, err
-		}
+	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
+	if err != nil {
+		return TxService{}, err
+	}
 
-		txBytes, err := ctx.TxConfig.TxEncoder()(txUnsigned.GetTx())
-		if err != nil {
-			return Response{}, err
-		}
+	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
 
-		resp, err := ctx.BroadcastTx(txBytes)
-		if err == sdkerrors.ErrInsufficientFunds {
-			err = c.makeSureAccountHasTokens(context.Background(), accountAddress.String())
-			if err != nil {
-				return Response{}, err
-			}
-			resp, err = ctx.BroadcastTx(txBytes)
-		}
-
-		return Response{
-			Codec:      ctx.Codec,
-			TxResponse: resp,
-		}, handleBroadcastResult(resp, err)
+	return TxService{
+		client:        c,
+		clientContext: ctx,
+		txBuilder:     txUnsigned,
+		txFactory:     txf,
 	}, nil
 }
 
@@ -425,7 +473,7 @@ func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []s
 	//  }
 	//  }
 
-	account, err := c.Account(accountName)
+	account, err := c.account(accountName)
 	if err != nil {
 		return err
 	}
@@ -490,14 +538,14 @@ func (c *Client) checkAccountBalance(ctx context.Context, address string) error 
 func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			return errors.New("make sure that your SPN account has enough balance")
+			return errors.New("make sure that your account has enough balance")
 		}
 
 		return err
 	}
 
 	if resp.Code > 0 {
-		return fmt.Errorf("SPN error with '%d' code: %s", resp.Code, resp.RawLog)
+		return fmt.Errorf("error code: '%d' msg: '%s'", resp.Code, resp.RawLog)
 	}
 	return nil
 }
@@ -528,12 +576,7 @@ func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error
 	return txf, nil
 }
 
-func newContext(
-	c *rpchttp.HTTP,
-	out io.Writer,
-	chainID,
-	home string,
-) client.Context {
+func (c Client) newContext() client.Context {
 	var (
 		amino             = codec.NewLegacyAmino()
 		interfaceRegistry = codectypes.NewInterfaceRegistry()
@@ -546,20 +589,22 @@ func newContext(
 	sdktypes.RegisterInterfaces(interfaceRegistry)
 	staking.RegisterInterfaces(interfaceRegistry)
 	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	banktypes.RegisterInterfaces(interfaceRegistry)
 
 	return client.Context{}.
-		WithChainID(chainID).
+		WithChainID(c.chainID).
 		WithInterfaceRegistry(interfaceRegistry).
 		WithCodec(marshaler).
 		WithTxConfig(txConfig).
 		WithLegacyAmino(amino).
 		WithInput(os.Stdin).
-		WithOutput(out).
+		WithOutput(c.out).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(home).
-		WithClient(c).
-		WithSkipConfirmation(true)
+		WithBroadcastMode(c.broadcastMode).
+		WithHomeDir(c.homePath).
+		WithClient(c.RPC).
+		WithSkipConfirmation(true).
+		WithKeyring(c.AccountRegistry.Keyring)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {

@@ -287,6 +287,25 @@ func (r Registry) GetByName(name string) (Account, error) {
 	return acc, nil
 }
 
+// GetByAddress returns an account by its address.
+func (r Registry) GetByAddress(address string) (Account, error) {
+	sdkAddr, err := sdktypes.AccAddressFromBech32(address)
+	if err != nil {
+		return Account{}, err
+	}
+	record, err := r.Keyring.KeyByAddress(sdkAddr)
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
+		return Account{}, &AccountDoesNotExistError{address}
+	}
+	if err != nil {
+		return Account{}, err
+	}
+	return Account{
+		Name:   record.Name,
+		Record: record,
+	}, nil
+}
+
 // List lists all accounts.
 func (r Registry) List() ([]Account, error) {
 	records, err := r.Keyring.List()

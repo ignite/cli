@@ -30,7 +30,7 @@ func (n Network) CreateClient(
 		rewardsInfo.RevisionHeight,
 	)
 
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateClient)
+	res, err := n.cosmos.BroadcastTx(n.account, msgCreateClient)
 	if err != nil {
 		return "", err
 	}

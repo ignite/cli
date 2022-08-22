@@ -38,6 +38,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
