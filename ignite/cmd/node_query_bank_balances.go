@@ -2,8 +2,10 @@ package ignitecmd
 
 import (
 	"fmt"
-	"github.com/ignite/cli/ignite/pkg/cliui"
+
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
 func NewNodeQueryBankBalances() *cobra.Command {
