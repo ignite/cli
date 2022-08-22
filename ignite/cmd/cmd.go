@@ -69,6 +69,7 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
 	c.AddCommand(NewNetwork())
+	c.AddCommand(NewNode())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
