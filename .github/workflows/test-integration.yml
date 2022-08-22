@@ -48,13 +48,13 @@ jobs:
       - uses: actions/setup-go@v2
         if: env.GIT_DIFF
         with:
-          go-version: 1.16
-      - name: Install Starport
+          go-version: 1.18
+      - name: Install Ignite CLI
         if: env.GIT_DIFF
         run: go install ./...
       - name: Run Integration Tests
         if: env.GIT_DIFF
-        run: go test -v -timeout 30m ./integration/${{ matrix.test-path }}
+        run: go test -v -timeout 60m ./integration/${{ matrix.test-path }}
 
   status:
     runs-on: ubuntu-latest

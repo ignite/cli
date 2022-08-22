@@ -1,0 +1,16 @@
+project_name: ignite
+builds:
+  - main: ./ignite/cmd/ignite
+    ldflags:
+      - -s -w -X github.com/ignite/cli/ignite/version.Version={{.Tag}} -X github.com/ignite/cli/ignite/version.Date={{.Date}} -X github.com/ignite/cli/ignite/version.Head={{.FullCommit}}
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+changelog:
+  skip: true
+release:
+  prerelease: true
+  name_template: nightly

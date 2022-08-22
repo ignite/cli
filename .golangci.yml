@@ -1,7 +1,7 @@
 run:
   tests: false
   skip-dirs:
-    - starport/ui
+    - ignite/ui
 #   # timeout for analysis, e.g. 30s, 5m, default is 1m
 #   timeout: 5m
 
@@ -17,16 +17,16 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - golint
+    - revive
     # - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
+    # - interfacer
     # - maligned
     - misspell
     - nakedret
-    - scopelint
+    - exportloopref
     - staticcheck
     - structcheck
     - stylecheck

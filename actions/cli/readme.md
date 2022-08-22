@@ -1,5 +1,5 @@
-# Starport CLI Action
-This action makes the `starport` CLI available as a Github Action.
+# Ignite CLI Action
+This action makes the `ignite` CLI available as a Github Action.
 
 ## Quick start
 
@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Print Help 
-        uses: tendermint/starport/actions/cli@develop
+        uses: ignite/cli/actions/cli@develop
         with:
           args: -h 
 ```

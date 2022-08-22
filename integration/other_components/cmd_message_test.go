@@ -1,28 +1,27 @@
 //go:build !relayer
-// +build !relayer
 
 package other_components_test
 
 import (
-	"path/filepath"
 	"testing"
 
-	"github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/integration"
 )
 
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
-		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"do-foo",
 				"text",
 				"vote:int",
@@ -30,16 +29,17 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"-r",
 				"foo,bar:int,foobar:bool",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a message with custom path",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"app-path",
 				"text",
 				"vote:int",
@@ -48,31 +48,33 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"foo,bar:int,foobar:bool",
 				"--path",
 				"blog",
+				"--no-simulation",
 			),
-			step.Workdir(filepath.Dir(path)),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "message", "do-foo", "bar"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-foo", "bar"),
+			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a message with a custom signer name",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "message", "do-bar", "bar", "--signer", "bar-doer"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-bar", "bar", "--signer", "bar-doer"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a custom field type",
 		step.NewSteps(step.New(
-			step.Exec("starport",
+			step.Exec(envtest.IgniteApp,
 				"s",
 				"type",
+				"--yes",
 				"custom-type",
 				"numInt:int",
 				"numsInt:array.int",
@@ -87,30 +89,31 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"textCoins:array.coin",
 				"textCoinsAlias:coins",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a message with the custom field type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "message", "foo-baz", "customField:CustomType"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "foo-baz", "customField:CustomType"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "foo", "--require-registration"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--require-registration"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a message in a module",
 		step.NewSteps(step.New(
 			step.Exec(
-				"starport",
+				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"do-foo",
 				"text",
 				"userIds:array.uint",
@@ -121,9 +124,9 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"--response",
 				"foo,bar:int,foobar:bool",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	env.EnsureAppIsSteady(path)
+	app.EnsureSteady()
 }

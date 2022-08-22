@@ -1,0 +1,13 @@
+syntax = "proto3";
+package <%= protoPkgName %>;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  <%= for (i, param) in params { %>
+  <%= param.ProtoType(i+1) %> [(gogoproto.moretags) = "yaml:\"<%= param.Name.Snake %>\""];<% } %>
+}

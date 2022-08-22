@@ -1,0 +1,65 @@
+name: Release nightly
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  consecutiveness:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: mktcode/consecutive-workflow-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  release-nightly:
+    runs-on: ubuntu-latest
+    needs: [ consecutiveness ]
+    env:
+      working-directory: go/src/github.com/ignite/cli
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Delete the nightly release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          tag_name: v0.0.0-nightly
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version and push tag
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: v0.0.0-nightly
+          tag_prefix: ""
+
+      - name: Upsert the nightly release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v0.0.0-nightly
+          name: nightly
+          body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@v0.0.0-nightly! | bash`"
+          prerelease: true
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.working-directory }}
+          fetch-depth: 0
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          workdir: ${{ env.working-directory }}
+          args: release --rm-dist --skip-validate -f .goreleaser.nightly.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
