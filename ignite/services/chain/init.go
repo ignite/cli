@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/tendermint/p2p"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/confile"
 )
@@ -33,9 +34,12 @@ func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 	}
 
 	if initAccounts {
-		return c.InitAccounts(ctx, conf)
+		if err := c.InitAccounts(ctx, conf); err != nil {
+			return err
+		}
 	}
-	return nil
+
+	return c.symlinkValidatorConfig(ctx)
 }
 
 // InitChain initializes the chain.
@@ -121,14 +125,6 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	keyringPath := filepath.Join(c.AppHome(), "keyring-test")
 	genTxPath := filepath.Join(c.AppHome(), "config/gentx")
 
-	configSymlink := []string{
-		"config/app.toml",
-		"config/client.toml",
-		"config/config.toml",
-		"config/node_key.json",
-		"config/priv_validator_key.json",
-	}
-
 	for i, val := range conf.Validators {
 		vhome := c.homeForValidator(val)
 		vgenesisPath := filepath.Join(vhome, "config/genesis.json")
@@ -160,15 +156,6 @@ func (c *Chain) InitChain(ctx context.Context) error {
 			// ensure the gentx folder exists
 			if err := ensureDirectory(genTxPath); err != nil {
 				return err
-			}
-
-			// symlink the root validator's config into the main config folder
-			for _, cfgpath := range configSymlink {
-				rootPath := filepath.Join(c.AppHome(), cfgpath)
-				valPath := filepath.Join(vhome, cfgpath)
-				if err := os.Symlink(valPath, rootPath); err != nil {
-					return err
-				}
 			}
 		}
 
@@ -205,12 +192,13 @@ func (c *Chain) InitChain(ctx context.Context) error {
 			persistentPeers += peer
 
 			// if we aren't at the end, include a comma
-			if j < len(validatorNodeIDs) {
+			if j < len(validatorNodeIDs)-2 {
 				persistentPeers += ","
 			}
 		}
 
 		// apply persistentpeers to validator config
+
 		configTOMLPath, err := c.configTOMLPathForValidator(val)
 		if err != nil {
 			return err
@@ -218,7 +206,9 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		p2pConfig := val.Config["p2p"]
 		if cfg, ok := p2pConfig.(map[string]interface{}); ok {
 			cfg["persistent_peers"] = persistentPeers
+			val.Config["p2p"] = cfg
 		}
+
 		ac := appconfig{confile.DefaultTOMLEncodingCreator, configTOMLPath, val.Config}
 		if err := applyConfig(ac); err != nil {
 			return err
@@ -252,8 +242,7 @@ func applyConfig(ac appconfig) error {
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
 func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error {
-
-	commands, err := c.Commands(ctx, c.validator)
+	commands, err := c.Commands(ctx, c.validator, chaincmd.WithHome(c.AppHome()))
 	if err != nil {
 		return err
 	}
@@ -325,7 +314,7 @@ func (c Chain) IssueGentx(ctx context.Context, v chainconfig.Validator) (string,
 }
 
 func (c Chain) CollectGentxs(ctx context.Context) error {
-	commands, err := c.Commands(ctx, c.validator)
+	commands, err := c.Commands(ctx, c.validator, chaincmd.WithHome(c.AppHome()))
 	if err != nil {
 		return nil
 	}
@@ -351,6 +340,36 @@ func (c *Chain) IsInitialized() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// initSymlink will symlink the root validators config data
+// into
+func (c *Chain) symlinkValidatorConfig(ctx context.Context) error {
+	configSymlink := []string{
+		"config/app.toml",
+		"config/client.toml",
+		"config/config.toml",
+		"config/node_key.json",
+		"config/priv_validator_key.json",
+	}
+
+	// symlink the root validator's config into the main config folder
+	vhome := c.homeForValidator(c.validator)
+	for _, cfgpath := range configSymlink {
+		rootPath := filepath.Join(c.AppHome(), cfgpath)
+		valPath := filepath.Join(vhome, cfgpath)
+
+		// make sure the target root path is deleted first
+		if err := os.Remove(rootPath); err != nil {
+			return err
+		}
+
+		if err := os.Symlink(valPath, rootPath); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type Validator struct {
@@ -416,9 +435,8 @@ func ensureDirectory(path string) error {
 
 func formatPeerID(validator chainconfig.Validator, nodeID string) string {
 	var laddr string
-	p2pConfig := validator.Config["p2p"]
-	if cfg, ok := p2pConfig.(map[string]interface{}); ok {
-		laddr = cfg["laddr"].(string)
+	if subcfg, ok := validator.Config["p2p"].(map[string]interface{}); ok {
+		laddr = subcfg["laddr"].(string)
 	}
 	return fmt.Sprintf("%s@%s", nodeID, laddr)
 }

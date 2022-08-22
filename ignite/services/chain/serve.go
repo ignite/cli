@@ -3,6 +3,7 @@ package chain
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
@@ -193,7 +195,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
 If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "ignite chain serve --reset-once")
 
-						return fmt.Errorf("cannot run1 %s", startErr.AppName)
+						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
 
 					// return the clear parsed error
@@ -263,8 +265,8 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	}
 
 	// note(jsimnz): Might initialize target validator here
-	fmt.Fprintf(c.stdLog().out, "💿 Running app as validator %v...\n", c.validator.Name)
-	commands, err := c.Commands(ctx, c.validator)
+	fmt.Fprintf(c.stdLog().out, "💿 Running app...\n")
+	commands, err := c.DefaultCommands(ctx)
 	if err != nil {
 		return err
 	}
@@ -386,19 +388,42 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	}
 
 	// start the blockchain
+	fmt.Println("starting...")
 	return c.start(ctx, conf)
 }
 
 func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
-	commands, err := c.Commands(ctx, c.validator)
-	if err != nil {
-		return err
-	}
-
 	g, ctx := errgroup.WithContext(ctx)
 
-	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, c.validator) })
+	// start each validator of the blockchain.
+	for _, validator := range config.Validators {
+		var cmdOpts []chaincmd.Option
+		// if we are starting the non root validator, apply correct stdout/err (discard)
+		// since by default it uses os.Stderr/out
+		if validator.Name != c.validator.Name {
+			cmdOpts = []chaincmd.Option{
+				chaincmd.WithStderr(io.Discard),
+				chaincmd.WithStdout(io.Discard),
+			}
+		}
+		commands, err := c.Commands(ctx, validator, cmdOpts...)
+		if err != nil {
+			return err
+		}
+
+		// execute goroutine in a anon func so as to encapsulate the command and validator
+		// variables
+		func(commands chaincmdrunner.Runner, validator chainconfig.Validator) {
+			g.Go(func() error {
+				fmt.Printf("----- RUNNING VALIDATOR %s -----\n", validator.Name)
+				if err := c.plugin.Start(ctx, commands, validator); err != nil {
+					fmt.Printf("FAILED START %s %s\n", validator.Name, err)
+					return err
+				}
+				return nil
+			})
+		}(commands, validator)
+	}
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
@@ -439,6 +464,16 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	}
 
 	return g.Wait()
+}
+
+func (c *Chain) startValidator(ctx context.Context, g *errgroup.Group, validator chainconfig.Validator) error {
+	commands, err := c.Commands(ctx, validator)
+	if err != nil {
+		return err
+	}
+
+	g.Go(func() error { return c.plugin.Start(ctx, commands, validator) })
+	return nil
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {

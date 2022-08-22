@@ -456,6 +456,12 @@ func (c *Chain) keyringBackendForValidator(v chainconfig.Validator) (chaincmd.Ke
 	return chaincmd.KeyringBackendTest, nil
 }
 
+// DefaultCommands returns the runner execute commands on the chains binary
+// using the default validator
+func (c *Chain) DefaultCommands(ctx context.Context, chainCmdOpts ...chaincmd.Option) (chaincmdrunner.Runner, error) {
+	return c.Commands(ctx, c.validator, chainCmdOpts...)
+}
+
 // Commands returns the runner execute commands on the chain's binary
 func (c *Chain) Commands(ctx context.Context, v chainconfig.Validator, chainCmdOpts ...chaincmd.Option) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
@@ -494,8 +500,8 @@ func (c *Chain) Commands(ctx context.Context, v chainconfig.Validator, chainCmdO
 	ccrOptions := make([]chaincmdrunner.Option, 0)
 	if c.logLevel == LogVerbose {
 		ccrOptions = append(ccrOptions,
-			chaincmdrunner.Stdout(os.Stdout),
-			chaincmdrunner.Stderr(os.Stderr),
+			chaincmdrunner.Stdout(cc.Stdout()),
+			chaincmdrunner.Stderr(cc.Stderr()),
 			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
 		)
 	}

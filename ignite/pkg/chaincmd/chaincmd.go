@@ -2,6 +2,8 @@ package chaincmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -78,6 +80,8 @@ type ChainCmd struct {
 	isAutoChainIDDetectionEnabled bool
 
 	sdkVersion cosmosver.Version
+
+	stdout, stderr io.Writer
 }
 
 // New creates a new ChainCmd to launch command with the chain app
@@ -85,6 +89,8 @@ func New(appCmd string, options ...Option) ChainCmd {
 	chainCmd := ChainCmd{
 		appCmd:     appCmd,
 		sdkVersion: cosmosver.Latest,
+		stdout:     os.Stdout,
+		stderr:     os.Stderr,
 	}
 
 	applyOptions(&chainCmd, options)
@@ -180,6 +186,20 @@ func WithLaunchpadCLIHome(cliHome string) Option {
 func WithLegacySendCommand() Option {
 	return func(c *ChainCmd) {
 		c.legacySend = true
+	}
+}
+
+// WithStdout will make the command use the given io.Writer as the stdout
+func WithStdout(out io.Writer) Option {
+	return func(c *ChainCmd) {
+		c.stdout = out
+	}
+}
+
+// WithStdout will make the command use the given io.Writer as the stdout
+func WithStderr(err io.Writer) Option {
+	return func(c *ChainCmd) {
+		c.stderr = err
 	}
 }
 
@@ -297,6 +317,16 @@ func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins 
 	}
 
 	return c.daemonCommand(command)
+}
+
+// Stdout returns the configured stdout io.Writer
+func (c ChainCmd) Stdout() io.Writer {
+	return c.stdout
+}
+
+// Stderr returns the configured stderr io.Writer
+func (c ChainCmd) Stderr() io.Writer {
+	return c.stderr
 }
 
 // GentxOption for the GentxCommand

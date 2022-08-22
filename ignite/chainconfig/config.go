@@ -172,14 +172,13 @@ func makeDefaultValidator(diff ...int) Validator {
 
 		Config: configmap{
 			"rpc": configmap{
-				"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort+diffVal),
+				"laddr":       fmt.Sprintf("0.0.0.0:%d", RPCPort+diffVal),
+				"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort+diffVal),
 			},
 
 			"p2p": configmap{
 				"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort+diffVal),
 			},
-
-			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort+diffVal),
 		},
 	}
 }
