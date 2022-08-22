@@ -28,6 +28,9 @@
 - Add `network rewards release` command
 - Add "make mocks" target to Makefile
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+- Add `node query tx` command to query a transaction.
+- Add `node query bank` command to query an account's bank balance
+- Add `node tx bank send` command to send funds from one account to an other.
 
 ### Fixes
 
