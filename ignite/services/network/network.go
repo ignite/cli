@@ -24,11 +24,8 @@ import (
 
 //go:generate mockery --name CosmosClient --case underscore
 type CosmosClient interface {
-	Account(accountName string) (cosmosaccount.Account, error)
-	Address(accountName string) (sdktypes.AccAddress, error)
 	Context() client.Context
-	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
-	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
+	BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
 	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
 }

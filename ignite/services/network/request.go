@@ -86,7 +86,7 @@ func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 		)
 	}
 
-	res, err := n.cosmos.BroadcastTx(n.account.Name, messages...)
+	res, err := n.cosmos.BroadcastTx(n.account, messages...)
 	if err != nil {
 		return err
 	}
