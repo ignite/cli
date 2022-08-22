@@ -388,7 +388,6 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	}
 
 	// start the blockchain
-	fmt.Println("starting...")
 	return c.start(ctx, conf)
 }
 
@@ -415,9 +414,7 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 		// variables
 		func(commands chaincmdrunner.Runner, validator chainconfig.Validator) {
 			g.Go(func() error {
-				fmt.Printf("----- RUNNING VALIDATOR %s -----\n", validator.Name)
 				if err := c.plugin.Start(ctx, commands, validator); err != nil {
-					fmt.Printf("FAILED START %s %s\n", validator.Name, err)
 					return err
 				}
 				return nil

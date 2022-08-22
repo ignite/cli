@@ -10,8 +10,8 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 // internal type alias for convienence
