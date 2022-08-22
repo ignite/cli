@@ -38,11 +38,13 @@ func TestTriggerLaunch(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   addr,
-				LaunchID:      testutil.LaunchID,
-				RemainingTime: TestMaxRemainingTime,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgTriggerLaunch{
+					Coordinator:   addr,
+					LaunchID:      testutil.LaunchID,
+					RemainingTime: TestMaxRemainingTime,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunchResponse{}), nil).
 			Once()
 
@@ -118,11 +120,13 @@ func TestTriggerLaunch(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   addr,
-				LaunchID:      testutil.LaunchID,
-				RemainingTime: TestMaxRemainingTime,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgTriggerLaunch{
+					Coordinator:   addr,
+					LaunchID:      testutil.LaunchID,
+					RemainingTime: TestMaxRemainingTime,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunch{}), expectedError).
 			Once()
 
@@ -149,11 +153,13 @@ func TestTriggerLaunch(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   addr,
-				LaunchID:      testutil.LaunchID,
-				RemainingTime: TestMaxRemainingTime,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgTriggerLaunch{
+					Coordinator:   addr,
+					LaunchID:      testutil.LaunchID,
+					RemainingTime: TestMaxRemainingTime,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{}), expectedError).
 			Once()
 
@@ -196,10 +202,12 @@ func TestRevertLaunch(t *testing.T) {
 
 		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: addr,
-				LaunchID:    testutil.LaunchID,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgRevertLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
 			Once()
 
@@ -219,10 +227,12 @@ func TestRevertLaunch(t *testing.T) {
 		require.NoError(t, err)
 
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: addr,
-				LaunchID:    testutil.LaunchID,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgRevertLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+				}).
 			Return(
 				testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}),
 				expectedError,
@@ -250,10 +260,12 @@ func TestRevertLaunch(t *testing.T) {
 			Return(expectedError).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: addr,
-				LaunchID:    testutil.LaunchID,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgRevertLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
 			Once()
 
