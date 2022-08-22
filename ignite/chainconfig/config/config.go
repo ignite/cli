@@ -134,18 +134,7 @@ type BaseConfig struct {
 	Genesis  map[string]interface{} `yaml:"genesis"`
 }
 
-// GetVersion returns the version of the config.yaml file.
+// GetVersion returns the version of the config file.
 func (c BaseConfig) GetVersion() Version {
 	return c.Version
-}
-
-// AccountByName finds account by name.
-func (c BaseConfig) AccountByName(name string) (acc Account, found bool) {
-	for _, acc := range c.Accounts {
-		if acc.Name == name {
-			return acc, true
-		}
-	}
-
-	return Account{}, false
 }
