@@ -1,7 +1,7 @@
 package testdata
 
 import (
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
@@ -14,12 +14,12 @@ func GetInitialV0Config() *v0.Config {
 			Name:   "alice",
 			Staked: "100000000stake",
 		},
-		Init: common.Init{
+		Init: config.Init{
 			App:    map[string]interface{}{"test-app": "test-app"},
 			Config: map[string]interface{}{"test-config": "test-config"},
 			Client: map[string]interface{}{"test-client": "test-client"},
 		},
-		Host: common.Host{
+		Host: config.Host{
 			// when in Docker on MacOS, it only works with 0.0.0.0.
 			RPC:     "localhost:53803",
 			P2P:     "localhost:50198",
@@ -28,10 +28,10 @@ func GetInitialV0Config() *v0.Config {
 			GRPCWeb: "localhost:46531",
 			API:     "localhost:51028",
 		},
-		BaseConfig: common.BaseConfig{
+		BaseConfig: config.BaseConfig{
 			ConfigVersion: 0,
-			Build: common.Build{
-				Proto: common.Proto{
+			Build: config.Build{
+				Proto: config.Proto{
 					Path: "proto",
 					ThirdPartyPaths: []string{
 						"third_party/proto",
@@ -39,14 +39,14 @@ func GetInitialV0Config() *v0.Config {
 					},
 				},
 			},
-			Faucet: common.Faucet{
+			Faucet: config.Faucet{
 				Name:     &faucetName,
 				Host:     "0.0.0.0:4500",
 				Coins:    []string{"20000token", "200000000stake"},
 				CoinsMax: []string{"10000token", "100000000stake"},
 				Port:     48772,
 			},
-			Accounts: []common.Account{
+			Accounts: []config.Account{
 				{
 					Name:  "alice",
 					Coins: []string{"20000token", "200000000stake"},
@@ -56,14 +56,14 @@ func GetInitialV0Config() *v0.Config {
 					Coins: []string{"10000token", "100000000stake"},
 				},
 			},
-			Client: common.Client{
-				Vuex: common.Vuex{
+			Client: config.Client{
+				Vuex: config.Vuex{
 					Path: "vue/src/store",
 				},
-				Dart: common.Dart{
+				Dart: config.Dart{
 					Path: "",
 				},
-				OpenAPI: common.OpenAPI{
+				OpenAPI: config.OpenAPI{
 					Path: "docs/static/openapi.yml",
 				},
 			},
@@ -93,10 +93,10 @@ func GetConvertedLatestConfig() *v1.Config {
 				},
 			},
 		},
-		BaseConfig: common.BaseConfig{
+		BaseConfig: config.BaseConfig{
 			ConfigVersion: 1,
-			Build: common.Build{
-				Proto: common.Proto{
+			Build: config.Build{
+				Proto: config.Proto{
 					Path: "proto",
 					ThirdPartyPaths: []string{
 						"third_party/proto",
@@ -104,14 +104,14 @@ func GetConvertedLatestConfig() *v1.Config {
 					},
 				},
 			},
-			Faucet: common.Faucet{
+			Faucet: config.Faucet{
 				Name:     &faucetName,
 				Host:     "0.0.0.0:4500",
 				Coins:    []string{"20000token", "200000000stake"},
 				CoinsMax: []string{"10000token", "100000000stake"},
 				Port:     48772,
 			},
-			Accounts: []common.Account{
+			Accounts: []config.Account{
 				{
 					Name:  "alice",
 					Coins: []string{"20000token", "200000000stake"},
@@ -121,14 +121,14 @@ func GetConvertedLatestConfig() *v1.Config {
 					Coins: []string{"10000token", "100000000stake"},
 				},
 			},
-			Client: common.Client{
-				Vuex: common.Vuex{
+			Client: config.Client{
+				Vuex: config.Vuex{
 					Path: "vue/src/store",
 				},
-				Dart: common.Dart{
+				Dart: config.Dart{
 					Path: "",
 				},
-				OpenAPI: common.OpenAPI{
+				OpenAPI: config.OpenAPI{
 					Path: "docs/static/openapi.yml",
 				},
 			},

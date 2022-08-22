@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
@@ -252,9 +252,8 @@ func (e Env) EnsureAppIsSteady(appPath string) {
 	)
 }
 
-// IsAppServed checks that app is served properly and servers are started to listening
-// before ctx canceled.
-func (e Env) IsAppServed(ctx context.Context, host common.Host) error {
+// IsAppServed checks that app is served properly and servers are started to listening before ctx canceled.
+func (e Env) IsAppServed(ctx context.Context, host config.Host) error {
 	checkAlive := func() error {
 		addr, err := xurl.HTTP(host.API)
 		if err != nil {
@@ -289,7 +288,7 @@ func (e Env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e Env) RandomizeServerPorts(path string, configFile string) common.Host {
+func (e Env) RandomizeServerPorts(path string, configFile string) config.Host {
 	if configFile == "" {
 		configFile = ConfigYML
 	}
@@ -309,7 +308,7 @@ func (e Env) RandomizeServerPorts(path string, configFile string) common.Host {
 	GRPCWeb := genAddr(ports[4])
 	API := genAddr(ports[5])
 
-	servers := common.Host{
+	servers := config.Host{
 		RPC:     RPC,
 		P2P:     P2P,
 		Prof:    Prof,
@@ -319,12 +318,16 @@ func (e Env) RandomizeServerPorts(path string, configFile string) common.Host {
 	}
 
 	defaultValidator := v1.Validator{
-		App: map[string]interface{}{"grpc": map[string]interface{}{"address": GRPC},
+		App: map[string]interface{}{
+			"grpc":     map[string]interface{}{"address": GRPC},
 			"grpc-web": map[string]interface{}{"address": GRPCWeb},
-			"api":      map[string]interface{}{"address": API}},
-		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": RPC},
+			"api":      map[string]interface{}{"address": API},
+		},
+		Config: map[string]interface{}{
+			"rpc":         map[string]interface{}{"laddr": RPC},
 			"p2p":         map[string]interface{}{"laddr": P2P},
-			"pprof_laddr": Prof},
+			"pprof_laddr": Prof,
+		},
 	}
 
 	// update config.yml with the generated servers list.

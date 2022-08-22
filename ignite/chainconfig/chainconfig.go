@@ -3,7 +3,7 @@ package chainconfig
 import (
 	"errors"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
@@ -11,7 +11,7 @@ import (
 
 var (
 	// LatestVersion defines the latest version of the config.
-	LatestVersion common.Version = 1
+	LatestVersion config.Version = 1
 
 	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
 	ErrCouldntLocateConfig = errors.New(
@@ -26,9 +26,9 @@ var (
 
 	// DefaultConfig defines the default config without the validators.
 	DefaultConfig = &v1.Config{
-		BaseConfig: common.BaseConfig{
-			Build: common.Build{
-				Proto: common.Proto{
+		BaseConfig: config.BaseConfig{
+			Build: config.Build{
+				Proto: config.Proto{
 					Path: "proto",
 					ThirdPartyPaths: []string{
 						"third_party/proto",
@@ -36,26 +36,15 @@ var (
 					},
 				},
 			},
-			Faucet: common.Faucet{
+			Faucet: config.Faucet{
 				Host: "0.0.0.0:4500",
 			},
 		},
 	}
 
 	// Migration defines the version as the key and the config instance as the value
-	Migration = map[common.Version]common.Config{
+	Migration = map[config.Version]config.Config{
 		0: &v0.Config{},
 		1: &v1.Config{},
 	}
 )
-
-// Config is the interface defining all the common methods for the ConfigYaml struct across all supported versions
-type Config interface {
-	Clone() Config
-
-	// Version returns the version of the Config
-	Version() Version
-
-	// ConvertNext converts the instance of Config from the current version to the next version.
-	ConvertNext() (Config, error)
-}

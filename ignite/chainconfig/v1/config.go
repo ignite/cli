@@ -7,7 +7,7 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 )
 
 // DefaultValidator defines the default values for the validator.
@@ -35,20 +35,31 @@ var (
 
 	// DefaultValidator is the default configuration of the validator
 	DefaultValidator = Validator{
-		App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
+		App: map[string]interface{}{
+			"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
 			"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
-			"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)}},
-		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
+			"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)},
+		},
+		Config: map[string]interface{}{
+			"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
 			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort)},
-			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort)},
+			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort),
+		},
 	}
 )
 
 // Config is the user given configuration to do additional setup
 // during serve.
 type Config struct {
-	Validators        []Validator `yaml:"validators"`
-	common.BaseConfig `yaml:",inline"`
+	config.BaseConfig `yaml:",inline"`
+
+	Validators []Validator `yaml:"validators"`
+}
+
+// Clone returns an identical copy of the instance
+func (c *Config) Clone() config.Config {
+	copy := *c
+	return &copy
 }
 
 // FillValidatorsDefaults fills in the defaults values for the validators if they are missing.
@@ -57,12 +68,16 @@ func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
 		var validator Validator
 		if i > 0 {
 			previousValidatorPorts := Validator{
-				App: map[string]interface{}{"grpc": map[string]interface{}{"address": c.Validators[i-1].GetGRPC()},
+				App: map[string]interface{}{
+					"grpc":     map[string]interface{}{"address": c.Validators[i-1].GetGRPC()},
 					"grpc-web": map[string]interface{}{"address": c.Validators[i-1].GetGRPCWeb()},
-					"api":      map[string]interface{}{"address": c.Validators[i-1].GetAPI()}},
-				Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": c.Validators[i-1].GetRPC()},
+					"api":      map[string]interface{}{"address": c.Validators[i-1].GetAPI()},
+				},
+				Config: map[string]interface{}{
+					"rpc":         map[string]interface{}{"laddr": c.Validators[i-1].GetRPC()},
 					"p2p":         map[string]interface{}{"laddr": c.Validators[i-1].GetP2P()},
-					"pprof_laddr": c.Validators[i-1].GetProf()},
+					"pprof_laddr": c.Validators[i-1].GetProf(),
+				},
 			}
 
 			validator = previousValidatorPorts.IncreasePort(DefaultPortMargin)
@@ -350,12 +365,16 @@ func (v *Validator) GetRPCPort() int {
 // IncreasePort generates an validator with all the ports incremented by the value portIncrement.
 func (v *Validator) IncreasePort(portIncrement int) Validator {
 	result := Validator{
-		App: map[string]interface{}{"grpc": map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetGRPCAddress(), v.GetGRPCPort()+portIncrement)},
+		App: map[string]interface{}{
+			"grpc":     map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetGRPCAddress(), v.GetGRPCPort()+portIncrement)},
 			"grpc-web": map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetGRPCWebAddress(), v.GetGRPCWebPort()+portIncrement)},
-			"api":      map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetAPIAddress(), v.GetAPIPort()+portIncrement)}},
-		Config: map[string]interface{}{"rpc": map[string]interface{}{"laddr": fmt.Sprintf("%s:%d", v.GetRPCAddress(), v.GetRPCPort()+portIncrement)},
+			"api":      map[string]interface{}{"address": fmt.Sprintf("%s:%d", v.GetAPIAddress(), v.GetAPIPort()+portIncrement)},
+		},
+		Config: map[string]interface{}{
+			"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("%s:%d", v.GetRPCAddress(), v.GetRPCPort()+portIncrement)},
 			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("%s:%d", v.GetP2PAddress(), v.GetP2PPort()+portIncrement)},
-			"pprof_laddr": fmt.Sprintf("%s:%d", v.GetProfAddress(), v.GetProfPort()+portIncrement)},
+			"pprof_laddr": fmt.Sprintf("%s:%d", v.GetProfAddress(), v.GetProfPort()+portIncrement),
+		},
 	}
 	return result
 }

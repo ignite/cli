@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v0testdata "github.com/ignite-hq/cli/ignite/chainconfig/v0/testdata"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
@@ -21,8 +21,8 @@ func TestConvertLatest(t *testing.T) {
 	cfg, ok := result.(*v1.Config)
 	require.Truef(t, ok, "expected v1 config, got %T", result)
 
-	require.Equal(t, common.Version(0), origin.Version())
-	require.Equal(t, common.Version(1), result.Version())
+	require.Equal(t, config.Version(0), origin.Version())
+	require.Equal(t, config.Version(1), result.Version())
 	require.Equal(t, origin.Faucet, cfg.Faucet)
 	require.Equal(t, origin.Client, cfg.Client)
 	require.Equal(t, origin.Build, cfg.Build)

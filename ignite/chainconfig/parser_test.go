@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
@@ -30,7 +30,7 @@ validator:
 	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 
 	require.NoError(t, err)
-	require.Equal(t, []common.Account{
+	require.Equal(t, []config.Account{
 		{
 			Name:  "me",
 			Coins: []string{"1000token", "100000000stake"},
@@ -77,7 +77,7 @@ validator:
 	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 
 	require.NoError(t, err)
-	require.Equal(t, []common.Account{
+	require.Equal(t, []config.Account{
 		{
 			Name:     "me",
 			Coins:    []string{"1000token", "100000000stake"},
@@ -217,8 +217,8 @@ genesis:
 `
 	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, common.Version(1), conf.Version())
-	require.Equal(t, []common.Account{
+	require.Equal(t, config.Version(1), conf.Version())
+	require.Equal(t, []config.Account{
 		{
 			Name:  "alice",
 			Coins: []string{"100000000uatom", "100000000000000000000aevmos"},
@@ -233,9 +233,9 @@ genesis:
 	// The default value of Host has been filled in for Faucet.
 	require.Equal(t, "0.0.0.0:4500", conf.Faucet.Host)
 	// The default values have been filled in for Build.
-	require.Equal(t, common.Build{
+	require.Equal(t, config.Build{
 		Binary: "evmosd",
-		Proto: common.Proto{
+		Proto: config.Proto{
 			Path: "proto",
 			ThirdPartyPaths: []string{
 				"third_party/proto",
@@ -307,7 +307,7 @@ func TestParseWithVersion(t *testing.T) {
 		TestName        string
 		Input           string
 		ExpectedError   error
-		ExpectedVersion common.Version
+		ExpectedVersion config.Version
 	}{{
 		TestName: "Parse the config yaml with the field version 0",
 		Input: `
@@ -495,7 +495,7 @@ validators:
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := chainconfig.Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
-			require.Equal(t, common.Version(1), conf.Version())
+			require.Equal(t, config.Version(1), conf.Version())
 			require.Equal(t, test.ExpectedFirstValidator, conf.Validators[0])
 			require.Equal(t, test.ExpectedSecondValidator, conf.Validators[1])
 		})
@@ -538,7 +538,7 @@ func TestIsConfigLatest(t *testing.T) {
 	version, latest, err := chainconfig.IsConfigLatest(path)
 	require.NoError(t, err)
 	require.Equal(t, false, latest)
-	require.Equal(t, common.Version(0), version)
+	require.Equal(t, config.Version(0), version)
 
 	path = "testdata/configv1.yaml"
 	version, latest, err = chainconfig.IsConfigLatest(path)

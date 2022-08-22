@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 )
 
@@ -15,7 +15,7 @@ func TestClone(t *testing.T) {
 			Name:   "alice",
 			Staked: "100000000stake",
 		},
-		Init: common.Init{
+		Init: config.Init{
 			App:    nil,
 			Client: nil,
 			Config: nil,

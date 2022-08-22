@@ -1,6 +1,20 @@
-package common
+package config
 
+// Version defines the type for the config version number.
 type Version int
+
+// TODO: Rename to Converter
+// Config defines the interface required to migrate configurations to newer versions.
+type Config interface {
+	// Clone clones the config by returning a new copy of the current one.
+	Clone() Config
+
+	// Version returns the config version.
+	Version() Version
+
+	// ConvertNext converts the config to the next version.
+	ConvertNext() (Config, error)
+}
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
@@ -111,6 +125,7 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
+// TODO: Rename to Config
 // BaseConfig is the struct containing all the common fields for the config across all the versions.
 type BaseConfig struct {
 	ConfigVersion Version                `yaml:"version"`

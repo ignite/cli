@@ -8,56 +8,57 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/imdario/mergo"
 )
 
 // Parse parses config.yml into UserConfig based on the version.
 // TODO parse to the given config
-func Parse(configFile io.Reader, out common.Config) error {
+func Parse(configFile io.Reader, out config.Config) error {
 	// Read the version field
 	version, err := getConfigVersion(r)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	conf, err := GetConfigInstance(version)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Go back to the beginning of the file.
 	_, err = r.(io.Seeker).Seek(0, 0)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Decode the file by parsing the content again.
 	if err = yaml.NewDecoder(r).Decode(conf); err != nil {
-		return nil, err
+		return err
 	}
 
 	conf, err = ConvertLatest(conf)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = mergo.Merge(conf, DefaultConfig); err != nil {
-		return nil, err
+		return err
 	}
 
-	latestConfig := conf.(*v1.Config)
 	// As the lib does not support the merge of the array, we fill in the default values for the list of validators.
+	latestConfig := conf.(*v1.Config)
 	if err = latestConfig.FillValidatorsDefaults(v1.DefaultValidator); err != nil {
-		return nil, err
+		return err
 	}
 
-	return latestConfig, validate(latestConfig)
+	// return latestConfig, validate(latestConfig)
+	return nil
 }
 
 // IsConfigLatest checks if the version of the config file is the latest
-func IsConfigLatest(path string) (common.Version, bool, error) {
+func IsConfigLatest(path string) (config.Version, bool, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return 0, false, err
@@ -95,8 +96,8 @@ func MigrateLatest(configFile string) error {
 }
 
 // getConfigVersion returns the version in the io.Reader based on the field version.
-func getConfigVersion(r io.Reader) (common.Version, error) {
-	var baseConf common.BaseConfig
+func getConfigVersion(r io.Reader) (config.Version, error) {
+	var baseConf config.BaseConfig
 	if err := yaml.NewDecoder(r).Decode(&baseConf); err != nil {
 		return 0, err
 	}
@@ -104,15 +105,15 @@ func getConfigVersion(r io.Reader) (common.Version, error) {
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.
-func GetConfigInstance(version common.Version) (common.Config, error) {
-	var config common.Config
-	var ok bool
-	if config, ok = Migration[version]; !ok {
+func GetConfigInstance(version config.Version) (config.Config, error) {
+	cfg, ok := Migration[version]
+	if !ok {
 		// If there is no matching instance, return the config with the v0 version.
 		return nil, &UnsupportedVersionError{"the version is not available in the supported list"}
 	}
+
 	// If we find the matching instance, clone the instance and return it.
-	return config.Clone(), nil
+	return cfg.Clone(), nil
 }
 
 // ParseFile parses config.yml from the path.
@@ -121,7 +122,9 @@ func ParseFile(path string) (*v1.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer file.Close()
+
 	return Parse(file)
 }
 
@@ -136,6 +139,7 @@ func validate(conf *v1.Config) error {
 			return &ValidationError{"validator is required"}
 		}
 	}
+
 	return nil
 }
 

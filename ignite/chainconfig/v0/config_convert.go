@@ -1,19 +1,19 @@
 package v0
 
 import (
-	"github.com/ignite-hq/cli/ignite/chainconfig/common"
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
 // ConvertNext implements the conversion of the current config to the next version.
-func (c *Config) ConvertNext() (common.Config, error) {
+func (c *Config) ConvertNext() (config.Config, error) {
 	targetConfig := &v1.Config{}
 
 	// All the fields in the base config remain the same
 	targetConfig.BaseConfig = c.BaseConfig
 
 	// Change the version to 1
-	targetConfig.ConfigVersion = common.Version(1)
+	targetConfig.ConfigVersion = config.Version(1)
 
 	// There is only one validator in v0. Set it as the only one validator in v1.
 	validators := make([]v1.Validator, 0, 1)
