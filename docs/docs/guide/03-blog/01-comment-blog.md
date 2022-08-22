@@ -94,7 +94,6 @@ The `message` command has created and modified several files:
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_comment.go
-modify x/blog/handler.go
 create x/blog/keeper/msg_server_create_comment.go
 modify x/blog/module_simulation.go
 create x/blog/simulation/create_comment.go
@@ -296,7 +295,7 @@ When you ran the `ignite scaffold list comment --no-message` command, these func
 
 By following these steps, you have implemented all of the code required to create comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog module.
 
-- `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
+- `k.CreateComment` calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
 ## Create the delete-comment message
@@ -317,7 +316,6 @@ The `message` command has created and modified several files:
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_delete_comment.go
-modify x/blog/handler.go
 create x/blog/keeper/msg_server_delete_comment.go
 modify x/blog/module_simulation.go
 create x/blog/simulation/delete_comment.go
