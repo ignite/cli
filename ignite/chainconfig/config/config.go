@@ -124,9 +124,9 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
-// TODO: Rename to Config
-// BaseConfig is the struct containing all the common fields for the config across all the versions.
+// BaseConfig defines a struct with the fields that are common to all config versions.
 type BaseConfig struct {
+	// TODO: Rename to Version
 	ConfigVersion Version                `yaml:"version"`
 	Build         Build                  `yaml:"build"`
 	Accounts      []Account              `yaml:"accounts"`
@@ -147,5 +147,6 @@ func (c BaseConfig) AccountByName(name string) (acc Account, found bool) {
 			return acc, true
 		}
 	}
+
 	return Account{}, false
 }
