@@ -101,7 +101,7 @@ func getConfigVersion(r io.Reader) (config.Version, error) {
 	if err := yaml.NewDecoder(r).Decode(&baseConf); err != nil {
 		return 0, err
 	}
-	return baseConf.ConfigVersion, nil
+	return baseConf.Version, nil
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.

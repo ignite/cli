@@ -11,7 +11,7 @@ var faucetName = "bob"
 func GetInitialV0Config() *v0.Config {
 	return &v0.Config{
 		BaseConfig: config.BaseConfig{
-			ConfigVersion: 0,
+			Version: 0,
 			Build: config.Build{
 				Proto: config.Proto{
 					Path: "proto",
@@ -75,7 +75,7 @@ func GetInitialV0Config() *v0.Config {
 func GetConvertedLatestConfig() *v1.Config {
 	return &v1.Config{
 		BaseConfig: config.BaseConfig{
-			ConfigVersion: 1,
+			Version: 1,
 			Build: config.Build{
 				Proto: config.Proto{
 					Path: "proto",

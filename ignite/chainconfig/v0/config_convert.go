@@ -13,7 +13,7 @@ func (c *Config) ConvertNext() (config.Converter, error) {
 	targetConfig.BaseConfig = c.BaseConfig
 
 	// Change the version to 1
-	targetConfig.ConfigVersion = config.Version(1)
+	targetConfig.Version = config.Version(1)
 
 	// There is only one validator in v0. Set it as the only one validator in v1.
 	validators := make([]v1.Validator, 0, 1)

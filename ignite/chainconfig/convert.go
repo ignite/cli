@@ -6,7 +6,7 @@ import "github.com/ignite-hq/cli/ignite/chainconfig/config"
 func ConvertLatest(cfg config.Converter) (config.Converter, error) {
 	var err error
 
-	version := cfg.Version()
+	version := cfg.GetVersion()
 
 	for version < LatestVersion {
 		cfg, err = cfg.ConvertNext()
@@ -14,7 +14,7 @@ func ConvertLatest(cfg config.Converter) (config.Converter, error) {
 			return nil, err
 		}
 
-		version = cfg.Version()
+		version = cfg.GetVersion()
 	}
 
 	return cfg, nil

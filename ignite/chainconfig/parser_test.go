@@ -217,7 +217,7 @@ genesis:
 `
 	conf, err := chainconfig.Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, config.Version(1), conf.Version())
+	require.Equal(t, config.Version(1), conf.GetVersion())
 	require.Equal(t, []config.Account{
 		{
 			Name:  "alice",
@@ -364,7 +364,7 @@ validators:
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := chainconfig.Parse(strings.NewReader(test.Input))
 			if conf != nil {
-				require.Equal(t, test.ExpectedVersion, conf.Version())
+				require.Equal(t, test.ExpectedVersion, conf.GetVersion())
 			}
 			require.Equal(t, test.ExpectedError, err)
 		})
@@ -495,7 +495,7 @@ validators:
 		t.Run(test.TestName, func(t *testing.T) {
 			conf, err := chainconfig.Parse(strings.NewReader(test.Input))
 			require.NoError(t, err)
-			require.Equal(t, config.Version(1), conf.Version())
+			require.Equal(t, config.Version(1), conf.GetVersion())
 			require.Equal(t, test.ExpectedFirstValidator, conf.Validators[0])
 			require.Equal(t, test.ExpectedSecondValidator, conf.Validators[1])
 		})

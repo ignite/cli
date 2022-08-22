@@ -8,8 +8,8 @@ type Converter interface {
 	// Clone clones the config by returning a new copy of the current one.
 	Clone() Converter
 
-	// Version returns the config version.
-	Version() Version
+	// GetVersion returns the config version.
+	GetVersion() Version
 
 	// ConvertNext converts the config to the next version.
 	ConvertNext() (Converter, error)
@@ -126,18 +126,17 @@ type Host struct {
 
 // BaseConfig defines a struct with the fields that are common to all config versions.
 type BaseConfig struct {
-	// TODO: Rename to Version
-	ConfigVersion Version                `yaml:"version"`
-	Build         Build                  `yaml:"build"`
-	Accounts      []Account              `yaml:"accounts"`
-	Faucet        Faucet                 `yaml:"faucet"`
-	Client        Client                 `yaml:"client"`
-	Genesis       map[string]interface{} `yaml:"genesis"`
+	Version  Version                `yaml:"version"`
+	Build    Build                  `yaml:"build"`
+	Accounts []Account              `yaml:"accounts"`
+	Faucet   Faucet                 `yaml:"faucet"`
+	Client   Client                 `yaml:"client"`
+	Genesis  map[string]interface{} `yaml:"genesis"`
 }
 
 // GetVersion returns the version of the config.yaml file.
-func (c BaseConfig) Version() Version {
-	return c.ConfigVersion
+func (c BaseConfig) GetVersion() Version {
+	return c.Version
 }
 
 // AccountByName finds account by name.

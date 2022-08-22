@@ -21,8 +21,8 @@ func TestConvertLatest(t *testing.T) {
 	cfg, ok := result.(*v1.Config)
 	require.Truef(t, ok, "expected v1 config, got %T", result)
 
-	require.Equal(t, config.Version(0), origin.Version())
-	require.Equal(t, config.Version(1), result.Version())
+	require.Equal(t, config.Version(0), origin.GetVersion())
+	require.Equal(t, config.Version(1), result.GetVersion())
 	require.Equal(t, origin.Faucet, cfg.Faucet)
 	require.Equal(t, origin.Client, cfg.Client)
 	require.Equal(t, origin.Build, cfg.Build)
