@@ -80,7 +80,7 @@ func (n Network) RevertLaunch(launchID uint64, chain Chain) error {
 	}
 
 	msg := launchtypes.NewMsgRevertLaunch(address, launchID)
-	_, err = n.cosmos.BroadcastTx(n.account.Name, msg)
+	_, err = n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}
