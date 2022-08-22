@@ -17,7 +17,7 @@ import (
 // TODO parse to the given config
 func Parse(configFile io.Reader, out config.Converter) error {
 	// Read the version field
-	version, err := getConfigVersion(r)
+	version, err := readConfigVersion(configFile)
 	if err != nil {
 		return err
 	}
@@ -28,13 +28,13 @@ func Parse(configFile io.Reader, out config.Converter) error {
 	}
 
 	// Go back to the beginning of the file.
-	_, err = r.(io.Seeker).Seek(0, 0)
+	_, err = configFile.(io.Seeker).Seek(0, 0)
 	if err != nil {
 		return err
 	}
 
 	// Decode the file by parsing the content again.
-	if err = yaml.NewDecoder(r).Decode(conf); err != nil {
+	if err = yaml.NewDecoder(configFile).Decode(conf); err != nil {
 		return err
 	}
 
@@ -57,51 +57,46 @@ func Parse(configFile io.Reader, out config.Converter) error {
 	return nil
 }
 
-// IsConfigLatest checks if the version of the config file is the latest
-func IsConfigLatest(path string) (config.Version, bool, error) {
-	file, err := os.Open(path)
+// IsConfigLatest checks if the version of the config file is the latest.
+func IsConfigLatest(cfgPath string) (config.Version, bool, error) {
+	file, err := os.Open(cfgPath)
 	if err != nil {
 		return 0, false, err
 	}
+
 	defer file.Close()
-	version, err := getConfigVersion(file)
+
+	ver, err := readConfigVersion(file)
 	if err != nil {
 		return 0, false, err
 	}
-	return version, version == LatestVersion, nil
+
+	return ver, ver == LatestVersion, nil
 }
 
-// MigrateLatest upgrades the config file to the latest version.
-func MigrateLatest(configFile string) error {
-	configyml, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		return err
-	}
-	defer configyml.Close()
-	conf, err := Parse(configyml)
+// MigrateLatest migrates a config file to the latest version.
+func MigrateLatest(path string) error {
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}
 
-	err = configyml.Truncate(0)
+	defer file.Close()
+
+	cfg, err := Parse(file)
 	if err != nil {
 		return err
 	}
 
-	_, err = configyml.Seek(0, 0)
-	if err != nil {
+	if err = file.Truncate(0); err != nil {
 		return err
 	}
-	return yaml.NewEncoder(configyml).Encode(conf)
-}
 
-// getConfigVersion returns the version in the io.Reader based on the field version.
-func getConfigVersion(r io.Reader) (config.Version, error) {
-	var baseConf config.BaseConfig
-	if err := yaml.NewDecoder(r).Decode(&baseConf); err != nil {
-		return 0, err
+	if _, err = file.Seek(0, 0); err != nil {
+		return err
 	}
-	return baseConf.Version, nil
+
+	return yaml.NewEncoder(file).Encode(cfg)
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.
@@ -128,46 +123,18 @@ func ParseFile(path string) (*v1.Config, error) {
 	return Parse(file)
 }
 
-// validate validates user config.
-func validate(conf *v1.Config) error {
-	if len(conf.ListAccounts()) == 0 {
+func validate(cfg *v1.Config) error {
+	if len(cfg.ListAccounts()) == 0 {
 		return &ValidationError{"at least 1 account is needed"}
 	}
 
-	for _, validator := range conf.Validators {
+	for _, validator := range cfg.Validators {
 		if validator.Name == "" {
 			return &ValidationError{"validator is required"}
 		}
 	}
 
 	return nil
-}
-
-// ValidationError is returned when a configuration is invalid.
-type ValidationError struct {
-	Message string
-}
-
-func (e *ValidationError) Error() string {
-	return fmt.Sprintf("config is not valid: %s", e.Message)
-}
-
-// UnsupportedVersionError is returned when the version of the config is not supported.
-type UnsupportedVersionError struct {
-	Message string
-}
-
-func (e *UnsupportedVersionError) Error() string {
-	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
-}
-
-// UnknownInputError is returned when the input of Parse is unknown.
-type UnknownInputError struct {
-	Message string
-}
-
-func (e *UnknownInputError) Error() string {
-	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
 }
 
 // LocateDefault locates the default path for the config file, if no file found returns ErrCouldntLocateConfig.
@@ -180,16 +147,17 @@ func LocateDefault(root string) (path string, err error) {
 			return "", err
 		}
 	}
+
 	return "", ErrCouldntLocateConfig
 }
 
 // FaucetHost returns the faucet host to use
-func FaucetHost(conf *v1.Config) string {
+func FaucetHost(cfg *v1.Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
-	host := conf.Faucet.Host
-	if conf.Faucet.Port != 0 {
-		host = fmt.Sprintf(":%d", conf.Faucet.Port)
+	host := cfg.Faucet.Host
+	if cfg.Faucet.Port != 0 {
+		host = fmt.Sprintf(":%d", cfg.Faucet.Port)
 	}
 
 	return host
@@ -197,10 +165,19 @@ func FaucetHost(conf *v1.Config) string {
 
 // CreateConfigDir creates config directory if it is not created yet.
 func CreateConfigDir() error {
-	confPath, err := ConfigDirPath()
+	path, err := ConfigDirPath()
 	if err != nil {
 		return err
 	}
 
-	return os.MkdirAll(confPath, 0755)
+	return os.MkdirAll(path, 0755)
+}
+
+func readConfigVersion(r io.Reader) (config.Version, error) {
+	var cfg config.BaseConfig
+	if err := yaml.NewDecoder(r).Decode(&cfg); err != nil {
+		return 0, err
+	}
+
+	return cfg.Version, nil
 }
