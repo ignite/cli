@@ -3,17 +3,16 @@ package config
 // Version defines the type for the config version number.
 type Version int
 
-// TODO: Rename to Converter
-// Config defines the interface required to migrate configurations to newer versions.
-type Config interface {
+// Converter defines the interface required to migrate configurations to newer versions.
+type Converter interface {
 	// Clone clones the config by returning a new copy of the current one.
-	Clone() Config
+	Clone() Converter
 
 	// Version returns the config version.
 	Version() Version
 
 	// ConvertNext converts the config to the next version.
-	ConvertNext() (Config, error)
+	ConvertNext() (Converter, error)
 }
 
 // Account holds the options related to setting up Cosmos wallets.

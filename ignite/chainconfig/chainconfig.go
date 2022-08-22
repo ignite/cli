@@ -43,7 +43,7 @@ var (
 	}
 
 	// Migration defines the version as the key and the config instance as the value
-	Migration = map[config.Version]config.Config{
+	Migration = map[config.Version]config.Converter{
 		0: &v0.Config{},
 		1: &v1.Config{},
 	}

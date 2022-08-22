@@ -3,7 +3,7 @@ package chainconfig
 import "github.com/ignite-hq/cli/ignite/chainconfig/config"
 
 // ConvertLatest converts a Config to the latest version of Config.
-func ConvertLatest(cfg config.Config) (config.Config, error) {
+func ConvertLatest(cfg config.Converter) (config.Converter, error) {
 	var err error
 
 	version := cfg.Version()

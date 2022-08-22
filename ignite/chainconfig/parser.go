@@ -15,7 +15,7 @@ import (
 
 // Parse parses config.yml into UserConfig based on the version.
 // TODO parse to the given config
-func Parse(configFile io.Reader, out config.Config) error {
+func Parse(configFile io.Reader, out config.Converter) error {
 	// Read the version field
 	version, err := getConfigVersion(r)
 	if err != nil {
@@ -105,7 +105,7 @@ func getConfigVersion(r io.Reader) (config.Version, error) {
 }
 
 // GetConfigInstance retrieves correct config instance based on the version.
-func GetConfigInstance(version config.Version) (config.Config, error) {
+func GetConfigInstance(version config.Version) (config.Converter, error) {
 	cfg, ok := Migration[version]
 	if !ok {
 		// If there is no matching instance, return the config with the v0 version.

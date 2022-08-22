@@ -20,7 +20,7 @@ func (c *Config) ListAccounts() []config.Account {
 }
 
 // Clone returns an identical copy of the instance
-func (c *Config) Clone() config.Config {
+func (c *Config) Clone() config.Converter {
 	copy := *c
 	return &copy
 }

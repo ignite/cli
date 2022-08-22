@@ -6,7 +6,7 @@ import (
 )
 
 // ConvertNext implements the conversion of the current config to the next version.
-func (c *Config) ConvertNext() (config.Config, error) {
+func (c *Config) ConvertNext() (config.Converter, error) {
 	targetConfig := &v1.Config{}
 
 	// All the fields in the base config remain the same
