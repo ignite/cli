@@ -42,7 +42,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -93,7 +93,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -140,7 +140,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -193,7 +193,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -217,7 +217,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddAccount{
 					Creator:  account.Address(networktypes.SPN),
 					LaunchID: testutil.LaunchID,

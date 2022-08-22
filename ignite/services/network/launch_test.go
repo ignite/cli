@@ -35,7 +35,7 @@ func TestTriggerLaunch(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
+			On("BroadcastTx", account, &launchtypes.MsgTriggerLaunch{
 				Coordinator:   account.Address(networktypes.SPN),
 				LaunchID:      testutil.LaunchID,
 				RemainingTime: TestMaxRemainingTime,
@@ -112,7 +112,7 @@ func TestTriggerLaunch(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
+			On("BroadcastTx", account, &launchtypes.MsgTriggerLaunch{
 				Coordinator:   account.Address(networktypes.SPN),
 				LaunchID:      testutil.LaunchID,
 				RemainingTime: TestMaxRemainingTime,
@@ -140,7 +140,7 @@ func TestTriggerLaunch(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
+			On("BroadcastTx", account, &launchtypes.MsgTriggerLaunch{
 				Coordinator:   account.Address(networktypes.SPN),
 				LaunchID:      testutil.LaunchID,
 				RemainingTime: TestMaxRemainingTime,
@@ -184,7 +184,7 @@ func TestRevertLaunch(t *testing.T) {
 
 		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
+			On("BroadcastTx", account, &launchtypes.MsgRevertLaunch{
 				Coordinator: account.Address(networktypes.SPN),
 				LaunchID:    testutil.LaunchID,
 			}).
@@ -204,7 +204,7 @@ func TestRevertLaunch(t *testing.T) {
 		)
 
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
+			On("BroadcastTx", account, &launchtypes.MsgRevertLaunch{
 				Coordinator: account.Address(networktypes.SPN),
 				LaunchID:    testutil.LaunchID,
 			}).
@@ -232,7 +232,7 @@ func TestRevertLaunch(t *testing.T) {
 			Return(expectedError).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
+			On("BroadcastTx", account, &launchtypes.MsgRevertLaunch{
 				Coordinator: account.Address(networktypes.SPN),
 				LaunchID:    testutil.LaunchID,
 			}).
