@@ -6,6 +6,9 @@
 
 - Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
 
+### Fixes
+- Improved error handling for crypto wrapper functions
+
 ### Features
 
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
