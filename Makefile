@@ -9,8 +9,6 @@ LD_FLAGS = -X github.com/ignite/cli/ignite/version.Head='$(HEAD)' \
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
 
-GOPATH=$(shell go env GOPATH)
-
 ## install: Install de binary.
 install:
 	@echo Installing Ignite CLI...
@@ -45,11 +43,9 @@ govet:
 
 ## format: Install and run goimports and gofumpt
 format:
-	@go install golang.org/x/tools/cmd/goimports
-	@go install mvdan.cc/gofumpt
 	@echo Formatting...
-	@$(GOPATH)/bin/gofumpt -w .
-	@$(GOPATH)/bin/goimports -w -local github.com/ignite/cli .
+	@go run mvdan.cc/gofumpt -w .
+	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli .
 
 ## lint: Run Golang CI Lint.
 lint:
