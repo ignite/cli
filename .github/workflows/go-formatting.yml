@@ -1,0 +1,35 @@
+name: Go formatting
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '**.go'
+
+jobs:
+  go-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@latest
+
+      - name: Run goimports with -local flag
+        run: $(go env GOPATH)/bin/goimports -w -local github.com/${{ github.repository }} .
+
+      - name: Run gofumpt
+        run: $(go env GOPATH)/bin/gofumpt -w .
+
+      - uses: EndBug/add-and-commit@v9
+        with:
+          fetch: false
+          message: 'chore: go formatting'
+          default_author: 'github_actions'
+          pathspec_error_handling: exitImmediately
