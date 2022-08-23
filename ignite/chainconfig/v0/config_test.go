@@ -24,7 +24,7 @@ func TestClone(t *testing.T) {
 	clone := config.Clone()
 	require.Equal(t, config, clone)
 
-	clone.(*Config).Validator = v0.Validator{
+	clone.(*v0.Config).Validator = v0.Validator{
 		Name:   "test",
 		Staked: "stakedvalue",
 	}
@@ -32,5 +32,5 @@ func TestClone(t *testing.T) {
 	require.Equal(t, v0.Validator{
 		Name:   "test",
 		Staked: "stakedvalue",
-	}, clone.(*Config).Validator)
+	}, clone.(*v0.Config).Validator)
 }
