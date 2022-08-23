@@ -138,3 +138,8 @@ type BaseConfig struct {
 func (c BaseConfig) GetVersion() Version {
 	return c.Version
 }
+
+// ListAccounts returns the list of all the accounts.
+func (c BaseConfig) ListAccounts() []Account {
+	return c.Accounts
+}
