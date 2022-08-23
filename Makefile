@@ -3,12 +3,13 @@
 # Project variables.
 PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
-FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go'
 HEAD = $(shell git rev-parse HEAD)
 LD_FLAGS = -X github.com/ignite/cli/ignite/version.Head='$(HEAD)' \
 	-X github.com/ignite/cli/ignite/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
+
+GOPATH=$(shell go env GOPATH)
 
 ## install: Install de binary.
 install:
@@ -42,11 +43,13 @@ govet:
 	@echo Running go vet...
 	@go vet ./...
 
-## format: Run gofmt.
+## format: Install and run goimports and gofumpt
 format:
+	@go install golang.org/x/tools/cmd/goimports
+	@go install mvdan.cc/gofumpt
 	@echo Formatting...
-	@find . $(FIND_ARGS) | xargs gofmt -d -s
-	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/ignite/cli
+	@$(GOPATH)/bin/gofumpt -w .
+	@$(GOPATH)/bin/goimports -w -local github.com/ignite/cli .
 
 ## lint: Run Golang CI Lint.
 lint:
