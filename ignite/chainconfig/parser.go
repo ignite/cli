@@ -137,7 +137,8 @@ func validate(cfg *v1.Config) error {
 	return nil
 }
 
-// LocateDefault locates the default path for the config file, if no file found returns ErrCouldntLocateConfig.
+// LocateDefault locates the default path for the config file.
+// Returns ErrConfigNotFound when no config file found.
 func LocateDefault(root string) (path string, err error) {
 	for _, name := range ConfigFileNames {
 		path = filepath.Join(root, name)
@@ -148,7 +149,7 @@ func LocateDefault(root string) (path string, err error) {
 		}
 	}
 
-	return "", ErrCouldntLocateConfig
+	return "", ErrConfigNotFound
 }
 
 // FaucetHost returns the faucet host to use

@@ -13,10 +13,8 @@ var (
 	// LatestVersion defines the latest version of the config.
 	LatestVersion config.Version = 1
 
-	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New(
-		"could not locate a config.yml in your chain. please follow the link for" +
-			"how-to: https://github.com/ignite-hq/cli/blob/develop/docs/configure/index.md")
+	// ErrConfigNotFound indicates that the config.yml can't be found.
+	ErrConfigNotFound = errors.New("could not locate a config.yml in your chain")
 
 	// ConfigDirPath returns the path of configuration directory of Ignite.
 	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
