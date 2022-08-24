@@ -58,14 +58,20 @@ A module can depend on one or more other modules and import their keeper
 methods. To scaffold a module with a dependency use the "--dep" flag
 
 For example, your new custom module "foo" might have functionality that requires
-sending tokens between accounts. The method for sending tokens is a defined in
-the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
-on "bank" with the following command:
+sending tokens between accounts. The method for sending tokens is defined in the
+bank's module keeper. You can scaffold a "foo" module with the dependency on
+"bank" with the following command:
 
   ignite scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
+
+Provided with "--dep bank" Ignite looks up "BankKeeper" in "app.go". If
+"BankKeeper" doesn't exist in app.go, module scaffolding will fail. Sometimes
+you might want to specify the keeper name explicitly after a colon, for example:
+
+  ignite scaffold module foo --dep feegrant:FeeGrantKeeper
 
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
