@@ -117,7 +117,7 @@ func (am AppModule) Route() sdk.Route {
 }
 
 // Deprecated: use RegisterServices
-func (AppModule) QuerierRoute() string { return types.QuerierRoute }
+func (AppModule) QuerierRoute() string { return types.RouterKey }
 
 // Deprecated: use RegisterServices
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
