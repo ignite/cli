@@ -17,8 +17,7 @@ func NewChainServe() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "serve",
 		Short: "Start a blockchain node in development",
-		Long: `
-The serve command compiles and installs the binary (like "ignite chain build"),
+		Long: `The serve command compiles and installs the binary (like "ignite chain build"),
 uses that binary to initialize the blockchain's data directory for one validator
 (like "ignite chain init"), and starts the node locally for development purposes
 with automatic code reloading.
