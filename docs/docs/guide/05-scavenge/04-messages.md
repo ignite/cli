@@ -28,7 +28,7 @@ ignite scaffold message submit-scavenge solutionHash description reward
 
 The command creates and modifies several files:
 
-```bash
+```
 modify app/app.go
 create proto/scavenge/genesis.proto
 create proto/scavenge/params.proto
@@ -123,7 +123,7 @@ ignite scaffold message commit-solution solutionHash solutionScavengerHash
 ```
 
 Because you're using the same `ignite scaffold message` command, the set of modified and created files is the same:
-```bash
+```
 modify proto/scavenge/tx.proto
 modify x/scavenge/client/cli/tx.go
 create x/scavenge/client/cli/tx_commit_solution.go

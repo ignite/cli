@@ -21,12 +21,11 @@ import (
 )
 
 func TestSignTxWithDashedAppName(t *testing.T) {
-
 	var (
 		env         = envtest.New(t)
 		appname     = "dashed-app-name"
-		path        = env.Scaffold(appname)
-		host        = env.RandomizeServerPorts(path, "")
+		app         = env.Scaffold(appname)
+		host        = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
@@ -37,7 +36,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 
 	env.Exec("scaffold a simple list",
 		step.NewSteps(step.New(
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 			step.Exec(
 				envtest.IgniteApp,
 				"scaffold",
@@ -61,7 +60,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"config",
 				"output", "json",
 			),
@@ -76,7 +75,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				return err
 			}),
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"tx",
 				"dashedappname",
 				"create-item",
@@ -103,7 +102,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("sign a tx", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
@@ -116,8 +115,8 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
-		path        = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
-		host        = env.RandomizeServerPorts(path, "")
+		app         = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
+		host        = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
@@ -144,7 +143,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"config",
 				"output", "json",
 			),
@@ -154,7 +153,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		),
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"keys",
 				"list",
 				"--keyring-backend", "test",
@@ -192,7 +191,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				// endpoint by asserting denom and amount.
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
-						appname+"d",
+						app.Binary(),
 						"tx",
 						"bank",
 						"send",
@@ -258,7 +257,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()

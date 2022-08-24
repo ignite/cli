@@ -57,6 +57,7 @@ var (
 type serveOptions struct {
 	forceReset bool
 	resetOnce  bool
+	skipProto  bool
 }
 
 func newServeOption() serveOptions {
@@ -80,6 +81,13 @@ func ServeForceReset() ServeOption {
 func ServeResetOnce() ServeOption {
 	return func(c *serveOptions) {
 		c.resetOnce = true
+	}
+}
+
+// ServeSkipProto allows to serve the app without generate Go from proto
+func ServeSkipProto() ServeOption {
+	return func(c *serveOptions) {
+		c.skipProto = true
 	}
 }
 
@@ -138,7 +146,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err = c.serve(serveCtx, cacheStorage, shouldReset)
+				err = c.serve(serveCtx, cacheStorage, shouldReset, serveOptions.skipProto)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -247,7 +255,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset bool) error {
+func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset, skipProto bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -328,7 +336,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, cacheStorage, ""); err != nil {
+		if err := c.build(ctx, cacheStorage, "", skipProto); err != nil {
 			return err
 		}
 	}
@@ -480,7 +488,7 @@ func (c *Chain) chainSavePath() (string, error) {
 	chainSavePath := filepath.Join(savePath, chainID)
 
 	// ensure the path exists
-	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
+	if err := os.MkdirAll(savePath, 0o700); err != nil && !os.IsExist(err) {
 		return "", err
 	}
 

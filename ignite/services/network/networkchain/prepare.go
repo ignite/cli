@@ -3,7 +3,6 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -154,7 +153,6 @@ func (c Chain) buildGenesis(
 			cosmosutil.WithKeyValueInt(cosmosutil.FieldLastBlockHeight, lastBlockHeight),
 			cosmosutil.WithKeyValueInt(cosmosutil.FieldConsumerUnbondingPeriod, consumerUnbondingTime),
 		)
-
 	}
 
 	// update genesis
@@ -245,14 +243,14 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	if err := os.RemoveAll(gentxDir); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(gentxDir, 0700); err != nil {
+	if err := os.MkdirAll(gentxDir, 0o700); err != nil {
 		return err
 	}
 
 	// write gentxs
 	for i, val := range genesisVals {
 		gentxPath := filepath.Join(gentxDir, fmt.Sprintf("gentx%d.json", i))
-		if err = ioutil.WriteFile(gentxPath, val.Gentx, 0666); err != nil {
+		if err = os.WriteFile(gentxPath, val.Gentx, 0o666); err != nil {
 			return err
 		}
 	}
@@ -318,7 +316,7 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		}
 
 		// save config.toml file
-		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0o644)
 		if err != nil {
 			return err
 		}
@@ -342,5 +340,4 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		}
 	}
 	return nil
-
 }

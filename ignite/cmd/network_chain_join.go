@@ -3,7 +3,6 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
-	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
@@ -39,7 +38,9 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -91,7 +92,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}
@@ -102,20 +109,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	// create a temporary directory for the chain home and genesis
-	// create the chain in a temp dir
-	tmpHome, err := os.MkdirTemp("", "*-spn")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(tmpHome)
-	c.SetHome(tmpHome)
-
-	// initialize the genesis under a temporary repository
-	if err := c.Init(cmd.Context(), cacheStorage); err != nil {
-		return err
+	} else {
+		// if a custom gentx is provided, we initialize the chain home in order to check accounts
+		if err := c.Init(cmd.Context(), cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	if amount != "" {

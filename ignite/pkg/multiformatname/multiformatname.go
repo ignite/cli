@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 

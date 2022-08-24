@@ -14,8 +14,10 @@ const SupportVersion = "2"
 
 var configPath = os.ExpandEnv("$HOME/.ignite/relayer/config.yml")
 
-var ErrChainCannotBeFound = errors.New("chain cannot be found")
-var ErrPathCannotBeFound = errors.New("path cannot be found")
+var (
+	ErrChainCannotBeFound = errors.New("chain cannot be found")
+	ErrPathCannotBeFound  = errors.New("path cannot be found")
+)
 
 type Config struct {
 	Version string  `json:"version" yaml:"version"`

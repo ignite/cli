@@ -3,6 +3,7 @@ package chaincmd
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 )
@@ -50,7 +51,6 @@ const (
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
-	constSync       = "sync"
 )
 
 type KeyringBackend string
@@ -524,8 +524,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		fromAddress,
 		toAddress,
 		amount,
-		optionBroadcastMode,
-		constSync,
+		optionBroadcastMode, flags.BroadcastSync,
 		optionYes,
 	)
 

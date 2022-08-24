@@ -35,16 +35,14 @@ func TestJoin(t *testing.T) {
 				testutil.PeerAddress,
 			)
 			gentxPath      = gentx.SaveTo(t, tmp)
-			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
-		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -89,15 +87,13 @@ func TestJoin(t *testing.T) {
 				testutil.PeerAddress,
 			)
 			gentxPath      = gentx.SaveTo(t, tmp)
-			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
 		)
 
-		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -136,17 +132,15 @@ func TestJoin(t *testing.T) {
 				testutil.PeerAddress,
 			)
 			gentxPath      = gentx.SaveTo(t, tmp)
-			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
 			expectedError  = errors.New("failed to add validator")
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
-		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -192,16 +186,14 @@ func TestJoin(t *testing.T) {
 				testutil.PeerAddress,
 			)
 			gentxPath      = gentx.SaveTo(t, tmp)
-			genesisPath    = testutil.NewGenesis(testutil.ChainID).SaveTo(t, tmp)
 			suite, network = newSuite(account)
 		)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
-		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddValidator{
 					Creator:        account.Address(networktypes.SPN),
 					LaunchID:       testutil.LaunchID,
@@ -225,7 +217,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				account,
 				&launchtypes.MsgRequestAddAccount{
 					Creator:  account.Address(networktypes.SPN),
 					LaunchID: testutil.LaunchID,
@@ -248,38 +240,6 @@ func TestJoin(t *testing.T) {
 			WithPublicAddress(testutil.TCPAddress),
 		)
 		require.NoError(t, joinErr)
-		suite.AssertAllMocks(t)
-	})
-
-	t.Run("failed to send join request with account request, account exists in genesis", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			genesis        = testutil.NewGenesis(testutil.ChainID).AddAccount(account.Address(networktypes.SPN))
-			genesisPath    = genesis.SaveTo(t, tmp)
-			suite, network = newSuite(account)
-		)
-
-		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
-		suite.ChainMock.On("GenesisPath").Return(genesisPath, nil).Once()
-
-		joinErr := network.Join(
-			context.Background(),
-			suite.ChainMock,
-			testutil.LaunchID,
-			gentxPath,
-			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
-			WithPublicAddress(testutil.TCPAddress),
-		)
-		require.Errorf(t, joinErr, "account %s already exist", account.Address(networktypes.SPN))
 		suite.AssertAllMocks(t)
 	})
 
@@ -315,41 +275,7 @@ func TestJoin(t *testing.T) {
 		suite.AssertAllMocks(t)
 	})
 
-	t.Run("failed to send join request, failed to read genesis", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			suite, network = newSuite(account)
-			expectedError  = errors.New("failed to get genesis path")
-		)
-
-		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
-		suite.ChainMock.
-			On("GenesisPath").
-			Return("", expectedError).
-			Once()
-
-		joinErr := network.Join(
-			context.Background(),
-			suite.ChainMock,
-			testutil.LaunchID,
-			gentxPath,
-			WithPublicAddress(testutil.TCPAddress),
-		)
-		require.Error(t, joinErr)
-		require.Equal(t, expectedError, joinErr)
-		suite.AssertAllMocks(t)
-	})
-
-	t.Run("failed to send join request, failed to read custom genesis", func(t *testing.T) {
+	t.Run("failed to send join request, failed to read gentx", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			gentxPath      = "invalid/path"

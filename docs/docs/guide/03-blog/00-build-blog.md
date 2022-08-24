@@ -35,10 +35,12 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-ignite scaffold chain blog
+ignite scaffold chain blog --address-prefix blog
 ```
 
 The `blog` directory is created with the default directory structure.
+
+The new blockchain is scaffolded with the `--address-prefix blog` flag to use "blog" instead of the default "cosmos" address prefix.
 
 ## High-level transaction review
 
@@ -66,7 +68,7 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-```bash
+```
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_post.go
@@ -83,7 +85,7 @@ create x/blog/types/message_create_post_test.go
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
-```go
+```protobuf
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -163,7 +165,7 @@ When you define the `Post` type in a proto file, Ignite CLI (with the help of `p
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 
-```go
+```protobuf
 syntax = "proto3";
 
 package blog.blog;
@@ -200,7 +202,7 @@ Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and a
 
 ```go
 const (
-  //...
+  // ...
 
   // Keep track of the index of posts  
   PostKey      = "Post-value-"
@@ -217,9 +219,20 @@ Your blog is now updated to take these actions when a `Post` message is sent to 
 
 ## Write data to the store
 
-Now, after the `import` section in the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
+In the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
 
 ```go
+package keeper
+
+import (
+  "encoding/binary"
+
+  "github.com/cosmos/cosmos-sdk/store/prefix"
+  sdk "github.com/cosmos/cosmos-sdk/types"
+
+  "blog/x/blog/types"
+)
+
 // func (k Keeper) AppendPost() uint64 {
 // 	 count := k.GetPostCount()
 // 	 store.Set()
@@ -273,17 +286,6 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 Now that you have implemented functions for getting the number of posts and setting the post count, at the top of the same `x/blog/keeper/post.go` file, implement the logic behind the `AppendPost` function:
 
 ```go
-package keeper
-
-import (
-  "encoding/binary"
-
-  "github.com/cosmos/cosmos-sdk/store/prefix"
-  sdk "github.com/cosmos/cosmos-sdk/types"
-
-  "blog/x/blog/types"
-)
-
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   // Get the current number of posts in the store
   count := k.GetPostCount(ctx)
@@ -336,13 +338,13 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-```go
+```protobuf
 import "blog/post.proto";
 ```
 
 2. Add pagination to the post request:
 
-```go
+```protobuf
 message QueryPostsRequest {
   // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
@@ -428,7 +430,7 @@ In the `x/blog/module.go` file:
 import (
 	"context"
 
-	// ... other imports
+	// ...
 )
 ```
 
@@ -467,8 +469,8 @@ blogd tx blog create-post foo bar --from alice
 
 The transaction is output to the terminal. You are prompted to confirm the transaction:
 
-```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"cosmos1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+```
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
@@ -487,10 +489,10 @@ blogd q blog posts
 
 The result: 
 
-```bash
+```yaml
 Post:
 - body: bar
-  creator: cosmos1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
+  creator: blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
   id: "0"
   title: foo
 pagination:

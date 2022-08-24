@@ -33,7 +33,9 @@ func NewNetworkChainPrepare() *cobra.Command {
 	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -75,7 +77,13 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("chain %d launch has not been triggered yet. use --force to prepare anyway", launchID)
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}

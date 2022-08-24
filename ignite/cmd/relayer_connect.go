@@ -23,6 +23,7 @@ func NewRelayerConnect() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -37,6 +38,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
@@ -70,7 +72,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 					use = append(use, path.ID)
 					break
 				}
-
 			}
 		}
 	}

@@ -16,6 +16,7 @@ const (
 	flagPassphrase     = "passphrase"
 	flagNonInteractive = "non-interactive"
 	flagKeyringBackend = "keyring-backend"
+	flagKeyringDir     = "keyring-dir"
 	flagFrom           = "from"
 )
 
@@ -28,6 +29,9 @@ Ignite CLI uses accounts to interact with the Ignite blockchain, use an IBC rela
 		Aliases: []string{"a"},
 		Args:    cobra.ExactArgs(1),
 	}
+
+	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
+	c.PersistentFlags().AddFlagSet(flagSetKeyringDir())
 
 	c.AddCommand(NewAccountCreate())
 	c.AddCommand(NewAccountDelete())
@@ -58,6 +62,17 @@ func getKeyringBackend(cmd *cobra.Command) cosmosaccount.KeyringBackend {
 	return cosmosaccount.KeyringBackend(backend)
 }
 
+func flagSetKeyringDir() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagKeyringDir, cosmosaccount.KeyringHome, "The accounts keyring directory")
+	return fs
+}
+
+func getKeyringDir(cmd *cobra.Command) string {
+	keyringDir, _ := cmd.Flags().GetString(flagKeyringDir)
+	return keyringDir
+}
+
 func flagSetAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagAddressPrefix, cosmosaccount.AccountPrefixCosmos, "Account address prefix")
@@ -74,10 +89,17 @@ func getFrom(cmd *cobra.Command) string {
 	return prefix
 }
 
-func flagSetAccountImportExport() *flag.FlagSet {
+func flagSetAccountImport() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.Bool(flagNonInteractive, false, "Do not enter into interactive mode")
-	fs.String(flagPassphrase, "", "Account passphrase")
+	fs.String(flagPassphrase, "", "Passphrase to decrypt the imported key (ignored when secret is a mnemonic)")
+	return fs
+}
+
+func flagSetAccountExport() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagNonInteractive, false, "Do not enter into interactive mode")
+	fs.String(flagPassphrase, "", "Passphrase to encrypt the exported key")
 	return fs
 }
 
