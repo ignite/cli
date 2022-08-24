@@ -28,7 +28,7 @@ func NewAccount() *cobra.Command {
 keypair stored in a keyring. Currently Ignite accounts are used when interacting
 with Ignite relayer commands.
 
-Note: an Ignite account is not for managing your chain's keys and accounts. Use
+Note: Ignite account commands are not for managing your chain's keys and accounts. Use
 you chain's binary to manage accounts from "config.yml". For example, if your
 blockchain is called "mychain", use "mychaind keys" to manage keys for the
 chain.
