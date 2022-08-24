@@ -14,6 +14,8 @@ jobs:
 
       - name: Install Go
         uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
 
       - name: Run make format
         run: make format
