@@ -1,92 +1,72 @@
 package v0
 
 import (
+	"github.com/imdario/mergo"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
-// ConvertNext implements the conversion of the current config to the next version.
+// ConvertNext convets the current config version to the next one.
 func (c *Config) ConvertNext() (config.Converter, error) {
-	targetConfig := &v1.Config{}
+	targetCfg := v1.DefaultConfig()
 
 	// All the fields in the base config remain the same
-	targetConfig.BaseConfig = c.BaseConfig
+	targetCfg.BaseConfig = c.BaseConfig
 
-	// Change the version to 1
-	targetConfig.Version = config.Version(1)
-
-	// There is only one validator in v0. Set it as the only one validator in v1.
-	validators := make([]v1.Validator, 0, 1)
+	// There is always only one validator in version 0
 	validator := v1.Validator{}
-
-	sourceValidator := c.Validator
-	validator.Name = sourceValidator.Name
-	validator.Bonded = sourceValidator.Staked
-
-	// Set the fields in Init to the target validator
+	validator.Name = c.Validator.Name
+	validator.Bonded = c.Validator.Staked
 	validator.Home = c.Init.Home
 	validator.KeyringBackend = c.Init.KeyringBackend
 	validator.Client = c.Init.Client
 
-	validator.App = c.Init.App
-	validator.Config = c.Init.Config
-
-	// If the fields in Host is not empty, we need to merge them into validator.app and validator.config.
-	if c.Host.P2P != "" {
-		if validator.Config == nil {
-			// Create an empty map for Config
-			validator.Config = make(map[string]interface{})
-		}
-		p2p := map[string]interface{}{"laddr": c.Host.P2P}
-		validator.Config["p2p"] = p2p
+	if c.Init.App != nil {
+		validator.App = c.Init.App
 	}
 
-	if c.Host.Prof != "" {
-		if validator.Config == nil {
-			// Create an empty map for Config
-			validator.Config = make(map[string]interface{})
-		}
-		validator.Config["pprof_laddr"] = c.Host.Prof
+	if c.Init.Config != nil {
+		validator.Config = c.Init.Config
+	}
+
+	// The host configuration must be defined in the validators for version 1
+	configValues := make(map[string]interface{})
+	appValues := make(map[string]interface{})
+
+	if c.Host.P2P != "" {
+		configValues["p2p"] = map[string]interface{}{"laddr": c.Host.P2P}
 	}
 
 	if c.Host.RPC != "" {
-		if validator.Config == nil {
-			// Create an empty map for Config
-			validator.Config = make(map[string]interface{})
-		}
-		rpc := map[string]interface{}{"laddr": c.Host.RPC}
-		validator.Config["rpc"] = rpc
+		configValues["rpc"] = map[string]interface{}{"laddr": c.Host.RPC}
+	}
+
+	if c.Host.Prof != "" {
+		configValues["pprof_laddr"] = c.Host.Prof
 	}
 
 	if c.Host.GRPCWeb != "" {
-		if validator.App == nil {
-			// Create an empty map for App
-			validator.App = make(map[string]interface{})
-		}
-		grpcweb := map[string]interface{}{"address": c.Host.GRPCWeb}
-		validator.App["grpc-web"] = grpcweb
+		appValues["grpc-web"] = map[string]interface{}{"address": c.Host.GRPCWeb}
 	}
 
 	if c.Host.GRPC != "" {
-		if validator.App == nil {
-			// Create an empty map for App
-			validator.App = make(map[string]interface{})
-		}
-		grpc := map[string]interface{}{"address": c.Host.GRPC}
-		validator.App["grpc"] = grpc
+		appValues["grpc"] = map[string]interface{}{"address": c.Host.GRPC}
 	}
 
 	if c.Host.API != "" {
-		if validator.App == nil {
-			// Create an empty map for App
-			validator.App = make(map[string]interface{})
-		}
-		api := map[string]interface{}{"address": c.Host.API}
-		validator.App["api"] = api
+		appValues["api"] = map[string]interface{}{"address": c.Host.API}
 	}
 
-	validators = append(validators, validator)
-	targetConfig.Validators = validators
+	if err := mergo.Merge(&validator.Config, configValues, mergo.WithOverride); err != nil {
+		return nil, err
+	}
 
-	return targetConfig, nil
+	if err := mergo.Merge(&validator.App, appValues, mergo.WithOverride); err != nil {
+		return nil, err
+	}
+
+	targetCfg.Validators = append(targetCfg.Validators, validator)
+
+	return targetCfg, nil
 }
