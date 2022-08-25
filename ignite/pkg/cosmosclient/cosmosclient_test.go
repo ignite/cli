@@ -153,3 +153,55 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
+
+func TestClientWaitForBlockHeight(t *testing.T) {
+	var (
+		ctx               = context.Background()
+		canceledCtx, _    = context.WithTimeout(ctx, 0)
+		targetBlockHeight = int64(42)
+	)
+	tests := []struct {
+		name          string
+		ctx           context.Context
+		expectedError string
+		setup         func(suite)
+	}{
+		{
+			name: "no wait",
+			ctx:  ctx,
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
+				}, nil)
+			},
+		},
+		{
+			name:          "canceled context",
+			ctx:           canceledCtx,
+			expectedError: canceledCtx.Err().Error(),
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Status(canceledCtx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
+				}, nil)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				require = require.New(t)
+				suite   = newSuite(t, tt.setup)
+			)
+			c, err := New(tt.ctx, WithRPCClient(suite.rpcClient))
+			require.NoError(err)
+
+			err = c.WaitForBlockHeight(tt.ctx, targetBlockHeight)
+
+			if tt.expectedError != "" {
+				require.EqualError(err, tt.expectedError)
+				return
+			}
+			require.NoError(err)
+		})
+	}
+}

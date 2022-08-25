@@ -259,8 +259,8 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 }
 
 // LatestBlockHeight returns the lastest block height of the app.
-func (c Client) LatestBlockHeight() (int64, error) {
-	resp, err := c.Status(context.Background())
+func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
+	resp, err := c.Status(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -270,38 +270,40 @@ func (c Client) LatestBlockHeight() (int64, error) {
 // WaitForNextBlock waits until next block is committed.
 // It reads the current block height and then waits for another block to be
 // committed.
-func (c Client) WaitForNextBlock() error {
-	return c.WaitForNBlocks(1)
+func (c Client) WaitForNextBlock(ctx context.Context) error {
+	return c.WaitForNBlocks(ctx, 1)
 }
 
 // WaitForNBlocks reads the current block height and then waits for anothers n
 // blocks to be committed.
-func (c Client) WaitForNBlocks(n int64) error {
-	start, err := c.LatestBlockHeight()
+func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
+	start, err := c.LatestBlockHeight(ctx)
 	if err != nil {
 		return err
 	}
-	return c.WaitForBlockHeight(start + n)
+	return c.WaitForBlockHeight(ctx, start+n)
 }
 
 // WaitForBlockHeight waits until block height h is committed, or return an
 // error if a timeout is reached (10s).
-func (c Client) WaitForBlockHeight(h int64) error {
+func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	timeout := time.After(10 * time.Second)
 
 	for {
-		status, err := c.RPC.Status(context.Background())
+		ch, err := c.LatestBlockHeight(ctx)
 		if err != nil {
 			return err
 		}
-		if status.SyncInfo.LatestBlockHeight >= h {
+		if ch >= h {
 			return nil
 		}
 		select {
 		case <-timeout:
 			return errors.New("timeout exceeded waiting for block")
+		case <-ctx.Done():
+			return ctx.Err()
 		case <-ticker.C:
 		}
 	}
