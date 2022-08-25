@@ -12,7 +12,7 @@
 
 ### Fixes
 
-- Fix `pkg/cosmosclient` to call the faucet prior to create the tx. #2775
+- Fix `pkg/cosmosclient` to call the faucet prior to create the tx.
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
