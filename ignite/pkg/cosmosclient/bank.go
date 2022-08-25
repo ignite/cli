@@ -26,8 +26,13 @@ func (c Client) BankBalances(ctx context.Context, address string, pagination *qu
 }
 
 func (c Client) BankSendTx(fromAccount cosmosaccount.Account, toAddress string, amount sdk.Coins) (TxService, error) {
+	addr, err := fromAccount.Address(c.addressPrefix)
+	if err != nil {
+		return TxService{}, err
+	}
+
 	msg := &banktypes.MsgSend{
-		FromAddress: fromAccount.Address(c.addressPrefix),
+		FromAddress: addr,
 		ToAddress:   toAddress,
 		Amount:      amount,
 	}

@@ -123,7 +123,10 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 	}
 
-	coordinatorAddress := n.account.Address(networktypes.SPN)
+	coordinatorAddress, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return 0, 0, err
+	}
 	campaignID = o.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
@@ -180,8 +183,14 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
 		// consider ways to refactor to accomplish a better API and efficiency.
+
+		addr, err := n.account.Address(networktypes.SPN)
+		if err != nil {
+			return 0, 0, err
+		}
+
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
-			n.account.Address(networktypes.SPN),
+			addr,
 			campaignID,
 			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
@@ -198,8 +207,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, err
 		}
 	} else {
+		addr, err := n.account.Address(networktypes.SPN)
+		if err != nil {
+			return 0, 0, err
+		}
+
 		msgCreateChain := launchtypes.NewMsgCreateChain(
-			n.account.Address(networktypes.SPN),
+			addr,
 			chainID,
 			c.SourceURL(),
 			c.SourceHash(),
@@ -227,7 +241,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 }
 
 func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {
-	return n.sendAccountRequest(launchID, n.account.Address(networktypes.SPN), amount)
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	return n.sendAccountRequest(launchID, addr, amount)
 }
 
 // SendAccountRequest creates an add AddAccount request message.
@@ -236,8 +255,13 @@ func (n Network) sendAccountRequest(
 	address string,
 	amount sdk.Coins,
 ) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := launchtypes.NewMsgRequestAddAccount(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		address,
 		amount,
