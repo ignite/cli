@@ -480,7 +480,11 @@ func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []s
 
 	// make sure that account has enough balances before broadcasting.
 	if c.useFaucet {
-		if err := c.makeSureAccountHasTokens(ctx, account.Address(c.addressPrefix)); err != nil {
+		addr, err := account.Address(c.addressPrefix)
+		if err != nil {
+			return err
+		}
+		if err := c.makeSureAccountHasTokens(ctx, addr); err != nil {
 			return err
 		}
 	}

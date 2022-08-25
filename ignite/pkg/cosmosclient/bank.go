@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
@@ -25,8 +26,13 @@ func (c Client) BankBalances(ctx context.Context, address string, pagination *qu
 }
 
 func (c Client) BankSendTx(fromAccount cosmosaccount.Account, toAddress string, amount sdk.Coins) (TxService, error) {
+	addr, err := fromAccount.Address(c.addressPrefix)
+	if err != nil {
+		return TxService{}, err
+	}
+
 	msg := &banktypes.MsgSend{
-		FromAddress: fromAccount.Address(c.addressPrefix),
+		FromAddress: addr,
 		ToAddress:   toAddress,
 		Amount:      amount,
 	}

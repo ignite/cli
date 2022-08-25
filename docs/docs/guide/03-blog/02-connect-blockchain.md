@@ -107,9 +107,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	addr, err  := account.Address(addressPrefix)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 	// Define a message to create a post
 	msg := &types.MsgCreatePost{
-		Creator: account.Address(addressPrefix),
+		Creator: addr,
 		Title:   "Hello!",
 		Body:    "This is the first post",
 	}
