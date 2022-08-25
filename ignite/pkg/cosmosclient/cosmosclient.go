@@ -29,6 +29,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
@@ -57,7 +58,7 @@ const (
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
-	RPC *rpchttp.HTTP
+	RPC rpcclient.Client
 
 	// Factory is a Cosmos SDK tx factory.
 	Factory tx.Factory
@@ -187,6 +188,13 @@ func WithGenerateOnly(generateOnly bool) Option {
 	}
 }
 
+// WithRPCClient sets a tendermint RPC client.
+func WithRPCClient(rpc rpcclient.Client) Option {
+	return func(c *Client) {
+		c.RPC = rpc
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -207,8 +215,10 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		apply(&c)
 	}
 
-	if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
-		return Client{}, err
+	if c.RPC == nil {
+		if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
+			return Client{}, err
+		}
 	}
 
 	statusResp, err := c.RPC.Status(ctx)
