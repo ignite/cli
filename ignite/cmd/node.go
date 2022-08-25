@@ -1,9 +1,10 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/xurl"
-	"github.com/spf13/cobra"
 )
 
 const (
