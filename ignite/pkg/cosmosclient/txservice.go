@@ -5,7 +5,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -29,9 +28,13 @@ func (s TxService) Broadcast() (Response, error) {
 	accountName := s.clientContext.GetFromName()
 	accountAddress := s.clientContext.GetFromAddress()
 
-	if err := s.client.prepareBroadcast(context.Background(), accountName, []sdktypes.Msg{}); err != nil {
-		return Response{}, err
-	}
+	// TODO uncomment after https://github.com/tendermint/spn/issues/363
+	// validate msgs.
+	//  for _, msg := range msgs {
+	//  if err := msg.ValidateBasic(); err != nil {
+	//  return err
+	//  }
+	//  }
 
 	if err := tx.Sign(s.txFactory, accountName, s.txBuilder, true); err != nil {
 		return Response{}, err
