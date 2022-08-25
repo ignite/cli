@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/p2p"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -154,12 +155,30 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func newClient(t *testing.T, setup func(suite)) Client {
+	s := suite{
+		rpcClient: mocks.NewRPCClient(t),
+	}
+	s.rpcClient.EXPECT().Status(mock.Anything).
+		Return(&ctypes.ResultStatus{}, nil).Once()
+	if setup != nil {
+		setup(s)
+	}
+	c, err := New(context.Background(),
+		WithRPCClient(s.rpcClient),
+		WithKeyringBackend(cosmosaccount.KeyringMemory),
+	)
+	require.NoError(t, err)
+	return c
+}
+
 func TestClientWaitForBlockHeight(t *testing.T) {
 	var (
-		ctx               = context.Background()
-		canceledCtx, _    = context.WithTimeout(ctx, 0)
-		targetBlockHeight = int64(42)
+		ctx                 = context.Background()
+		canceledCtx, cancel = context.WithTimeout(ctx, 0)
+		targetBlockHeight   = int64(42)
 	)
+	cancel()
 	tests := []struct {
 		name          string
 		ctx           context.Context
@@ -190,12 +209,48 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var (
 				require = require.New(t)
-				suite   = newSuite(t, tt.setup)
+				c       = newClient(t, tt.setup)
 			)
-			c, err := New(tt.ctx, WithRPCClient(suite.rpcClient))
-			require.NoError(err)
 
-			err = c.WaitForBlockHeight(tt.ctx, targetBlockHeight)
+			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight)
+
+			if tt.expectedError != "" {
+				require.EqualError(err, tt.expectedError)
+				return
+			}
+			require.NoError(err)
+		})
+	}
+}
+
+func TestClientAccount(t *testing.T) {
+	r, err := cosmosaccount.NewInMemory()
+	require.NoError(t, err)
+	account, _, err := r.Create("bob")
+	require.NoError(t, err)
+
+	tests := []struct {
+		name          string
+		addressOrName string
+		expectedError string
+	}{
+		{
+			name:          "find by name",
+			addressOrName: account.Name,
+		},
+		{
+			name:          "find by address",
+			addressOrName: account.Address("cosmos"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				require = require.New(t)
+				c       = newClient(t, nil)
+			)
+
+			_, err := c.Account(tt.addressOrName)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
