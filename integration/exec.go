@@ -8,9 +8,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/stretchr/testify/assert"
 )
 
 type execOptions struct {
