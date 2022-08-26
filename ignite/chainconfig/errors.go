@@ -1,6 +1,14 @@
 package chainconfig
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/ignite-hq/cli/ignite/chainconfig/config"
+)
+
+// ErrConfigNotFound indicates that the config.yml can't be found.
+var ErrConfigNotFound = errors.New("could not locate a config.yml in your chain")
 
 // ValidationError is returned when a configuration is invalid.
 type ValidationError struct {
@@ -13,18 +21,9 @@ func (e *ValidationError) Error() string {
 
 // UnsupportedVersionError is returned when the version of the config is not supported.
 type UnsupportedVersionError struct {
-	Message string
+	Version config.Version
 }
 
 func (e *UnsupportedVersionError) Error() string {
-	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
-}
-
-// UnknownInputError is returned when the input of Parse is unknown.
-type UnknownInputError struct {
-	Message string
-}
-
-func (e *UnknownInputError) Error() string {
-	return fmt.Sprintf("the version of the config is unsupported: %s", e.Message)
+	return fmt.Sprintf("config version %d is not supported", e.Version)
 }
