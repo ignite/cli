@@ -7,6 +7,7 @@ import (
 	"path"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -49,7 +50,7 @@ func TestNew(t *testing.T) {
 		setup          func(suite)
 	}{
 		{
-			name: "default values",
+			name: "ok: default values",
 			setup: func(s suite) {
 				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
 					NodeInfo: p2p.DefaultNodeInfo{Network: "mychain"},
@@ -72,7 +73,7 @@ func TestNew(t *testing.T) {
 			},
 		},
 		{
-			name: "custom values",
+			name: "ok: custom values",
 			setup: func(s suite) {
 				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
 					NodeInfo: p2p.DefaultNodeInfo{Network: "mychain"},
@@ -155,7 +156,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func newClient(t *testing.T, setup func(suite)) Client {
+func newClient(t *testing.T, setup func(suite), opts ...Option) Client {
 	s := suite{
 		rpcClient: mocks.NewRPCClient(t),
 	}
@@ -164,10 +165,11 @@ func newClient(t *testing.T, setup func(suite)) Client {
 	if setup != nil {
 		setup(s)
 	}
-	c, err := New(context.Background(),
+	opts = append(opts, []Option{
 		WithRPCClient(s.rpcClient),
 		WithKeyringBackend(cosmosaccount.KeyringMemory),
-	)
+	}...)
+	c, err := New(context.Background(), opts...)
 	require.NoError(t, err)
 	return c
 }
@@ -180,13 +182,14 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 	)
 	cancel()
 	tests := []struct {
-		name          string
-		ctx           context.Context
-		expectedError string
-		setup         func(suite)
+		name              string
+		ctx               context.Context
+		waitBlockDuration time.Duration
+		expectedError     string
+		setup             func(suite)
 	}{
 		{
-			name: "no wait",
+			name: "ok: no wait",
 			ctx:  ctx,
 			setup: func(s suite) {
 				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
@@ -195,7 +198,30 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 			},
 		},
 		{
-			name:          "canceled context",
+			name: "ok: wait 1 time",
+			ctx:  ctx,
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
+				}, nil).Once()
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
+				}, nil).Once()
+			},
+		},
+		{
+			name:              "fail: wait expired",
+			ctx:               ctx,
+			waitBlockDuration: time.Millisecond,
+			expectedError:     "timeout exceeded waiting for block",
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
+				}, nil)
+			},
+		},
+		{
+			name:          "fail: canceled context",
 			ctx:           canceledCtx,
 			expectedError: canceledCtx.Err().Error(),
 			setup: func(s suite) {
@@ -207,10 +233,12 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				require = require.New(t)
-				c       = newClient(t, tt.setup)
-			)
+			require := require.New(t)
+			var opts []Option
+			if tt.waitBlockDuration > 0 {
+				opts = append(opts, WithWaitBlockDuration(tt.waitBlockDuration))
+			}
+			c := newClient(t, tt.setup, opts...)
 
 			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight)
 

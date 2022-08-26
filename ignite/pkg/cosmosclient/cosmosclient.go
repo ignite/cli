@@ -37,11 +37,15 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 )
 
-// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
-// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
-var FaucetTransferEnsureDuration = time.Second * 40
+var (
+	// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
+	// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
+	FaucetTransferEnsureDuration = time.Second * 40
 
-var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+	defaultWaitBlockDuration = time.Second * 10
+
+	errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+)
 
 const (
 	defaultNodeAddress   = "http://localhost:26657"
@@ -90,6 +94,8 @@ type Client struct {
 	fees          string
 	broadcastMode string
 	generateOnly  bool
+
+	waitBlockDuration time.Duration
 }
 
 // Option configures your client.
@@ -195,18 +201,26 @@ func WithRPCClient(rpc rpcclient.Client) Option {
 	}
 }
 
+// WithWaitBlockDuration sets the wait duration for WaitForBlock methods.
+func WithWaitBlockDuration(waitBlockDuration time.Duration) Option {
+	return func(c *Client) {
+		c.waitBlockDuration = waitBlockDuration
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
-		nodeAddress:     defaultNodeAddress,
-		keyringBackend:  cosmosaccount.KeyringTest,
-		addressPrefix:   "cosmos",
-		faucetAddress:   defaultFaucetAddress,
-		faucetDenom:     defaultFaucetDenom,
-		faucetMinAmount: defaultFaucetMinAmount,
-		out:             io.Discard,
-		gas:             strconv.Itoa(defaultGasLimit),
-		broadcastMode:   flags.BroadcastBlock,
+		nodeAddress:       defaultNodeAddress,
+		keyringBackend:    cosmosaccount.KeyringTest,
+		addressPrefix:     "cosmos",
+		faucetAddress:     defaultFaucetAddress,
+		faucetDenom:       defaultFaucetDenom,
+		faucetMinAmount:   defaultFaucetMinAmount,
+		out:               io.Discard,
+		gas:               strconv.Itoa(defaultGasLimit),
+		broadcastMode:     flags.BroadcastBlock,
+		waitBlockDuration: defaultWaitBlockDuration,
 	}
 
 	var err error
@@ -289,7 +303,7 @@ func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
 func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	timeout := time.After(10 * time.Second)
+	timeout := time.After(c.waitBlockDuration)
 
 	for {
 		ch, err := c.LatestBlockHeight(ctx)
