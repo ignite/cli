@@ -13,6 +13,7 @@ func (c *Config) ConvertNext() (config.Converter, error) {
 
 	// All the fields in the base config remain the same
 	targetCfg.BaseConfig = c.BaseConfig
+	targetCfg.Version = 1
 
 	// There is always only one validator in version 0
 	validator := v1.Validator{}
