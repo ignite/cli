@@ -1,12 +1,17 @@
 package config
 
+import "github.com/imdario/mergo"
+
 // Version defines the type for the config version number.
-type Version int
+type Version uint
 
 // Converter defines the interface required to migrate configurations to newer versions.
 type Converter interface {
 	// Clone clones the config by returning a new copy of the current one.
 	Clone() Converter
+
+	// SetDefaults assigns default values to empty config fields.
+	SetDefaults() error
 
 	// GetVersion returns the config version.
 	GetVersion() Version
@@ -134,12 +139,31 @@ type BaseConfig struct {
 	Genesis  map[string]interface{} `yaml:"genesis"`
 }
 
-// GetVersion returns the version of the config file.
+// GetVersion returns the config version.
 func (c BaseConfig) GetVersion() Version {
 	return c.Version
 }
 
-// ListAccounts returns the list of all the accounts.
-func (c BaseConfig) ListAccounts() []Account {
-	return c.Accounts
+// SetDefaults assigns default values to empty config fields.
+func (c *BaseConfig) SetDefaults() error {
+	if err := mergo.Merge(c, DefaultBaseConfig()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DefaultBaseConfig returns a base config with default values.
+func DefaultBaseConfig() BaseConfig {
+	return BaseConfig{
+		Build: Build{
+			Proto: Proto{
+				Path:            "proto",
+				ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
+			},
+		},
+		Faucet: Faucet{
+			Host: "0.0.0.0:4500",
+		},
+	}
 }
