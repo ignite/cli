@@ -28,13 +28,12 @@ func (s TxService) Broadcast() (Response, error) {
 	accountName := s.clientContext.GetFromName()
 	accountAddress := s.clientContext.GetFromAddress()
 
-	// TODO uncomment after https://github.com/tendermint/spn/issues/363
 	// validate msgs.
-	//  for _, msg := range msgs {
-	//  if err := msg.ValidateBasic(); err != nil {
-	//  return err
-	//  }
-	//  }
+	for _, msg := range s.txBuilder.GetTx().GetMsgs() {
+		if err := msg.ValidateBasic(); err != nil {
+			return Response{}, err
+		}
+	}
 
 	if err := tx.Sign(s.txFactory, accountName, s.txBuilder, true); err != nil {
 		return Response{}, err
