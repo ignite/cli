@@ -1470,11 +1470,9 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/flutter/v2 v2.0.4 h1:0/FndUq1YgzNwfaDMZYHul6hb6A5yBX2nEZfJRaxZcI=
 github.com/tendermint/flutter/v2 v2.0.4/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMonsB9EIWP0AGMPw0=
-github.com/tendermint/fundraising v0.3.1-0.20220613014523-03b4a2d4481a h1:DIxap6r3z89JLoaLp6TTtt8XS7Zgfy4XACfG6b+4plE=
+github.com/tendermint/fundraising v0.3.1 h1:S4uOV/T7YNBqXhsCZnq/TUoHB0d2kM+6tKeTD4WhLN0=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
-github.com/tendermint/spn v0.2.1-0.20220810115111-9366849c5177 h1:19OWWP2ZKcMVJLouAJWFaDUsONEiNKWixnLB1Vx6oSk=
-github.com/tendermint/spn v0.2.1-0.20220810115111-9366849c5177/go.mod h1:MsMe/uJO8D0P48l0sZDKocSiCmBsSbuswD8sP+IEQ+w=
 github.com/tendermint/spn v0.2.1-0.20220826123316-985b629a92dd h1:G50RK8x61pNFGVSAI5UmXaBDA4h/P2+SDdftha9jjSM=
 github.com/tendermint/spn v0.2.1-0.20220826123316-985b629a92dd/go.mod h1:5eAAx0g6FEXubQ1Sb7zJcDZqCSjb9yoJMVOQwjEt9qQ=
 github.com/tendermint/tendermint v0.34.21 h1:UiGGnBFHVrZhoQVQ7EfwSOLuCtarqCSsRf8VrklqB7s=
