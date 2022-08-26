@@ -2,18 +2,13 @@ package v1
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
-	"github.com/imdario/mergo"
-
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
+	"github.com/ignite-hq/cli/ignite/pkg/xnet"
 )
 
 var (
-	// DefaultPortMargin is the default incremental margin for the the port number.
-	DefaultPortMargin = 10
-
 	// GRPCPort is the default port number of GRPC.
 	GRPCPort = 9090
 
@@ -29,23 +24,16 @@ var (
 	// P2PPort is the default port number of P2P.
 	P2PPort = 26656
 
-	// PPROFPort is the default port number of Prof.
-	PPROFPort = 6060
-
-	// DefaultValidator is the default configuration of the validator.
-	DefaultValidator = Validator{
-		App: map[string]interface{}{
-			"grpc":     map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCPort)},
-			"grpc-web": map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", GRPCWebPort)},
-			"api":      map[string]interface{}{"address": fmt.Sprintf("0.0.0.0:%d", APIPort)},
-		},
-		Config: map[string]interface{}{
-			"rpc":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", RPCPort)},
-			"p2p":         map[string]interface{}{"laddr": fmt.Sprintf("0.0.0.0:%d", P2PPort)},
-			"pprof_laddr": fmt.Sprintf("0.0.0.0:%d", PPROFPort),
-		},
-	}
+	// PProfPort is the default port number of Prof.
+	PProfPort = 6060
 )
+
+// DefaultConfig returns a config with default values.
+func DefaultConfig() *Config {
+	c := Config{BaseConfig: config.DefaultBaseConfig()}
+	c.Version = 1
+	return &c
+}
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
@@ -54,39 +42,82 @@ type Config struct {
 	Validators []Validator `yaml:"validators"`
 }
 
+func (c *Config) SetDefaults() error {
+	if err := c.BaseConfig.SetDefaults(); err != nil {
+		return err
+	}
+
+	if err := c.updateValidatorAddresses(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Clone returns an identical copy of the instance
 func (c *Config) Clone() config.Converter {
 	copy := *c
 	return &copy
 }
 
-// FillValidatorsDefaults fills in the defaults values for the validators if they are missing.
-func (c *Config) FillValidatorsDefaults(defaultValidator Validator) error {
-	for i := range c.Validators {
-		var validator Validator
-		if i > 0 {
-			previousValidatorPorts := Validator{
-				App: map[string]interface{}{
-					"grpc":     map[string]interface{}{"address": c.Validators[i-1].GetGRPC()},
-					"grpc-web": map[string]interface{}{"address": c.Validators[i-1].GetGRPCWeb()},
-					"api":      map[string]interface{}{"address": c.Validators[i-1].GetAPI()},
-				},
-				Config: map[string]interface{}{
-					"rpc":         map[string]interface{}{"laddr": c.Validators[i-1].GetRPC()},
-					"p2p":         map[string]interface{}{"laddr": c.Validators[i-1].GetP2P()},
-					"pprof_laddr": c.Validators[i-1].GetProf(),
-				},
-			}
+func (c *Config) updateValidatorAddresses() (err error) {
+	// Margin to increase address ports
+	margin := uint64(10)
 
-			validator = previousValidatorPorts.IncreasePort(DefaultPortMargin)
-		} else {
-			validator = defaultValidator
+	// Update empty address configuration fields for each validator
+	for i := range c.Validators {
+		// Define the validator here to be able to reference it during merge
+		validator := &c.Validators[i]
+
+		// Make sure the default Cosmos SDK and Tendermint config addresses are initialized
+		validator.setDefaultAddresses()
+
+		// Use default addresses for the first validator
+		if i == 0 {
+			continue
 		}
 
-		if err := c.Validators[i].FillDefaults(validator); err != nil {
+		// Increase the ports for each address when the current validator is not the first.
+		// The ports are increased using the previous validator addresses.
+		prev := c.Validators[i-1]
+
+		// Increase the Cosmos app config ports for the current validator
+		for field, v := range validator.App {
+			path := fmt.Sprintf("%s.address", field)
+			prevAddr := getConfigValue(prev.App, path)
+			m := v.(map[string]interface{})
+
+			m["address"], err = xnet.IncreasePortBy(prevAddr, margin)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Increase the Tendermint config ports for the current validator
+		for field, v := range validator.Config {
+			// Skip the fields that are not a map
+			m, ok := v.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			path := fmt.Sprintf("%s.laddr", field)
+			prevAddr := getConfigValue(prev.Config, path)
+
+			m["laddr"], err = xnet.IncreasePortBy(prevAddr, margin)
+			if err != nil {
+				return err
+			}
+		}
+
+		addr := prev.Config["pprof_laddr"].(string)
+
+		validator.Config["pprof_laddr"], err = xnet.IncreasePortBy(addr, margin)
+		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -228,204 +259,91 @@ type Validator struct {
 	Gentx *Gentx `yaml:"gentx"`
 }
 
-// FillDefaults fills in the default values in the parameter defaultValidator.
-func (v *Validator) FillDefaults(defaultValidator Validator) error {
-	if err := mergo.Merge(v, defaultValidator); err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetGRPC returns the GRPC.
+// GetGRPC returns the GRPC address.
 func (v *Validator) GetGRPC() string {
-	if v.App != nil {
-		if val, ok := v.App["grpc"]; ok {
-			return getValue(val, "address")
-		}
-	}
-	return ""
+	return getConfigValue(v.App, "grpc.address")
 }
 
-// GetGRPCAddress returns the GRPC IP.
-func (v *Validator) GetGRPCAddress() string {
-	grpc := v.GetGRPC()
-	return getAddress(grpc)
-}
-
-// GetGRPCPort returns the GRPC port.
-func (v *Validator) GetGRPCPort() int {
-	grpc := v.GetGRPC()
-	return getPort(grpc)
-}
-
-// GetGRPCWeb returns the GRPCWeb.
+// GetGRPCWeb returns the GRPC web address.
 func (v *Validator) GetGRPCWeb() string {
-	if v.App != nil {
-		if val, ok := v.App["grpc-web"]; ok {
-			return getValue(val, "address")
-		}
-	}
-	return ""
-}
-
-// GetGRPCWebAddress returns the GRPCWeb IP address.
-func (v *Validator) GetGRPCWebAddress() string {
-	grpcweb := v.GetGRPCWeb()
-	return getAddress(grpcweb)
-}
-
-// GetGRPCWebPort returns the GRPCWeb port.
-func (v *Validator) GetGRPCWebPort() int {
-	grpcweb := v.GetGRPCWeb()
-	return getPort(grpcweb)
+	return getConfigValue(v.App, "grpc-web.address")
 }
 
 // GetAPI returns the API address.
 func (v *Validator) GetAPI() string {
-	if v.App != nil {
-		if val, ok := v.App["api"]; ok {
-			return getValue(val, "address")
-		}
-	}
-	return ""
-}
-
-// GetAPIAddress returns the API IP address.
-func (v *Validator) GetAPIAddress() string {
-	return getAddress(v.GetAPI())
-}
-
-// GetAPIPort returns the API port.
-func (v *Validator) GetAPIPort() int {
-	return getPort(v.GetAPI())
+	return getConfigValue(v.App, "api.address")
 }
 
 // GetProf returns the Prof address.
 func (v *Validator) GetProf() string {
-	if v.Config != nil {
-		if val, ok := v.Config["pprof_laddr"]; ok {
-			return fmt.Sprintf("%v", val)
-		}
-	}
-	return ""
-}
-
-// GetProfAddress returns the Prof IP address.
-func (v *Validator) GetProfAddress() string {
-	return getAddress(v.GetProf())
-}
-
-// GetProfPort returns the Prof port.
-func (v *Validator) GetProfPort() int {
-	return getPort(v.GetProf())
+	return getConfigValue(v.Config, "pprof_laddr")
 }
 
 // GetP2P returns the P2P address.
 func (v *Validator) GetP2P() string {
-	if v.Config != nil {
-		if val, ok := v.Config["p2p"]; ok {
-			return getValue(val, "laddr")
-		}
-	}
-	return ""
-}
-
-// GetP2PAddress returns the P2P IP address.
-func (v *Validator) GetP2PAddress() string {
-	return getAddress(v.GetP2P())
-}
-
-// GetP2PPort returns the P2P port.
-func (v *Validator) GetP2PPort() int {
-	return getPort(v.GetP2P())
+	return getConfigValue(v.Config, "p2p.laddr")
 }
 
 // GetRPC returns the RPC address.
 func (v *Validator) GetRPC() string {
-	if v.Config != nil {
-		if val, ok := v.Config["rpc"]; ok {
-			return getValue(val, "laddr")
-		}
+	return getConfigValue(v.Config, "rpc.laddr")
+}
+
+func (v *Validator) setDefaultAddresses() {
+	v.App = map[string]interface{}{
+		"grpc":     map[string]interface{}{"address": xnet.AnyIPv4Address(GRPCPort)},
+		"grpc-web": map[string]interface{}{"address": xnet.AnyIPv4Address(GRPCWebPort)},
+		"api":      map[string]interface{}{"address": xnet.AnyIPv4Address(APIPort)},
 	}
-	return ""
-}
-
-// GetRPCAddress returns the RPC IP address.
-func (v *Validator) GetRPCAddress() string {
-	return getAddress(v.GetRPC())
-}
-
-// GetRPCPort returns the RPC port.
-func (v *Validator) GetRPCPort() int {
-	return getPort(v.GetRPC())
-}
-
-// TODO: Rename to a more semantic method name
-// IncreasePort generates a validator with all the ports incremented by the value of "inc".
-func (v *Validator) IncreasePort(inc int) Validator {
-	result := Validator{
-		App: map[string]interface{}{
-			"grpc": map[string]interface{}{
-				"address": fmt.Sprintf("%s:%d", v.GetGRPCAddress(), v.GetGRPCPort()+inc),
-			},
-			"grpc-web": map[string]interface{}{
-				"address": fmt.Sprintf("%s:%d", v.GetGRPCWebAddress(), v.GetGRPCWebPort()+inc),
-			},
-			"api": map[string]interface{}{
-				"address": fmt.Sprintf("%s:%d", v.GetAPIAddress(), v.GetAPIPort()+inc),
-			},
-		},
-		Config: map[string]interface{}{
-			"rpc": map[string]interface{}{
-				"laddr": fmt.Sprintf("%s:%d", v.GetRPCAddress(), v.GetRPCPort()+inc),
-			},
-			"p2p": map[string]interface{}{
-				"laddr": fmt.Sprintf("%s:%d", v.GetP2PAddress(), v.GetP2PPort()+inc),
-			},
-			"pprof_laddr": fmt.Sprintf("%s:%d", v.GetProfAddress(), v.GetProfPort()+inc),
-		},
+	v.Config = map[string]interface{}{
+		"rpc":         map[string]interface{}{"laddr": xnet.AnyIPv4Address(RPCPort)},
+		"p2p":         map[string]interface{}{"laddr": xnet.AnyIPv4Address(P2PPort)},
+		"pprof_laddr": xnet.AnyIPv4Address(PProfPort),
 	}
-	return result
 }
 
-func getValue(val interface{}, keyMap string) string {
-	switch v := val.(type) {
-	case map[string]interface{}:
-		for key, address := range v {
-			if key == keyMap {
-				return fmt.Sprintf("%v", address)
-			}
-		}
-	case map[interface{}]interface{}:
-		for key, address := range v {
-			if fmt.Sprintf("%v", key) == keyMap {
-				return fmt.Sprintf("%v", address)
-			}
-		}
-	}
-	return ""
-}
-
-func getAddress(fullAddress string) string {
-	if fullAddress == "" {
+func getConfigValue(cfg map[string]interface{}, path string) string {
+	if cfg == nil {
 		return ""
 	}
 
-	index := strings.LastIndex(fullAddress, ":")
-
-	return fullAddress[:index]
-}
-
-func getPort(fullAddress string) int {
-	if fullAddress == "" {
-		return 0
+	// Get the first path element and also the extra path elements in suffix
+	key, suffix, _ := strings.Cut(path, ".")
+	if key == "" {
+		return ""
 	}
 
-	index := strings.LastIndex(fullAddress, ":")
-	port, err := strconv.Atoi(fullAddress[index+1:])
-	if err != nil {
-		return 0
+	// Continue traversing the path when it contains a suffix
+	if suffix != "" {
+		var ok bool
+
+		cfg, ok = cfg[key].(map[string]interface{})
+		if !ok {
+			// Handle the case where YAML decodes the nested maps.
+			// Nested maps key types are decoded as interface{}.
+			nv, ok := cfg[key].(map[interface{}]interface{})
+			if !ok {
+				// The path doesn't exist in the config
+				return ""
+			}
+
+			// Convert the nested value to a map with string keys
+			for k, v := range nv {
+				// Skip key types that are not strings
+				n, ok := k.(string)
+				if !ok {
+					continue
+				}
+
+				cfg[n] = v
+			}
+		}
+
+		return getConfigValue(cfg, suffix)
 	}
 
-	return port
+	// Get config value as string
+	s, _ := cfg[key].(string)
+
+	return s
 }
