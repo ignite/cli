@@ -59,7 +59,7 @@ type Registry struct {
 	keyringServiceName string
 	keyringBackend     KeyringBackend
 
-	keyring keyring.Keyring
+	Keyring keyring.Keyring
 }
 
 // Option configures your registry.
@@ -100,7 +100,7 @@ func New(options ...Option) (Registry, error) {
 	interfaceRegistry := types.NewInterfaceRegistry()
 	cryptocodec.RegisterInterfaces(interfaceRegistry)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
-	r.keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, inBuf, cdc)
+	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, inBuf, cdc)
 	if err != nil {
 		return Registry{}, err
 	}
@@ -168,10 +168,6 @@ func toBech32(prefix string, addr []byte) string {
 	return bech32Addr
 }
 
-func (r Registry) Keyring() keyring.Keyring {
-	return r.keyring
-}
-
 // EnsureDefaultAccount ensures that default account exists.
 func (r Registry) EnsureDefaultAccount() error {
 	_, err := r.GetByName(DefaultAccount)
@@ -207,7 +203,7 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	if err != nil {
 		return Account{}, "", err
 	}
-	record, err := r.keyring.NewAccount(name, mnemonic, "", r.hdPath(), algo)
+	record, err := r.Keyring.NewAccount(name, mnemonic, "", r.hdPath(), algo)
 	if err != nil {
 		return Account{}, "", err
 	}
@@ -237,11 +233,11 @@ func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 		if err != nil {
 			return Account{}, err
 		}
-		_, err = r.keyring.NewAccount(name, secret, passphrase, r.hdPath(), algo)
+		_, err = r.Keyring.NewAccount(name, secret, passphrase, r.hdPath(), algo)
 		if err != nil {
 			return Account{}, err
 		}
-	} else if err := r.keyring.ImportPrivKey(name, secret, passphrase); err != nil {
+	} else if err := r.Keyring.ImportPrivKey(name, secret, passphrase); err != nil {
 		return Account{}, err
 	}
 
@@ -254,7 +250,7 @@ func (r Registry) Export(name, passphrase string) (key string, err error) {
 		return "", err
 	}
 
-	return r.keyring.ExportPrivKeyArmor(name, passphrase)
+	return r.Keyring.ExportPrivKeyArmor(name, passphrase)
 }
 
 // ExportHex exports an account as a private key in hex.
@@ -263,7 +259,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 		return "", err
 	}
 
-	return unsafeExportPrivKeyHex(r.keyring, name, passphrase)
+	return unsafeExportPrivKeyHex(r.Keyring, name, passphrase)
 }
 
 func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey string, err error) {
@@ -277,7 +273,7 @@ func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey
 
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
-	record, err := r.keyring.Key(name)
+	record, err := r.Keyring.Key(name)
 	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
@@ -299,7 +295,7 @@ func (r Registry) GetByAddress(address string) (Account, error) {
 	if err != nil {
 		return Account{}, err
 	}
-	record, err := r.keyring.KeyByAddress(sdkAddr)
+	record, err := r.Keyring.KeyByAddress(sdkAddr)
 	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{address}
 	}
@@ -314,7 +310,7 @@ func (r Registry) GetByAddress(address string) (Account, error) {
 
 // List lists all accounts.
 func (r Registry) List() ([]Account, error) {
-	records, err := r.keyring.List()
+	records, err := r.Keyring.List()
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +329,7 @@ func (r Registry) List() ([]Account, error) {
 
 // DeleteByName deletes an account by name.
 func (r Registry) DeleteByName(name string) error {
-	err := r.keyring.Delete(name)
+	err := r.Keyring.Delete(name)
 	if err == dkeyring.ErrKeyNotFound {
 		return &AccountDoesNotExistError{name}
 	}
@@ -345,7 +341,7 @@ func (r Registry) hdPath() string {
 }
 
 func (r Registry) algo() (keyring.SignatureAlgo, error) {
-	algos, _ := r.keyring.SupportedAlgorithms()
+	algos, _ := r.Keyring.SupportedAlgorithms()
 	return keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
 }
 

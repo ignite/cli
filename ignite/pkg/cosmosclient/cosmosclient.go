@@ -604,7 +604,7 @@ func (c Client) newContext() client.Context {
 		WithHomeDir(c.homePath).
 		WithClient(c.RPC).
 		WithSkipConfirmation(true).
-		WithKeyring(c.AccountRegistry.Keyring()).
+		WithKeyring(c.AccountRegistry.Keyring).
 		WithGenerateOnly(c.generateOnly)
 }
 
