@@ -306,11 +306,11 @@ func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	timeout := time.After(c.waitBlockDuration)
 
 	for {
-		ch, err := c.LatestBlockHeight(ctx)
+		lh, err := c.LatestBlockHeight(ctx)
 		if err != nil {
 			return err
 		}
-		if ch >= h {
+		if lh >= h {
 			return nil
 		}
 		select {
