@@ -224,9 +224,16 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 }
 
 func TestClientAccount(t *testing.T) {
+	var (
+		accountName = "bob"
+		passphrase  = "passphrase"
+	)
 	r, err := cosmosaccount.NewInMemory()
 	require.NoError(t, err)
-	account, _, err := r.Create("bob")
+	expectedAccount, _, err := r.Create(accountName)
+	require.NoError(t, err)
+	// Export created account to we can import it in the Client below.
+	key, err := r.Export(accountName, passphrase)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -235,28 +242,42 @@ func TestClientAccount(t *testing.T) {
 		expectedError string
 	}{
 		{
-			name:          "find by name",
-			addressOrName: account.Name,
+			name:          "ok: find by name",
+			addressOrName: expectedAccount.Name,
 		},
 		{
-			name:          "find by address",
-			addressOrName: account.Address("cosmos"),
+			name:          "ok: find by address",
+			addressOrName: expectedAccount.Address("cosmos"),
+		},
+		{
+			name:          "fail: name not found",
+			addressOrName: "unknown",
+			expectedError: "decoding bech32 failed: invalid bech32 string length 7",
+		},
+		{
+			name:          "fail: address not found",
+			addressOrName: "cosmos1cs4hpwrpna6ucsgsa78jfp403l7gdynukrxkrv",
+			expectedError: `account "cosmos1cs4hpwrpna6ucsgsa78jfp403l7gdynukrxkrv" does not exist`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var (
 				require = require.New(t)
+				assert  = assert.New(t)
 				c       = newClient(t, nil)
 			)
+			_, err := c.AccountRegistry.Import(accountName, key, passphrase)
+			require.NoError(err)
 
-			_, err := c.Account(tt.addressOrName)
+			account, err := c.Account(tt.addressOrName)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
 				return
 			}
 			require.NoError(err)
+			assert.Equal(expectedAccount, account)
 		})
 	}
 }
