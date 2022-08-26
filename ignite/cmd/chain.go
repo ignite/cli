@@ -29,6 +29,7 @@ func NewChain() *cobra.Command {
 	return c
 }
 
+// TODO: Refactor config migration verifier
 func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 	cmd.Flags().AddFlagSet(flagSetConfig())
 	cmd.Flags().AddFlagSet(flagSetYes())

@@ -13,14 +13,15 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-
 	"github.com/cenkalti/backoff"
 	"github.com/goccy/go-yaml"
+	"github.com/imdario/mergo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite-hq/cli/ignite/chainconfig"
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
+	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 	"github.com/ignite-hq/cli/ignite/pkg/availableport"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
@@ -317,34 +318,33 @@ func (e Env) RandomizeServerPorts(path string, configFile string) config.Host {
 		API:     API,
 	}
 
-	defaultValidator := v1.Validator{
-		App: map[string]interface{}{
+	// update config.yml with the generated servers list.
+	file, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	require.NoError(e.t, err)
+	defer file.Close()
+
+	cfg, err := chainconfig.Parse(file)
+	require.NoError(e.t, err)
+
+	addresses := map[string]interface{}{
+		"App": map[string]interface{}{
 			"grpc":     map[string]interface{}{"address": GRPC},
 			"grpc-web": map[string]interface{}{"address": GRPCWeb},
 			"api":      map[string]interface{}{"address": API},
 		},
-		Config: map[string]interface{}{
+		"Config": map[string]interface{}{
 			"rpc":         map[string]interface{}{"laddr": RPC},
 			"p2p":         map[string]interface{}{"laddr": P2P},
 			"pprof_laddr": Prof,
 		},
 	}
-
-	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
-	require.NoError(e.t, err)
-	defer configyml.Close()
-
-	var conf v1.Config
-	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
-
-	err = conf.FillValidatorsDefaults(defaultValidator)
+	err = mergo.Map(&cfg.Validators[0], addresses, mergo.WithOverride)
 	require.NoError(e.t, err)
 
-	require.NoError(e.t, configyml.Truncate(0))
-	_, err = configyml.Seek(0, 0)
+	require.NoError(e.t, file.Truncate(0))
+	_, err = file.Seek(0, 0)
 	require.NoError(e.t, err)
-	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+	require.NoError(e.t, yaml.NewEncoder(file).Encode(cfg))
 
 	return servers
 }

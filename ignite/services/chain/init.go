@@ -149,7 +149,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *v1.Config) error {
 	}
 
 	// add accounts from config into genesis
-	for _, account := range conf.ListAccounts() {
+	for _, account := range conf.Accounts {
 		var generatedAccount chaincmdrunner.Account
 		accountAddress := account.Address
 

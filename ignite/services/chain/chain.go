@@ -180,7 +180,6 @@ func New(path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-
 	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
@@ -224,7 +223,7 @@ func (c *Chain) ConfigPath() string {
 func (c *Chain) Config() (*configv1.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConfig, nil
+		return chainconfig.DefaultConfig(), nil
 	}
 	return chainconfig.ParseFile(configPath)
 }
