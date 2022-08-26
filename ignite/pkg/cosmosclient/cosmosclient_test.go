@@ -359,3 +359,20 @@ func TestClientAddress(t *testing.T) {
 		})
 	}
 }
+
+func TestClientStatus(t *testing.T) {
+	var (
+		ctx            = context.Background()
+		expectedStatus = &ctypes.ResultStatus{
+			NodeInfo: p2p.DefaultNodeInfo{Network: "mychain"},
+		}
+	)
+	c := newClient(t, func(s suite) {
+		s.rpcClient.EXPECT().Status(ctx).Return(expectedStatus, nil).Once()
+	})
+
+	status, err := c.Status(ctx)
+
+	require.NoError(t, err)
+	assert.Equal(t, expectedStatus, status)
+}
