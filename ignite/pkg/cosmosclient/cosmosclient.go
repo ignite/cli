@@ -340,17 +340,11 @@ func (c Client) account(nameOrAddress string) (cosmosaccount.Account, error) {
 
 // Address returns the account address from account name.
 func (c Client) Address(accountName string) (string, error) {
-	defer c.lockBech32Prefix()()
-
-	account, err := c.account(accountName)
+	a, err := c.AccountRegistry.GetByName(accountName)
 	if err != nil {
 		return "", err
 	}
-	sdkaddr, err := account.Record.GetAddress()
-	if err != nil {
-		return "", err
-	}
-	return sdkaddr.String(), nil
+	return a.Address(c.addressPrefix), nil
 }
 
 // Context returns client context

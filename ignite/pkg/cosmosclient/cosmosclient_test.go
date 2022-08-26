@@ -335,7 +335,7 @@ func TestClientAddress(t *testing.T) {
 		{
 			name:          "fail: name not found",
 			accountName:   "unknown",
-			expectedError: "decoding bech32 failed: invalid bech32 string length 7",
+			expectedError: `account "unknown" does not exist`,
 		},
 	}
 	for _, tt := range tests {
