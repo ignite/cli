@@ -50,7 +50,7 @@ business logic you will implement next.
 By default, all fields are assumed to be strings. If you want a field of a
 different type, you can specify it after a colon ":". The following types are
 supported: string, bool, int, uint, coin, array.string, array.int, array.uint,
-array.coin.
+array.coin. An example of using custom types:
 
   ignite scaffold list pool amount:coin tags:array.string height:int
   
