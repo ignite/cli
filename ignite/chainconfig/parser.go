@@ -13,19 +13,22 @@ import (
 )
 
 // Parse reads a config file.
-// The `DefaultVersion` is assumed when there is no version field in the config file.
-// When the version of the file beign read is not the latest it is automatically
-// migrated to the latest version.
+// When the version of the file beign read is not the latest
+// it is automatically migrated to the latest version.
 func Parse(configFile io.ReadSeeker) (*v1.Config, error) {
+	// Read the config file version first to know how to decode it
 	version, err := ReadConfigVersion(configFile)
 	if err != nil {
 		return DefaultConfig(), err
 	}
 
+	// Position at the beginning of the file before decoding starts
 	if _, err := configFile.Seek(0, 0); err != nil {
 		return DefaultConfig(), err
 	}
 
+	// Decode the current config file version and assign default
+	// values for the fields that are empty
 	c, err := decodeConfig(configFile, version)
 	if err != nil {
 		return DefaultConfig(), err
@@ -35,6 +38,7 @@ func Parse(configFile io.ReadSeeker) (*v1.Config, error) {
 		return DefaultConfig(), err
 	}
 
+	// Finally make sure the config is the latest one before validating it
 	cfg, err := ConvertLatest(c)
 	if err != nil {
 		return DefaultConfig(), err
@@ -119,15 +123,24 @@ func decodeConfig(r io.Reader, version config.Version) (config.Converter, error)
 
 func validateConfig(c *v1.Config) error {
 	if len(c.Accounts) == 0 {
-		return &ValidationError{"at least 1 account is needed"}
+		return &ValidationError{"at least one account is required"}
 	}
 
-	// TODO: Fix this validation to check that there are validators and all have a name
+	if len(c.Validators) == 0 {
+		return &ValidationError{"at least one validator is required"}
+	}
+
 	for _, validator := range c.Validators {
 		if validator.Name == "" {
-			return &ValidationError{"validator is required"}
+			return &ValidationError{"validator 'name' is required"}
+		}
+
+		if validator.Bonded == "" {
+			return &ValidationError{"validator 'bonded' is required"}
 		}
 	}
+
+	// TODO: We should validate all of the required config fields
 
 	return nil
 }
