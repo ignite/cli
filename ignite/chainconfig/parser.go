@@ -23,7 +23,7 @@ func Parse(configFile io.ReadSeeker) (*v1.Config, error) {
 	}
 
 	// Position at the beginning of the file before decoding starts
-	if _, err := configFile.Seek(0, 0); err != nil {
+	if _, err := configFile.Seek(0, io.SeekStart); err != nil {
 		return DefaultConfig(), err
 	}
 

@@ -39,7 +39,7 @@ func MigrateLatest(configFile io.ReadWriteSeeker) error {
 	}
 
 	// Position at the beginning of the file before writing the new version
-	if _, err := configFile.Seek(0, 0); err != nil {
+	if _, err := configFile.Seek(0, io.SeekStart); err != nil {
 		return err
 	}
 

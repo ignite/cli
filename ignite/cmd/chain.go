@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -87,7 +88,7 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 			}
 
 			// Position at the beginning of the file before starting the migration
-			if _, err := file.Seek(0, 0); err != nil {
+			if _, err := file.Seek(0, io.SeekStart); err != nil {
 				return err
 			}
 
