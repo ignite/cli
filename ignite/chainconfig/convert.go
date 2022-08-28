@@ -1,11 +1,12 @@
 package chainconfig
 
 import (
-	"os"
+	"io"
+
+	"gopkg.in/yaml.v2"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-	"gopkg.in/yaml.v2"
 )
 
 // Build time check for the latest config version type.
@@ -15,9 +16,7 @@ import (
 var _ = Versions[LatestVersion].(*v1.Config)
 
 // ConvertLatest converts a config to the latest version.
-func ConvertLatest(c config.Converter) (*v1.Config, error) {
-	var err error
-
+func ConvertLatest(c config.Converter) (_ *v1.Config, err error) {
 	for c.GetVersion() < LatestVersion {
 		c, err = c.ConvertNext()
 		if err != nil {
@@ -32,19 +31,17 @@ func ConvertLatest(c config.Converter) (*v1.Config, error) {
 }
 
 // MigrateLatest migrates a config file to the latest version.
-// TODO: Change to receive an io.Reader and an io.Writer instead of saving to file
-func MigrateLatest(path string) error {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0755)
+func MigrateLatest(configFile io.ReadWriteSeeker) error {
+	// Parse the config file and convert it to the latest version
+	cfg, err := Parse(configFile)
 	if err != nil {
 		return err
 	}
 
-	defer file.Close()
-
-	cfg, err := Parse(file)
-	if err != nil {
+	// Position at the beginning of the file before writing the new version
+	if _, err := configFile.Seek(0, 0); err != nil {
 		return err
 	}
 
-	return yaml.NewEncoder(file).Encode(cfg)
+	return yaml.NewEncoder(configFile).Encode(cfg)
 }

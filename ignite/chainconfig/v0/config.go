@@ -1,6 +1,10 @@
 package v0
 
 import (
+	"io"
+
+	"gopkg.in/yaml.v2"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 )
 
@@ -17,6 +21,15 @@ type Config struct {
 func (c *Config) Clone() config.Converter {
 	copy := *c
 	return &copy
+}
+
+// Decode decodes the config file values from YAML.
+func (c *Config) Decode(r io.Reader) error {
+	if err := yaml.NewDecoder(r).Decode(c); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Validator holds info related to validator settings.

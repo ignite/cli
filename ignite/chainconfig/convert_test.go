@@ -20,3 +20,7 @@ func TestConvertLatest(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, chainconfig.LatestVersion, cfgLatest.GetVersion())
 }
+
+func TestMigrateLatest(t *testing.T) {
+	// TODO: Implement test for MigrateLatest
+}

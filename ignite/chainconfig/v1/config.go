@@ -2,7 +2,10 @@ package v1
 
 import (
 	"fmt"
+	"io"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	"github.com/ignite-hq/cli/ignite/pkg/xnet"
@@ -58,6 +61,15 @@ func (c *Config) SetDefaults() error {
 func (c *Config) Clone() config.Converter {
 	copy := *c
 	return &copy
+}
+
+// Decode decodes the config file values from YAML.
+func (c *Config) Decode(r io.Reader) error {
+	if err := yaml.NewDecoder(r).Decode(c); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Config) updateValidatorAddresses() (err error) {
@@ -241,22 +253,22 @@ type Validator struct {
 	Bonded string `yaml:"bonded"`
 
 	// App overwrites appd's config/app.toml configs.
-	App map[string]interface{} `yaml:"app"`
+	App map[string]interface{} `yaml:"app,omitempty"`
 
 	// Config overwrites appd's config/config.toml configs.
-	Config map[string]interface{} `yaml:"config"`
+	Config map[string]interface{} `yaml:"config,omitempty"`
 
 	// Client overwrites appd's config/client.toml configs.
-	Client map[string]interface{} `yaml:"client"`
+	Client map[string]interface{} `yaml:"client,omitempty"`
 
 	// Home overwrites default home directory used for the app
-	Home string `yaml:"home"`
+	Home string `yaml:"home,omitempty"`
 
 	// KeyringBackend is the default keyring backend to use for blockchain initialization
-	KeyringBackend string `yaml:"keyring-backend"`
+	KeyringBackend string `yaml:"keyring-backend,omitempty"`
 
 	// Gentx overwrites appd's config/gentx.toml configs.
-	Gentx *Gentx `yaml:"gentx"`
+	Gentx *Gentx `yaml:"gentx,omitempty"`
 }
 
 // GetGRPC returns the GRPC address.
