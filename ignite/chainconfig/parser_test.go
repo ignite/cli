@@ -2,6 +2,7 @@ package chainconfig_test
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -51,4 +52,20 @@ func TestParseWithCurrentVersion(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
 	require.EqualValues(t, testdata.GetLatestConfig(t), cfg)
+}
+
+func TestParseWithUnknownVersion(t *testing.T) {
+	// Arrange
+	version := config.Version(9999)
+	r := strings.NewReader(fmt.Sprintf("version: %d", version))
+
+	var want *chainconfig.UnsupportedVersionError
+
+	// Act
+	_, err := chainconfig.Parse(r)
+
+	// Assert
+	require.ErrorAs(t, err, &want)
+	require.NotNil(t, want)
+	require.Equal(t, want.Version, version)
 }
