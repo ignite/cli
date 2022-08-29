@@ -19,6 +19,7 @@ type Config struct {
 
 // Clone returns an identical copy of the instance.
 func (c *Config) Clone() config.Converter {
+	// TODO: Check if this also need to be refactored or if it works properly
 	copy := *c
 	return &copy
 }
