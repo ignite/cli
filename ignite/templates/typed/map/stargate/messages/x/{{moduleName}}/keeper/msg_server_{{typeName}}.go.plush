@@ -3,9 +3,11 @@ package keeper
 import (
 	"context"
 
-    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+    sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
+
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 
