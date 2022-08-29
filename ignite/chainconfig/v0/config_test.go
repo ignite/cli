@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 )
 
 func TestClone(t *testing.T) {

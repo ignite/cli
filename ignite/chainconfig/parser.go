@@ -9,8 +9,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 
 // Parse reads a config file.

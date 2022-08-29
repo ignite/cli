@@ -5,8 +5,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 
 // Build time check for the latest config version type.

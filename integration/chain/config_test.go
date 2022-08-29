@@ -11,10 +11,10 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/stretchr/testify/require"
 
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
-	"github.com/ignite-hq/cli/ignite/pkg/randstr"
-	envtest "github.com/ignite-hq/cli/integration"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/randstr"
+	envtest "github.com/ignite/cli/integration"
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {

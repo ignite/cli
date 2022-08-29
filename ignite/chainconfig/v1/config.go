@@ -7,8 +7,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	"github.com/ignite-hq/cli/ignite/pkg/xnet"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
 var (

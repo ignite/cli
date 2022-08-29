@@ -3,8 +3,8 @@ package v0
 import (
 	"github.com/imdario/mergo"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 
 // ConvertNext convets the current config version to the next one.

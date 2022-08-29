@@ -5,7 +5,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 )
 
 // Config is the user given configuration to do additional setup during serve.

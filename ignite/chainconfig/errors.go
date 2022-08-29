@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 )
 
 // ErrConfigNotFound indicates that the config.yml can't be found.

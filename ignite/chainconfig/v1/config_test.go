@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-	"github.com/ignite-hq/cli/ignite/pkg/xnet"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
 func TestValidatorAddresses(t *testing.T) {

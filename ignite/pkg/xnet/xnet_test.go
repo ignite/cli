@@ -3,7 +3,7 @@ package xnet_test
 import (
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xnet"
+	"github.com/ignite/cli/ignite/pkg/xnet"
 	"github.com/stretchr/testify/require"
 )
 

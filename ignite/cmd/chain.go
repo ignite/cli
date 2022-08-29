@@ -9,7 +9,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig"
 )
 
 var migrateMsg = `Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?`

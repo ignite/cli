@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	"github.com/ignite-hq/cli/ignite/chainconfig/testdata"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	"github.com/ignite/cli/ignite/chainconfig/testdata"
 	"github.com/stretchr/testify/require"
 )
 

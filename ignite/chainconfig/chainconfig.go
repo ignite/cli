@@ -1,10 +1,10 @@
 package chainconfig
 
 import (
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 var (

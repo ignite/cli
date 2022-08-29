@@ -3,10 +3,10 @@ package testdata
 import (
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	v0testdata "github.com/ignite-hq/cli/ignite/chainconfig/v0/testdata"
-	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
-	v1testdata "github.com/ignite-hq/cli/ignite/chainconfig/v1/testdata"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v0testdata "github.com/ignite/cli/ignite/chainconfig/v0/testdata"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	v1testdata "github.com/ignite/cli/ignite/chainconfig/v1/testdata"
 )
 
 var Versions = map[config.Version][]byte{
