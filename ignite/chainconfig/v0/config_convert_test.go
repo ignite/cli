@@ -6,13 +6,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
-	"github.com/ignite-hq/cli/ignite/chainconfig/v0/testdata"
+	v0testdata "github.com/ignite-hq/cli/ignite/chainconfig/v0/testdata"
 	v1 "github.com/ignite-hq/cli/ignite/chainconfig/v1"
 )
 
 func TestConvertV0ToV1(t *testing.T) {
 	// Arrange
-	cfgV0 := testdata.GetConfigV0()
+	cfgV0 := v0testdata.GetConfig(t)
 
 	// Act
 	c, err := cfgV0.ConvertNext()
