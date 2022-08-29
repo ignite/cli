@@ -10,15 +10,15 @@ import (
 	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/sta"
-	tsproto "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/ts-proto"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
+	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 var (
@@ -57,11 +57,26 @@ func (g *generator) generateJS() error {
 }
 
 func (g *jsGenerator) generateModules() error {
-	tsprotoPluginPath, cleanup, err := tsproto.BinaryPath()
+	protocCmd, cleanupProtoc, err := protoc.Command()
 	if err != nil {
 		return err
 	}
-	defer cleanup()
+
+	defer cleanupProtoc()
+
+	tsprotoPluginPath, cleanupPlugin, err := tsproto.BinaryPath()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupPlugin()
+
+	staCmd, cleanupSTA, err := sta.Command()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupSTA()
 
 	gg := &errgroup.Group{}
 
@@ -81,7 +96,8 @@ func (g *jsGenerator) generateModules() error {
 					return nil
 				}
 
-				if err := g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m); err != nil {
+				err = g.generateModule(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)
+				if err != nil {
 					return err
 				}
 
@@ -102,7 +118,13 @@ func (g *jsGenerator) generateModules() error {
 }
 
 // generateModule generates generates JS code for a module.
-func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
+func (g *jsGenerator) generateModule(
+	ctx context.Context,
+	protocCmd protoc.Cmd,
+	staCmd sta.Cmd,
+	tsprotoPluginPath, appPath string,
+	m module.Module,
+) error {
 	var (
 		out          = g.g.o.jsOut(m)
 		storeDirPath = filepath.Dir(out)
@@ -114,7 +136,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		return err
 	}
 
-	if err := os.MkdirAll(typesOut, 0766); err != nil {
+	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 
@@ -127,6 +149,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		tsOut,
 		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=false"),
 		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
+		protoc.WithCommand(protocCmd),
 	)
 	if err != nil {
 		return err
@@ -145,6 +168,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		m.Pkg.Path,
 		includePaths,
 		jsOpenAPIOut,
+		protoc.WithCommand(protocCmd),
 	)
 	if err != nil {
 		return err
@@ -156,7 +180,8 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		outREST = filepath.Join(out, "rest.ts")
 	)
 
-	if err := sta.Generate(g.g.ctx, outREST, srcspec, "-1"); err != nil { // -1 removes the route namespace.
+	err = sta.Generate(g.g.ctx, outREST, srcspec, sta.WithCommand(staCmd))
+	if err != nil {
 		return err
 	}
 

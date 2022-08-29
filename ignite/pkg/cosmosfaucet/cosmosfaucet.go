@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
 const (

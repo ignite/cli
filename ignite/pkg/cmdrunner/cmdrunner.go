@@ -6,11 +6,12 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/goenv"
 )
 
 // Runner is an object to run commands
@@ -21,6 +22,7 @@ type Runner struct {
 	stdin       io.Reader
 	workdir     string
 	runParallel bool
+	debug       bool
 }
 
 // Option defines option to run commands
@@ -68,6 +70,12 @@ func EndSignal(s os.Signal) Option {
 	}
 }
 
+func EnableDebug() Option {
+	return func(r *Runner) {
+		r.debug = true
+	}
+}
+
 // New returns a new commands runner
 func New(options ...Option) *Runner {
 	runner := &Runner{
@@ -85,9 +93,13 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		return nil
 	}
 	g, ctx := errgroup.WithContext(ctx)
-	for _, step := range steps {
+	for i, step := range steps {
 		// copy s to a new variable to allocate a new address
 		// so we can safely use it inside goroutines spawned in this loop.
+		if r.debug {
+			fmt.Printf("Step %d: %s %s\n", i, step.Exec.Command,
+				strings.Join(step.Exec.Args, " "))
+		}
 		step := step
 		if err := ctx.Err(); err != nil {
 			return err

@@ -8,10 +8,10 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgit"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgit"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 // flags related to component scaffolding
@@ -28,9 +28,60 @@ func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "scaffold [command]",
 		Short: "Scaffold a new blockchain, module, message, query, and more",
-		Long: `Scaffold commands create and modify the source code files to add functionality.
+		Long: `Scaffolding is a quick way to generate code for major pieces of your
+application.
 
-CRUD stands for "create, read, update, delete".`,
+For details on each scaffolding target (chain, module, message, etc.) run the
+corresponding command with a "--help" flag, for example, "ignite scaffold chain
+--help".
+
+The Ignite team strongly recommends committing the code to a version control
+system before running scaffolding commands. This will make it easier to see the
+changes to the source code as well as undo the command if you've decided to roll
+back the changes.
+
+This blockchain you create with the chain scaffolding command uses the modular
+Cosmos SDK framework and imports many standard modules for functionality like
+proof of stake, token transfer, inter-blockchain connectivity, governance, and
+more. Custom functionality is implemented in modules located by convention in
+the "x/" directory. By default, your blockchain comes with an empty custom
+module. Use the module scaffolding command to create an additional module.
+
+An empty custom module doesn't do much, it's basically a container for logic
+that is responsible for processing transactions and changing the application
+state. Cosmos SDK blockchains work by processing user-submitted signed
+transactions, which contain one or more messages. A message contains data that
+describes a state transition. A module can be responsible for handling any
+number of messages.
+
+A message scaffolding command will generate the code for handling a new type of
+Cosmos SDK message. Message fields describe the state transition that the
+message is intended to produce if processed without errors.
+
+Scaffolding messages is useful to create individual "actions" that your module
+can perform. Sometimes, however, you want your blockchain to have the
+functionality to create, read, update and delete (CRUD) instances of a
+particular type. Depending on how you want to store the data there are three
+commands that scaffold CRUD functionality for a type: list, map, and single.
+These commands create four messages (one for each CRUD action), and the logic to
+add, delete, and fetch the data from the store. If you want to scaffold only the
+logic, for example, you've decided to scaffold messages separately, you can do
+that as well with the "--no-message" flag.
+
+Reading data from a blockchain happens with a help of queries. Similar to how
+you can scaffold messages to write data, you can scaffold queries to read the
+data back from your blockchain application.
+
+You can also scaffold a type, which just produces a new protocol buffer file
+with a proto message description. Note that proto messages produce (and
+correspond with) Go types whereas Cosmos SDK messages correspond to proto "rpc"
+in the "Msg" service.
+
+If you're building an application with custom IBC logic, you might need to
+scaffold IBC packets. An IBC packet represents the data sent from one blockchain
+to another. You can only scaffold IBC packets in IBC-enabled modules scaffolded
+with an "--ibc" flag. Note that the default module is not IBC-enabled.
+`,
 		Aliases: []string{"s"},
 		Args:    cobra.ExactArgs(1),
 	}

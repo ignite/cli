@@ -13,17 +13,17 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	"github.com/ignite-hq/cli/ignite/version"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/version"
 )
 
 const (
@@ -32,6 +32,7 @@ const (
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
 	flagClearCache    = "clear-cache"
+	flagSkipProto     = "skip-proto"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -68,6 +69,7 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
 	c.AddCommand(NewNetwork())
+	c.AddCommand(NewNode())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
@@ -97,7 +99,7 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagHome, "", "Home directory used for blockchains")
+	fs.String(flagHome, "", "home directory used for blockchains")
 	return fs
 }
 
@@ -137,7 +139,7 @@ func getYes(cmd *cobra.Command) (ok bool) {
 func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
-	info := "Enables proto code generation for 3rd party modules used in your chain"
+	info := "enables proto code generation for 3rd party modules used in your chain"
 	if additionalInfo != "" {
 		info += ". " + additionalInfo
 	}
@@ -151,8 +153,19 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	return isEnabled
 }
 
+func flagSetSkipProto() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagSkipProto, false, "skip file generation from proto")
+	return fs
+}
+
+func flagGetSkipProto(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagSkipProto)
+	return skip
+}
+
 func flagSetClearCache(cmd *cobra.Command) {
-	cmd.PersistentFlags().Bool(flagClearCache, false, "clears the cache")
+	cmd.PersistentFlags().Bool(flagClearCache, false, "clear the build cache (advanced)")
 }
 
 func flagGetClearCache(cmd *cobra.Command) bool {

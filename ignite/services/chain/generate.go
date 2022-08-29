@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
 
 const (
@@ -55,7 +55,8 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) error {
+// generateFromConfig makes code generation from proto files from the given config
+func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
@@ -63,6 +64,7 @@ func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) err
 
 	var additionalTargets []GenerateTarget
 
+	// parse config for additional target
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
 	}
@@ -120,7 +122,7 @@ func (c *Chain) Generate(
 		}
 
 		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
+		if err := os.MkdirAll(storeRootPath, 0o766); err != nil {
 			return err
 		}
 
@@ -141,7 +143,7 @@ func (c *Chain) Generate(
 		}
 
 		rootPath := filepath.Join(c.app.Path, dartPath, "generated")
-		if err := os.MkdirAll(rootPath, 0766); err != nil {
+		if err := os.MkdirAll(rootPath, 0o766); err != nil {
 			return err
 		}
 

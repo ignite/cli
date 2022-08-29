@@ -5,12 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 // NewNetworkChainInstall returns a new command to install a chain's binary by the launch id.
@@ -24,6 +24,7 @@ func NewNetworkChainInstall() *cobra.Command {
 
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	return c
 }
 
@@ -57,7 +58,13 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}

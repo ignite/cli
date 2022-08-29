@@ -3,8 +3,8 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 const (
@@ -24,6 +24,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 	c.Flags().Duration(flagRemainingTime, 0, "Duration of time in seconds before the chain is effectively launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }

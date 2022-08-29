@@ -3,14 +3,15 @@ package ignitecmd
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -28,11 +29,11 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
+	spnNodeAddressNightly   = "http://178.128.251.28:26657"
+	spnFaucetAddressNightly = "http://178.128.251.28:4500"
 
-	spnNodeAddressLocal   = "http://0.0.0.0:26657"
-	spnFaucetAddressLocal = "http://0.0.0.0:4500"
+	spnNodeAddressLocal   = "http://0.0.0.0:26661"
+	spnFaucetAddressLocal = "http://0.0.0.0:4502"
 )
 
 // NewNetwork creates a new network command that holds some other sub commands
@@ -58,7 +59,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
-		NewNetworkClient(),
+		NewNetworkProfile(),
 	)
 
 	return c
@@ -82,6 +83,12 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 	return func(builder *NetworkBuilder) {
 		builder.ev = ev
 	}
+}
+
+func flagSetSPNAccountPrefixes() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	return fs
 }
 
 func newNetworkBuilder(cmd *cobra.Command, options ...NetworkBuilderOption) (NetworkBuilder, error) {
@@ -149,6 +156,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithAddressPrefix(networktypes.SPN),
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
+		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

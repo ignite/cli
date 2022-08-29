@@ -9,12 +9,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 const (
@@ -57,8 +56,10 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -210,12 +211,18 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentageRequired(sharesStr)
+		sharePercentages, err := network.ParseSharePercents(sharesStr)
 		if err != nil {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithPercentageShares(coins))
+		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
+	}
+
+	// TODO: Issue an error or warning when this flag is used with "no-check"?
+	//       The "check-dependencies" flag is ignored when the "no-check" one is present.
+	if flagGetCheckDependencies(cmd) {
+		initOptions = append(initOptions, networkchain.CheckDependencies())
 	}
 
 	// init the chain.
@@ -237,7 +244,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
@@ -256,10 +263,13 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
-	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
-	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)
+	} else {
+		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
+	}
+	if campaignID != 0 {
+		session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	}
 
 	return nil

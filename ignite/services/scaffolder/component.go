@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
 const (
@@ -120,7 +120,6 @@ func checkGoReservedWord(name string) error {
 
 // checkComponentCreated checks if the component has been already created with Starport in the project
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
-
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
 		compName.UpperCamel:                           componentType,

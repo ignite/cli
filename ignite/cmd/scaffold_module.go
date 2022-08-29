@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/validation"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/services/scaffolder"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
 const (
@@ -29,9 +29,67 @@ func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "module [name]",
 		Short: "Scaffold a Cosmos SDK module",
-		Long:  "Scaffold a new Cosmos SDK module in the `x` directory",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  scaffoldModuleHandler,
+		Long: `Scaffold a new Cosmos SDK module.
+
+Cosmos SDK is a modular framework and each independent piece of functionality is
+implemented in a separate module. By default your blockchain imports a set of
+standard Cosmos SDK modules. To implement custom functionality of your
+blockchain, scaffold a module and implement the logic of your application.
+
+This command does the following:
+
+* Creates a directory with module's protocol buffer files in "proto/"
+* Creates a directory with module's boilerplate Go code in "x/"
+* Imports the newly created module by modifying "app/app.go"
+* Creates a file in "testutil/keeper/" that contains logic to create a keeper
+  for testing purposes
+
+This command will proceed with module scaffolding even if "app/app.go" doesn't
+have the required default placeholders. If the placeholders are missing, you
+will need to modify "app/app.go" manually to import the module. If you want the
+command to fail if it can't import the module, use the "--require-registration"
+flag.
+
+To scaffold an IBC-enabled module use the "--ibc" flag. An IBC-enabled module is
+like a regular module with the addition of IBC-specific logic and placeholders
+to scaffold IBC packets with "ignite scaffold packet".
+
+A module can depend on one or more other modules and import their keeper
+methods. To scaffold a module with a dependency use the "--dep" flag
+
+For example, your new custom module "foo" might have functionality that requires
+sending tokens between accounts. The method for sending tokens is a defined in
+the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
+on "bank" with the following command:
+
+  ignite scaffold module foo --dep bank
+
+You can then define which methods you want to import from the "bank" keeper in
+"expected_keepers.go".
+
+You can also scaffold a module with a list of dependencies that can include both
+standard and custom modules (provided they exist):
+
+  ignite scaffold module bar --dep foo,mint,account
+
+Note: the "--dep" flag doesn't install third-party modules into your
+application, it just generates extra code that specifies which existing modules
+your new custom module depends on.
+
+A Cosmos SDK module can have parameters (or "params"). Params are values that
+can be set at the genesis of the blockchain and can be modified while the
+blockchain is running. An example of a param is "Inflation rate change" of the
+"mint" module. A module can be scaffolded with params using the "--params" flag
+that accepts a list of param names. By default params are of type "string", but
+you can specify a type for each param. For example:
+
+  ignite scaffold module foo --params baz:uint,bar:bool
+
+Refer to Cosmos SDK documentation to learn more about modules, dependencies and
+params.
+`,
+		Args: cobra.ExactArgs(1),
+		RunE: scaffoldModuleHandler,
 	}
 
 	flagSetPath(c)
@@ -149,7 +207,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 // in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 // therefore we must warn the user to manually move the definition if it's the case
-// https://github.com/ignite-hq/cli/issues/818#issuecomment-865736052
+// https://github.com/ignite/cli/issues/818#issuecomment-865736052
 const govWarning = `⚠️ If your app has been scaffolded with Ignite CLI 0.16.x or below
 Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
 

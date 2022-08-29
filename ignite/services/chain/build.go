@@ -11,15 +11,15 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/checksum"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
-	"github.com/ignite-hq/cli/ignite/pkg/goanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/checksum"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 const (
@@ -30,19 +30,29 @@ const (
 )
 
 // Build builds and installs app binaries.
-func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage, output string) (binaryName string, err error) {
+func (c *Chain) Build(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	output string,
+	skipProto bool,
+) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
 		return "", err
 	}
 
 	return c.Binary()
 }
 
-func (c *Chain) build(ctx context.Context, cacheStorage cache.Storage, output string) (err error) {
+func (c *Chain) build(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	output string,
+	skipProto bool,
+) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
@@ -51,8 +61,11 @@ func (c *Chain) build(ctx context.Context, cacheStorage cache.Storage, output st
 		}
 	}()
 
-	if err := c.generateAll(ctx, cacheStorage); err != nil {
-		return err
+	// generate from proto files
+	if !skipProto {
+		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	buildFlags, err := c.preBuild(ctx, cacheStorage)
@@ -113,7 +126,7 @@ func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, ou
 		}
 	}
 
-	if err := os.MkdirAll(releasePath, 0755); err != nil {
+	if err := os.MkdirAll(releasePath, 0o755); err != nil {
 		return "", err
 	}
 
@@ -206,8 +219,12 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 	}
 
 	if modChanged {
-		if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
-			return nil, err
+		// By default no dependencies are checked to avoid issues with module
+		// ziphash files in case a Go workspace is being used.
+		if c.options.checkDependencies {
+			if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
+				return nil, err
+			}
 		}
 
 		if err := dirchange.SaveDirChecksum(dirCache, modChecksumKey, c.app.Path, "go.mod"); err != nil {
