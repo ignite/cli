@@ -1,6 +1,7 @@
 package chainconfig
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -15,21 +16,18 @@ import (
 // Parse reads a config file.
 // When the version of the file beign read is not the latest
 // it is automatically migrated to the latest version.
-func Parse(configFile io.ReadSeeker) (*v1.Config, error) {
-	// Read the config file version first to know how to decode it
-	version, err := ReadConfigVersion(configFile)
-	if err != nil {
-		return DefaultConfig(), err
-	}
+func Parse(configFile io.Reader) (*v1.Config, error) {
+	var buf bytes.Buffer
 
-	// Position at the beginning of the file before decoding starts
-	if _, err := configFile.Seek(0, io.SeekStart); err != nil {
+	// Read the config file version first to know how to decode it
+	version, err := ReadConfigVersion(io.TeeReader(configFile, &buf))
+	if err != nil {
 		return DefaultConfig(), err
 	}
 
 	// Decode the current config file version and assign default
 	// values for the fields that are empty
-	c, err := decodeConfig(configFile, version)
+	c, err := decodeConfig(&buf, version)
 	if err != nil {
 		return DefaultConfig(), err
 	}

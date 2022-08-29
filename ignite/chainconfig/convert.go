@@ -31,17 +31,12 @@ func ConvertLatest(c config.Converter) (_ *v1.Config, err error) {
 }
 
 // MigrateLatest migrates a config file to the latest version.
-func MigrateLatest(configFile io.ReadWriteSeeker) error {
+func MigrateLatest(current io.Reader, latest io.Writer) error {
 	// Parse the config file and convert it to the latest version
-	cfg, err := Parse(configFile)
+	cfg, err := Parse(current)
 	if err != nil {
 		return err
 	}
 
-	// Position at the beginning of the file before writing the new version
-	if _, err := configFile.Seek(0, io.SeekStart); err != nil {
-		return err
-	}
-
-	return yaml.NewEncoder(configFile).Encode(cfg)
+	return yaml.NewEncoder(latest).Encode(cfg)
 }

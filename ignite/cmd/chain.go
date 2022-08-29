@@ -1,8 +1,9 @@
 package ignitecmd
 
 import (
+	"bytes"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -54,15 +55,12 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 			}
 		}
 
-		// Open the file also for writing in case it is migrated to a new version
-		file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0755)
+		rawCfg, err := ioutil.ReadFile(configPath)
 		if err != nil {
 			return err
 		}
 
-		defer file.Close()
-
-		version, err := chainconfig.ReadConfigVersion(file)
+		version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
 		if err != nil {
 			return err
 		}
@@ -87,13 +85,15 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 				}
 			}
 
-			// Position at the beginning of the file before starting the migration
-			if _, err := file.Seek(0, io.SeekStart); err != nil {
+			file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0755)
+			if err != nil {
 				return err
 			}
 
+			defer file.Close()
+
 			// Convert the current config to the latest version and update the YAML file
-			return chainconfig.MigrateLatest(file)
+			return chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
 		}
 
 		return nil
