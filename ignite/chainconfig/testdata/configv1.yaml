@@ -1,59 +1,24 @@
-validators:
-  - name: alice
-    bonded: 100000000000000000000aevmos
-    app:
-      api:
-        address: 0.0.0.0:1317
-      evm-rpc:
-        address: 0.0.0.0:8545
-        ws-address: 0.0.0.0:8546
-      grpc:
-        address: 0.0.0.0:9090
-      grpc-web:
-        address: 0.0.0.0:9091
-    config:
-      p2p:
-        laddr: 0.0.0.0:26656
-      pprof_laddr: 0.0.0.0:6060
-      rpc:
-        laddr: 0.0.0.0:26657
-    client: {}
-    home: $HOME/.evmosd
-    keyring-backend: ""
-    gentx: null
 version: 1
 build:
-  main: ""
   binary: evmosd
-  ldflags: []
   proto:
     path: proto
     third_party_paths:
-      - third_party/proto
-      - proto_vendor
+    - third_party/proto
+    - proto_vendor
 accounts:
-  - name: alice
-    coins:
-      - 100000000uatom
-      - 100000000000000000000aevmos
-  - name: bob
-    coins:
-      - 5000000000000aevmos
+- name: alice
+  coins:
+  - 100000000uatom
+  - 100000000000000000000aevmos
+- name: bob
+  coins:
+  - 5000000000000aevmos
 faucet:
   name: bob
   coins:
-    - 10aevmos
-  coins_max: []
-  rate_limit_window: ""
+  - 10aevmos
   host: 0.0.0.0:4500
-  port: 0
-client:
-  vuex:
-    path: ""
-  dart:
-    path: ""
-  openapi:
-    path: ""
 genesis:
   app_state:
     crisis:
@@ -65,8 +30,8 @@ genesis:
     gov:
       deposit_params:
         min_deposit:
-          - amount: "10000000"
-            denom: aevmos
+        - amount: "10000000"
+          denom: aevmos
     mint:
       params:
         mint_denom: aevmos
@@ -74,3 +39,11 @@ genesis:
       params:
         bond_denom: aevmos
   chain_id: evmosd_9000-1
+validators:
+- name: alice
+  bonded: 100000000000000000000aevmos
+  app:
+    evm-rpc:
+      address: 0.0.0.0:8545
+      ws-address: 0.0.0.0:8546
+  home: $HOME/.evmosd
