@@ -12,7 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
@@ -64,16 +65,16 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(conf *chainconfig.Config) {
-		conf.Accounts = []chainconfig.Account{
+	app.EditConfig(func(c *v1.Config) {
+		c.Accounts = []config.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
 				Coins:    []string{"5600atoken", "1200btoken", "100000000stake"},
 			},
 		}
-		conf.Faucet = chainconfig.Faucet{}
-		conf.Init.KeyringBackend = keyring.BackendTest
+		c.Faucet = config.Faucet{}
+		c.Validators[0].KeyringBackend = keyring.BackendTest
 	})
 
 	env.Must(env.Exec("import alice",

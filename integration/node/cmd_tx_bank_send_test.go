@@ -10,7 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -48,8 +49,8 @@ func TestNodeTxBankSend(t *testing.T) {
 	bobAccount, bobMnemonic, err := ca.Create(bob)
 	require.NoError(t, err)
 
-	app.EditConfig(func(conf *chainconfig.Config) {
-		conf.Accounts = []chainconfig.Account{
+	app.EditConfig(func(c *v1.Config) {
+		c.Accounts = []config.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
@@ -61,8 +62,8 @@ func TestNodeTxBankSend(t *testing.T) {
 				Coins:    []string{"10000token", "100000000stake"},
 			},
 		}
-		conf.Faucet = chainconfig.Faucet{}
-		conf.Init.KeyringBackend = keyring.BackendTest
+		c.Faucet = config.Faucet{}
+		c.Validators[0].KeyringBackend = keyring.BackendTest
 	})
 	env.Must(env.Exec("import alice",
 		step.NewSteps(step.New(
