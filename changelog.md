@@ -9,6 +9,7 @@
 
 ### Fixes
 - Improved error handling for crypto wrapper functions
+- Integration tests build their own ignite binary.
 
 ### Features
 
