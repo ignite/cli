@@ -76,17 +76,22 @@ func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs
 func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	n.ev.Send(events.New(events.StatusOngoing, "Submitting requests..."))
 
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	messages := make([]sdk.Msg, len(reviewal))
 	for i, reviewal := range reviewal {
 		messages[i] = launchtypes.NewMsgSettleRequest(
-			n.account.Address(networktypes.SPN),
+			addr,
 			launchID,
 			reviewal.RequestID,
 			reviewal.IsApproved,
 		)
 	}
 
-	res, err := n.cosmos.BroadcastTx(n.account.Name, messages...)
+	res, err := n.cosmos.BroadcastTx(n.account, messages...)
 	if err != nil {
 		return err
 	}

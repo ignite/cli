@@ -41,7 +41,7 @@ The `--no-message` flag disables CRUD interaction messages scaffolding because y
 
 The command output shows the files that were created and modified:
 
-```text
+```
 create proto/blog/comment.proto
 modify proto/blog/genesis.proto
 modify proto/blog/query.proto
@@ -63,9 +63,9 @@ modify x/blog/types/keys.go
 🎉 comment added.
 ```
 
-Make a small modification in proto/blog/comment.proto to change createdAt to int64:
+Make a small modification in `proto/blog/comment.proto` to change `createdAt` to int64:
 
-```go
+```protobuf
 message Comment {
   uint64 id = 1;
   string creator = 2; 
@@ -90,11 +90,10 @@ Here, `postID` is the reference to previously created blog post.
 
 The `message` command has created and modified several files:
 
-```text
+```
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_comment.go
-modify x/blog/handler.go
 create x/blog/keeper/msg_server_create_comment.go
 modify x/blog/module_simulation.go
 create x/blog/simulation/create_comment.go
@@ -112,7 +111,7 @@ In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
 * Add `id`
 * Define the `id` for `message MsgCreateCommentResponse`:
 
-```go
+```protobuf
 message MsgCreateComment {
   string creator = 1;
   uint64 postID = 2;
@@ -128,13 +127,13 @@ message MsgCreateCommentResponse {
 
  You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
-```go
+```protobuf
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
 
 Now, add the `id` field to `MsgCreatePost`: 
 
-```go
+```protobuf
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -155,15 +154,18 @@ You need to do the following things:
 
 ```go
 import (
-    //...
+    // ...
+
     sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+    // ...
 )
 
 func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComment) (*types.MsgCreateCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	
 	// Check if the Post Exists for which a comment is being created
-	post, found := k.GetPost(ctx, msg.PostId)
+	post, found := k.GetPost(ctx, msg.PostID)
 	if !found {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
@@ -191,7 +193,8 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 When the Comment validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by navigating to `x/blog/types/errors.go` and replacing the current values in 'var' with:
 
 ```go
-//...
+// ...
+
 var (
 	ErrCommentOld = sdkerrors.Register(ModuleName, 1300, "")
 	ErrID         = sdkerrors.Register(ModuleName, 1400, "")
@@ -205,6 +208,7 @@ In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
 	// Get the context
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// Create variable of type Post
 	var post = types.Post{
 		Creator:   msg.Creator,
@@ -213,8 +217,10 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 		Body:      msg.Body,
 		CreatedAt: ctx.BlockHeight(),
 	}
+
 	// Add a post to the store and get back the ID
 	id := k.AppendPost(ctx, post)
+
 	// Return the ID of the post
 	return &types.MsgCreatePostResponse{Id: id}, nil
 }
@@ -232,11 +238,11 @@ Each file save triggers an automatic rebuild.  Now, after you build and start yo
 
 Also, make a small modification in `proto/blog/post.proto` to add `createdAt`:
 
-```go
-//...
+```protobuf
+// ...
 
 message Post {
- //...
+  // ...
   int64 createdAt = 5;
 }
 ```
@@ -254,21 +260,26 @@ In `x/blog/keeper/post.go`, add a new function to get the post:
 ```go
 import (
 	"encoding/binary"
-	"blog/x/blog/types"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"blog/x/blog/types"
 )
 
-//...
+// ...
 
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, id)
+
 	b := store.Get(bz)
 	if b == nil {
 		return val, false
 	}
+
 	k.cdc.MustUnmarshal(b, &val)
 	return val, true
 }
@@ -284,7 +295,7 @@ When you ran the `ignite scaffold list comment --no-message` command, these func
 
 By following these steps, you have implemented all of the code required to create comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog module.
 
-- `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
+- `k.CreateComment` calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
 ## Create the delete-comment message
@@ -301,11 +312,10 @@ Here, `commentID` and `postID` are the references to previously created comment 
 
 The `message` command has created and modified several files:
 
-```bash
+```
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_delete_comment.go
-modify x/blog/handler.go
 create x/blog/keeper/msg_server_delete_comment.go
 modify x/blog/module_simulation.go
 create x/blog/simulation/delete_comment.go
@@ -321,7 +331,7 @@ In the `proto/blog/tx.proto` file, edit `MsgDeleteComment` to:
 * Add `id`
 * Define the `id` for `message MsgDeleteCommentResponse`:
 
-```go
+```protobuf
 message MsgDeleteComment {
   string creator = 1;
   uint64 commentID = 2;
@@ -350,16 +360,17 @@ package keeper
 	"context"
 	"encoding/binary"
 
-	"blog/x/blog/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"blog/x/blog/types"
  )
 
  func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	comment, exist := k.GetComment(ctx, msg.Id)
+	comment, exist := k.GetComment(ctx, msg.CommentID)
 	if !exist {
 		return nil, sdkerrors.Wrapf(types.ErrID, "Comment doesnt exist")
 	}
@@ -388,20 +399,25 @@ ignite scaffold query comments id:uint --response title,body
 
 Also in `proto/blog/query.proto`, make these updates:
 
-```go
+```protobuf
 import "blog/post.proto";
 
 message QueryCommentsRequest {
-	uint64 id = 1;
-    // Adding pagination to request
-    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+  uint64 id = 1;
+
+  // Adding pagination to request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
-//...
+
+// ...
+
 message QueryCommentsResponse {
   Post Post = 1;
-  	// Returning a list of comments
+
+  // Returning a list of comments
   repeated Comment Comment = 2;
-    // Adding pagination to response
+
+  // Adding pagination to response
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 ```
@@ -414,17 +430,16 @@ package keeper
 import (
 	"context"
 
-	"blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	"blog/x/blog/types"
 )
 
 func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*types.QueryCommentsResponse, error) {
-
 	// Throw an error if request is nil
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -470,7 +485,6 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 	// Return a struct containing a list of posts and pagination info
 	return &types.QueryCommentsResponse{Post: &post, Comment: comments, Pagination: pageRes}, nil
 }
-
 ```
 
 **Note:** Since gRPC has been already added to module handler in the previous tutorial, you don't need to add it again.
@@ -489,8 +503,8 @@ blogd tx blog create-post Uno "This is the first post" --from alice
 
 As before, you are prompted to confirm the transaction:
 
-```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","title":"Uno","body":"This is the first post","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+```json
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","title":"Uno","body":"This is the first post","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 Create a comment:
@@ -499,13 +513,13 @@ Create a comment:
 blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```
 
-```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreateComment","creator":"cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","postID":"0","title":"Uno","body":"This is the first comment","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+```json
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreateComment","creator":"blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","postID":"0","title":"Uno","body":"This is the first comment","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 When prompted, press Enter to confirm the transaction:
 
-```bash
+```
 confirm transaction before signing and broadcasting [y/N]: y
 ```
 
@@ -517,18 +531,18 @@ blogd q blog comments 0
 
 The results are output:
 
-```bash
+```yaml
 Comment:
 - body: This is the first comment
   createdAt: "58"
-  creator: cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
+  creator: blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
   id: "0"
   postID: "0"
   title: Uno
 Post:
   body: This is the first post
   createdAt: "51"
-  creator: cosmos1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
+  creator: blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
   id: "0"
   title: Uno
 pagination:
@@ -550,12 +564,12 @@ blogd q blog comments 0
 
 The results are output:
 
-```bash
+```yaml
 Comment: []
 Post:
   body: This is the first post
   createdAt: "12"
-  creator: cosmos12s696u0wutt42kc297td5naxgxtvtxdlsg07n2
+  creator: blog12s696u0wutt42kc297td5naxgxtvtxdlsg07n2
   id: "0"
   title: Uno
 pagination:
@@ -573,7 +587,7 @@ blogd tx blog create-comment 53 "Edge1"  "This is the 53 comment" --from alice -
 
 The transaction is not able to be completed because the blog id does not exist:
 
-```bash
+```yaml
 code: 22
 codespace: sdk
 data: ""
@@ -612,7 +626,7 @@ blogd tx blog create-comment 0 "Comment" "This is a comment" --from alice -y
 
 The transaction is not executed:
 
-```bash
+```yaml
 code: 1300
 codespace: blog
 data: ""

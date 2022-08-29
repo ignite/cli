@@ -32,8 +32,12 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	var (
 		minLaunch = xtime.Seconds(params.LaunchTimeRange.MinLaunchTime)
 		maxLaunch = xtime.Seconds(params.LaunchTimeRange.MaxLaunchTime)
-		address   = n.account.Address(networktypes.SPN)
 	)
+	address, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	switch {
 	case remainingTime == 0:
 		// if the user does not specify the remaining time, use the minimal one
@@ -50,7 +54,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 
 	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, int64(remainingTime.Seconds()))
 	n.ev.Send(events.New(events.StatusOngoing, "Setting launch time"))
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}
@@ -70,9 +74,13 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 func (n Network) RevertLaunch(launchID uint64, chain Chain) error {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Reverting launched chain %d", launchID)))
 
-	address := n.account.Address(networktypes.SPN)
+	address, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := launchtypes.NewMsgRevertLaunch(address, launchID)
-	_, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	_, err = n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}

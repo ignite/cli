@@ -12,7 +12,7 @@ const Name = "protoc-gen-dart"
 
 // BinaryPath returns the binary path for the plugin.
 func BinaryPath() (path string, cleanup func(), err error) {
-	return localfs.SaveBytesTemp(data.Binary(), Name, 0755)
+	return localfs.SaveBytesTemp(data.Binary(), Name, 0o755)
 }
 
 // Flag returns the binary name-binary path format to pass to protoc --plugin.

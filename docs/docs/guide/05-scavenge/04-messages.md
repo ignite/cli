@@ -28,7 +28,7 @@ ignite scaffold message submit-scavenge solutionHash description reward
 
 The command creates and modifies several files:
 
-```bash
+```
 modify app/app.go
 create proto/scavenge/genesis.proto
 create proto/scavenge/params.proto
@@ -40,7 +40,6 @@ create x/scavenge/client/cli/query_params.go
 create x/scavenge/client/cli/tx.go
 create x/scavenge/genesis.go
 create x/scavenge/genesis_test.go
-create x/scavenge/handler.go
 create x/scavenge/keeper/grpc_query.go
 create x/scavenge/keeper/grpc_query_params.go
 create x/scavenge/keeper/grpc_query_params_test.go
@@ -74,10 +73,6 @@ The `scaffold message` command does all of these code updates for you:
 * `x/scavenge/types/message_submit_scavenge.go`
 
   * Defines methods to satisfy `Msg` interface
-
-* `x/scavenge/handler.go`
-
-  * Registers the `MsgSubmitScavenge` message in the module message handler
 
 * `x/scavenge/keeper/msg_server_submit_scavenge.go`
 
@@ -123,17 +118,17 @@ ignite scaffold message commit-solution solutionHash solutionScavengerHash
 ```
 
 Because you're using the same `ignite scaffold message` command, the set of modified and created files is the same:
-```bash
+```
 modify proto/scavenge/tx.proto
 modify x/scavenge/client/cli/tx.go
 create x/scavenge/client/cli/tx_commit_solution.go
-modify x/scavenge/handler.go
 create x/scavenge/keeper/msg_server_commit_solution.go
 modify x/scavenge/module_simulation.go
 create x/scavenge/simulation/commit_solution.go
 modify x/scavenge/types/codec.go
 create x/scavenge/types/message_commit_solution.go
 create x/scavenge/types/message_commit_solution_test.go
+
 🎉 Created a message `commit-solution`.
 ```
 
@@ -159,4 +154,3 @@ Now is a good time to store your project in a git commit:
 git add .
 git commit -m "add scavenge messages"
 ```
-

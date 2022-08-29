@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 // Name represents a name with multiple naming convention representations
@@ -83,7 +85,7 @@ func basicCheckName(name string) error {
 func lowercase(name string) string {
 	return strings.ToLower(
 		strings.ReplaceAll(
-			strings.ReplaceAll(name, "-", ""),
+			xstrings.NoDash(name),
 			"_",
 			"",
 		),

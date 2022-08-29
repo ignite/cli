@@ -23,6 +23,7 @@ func NewRelayerConnect() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -37,6 +38,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
@@ -62,7 +64,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	if len(ids) == 0 {
 		for _, path := range all {
 			use = append(use, path.ID)
-
 		}
 	} else {
 		for _, id := range ids {
@@ -71,7 +72,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 					use = append(use, path.ID)
 					break
 				}
-
 			}
 		}
 	}
@@ -84,7 +84,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 
 	session.StartSpinner("Creating links between chains...")
 
-	if err := r.Link(cmd.Context(), use...); err != nil {
+	if err := r.LinkPaths(cmd.Context(), use...); err != nil {
 		return err
 	}
 
@@ -118,5 +118,5 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	return r.Start(cmd.Context(), use...)
+	return r.StartPaths(cmd.Context(), use...)
 }

@@ -38,7 +38,9 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -48,6 +50,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	defer session.Cleanup()
 
 	var (
+		joinOptions  []network.JoinOption
 		gentxPath, _ = cmd.Flags().GetString(flagGentx)
 		amount, _    = cmd.Flags().GetString(flagAmount)
 	)
@@ -63,10 +66,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	joinOptions := []network.JoinOption{
-		network.WithCustomGentxPath(gentxPath),
-	}
-
 	// if there is no custom gentx, we need to detect the public address.
 	if gentxPath == "" {
 		// get the peer public address for the validator.
@@ -76,6 +75,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 
 		joinOptions = append(joinOptions, network.WithPublicAddress(publicAddr))
+	}
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
 	}
 
 	n, err := nb.Network()
@@ -88,9 +92,28 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
+	}
+
+	// use the default gentx path from chain home if not provided
+	if gentxPath == "" {
+		gentxPath, err = c.DefaultGentxPath()
+		if err != nil {
+			return err
+		}
+	} else {
+		// if a custom gentx is provided, we initialize the chain home in order to check accounts
+		if err := c.Init(cmd.Context(), cacheStorage); err != nil {
+			return err
+		}
 	}
 
 	if amount != "" {
@@ -111,11 +134,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
+		_ = session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
 	}
 
 	// create the message to add the validator.
-	return n.Join(cmd.Context(), c, launchID, joinOptions...)
+	return n.Join(cmd.Context(), c, launchID, gentxPath, joinOptions...)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress

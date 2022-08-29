@@ -9,7 +9,6 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmoserror"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
@@ -124,29 +123,31 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 	}
 
-	coordinatorAddress := n.account.Address(networktypes.SPN)
+	coordinatorAddress, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return 0, 0, err
+	}
 	campaignID = o.campaignID
 
 	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
 
-	_, err = n.profileQuery.
-		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
-			Address: coordinatorAddress,
-		})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	// a coordinator profile is necessary to publish a chain
+	// if the user doesn't have an associated coordinator profile, we create one
+	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); err == ErrObjectNotFound {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
 			"",
 			"",
 		)
-		if _, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCoordinator); err != nil {
+		if _, err := n.cosmos.BroadcastTx(n.account, msgCreateCoordinator); err != nil {
 			return 0, 0, err
 		}
 	} else if err != nil {
 		return 0, 0, err
 	}
 
+	// check if a campaign associated to the chain is provided
 	if campaignID != 0 {
 		_, err = n.campaignQuery.
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
@@ -155,7 +156,9 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		if err != nil {
 			return 0, 0, err
 		}
-	} else {
+	} else if o.mainnet {
+		// a mainnet is always associated to a campaign
+		// if no campaign is provided, we create one, and we directly initialize the mainnet
 		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
 			return 0, 0, err
@@ -163,7 +166,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	// mint vouchers
-	if !o.sharePercentages.Empty() {
+	if campaignID != 0 && !o.sharePercentages.Empty() {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
 			return 0, 0, err
@@ -180,12 +183,18 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
 		// consider ways to refactor to accomplish a better API and efficiency.
+
+		addr, err := n.account.Address(networktypes.SPN)
+		if err != nil {
+			return 0, 0, err
+		}
+
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
-			n.account.Address(networktypes.SPN),
+			addr,
 			campaignID,
 			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
-		_, err = n.cosmos.BroadcastTx(n.account.Name, msgMintVouchers)
+		_, err = n.cosmos.BroadcastTx(n.account, msgMintVouchers)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -198,18 +207,23 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, err
 		}
 	} else {
+		addr, err := n.account.Address(networktypes.SPN)
+		if err != nil {
+			return 0, 0, err
+		}
+
 		msgCreateChain := launchtypes.NewMsgCreateChain(
-			n.account.Address(networktypes.SPN),
+			addr,
 			chainID,
 			c.SourceURL(),
 			c.SourceHash(),
 			o.genesisURL,
 			genesisHash,
-			true,
+			campaignID != 0,
 			campaignID,
 			nil,
 		)
-		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
+		res, err := n.cosmos.BroadcastTx(n.account, msgCreateChain)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -227,7 +241,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 }
 
 func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {
-	return n.sendAccountRequest(launchID, n.account.Address(networktypes.SPN), amount)
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	return n.sendAccountRequest(launchID, addr, amount)
 }
 
 // SendAccountRequest creates an add AddAccount request message.
@@ -236,15 +255,20 @@ func (n Network) sendAccountRequest(
 	address string,
 	amount sdk.Coins,
 ) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := launchtypes.NewMsgRequestAddAccount(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		address,
 		amount,
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}

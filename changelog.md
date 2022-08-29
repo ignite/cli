@@ -1,5 +1,39 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+- Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
+- Removed `handler.go` from scaffolded module template
+
+### Fixes
+- Improved error handling for crypto wrapper functions
+
+### Features
+
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+
+
+## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
+
+### Features
+
+- Apps can now use generics
+
+### Fixes
+
+- Fix `pkg/cosmosanalysis` to support apps with generics
+- Remove `ignite-hq/cli` from dependency list in scaffolded chains
+
+### Changes
+
+- Change `pkg/cosmosgen` to allow importing IBC proto files
+- Improve docs for Docker related commands
+- Improve and fix documentation issues in developer tutorials
+- Add migration docs for v0.22.2
+- Improve `go mod download` error report in `pkg/cosmosgen`
+
 ## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
 
 ### Features 

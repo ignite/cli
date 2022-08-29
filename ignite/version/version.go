@@ -46,7 +46,6 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		NewClient(nil).
 		Repositories.
 		GetLatestRelease(ctx, "ignite", "cli")
-
 	if err != nil {
 		return false, "", err
 	}
@@ -92,6 +91,17 @@ func Long(ctx context.Context) string {
 
 	cmdOut := &bytes.Buffer{}
 
+	nodeJSCmd := "node"
+	if xexec.IsCommandAvailable(nodeJSCmd) {
+		cmdOut.Reset()
+
+		err := exec.Exec(ctx, []string{nodeJSCmd, "-v"}, exec.StepOption(step.Stdout(cmdOut)))
+		if err == nil {
+			write("Your Node.js version", strings.TrimSpace(cmdOut.String()))
+		}
+	}
+
+	cmdOut.Reset()
 	err := exec.Exec(ctx, []string{"go", "version"}, exec.StepOption(step.Stdout(cmdOut)))
 	if err != nil {
 		panic(err)

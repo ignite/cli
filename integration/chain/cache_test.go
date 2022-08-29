@@ -1,4 +1,6 @@
-package app_test
+//go:build !relayer
+
+package chain_test
 
 import (
 	"context"
@@ -16,11 +18,11 @@ import (
 func TestCliWithCaching(t *testing.T) {
 	var (
 		env               = envtest.New(t)
-		path              = env.Scaffold("github.com/test/cacheblog")
-		vueGenerated      = filepath.Join(path, "vue/src/store/generated")
-		openapiGenerated  = filepath.Join(path, "docs/static/openapi.yml")
-		typesDir          = filepath.Join(path, "x/cacheblog/types")
-		servers           = env.RandomizeServerPorts(path, "")
+		app               = env.Scaffold("github.com/test/cacheblog")
+		vueGenerated      = filepath.Join(app.SourcePath(), "vue/src/store/generated")
+		openapiGenerated  = filepath.Join(app.SourcePath(), "docs/static/openapi.yml")
+		typesDir          = filepath.Join(app.SourcePath(), "x/cacheblog/types")
+		servers           = app.RandomizeServerPorts()
 		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 		isBackendAliveErr error
 	)
@@ -36,7 +38,7 @@ func TestCliWithCaching(t *testing.T) {
 				"myfield2:bool",
 				"--yes",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -50,7 +52,7 @@ func TestCliWithCaching(t *testing.T) {
 				"mytypefield",
 				"--yes",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -62,11 +64,11 @@ func TestCliWithCaching(t *testing.T) {
 				"build",
 				"--proto-all-modules",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	env.EnsureAppIsSteady(path)
+	app.EnsureSteady()
 
 	deleteCachedFiles(t, vueGenerated, openapiGenerated, typesDir)
 
@@ -78,11 +80,11 @@ func TestCliWithCaching(t *testing.T) {
 				"build",
 				"--proto-all-modules",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	env.EnsureAppIsSteady(path)
+	app.EnsureSteady()
 
 	deleteCachedFiles(t, vueGenerated, openapiGenerated, typesDir)
 
@@ -90,7 +92,7 @@ func TestCliWithCaching(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", path, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

@@ -1,10 +1,8 @@
 //go:build !relayer
-// +build !relayer
 
 package other_components_test
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -13,8 +11,8 @@ import (
 
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
-		env  = envtest.New(t)
-		path = env.Scaffold("github.com/test/blog")
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a message",
@@ -31,7 +29,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"-r",
 				"foo,bar:int,foobar:bool",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -52,14 +50,14 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"blog",
 				"--no-simulation",
 			),
-			step.Workdir(filepath.Dir(path)),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing message",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-foo", "bar"),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
 	))
@@ -67,7 +65,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 	env.Must(env.Exec("create a message with a custom signer name",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-bar", "bar", "--signer", "bar-doer"),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -91,21 +89,21 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"textCoins:array.coin",
 				"textCoinsAlias:coins",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a message with the custom field type",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "foo-baz", "customField:CustomType"),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--require-registration"),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -126,9 +124,9 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 				"--response",
 				"foo,bar:int,foobar:bool",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	env.EnsureAppIsSteady(path)
+	app.EnsureSteady()
 }

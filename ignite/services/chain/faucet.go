@@ -22,9 +22,7 @@ var (
 	ErrFaucetAccountDoesNotExist = errors.New("specified account (faucet.name) does not exist")
 )
 
-var (
-	envAPIAddress = os.Getenv("API_ADDRESS")
-)
+var envAPIAddress = os.Getenv("API_ADDRESS")
 
 // Faucet returns the faucet for the chain or an error if the faucet
 // configuration is wrong or not configured (not enabled) at all.

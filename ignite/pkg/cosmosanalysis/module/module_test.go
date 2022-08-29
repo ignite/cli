@@ -32,7 +32,8 @@ var testModule = Module{
 						HTTPRules: []protoanalysis.HTTPRule{
 							{
 								Params:   []string{"mytypefield"},
-								HasQuery: false, HasBody: false},
+								HasQuery: false, HasBody: false,
+							},
 						},
 					},
 				},
@@ -48,7 +49,8 @@ var testModule = Module{
 				{
 					Params:   []string{"mytypefield"},
 					HasQuery: false,
-					HasBody:  false},
+					HasBody:  false,
+				},
 			},
 		},
 	},

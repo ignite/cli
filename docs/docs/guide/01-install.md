@@ -30,7 +30,7 @@ Ignite CLI is written in the Go programming language. To use Ignite CLI on a loc
 
 To verify the version of Ignite CLI you have installed, run the following command:
 
-```sh
+```bash
 ignite version
 ```
 

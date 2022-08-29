@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"fmt"
+
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -83,6 +85,7 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
 	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -97,6 +100,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
@@ -400,6 +404,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
+	if err := sourceChain.EnsureChainSetup(cmd.Context()); err != nil {
+		return err
+	}
+
 	targetChain, err := initChain(
 		cmd,
 		r,
@@ -414,6 +422,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		targetClientID,
 	)
 	if err != nil {
+		return err
+	}
+
+	if err := targetChain.EnsureChainSetup(cmd.Context()); err != nil {
 		return err
 	}
 
@@ -461,10 +473,9 @@ func initChain(
 	clientID string,
 ) (*relayer.Chain, error) {
 	defer session.StopSpinner()
-	session.StartSpinner("Initializing chain...")
+	session.StartSpinner(fmt.Sprintf("Initializing chain %s...", name))
 
 	c, account, err := r.NewChain(
-		cmd.Context(),
 		accountName,
 		rpcAddr,
 		relayer.WithFaucet(faucetAddr),
@@ -477,16 +488,18 @@ func initChain(
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
+	accountAddr, err := account.Address(addressPrefix)
+	if err != nil {
+		return nil, err
+	}
+
 	session.StopSpinner()
-
-	accountAddr := account.Address(addressPrefix)
-
 	session.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)
 	session.StartSpinner(color.Yellow.Sprintf("trying to receive tokens from a faucet..."))
 
 	coins, err := c.TryRetrieve(cmd.Context())
-	session.StopSpinner()
 
+	session.StopSpinner()
 	session.Print(" |· ")
 	if err != nil {
 		session.Println(color.Yellow.Sprintf(err.Error()))

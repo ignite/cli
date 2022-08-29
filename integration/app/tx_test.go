@@ -1,5 +1,4 @@
 //go:build !relayer
-// +build !relayer
 
 package app_test
 
@@ -21,12 +20,103 @@ import (
 	envtest "github.com/ignite/cli/integration"
 )
 
+func TestSignTxWithDashedAppName(t *testing.T) {
+	var (
+		env         = envtest.New(t)
+		appname     = "dashed-app-name"
+		app         = env.Scaffold(appname)
+		host        = app.RandomizeServerPorts()
+		ctx, cancel = context.WithCancel(env.Ctx())
+	)
+
+	nodeAddr, err := xurl.TCP(host.RPC)
+	if err != nil {
+		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", host.RPC, err)
+	}
+
+	env.Exec("scaffold a simple list",
+		step.NewSteps(step.New(
+			step.Workdir(app.SourcePath()),
+			step.Exec(
+				envtest.IgniteApp,
+				"scaffold",
+				"list",
+				"item",
+				"str",
+				"--yes",
+			),
+		)),
+	)
+
+	var (
+		output            = &bytes.Buffer{}
+		isTxBodyRetrieved bool
+		txResponse        struct {
+			Code   int
+			RawLog string `json:"raw_log"`
+		}
+	)
+	// sign tx to add an item to the list.
+	steps := step.NewSteps(
+		step.New(
+			step.Exec(
+				app.Binary(),
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				return env.IsAppServed(ctx, host)
+			}),
+		),
+		step.New(
+			step.Stdout(output),
+			step.PreExec(func() error {
+				err := env.IsAppServed(ctx, host)
+				return err
+			}),
+			step.Exec(
+				app.Binary(),
+				"tx",
+				"dashedappname",
+				"create-item",
+				"helloworld",
+				"--from", "alice",
+				"--node", nodeAddr,
+				"--yes",
+			),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
+				}
+				err := json.Unmarshal(output.Bytes(), &txResponse)
+				if err != nil {
+					return fmt.Errorf("unmarshling tx response: %w", err)
+				}
+				return nil
+			}),
+		),
+	)
+
+	go func() {
+		defer cancel()
+		isTxBodyRetrieved = env.Exec("sign a tx", steps, envtest.ExecRetry())
+	}()
+
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+
+	if !isTxBodyRetrieved {
+		t.FailNow()
+	}
+	require.Equal(t, 0, txResponse.Code,
+		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
+}
+
 func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
-		path        = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
-		host        = env.RandomizeServerPorts(path, "")
+		app         = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
+		host        = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
@@ -53,7 +143,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"config",
 				"output", "json",
 			),
@@ -63,7 +153,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		),
 		step.New(
 			step.Exec(
-				appname+"d",
+				app.Binary(),
 				"keys",
 				"list",
 				"--keyring-backend", "test",
@@ -101,7 +191,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				// endpoint by asserting denom and amount.
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
-						appname+"d",
+						app.Binary(),
 						"tx",
 						"bank",
 						"send",
@@ -167,7 +257,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
