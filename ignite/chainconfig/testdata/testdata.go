@@ -4,15 +4,11 @@ import (
 	_ "embed"
 
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
+	v0testdata "github.com/ignite-hq/cli/ignite/chainconfig/v0/testdata"
+	v1testdata "github.com/ignite-hq/cli/ignite/chainconfig/v1/testdata"
 )
 
-//go:embed configv0.yaml
-var ConfigV0YAML []byte
-
-//go:embed configv1.yaml
-var ConfigV1YAML []byte
-
 var Versions = map[config.Version][]byte{
-	0: ConfigV0YAML,
-	1: ConfigV1YAML,
+	0: v0testdata.ConfigYAML,
+	1: v1testdata.ConfigYAML,
 }

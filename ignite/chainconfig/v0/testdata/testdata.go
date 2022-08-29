@@ -1,11 +1,34 @@
 package testdata
 
 import (
+	"bytes"
+	_ "embed"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v2"
+
 	"github.com/ignite-hq/cli/ignite/chainconfig/config"
 	v0 "github.com/ignite-hq/cli/ignite/chainconfig/v0"
 )
 
-// GetConfigV0 returns a v0 config initialized with random values.
+//go:embed config.yaml
+var ConfigYAML []byte
+
+func GetConfig(t *testing.T) *v0.Config {
+	c := &v0.Config{}
+
+	err := yaml.NewDecoder(bytes.NewReader(ConfigYAML)).Decode(c)
+	require.NoError(t, err)
+
+	err = c.SetDefaults()
+	require.NoError(t, err)
+
+	return c
+}
+
+// TODO: Update config to match these values and remove this function
+//       in favor of GetConfig().
 func GetConfigV0() *v0.Config {
 	faucetName := "bob"
 
