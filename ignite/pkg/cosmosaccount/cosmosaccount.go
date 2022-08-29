@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -17,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 )
 
@@ -272,7 +271,7 @@ func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
 	record, err := r.Keyring.Key(name)
-	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrortypes.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
 	if err != nil {
@@ -294,7 +293,7 @@ func (r Registry) GetByAddress(address string) (Account, error) {
 		return Account{}, err
 	}
 	record, err := r.Keyring.KeyByAddress(sdkAddr)
-	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrortypes.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{address}
 	}
 	if err != nil {

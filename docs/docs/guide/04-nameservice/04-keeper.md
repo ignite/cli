@@ -30,7 +30,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 
 	"nameservice/x/nameservice/types"
 )
@@ -57,7 +57,7 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 		// If the current price is higher than the bid
 		if price.IsAllGT(bid) {
 			// Throw an error
-			return nil, sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "Bid is not high enough")
+			return nil, sdkerrors.Wrap(sdkerrortypes.ErrInsufficientFunds, "Bid is not high enough")
 		}
 
 		// Otherwise (when the bid is higher), send tokens from the buyer to the owner
@@ -66,7 +66,7 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 		// If the minimum price is higher than the bid
 		if minPrice.IsAllGT(bid) {
 			// Throw an error
-			return nil, sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "Bid is less than min amount")
+			return nil, sdkerrors.Wrap(sdkerrortypes.ErrInsufficientFunds, "Bid is less than min amount")
 		}
 
 		// Otherwise (when the bid is higher), send tokens from the buyer's account to the module's account (as a payment for the name)
@@ -124,7 +124,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 
 	"nameservice/x/nameservice/types"
 )
@@ -137,7 +137,7 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 	// If the message sender address doesn't match the name owner, throw an error
 	if !(msg.Creator == whois.Owner) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrUnauthorized, "Incorrect Owner")
 	}
 
 	// Otherwise, create an updated whois record
@@ -168,7 +168,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 
 	"nameservice/x/nameservice/types"
 )
@@ -181,12 +181,12 @@ func (k msgServer) DeleteName(goCtx context.Context, msg *types.MsgDeleteName) (
 
 	// If a name is not found, throw an error
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Name doesn't exist")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "Name doesn't exist")
 	}
 
 	// If the message sender address doesn't match the name owner, throw an error
 	if !(whois.Owner == msg.Creator) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrUnauthorized, "Incorrect Owner")
 	}
 
 	// Otherwise, remove the name information from the store

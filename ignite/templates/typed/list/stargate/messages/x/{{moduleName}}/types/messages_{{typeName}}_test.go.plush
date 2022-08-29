@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	"<%= ModulePath %>/testutil/sample"
 )
@@ -19,7 +19,7 @@ func TestMsgCreate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			msg: MsgCreate<%= TypeName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
-			err: sdkerrors.ErrInvalidAddress,
+			err: sdkerrortypes.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: MsgCreate<%= TypeName.UpperCamel %>{
@@ -50,7 +50,7 @@ func TestMsgUpdate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			msg: MsgUpdate<%= TypeName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
-			err: sdkerrors.ErrInvalidAddress,
+			err: sdkerrortypes.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: MsgUpdate<%= TypeName.UpperCamel %>{
@@ -81,7 +81,7 @@ func TestMsgDelete<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			msg: MsgDelete<%= TypeName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
-			err: sdkerrors.ErrInvalidAddress,
+			err: sdkerrortypes.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: MsgDelete<%= TypeName.UpperCamel %>{

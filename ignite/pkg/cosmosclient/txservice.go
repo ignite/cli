@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type TxService struct {
@@ -43,7 +43,7 @@ func (s TxService) Broadcast() (Response, error) {
 	}
 
 	resp, err := s.clientContext.BroadcastTx(txBytes)
-	if err == sdkerrors.ErrInsufficientFunds {
+	if err == sdkerrortypes.ErrInsufficientFunds {
 		err = s.client.makeSureAccountHasTokens(context.Background(), accountAddress.String())
 		if err != nil {
 			return Response{}, err

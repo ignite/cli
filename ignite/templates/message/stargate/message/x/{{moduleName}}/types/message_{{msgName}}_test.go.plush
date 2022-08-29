@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	"<%= ModulePath %>/testutil/sample"
 )
@@ -19,7 +19,7 @@ func TestMsg<%= MsgName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			msg: Msg<%= MsgName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
-			err: sdkerrors.ErrInvalidAddress,
+			err: sdkerrortypes.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: Msg<%= MsgName.UpperCamel %>{

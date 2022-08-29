@@ -1,8 +1,9 @@
 package types
 
 import (
+    sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const TypeMsgSend<%= packetName.UpperCamel %> = "send_<%= packetName.Snake %>"
@@ -49,16 +50,16 @@ func (msg *MsgSend<%= packetName.UpperCamel %>) GetSignBytes() []byte {
 func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
     _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
     if err != nil {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+        return sdkerrors.Wrapf(sdkerrortypes.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
     }
 	if msg.Port == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+		return sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "invalid packet port")
 	}
 	if msg.ChannelID == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+		return sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "invalid packet channel")
 	}
 	if msg.TimeoutTimestamp == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+		return sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "invalid packet timeout")
 	}
     return nil
 }

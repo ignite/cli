@@ -23,7 +23,7 @@ import (
   "context"
 
   sdk "github.com/cosmos/cosmos-sdk/types"
-  sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+  sdkerrors "cosmossdk.io/errors"
   "github.com/tendermint/tendermint/crypto"
 
   "scavenge/x/scavenge/types"
@@ -46,7 +46,7 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
 
 	// return an error if a scavenge already exists in the store
 	if isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Scavenge with that solution hash already exists")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "Scavenge with that solution hash already exists")
 	}
 
 	// get address of the Scavenge module account
@@ -112,7 +112,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 
 	"scavenge/x/scavenge/types"
 )
@@ -132,7 +132,7 @@ func (k msgServer) CommitSolution(goCtx context.Context, msg *types.MsgCommitSol
 
 	// return an error if a commit already exists in the store
 	if isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Commit with that hash already exists")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "Commit with that hash already exists")
 	}
 
 	// write commit to the store
@@ -162,7 +162,7 @@ import (
 	"encoding/hex"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/tendermint/tendermint/crypto"
 
 	"scavenge/x/scavenge/types"
@@ -185,7 +185,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 
 	// return an error if a commit doesn't exist
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Commit with that hash doesn't exists")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "Commit with that hash doesn't exists")
 	}
 
 	// find a hash of the solution
@@ -200,7 +200,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 
 	// return an error if the solution doesn't exist
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Scavenge with that solution hash doesn't exists")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "Scavenge with that solution hash doesn't exists")
 	}
 
 	// check that the scavenger property contains a valid address
@@ -208,7 +208,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 
 	// return an error if a scavenge has already been solved
 	if err == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Scavenge has already been solved")
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrInvalidRequest, "Scavenge has already been solved")
 	}
 
 	// save the scavebger address to the scavenge

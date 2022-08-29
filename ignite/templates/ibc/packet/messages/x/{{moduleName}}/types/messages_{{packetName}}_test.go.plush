@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	"<%= ModulePath %>/testutil/sample"
 )
@@ -22,7 +22,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 100,
 			},
-			err: sdkerrors.ErrInvalidAddress,
+			err: sdkerrortypes.ErrInvalidAddress,
 		}, {
 			name: "invalid port",
 			msg: MsgSend<%= packetName.UpperCamel %>{
@@ -31,7 +31,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 100,
 			},
-			err: sdkerrors.ErrInvalidRequest,
+			err: sdkerrortypes.ErrInvalidRequest,
 		}, {
 			name: "invalid channel",
 			msg: MsgSend<%= packetName.UpperCamel %>{
@@ -40,7 +40,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 				ChannelID:        "",
 				TimeoutTimestamp: 100,
 			},
-			err: sdkerrors.ErrInvalidRequest,
+			err: sdkerrortypes.ErrInvalidRequest,
 		}, {
 			name: "invalid timeout",
 			msg: MsgSend<%= packetName.UpperCamel %>{
@@ -49,7 +49,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 0,
 			},
-			err: sdkerrors.ErrInvalidRequest,
+			err: sdkerrortypes.ErrInvalidRequest,
 		}, {
 			name: "valid message",
 			msg: MsgSend<%= packetName.UpperCamel %>{

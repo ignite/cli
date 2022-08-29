@@ -1,10 +1,11 @@
 package <%= moduleName %>
 
 import (
+    sdkerrors "cosmossdk.io/errors"
 	"github.com/bandprotocol/bandchain-packet/obi"
 	"github.com/bandprotocol/bandchain-packet/packet"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
@@ -25,7 +26,7 @@ func (im IBCModule) handleOraclePacket(
 	// this line is used by starport scaffolding # oracle/module/recv
 
 	default:
-		err := sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal,
+		err := sdkerrors.Wrapf(sdkerrortypes.ErrJSONUnmarshal,
 			"oracle received packet not found: %s", modulePacketData.GetClientID())
 		ack = channeltypes.NewErrorAcknowledgement(err)
 		return ack, err
@@ -64,7 +65,7 @@ func (im IBCModule) handleOracleAcknowledgment(
 		// this line is used by starport scaffolding # oracle/module/ack
 
 		default:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal,
+			return nil, sdkerrors.Wrapf(sdkerrortypes.ErrJSONUnmarshal,
 				"oracle acknowledgment packet not found: %s", data.GetClientID())
 		}
 	}

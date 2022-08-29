@@ -156,7 +156,7 @@ You need to do the following things:
 import (
     // ...
 
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+    sdkerrors "cosmossdk.io/errors"
 
     // ...
 )
@@ -167,7 +167,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 	// Check if the Post Exists for which a comment is being created
 	post, found := k.GetPost(ctx, msg.PostID)
 	if !found {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+		return nil, sdkerrors.Wrap(sdkerrortypes.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
 
 	// Create variable of type comment
@@ -362,7 +362,7 @@ package keeper
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 
 	"blog/x/blog/types"
  )
