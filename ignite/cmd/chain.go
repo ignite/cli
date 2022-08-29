@@ -67,6 +67,7 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 
 		// Config files with older versions must be migrated to the latest before executing the command
 		if version != chainconfig.LatestVersion {
+			// TODO: When "--yes" flag is present print a warning message to inform of config migration (cliui)?
 			// Confirm before overwritting the config file
 			if !getYes(cmd) {
 				confirmed := false

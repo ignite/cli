@@ -24,6 +24,12 @@ func ConvertLatest(c config.Converter) (_ *v1.Config, err error) {
 		}
 	}
 
+	// Make sure that the latest config contain default values
+	// assigned to the fields that are empty after the migration
+	if err := c.SetDefaults(); err != nil {
+		return nil, err
+	}
+
 	// Cast to the latest version type.
 	// This is safe because there is a build time check that makes sure
 	// the type for the latest config version is the right one here.

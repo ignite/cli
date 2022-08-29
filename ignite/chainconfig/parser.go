@@ -32,6 +32,8 @@ func Parse(configFile io.Reader) (*v1.Config, error) {
 		return DefaultConfig(), err
 	}
 
+	// Make sure that the empty fields contain default values
+	// after reading the config from the YAML file
 	if err = c.SetDefaults(); err != nil {
 		return DefaultConfig(), err
 	}
