@@ -15,7 +15,6 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite/cli/ignite/pkg/xexec"
@@ -64,9 +63,9 @@ func (e Env) Ctx() context.Context {
 }
 
 // IsAppServed checks that app is served properly and servers are started to listening before ctx canceled.
-func (e Env) IsAppServed(ctx context.Context, host config.Host) error {
+func (e Env) IsAppServed(ctx context.Context, h Hosts) error {
 	checkAlive := func() error {
-		addr, err := xurl.HTTP(host.API)
+		addr, err := xurl.HTTP(h.API)
 		if err != nil {
 			return err
 		}
