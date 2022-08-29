@@ -43,7 +43,19 @@ validators:
 - name: alice
   bonded: 100000000000000000000aevmos
   app:
+    api:
+      address: 0.0.0.0:1317
     evm-rpc:
       address: 0.0.0.0:8545
       ws-address: 0.0.0.0:8546
+    grpc:
+      address: 0.0.0.0:9090
+    grpc-web:
+      address: 0.0.0.0:9091
+  config:
+    p2p:
+      laddr: 0.0.0.0:26656
+    pprof_laddr: 0.0.0.0:6060
+    rpc:
+      laddr: 0.0.0.0:26657
   home: $HOME/.evmosd

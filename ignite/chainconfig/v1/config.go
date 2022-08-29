@@ -302,16 +302,21 @@ func (v *Validator) GetRPC() string {
 }
 
 func (v *Validator) setDefaultAddresses() {
-	v.App = map[string]interface{}{
-		"grpc":     map[string]interface{}{"address": xnet.AnyIPv4Address(GRPCPort)},
-		"grpc-web": map[string]interface{}{"address": xnet.AnyIPv4Address(GRPCWebPort)},
-		"api":      map[string]interface{}{"address": xnet.AnyIPv4Address(APIPort)},
+	if v.App == nil {
+		v.App = make(map[string]interface{})
 	}
-	v.Config = map[string]interface{}{
-		"rpc":         map[string]interface{}{"laddr": xnet.AnyIPv4Address(RPCPort)},
-		"p2p":         map[string]interface{}{"laddr": xnet.AnyIPv4Address(P2PPort)},
-		"pprof_laddr": xnet.AnyIPv4Address(PProfPort),
+
+	v.App["grpc"] = map[string]interface{}{"address": xnet.AnyIPv4Address(GRPCPort)}
+	v.App["grpc-web"] = map[string]interface{}{"address": xnet.AnyIPv4Address(GRPCWebPort)}
+	v.App["api"] = map[string]interface{}{"address": xnet.AnyIPv4Address(APIPort)}
+
+	if v.Config == nil {
+		v.Config = make(map[string]interface{})
 	}
+
+	v.Config["rpc"] = map[string]interface{}{"laddr": xnet.AnyIPv4Address(RPCPort)}
+	v.Config["p2p"] = map[string]interface{}{"laddr": xnet.AnyIPv4Address(P2PPort)}
+	v.Config["pprof_laddr"] = xnet.AnyIPv4Address(PProfPort)
 }
 
 func getConfigValue(cfg map[string]interface{}, path string) string {
