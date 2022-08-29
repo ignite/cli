@@ -14,7 +14,8 @@ const (
 func NewScaffoldMap() *cobra.Command {
 	c := &cobra.Command{
 		Use: "map NAME [field]...",
-		Short: `The "map" scaffolding command is used to generate files that implement the logic
+		Short: "CRUD for data stored as key-value pairs",
+		Long: `The "map" scaffolding command is used to generate files that implement the logic
 for storing and interacting with data stored as key-value pairs (or a
 dictionary) in the blockchain state.
 
