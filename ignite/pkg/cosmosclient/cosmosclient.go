@@ -306,11 +306,11 @@ func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	timeout := time.After(c.waitBlockDuration)
 
 	for {
-		lh, err := c.LatestBlockHeight(ctx)
+		latestHeight, err := c.LatestBlockHeight(ctx)
 		if err != nil {
 			return err
 		}
-		if lh >= h {
+		if latestHeight >= h {
 			return nil
 		}
 		select {
@@ -327,9 +327,9 @@ func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
 	defer c.lockBech32Prefix()()
 
-	a, err := c.AccountRegistry.GetByName(nameOrAddress)
+	acc, err := c.AccountRegistry.GetByName(nameOrAddress)
 	if err == nil {
-		return a, nil
+		return acc, nil
 	}
 	return c.AccountRegistry.GetByAddress(nameOrAddress)
 }
