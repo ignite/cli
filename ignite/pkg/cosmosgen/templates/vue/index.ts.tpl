@@ -1,20 +1,12 @@
-import { txClient, queryClient, MissingWalletError , registry} from './module'
+import { Client, registry} from '{{ .User }}-{{ .Repo }}-client-ts'
 
-{{ range .Module.Types }}import { {{ .Name }} } from "./module/types/{{ resolveFile .FilePath }}"
+{{ range .Module.Types }}import { {{ .Name }} } from "{{ $.User }}-{{ $.Repo }}-client-ts/{{ $.Module.Pkg.Name }}/types"
 {{ end }}
 
 export { {{ range $i,$type:=.Module.Types }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };
 
-async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['common/wallet/signer'], {
-		addr: vuexGetters['common/env/apiTendermint']
-	})
-}
-
-async function initQueryClient(vuexGetters) {
-	return await queryClient({
-		addr: vuexGetters['common/env/apiCosmos']
-	})
+function initClient(vuexGetters) {
+	return new Client(vuexGetters['common/env'], vuexGetters['common/wallet/signer'])
 }
 
 function mergeResults(value, next_values) {
@@ -28,17 +20,18 @@ function mergeResults(value, next_values) {
 	return value
 }
 
+type Field = {
+	name: string;
+	type: unknown;
+}
 function getStructure(template) {
-	let structure = { fields: [] }
+	let structure: {fields: Field[]} = { fields: [] }
 	for (const [key, value] of Object.entries(template)) {
-		let field: any = {}
-		field.name = key
-		field.type = typeof value
+		let field = { name: key, type: typeof value }
 		structure.fields.push(field)
 	}
 	return structure
 }
-
 const getDefaultState = () => {
 	return {
 				{{ range .Module.HTTPQueries }}{{ .Name }}: {},
@@ -123,15 +116,15 @@ export default {
 		async {{ $FullName }}{{ $n }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params, query=null }) {
 			try {
 				const key = params ?? {};
-				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.{{ camelCaseSta $FullName -}}
+				const client = initClient(rootGetters);
+				let value= (await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.{{ camelCaseSta $FullName -}}
 				{{- $n -}}(
 					{{- range $j,$a :=$rule.Params -}}
 						{{- if (gt $j 0) -}}, {{ end }} key.{{ $a -}}
 					{{- end -}}
 					{{- if $rule.HasQuery -}}
 						{{- if $rule.Params -}}, {{ end -}}
-						query
+						query ?? undefined
 					{{- end -}}
 					{{- if $rule.HasBody -}}
 						{{- if or $rule.HasQuery $rule.Params}},{{ end -}}
@@ -141,9 +134,9 @@ export default {
 				
 					{{ if $rule.HasQuery }}
 				while (all && (<any> value).pagination && (<any> value).pagination.next_key!=null) {
-					let next_values=(await queryClient.{{ camelCaseSta $FullName -}}
+					let next_values=(await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.{{ camelCaseSta $FullName -}}
 					{{- $n -}}(
-						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.next_key}
+						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query ?? {}, 'pagination.key':(<any> value).pagination.next_key} as any
 						{{- if $rule.HasBody -}}, {...key}
 						{{- end -}}
 						)).data
@@ -162,10 +155,8 @@ export default {
 		{{ end }}
 		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.{{ camelCase .Name }}(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-	gas: "200000" }, memo})
+				const client=await initClient(rootGetters)
+				const result = await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.send{{ .Name }}(value)
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -178,8 +169,8 @@ export default {
 		{{ end }}
 		{{ range .Module.Msgs }}async {{ .Name }}({ rootGetters }, { value }) {
 			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.{{ camelCase .Name }}(value)
+				const client=initClient(rootGetters)
+				const msg = await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.{{ camelCase .Name }}(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {

@@ -2,13 +2,14 @@
 
 import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient, DeliverTxResponse } from "@cosmjs/stargate";
-import { EncodeObject, GeneratedType } from "@cosmjs/proto-signing";
+import { EncodeObject, GeneratedType, OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { msgTypes } from './registry';
 import { IgniteClient } from "../client"
 import { Api } from "./rest";
 {{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
 {{ end }}
 
+export { {{ range $i,$type:=.Module.Types }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };
 {{ range .Module.Msgs }}
 type send{{ .Name }}Params = {
   value: {{ .Name }},
@@ -29,60 +30,32 @@ const defaultFee = {
   gas: "200000",
 };
 
-interface TxClientOptions {
-  addr: string
-}
-
-interface SignAndBroadcastOptions {
-  fee: StdFee,
-  memo?: string
-}
-
-const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
-  if (!wallet) throw MissingWalletError;
-  let client;
-  if (addr) {
-    client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
-  }else{
-    client = await SigningStargateClient.offline( wallet, { registry });
-  }
-  const { address } = (await wallet.getAccounts())[0];
-
-  return {
-    signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ""}) => client.signAndBroadcast(address, msgs, fee,memo),
-    {{ range .Module.Msgs }}{{ camelCase .Name }}: (data: {{ .Name }}): EncodeObject => ({ typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( data ) }),
-    {{ end }}
-  };
-};
-
-const queryClient = async ({ addr: addr }: QueryClientOptions = { addr: "http://localhost:1317" }) => {
-  return new Api({ baseUrl: addr });
-};
-
-class SDKModule {
-	private _signingClient: SigningStargateClient;
+class SDKModule extends Api<any> {
+	private _signer: OfflineSigner;
 	private _rpcAddr: string;
-	private _apiAddr: string;
+	private _prefix: string;
 	public registry: Array<[string, GeneratedType]>;
 
 	constructor(client: IgniteClient) {		
-		this._signingClient = client.client;
-		this._addr = client.env.rpcURL;
-
+		super({baseUrl: client.env.apiURL});
+		this._signer = client.env.signer;		
+		this._rpcAddr = client.env.rpcURL;
+		this._prefix = client.env.prefix ?? 'cosmos';
 	}
 
 
 	{{ range .Module.Msgs }}
 	async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
-		if (!this._client) {
+		if (!this._signer) {
 		    throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Signer is not present.')
 		}
-		if (!this._addr) {
+		if (!this._rpcAddr) {
             throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Address is not present.')
         }
 		try {
+			const signingClient = await SigningStargateClient.connectWithSigner(this._rpcAddr,this._signer,{registry: new Registry(this.registry), prefix:this._prefix});
 			let msg = this.{{ camelCase .Name }}({ value: {{ .Name }}.fromPartial(value) })
-			return await this._client.signAndBroadcast(this._addr, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
+			return await signingClient.signAndBroadcast(this._rpcAddr, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
 		} catch (e: any) {
 			throw new Error('TxClient:send{{ .Name }}: Could not broadcast Tx: '+ e.message)
 		}
@@ -102,7 +75,7 @@ class SDKModule {
 const Module = (test: IgniteClient) => {
 	return {
 		module: {
-			{{ camelCaseLowerSta .Module.Pkg.Name }}: new SDKModule(test)
+			{{ camelCaseUpperSta .Module.Pkg.Name }}: new SDKModule(test)
 		},
 		registry: msgTypes
   }

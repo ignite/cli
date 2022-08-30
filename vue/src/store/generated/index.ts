@@ -1,11 +1,9 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
-{{ range .Modules }}import {{ camelCaseUpperSta .Pkg.Name }} from './{{ .Pkg.Name }}'
-{{ end }}
+
 
 export default { 
-  {{ range .Modules }}{{ camelCaseUpperSta .Pkg.Name }}: load({{ camelCaseUpperSta .Pkg.Name }}, '{{ .Pkg.Name }}'),
-  {{ end }}
+  
 }
 
 

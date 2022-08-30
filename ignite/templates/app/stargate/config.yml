@@ -10,7 +10,7 @@ client:
   openapi:
     path: "docs/static/openapi.yml"
   typescript:
-    path: "vue/src/generated"
+    path: "ts-client"
 faucet:
   name: bob
   coins: ["5token", "100000stake"]

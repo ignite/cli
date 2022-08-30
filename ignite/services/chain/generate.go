@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	defaultTSClientPath = "vue/src/generated"
+	defaultTSClientPath = "ts-client"
+	defaultVuexPath     = "vue/src/store/generated"
 	defaultDartPath     = "flutter/lib"
 	defaultOpenAPIPath  = "docs/static/openapi.yml"
 )
@@ -20,6 +21,7 @@ const (
 type generateOptions struct {
 	isGoEnabled       bool
 	isTSClientEnabled bool
+	isVuexEnabled     bool
 	isDartEnabled     bool
 	isOpenAPIEnabled  bool
 }
@@ -38,6 +40,14 @@ func GenerateGo() GenerateTarget {
 func GenerateTSClient() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
+	}
+}
+
+// GenerateTSClient enables generating proto based Typescript Client.
+func GenerateVuex() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+		o.isVuexEnabled = true
 	}
 }
 
@@ -131,6 +141,29 @@ func (c *Chain) Generate(
 					return filepath.Join(tsClientRootPath, "client", parsedGitURL.UserAndRepo(), m.Pkg.Name)
 				},
 				tsClientRootPath,
+			),
+		)
+	}
+
+	if targetOptions.isVuexEnabled {
+		vuexPath := conf.Client.Vuex.Path
+		if vuexPath == "" {
+			vuexPath = defaultVuexPath
+		}
+
+		vuexRootPath := filepath.Join(c.app.Path, vuexPath)
+		if err := os.MkdirAll(vuexRootPath, 0766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithVuexGeneration(
+				enableThirdPartyModuleCodegen,
+				func(m module.Module) string {
+					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
+					return filepath.Join(vuexRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name)
+				},
+				vuexRootPath,
 			),
 		)
 	}

@@ -69,10 +69,6 @@ func (g *generator) generateTS() error {
 		return err
 	}
 
-	if err := tsg.generateVueTemplates(data); err != nil {
-		return err
-	}
-
 	if err := tsg.generateRootTemplates(data); err != nil {
 		return err
 	}
@@ -94,7 +90,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 			m := m
 			gg.Go(func() error {
 				var (
-					out      = filepath.Join(g.g.o.tsClientRootPath, "client", m.Pkg.Name)
+					out      = filepath.Join(g.g.o.tsClientRootPath, m.Pkg.Name)
 					typesOut = filepath.Join(out, "types")
 					ctx      = g.g.ctx
 					appPath  = sourcePath
@@ -171,58 +167,13 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	return gg.Wait()
 }
 
-func (g *tsGenerator) generateVueTemplates(payload generatePayload) error {
-	gg := &errgroup.Group{}
-
-	generate := func() {
-		for _, m := range payload.Modules {
-			m := m
-
-			gg.Go(func() error {
-				vueAPIOut := filepath.Join(g.g.o.tsClientRootPath, "vue", m.Pkg.Name)
-
-				if err := os.MkdirAll(vueAPIOut, 0766); err != nil {
-					return err
-				}
-
-				if err := templateTSClientVue.Write(vueAPIOut, "", struct {
-					Module module.Module
-					User   string
-					Repo   string
-				}{
-					Module: m,
-					User:   payload.User,
-					Repo:   payload.Repo,
-				}); err != nil {
-					return err
-				}
-
-				return nil
-			})
-		}
-	}
-
-	generate()
-
-	return gg.Wait()
-}
-
 func (g *tsGenerator) generateRootTemplates(payload generatePayload) error {
-	tsClientOut := filepath.Join(g.g.o.tsClientRootPath, "client")
+	tsClientOut := filepath.Join(g.g.o.tsClientRootPath)
 	if err := os.MkdirAll(tsClientOut, 0766); err != nil {
 		return err
 	}
 	if err := templateTSClientRoot.Write(tsClientOut, "", payload); err != nil {
 		return err
 	}
-
-	vueOut := filepath.Join(g.g.o.tsClientRootPath, "vue")
-	if err := os.MkdirAll(vueOut, 0766); err != nil {
-		return err
-	}
-	if err := templateTSClientVueRoot.Write(vueOut, "", payload); err != nil {
-		return err
-	}
-
 	return nil
 }

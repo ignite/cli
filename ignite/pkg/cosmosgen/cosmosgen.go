@@ -17,6 +17,9 @@ type generateOptions struct {
 	jsIncludeThirdParty bool
 	tsClientRootPath    string
 
+	vuexOut      func(module.Module) string
+	vuexRootPath string
+
 	specOut string
 
 	dartOut               func(module.Module) string
@@ -39,7 +42,13 @@ func WithTSClientGeneration(includeThirdPartyModules bool, out func(module.Modul
 		o.tsClientRootPath = tsClientRootPath
 	}
 }
-
+func WithVuexGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), vuexRootPath string) Option {
+	return func(o *generateOptions) {
+		o.vuexOut = out
+		o.jsIncludeThirdParty = includeThirdPartyModules
+		o.vuexRootPath = vuexRootPath
+	}
+}
 func WithDartGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), rootPath string) Option {
 	return func(o *generateOptions) {
 		o.dartOut = out
@@ -112,6 +121,12 @@ func Generate(ctx context.Context, appPath, protoDir string, options ...Option) 
 	// so it needs to run after Go code gen.
 	if g.o.jsOut != nil {
 		if err := g.generateTS(); err != nil {
+			return err
+		}
+	}
+
+	if g.o.vuexOut != nil {
+		if err := g.generateVuex(); err != nil {
 			return err
 		}
 	}

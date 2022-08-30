@@ -1,4 +1,4 @@
-import { GeneratedType, OfflineSigner } from "@cosmjs/proto-signing";
+import { GeneratedType } from "@cosmjs/proto-signing";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Env } from "./env";
 import { UnionToIntersection, Return, Constructor } from "./helpers";
@@ -7,7 +7,7 @@ import { Module } from "./modules";
 export class IgniteClient {
 	static plugins: Module[] = [];
   env: Env;
-  signer: OfflineSigner;
+  client: SigningStargateClient;
   registry: Array<[string, GeneratedType]>
   static plugin<T extends Module | Module[]>(plugin: T) {
     const currentPlugins = this.plugins;
@@ -24,9 +24,8 @@ export class IgniteClient {
     type Extension = Return<T>['module']
     return AugmentedClient as typeof AugmentedClient & Constructor<Extension>;
   }
-  constructor(env: Env, signer: OfflineSigner) {
+  constructor(env: Env) {
     this.env = env;
-    this.signer = signer;
     const classConstructor = this.constructor as typeof IgniteClient;
     classConstructor.plugins.forEach(plugin => {
       const pluginInstance = plugin(this);
