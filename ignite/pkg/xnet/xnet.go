@@ -43,3 +43,13 @@ func IncreasePortBy(addr string, inc uint64) (string, error) {
 
 	return net.JoinHostPort(host, port), nil
 }
+
+// MustIncreasePortBy calls IncreasePortBy and panics on error.
+func MustIncreasePortBy(addr string, inc uint64) string {
+	s, err := IncreasePortBy(addr, inc)
+	if err != nil {
+		panic(err)
+	}
+
+	return s
+}
