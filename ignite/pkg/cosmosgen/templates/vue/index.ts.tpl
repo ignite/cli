@@ -1,4 +1,4 @@
-import { Client, registry} from '{{ .User }}-{{ .Repo }}-client-ts'
+import { Client, registry, MissingWalletError } from '{{ .User }}-{{ .Repo }}-client-ts'
 
 {{ range .Module.Types }}import { {{ .Name }} } from "{{ $.User }}-{{ $.Repo }}-client-ts/{{ $.Module.Pkg.Name }}/types"
 {{ end }}

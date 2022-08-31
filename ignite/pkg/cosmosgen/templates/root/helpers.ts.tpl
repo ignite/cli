@@ -18,6 +18,8 @@ export type Return<T> =
       : never
 
 
+export const MissingWalletError = new Error("wallet is required");
+
 export function getStructure(template) {
 	let structure = { fields: [] }
 	for (const [key, value] of Object.entries(template)) {

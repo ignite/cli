@@ -5,6 +5,7 @@ import { SigningStargateClient, DeliverTxResponse } from "@cosmjs/stargate";
 import { EncodeObject, GeneratedType, OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { msgTypes } from './registry';
 import { IgniteClient } from "../client"
+import { MissingWalletError } from "../helpers"
 import { Api } from "./rest";
 {{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
 {{ end }}
@@ -22,8 +23,6 @@ type {{ camelCase .Name }}Params = {
   value: {{ .Name }},
 };
 {{ end }}
-
-export const MissingWalletError = new Error("wallet is required");
 
 const defaultFee = {
   amount: [],
