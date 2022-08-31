@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -49,7 +50,7 @@ func TestJoin(t *testing.T) {
 					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
 					Peer: launchtypes.Peer{
 						Id: testutil.NodeID,
 						Connection: &launchtypes.Peer_TcpAddress{
@@ -100,7 +101,7 @@ func TestJoin(t *testing.T) {
 					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
 					Peer: launchtypes.Peer{
 						Id: testutil.NodeID,
 						Connection: &launchtypes.Peer_TcpAddress{
@@ -147,7 +148,7 @@ func TestJoin(t *testing.T) {
 					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
 					Peer: launchtypes.Peer{
 						Id: testutil.NodeID,
 						Connection: &launchtypes.Peer_TcpAddress{
@@ -200,7 +201,7 @@ func TestJoin(t *testing.T) {
 					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
+					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
 					Peer: launchtypes.Peer{
 						Id: testutil.NodeID,
 						Connection: &launchtypes.Peer_TcpAddress{
@@ -222,7 +223,7 @@ func TestJoin(t *testing.T) {
 					Creator:  addr,
 					LaunchID: testutil.LaunchID,
 					Address:  addr,
-					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))),
+					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt))),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{
@@ -236,7 +237,7 @@ func TestJoin(t *testing.T) {
 			suite.ChainMock,
 			testutil.LaunchID,
 			gentxPath,
-			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))),
+			WithAccountRequest(sdk.NewCoins(sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)))),
 			WithPublicAddress(testutil.TCPAddress),
 		)
 		require.NoError(t, joinErr)
