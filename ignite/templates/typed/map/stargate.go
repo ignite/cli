@@ -86,7 +86,6 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	// Modifications for new messages
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(replacer, opts))
-		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
@@ -576,38 +575,6 @@ message MsgDelete%[2]vResponse {}
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
 
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Set once the MsgServer definition if it is not defined yet
-		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
-
-		templateHandlers := `case *types.MsgCreate%[2]v:
-					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgUpdate%[2]v:
-					res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgDelete%[2]v:
-					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-%[1]v`
-		replacementHandlers := fmt.Sprintf(templateHandlers,
-			typed.Placeholder,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, typed.Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

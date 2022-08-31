@@ -72,7 +72,6 @@ The `message` command has created and modified several files:
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_post.go
-modify x/blog/handler.go
 create x/blog/keeper/msg_server_create_post.go
 modify x/blog/module_simulation.go
 create x/blog/simulation/create_post.go
@@ -106,27 +105,6 @@ service Msg {
   rpc CreatePost(MsgCreatePost) returns (MsgCreatePostResponse);
 }
 ```
-
-Next, look at the `x/blog/handler.go` file. Ignite CLI has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
-
-```go
-func NewHandler(k keeper.Keeper) sdk.Handler {
-  //...
-  return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
-    //...
-    switch msg := msg.(type) {
-    case *types.MsgCreatePost:
-      res, err := msgServer.CreatePost(sdk.WrapSDKContext(ctx), msg)
-      return sdk.WrapServiceResult(ctx, res, err)
-    //...
-    }
-  }
-}
-```
-
-The `case *types.MsgCreatePost` statement handles messages of type `MsgCreatePost`, calls the `CreatePost` method, and returns back the response.
-
-Every module has a handler function like this to process messages and call keeper methods.
 
 ## Define messages logic
 
@@ -314,7 +292,7 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
 
 By following these steps, you have implemented all of the code required to create new posts and store them on-chain. Now, when a transaction that contains a message of type `MsgCreatePost` is broadcast, the message is routed to your blog module.
 
-- `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`
+- `k.CreatePost` calls `AppendPost`
 - `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID
 
 Now that you have added the functionality to create posts and broadcast them to our chain, you can add querying.

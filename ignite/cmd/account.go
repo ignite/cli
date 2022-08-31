@@ -53,7 +53,17 @@ chain.
 func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) error {
 	var accEntries [][]string
 	for _, acc := range accounts {
-		accEntries = append(accEntries, []string{acc.Name, acc.Address(getAddressPrefix(cmd)), acc.PubKey()})
+		addr, err := acc.Address(getAddressPrefix(cmd))
+		if err != nil {
+			return err
+		}
+
+		pubKey, err := acc.PubKey()
+		if err != nil {
+			return err
+		}
+
+		accEntries = append(accEntries, []string{acc.Name, addr, pubKey})
 	}
 	return entrywriter.MustWrite(os.Stdout, []string{"name", "address", "public key"}, accEntries...)
 }

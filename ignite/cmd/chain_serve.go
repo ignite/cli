@@ -17,9 +17,41 @@ func NewChainServe() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "serve",
 		Short: "Start a blockchain node in development",
-		Long:  "Start a blockchain node with automatic reloading",
-		Args:  cobra.NoArgs,
-		RunE:  chainServeHandler,
+		Long: `The serve command compiles and installs the binary (like "ignite chain build"),
+uses that binary to initialize the blockchain's data directory for one validator
+(like "ignite chain init"), and starts the node locally for development purposes
+with automatic code reloading.
+
+Automatic code reloading means Ignite starts watching the project directory.
+Whenever a file change is detected, Ignite automatically rebuilds, reinitializes
+and restarts the node.
+
+Whenever possible Ignite will try to keep the current state of the chain by
+exporting and importing the genesis file.
+
+To force Ignite to start from a clean slate even if a genesis file exists, use
+the following flag:
+
+  ignite chain serve --reset-once
+
+To force Ignite to reset the state every time the source code is modified, use
+the following flag:
+
+  ignite chain serve --force-reset
+
+With Ignite it's possible to start more than one blockchain from the same source
+code using different config files. This is handy if you're building
+inter-blockchain functionality and, for example, want to try sending packets
+from one blockchain to another. To start a node using a specific config file:
+
+  ignite chain serve --config mars.yml
+
+The serve command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
+hood, it runs "appd start", where "appd" is the name of your chain's binary. For
+production, you may want to run "appd start" manually.
+`,
+		Args: cobra.NoArgs,
+		RunE: chainServeHandler,
 	}
 
 	flagSetPath(c)
