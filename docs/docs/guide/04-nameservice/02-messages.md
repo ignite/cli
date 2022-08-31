@@ -93,7 +93,6 @@ The `ignite scaffold message buy-name name bid` command creates and modifies sev
 modify proto/nameservice/tx.proto
 modify x/nameservice/client/cli/tx.go
 create x/nameservice/client/cli/tx_buy_name.go
-modify x/nameservice/handler.go
 create x/nameservice/keeper/msg_server_buy_name.go
 modify x/nameservice/types/codec.go
 create x/nameservice/types/message_buy_name.go
@@ -140,10 +139,6 @@ These are the changes for each one of these files:
 - `x/nameservice/types/message_buy_name.go`
 
     Defines methods to satisfy the `Msg` interface.
-
-- `x/nameservice/handler.go`
-
-    Registers the `MsgBuyName` message in the module message handler.
 
 - `x/nameservice/keeper/msg_server_buy_name.go`
 

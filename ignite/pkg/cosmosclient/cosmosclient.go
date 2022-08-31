@@ -420,7 +420,11 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
-		if err := c.makeSureAccountHasTokens(context.Background(), account.Address(c.addressPrefix)); err != nil {
+		addr, err := account.Address(c.addressPrefix)
+		if err != nil {
+			return TxService{}, err
+		}
+		if err := c.makeSureAccountHasTokens(context.Background(), addr); err != nil {
 			return TxService{}, err
 		}
 	}

@@ -3,8 +3,9 @@ package ignitecmd
 import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
 func NewNodeTxBankSend() *cobra.Command {

@@ -127,7 +127,10 @@ func (c *Chain) TryRetrieve(ctx context.Context) (sdk.Coins, error) {
 		return nil, err
 	}
 
-	addr := acc.Address(c.addressPrefix)
+	addr, err := acc.Address(c.addressPrefix)
+	if err != nil {
+		return nil, err
+	}
 
 	if err = cosmosfaucet.TryRetrieve(ctx, c.ID, c.rpcAddress, c.faucetAddress, addr); err != nil {
 		return nil, err

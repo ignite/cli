@@ -24,19 +24,19 @@ const (
 
 func TestJoin(t *testing.T) {
 	t.Run("successfully send join request", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			suite, network = newSuite(account)
+		account := testutil.NewTestAccount(t, testutil.TestAccountName)
+		tmp := t.TempDir()
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+		gentx := testutil.NewGentx(
+			addr,
+			TestDenom,
+			TestAmountString,
+			"",
+			testutil.PeerAddress,
 		)
+		gentxPath := gentx.SaveTo(t, tmp)
+		suite, network := newSuite(account)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
 		suite.CosmosClientMock.
@@ -44,9 +44,9 @@ func TestJoin(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgRequestAddValidator{
-					Creator:        account.Address(networktypes.SPN),
+					Creator:        addr,
 					LaunchID:       testutil.LaunchID,
-					ValAddress:     account.Address(networktypes.SPN),
+					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
 					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
@@ -76,28 +76,28 @@ func TestJoin(t *testing.T) {
 	})
 
 	t.Run("successfully send join request with custom gentx", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			suite, network = newSuite(account)
+		account := testutil.NewTestAccount(t, testutil.TestAccountName)
+		tmp := t.TempDir()
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+		gentx := testutil.NewGentx(
+			addr,
+			TestDenom,
+			TestAmountString,
+			"",
+			testutil.PeerAddress,
 		)
+		gentxPath := gentx.SaveTo(t, tmp)
+		suite, network := newSuite(account)
 
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgRequestAddValidator{
-					Creator:        account.Address(networktypes.SPN),
+					Creator:        addr,
 					LaunchID:       testutil.LaunchID,
-					ValAddress:     account.Address(networktypes.SPN),
+					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
 					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
@@ -121,20 +121,20 @@ func TestJoin(t *testing.T) {
 	})
 
 	t.Run("failed to send join request, failed to broadcast join tx", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			suite, network = newSuite(account)
-			expectedError  = errors.New("failed to add validator")
+		account := testutil.NewTestAccount(t, testutil.TestAccountName)
+		tmp := t.TempDir()
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+		gentx := testutil.NewGentx(
+			addr,
+			TestDenom,
+			TestAmountString,
+			"",
+			testutil.PeerAddress,
 		)
+		gentxPath := gentx.SaveTo(t, tmp)
+		suite, network := newSuite(account)
+		expectedError := errors.New("failed to add validator")
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
 		suite.CosmosClientMock.
@@ -142,9 +142,9 @@ func TestJoin(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgRequestAddValidator{
-					Creator:        account.Address(networktypes.SPN),
+					Creator:        addr,
 					LaunchID:       testutil.LaunchID,
-					ValAddress:     account.Address(networktypes.SPN),
+					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
 					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
@@ -175,19 +175,19 @@ func TestJoin(t *testing.T) {
 	})
 
 	t.Run("successfully send join request with account request", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			suite, network = newSuite(account)
+		account := testutil.NewTestAccount(t, testutil.TestAccountName)
+		tmp := t.TempDir()
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+		gentx := testutil.NewGentx(
+			addr,
+			TestDenom,
+			TestAmountString,
+			"",
+			testutil.PeerAddress,
 		)
+		gentxPath := gentx.SaveTo(t, tmp)
+		suite, network := newSuite(account)
 
 		suite.ChainMock.On("NodeID", context.Background()).Return(testutil.NodeID, nil).Once()
 		suite.CosmosClientMock.
@@ -195,9 +195,9 @@ func TestJoin(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgRequestAddValidator{
-					Creator:        account.Address(networktypes.SPN),
+					Creator:        addr,
 					LaunchID:       testutil.LaunchID,
-					ValAddress:     account.Address(networktypes.SPN),
+					ValAddress:     addr,
 					GenTx:          gentx.JSON(t),
 					ConsPubKey:     []byte{},
 					SelfDelegation: sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)),
@@ -219,9 +219,9 @@ func TestJoin(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgRequestAddAccount{
-					Creator:  account.Address(networktypes.SPN),
+					Creator:  addr,
 					LaunchID: testutil.LaunchID,
-					Address:  account.Address(networktypes.SPN),
+					Address:  addr,
 					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt))),
 				},
 			).
@@ -244,20 +244,21 @@ func TestJoin(t *testing.T) {
 	})
 
 	t.Run("failed to send join request, failed to read node id", func(t *testing.T) {
-		var (
-			account = testutil.NewTestAccount(t, testutil.TestAccountName)
-			tmp     = t.TempDir()
-			gentx   = testutil.NewGentx(
-				account.Address(networktypes.SPN),
-				TestDenom,
-				TestAmountString,
-				"",
-				testutil.PeerAddress,
-			)
-			gentxPath      = gentx.SaveTo(t, tmp)
-			suite, network = newSuite(account)
-			expectedError  = errors.New("failed to get node id")
+		account := testutil.NewTestAccount(t, testutil.TestAccountName)
+		tmp := t.TempDir()
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+		gentx := testutil.NewGentx(
+			addr,
+			TestDenom,
+			TestAmountString,
+			"",
+			testutil.PeerAddress,
 		)
+		gentxPath := gentx.SaveTo(t, tmp)
+		suite, network := newSuite(account)
+		expectedError := errors.New("failed to get node id")
+
 		suite.ChainMock.
 			On("NodeID", mock.Anything).
 			Return("", expectedError).

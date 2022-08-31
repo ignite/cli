@@ -81,9 +81,12 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 // CreateCampaign creates a campaign in Network
 func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
-
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return 0, err
+	}
 	msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
-		n.account.Address(networktypes.SPN),
+		addr,
 		name,
 		totalSupply,
 		[]byte(metadata),
@@ -109,8 +112,13 @@ func (n Network) InitializeMainnet(
 	mainnetChainID string,
 ) (uint64, error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Initializing the mainnet campaign"))
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return 0, err
+	}
+
 	msg := campaigntypes.NewMsgInitializeMainnet(
-		n.account.Address(networktypes.SPN),
+		addr,
 		campaignID,
 		sourceURL,
 		sourceHash,
@@ -144,7 +152,10 @@ func (n Network) UpdateCampaign(
 	}
 
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Updating the campaign %d", id)))
-	account := n.account.Address(networktypes.SPN)
+	account, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
 	msgs := make([]sdk.Msg, 0)
 	if p.name != "" || len(p.metadata) > 0 {
 		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(

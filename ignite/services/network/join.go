@@ -101,8 +101,13 @@ func (n Network) sendValidatorRequest(
 	gentx []byte,
 	gentxInfo cosmosutil.GentxInfo,
 ) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := launchtypes.NewMsgRequestAddValidator(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		valAddress,
 		gentx,

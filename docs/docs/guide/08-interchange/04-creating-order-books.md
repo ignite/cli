@@ -32,7 +32,6 @@ The `send-create-pair` command is used to create order books. This command:
 
 - Creates and broadcasts a transaction with a message of type `SendCreatePair`.
 - The message gets routed to the `dex` module.
-- The message is processed by the message handler in `x/dex/handler.go`.
 - Finally, a `SendCreatePair` keeper method is called.
 
 You need the `send-create-pair` command to do the following:
