@@ -198,8 +198,9 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 			},
 		},
 		{
-			name: "ok: wait 1 time",
-			ctx:  ctx,
+			name:              "ok: wait 1 time",
+			ctx:               ctx,
+			waitBlockDuration: time.Second * 2, // must exceed the wait loop duration
 			setup: func(s suite) {
 				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
@@ -221,9 +222,10 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 			},
 		},
 		{
-			name:          "fail: canceled context",
-			ctx:           canceledCtx,
-			expectedError: canceledCtx.Err().Error(),
+			name:              "fail: canceled context",
+			ctx:               canceledCtx,
+			waitBlockDuration: time.Millisecond,
+			expectedError:     canceledCtx.Err().Error(),
 			setup: func(s suite) {
 				s.rpcClient.EXPECT().Status(canceledCtx).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
@@ -234,13 +236,9 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			var opts []Option
-			if tt.waitBlockDuration > 0 {
-				opts = append(opts, WithWaitBlockDuration(tt.waitBlockDuration))
-			}
-			c := newClient(t, tt.setup, opts...)
+			c := newClient(t, tt.setup)
 
-			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight)
+			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight, tt.waitBlockDuration)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)

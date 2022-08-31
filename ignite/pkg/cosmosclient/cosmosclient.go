@@ -201,26 +201,18 @@ func WithRPCClient(rpc rpcclient.Client) Option {
 	}
 }
 
-// WithWaitBlockDuration sets the wait duration for WaitForBlock methods.
-func WithWaitBlockDuration(waitBlockDuration time.Duration) Option {
-	return func(c *Client) {
-		c.waitBlockDuration = waitBlockDuration
-	}
-}
-
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
-		nodeAddress:       defaultNodeAddress,
-		keyringBackend:    cosmosaccount.KeyringTest,
-		addressPrefix:     "cosmos",
-		faucetAddress:     defaultFaucetAddress,
-		faucetDenom:       defaultFaucetDenom,
-		faucetMinAmount:   defaultFaucetMinAmount,
-		out:               io.Discard,
-		gas:               strconv.Itoa(defaultGasLimit),
-		broadcastMode:     flags.BroadcastBlock,
-		waitBlockDuration: defaultWaitBlockDuration,
+		nodeAddress:     defaultNodeAddress,
+		keyringBackend:  cosmosaccount.KeyringTest,
+		addressPrefix:   "cosmos",
+		faucetAddress:   defaultFaucetAddress,
+		faucetDenom:     defaultFaucetDenom,
+		faucetMinAmount: defaultFaucetMinAmount,
+		out:             io.Discard,
+		gas:             strconv.Itoa(defaultGasLimit),
+		broadcastMode:   flags.BroadcastBlock,
 	}
 
 	var err error
@@ -284,26 +276,28 @@ func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
 // WaitForNextBlock waits until next block is committed.
 // It reads the current block height and then waits for another block to be
 // committed.
+// A timeout occurs after 10 seconds, to customize the timeout, use the
+// WaitForNBlocks(ctx, 1, timeout) function.
 func (c Client) WaitForNextBlock(ctx context.Context) error {
-	return c.WaitForNBlocks(ctx, 1)
+	return c.WaitForNBlocks(ctx, 1, time.Second*10)
 }
 
 // WaitForNBlocks reads the current block height and then waits for anothers n
 // blocks to be committed.
-func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
+func (c Client) WaitForNBlocks(ctx context.Context, n int64, timeout time.Duration) error {
 	start, err := c.LatestBlockHeight(ctx)
 	if err != nil {
 		return err
 	}
-	return c.WaitForBlockHeight(ctx, start+n)
+	return c.WaitForBlockHeight(ctx, start+n, timeout)
 }
 
-// WaitForBlockHeight waits until block height h is committed, or return an
-// error if a timeout is reached (10s).
-func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
+// WaitForBlockHeight waits until block height h is committed, or returns an
+// error if ctx is canceled or if timeout is reached.
+func (c Client) WaitForBlockHeight(ctx context.Context, h int64, timeout time.Duration) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	timeout := time.After(c.waitBlockDuration)
+	timeoutc := time.After(timeout)
 
 	for {
 		latestHeight, err := c.LatestBlockHeight(ctx)
@@ -314,7 +308,7 @@ func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 			return nil
 		}
 		select {
-		case <-timeout:
+		case <-timeoutc:
 			return errors.New("timeout exceeded waiting for block")
 		case <-ctx.Done():
 			return ctx.Err()
