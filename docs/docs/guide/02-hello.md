@@ -227,39 +227,7 @@ func (k Keeper) Hello(c context.Context, req *types.QueryHelloRequest) (*types.Q
 ```
 
 - Save the file to restart your chain. 
-- In a web browser, visit the `hello` endpoint [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello).
-
-  Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
-
-## Register query handlers
-
-Make the required changes to the `x/hello/module.go` file.
-
-1. Add `"context"` to the list of packages in the import statement.
-
-    ```go
-    import (
-      // ...
-
-      "context"
-
-      // ...
-    )
-    ```
-
-    Do not save the file yet, you need to continue with these modifications.
-
-1. Search for `RegisterGRPCGatewayRoutes`.
-
-1. Register the query handlers:
-
-    ```go
-    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-      types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-    }
-    ```
-
-2. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
+- After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
 
     ```json
     {
