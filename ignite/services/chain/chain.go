@@ -214,7 +214,11 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 			return "", err
 		}
 		validator := conf.Validators[0]
-		rpcAddress = validator.GetRPC()
+		servers, err := validator.GetServers()
+		if err != nil {
+			return "", err
+		}
+		rpcAddress = servers.RPC.Address
 	}
 	return rpcAddress, nil
 }
@@ -455,7 +459,12 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	}
 
 	validator := config.Validators[0]
-	nodeAddr, err := xurl.TCP(validator.GetRPC())
+	servers, err := validator.GetServers()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	nodeAddr, err := xurl.TCP(servers.RPC.Address)
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}

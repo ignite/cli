@@ -212,15 +212,17 @@ func (a App) RandomizeServerPorts() Hosts {
 	}
 
 	a.EditConfig(func(c *v1.Config) {
-		v := c.Validators[0]
+		v := &c.Validators[0]
 
-		v.App["grpc"] = hosts.GRPC
-		v.App["grpc-web"] = hosts.GRPCWeb
-		v.App["api"] = hosts.API
+		s := v1.Servers{}
+		s.GRPC.Address = hosts.GRPC
+		s.GRPCWeb.Address = hosts.GRPCWeb
+		s.API.Address = hosts.API
+		s.P2P.Address = hosts.P2P
+		s.RPC.Address = hosts.RPC
+		s.RPC.PProfAddress = hosts.Prof
 
-		v.Config["rpc"] = hosts.GRPC
-		v.Config["p2p"] = hosts.GRPCWeb
-		v.Config["pprof_laddr"] = hosts.API
+		require.NoError(a.env.t, v.SetServers(s))
 	})
 
 	return hosts

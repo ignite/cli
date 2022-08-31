@@ -1,8 +1,6 @@
 package v0
 
 import (
-	"github.com/imdario/mergo"
-
 	"github.com/ignite/cli/ignite/chainconfig/config"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
@@ -32,38 +30,33 @@ func (c *Config) ConvertNext() (config.Converter, error) {
 	}
 
 	// The host configuration must be defined in the validators for version 1
-	configValues := make(map[string]interface{})
-	appValues := make(map[string]interface{})
+	servers := v1.Servers{}
 
 	if c.Host.P2P != "" {
-		configValues["p2p"] = map[string]interface{}{"laddr": c.Host.P2P}
+		servers.P2P.Address = c.Host.P2P
 	}
 
 	if c.Host.RPC != "" {
-		configValues["rpc"] = map[string]interface{}{"laddr": c.Host.RPC}
+		servers.RPC.Address = c.Host.RPC
 	}
 
 	if c.Host.Prof != "" {
-		configValues["pprof_laddr"] = c.Host.Prof
+		servers.RPC.PProfAddress = c.Host.Prof
 	}
 
 	if c.Host.GRPCWeb != "" {
-		appValues["grpc-web"] = map[string]interface{}{"address": c.Host.GRPCWeb}
+		servers.GRPCWeb.Address = c.Host.GRPCWeb
 	}
 
 	if c.Host.GRPC != "" {
-		appValues["grpc"] = map[string]interface{}{"address": c.Host.GRPC}
+		servers.GRPC.Address = c.Host.GRPC
 	}
 
 	if c.Host.API != "" {
-		appValues["api"] = map[string]interface{}{"address": c.Host.API}
+		servers.API.Address = c.Host.API
 	}
 
-	if err := mergo.Merge(&validator.Config, configValues, mergo.WithOverride); err != nil {
-		return nil, err
-	}
-
-	if err := mergo.Merge(&validator.App, appValues, mergo.WithOverride); err != nil {
+	if err := validator.SetServers(servers); err != nil {
 		return nil, err
 	}
 

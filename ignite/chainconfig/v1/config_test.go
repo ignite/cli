@@ -9,85 +9,156 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
-func TestValidatorAddresses(t *testing.T) {
+func TestConfigValidatorDefaultServers(t *testing.T) {
 	// Arrange
-	grpcAddr := xnet.AnyIPv4Address(9090)
-	grpcWebAddr := xnet.AnyIPv4Address(9091)
-	apiAddr := xnet.AnyIPv4Address(1317)
-	rpcAddr := xnet.AnyIPv4Address(26657)
-	p2pAddr := xnet.AnyIPv4Address(26656)
-	pprofAddr := xnet.AnyIPv4Address(6060)
-
-	// Act
-	v := v1.Validator{
-		Name:   "test-name-1",
-		Bonded: "102ATOM",
-		App: map[string]interface{}{
-			"grpc":     map[string]interface{}{"address": grpcAddr},
-			"grpc-web": map[string]interface{}{"address": grpcWebAddr},
-			"api":      map[string]interface{}{"address": apiAddr},
-		},
-		Config: map[string]interface{}{
-			"rpc":         map[string]interface{}{"laddr": rpcAddr},
-			"p2p":         map[string]interface{}{"laddr": p2pAddr},
-			"pprof_laddr": pprofAddr,
-		},
-	}
-
-	// Assert
-	require.Equal(t, grpcAddr, v.GetGRPC())
-	require.Equal(t, grpcWebAddr, v.GetGRPCWeb())
-	require.Equal(t, apiAddr, v.GetAPI())
-	require.Equal(t, rpcAddr, v.GetRPC())
-	require.Equal(t, p2pAddr, v.GetP2P())
-	require.Equal(t, pprofAddr, v.GetProf())
-}
-
-func TestConfigSetDefault(t *testing.T) {
-	// Arrange
-	inc := 10
 	c := v1.Config{
 		Validators: []v1.Validator{
 			{
 				Name:   "name-1",
 				Bonded: "100ATOM",
-				Config: map[string]interface{}{
-					// This address should be overwritten
-					"rpc": map[string]interface{}{"laddr": "127.0.0.1:1234"},
+			},
+		},
+	}
+	servers := v1.Servers{}
+
+	// Act
+	err := c.SetDefaults()
+	if err == nil {
+		servers, err = c.Validators[0].GetServers()
+	}
+
+	// Assert
+	require.NoError(t, err)
+
+	// Assert
+	require.Equal(t, v1.DefaultGRPCAddress, servers.GRPC.Address)
+	require.Equal(t, v1.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
+	require.Equal(t, v1.DefaultAPIAddress, servers.API.Address)
+	require.Equal(t, v1.DefaultRPCAddress, servers.RPC.Address)
+	require.Equal(t, v1.DefaultP2PAddress, servers.P2P.Address)
+	require.Equal(t, v1.DefaultPProfAddress, servers.RPC.PProfAddress)
+}
+
+func TestConfigValidatorWithExistingServers(t *testing.T) {
+	// Arrange
+	rpcAddr := "127.0.0.1:1234"
+	apiAddr := "127.0.0.1:4321"
+	c := v1.Config{
+		Validators: []v1.Validator{
+			{
+				Name:   "name-1",
+				Bonded: "100ATOM",
+				App: map[string]interface{}{
+					// This value should not be ovewritten with the default address
+					"api": map[string]interface{}{"address": apiAddr},
 				},
+				Config: map[string]interface{}{
+					// This value should not be ovewritten with the default address
+					"rpc": map[string]interface{}{"laddr": rpcAddr},
+				},
+			},
+		},
+	}
+	servers := v1.Servers{}
+
+	// Act
+	err := c.SetDefaults()
+	if err == nil {
+		servers, err = c.Validators[0].GetServers()
+	}
+
+	// Assert
+	require.NoError(t, err)
+
+	// Assert
+	require.Equal(t, rpcAddr, servers.RPC.Address)
+	require.Equal(t, apiAddr, servers.API.Address)
+	require.Equal(t, v1.DefaultGRPCAddress, servers.GRPC.Address)
+	require.Equal(t, v1.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
+	require.Equal(t, v1.DefaultP2PAddress, servers.P2P.Address)
+	require.Equal(t, v1.DefaultPProfAddress, servers.RPC.PProfAddress)
+}
+
+func TestConfigValidatorsWithExistingServers(t *testing.T) {
+	// Arrange
+	inc := uint64(10)
+	rpcAddr := "127.0.0.1:1234"
+	apiAddr := "127.0.0.1:4321"
+	c := v1.Config{
+		Validators: []v1.Validator{
+			{
+				Name:   "name-1",
+				Bonded: "100ATOM",
 			},
 			{
 				Name:   "name-2",
 				Bonded: "200ATOM",
 				App: map[string]interface{}{
-					// This address should be overwritten
-					"api": map[string]interface{}{"address": "127.0.0.1:8888"},
+					// This value should not be ovewritten with the default address
+					"api": map[string]interface{}{"address": apiAddr},
+				},
+				Config: map[string]interface{}{
+					// This value should not be ovewritten with the default address
+					"rpc": map[string]interface{}{"laddr": rpcAddr},
 				},
 			},
 		},
 	}
+	servers := v1.Servers{}
 
 	// Act
 	err := c.SetDefaults()
+	if err == nil {
+		servers, err = c.Validators[1].GetServers()
+	}
 
 	// Assert
 	require.NoError(t, err)
 
-	// Assert: First validator
-	require.Equal(t, xnet.AnyIPv4Address(v1.GRPCPort), c.Validators[0].GetGRPC())
-	require.Equal(t, xnet.AnyIPv4Address(v1.GRPCWebPort), c.Validators[0].GetGRPCWeb())
-	require.Equal(t, xnet.AnyIPv4Address(v1.APIPort), c.Validators[0].GetAPI())
-	require.Equal(t, xnet.AnyIPv4Address(v1.RPCPort), c.Validators[0].GetRPC())
-	require.Equal(t, xnet.AnyIPv4Address(v1.P2PPort), c.Validators[0].GetP2P())
-	require.Equal(t, xnet.AnyIPv4Address(v1.PProfPort), c.Validators[0].GetProf())
+	// Assert: The existing addresses should not be changed
+	require.Equal(t, rpcAddr, servers.RPC.Address)
+	require.Equal(t, apiAddr, servers.API.Address)
 
-	// Assert: Second validator
-	require.Equal(t, xnet.AnyIPv4Address(v1.GRPCPort+inc), c.Validators[1].GetGRPC())
-	require.Equal(t, xnet.AnyIPv4Address(v1.GRPCWebPort+inc), c.Validators[1].GetGRPCWeb())
-	require.Equal(t, xnet.AnyIPv4Address(v1.APIPort+inc), c.Validators[1].GetAPI())
-	require.Equal(t, xnet.AnyIPv4Address(v1.RPCPort+inc), c.Validators[1].GetRPC())
-	require.Equal(t, xnet.AnyIPv4Address(v1.P2PPort+inc), c.Validators[1].GetP2P())
-	require.Equal(t, xnet.AnyIPv4Address(v1.PProfPort+inc), c.Validators[1].GetProf())
+	// Assert: The second validator should have the ports incremented by 10
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCAddress, inc), servers.GRPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultP2PAddress, inc), servers.P2P.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
+}
+
+func TestConfigValidatorsDefaultServers(t *testing.T) {
+	// Arrange
+	inc := uint64(10)
+	c := v1.Config{
+		Validators: []v1.Validator{
+			{
+				Name:   "name-1",
+				Bonded: "100ATOM",
+			},
+			{
+				Name:   "name-2",
+				Bonded: "200ATOM",
+			},
+		},
+	}
+	servers := v1.Servers{}
+
+	// Act
+	err := c.SetDefaults()
+	if err == nil {
+		servers, err = c.Validators[1].GetServers()
+	}
+
+	// Assert
+	require.NoError(t, err)
+
+	// Assert: The second validator should have the ports incremented by 10
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCAddress, inc), servers.GRPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultAPIAddress, inc), servers.API.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultRPCAddress, inc), servers.RPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultP2PAddress, inc), servers.P2P.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
 }
 
 func TestClone(t *testing.T) {

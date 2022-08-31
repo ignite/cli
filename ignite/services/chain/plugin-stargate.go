@@ -67,17 +67,22 @@ func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 	}
 
 	validator := conf.Validators[0]
-	apiAddr, err := xurl.TCP(validator.GetAPI())
+	servers, err := validator.GetServers()
 	if err != nil {
-		return fmt.Errorf("invalid api address format %s: %w", validator.GetAPI(), err)
+		return err
+	}
+
+	apiAddr, err := xurl.TCP(servers.API.Address)
+	if err != nil {
+		return fmt.Errorf("invalid api address format %s: %w", servers.API.Address, err)
 	}
 
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", apiAddr)
-	config.Set("grpc.address", validator.GetGRPC())
-	config.Set("grpc-web.address", validator.GetGRPCWeb())
+	config.Set("grpc.address", servers.GRPC.Address)
+	config.Set("grpc-web.address", servers.GRPCWeb.Address)
 
 	staked, err := sdktypes.ParseCoinNormalized(conf.Validators[0].Bonded)
 	if err != nil {
@@ -105,14 +110,19 @@ func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
 	}
 
 	validator := conf.Validators[0]
-	rpcAddr, err := xurl.TCP(validator.GetRPC())
+	servers, err := validator.GetServers()
 	if err != nil {
-		return fmt.Errorf("invalid rpc address format %s: %w", validator.GetRPC(), err)
+		return err
 	}
 
-	p2pAddr, err := xurl.TCP(validator.GetP2P())
+	rpcAddr, err := xurl.TCP(servers.RPC.Address)
 	if err != nil {
-		return fmt.Errorf("invalid p2p address format %s: %w", validator.GetP2P(), err)
+		return fmt.Errorf("invalid rpc address format %s: %w", servers.RPC.Address, err)
+	}
+
+	p2pAddr, err := xurl.TCP(servers.P2P.Address)
+	if err != nil {
+		return fmt.Errorf("invalid p2p address format %s: %w", servers.P2P.Address, err)
 	}
 
 	config.Set("mode", "validator")
@@ -121,7 +131,7 @@ func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
 	config.Set("consensus.timeout_propose", "1s")
 	config.Set("rpc.laddr", rpcAddr)
 	config.Set("p2p.laddr", p2pAddr)
-	config.Set("rpc.pprof_laddr", validator.GetProf())
+	config.Set("rpc.pprof_laddr", servers.RPC.PProfAddress)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -155,12 +165,13 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 
 func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf *v1.Config) error {
 	validator := conf.Validators[0]
-	err := runner.Start(ctx,
-		"--pruning",
-		"nothing",
-		"--grpc.address",
-		validator.GetGRPC(),
-	)
+	servers, err := validator.GetServers()
+	if err != nil {
+		return err
+	}
+
+	err = runner.Start(ctx, "--pruning", "nothing", "--grpc.address", servers.GRPC.Address)
+
 	return &CannotStartAppError{p.app.Name, err}
 }
 
