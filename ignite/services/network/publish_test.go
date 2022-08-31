@@ -41,17 +41,20 @@ func TestPublish(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -61,7 +64,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -93,17 +96,20 @@ func TestPublish(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -123,7 +129,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -155,17 +161,20 @@ func TestPublish(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -195,7 +204,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				campaigntypes.NewMsgMintVouchers(
-					account.Address(networktypes.SPN),
+					addr,
 					testutil.CampaignID,
 					campaigntypes.NewSharesFromCoins(sdk.NewCoins(sdk.NewInt64Coin("foo", 2000), sdk.NewInt64Coin("staking", 50000))),
 				),
@@ -207,7 +216,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -248,17 +257,20 @@ func TestPublish(t *testing.T) {
 		)
 		defer gts.Close()
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -268,7 +280,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: customGenesisChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -299,17 +311,20 @@ func TestPublish(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -319,7 +334,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -353,17 +368,20 @@ func TestPublish(t *testing.T) {
 		)
 		defer gts.Close()
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -373,7 +391,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&campaigntypes.MsgCreateCampaign{
-					Coordinator:  account.Address(networktypes.SPN),
+					Coordinator:  addr,
 					CampaignName: testutil.ChainName,
 					Metadata:     []byte{},
 				},
@@ -387,7 +405,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&campaigntypes.MsgInitializeMainnet{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					CampaignID:     testutil.CampaignID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -418,17 +436,20 @@ func TestPublish(t *testing.T) {
 			expectedError  = errors.New("failed to initialize mainnet")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -438,7 +459,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&campaigntypes.MsgCreateCampaign{
-					Coordinator:  account.Address(networktypes.SPN),
+					Coordinator:  addr,
 					CampaignName: testutil.ChainName,
 					Metadata:     []byte{},
 				},
@@ -452,7 +473,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&campaigntypes.MsgInitializeMainnet{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					CampaignID:     testutil.CampaignID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -495,9 +516,12 @@ func TestPublish(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On("CoordinatorByAddress", mock.Anything, &profiletypes.QueryGetCoordinatorByAddressRequest{
-				Address: account.Address(networktypes.SPN),
+				Address: addr,
 			}).
 			Return(nil, cosmoserror.ErrNotFound).
 			Once()
@@ -506,7 +530,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -525,7 +549,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&profiletypes.MsgCreateCoordinator{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(testutil.NewResponse(&profiletypes.MsgCreateCoordinatorResponse{}), nil).
@@ -549,9 +573,12 @@ func TestPublish(t *testing.T) {
 			expectedError  = errors.New("failed to fetch coordinator")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On("CoordinatorByAddress", mock.Anything, &profiletypes.QueryGetCoordinatorByAddressRequest{
-				Address: account.Address(networktypes.SPN),
+				Address: addr,
 			}).
 			Return(nil, expectedError).
 			Once()
@@ -587,17 +614,20 @@ func TestPublish(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -623,17 +653,20 @@ func TestPublish(t *testing.T) {
 			expectedError  = errors.New("failed to create chain")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -643,7 +676,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
@@ -674,17 +707,20 @@ func TestPublish(t *testing.T) {
 			expectedError  = errors.New("failed to cache binary")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ProfileQueryMock.
 			On(
 				"CoordinatorByAddress",
 				context.Background(),
 				&profiletypes.QueryGetCoordinatorByAddressRequest{
-					Address: account.Address(networktypes.SPN),
+					Address: addr,
 				},
 			).
 			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
 				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
-					Address:       account.Address(networktypes.SPN),
+					Address:       addr,
 					CoordinatorID: 1,
 				},
 			}, nil).
@@ -694,7 +730,7 @@ func TestPublish(t *testing.T) {
 				"BroadcastTx",
 				account,
 				&launchtypes.MsgCreateChain{
-					Coordinator:    account.Address(networktypes.SPN),
+					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,

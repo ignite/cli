@@ -2,6 +2,16 @@
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
+### Features
+
+- Change chain init to check that no gentx are present in the initial genesis
+- Add `network rewards release` command
+- Add "make mocks" target to Makefile
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+- Add `node query tx` command to query a transaction in any chain.
+- Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to an other in any chain.
+
 ### Changes
 
 - Refactor `templates/app` to remove `monitoringp` module from the default template
@@ -21,19 +31,13 @@
 - Change `cmd/account` to skip passphrase prompt when importing from mnemonic
 - Remove usage of deprecated `io/ioutil` package
 - Add nodejs version in the output of ignite version
-
-### Features
-
-- Change chain init to check that no gentx are present in the initial genesis
-- Add `network rewards release` command
-- Add "make mocks" target to Makefile
-- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
-- Add `node query tx` command to query a transaction in any chain.
-- Add `node query bank` command to query an account's bank balance in any chain.
-- Add `node tx bank send` command to send funds from one account to an other in any chain.
+- Removed `handler.go` from scaffolded module template
+- Migrated to `cosmossdk.io` packages for `errors` and `math`
 
 ### Fixes
 
+- Improved error handling for crypto wrapper functions
+- Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
 - Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
 - Fix cosmoscmd appID parameter value to sign a transaction correctly
 - Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
@@ -41,6 +45,7 @@
 - Fix default chain ID for publish
 - Replace os.Rename with xos.Rename
 - Fix CLI reference generation to add `ignite completion` documentation
+
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 

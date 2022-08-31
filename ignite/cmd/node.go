@@ -1,9 +1,10 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/xurl"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -37,6 +38,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		gasPrices      = getGasPrices(cmd)
 		fees           = getFees(cmd)
 		broadcastMode  = getBroadcastMode(cmd)
+		generateOnly   = getGenerateOnly(cmd)
 	)
 
 	options := []cosmosclient.Option{
@@ -46,6 +48,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithKeyringDir(keyringDir),
 		cosmosclient.WithNodeAddress(xurl.HTTPEnsurePort(node)),
 		cosmosclient.WithBroadcastMode(broadcastMode),
+		cosmosclient.WithGenerateOnly(generateOnly),
 	}
 
 	if gas != "" {
