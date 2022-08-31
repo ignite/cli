@@ -3,6 +3,9 @@ package maptype
 import (
 	"embed"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"path/filepath"
 	"strings"
 
@@ -598,6 +601,29 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 	}
 }
 
+func findFunc(s string, name string) (int, error) {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "src.go", s, 0)
+	if err != nil {
+		panic(err)
+	}
+	pos := -1
+	ast.Inspect(file, func(n ast.Node) bool {
+		switch x := n.(type) {
+		case *ast.FuncDecl:
+			if x.Name.String() == name {
+				pos = int(x.Body.Lbrace)
+				return false
+			}
+		}
+		return true
+	})
+	if pos < 0 {
+		return pos, fmt.Errorf("couldn't find %s", name)
+	}
+	return pos, nil
+}
+
 func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
@@ -608,36 +634,42 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 
 		content := f.String()
 
-		// Import
-		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
-
-		// Concrete
-		templateConcrete := `cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
-cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
-cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
-%[1]v`
-		replacementConcrete := fmt.Sprintf(
-			templateConcrete,
-			typed.Placeholder2,
+		templateCodec := `
+		cdc.RegisterConcrete(&MsgCreate%[1]v{}, "%[2]v/Create%[1]v", nil)
+		cdc.RegisterConcrete(&MsgUpdate%[1]v{}, "%[2]v/Update%[1]v", nil)
+		cdc.RegisterConcrete(&MsgDelete%[1]v{}, "%[2]v/Delete%[1]v", nil)
+`
+		replacementCodec := fmt.Sprintf(
+			templateCodec,
 			opts.TypeName.UpperCamel,
 			opts.ModuleName,
 		)
-		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
+		pos, err := findFunc(content, "RegisterCodec")
+		if err != nil {
+			return err
+		}
+		content = content[:pos] + replacementCodec + content[pos:]
 
-		// Interface
-		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgCreate%[2]v{},
-	&MsgUpdate%[2]v{},
-	&MsgDelete%[2]v{},
-)
-%[1]v`
+		templateInterface := `
+		registry.RegisterImplementations((*sdk.Msg)(nil),
+			&MsgCreate%[1]v{},
+			&MsgUpdate%[1]v{},
+			&MsgDelete%[1]v{},
+		)
+`
 		replacementInterface := fmt.Sprintf(
 			templateInterface,
-			typed.Placeholder3,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
+		pos, err = findFunc(content, "RegisterInterfaces")
+		if err != nil {
+			return err
+		}
+		content = content[:pos] + replacementInterface + content[pos:]
+
+		// Import
+		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
+		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

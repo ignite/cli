@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
@@ -201,4 +202,9 @@ func TestFindAppFilePath(t *testing.T) {
 	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
 	require.NoError(t, err)
 	require.Equal(t, filepath.Join(appFolder, "app.go"), pathFound)
+}
+
+func TestSomething(t *testing.T) {
+	err := errors.New("")
+	require.NoError(t, err)
 }
