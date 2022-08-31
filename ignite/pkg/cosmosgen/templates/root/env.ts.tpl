@@ -2,7 +2,6 @@ import { OfflineSigner } from "@cosmjs/proto-signing";
 
 export interface Env {
   chainID?: string
-  signer?: OfflineSigner
   chainName?: string
   apiURL: string
   rpcURL: string

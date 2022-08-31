@@ -6,7 +6,7 @@ import { Client, registry, MissingWalletError } from '{{ .User }}-{{ .Repo }}-cl
 export { {{ range $i,$type:=.Module.Types }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };
 
 function initClient(vuexGetters) {
-	return new Client(vuexGetters['common/env'], vuexGetters['common/wallet/signer'])
+	return new Client(vuexGetters['common/env/getEnv'], vuexGetters['common/wallet/signer'])
 }
 
 function mergeResults(value, next_values) {
