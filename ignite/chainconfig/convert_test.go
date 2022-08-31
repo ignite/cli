@@ -8,11 +8,12 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/chainconfig/testdata"
+	v0testdata "github.com/ignite/cli/ignite/chainconfig/v0/testdata"
 )
 
 func TestConvertLatest(t *testing.T) {
 	// Arrange
-	cfgV0 := testdata.GetLatestConfig(t)
+	cfgV0 := v0testdata.GetConfig(t)
 
 	// Act
 	cfgLatest, err := chainconfig.ConvertLatest(cfgV0)

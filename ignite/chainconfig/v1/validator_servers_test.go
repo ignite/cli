@@ -11,6 +11,13 @@ import (
 func TestValidatorGetServers(t *testing.T) {
 	// Arrange
 	want := v1.DefaultServers()
+	want.RPC.Address = "127.0.0.0:1"
+	want.P2P.Address = "127.0.0.0:2"
+	want.GRPC.Address = "127.0.0.0:3"
+	want.GRPCWeb.Address = "127.0.0.0:4"
+	want.RPC.PProfAddress = "127.0.0.0:5"
+	want.API.Address = "127.0.0.0:6"
+
 	v := v1.Validator{
 		App: map[string]interface{}{
 			"grpc":     map[string]interface{}{"address": want.GRPC.Address},

@@ -48,17 +48,17 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, conf *v1.Config) error {
-	if err := p.appTOML(homePath, conf); err != nil {
+func (p *stargatePlugin) Configure(homePath string, cfg *v1.Config) error {
+	if err := p.appTOML(homePath, cfg); err != nil {
 		return err
 	}
 	if err := p.clientTOML(homePath); err != nil {
 		return err
 	}
-	return p.configTOML(homePath, conf)
+	return p.configTOML(homePath, cfg)
 }
 
-func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
+func (p *stargatePlugin) appTOML(homePath string, cfg *v1.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -66,7 +66,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 		return err
 	}
 
-	validator := conf.Validators[0]
+	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 	config.Set("grpc.address", servers.GRPC.Address)
 	config.Set("grpc-web.address", servers.GRPCWeb.Address)
 
-	staked, err := sdktypes.ParseCoinNormalized(conf.Validators[0].Bonded)
+	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf *v1.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
+func (p *stargatePlugin) configTOML(homePath string, cfg *v1.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -109,7 +109,7 @@ func (p *stargatePlugin) configTOML(homePath string, conf *v1.Config) error {
 		return err
 	}
 
-	validator := conf.Validators[0]
+	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
@@ -163,8 +163,8 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf *v1.Config) error {
-	validator := conf.Validators[0]
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *v1.Config) error {
+	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err

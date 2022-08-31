@@ -5,7 +5,7 @@ import (
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 
-// ConvertNext convets the current config version to the next one.
+// ConvertNext converts the current config version to the next one.
 func (c *Config) ConvertNext() (config.Converter, error) {
 	targetCfg := v1.DefaultConfig()
 

@@ -28,6 +28,7 @@ func (c *Config) SetDefaults() error {
 		return err
 	}
 
+	// Make sure that validator addresses don't chash with each other
 	if err := c.updateValidatorAddresses(); err != nil {
 		return err
 	}

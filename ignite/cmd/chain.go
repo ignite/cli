@@ -122,8 +122,7 @@ func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
 					Message: fmt.Sprintf(migrateMsg, version, chainconfig.LatestVersion),
 				}
 
-				err := survey.AskOne(prompt, &confirmed)
-				if err != nil {
+				if err := survey.AskOne(prompt, &confirmed); err != nil {
 					return err
 				} else if !confirmed {
 					return fmt.Errorf(

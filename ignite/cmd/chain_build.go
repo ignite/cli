@@ -91,7 +91,6 @@ for your current environment.
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().StringP(flagOutput, "o", "", "binary output path")
 	c.Flags().BoolP("verbose", "v", false, "verbose output")
-	c.Flags().StringP(flagConfig, "c", "", "ignite config file (default: ./config.yml)")
 
 	return c
 }

@@ -6,10 +6,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/chainconfig/testdata"
-	"github.com/stretchr/testify/require"
 )
 
 func TestReadConfigVersion(t *testing.T) {
