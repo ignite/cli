@@ -42,8 +42,6 @@ var (
 	// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
 	FaucetTransferEnsureDuration = time.Second * 40
 
-	defaultWaitBlockDuration = time.Second * 10
-
 	errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
 )
 
@@ -94,8 +92,6 @@ type Client struct {
 	fees          string
 	broadcastMode string
 	generateOnly  bool
-
-	waitBlockDuration time.Duration
 }
 
 // Option configures your client.
