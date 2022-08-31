@@ -188,7 +188,6 @@ func WithBroadcastMode(broadcastMode string) Option {
 	}
 }
 
-<<<<<<< HEAD
 func WithGenerateOnly(generateOnly bool) Option {
 	return func(c *Client) {
 		c.generateOnly = generateOnly
@@ -209,15 +208,6 @@ func WithWaitBlockDuration(waitBlockDuration time.Duration) Option {
 	}
 }
 
-||||||| d1d04967
-=======
-func WithGenerateOnly(generateOnly bool) Option {
-	return func(c *Client) {
-		c.generateOnly = generateOnly
-	}
-}
-
->>>>>>> develop
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -350,7 +340,7 @@ func (c Client) Address(accountName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return a.Address(c.addressPrefix), nil
+	return a.Address(c.addressPrefix)
 }
 
 // Context returns client context
@@ -445,15 +435,6 @@ func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg)
 func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
-<<<<<<< HEAD
-	if c.useFaucet && !c.generateOnly {
-		if err := c.makeSureAccountHasTokens(context.Background(), account.Address(c.addressPrefix)); err != nil {
-			return TxService{}, err
-		}
-	}
-
-||||||| d1d04967
-=======
 	if c.useFaucet && !c.generateOnly {
 		addr, err := account.Address(c.addressPrefix)
 		if err != nil {
@@ -464,7 +445,6 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 		}
 	}
 
->>>>>>> develop
 	sdkaddr, err := account.Record.GetAddress()
 	if err != nil {
 		return TxService{}, err

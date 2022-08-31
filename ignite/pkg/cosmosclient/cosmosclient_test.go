@@ -260,6 +260,8 @@ func TestClientAccount(t *testing.T) {
 	require.NoError(t, err)
 	expectedAccount, _, err := r.Create(accountName)
 	require.NoError(t, err)
+	expectedAddr, err := expectedAccount.Address("cosmos")
+	require.NoError(t, err)
 	// Export created account to we can import it in the Client below.
 	key, err := r.Export(accountName, passphrase)
 	require.NoError(t, err)
@@ -275,7 +277,7 @@ func TestClientAccount(t *testing.T) {
 		},
 		{
 			name:          "ok: find by address",
-			addressOrName: expectedAccount.Address("cosmos"),
+			addressOrName: expectedAddr,
 		},
 		{
 			name:          "fail: name not found",
@@ -355,7 +357,9 @@ func TestClientAddress(t *testing.T) {
 				return
 			}
 			require.NoError(err)
-			assert.Equal(expectedAccount.Address("cosmos"), address)
+			expectedAddr, err := expectedAccount.Address("cosmos")
+			require.NoError(err)
+			assert.Equal(expectedAddr, address)
 		})
 	}
 }
