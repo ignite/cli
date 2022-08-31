@@ -10,7 +10,7 @@ import { Api } from "./rest";
 {{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
 {{ end }}
 
-export { {{ range $i,$type:=.Module.Types }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };
+export { {{ range $i,$type:=.Module.Msgs }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };
 {{ range .Module.Msgs }}
 type send{{ .Name }}Params = {
   value: {{ .Name }},
