@@ -37,9 +37,7 @@ func TestAll(t *testing.T) {
 			require.NoError(t, err)
 
 			cf := New(tt.ec, file.Name())
-			var (
-				d data
-			)
+			var d data
 			require.NoError(t, cf.Load(&d))
 			require.Equal(t, "world", d.Hello)
 

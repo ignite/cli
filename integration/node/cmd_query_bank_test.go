@@ -136,6 +136,10 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		assertBankBalanceOutput(t, b.String(), "5600atoken,1200btoken")
 
 		b.Reset()
+
+		aliceAddr, err := aliceAccount.Address(testPrefix)
+		require.NoError(t, err)
+
 		env.Exec("query bank balances by address",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -144,7 +148,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 					"query",
 					"bank",
 					"balances",
-					aliceAccount.Address(testPrefix),
+					aliceAddr,
 					"--node", node,
 					"--keyring-dir", accKeyringDir,
 					"--address-prefix", testPrefix,
