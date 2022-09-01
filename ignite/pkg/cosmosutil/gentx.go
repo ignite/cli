@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tendermint/tendermint/crypto/ed25519"
-
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 var GentxFilename = "gentx.json"
@@ -82,7 +82,7 @@ func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 		return info, gentx, fmt.Errorf("invalid validator public key %s", err.Error())
 	}
 
-	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
+	amount, ok := sdkmath.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
 		return info, gentx, errors.New("the self-delegation inside the gentx is invalid")
 	}
