@@ -31,7 +31,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	var (
 		home           = getHome(cmd)
 		prefix         = getAddressPrefix(cmd)
-		node           = getRPC(cmd)
+		node           = getNode(cmd)
 		keyringBackend = getKeyringBackend(cmd)
 		keyringDir     = getKeyringDir(cmd)
 		gas            = getGas(cmd)
@@ -64,7 +64,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	return cosmosclient.New(cmd.Context(), options...)
 }
 
-func getRPC(cmd *cobra.Command) (rpc string) {
+func getNode(cmd *cobra.Command) (rpc string) {
 	rpc, _ = cmd.Flags().GetString(flagNode)
 	return
 }
