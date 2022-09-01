@@ -12,6 +12,7 @@ import (
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/yaml"
 )
 
 const (
@@ -97,43 +98,31 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	validator := conf.Validators[0]
-	config := make(map[string]interface{})
-	for key, value := range validator.Config {
-		config[key] = value
-	}
-	delete(config, "rpc")
-	delete(config, "p2p")
-	delete(config, "pprof_laddr")
-
-	app := make(map[string]interface{})
-	for key, value := range validator.App {
-		app[key] = value
-	}
-	delete(app, "grpc")
-	delete(app, "grpc-web")
-	delete(app, "api")
-
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
 		changes map[string]interface{}
 	}{
 		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, app},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, validator.App},
 		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, validator.Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, config},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, validator.Config},
 	}
 
 	for _, ac := range appconfigs {
-		cf := confile.New(ac.ec, ac.path)
 		var conf map[string]interface{}
+
+		cf := confile.New(ac.ec, ac.path)
 		if err := cf.Load(&conf); err != nil {
 			return err
 		}
-		if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
+
+		err := mergo.Merge(&conf, ac.changes, mergo.WithOverride, mergo.WithTransformers(yaml.MapIndexTransformer{}))
+		if err != nil {
 			return err
 		}
-		if err := cf.Save(conf); err != nil {
+
+		if err = cf.Save(conf); err != nil {
 			return err
 		}
 	}
