@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
@@ -40,6 +41,11 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		broadcastMode  = getBroadcastMode(cmd)
 		generateOnly   = getGenerateOnly(cmd)
 	)
+	if keyringBackend == "" {
+		// Makes cosmosclient usable for commands that doesn't expose the keyring
+		// backend flag (cosmosclient.New returns an error if it's empty).
+		keyringBackend = cosmosaccount.KeyringTest
+	}
 
 	options := []cosmosclient.Option{
 		cosmosclient.WithAddressPrefix(prefix),
