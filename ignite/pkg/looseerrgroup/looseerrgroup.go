@@ -14,7 +14,7 @@ import (
 func Wait(ctx context.Context, g *errgroup.Group) error {
 	doneC := make(chan struct{})
 
-	go func() { g.Wait(); close(doneC) }()
+	go func() { g.Wait(); close(doneC) }() //nolint:errcheck
 
 	select {
 	case <-ctx.Done():

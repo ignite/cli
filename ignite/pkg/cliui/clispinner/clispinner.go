@@ -46,7 +46,7 @@ func New(options ...Option) *Spinner {
 
 	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
 
-	sp.Color(spinnerColor)
+	sp.Color(spinnerColor) //nolint:errcheck
 	s := &Spinner{
 		sp: sp,
 	}
@@ -77,7 +77,7 @@ func (s *Spinner) SetCharset(charset []string) *Spinner {
 
 // SetColor sets the prefix for spinner.
 func (s *Spinner) SetColor(color string) *Spinner {
-	s.sp.Color(color)
+	s.sp.Color(color) //nolint:errcheck
 	return s
 }
 
@@ -91,7 +91,7 @@ func (s *Spinner) Start() *Spinner {
 func (s *Spinner) Stop() *Spinner {
 	s.sp.Stop()
 	s.sp.Prefix = ""
-	s.sp.Color(spinnerColor)
+	s.sp.Color(spinnerColor) //nolint:errcheck
 	s.sp.UpdateCharSet(charset)
 	s.sp.Stop()
 	return s

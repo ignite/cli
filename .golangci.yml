@@ -2,8 +2,7 @@ run:
   tests: false
   skip-dirs:
     - ignite/ui
-#   # timeout for analysis, e.g. 30s, 5m, default is 1m
-#   timeout: 5m
+  timeout: 5m
 
 linters:
   disable-all: true
@@ -12,13 +11,11 @@ linters:
     - deadcode
     - depguard
     - dogsled
-    # - errcheck
+    - errcheck
     - goconst
     - gocritic
-    - gofmt
-    - goimports
+    - gofumpt
     - revive
-    # - gosec
     - gosimple
     - govet
     - ineffassign
@@ -28,7 +25,6 @@ linters:
     - nakedret
     - exportloopref
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
@@ -36,7 +32,7 @@ linters:
     - unparam
     - misspell
     # - wsl
-    # - nolintlint
+    - nolintlint
 
 issues:
   max-issues-per-linter: 0

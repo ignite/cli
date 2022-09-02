@@ -182,7 +182,7 @@ type cmdSignal struct {
 	*exec.Cmd
 }
 
-func (e *cmdSignal) Signal(s os.Signal) { e.Cmd.Process.Signal(s) }
+func (e *cmdSignal) Signal(s os.Signal) { e.Cmd.Process.Signal(s) } //nolint:errcheck
 
 func (e *cmdSignal) Write(data []byte) (n int, err error) { return 0, nil }
 
@@ -192,7 +192,7 @@ type cmdSignalWithWriter struct {
 	w io.WriteCloser
 }
 
-func (e *cmdSignalWithWriter) Signal(s os.Signal) { e.Cmd.Process.Signal(s) }
+func (e *cmdSignalWithWriter) Signal(s os.Signal) { e.Cmd.Process.Signal(s) } //nolint:errcheck
 
 func (e *cmdSignalWithWriter) Write(data []byte) (n int, err error) {
 	defer e.w.Close()

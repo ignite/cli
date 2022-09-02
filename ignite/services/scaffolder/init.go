@@ -88,7 +88,7 @@ func generate(
 	}
 
 	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		runner.With(gen)
+		runner.With(gen) //nolint:errcheck
 		runner.Root = absRoot
 		return runner.Run()
 	}

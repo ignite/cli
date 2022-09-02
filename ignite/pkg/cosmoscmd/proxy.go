@@ -47,7 +47,7 @@ func startProxyForTunneledPeers(clientCtx client.Context, cmd *cobra.Command) {
 		if peer.Name == networkchain.HTTPTunnelChisel {
 			peer := peer
 			go func() {
-				ctxticker.DoNow(ctx, TunnelRerunDelay, func() error {
+				ctxticker.DoNow(ctx, TunnelRerunDelay, func() error { //nolint:errcheck
 					serverCtx.Logger.Info("Starting chisel client", "tunnelAddress", peer.Address, "localPort", peer.LocalPort)
 					err := xchisel.StartClient(ctx, peer.Address, peer.LocalPort, "26656")
 					if err != nil {
@@ -65,7 +65,7 @@ func startProxyForTunneledPeers(clientCtx client.Context, cmd *cobra.Command) {
 
 	if gitpod.IsOnGitpod() {
 		go func() {
-			ctxticker.DoNow(ctx, TunnelRerunDelay, func() error {
+			ctxticker.DoNow(ctx, TunnelRerunDelay, func() error { //nolint:errcheck
 				serverCtx.Logger.Info("Starting chisel server", "port", xchisel.DefaultServerPort)
 				err := xchisel.StartServer(ctx, xchisel.DefaultServerPort)
 				if err != nil {

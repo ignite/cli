@@ -18,7 +18,7 @@ func Serve(ctx context.Context, s *http.Server) error {
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), ShutdownTimeout)
 		defer cancel()
 
-		s.Shutdown(shutdownCtx)
+		s.Shutdown(shutdownCtx) //nolint:errcheck
 	}()
 
 	err := s.ListenAndServe()

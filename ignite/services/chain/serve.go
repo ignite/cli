@@ -342,7 +342,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	}
 
 	// init phase
-	// nolint:gocritic
+	//nolint:gocritic
 	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
 

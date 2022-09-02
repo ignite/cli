@@ -16,7 +16,7 @@ func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(bdata)
+	w.Write(bdata) //nolint:errcheck
 	return err
 }
 

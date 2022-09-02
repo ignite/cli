@@ -201,7 +201,10 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		dependencyWarning(dependencies)
 	}
 
-	io.Copy(cmd.OutOrStdout(), &msg)
+	_, err = io.Copy(cmd.OutOrStdout(), &msg)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -68,7 +68,7 @@ type FaucetInfoResponse struct {
 }
 
 func (f Faucet) faucetInfoHandler(w http.ResponseWriter, r *http.Request) {
-	xhttp.ResponseJSON(w, http.StatusOK, FaucetInfoResponse{
+	xhttp.ResponseJSON(w, http.StatusOK, FaucetInfoResponse{ //nolint:errcheck
 		IsAFaucet: true,
 		ChainID:   f.chainID,
 	})
@@ -93,11 +93,11 @@ func (f Faucet) coinsFromRequest(req TransferRequest) (sdk.Coins, error) {
 }
 
 func responseSuccess(w http.ResponseWriter) {
-	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{})
+	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{}) //nolint:errcheck
 }
 
 func responseError(w http.ResponseWriter, code int, err error) {
-	xhttp.ResponseJSON(w, code, TransferResponse{
+	xhttp.ResponseJSON(w, code, TransferResponse{ //nolint:errcheck
 		Error: err.Error(),
 	})
 }
