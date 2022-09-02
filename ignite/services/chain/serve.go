@@ -14,29 +14,33 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/xexec"
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
-	"github.com/ignite-hq/cli/ignite/pkg/xhttp"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/xexec"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/pkg/xhttp"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 const (
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
-	// sourceChecksum is the file containing the checksum to detect source modification
-	sourceChecksum = "source_checksum.txt"
+	// sourceChecksumKey is the cache key for the checksum to detect source modification
+	sourceChecksumKey = "source_checksum"
 
-	// binaryChecksum is the file containing the checksum to detect binary modification
-	binaryChecksum = "binary_checksum.txt"
+	// binaryChecksumKey is the cache key for the checksum to detect binary modification
+	binaryChecksumKey = "binary_checksum"
 
-	// configChecksum is the file containing the checksum to detect config modification
-	configChecksum = "config_checksum.txt"
+	// configChecksumKey is the cache key for containing the checksum to detect config modification
+	configChecksumKey = "config_checksum"
+
+	// serveDirchangeCacheNamespace is the name of the cache namespace for detecting changes in directories
+	serveDirchangeCacheNamespace = "serve.dirchange"
 )
 
 var (
@@ -53,6 +57,7 @@ var (
 type serveOptions struct {
 	forceReset bool
 	resetOnce  bool
+	skipProto  bool
 }
 
 func newServeOption() serveOptions {
@@ -79,8 +84,15 @@ func ServeResetOnce() ServeOption {
 	}
 }
 
+// ServeSkipProto allows to serve the app without generate Go from proto
+func ServeSkipProto() ServeOption {
+	return func(c *serveOptions) {
+		c.skipProto = true
+	}
+}
+
 // Serve serves an app.
-func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
+func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options ...ServeOption) error {
 	serveOptions := newServeOption()
 
 	// apply the options
@@ -134,7 +146,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err = c.serve(serveCtx, shouldReset)
+				err = c.serve(serveCtx, cacheStorage, shouldReset, serveOptions.skipProto)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -164,7 +176,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(c.stdLog().out, "see: https://github.com/ignite-hq/cli#configure")
+						fmt.Fprintln(c.stdLog().out, "see: https://github.com/ignite/cli#configure")
 					}
 
 					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))
@@ -178,7 +190,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
 						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
-If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport chain serve --reset-once")
+If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "ignite chain serve --reset-once")
 
 						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
@@ -235,6 +247,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 		localfs.WatcherWorkdir(c.app.Path),
 		localfs.WatcherOnChange(c.refreshServe),
 		localfs.WatcherIgnoreHidden(),
+		localfs.WatcherIgnoreFolders(),
 		localfs.WatcherIgnoreExt(ignoredExts...),
 	)
 }
@@ -242,7 +255,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context, forceReset bool) error {
+func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset, skipProto bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -253,13 +266,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
-	saveDir, err := c.chainSavePath()
-	if err != nil {
-		return err
-	}
-
 	// isInit determines if the app is initialized
 	var isInit bool
+
+	dirCache := cache.New[[]byte](cacheStorage, serveDirchangeCacheNamespace)
 
 	// determine if the app must reset the state
 	// if the state must be reset, then we consider the chain as being not initialized
@@ -270,7 +280,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if isInit {
 		configModified := false
 		if c.ConfigPath() != "" {
-			configModified, err = dirchange.HasDirChecksumChanged(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum)
+			configModified, err = dirchange.HasDirChecksumChanged(dirCache, configChecksumKey, c.app.Path, c.ConfigPath())
 			if err != nil {
 				return err
 			}
@@ -285,7 +295,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// check if source has been modified since last serve
 	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
-	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum)
+	sourceModified, err := dirchange.HasDirChecksumChanged(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...)
 	if err != nil {
 		return err
 	}
@@ -303,7 +313,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 		binaryModified = true
 	} else {
-		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, saveDir, binaryChecksum)
+		binaryModified, err = dirchange.HasDirChecksumChanged(dirCache, binaryChecksumKey, "", binaryPath)
 		if err != nil {
 			return err
 		}
@@ -326,7 +336,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, ""); err != nil {
+		if err := c.build(ctx, cacheStorage, "", skipProto); err != nil {
 			return err
 		}
 	}
@@ -357,18 +367,18 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// save checksums
 	if c.ConfigPath() != "" {
-		if err := dirchange.SaveDirChecksum(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum); err != nil {
+		if err := dirchange.SaveDirChecksum(dirCache, configChecksumKey, c.app.Path, c.ConfigPath()); err != nil {
 			return err
 		}
 	}
-	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
+	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
 		return err
 	}
 	binaryPath, err = exec.LookPath(binaryName)
 	if err != nil {
 		return err
 	}
-	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, saveDir, binaryChecksum); err != nil {
+	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
 		return err
 	}
 
@@ -410,12 +420,18 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	// set the app as being served
 	c.served = true
 
+	// note: address format errors are handled by the
+	// error group, so they can be safely ignored here
+	rpcAddr, _ := xurl.HTTP(config.Host.RPC)
+	apiAddr, _ := xurl.HTTP(config.Host.API)
+
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog().out, "🌍 Tendermint node: %s\n", xurl.HTTP(config.Host.RPC))
-	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
+	fmt.Fprintf(c.stdLog().out, "🌍 Tendermint node: %s\n", rpcAddr)
+	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", apiAddr)
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", xurl.HTTP(chainconfig.FaucetHost(config)))
+		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
+		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", faucetAddr)
 	}
 
 	return g.Wait()
@@ -472,7 +488,7 @@ func (c *Chain) chainSavePath() (string, error) {
 	chainSavePath := filepath.Join(savePath, chainID)
 
 	// ensure the path exists
-	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
+	if err := os.MkdirAll(savePath, 0o700); err != nil && !os.IsExist(err) {
 		return "", err
 	}
 

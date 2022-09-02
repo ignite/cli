@@ -10,14 +10,14 @@ import (
 	"github.com/gookit/color"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	sperrors "github.com/ignite-hq/cli/ignite/errors"
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/repoversion"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/chainconfig"
+	sperrors "github.com/ignite/cli/ignite/errors"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/repoversion"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 var (
@@ -83,6 +83,10 @@ type chainOptions struct {
 	// for 3rd party modules. SDK modules are also considered as a 3rd party.
 	isThirdPartyModuleCodegenEnabled bool
 
+	// checkDependencies checks that cached Go dependencies of the chain have not
+	// been modified since they were downloaded.
+	checkDependencies bool
+
 	// path of a custom config file
 	ConfigFile string
 }
@@ -133,6 +137,15 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
+// CheckDependencies checks that cached Go dependencies of the chain have not
+// been modified since they were downloaded. Dependencies are checked by
+// running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.options.checkDependencies = true
+	}
+}
+
 // New initializes a new Chain with options that its source lives at path.
 func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
@@ -179,7 +192,6 @@ func New(path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-
 	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
@@ -250,11 +262,7 @@ func (c *Chain) ID() (string, error) {
 
 // ChainID returns the default network chain's id.
 func (c *Chain) ChainID() (string, error) {
-	chainID, err := c.ID()
-	if err != nil {
-		return "", err
-	}
-	return chainid.NewGenesisChainID(chainID, 1), nil
+	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
 // Name returns the chain's name
@@ -442,11 +450,16 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
+	nodeAddr, err := xurl.TCP(config.Host.RPC)
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
 	chainCommandOptions := []chaincmd.Option{
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
-		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
+		chaincmd.WithNodeAddress(nodeAddr),
 		chaincmd.WithKeyringBackend(backend),
 	}
 

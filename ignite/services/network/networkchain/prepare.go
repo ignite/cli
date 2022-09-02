@@ -3,7 +3,6 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -13,9 +12,10 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // ResetGenesisTime reset the chain genesis time
@@ -25,14 +25,26 @@ func (c Chain) ResetGenesisTime() error {
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
-	if err := cosmosutil.SetGenesisTime(genesisPath, 0); err != nil {
+
+	if err := cosmosutil.UpdateGenesis(
+		genesisPath,
+		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, 0),
+	); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 	return nil
 }
 
 // Prepare prepares the chain to be launched from genesis information
-func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) Prepare(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	gi networktypes.GenesisInformation,
+	rewardsInfo networktypes.Reward,
+	spnChainID string,
+	lastBlockHeight,
+	consumerUnbondingTime int64,
+) error {
 	// chain initialization
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -44,14 +56,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if err = c.Init(ctx); err != nil {
+		if err = c.Init(ctx, cacheStorage); err != nil {
 			return err
 		}
 	case err != nil:
 		return err
 	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
-		if _, err := c.Build(ctx); err != nil {
+		if _, err := c.Build(ctx, cacheStorage); err != nil {
 			return err
 		}
 
@@ -60,7 +72,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		}
 	}
 
-	if err := c.buildGenesis(ctx, gi); err != nil {
+	if err := c.buildGenesis(
+		ctx,
+		gi,
+		rewardsInfo,
+		spnChainID,
+		lastBlockHeight,
+		consumerUnbondingTime,
+	); err != nil {
 		return err
 	}
 
@@ -83,7 +102,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
-func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation) error {
+func (c Chain) buildGenesis(
+	ctx context.Context,
+	gi networktypes.GenesisInformation,
+	rewardsInfo networktypes.Reward,
+	spnChainID string,
+	lastBlockHeight,
+	consumerUnbondingTime int64,
+) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	addressPrefix, err := c.detectPrefix(ctx)
@@ -107,12 +133,30 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	// set chain id
-	if err := cosmosutil.SetChainID(genesisPath, c.id); err != nil {
-		return errors.Wrap(err, "chain id cannot be set")
+	// set genesis time and chain id
+	genesisFields := []cosmosutil.GenesisField{
+		cosmosutil.WithKeyValue(cosmosutil.FieldChainID, c.id),
+		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime),
 	}
-	// set the genesis time for the chain
-	if err := cosmosutil.SetGenesisTime(genesisPath, c.launchTime); err != nil {
+
+	// TODO: implement a single option for all reward related fields
+	// a single query will include all these options on SPN https://github.com/tendermint/spn/issues/815
+	// such a refactoring can be worked afte the implementation of the query
+	if lastBlockHeight > 0 {
+		genesisFields = append(
+			genesisFields,
+			cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, rewardsInfo.ConsensusState.Timestamp),
+			cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, rewardsInfo.ConsensusState.NextValidatorsHash),
+			cosmosutil.WithKeyValue(cosmosutil.FieldConsensusRootHash, rewardsInfo.ConsensusState.Root.Hash),
+			cosmosutil.WithKeyValueUint(cosmosutil.FieldConsumerRevisionHeight, rewardsInfo.RevisionHeight),
+			cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, spnChainID),
+			cosmosutil.WithKeyValueInt(cosmosutil.FieldLastBlockHeight, lastBlockHeight),
+			cosmosutil.WithKeyValueInt(cosmosutil.FieldConsumerUnbondingPeriod, consumerUnbondingTime),
+		)
+	}
+
+	// update genesis
+	if err := cosmosutil.UpdateGenesis(genesisPath, genesisFields...); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 
@@ -142,7 +186,7 @@ func (c Chain) applyGenesisAccounts(
 		}
 
 		// call the add genesis account CLI command
-		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins)
+		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins.String())
 		if err != nil {
 			return err
 		}
@@ -172,8 +216,8 @@ func (c Chain) applyVestingAccounts(
 		err = cmd.AddVestingAccount(
 			ctx,
 			acc.Address,
-			acc.TotalBalance,
-			acc.Vesting,
+			acc.TotalBalance.String(),
+			acc.Vesting.String(),
 			acc.EndTime,
 		)
 		if err != nil {
@@ -199,14 +243,14 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	if err := os.RemoveAll(gentxDir); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(gentxDir, 0700); err != nil {
+	if err := os.MkdirAll(gentxDir, 0o700); err != nil {
 		return err
 	}
 
 	// write gentxs
 	for i, val := range genesisVals {
 		gentxPath := filepath.Join(gentxDir, fmt.Sprintf("gentx%d.json", i))
-		if err = ioutil.WriteFile(gentxPath, val.Gentx, 0666); err != nil {
+		if err = os.WriteFile(gentxPath, val.Gentx, 0o666); err != nil {
 			return err
 		}
 	}
@@ -272,7 +316,7 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		}
 
 		// save config.toml file
-		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+		configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0o644)
 		if err != nil {
 			return err
 		}
@@ -296,5 +340,4 @@ func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.Gene
 		}
 	}
 	return nil
-
 }

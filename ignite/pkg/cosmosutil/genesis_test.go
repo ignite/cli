@@ -1,48 +1,17 @@
 package cosmosutil_test
 
 import (
-	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/buger/jsonparser"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 )
-
-const (
-	genesisSample = `
-{
-	"foo": "bar",
-	"genesis_time": "foobar"
-}
-`
-	unixTime = 1600000000
-	rfcTime  = "2020-09-13T12:26:40Z"
-)
-
-func TestSetGenesisTime(t *testing.T) {
-	tmp := t.TempDir()
-	tmpGenesis := filepath.Join(tmp, "genesis.json")
-
-	// fails with no file
-	require.Error(t, cosmosutil.SetGenesisTime(tmpGenesis, 0))
-
-	require.NoError(t, os.WriteFile(tmpGenesis, []byte(genesisSample), 0644))
-	require.NoError(t, cosmosutil.SetGenesisTime(tmpGenesis, unixTime))
-
-	// check genesis modified value
-	var actual struct {
-		Foo         string `json:"foo"`
-		GenesisTime string `json:"genesis_time"`
-	}
-	actualBytes, err := os.ReadFile(tmpGenesis)
-	require.NoError(t, err)
-	require.NoError(t, json.Unmarshal(actualBytes, &actual))
-	require.Equal(t, "bar", actual.Foo)
-	require.Equal(t, rfcTime, actual.GenesisTime)
-}
 
 func TestChainGenesis_HasAccount(t *testing.T) {
 	tests := []struct {
@@ -89,12 +58,14 @@ func TestParseChainGenesis(t *testing.T) {
 		Address string `json:"address"`
 	}{{Address: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"}}
 	genesis1.AppState.Staking.Params.BondDenom = "stake"
+	genesis1.AppState.Genutil.GenTxs = []struct{}{{}} // 1 gentx
 
 	genesis2 := cosmosutil.ChainGenesis{ChainID: "earth-1"}
 	genesis2.AppState.Auth.Accounts = []struct {
 		Address string `json:"address"`
 	}{{Address: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"}}
 	genesis2.AppState.Staking.Params.BondDenom = "stake"
+	genesis2.AppState.Genutil.GenTxs = []struct{}{{}} // 1 gentx
 
 	tests := []struct {
 		name        string
@@ -213,6 +184,193 @@ func TestParseGenesisFromPath(t *testing.T) {
 			require.NoError(t, err)
 			require.ElementsMatch(t, tt.want.Accounts, got.Accounts)
 			require.Equal(t, tt.want.StakeDenom, got.StakeDenom)
+		})
+	}
+}
+
+func TestUpdateGenesis(t *testing.T) {
+	genesisSample := `
+{
+  "number": 33,
+  "foo": "bar",
+  "genesis_time": "foobar",
+  "app_state": {
+    "monitoring": {
+      "chain-id": "ignite-1"
+    },
+    "foobar": "baz",
+	"debug": "false",
+	"height": "100",
+	"time": "100",
+    "staling": {
+      "params": []
+    }
+  }
+}
+`
+	type args struct {
+		genesis string
+		options []cosmosutil.GenesisField
+	}
+	tests := []struct {
+		name string
+		args args
+		err  error
+	}{
+		{
+			name: "with key and value",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValue("foo", "foobar"),
+				},
+			},
+		},
+		{
+			name: "with key and bool value",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValueBoolean("app_state.debug", true),
+				},
+			},
+		},
+		{
+			name: "with key and int value",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValueInt("app_state.height", 199),
+				},
+			},
+		},
+		{
+			name: "with key and uint value",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValueUint("app_state.height", 438),
+				},
+			},
+		},
+		{
+			name: "with key and timestamp value",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValueTimestamp("app_state.time", 3000),
+				},
+			},
+		},
+		{
+			name: "with all key and value types",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValue("foo", "baz"),
+					cosmosutil.WithKeyValue("app_state.monitoring.chain-id", "spn-1"),
+					cosmosutil.WithKeyValueBoolean("app_state.debug", false),
+					cosmosutil.WithKeyValueInt("app_state.height", 123),
+					cosmosutil.WithKeyValueUint("app_state.height", 343),
+					cosmosutil.WithKeyValueTimestamp("app_state.time", 999999),
+				},
+			},
+		},
+		{
+			name: "casting key value",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValue("number", "number_value"),
+				},
+			},
+		},
+		{
+			name: "with wrong key path",
+			args: args{
+				genesis: genesisSample,
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValue("wrong.path", "foobar"),
+					cosmosutil.WithKeyValue("app_state.monitoring.wrong", "baz"),
+				},
+			},
+		},
+		{
+			name: "with file path",
+			args: args{
+				genesis: "",
+				options: []cosmosutil.GenesisField{
+					cosmosutil.WithKeyValue("foo", "foobar"),
+				},
+			},
+			err: errors.New("Key path not found"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpGenesis := filepath.Join(t.TempDir(), "genesis.json")
+			if tt.args.genesis != "" {
+				require.Error(t,
+					cosmosutil.UpdateGenesis(
+						tmpGenesis,
+						cosmosutil.WithKeyValue("test", "test"),
+					),
+				)
+			}
+			require.NoError(t, os.WriteFile(tmpGenesis, []byte(tt.args.genesis), 0o644))
+			err := cosmosutil.UpdateGenesis(tmpGenesis, tt.args.options...)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), tt.err.Error())
+				return
+			}
+			require.NoError(t, err)
+
+			genesisBytes, err := os.ReadFile(tmpGenesis)
+
+			f := map[string]string{}
+			for _, applyField := range tt.args.options {
+				applyField(f)
+			}
+
+			for key, value := range f {
+				val, err := jsonparser.GetString(genesisBytes, strings.Split(key, ".")...)
+				require.NoError(t, err)
+				require.Equal(t, val, value)
+			}
+		})
+	}
+}
+
+func TestChainGenesis_GenTxCount(t *testing.T) {
+	// create a genesis with 10 gentx
+	testChainGenesis := cosmosutil.ChainGenesis{}
+	for i := 0; i < 10; i++ {
+		testChainGenesis.AppState.Genutil.GenTxs = append(
+			testChainGenesis.AppState.Genutil.GenTxs,
+			struct{}{},
+		)
+	}
+
+	tests := []struct {
+		name         string
+		chainGenesis cosmosutil.ChainGenesis
+		expected     int
+	}{
+		{
+			name:         "should return 0 for initialized chain genesis",
+			chainGenesis: cosmosutil.ChainGenesis{},
+			expected:     0,
+		},
+		{
+			name:         "should return the number of gentxs",
+			chainGenesis: testChainGenesis,
+			expected:     10,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.EqualValues(t, tt.expected, tt.chainGenesis.GenTxCount())
 		})
 	}
 }

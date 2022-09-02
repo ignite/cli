@@ -12,19 +12,20 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	appanalysis "github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/validation"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
-	moduleimport "github.com/ignite-hq/cli/ignite/templates/module/import"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/module"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	moduleimport "github.com/ignite/cli/ignite/templates/module/import"
 )
 
 const (
@@ -43,6 +44,7 @@ var (
 	reservedNames = map[string]struct{}{
 		"account":      {},
 		"auth":         {},
+		"authz":        {},
 		"bank":         {},
 		"block":        {},
 		"broadcast":    {},
@@ -144,6 +146,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s Scaffolder) CreateModule(
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName string,
 	options ...ModuleCreationOption,
@@ -191,7 +194,6 @@ func (s Scaffolder) CreateModule(
 		Params:       params,
 		AppName:      s.modpath.Package,
 		AppPath:      s.path,
-		OwnerName:    owner(s.modpath.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
@@ -225,11 +227,11 @@ func (s Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
+func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
@@ -270,7 +272,7 @@ func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xg
 		return sm, err
 	}
 
-	return sm, finish(s.path, s.modpath.RawPath)
+	return sm, finish(cacheStorage, s.path, s.modpath.RawPath)
 }
 
 // moduleExists checks if the module exists in the app

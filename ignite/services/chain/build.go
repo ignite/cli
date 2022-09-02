@@ -11,34 +11,48 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/checksum"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/goanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/checksum"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 const (
-	releaseDir  = "release"
-	checksumTxt = "checksum.txt"
+	releaseDir                   = "release"
+	releaseChecksumKey           = "release_checksum"
+	modChecksumKey               = "go_mod_checksum"
+	buildDirchangeCacheNamespace = "build.dirchange"
 )
 
 // Build builds and installs app binaries.
-func (c *Chain) Build(ctx context.Context, output string) (binaryName string, err error) {
+func (c *Chain) Build(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	output string,
+	skipProto bool,
+) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, output); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
 		return "", err
 	}
 
 	return c.Binary()
 }
 
-func (c *Chain) build(ctx context.Context, output string) (err error) {
+func (c *Chain) build(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	output string,
+	skipProto bool,
+) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
@@ -47,11 +61,14 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 		}
 	}()
 
-	if err := c.generateAll(ctx); err != nil {
-		return err
+	// generate from proto files
+	if !skipProto {
+		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+			return err
+		}
 	}
 
-	buildFlags, err := c.preBuild(ctx)
+	buildFlags, err := c.preBuild(ctx, cacheStorage)
 	if err != nil {
 		return err
 	}
@@ -72,7 +89,7 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 // BuildRelease builds binaries for a release. targets is a list
 // of GOOS:GOARCH when provided. It defaults to your system when no targets provided.
 // prefix is used as prefix to tarballs containing each target.
-func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets ...string) (releasePath string, err error) {
+func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, output, prefix string, targets ...string) (releasePath string, err error) {
 	if prefix == "" {
 		prefix = c.app.Name
 	}
@@ -85,7 +102,7 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 		return "", err
 	}
 
-	buildFlags, err := c.preBuild(ctx)
+	buildFlags, err := c.preBuild(ctx, cacheStorage)
 	if err != nil {
 		return "", err
 	}
@@ -109,7 +126,7 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 		}
 	}
 
-	if err := os.MkdirAll(releasePath, 0755); err != nil {
+	if err := os.MkdirAll(releasePath, 0o755); err != nil {
 		return "", err
 	}
 
@@ -157,13 +174,13 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 		tarf.Close()
 	}
 
-	checksumPath := filepath.Join(releasePath, checksumTxt)
+	checksumPath := filepath.Join(releasePath, releaseChecksumKey)
 
 	// create a checksum.txt and return with the path to release dir.
 	return releasePath, checksum.Sum(releasePath, checksumPath)
 }
 
-func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
+func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (buildFlags []string, err error) {
 	config, err := c.Config()
 	if err != nil {
 		return nil, err
@@ -189,11 +206,30 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 
 	fmt.Fprintln(c.stdLog().out, "📦 Installing dependencies...")
 
+	// We do mod tidy before checking for checksum changes, because go.mod gets modified often
+	// and the mod verify command is the expensive one anyway
 	if err := gocmd.ModTidy(ctx, c.app.Path); err != nil {
 		return nil, err
 	}
-	if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
+
+	dirCache := cache.New[[]byte](cacheStorage, buildDirchangeCacheNamespace)
+	modChanged, err := dirchange.HasDirChecksumChanged(dirCache, modChecksumKey, c.app.Path, "go.mod")
+	if err != nil {
 		return nil, err
+	}
+
+	if modChanged {
+		// By default no dependencies are checked to avoid issues with module
+		// ziphash files in case a Go workspace is being used.
+		if c.options.checkDependencies {
+			if err := gocmd.ModVerify(ctx, c.app.Path); err != nil {
+				return nil, err
+			}
+		}
+
+		if err := dirchange.SaveDirChecksum(dirCache, modChecksumKey, c.app.Path, "go.mod"); err != nil {
+			return nil, err
+		}
 	}
 
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")

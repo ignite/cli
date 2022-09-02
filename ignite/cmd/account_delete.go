@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 func NewAccountDelete() *cobra.Command {
@@ -16,8 +16,6 @@ func NewAccountDelete() *cobra.Command {
 		RunE:  accountDeleteHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-
 	return c
 }
 
@@ -26,6 +24,7 @@ func accountDeleteHandler(cmd *cobra.Command, args []string) error {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err

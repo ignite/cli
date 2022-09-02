@@ -1,15 +1,15 @@
 package ignitecmd
 
 import (
+	"bytes"
 	"fmt"
-	"os"
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/relayer"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/relayer"
 )
 
 // NewRelayerConnect returns a new relayer connect command to link all or some relayer paths and start
@@ -23,6 +23,7 @@ func NewRelayerConnect() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -32,8 +33,12 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
+	session := cliui.New()
+	defer session.Cleanup()
+
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
@@ -43,14 +48,11 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	ids := args
-
-	s := clispinner.New()
-	defer s.Stop()
-
-	var use []string
-
-	r := relayer.New(ca)
+	var (
+		use []string
+		ids = args
+		r   = relayer.New(ca)
+	)
 
 	all, err := r.ListPaths(cmd.Context())
 	if err != nil {
@@ -62,7 +64,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	if len(ids) == 0 {
 		for _, path := range all {
 			use = append(use, path.ID)
-
 		}
 	} else {
 		for _, id := range ids {
@@ -71,47 +72,51 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 					use = append(use, path.ID)
 					break
 				}
-
 			}
 		}
 	}
 
 	if len(use) == 0 {
-		s.Stop()
-
-		fmt.Println("No chains found to connect.")
+		session.StopSpinner()
+		session.Println("No chains found to connect.")
 		return nil
 	}
 
-	s.SetText("Creating links between chains...")
+	session.StartSpinner("Creating links between chains...")
 
-	if err := r.Link(cmd.Context(), use...); err != nil {
+	if err := r.LinkPaths(cmd.Context(), use...); err != nil {
 		return err
 	}
 
-	s.Stop()
+	session.StopSpinner()
 
-	printSection("Paths")
+	if err := printSection(session, "Paths"); err != nil {
+		return err
+	}
 
 	for _, id := range use {
-		s.SetText("Loading...").Start()
+		session.StartSpinner("Loading...")
 
 		path, err := r.GetPath(cmd.Context(), id)
 		if err != nil {
 			return err
 		}
 
-		s.Stop()
+		session.StopSpinner()
 
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.TabIndent)
+		var buf bytes.Buffer
+		w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 		fmt.Fprintf(w, "%s:\n", path.ID)
 		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Src.ChainID, path.Src.PortID, path.Src.ChannelID)
 		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Dst.ChainID, path.Dst.PortID, path.Dst.ChannelID)
 		fmt.Fprintln(w)
 		w.Flush()
+		session.Print(buf.String())
 	}
 
-	printSection("Listening and relaying packets between chains...")
+	if err := printSection(session, "Listening and relaying packets between chains..."); err != nil {
+		return err
+	}
 
-	return r.Start(cmd.Context(), use...)
+	return r.StartPaths(cmd.Context(), use...)
 }

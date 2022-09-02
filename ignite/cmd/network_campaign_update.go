@@ -7,8 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/yaml"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/yaml"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 const (
@@ -29,10 +30,14 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 	c.Flags().String(flagCampaignTotalSupply, "", "Update the total of the mainnet of a campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
 func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	var (
 		campaignName, _        = cmd.Flags().GetString(flagCampaignName)
 		metadata, _            = cmd.Flags().GetString(flagCampaignMetadata)
@@ -43,11 +48,10 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb, err := newNetworkBuilder(cmd)
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse campaign ID
 	campaignID, err := network.ParseID(args[0])
@@ -90,14 +94,14 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("")
+	session.Println()
 
 	info, err := yaml.Marshal(cmd.Context(), campaign)
 	if err != nil {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Print(info)
-	return nil
+	session.StopSpinner()
+
+	return session.Print(info)
 }

@@ -5,13 +5,13 @@ import (
 	"github.com/bandprotocol/bandchain-packet/packet"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	channeltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
 // handleOraclePacket handles the result of the received BandChain oracles
 // packet and saves the data into the KV database
-func (am AppModule) handleOraclePacket(
+func (im IBCModule) handleOraclePacket(
 	ctx sdk.Context,
 	modulePacket channeltypes.Packet,
 ) (channeltypes.Acknowledgement, error) {
@@ -27,7 +27,7 @@ func (am AppModule) handleOraclePacket(
 	default:
 		err := sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal,
 			"oracle received packet not found: %s", modulePacketData.GetClientID())
-		ack = channeltypes.NewErrorAcknowledgement(err.Error())
+		ack = channeltypes.NewErrorAcknowledgement(err)
 		return ack, err
 
 	}
@@ -41,7 +41,7 @@ func (am AppModule) handleOraclePacket(
 
 // handleOracleAcknowledgment handles the acknowledgment result from the BandChain
 // request and saves the request-id into the KV database
-func (am AppModule) handleOracleAcknowledgment(
+func (im IBCModule) handleOracleAcknowledgment(
 	ctx sdk.Context,
 	ack channeltypes.Acknowledgement,
 	modulePacket channeltypes.Packet,

@@ -5,7 +5,25 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/services/network/testutil"
 )
+
+func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
+	suite := testutil.NewSuite()
+	return suite, New(
+		suite.CosmosClientMock,
+		account,
+		WithCampaignQueryClient(suite.CampaignQueryMock),
+		WithLaunchQueryClient(suite.LaunchQueryMock),
+		WithProfileQueryClient(suite.ProfileQueryMock),
+		WithRewardQueryClient(suite.RewardClient),
+		WithStakingQueryClient(suite.StakingClient),
+		WithMonitoringConsumerQueryClient(suite.MonitoringConsumerClient),
+		WithBankQueryClient(suite.BankClient),
+	)
+}
 
 func TestParseID(t *testing.T) {
 	tests := []struct {
@@ -22,17 +40,17 @@ func TestParseID(t *testing.T) {
 		{
 			name: "invalid uint",
 			id:   "-10",
-			err:  errors.New("error parsing launchID: strconv.ParseUint: parsing \"-10\": invalid syntax"),
+			err:  errors.New("error parsing ID: strconv.ParseUint: parsing \"-10\": invalid syntax"),
 		},
 		{
 			name: "invalid string",
 			id:   "test",
-			err:  errors.New("error parsing launchID: strconv.ParseUint: parsing \"test\": invalid syntax"),
+			err:  errors.New("error parsing ID: strconv.ParseUint: parsing \"test\": invalid syntax"),
 		},
 		{
 			name: "invalid launch id",
 			id:   "0",
-			err:  errors.New("launch ID must be greater than 0"),
+			err:  errors.New("ID must be greater than 0"),
 		},
 	}
 	for _, tt := range tests {
@@ -47,4 +65,10 @@ func TestParseID(t *testing.T) {
 			require.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func SampleSharePercent(t *testing.T, denom string, nominator, denominator uint64) SharePercent {
+	sp, err := NewSharePercent(denom, nominator, denominator)
+	require.NoError(t, err)
+	return sp
 }

@@ -1,19 +1,17 @@
 package ignitecmd
 
 import (
-	"sync"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -31,11 +29,11 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.ignite.com:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.ignite.com"
+	spnNodeAddressNightly   = "http://178.128.251.28:26657"
+	spnFaucetAddressNightly = "http://178.128.251.28:4500"
 
-	spnNodeAddressLocal   = "http://0.0.0.0:26657"
-	spnFaucetAddressLocal = "http://0.0.0.0:4500"
+	spnNodeAddressLocal   = "http://0.0.0.0:26661"
+	spnFaucetAddressLocal = "http://0.0.0.0:4502"
 )
 
 // NewNetwork creates a new network command that holds some other sub commands
@@ -61,6 +59,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
+		NewNetworkProfile(),
 	)
 
 	return c
@@ -68,52 +67,59 @@ func NewNetwork() *cobra.Command {
 
 var cosmos *cosmosclient.Client
 
-type NetworkBuilder struct {
-	AccountRegistry cosmosaccount.Registry
-	Spinner         *clispinner.Spinner
+type (
+	NetworkBuilderOption func(builder *NetworkBuilder)
 
-	ev  events.Bus
-	wg  *sync.WaitGroup
-	cmd *cobra.Command
-	cc  cosmosclient.Client
+	NetworkBuilder struct {
+		AccountRegistry cosmosaccount.Registry
+
+		ev  events.Bus
+		cmd *cobra.Command
+		cc  cosmosclient.Client
+	}
+)
+
+func CollectEvents(ev events.Bus) NetworkBuilderOption {
+	return func(builder *NetworkBuilder) {
+		builder.ev = ev
+	}
 }
 
-func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
-	var err error
+func flagSetSPNAccountPrefixes() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	return fs
+}
 
-	n := NetworkBuilder{
-		Spinner: clispinner.New(),
-		ev:      events.NewBus(),
-		wg:      &sync.WaitGroup{},
-		cmd:     cmd,
-	}
-
-	n.wg.Add(1)
-	go printEvents(n.wg, n.ev, n.Spinner)
+func newNetworkBuilder(cmd *cobra.Command, options ...NetworkBuilderOption) (NetworkBuilder, error) {
+	var (
+		err error
+		n   = NetworkBuilder{cmd: cmd}
+	)
 
 	if n.cc, err = getNetworkCosmosClient(cmd); err != nil {
-		n.Cleanup()
 		return NetworkBuilder{}, err
 	}
 
 	n.AccountRegistry = n.cc.AccountRegistry
 
+	for _, apply := range options {
+		apply(&n)
+	}
 	return n, nil
 }
 
 func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...networkchain.Option) (*networkchain.Chain, error) {
-	options = append(options, networkchain.CollectEvents(n.ev))
-
 	if home := getHome(n.cmd); home != "" {
 		options = append(options, networkchain.WithHome(home))
 	}
+
+	options = append(options, networkchain.CollectEvents(n.ev))
 
 	return networkchain.New(n.cmd.Context(), n.AccountRegistry, source, options...)
 }
 
 func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
-	options = append(options, network.CollectEvents(n.ev))
-
 	var (
 		err     error
 		from    = getFrom(n.cmd)
@@ -125,13 +131,10 @@ func (n NetworkBuilder) Network(options ...network.Option) (network.Network, err
 			return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'ignite account -h' to manage accounts")
 		}
 	}
-	return network.New(*cosmos, account, options...)
-}
 
-func (n NetworkBuilder) Cleanup() {
-	n.Spinner.Stop()
-	n.ev.Shutdown()
-	n.wg.Wait()
+	options = append(options, network.CollectEvents(n.ev))
+
+	return network.New(*cosmos, account, options...), nil
 }
 
 func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
@@ -153,6 +156,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithAddressPrefix(networktypes.SPN),
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
+		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

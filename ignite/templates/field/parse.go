@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
-// validateField validates the field Name and type, and checks the name is not forbidden by Starport
+// validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
 	fieldSplit := strings.Split(field, datatype.Separator)
 	if len(fieldSplit) > 2 {
@@ -18,7 +18,6 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 	name, err := multiformatname.NewName(fieldSplit[0])
 	if err != nil {
 		return name, "", err
-
 	}
 
 	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code

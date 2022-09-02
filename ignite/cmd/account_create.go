@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 func NewAccountCreate() *cobra.Command {
@@ -16,8 +16,6 @@ func NewAccountCreate() *cobra.Command {
 		RunE:  accountCreateHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-
 	return c
 }
 
@@ -26,14 +24,15 @@ func accountCreateHandler(cmd *cobra.Command, args []string) error {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create registry: %w", err)
 	}
 
 	_, mnemonic, err := ca.Create(name)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create account: %w", err)
 	}
 
 	fmt.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)

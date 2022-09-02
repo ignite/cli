@@ -1,53 +1,41 @@
-# Ignite CLI
+# Website
 
-[Ignite CLI](https://github.com/ignite-hq/cli) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Ignite CLI is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Ignite CLI accelerates chain development by scaffolding everything you need so you can focus on business logic.
+This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
-## What is Ignite CLI?
-
-Ignite CLI is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Ignite CLI use Cosmos SDK and Tendermint. Ignite CLI and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Ignite CLI includes a command line interface that lets you manage keys, create validators, and send tokens.
-
-With just a few commands, you can use Ignite CLI to:
-
-* Create a modular blockchain written in Go
-* Scaffold modules, messages, types with CRUD operations, IBC packets, and more
-* Start a blockchain node in development with live reloading
-* Connect to other blockchains with a built-in IBC relayer
-* Use the automatically generated TypeScript client to interact with your blockchain
-* Use the Vue 3 web app template with a set of UI components to build your custom web application
-
-## Install Ignite CLI
-
-To install the `ignite` binary in `/usr/local/bin` run the following command:
+### Installation
 
 ```
-curl https://get.ignite.com/cli! | bash
+$ yarn
 ```
 
-## Projects using Tendermint and Cosmos SDK
+### Local Development
 
-Many projects already showcase the Tendermint BFT consensus engine and the Cosmos SDK. Explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+```
+$ yarn start
+```
 
-## Projects building with Ignite CLI
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-* [Sifchain: omni-chain solution for DEXs](https://github.com/Sifchain/sifnode)
-* [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Ignite CLI](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
-* [Cronos](https://github.com/crypto-org-chain/cronos)
-* [Plugchain](https://github.com/oracleNetworkProtocol/plugchain)
-* [BitCanna](https://github.com/BitCannaGlobal/bcna)
-* [Panacea Core](https://github.com/medibloc/panacea-core)
-* [Rook](https://github.com/cmwaters/rook)
-* [PI Bridge](https://github.com/pchain-org/pi-bridge)
-* [Polynetwork](https://github.com/Switcheo/polynetwork-cosmos)
-* [Lotus](https://github.com/BabyBlockchains/Lotus)
-* [OmniFlix Hub](https://github.com/OmniFlix/omniflixhub)
-* [Cudos](https://github.com/CudoVentures/cudos-node)
-* [Zenchain](https://github.com/zenchainprotocol/zenchain)
-* [Onomy Protocol](https://github.com/onomyprotocol/ochain)
-* [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
-* [Celestia](https://github.com/celestiaorg/celestia-app)
-* [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
-* [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
-* [Affondra](https://github.com/EG-easy/affondra)
-* [Finding Imposter](https://github.com/chantmk/Finding-imposter)
-* [Flares payment network](https://github.com/wangfeiping/flares)
-* [FirmaChain](https://github.com/firmachain/firmachain)
+### Build
+
+```
+$ yarn build
+```
+
+This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+### Deployment
+
+Using SSH:
+
+```
+$ USE_SSH=true yarn deploy
+```
+
+Not using SSH:
+
+```
+$ GIT_USER=<Your GitHub username> yarn deploy
+```
+
+If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.

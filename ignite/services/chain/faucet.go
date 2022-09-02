@@ -9,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 var (
@@ -22,9 +22,7 @@ var (
 	ErrFaucetAccountDoesNotExist = errors.New("specified account (faucet.name) does not exist")
 )
 
-var (
-	envAPIAddress = os.Getenv("API_ADDRESS")
-)
+var envAPIAddress = os.Getenv("API_ADDRESS")
 
 // Faucet returns the faucet for the chain or an error if the faucet
 // configuration is wrong or not configured (not enabled) at all.
@@ -62,10 +60,15 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		apiAddress = envAPIAddress
 	}
 
+	apiAddress, err = xurl.HTTP(apiAddress)
+	if err != nil {
+		return cosmosfaucet.Faucet{}, fmt.Errorf("invalid host api address format: %w", err)
+	}
+
 	faucetOptions := []cosmosfaucet.Option{
 		cosmosfaucet.Account(*conf.Faucet.Name, "", ""),
 		cosmosfaucet.ChainID(id),
-		cosmosfaucet.OpenAPI(xurl.HTTP(apiAddress)),
+		cosmosfaucet.OpenAPI(apiAddress),
 	}
 
 	// parse coins to pass to the faucet as coins.

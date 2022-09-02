@@ -8,12 +8,13 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
-	"github.com/ignite-hq/cli/ignite/templates/ibc"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/templates/ibc"
 )
 
 const (
@@ -53,6 +54,7 @@ func PacketWithSigner(signer string) PacketOption {
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s Scaffolder) AddPacket(
 	ctx context.Context,
+	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
@@ -126,7 +128,6 @@ func (s Scaffolder) AddPacket(
 			AppPath:    s.path,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.modpath.RawPath),
 			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
@@ -142,7 +143,7 @@ func (s Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(opts.AppPath, s.modpath.RawPath)
+	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

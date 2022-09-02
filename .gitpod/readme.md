@@ -32,7 +32,7 @@ where:
 
 📚 [Cosmos SDK Documentation](https://docs.cosmos.network): Learn about the framework for building application-specific blockchains.
 
-⭐️ [Ignite CLI on Github](https://github.com/ignite-hq/cli): Submit an issue or contribute to the source code.
+⭐️ [Ignite CLI on Github](https://github.com/ignite/cli): Submit an issue or contribute to the source code.
 
 ## Ignite CLI features
 

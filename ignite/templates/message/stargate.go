@@ -7,16 +7,15 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/typed"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 // NewStargate returns the generator to scaffold a empty message in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(handlerModify(replacer, opts))
 	g.RunFn(protoTxRPCModify(replacer, opts))
 	g.RunFn(protoTxMessageModify(replacer, opts))
 	g.RunFn(typesCodecModify(replacer, opts))
@@ -40,32 +39,6 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 		}
 	}
 	return g, Box(template, opts, g)
-}
-
-func handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Set once the MsgServer definition if it is not defined yet
-		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
-
-		templateHandlers := `case *types.Msg%[2]v:
-					res, err := msgServer.%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-%[1]v`
-		replacementHandlers := fmt.Sprintf(templateHandlers,
-			Placeholder,
-			opts.MsgName.UpperCamel,
-		)
-		content = replacer.Replace(content, Placeholder, replacementHandlers)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
 }
 
 func protoTxRPCModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {

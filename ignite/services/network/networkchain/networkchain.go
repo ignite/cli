@@ -9,15 +9,16 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
-	sperrors "github.com/ignite-hq/cli/ignite/errors"
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/checksum"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	sperrors "github.com/ignite/cli/ignite/errors"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/checksum"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
@@ -36,7 +37,8 @@ type Chain struct {
 
 	keyringBackend chaincmd.KeyringBackend
 
-	isInitialized bool
+	isInitialized     bool
+	checkDependencies bool
 
 	ref plumbing.ReferenceName
 
@@ -124,6 +126,15 @@ func CollectEvents(ev events.Bus) Option {
 	}
 }
 
+// CheckDependencies checks that cached Go dependencies of the chain have
+// not been modified since they were downloaded. Dependencies are checked
+// by running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.checkDependencies = true
+	}
+}
+
 // New initializes a network blockchain from source and options.
 func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, options ...Option) (*Chain, error) {
 	c := &Chain{
@@ -148,6 +159,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		chain.ID(c.id),
 		chain.HomePath(c.home),
 		chain.LogLevel(chain.LogSilent),
+	}
+
+	if c.checkDependencies {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -253,7 +268,7 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 }
 
 // Build builds chain sources, also checks if source was already built
-func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
+func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
 	// if chain was already published and has launch id check binary cache
 	if c.launchID != 0 {
 		if binaryName, err = c.chain.Binary(); err != nil {
@@ -275,7 +290,7 @@ func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the chain's binary"))
 
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, ""); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
 		return "", err
 	}
 
@@ -298,7 +313,6 @@ func (c *Chain) CacheBinary(launchID uint64) error {
 		return err
 	}
 	binaryChecksum, err := checksum.Binary(binaryName)
-
 	if err != nil {
 		return err
 	}
@@ -319,7 +333,7 @@ func fetchSource(
 	}
 
 	// ensure the path for chain source exists
-	if err := os.MkdirAll(path, 0755); err != nil {
+	if err := os.MkdirAll(path, 0o755); err != nil {
 		return "", "", err
 	}
 

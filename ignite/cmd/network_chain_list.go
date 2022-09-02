@@ -2,13 +2,13 @@ package ignitecmd
 
 import (
 	"fmt"
-	"io"
-	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/entrywriter"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID", "network", "reward"}
@@ -24,15 +24,15 @@ func NewNetworkChainList() *cobra.Command {
 	return c
 }
 
-func networkChainListHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd)
+func networkChainListHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-
-	nb.Spinner.Stop()
-
-	n, err := nb.Network()
+	n, err := nb.Network(network.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -41,12 +41,13 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Cleanup()
-	return renderLaunchSummaries(chainLaunches, os.Stdout)
+	session.StopSpinner()
+
+	return renderLaunchSummaries(chainLaunches, session)
 }
 
 // renderLaunchSummaries writes into the provided out, the list of summarized launches
-func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, out io.Writer) error {
+func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session cliui.Session) error {
 	var launchEntries [][]string
 
 	for _, c := range chainLaunches {
@@ -70,5 +71,5 @@ func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, out io.Writ
 		})
 	}
 
-	return entrywriter.MustWrite(out, LaunchSummaryHeader, launchEntries...)
+	return session.PrintTable(LaunchSummaryHeader, launchEntries...)
 }

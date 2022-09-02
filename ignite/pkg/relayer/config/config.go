@@ -7,15 +7,17 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/confile"
 )
 
-const supportVersion = "2"
+const SupportVersion = "2"
 
 var configPath = os.ExpandEnv("$HOME/.ignite/relayer/config.yml")
 
-var ErrChainCannotBeFound = errors.New("chain cannot be found")
-var ErrPathCannotBeFound = errors.New("path cannot be found")
+var (
+	ErrChainCannotBeFound = errors.New("chain cannot be found")
+	ErrPathCannotBeFound  = errors.New("path cannot be found")
+)
 
 type Config struct {
 	Version string  `json:"version" yaml:"version"`
@@ -58,6 +60,7 @@ type Chain struct {
 	RPCAddress    string `json:"rpc_address" yaml:"rpc_address"`
 	GasPrice      string `json:"gas_price" yaml:"gas_price,omitempty"`
 	GasLimit      int64  `json:"gas_limit" yaml:"gas_limit,omitempty"`
+	ClientID      string `json:"client_id" yaml:"client_id,omitempty"`
 }
 
 type Path struct {
@@ -82,13 +85,17 @@ func Get() (Config, error) {
 	if err := confile.New(confile.DefaultYAMLEncodingCreator, configPath).Load(&c); err != nil {
 		return c, err
 	}
-	if !reflect.DeepEqual(c, Config{}) && c.Version != supportVersion {
+	if !reflect.DeepEqual(c, Config{}) && c.Version != SupportVersion {
 		return c, fmt.Errorf("your relayer setup is outdated. run 'rm %s' and configure relayer again", configPath)
 	}
 	return c, nil
 }
 
 func Save(c Config) error {
-	c.Version = supportVersion
+	c.Version = SupportVersion
 	return confile.New(confile.DefaultYAMLEncodingCreator, configPath).Save(c)
+}
+
+func Delete() error {
+	return os.RemoveAll(configPath)
 }

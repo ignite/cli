@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 const flagSecret = "secret"
@@ -23,8 +23,7 @@ func NewAccountImport() *cobra.Command {
 	}
 
 	c.Flags().String(flagSecret, "", "Your mnemonic or path to your private key (use interactive mode instead to securely pass your mnemonic)")
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().AddFlagSet(flagSetAccountImportExport())
+	c.Flags().AddFlagSet(flagSetAccountImport())
 
 	return c
 }
@@ -42,12 +41,14 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	passphrase, err := getPassphrase(cmd)
-	if err != nil {
-		return err
-	}
-
+	var passphrase string
 	if !bip39.IsMnemonicValid(secret) {
+		var err error
+		passphrase, err = getPassphrase(cmd)
+		if err != nil {
+			return err
+		}
+
 		privKey, err := os.ReadFile(secret)
 		if os.IsNotExist(err) {
 			return errors.New("mnemonic is not valid or private key not found at path")
@@ -60,6 +61,7 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err

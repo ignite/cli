@@ -1,12 +1,11 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
 const (
@@ -24,18 +23,20 @@ func NewNetworkCampaignPublish() *cobra.Command {
 	c.Flags().String(flagMetadata, "", "Add a metada to the chain")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
 func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
-	// parse launch ID
 	totalSupply, err := sdk.ParseCoinsNormalized(args[1])
 	if err != nil {
 		return err
@@ -52,7 +53,7 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
-	return nil
+	session.StopSpinner()
+
+	return session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 }

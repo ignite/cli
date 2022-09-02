@@ -8,13 +8,11 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
 
-var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
-)
+//go:embed stargate/* stargate/**/*
+var fsStargate embed.FS
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {
@@ -25,7 +23,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("QueryName", opts.QueryName)
 	ctx.Set("Description", opts.Description)
-	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("ReqFields", opts.ReqFields)
 	ctx.Set("ResFields", opts.ResFields)

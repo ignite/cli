@@ -1,6 +1,6 @@
 // Package nodetime provides a single, and standalone NodeJS runtime executable that contains
 // several NodeJS CLI programs bundled inside where those are reachable via subcommands.
-// the CLI bundled programs are the ones that needed by Starport and more can added as needed.
+// the CLI bundled programs are the ones that needed by Ignite CLI and more can added as needed.
 package nodetime
 
 import (
@@ -10,8 +10,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/ignite-hq/cli/ignite/pkg/localfs"
-	"github.com/ignite-hq/cli/ignite/pkg/nodetime/data"
+	"github.com/ignite/cli/ignite/pkg/localfs"
+	"github.com/ignite/cli/ignite/pkg/nodetime/data"
 )
 
 // the list of CLIs included.
@@ -31,7 +31,7 @@ const (
 	// CommandIBCRelayer is https://github.com/confio/ts-relayer/blob/main/spec/ibc-relayer.md.
 	CommandIBCRelayer = "ibc-relayer"
 
-	// CommandXRelayer is a relayer wrapper for Starport made using the confio relayer.
+	// CommandXRelayer is a relayer wrapper for Ignite CLI made using the confio relayer.
 	CommandXRelayer = "xrelayer"
 )
 
@@ -70,7 +70,7 @@ func Binary() []byte {
 // Command setups the nodetime binary and returns the command needed to execute c.
 func Command(c CommandName) (command []string, cleanup func(), err error) {
 	cs := string(c)
-	path, cleanup, err := localfs.SaveBytesTemp(Binary(), cs, 0755)
+	path, cleanup, err := localfs.SaveBytesTemp(Binary(), cs, 0o755)
 	if err != nil {
 		return nil, nil, err
 	}

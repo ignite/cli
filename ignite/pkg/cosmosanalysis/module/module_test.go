@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 )
 
 var testModule = Module{
-	Name: "planet",
+	Name:         "planet",
+	GoModulePath: "github.com/tendermint/planet",
 	Pkg: protoanalysis.Package{
 		Name:         "tendermint.planet.planet",
 		Path:         "testdata/planet/proto/planet",
@@ -31,7 +32,8 @@ var testModule = Module{
 						HTTPRules: []protoanalysis.HTTPRule{
 							{
 								Params:   []string{"mytypefield"},
-								HasQuery: false, HasBody: false},
+								HasQuery: false, HasBody: false,
+							},
 						},
 					},
 				},
@@ -47,7 +49,8 @@ var testModule = Module{
 				{
 					Params:   []string{"mytypefield"},
 					HasQuery: false,
-					HasBody:  false},
+					HasBody:  false,
+				},
 			},
 		},
 	},

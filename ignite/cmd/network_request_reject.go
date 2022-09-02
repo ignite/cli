@@ -1,13 +1,12 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/numbers"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/numbers"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 // NewNetworkRequestReject creates a new request reject
@@ -23,16 +22,18 @@ func NewNetworkRequestReject() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
 func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
-	// initialize network common methods
-	nb, err := newNetworkBuilder(cmd)
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
-	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := network.ParseID(args[0])
@@ -60,7 +61,7 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s rejected\n", clispinner.OK, numbers.List(ids, "#"))
-	return nil
+	session.StopSpinner()
+
+	return session.Printf("%s Request(s) %s rejected\n", icons.OK, numbers.List(ids, "#"))
 }

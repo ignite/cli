@@ -9,9 +9,9 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/chainconfig"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/confile"
 )
 
 const (
@@ -66,7 +66,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	// overwrite configuration changes from Starport's config.yml to
+	// overwrite configuration changes from Ignite CLI's config.yml to
 	// over app's sdk configs.
 
 	if err := c.plugin.Configure(home, conf); err != nil {

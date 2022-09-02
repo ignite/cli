@@ -8,11 +8,12 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/module"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
 )
 
 // NewStargate returns the generator to scaffold a module inside a Stargate app
@@ -46,17 +47,18 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
+
+	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
-	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("params", opts.Params)
 	ctx.Set("isIBC", opts.IsIBC)
-
-	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
+	ctx.Set("apiPath", fmt.Sprintf("/%s/%s", appModulePath, opts.ModuleName))
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

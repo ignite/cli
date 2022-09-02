@@ -1,14 +1,16 @@
 package network
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // SetReward set a chain reward
@@ -22,13 +24,18 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 		),
 	))
 
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := rewardtypes.NewMsgSetRewards(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		lastRewardHeight,
 		coins,
 	)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
 		return err
 	}
@@ -42,7 +49,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 		n.ev.Send(events.New(
 			events.StatusDone,
 			"The reward pool was empty",
-			events.Icon(clispinner.Info),
+			events.Icon(icons.Info),
 		))
 	} else {
 		n.ev.Send(events.New(events.StatusDone,
@@ -51,7 +58,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 				coins.String(),
 				lastRewardHeight,
 			),
-			events.Icon(clispinner.Info),
+			events.Icon(icons.Info),
 		))
 	}
 
@@ -66,4 +73,38 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 		)))
 	}
 	return nil
+}
+
+// RewardsInfo Fetches the consensus state with the validator set,
+// the unbounding time, and the last block height from chain rewards.
+func (n Network) RewardsInfo(
+	ctx context.Context,
+	launchID uint64,
+	height int64,
+) (
+	rewardsInfo networktypes.Reward,
+	lastRewardHeight int64,
+	unboundingTime int64,
+	err error,
+) {
+	rewardsInfo, err = n.node.consensus(ctx, n.cosmos, height)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+
+	stakingParams, err := n.node.stakingParams(ctx)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	unboundingTime = int64(stakingParams.UnbondingTime.Seconds())
+
+	chainReward, err := n.ChainReward(ctx, launchID)
+	if errors.Is(err, ErrObjectNotFound) {
+		return rewardsInfo, 1, unboundingTime, nil
+	} else if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	lastRewardHeight = chainReward.LastRewardHeight
+
+	return
 }

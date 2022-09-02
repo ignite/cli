@@ -6,25 +6,29 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
+	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {
 		return err
 	}
+
+	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
+
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", opts.ModuleName)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("TypeName", opts.TypeName)
-	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("Indexes", opts.Indexes)
 	ctx.Set("NoMessage", opts.NoMessage)
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {
@@ -34,9 +38,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 		}
 		return strconv
 	})
-
-	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

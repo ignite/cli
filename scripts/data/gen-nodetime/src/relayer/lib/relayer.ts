@@ -1,141 +1,198 @@
 // cosmosjs related imports.
-import { fromHex } from "@cosmjs/encoding";
-import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
-import { GasPrice } from "@cosmjs/stargate";
+import {fromHex} from "@cosmjs/encoding";
+import {DirectSecp256k1Wallet} from "@cosmjs/proto-signing";
+import {GasPrice} from "@cosmjs/stargate";
 
-import { Link, IbcClient } from "@confio/relayer/build";
-import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
+import {Endpoint, IbcClient, Link} from "@confio/relayer/build";
+import {buildCreateClientArgs, prepareConnectionHandshake} from "@confio/relayer/build/lib/ibcclient";
+import {orderFromJSON} from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
 
 // local imports.
-import ConsoleLogger from "./logger";
-
-const calcGasLimits = (limit: number) => ({
-	initClient: 150000,
-	updateClient: 600000,
-	initConnection: 150000,
-	connectionHandshake: limit,
-	initChannel: 150000,
-	channelHandshake: limit,
-	receivePacket: limit,
-	ackPacket: limit,
-	timeoutPacket: limit,
-	transfer: 180000,
-});
+import ConsoleLogger from './logger';
 
 type Chain = {
-	id: string;
-	account: string,
-	address_prefix: string;
-	rpc_address: string;
-	gas_price: string;
-	gas_limit: number;
+    id: string;
+    account: string,
+    address_prefix: string;
+    rpc_address: string;
+    gas_price: string;
+    client_id: string;
 };
 
 type Path = {
-	id: string;
-	ordering: string;
-	src: PathEnd;
-	dst: PathEnd;
+    id: string;
+    ordering: string;
+    src: PathEnd;
+    dst: PathEnd;
 };
 
 type PathEnd = {
-	chain_id: string;
-	connection_id: string;
-	channel_id: string;
-	port_id: string;
-	version: string;
-	packet_height: number;
-	ack_height: number;
+    chain_id: string;
+    connection_id: string;
+    channel_id: string;
+    port_id: string;
+    version: string;
+    packet_height?: number;
+    ack_height?: number;
 };
 
 export default class Relayer {
-	private defaultMaxAge: number = 86400;
+    private defaultMaxAge = 86400;
 
-	public async link([
-		path,
-		srcChain,
-		dstChain,
-		srcKey,
-		dstKey,
-	]: [ Path, Chain, Chain, string, string ]): Promise<Path> {
-		const srcClient = await this.getIBCClient(srcChain, srcKey);
-		const dstClient = await this.getIBCClient(dstChain, dstKey);
+    public async link([
+                          path,
+                          srcChain,
+                          dstChain,
+                          srcKey,
+                          dstKey,
+                      ]: [Path, Chain, Chain, string, string]): Promise<Path> {
+        const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
+        const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
+        const link = await Relayer.create(srcClient, dstClient, srcChain.client_id, dstChain.client_id);
 
-		const link = await Link.createWithNewConnections(srcClient, dstClient);
+        const channels = await link.createChannel(
+            'A',
+            path.src.port_id,
+            path.dst.port_id,
+            orderFromJSON(path.ordering),
+            path.dst.version
+        );
 
-		const channels = await link.createChannel(
-			"A",
-			path.src.port_id,
-			path.dst.port_id,
-			orderFromJSON(path.ordering),
-			path.dst.version,
-		);
+        path.src.channel_id = channels.src.channelId;
+        path.dst.channel_id = channels.dest.channelId;
+        path.src.connection_id = link.endA.connectionID;
+        path.dst.connection_id = link.endB.connectionID;
 
-		path.src.channel_id = channels.src.channelId;
-		path.dst.channel_id = channels.dest.channelId;
-		path.src.connection_id = link.endA.connectionID;
-		path.dst.connection_id = link.endB.connectionID;
+        return path;
+    }
 
-		return path;
-	}
+    public async start([
+                           path,
+                           srcChain,
+                           dstChain,
+                           srcKey,
+                           dstKey
+                       ]: [Path, Chain, Chain, string, string]): Promise<Path> {
+        const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
+        const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
 
-	public async start([
-		path,
-		srcChain,
-		dstChain,
-		srcKey,
-		dstKey,
-	]: [ Path, Chain, Chain, string, string ]): Promise<Path> {
-		const srcClient = await this.getIBCClient(srcChain, srcKey);
-		const dstClient = await this.getIBCClient(dstChain, dstKey);
+        const link = await Link.createWithExistingConnections(
+            srcClient,
+            dstClient,
+            path.src.connection_id,
+            path.dst.connection_id,
+            new ConsoleLogger()
+        );
 
-		const link = await Link.createWithExistingConnections(
-			srcClient,
-			dstClient,
-			path.src.connection_id,
-			path.dst.connection_id,
-			new ConsoleLogger(),
-		);
+        const heights = await link.checkAndRelayPacketsAndAcks(
+            {
+                packetHeightA: path.src.packet_height,
+                packetHeightB: path.dst.packet_height,
+                ackHeightA: path.src.ack_height,
+                ackHeightB: path.dst.ack_height
+            } ?? {},
+            2,
+            6
+        );
 
-		const heights = await link.checkAndRelayPacketsAndAcks(
-			{
-				packetHeightA: path.src.packet_height,
-				packetHeightB: path.dst.packet_height,
-				ackHeightA: path.src.ack_height,
-				ackHeightB: path.dst.ack_height,
-			} ?? {},
-			2,
-			6
-		);
+        await link.updateClientIfStale('A', this.defaultMaxAge);
+        await link.updateClientIfStale('B', this.defaultMaxAge);
 
-		await link.updateClientIfStale("A", this.defaultMaxAge);
-		await link.updateClientIfStale("B", this.defaultMaxAge);
+        path.src.packet_height = heights.packetHeightA;
+        path.dst.packet_height = heights.packetHeightB;
+        path.src.ack_height = heights.ackHeightA;
+        path.dst.ack_height = heights.ackHeightB;
 
-		path.src.packet_height = heights.packetHeightA;
-		path.dst.packet_height = heights.packetHeightB;
-		path.src.ack_height = heights.ackHeightA;
-		path.dst.ack_height = heights.ackHeightB;
+        return path;
+    }
 
-		return path;
-	}
+    private static async getIBCClient(chain: Chain, key: string): Promise<IbcClient> {
+        const chainGP = GasPrice.fromString(chain.gas_price);
+        const signer = await DirectSecp256k1Wallet.fromKey(fromHex(key), chain.address_prefix);
 
-	private async getIBCClient(chain: Chain, key: string): Promise<IbcClient> {
-		let chainGP = GasPrice.fromString(chain.gas_price);
-		let signer = await DirectSecp256k1Wallet.fromKey(fromHex(key), chain.address_prefix);
+        const [account] = await signer.getAccounts();
 
-		const [account] = await signer.getAccounts();
+        return await IbcClient.connectWithSigner(
+            chain.rpc_address,
+            signer,
+            account.address,
+            {
+                prefix: chain.address_prefix,
+                gasPrice: chainGP
+            }
+        );
+    }
 
-		const client = await IbcClient.connectWithSigner(
-			chain.rpc_address,
-			signer,
-			account.address,
-			{
-				prefix: chain.address_prefix,
-				gasPrice: chainGP,
-				gasLimits: calcGasLimits(chain.gas_limit),
-			}
-		);
+    private static async create(
+        nodeA: IbcClient,
+        nodeB: IbcClient,
+        clientA: string,
+        clientB: string
+    ): Promise<Link> {
+        let dstClientID = clientB;
+        if (!clientB) {
+            const args = await buildCreateClientArgs(nodeA);
+            const {clientId: clientId} = await nodeB.createTendermintClient(
+                args.clientState,
+                args.consensusState
+            );
+            dstClientID = clientId;
+        }
 
-		return client;
-	}
+        let srcClientID = clientA;
+        if (!clientA) {
+            // client on A pointing to B
+            const args2 = await buildCreateClientArgs(nodeB);
+            const {clientId: clientId} = await nodeA.createTendermintClient(
+                args2.clientState,
+                args2.consensusState
+            );
+            srcClientID = clientId;
+        }
+
+        // wait a block to ensure we have proper proofs for creating a connection (this has failed on CI before)
+        await Promise.all([nodeA.waitOneBlock(), nodeB.waitOneBlock()]);
+
+        // connectionInit on nodeA
+        const {connectionId: connIdA} = await nodeA.connOpenInit(
+            srcClientID,
+            dstClientID
+        );
+
+        // connectionTry on nodeB
+        const proof = await prepareConnectionHandshake(
+            nodeA,
+            nodeB,
+            srcClientID,
+            dstClientID,
+            connIdA
+        );
+
+        const {connectionId: connIdB} = await nodeB.connOpenTry(dstClientID, proof);
+
+        // connectionAck on nodeA
+        const proofAck = await prepareConnectionHandshake(
+            nodeB,
+            nodeA,
+            dstClientID,
+            srcClientID,
+            connIdB
+        );
+        await nodeA.connOpenAck(connIdA, proofAck);
+
+        // connectionConfirm on dest
+        const proofConfirm = await prepareConnectionHandshake(
+            nodeA,
+            nodeB,
+            srcClientID,
+            dstClientID,
+            connIdA
+        );
+        await nodeB.connOpenConfirm(connIdB, proofConfirm);
+
+        const endA = new Endpoint(nodeA, srcClientID, connIdA);
+        const endB = new Endpoint(nodeB, dstClientID, connIdB);
+
+        return new Link(endA, endB, new ConsoleLogger());
+    }
 }

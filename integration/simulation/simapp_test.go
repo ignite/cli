@@ -1,53 +1,52 @@
 //go:build !relayer
-// +build !relayer
 
 package simulation_test
 
 import (
 	"testing"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/integration"
 )
 
 func TestGenerateAnAppAndSimulate(t *testing.T) {
 	var (
-		env  = envtest.New(t)
-		path = env.Scaffold("blog")
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog")
 	)
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "foo", "foobar"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "foo", "foobar"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "baz", "foobar"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "baz", "foobar"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "noSimapp", "foobar", "--no-simulation"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "noSimapp", "foobar", "--no-simulation"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "msgFoo", "foobar"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "msgFoo", "foobar"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("scaffold a new module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "new_module"),
-			step.Workdir(path),
+			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "new_module"),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -57,14 +56,15 @@ func TestGenerateAnAppAndSimulate(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"map",
+				"--yes",
 				"bar",
 				"foobar",
 				"--module",
 				"new_module",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	env.Simulate(path, 100, 50)
+	app.Simulate(100, 50)
 }

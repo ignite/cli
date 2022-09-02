@@ -7,16 +7,14 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
-var (
-	goOuts = []string{
-		"--gocosmos_out=plugins=interfacetype+grpc,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
-		"--grpc-gateway_out=logtostderr=true:.",
-	}
-)
+var goOuts = []string{
+	"--gocosmos_out=plugins=interfacetype+grpc,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
+	"--grpc-gateway_out=logtostderr=true:.",
+}
 
 func (g *generator) generateGo() error {
 	includePaths, err := g.resolveInclude(g.appPath)

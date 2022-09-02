@@ -8,12 +8,11 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	"github.com/ignite-hq/cli/ignite/templates/typed"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
 )
 
 const msgServiceImport = `"github.com/cosmos/cosmos-sdk/types/msgservice"`
@@ -26,44 +25,24 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 		template = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/", opts.AppPath)
 	)
 
-	g.RunFn(handlerPatch(replacer, opts.AppPath, opts.ModuleName))
 	g.RunFn(codecPath(replacer, opts.AppPath, opts.ModuleName))
 
 	if err := g.Box(template); err != nil {
 		return g, err
 	}
+
+	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
-	ctx.Set("ownerName", opts.OwnerName)
-
-	// Used for proto package name
-	ctx.Set("formatOwnerName", xstrings.FormatUsername)
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
-}
-
-func handlerPatch(replacer placeholder.Replacer, appPath, moduleName string) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(appPath, "x", moduleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Add the msg server definition placeholder
-		old := "func NewHandler(k keeper.Keeper) sdk.Handler {"
-		new := fmt.Sprintf(`%v
-%v`, old, typed.PlaceholderHandlerMsgServer)
-		content := replacer.ReplaceOnce(f.String(), old, new)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
 }
 
 func codecPath(replacer placeholder.Replacer, appPath, moduleName string) genny.RunFn {

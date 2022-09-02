@@ -7,8 +7,9 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
@@ -46,16 +47,16 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// RPC service
 		templateRPC := `// Queries a list of %[2]v items.
 	rpc %[2]v(Query%[2]vRequest) returns (Query%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v%[7]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v%[6]v";
 	}
 
 %[1]v`
+		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			Placeholder2,
 			opts.QueryName.UpperCamel,
-			opts.OwnerName,
-			opts.AppName,
+			appModulePath,
 			opts.ModuleName,
 			opts.QueryName.Snake,
 			reqPath,
