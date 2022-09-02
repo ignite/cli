@@ -1,5 +1,9 @@
 package v1
 
+import (
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
+)
+
 // Validator holds info related to validator settings.
 type Validator struct {
 	// Name is the name of the validator.
@@ -9,13 +13,13 @@ type Validator struct {
 	Bonded string `yaml:"bonded"`
 
 	// App overwrites appd's config/app.toml configs.
-	App map[string]interface{} `yaml:"app,omitempty"`
+	App xyaml.Map `yaml:"app,omitempty"`
 
 	// Config overwrites appd's config/config.toml configs.
-	Config map[string]interface{} `yaml:"config,omitempty"`
+	Config xyaml.Map `yaml:"config,omitempty"`
 
 	// Client overwrites appd's config/client.toml configs.
-	Client map[string]interface{} `yaml:"client,omitempty"`
+	Client xyaml.Map `yaml:"client,omitempty"`
 
 	// Home overwrites default home directory used for the app
 	Home string `yaml:"home,omitempty"`
