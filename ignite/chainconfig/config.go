@@ -117,6 +117,9 @@ type Client struct {
 	// TSClient configures code generation for Typescript Client.
 	Typescript Typescript `yaml:"typescript"`
 
+	// Vuex configures code generation for Vuex stores.
+	Vuex Typescript `yaml:"vuex"`
+
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart"`
 
@@ -127,6 +130,12 @@ type Client struct {
 // TSClient configures code generation for Typescript Client.
 type Typescript struct {
 	// Path configures out location for generated Typescript Client code.
+	Path string `yaml:"path"`
+}
+
+// Vuex configures code generation for Vuex stores.
+type Vuex struct {
+	// Path configures out location for generated Vuex stores code.
 	Path string `yaml:"path"`
 }
 
