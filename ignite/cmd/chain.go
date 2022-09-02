@@ -98,10 +98,9 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	session := cliui.New()
 	defer session.Cleanup()
 
+	appPath := flagGetPath(cmd)
 	configPath := getConfig(cmd)
 	if configPath == "" {
-		appPath := flagGetPath(cmd)
-
 		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
 			return err
 		}
@@ -118,7 +117,6 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	}
 
 	// Config files with older versions must be migrated to the latest before executing the command
-	// TODO: Check if there are uncommitted changes before migrating
 	if version != chainconfig.LatestVersion {
 		if !getYes(cmd) {
 			// Confirm before overwritting the config file
@@ -128,6 +126,11 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
 				}
 
+				return err
+			}
+
+			// Confirm before migrating the config if there are uncommitted changes
+			if err := confirmWhenUncommittedChanges(session, appPath); err != nil {
 				return err
 			}
 		} else {

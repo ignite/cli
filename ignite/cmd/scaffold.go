@@ -170,29 +170,30 @@ func scaffoldType(
 }
 
 func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
-	if !getYes(cmd) {
-		appPath := flagGetPath(cmd)
-
-		return confirmWhenUncommittedChanges(appPath)
+	// Don't confirm when the "--yes" flag is present
+	if getYes(cmd) {
+		return nil
 	}
 
-	return nil
+	appPath := flagGetPath(cmd)
+	session := cliui.New()
+
+	defer session.Cleanup()
+
+	return confirmWhenUncommittedChanges(session, appPath)
 }
 
-func confirmWhenUncommittedChanges(appPath string) error {
+func confirmWhenUncommittedChanges(session cliui.Session, appPath string) error {
 	cleanState, err := xgit.AreChangesCommitted(appPath)
 	if err != nil {
 		return err
 	}
 
 	if !cleanState {
-		session := cliui.New()
-		defer session.Cleanup()
-
-		question := "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes"
+		question := "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed without committing your saved changes"
 		if err := session.AskConfirm(question); err != nil {
 			if errors.Is(err, promptui.ErrAbort) {
-				return errors.New("said no")
+				return errors.New("No")
 			}
 
 			return err
