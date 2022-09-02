@@ -32,6 +32,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
+	github.com/ignite/modules v0.0.0-20220902170741-2fe488ab070c
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.7.7
 	github.com/manifoldco/promptui v0.9.0
@@ -237,7 +238,7 @@ require (
 	golang.org/x/net v0.0.0-20220726230323-06994584191e // indirect
 	golang.org/x/sys v0.0.0-20220727055044-e65921a090b8 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/genproto v0.0.0-20220805133916-01dd62135a58 // indirect
+	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

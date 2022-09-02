@@ -2,10 +2,12 @@ package cosmosclient
 
 import (
 	"context"
+	"strings"
+
+	ignterrors "github.com/ignite/modules/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type TxService struct {
@@ -45,7 +47,7 @@ func (s TxService) Broadcast() (Response, error) {
 	}
 
 	resp, err := s.clientContext.BroadcastTx(txBytes)
-	if err == sdkerrortypes.ErrInsufficientFunds {
+	if strings.Contains(err.Error(), ignterrors.ErrInsufficientFunds.Error()) {
 		err = s.client.makeSureAccountHasTokens(context.Background(), accountAddress.String())
 		if err != nil {
 			return Response{}, err

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,8 +16,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
-	sdkerrortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
+	ignterrors "github.com/ignite/modules/errors"
 )
 
 const (
@@ -271,10 +272,10 @@ func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
 	record, err := r.Keyring.Key(name)
-	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrortypes.ErrKeyNotFound) {
-		return Account{}, &AccountDoesNotExistError{name}
-	}
 	if err != nil {
+		if errors.Is(err, dkeyring.ErrKeyNotFound) || strings.Contains(err.Error(), ignterrors.ErrKeyNotFound.Error()) {
+			return Account{}, &AccountDoesNotExistError{name}
+		}
 		return Account{}, err
 	}
 
@@ -292,13 +293,16 @@ func (r Registry) GetByAddress(address string) (Account, error) {
 	if err != nil {
 		return Account{}, err
 	}
+
 	record, err := r.Keyring.KeyByAddress(sdkAddr)
-	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrortypes.ErrKeyNotFound) {
-		return Account{}, &AccountDoesNotExistError{address}
-	}
 	if err != nil {
+		if errors.Is(err, dkeyring.ErrKeyNotFound) || strings.Contains(err.Error(), ignterrors.ErrKeyNotFound.Error()) {
+			return Account{}, &AccountDoesNotExistError{address}
+		}
 		return Account{}, err
+
 	}
+
 	return Account{
 		Name:   record.Name,
 		Record: record,
