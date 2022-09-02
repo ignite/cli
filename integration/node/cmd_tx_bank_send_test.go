@@ -132,6 +132,11 @@ func TestNodeTxBankSend(t *testing.T) {
 			return
 		}
 
+		bobAddr, err := bobAccount.Address(testPrefix)
+		require.NoError(t, err)
+		aliceAddr, err := aliceAccount.Address(testPrefix)
+		require.NoError(t, err)
+
 		env.Exec("send 2stake from bob to alice using addresses",
 			step.NewSteps(step.New(
 				step.Exec(
@@ -140,8 +145,8 @@ func TestNodeTxBankSend(t *testing.T) {
 					"tx",
 					"bank",
 					"send",
-					bobAccount.Address(testPrefix),
-					aliceAccount.Address(testPrefix),
+					bobAddr,
+					aliceAddr,
 					"2stake",
 					"--node", node,
 					"--keyring-dir", accKeyringDir,
@@ -163,7 +168,7 @@ func TestNodeTxBankSend(t *testing.T) {
 					"bank",
 					"send",
 					"alice",
-					bobAccount.Address(testPrefix),
+					bobAddr,
 					"5token",
 					"--node", node,
 					"--keyring-dir", accKeyringDir,
@@ -244,7 +249,7 @@ func TestNodeTxBankSend(t *testing.T) {
 
 		require.Contains(t, b.String(),
 			fmt.Sprintf(`"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"%s","to_address":"%s","amount":[{"denom":"token","amount":"5"}]}]`,
-				aliceAccount.Address(testPrefix), bobAccount.Address(testPrefix)),
+				aliceAddr, bobAddr),
 		)
 		require.Contains(t, b.String(), `"signatures":[]`)
 

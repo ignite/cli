@@ -1,0 +1,18 @@
+name: Changelog Enforcer
+on:
+  pull_request:
+    # The specific activity types are listed here to include "labeled" and "unlabeled"
+    # (which are not included by default for the "pull_request" trigger).
+    # This is needed to allow skipping enforcement of the changelog in PRs with specific labels,
+    # as defined in the (optional) "skipLabels" property.
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: dangoslen/changelog-enforcer@v3
+      with:
+        changeLogPath: 'changelog.md'
+        missingUpdateErrorMessage: 'Please fill the changelog.md file or add the "Skip-Changelog" label'
+        versionPattern: ''
