@@ -46,7 +46,6 @@ func TestToChainLaunch(t *testing.T) {
 				SourceURL:       "bar.com",
 				SourceHash:      "0xbbb",
 				LaunchTriggered: true,
-				LaunchTimestamp: 100,
 				InitialGenesis: launchtypes.NewGenesisURL(
 					"genesisfoo.com",
 					"0xccc",

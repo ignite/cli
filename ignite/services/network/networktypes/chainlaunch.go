@@ -33,11 +33,6 @@ func (n NetworkType) String() string {
 
 // ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
 func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
-	var launchTime int64
-	if chain.LaunchTriggered {
-		launchTime = chain.LaunchTimestamp
-	}
-
 	network := NetworkTypeTestnet
 	if chain.IsMainnet {
 		network = NetworkTypeMainnet
@@ -49,7 +44,6 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		ChainID:                chain.GenesisChainID,
 		SourceURL:              chain.SourceURL,
 		SourceHash:             chain.SourceHash,
-		LaunchTime:             launchTime,
 		CampaignID:             chain.CampaignID,
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,

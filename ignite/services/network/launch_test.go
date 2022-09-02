@@ -41,9 +41,8 @@ func TestTriggerLaunch(t *testing.T) {
 			On("BroadcastTx",
 				account,
 				&launchtypes.MsgTriggerLaunch{
-					Coordinator:   addr,
-					LaunchID:      testutil.LaunchID,
-					RemainingTime: TestMaxRemainingTime,
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
 				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunchResponse{}), nil).
 			Once()
@@ -123,9 +122,8 @@ func TestTriggerLaunch(t *testing.T) {
 			On("BroadcastTx",
 				account,
 				&launchtypes.MsgTriggerLaunch{
-					Coordinator:   addr,
-					LaunchID:      testutil.LaunchID,
-					RemainingTime: TestMaxRemainingTime,
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
 				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunch{}), expectedError).
 			Once()
@@ -156,9 +154,8 @@ func TestTriggerLaunch(t *testing.T) {
 			On("BroadcastTx",
 				account,
 				&launchtypes.MsgTriggerLaunch{
-					Coordinator:   addr,
-					LaunchID:      testutil.LaunchID,
-					RemainingTime: TestMaxRemainingTime,
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
 				}).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{}), expectedError).
 			Once()
