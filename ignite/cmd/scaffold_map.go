@@ -13,7 +13,7 @@ const (
 // NewScaffoldMap returns a new command to scaffold a map.
 func NewScaffoldMap() *cobra.Command {
 	c := &cobra.Command{
-		Use: "map NAME [field]...",
+		Use:   "map NAME [field]...",
 		Short: "CRUD for data stored as key-value pairs",
 		Long: `The "map" scaffolding command is used to generate files that implement the logic
 for storing and interacting with data stored as key-value pairs (or a
