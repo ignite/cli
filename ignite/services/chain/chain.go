@@ -10,7 +10,6 @@ import (
 	"github.com/gookit/color"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	configv1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
@@ -237,7 +236,7 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*configv1.Config, error) {
+func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
 		return chainconfig.DefaultConfig(), nil

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 
 func TestValidatorGetServers(t *testing.T) {
@@ -38,19 +39,19 @@ func TestValidatorGetServers(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
-	require.EqualValues(t, want, s)
+	require.Equal(t, want, s)
 }
 
 func TestValidatorSetServers(t *testing.T) {
 	// Arrange
 	v := v1.Validator{}
 	s := v1.DefaultServers()
-	wantApp := map[string]interface{}{
+	wantApp := xyaml.Map{
 		"grpc":     map[string]interface{}{"address": s.GRPC.Address},
 		"grpc-web": map[string]interface{}{"address": s.GRPCWeb.Address},
 		"api":      map[string]interface{}{"address": s.API.Address},
 	}
-	wantConfig := map[string]interface{}{
+	wantConfig := xyaml.Map{
 		"p2p": map[string]interface{}{"laddr": s.P2P.Address},
 		"rpc": map[string]interface{}{
 			"laddr":       s.RPC.Address,
@@ -63,6 +64,6 @@ func TestValidatorSetServers(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
-	require.EqualValues(t, wantApp, v.App, "cosmos app config is not equal")
-	require.EqualValues(t, wantConfig, v.Config, "tendermint config is not equal")
+	require.Equal(t, wantApp, v.App, "cosmos app config is not equal")
+	require.Equal(t, wantConfig, v.Config, "tendermint config is not equal")
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -179,7 +180,7 @@ func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 	port, err := availableport.Find(1)
 	require.NoError(a.env.t, err)
 
-	a.EditConfig(func(c *v1.Config) {
+	a.EditConfig(func(c *chainconfig.Config) {
 		c.Faucet.Port = port[0]
 		c.Faucet.Coins = coins
 		c.Faucet.CoinsMax = coinsMax
@@ -211,7 +212,7 @@ func (a App) RandomizeServerPorts() Hosts {
 		API:     genAddr(ports[5]),
 	}
 
-	a.EditConfig(func(c *v1.Config) {
+	a.EditConfig(func(c *chainconfig.Config) {
 		v := &c.Validators[0]
 
 		s := v1.Servers{}
@@ -233,19 +234,19 @@ func (a App) RandomizeServerPorts() Hosts {
 func (a App) UseRandomHomeDir() (homeDirPath string) {
 	dir := a.env.TmpDir()
 
-	a.EditConfig(func(c *v1.Config) {
+	a.EditConfig(func(c *chainconfig.Config) {
 		c.Validators[0].Home = dir
 	})
 
 	return dir
 }
 
-func (a App) EditConfig(apply func(*v1.Config)) {
+func (a App) EditConfig(apply func(*chainconfig.Config)) {
 	f, err := os.OpenFile(a.configPath, os.O_RDWR|os.O_CREATE, 0o755)
 	require.NoError(a.env.t, err)
 	defer f.Close()
 
-	var cfg v1.Config
+	var cfg chainconfig.Config
 	require.NoError(a.env.t, yaml.NewDecoder(f).Decode(&cfg))
 
 	apply(&cfg)

@@ -39,7 +39,7 @@ func TestParse(t *testing.T) {
 
 	// Assert: Parse must return the latest version
 	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
-	require.EqualValues(t, testdata.GetLatestConfig(t), cfg)
+	require.Equal(t, testdata.GetLatestConfig(t), cfg)
 }
 
 func TestParseWithCurrentVersion(t *testing.T) {
@@ -52,7 +52,7 @@ func TestParseWithCurrentVersion(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
-	require.EqualValues(t, testdata.GetLatestConfig(t), cfg)
+	require.Equal(t, testdata.GetLatestConfig(t), cfg)
 }
 
 func TestParseWithUnknownVersion(t *testing.T) {

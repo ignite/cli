@@ -3,9 +3,9 @@ package testdata
 import (
 	"testing"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/chainconfig/config"
 	v0testdata "github.com/ignite/cli/ignite/chainconfig/v0/testdata"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	v1testdata "github.com/ignite/cli/ignite/chainconfig/v1/testdata"
 )
 
@@ -14,6 +14,6 @@ var Versions = map[config.Version][]byte{
 	1: v1testdata.ConfigYAML,
 }
 
-func GetLatestConfig(t *testing.T) *v1.Config {
+func GetLatestConfig(t *testing.T) *chainconfig.Config {
 	return v1testdata.GetConfig(t)
 }

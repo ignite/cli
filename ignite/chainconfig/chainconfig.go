@@ -24,7 +24,10 @@ var (
 	}
 )
 
+// Config defines the latest config.
+type Config = v1.Config
+
 // DefaultConfig returns a config for the latest version initialized with default values.
-func DefaultConfig() *v1.Config {
+func DefaultConfig() *Config {
 	return v1.DefaultConfig()
 }

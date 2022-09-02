@@ -9,7 +9,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
 
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -48,7 +48,7 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, cfg *v1.Config) error {
+func (p *stargatePlugin) Configure(homePath string, cfg *chainconfig.Config) error {
 	if err := p.appTOML(homePath, cfg); err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (p *stargatePlugin) Configure(homePath string, cfg *v1.Config) error {
 	return p.configTOML(homePath, cfg)
 }
 
-func (p *stargatePlugin) appTOML(homePath string, cfg *v1.Config) error {
+func (p *stargatePlugin) appTOML(homePath string, cfg *chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -105,7 +105,7 @@ func (p *stargatePlugin) appTOML(homePath string, cfg *v1.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, cfg *v1.Config) error {
+func (p *stargatePlugin) configTOML(homePath string, cfg *chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -152,7 +152,7 @@ func (p *stargatePlugin) configTOML(homePath string, cfg *v1.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) clientTOML(homePath string, cfg *v1.Config) error {
+func (p *stargatePlugin) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	path := filepath.Join(homePath, "config/client.toml")
 	config, err := toml.LoadFile(path)
 	if os.IsNotExist(err) {
@@ -180,7 +180,7 @@ func (p *stargatePlugin) clientTOML(homePath string, cfg *v1.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *v1.Config) error {
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
 	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {

@@ -10,13 +10,12 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/chainconfig/config"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 
 // Parse reads a config file.
 // When the version of the file beign read is not the latest
 // it is automatically migrated to the latest version.
-func Parse(configFile io.Reader) (*v1.Config, error) {
+func Parse(configFile io.Reader) (*Config, error) {
 	var buf bytes.Buffer
 
 	// Read the config file version first to know how to decode it
@@ -48,7 +47,7 @@ func Parse(configFile io.Reader) (*v1.Config, error) {
 }
 
 // ParseFile parses a config from a file path.
-func ParseFile(path string) (*v1.Config, error) {
+func ParseFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return DefaultConfig(), err
@@ -86,7 +85,7 @@ func LocateDefault(root string) (path string, err error) {
 }
 
 // FaucetHost returns the faucet host to use.
-func FaucetHost(cfg *v1.Config) string {
+func FaucetHost(cfg *Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
 	host := cfg.Faucet.Host
@@ -121,7 +120,7 @@ func decodeConfig(r io.Reader, version config.Version) (config.Converter, error)
 	return cfg, nil
 }
 
-func validateConfig(c *v1.Config) error {
+func validateConfig(c *Config) error {
 	if len(c.Accounts) == 0 {
 		return &ValidationError{"at least one account is required"}
 	}

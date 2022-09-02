@@ -4,6 +4,8 @@ import (
 	"io"
 
 	"github.com/imdario/mergo"
+
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 
 // Version defines the type for the config version number.
@@ -110,13 +112,13 @@ type Faucet struct {
 // Init overwrites sdk configurations with given values.
 type Init struct {
 	// App overwrites appd's config/app.toml configs.
-	App map[string]interface{} `yaml:"app"`
+	App xyaml.Map `yaml:"app"`
 
 	// Client overwrites appd's config/client.toml configs.
-	Client map[string]interface{} `yaml:"client"`
+	Client xyaml.Map `yaml:"client"`
 
 	// Config overwrites appd's config/config.toml configs.
-	Config map[string]interface{} `yaml:"config"`
+	Config xyaml.Map `yaml:"config"`
 
 	// Home overwrites default home directory used for the app
 	Home string `yaml:"home"`

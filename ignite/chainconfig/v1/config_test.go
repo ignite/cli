@@ -176,5 +176,5 @@ func TestClone(t *testing.T) {
 	c2 := c.Clone()
 
 	// Assert
-	require.EqualValues(t, c, c2)
+	require.Equal(t, c, c2)
 }
