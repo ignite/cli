@@ -183,8 +183,13 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		return relayerconf.Chain{}, "", err
 	}
 
+	addr, err := account.Address(chain.AddressPrefix)
+	if err != nil {
+		return relayerconf.Chain{}, "", err
+	}
+
 	errMissingBalance := fmt.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
-		account.Address(chain.AddressPrefix),
+		addr,
 		chain.Account,
 		chain.ID,
 	)
@@ -235,7 +240,10 @@ func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix
 		return nil, err
 	}
 
-	addr := acc.Address(addressPrefix)
+	addr, err := acc.Address(addressPrefix)
+	if err != nil {
+		return nil, err
+	}
 
 	queryClient := banktypes.NewQueryClient(client.Context())
 	res, err := queryClient.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{Address: addr})

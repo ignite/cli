@@ -5,11 +5,19 @@
 ### Changes
 
 - Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
+- Removed `handler.go` from scaffolded module template
+- Migrated to `cosmossdk.io` packages for `errors` and `math`
+
+### Fixes
+- Improved error handling for crypto wrapper functions
 
 ### Features
 
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 
+### Fixes
+
+- Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 

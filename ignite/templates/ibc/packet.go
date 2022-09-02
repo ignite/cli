@@ -69,7 +69,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	// Add the send message
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(replacer, opts))
-		g.RunFn(handlerTxModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(codecModify(replacer, opts))
 		if err := g.Box(messagesTemplate); err != nil {
@@ -331,32 +330,6 @@ message MsgSend%[2]vResponse {
 		)
 		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)
 
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Set once the MsgServer definition if it is not defined yet
-		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
-
-		templateHandlers := `case *types.MsgSend%[2]v:
-					res, err := msgServer.Send%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-%[1]v`
-		replacementHandlers := fmt.Sprintf(templateHandlers,
-			Placeholder,
-			opts.PacketName.UpperCamel,
-		)
-		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

@@ -33,7 +33,8 @@ func TestRegistry(t *testing.T) {
 	require.Equal(t, getAccount.Name, account.Name)
 	require.Equal(t, getAccount.Name, account.Record.Name)
 
-	addr = account.Address("cosmos")
+	addr, err = account.Address("cosmos")
+	require.NoError(t, err)
 	getAccount, err = registry.GetByAddress(addr)
 	require.NoError(t, err)
 	require.Equal(t, getAccount.Record.PubKey, account.Record.PubKey)
