@@ -2,17 +2,25 @@ package ignitecmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-var migrateMsg = `Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?`
+var (
+	migrationMsg       = "Migrating blockchain config file from v%d to v%d..."
+	migrationCancelMsg = "Stopping because config version v%d is required to run the command"
+	migrationPromptMsg = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
+)
 
 // NewChain returns a command that groups sub commands related to compiling, serving
 // blockchains and so on.
@@ -87,6 +95,9 @@ chain.
 }
 
 func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error) {
+	session := cliui.New()
+	defer session.Cleanup()
+
 	configPath := getConfig(cmd)
 	if configPath == "" {
 		appPath := flagGetPath(cmd)
@@ -107,23 +118,20 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	}
 
 	// Config files with older versions must be migrated to the latest before executing the command
+	// TODO: Check if there are uncommited changes before migrating
 	if version != chainconfig.LatestVersion {
-		// TODO: When "--yes" flag is present print a warning message to inform of config migration (cliui)?
-		// Confirm before overwritting the config file
 		if !getYes(cmd) {
-			confirmed := false
-			prompt := &survey.Confirm{
-				Message: fmt.Sprintf(migrateMsg, version, chainconfig.LatestVersion),
-			}
+			// Confirm before overwritting the config file
+			question := fmt.Sprintf(migrationPromptMsg, version, chainconfig.LatestVersion)
+			if err := session.AskConfirm(question); err != nil {
+				if errors.Is(err, promptui.ErrAbort) {
+					return fmt.Errorf(migrationCancelMsg, chainconfig.LatestVersion)
+				}
 
-			if err := survey.AskOne(prompt, &confirmed); err != nil {
 				return err
-			} else if !confirmed {
-				return fmt.Errorf(
-					"stopping because config version v%d is required to run the command",
-					chainconfig.LatestVersion,
-				)
 			}
+		} else {
+			session.Printf("%s %s\n", icons.Info, colors.Infof(migrationMsg, version, chainconfig.LatestVersion))
 		}
 
 		file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0755)
