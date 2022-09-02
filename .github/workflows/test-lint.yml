@@ -28,7 +28,7 @@ jobs:
       - uses: golangci/golangci-lint-action@master
         if: env.GIT_DIFF
         with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.45.2
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version, and the way to do that is to just use the word latest.
+          version: latest
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
