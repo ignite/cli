@@ -43,7 +43,7 @@ type Network struct {
 	stakingQuery            stakingtypes.QueryClient
 	bankQuery               banktypes.QueryClient
 	monitoringConsumerQuery monitoringctypes.QueryClient
-	monitoringProviderQuery monitoringptypes.QueryClient //nolint:unused
+	monitoringProviderQuery monitoringptypes.QueryClient
 }
 
 //go:generate mockery --name Chain --case underscore
