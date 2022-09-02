@@ -68,83 +68,74 @@ to send token from any other account that exists on chain.
 The "simulate" command helps you start a simulation testing process for your
 chain.
 `,
-		Aliases: []string{"c"},
-		Args:    cobra.ExactArgs(1),
+		Aliases:           []string{"c"},
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: configMigrationPreRunHandler,
 	}
 
-	c.AddCommand(addConfigMigrationVerifier(NewChainServe()))
-	c.AddCommand(addConfigMigrationVerifier(NewChainBuild()))
-	c.AddCommand(addConfigMigrationVerifier(NewChainInit()))
-	c.AddCommand(addConfigMigrationVerifier(NewChainFaucet()))
-	c.AddCommand(addConfigMigrationVerifier(NewChainSimulate()))
+	// Add flags required for the configMigrationPreRunHandler
+	c.PersistentFlags().AddFlagSet(flagSetConfig())
+	c.PersistentFlags().AddFlagSet(flagSetYes())
+
+	c.AddCommand(NewChainServe())
+	c.AddCommand(NewChainBuild())
+	c.AddCommand(NewChainInit())
+	c.AddCommand(NewChainFaucet())
+	c.AddCommand(NewChainSimulate())
 
 	return c
 }
 
-func addConfigMigrationVerifier(cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().AddFlagSet(flagSetConfig())
-	cmd.Flags().AddFlagSet(flagSetYes())
+func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error) {
+	configPath := getConfig(cmd)
+	if configPath == "" {
+		appPath := flagGetPath(cmd)
 
-	preRunFun := cmd.PreRunE
-	cmd.PreRunE = func(cmd *cobra.Command, args []string) (err error) {
-		if preRunFun != nil {
-			if err = preRunFun(cmd, args); err != nil {
-				return err
-			}
-		}
-
-		configPath := getConfig(cmd)
-		if configPath == "" {
-			appPath := flagGetPath(cmd)
-
-			if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
-				return err
-			}
-		}
-
-		rawCfg, err := ioutil.ReadFile(configPath)
-		if err != nil {
+		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
 			return err
 		}
-
-		version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
-		if err != nil {
-			return err
-		}
-
-		// Config files with older versions must be migrated to the latest before executing the command
-		if version != chainconfig.LatestVersion {
-			// TODO: When "--yes" flag is present print a warning message to inform of config migration (cliui)?
-			// Confirm before overwritting the config file
-			if !getYes(cmd) {
-				confirmed := false
-				prompt := &survey.Confirm{
-					Message: fmt.Sprintf(migrateMsg, version, chainconfig.LatestVersion),
-				}
-
-				if err := survey.AskOne(prompt, &confirmed); err != nil {
-					return err
-				} else if !confirmed {
-					return fmt.Errorf(
-						"stopping because config version v%d is required to run the command",
-						chainconfig.LatestVersion,
-					)
-				}
-			}
-
-			file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0755)
-			if err != nil {
-				return err
-			}
-
-			defer file.Close()
-
-			// Convert the current config to the latest version and update the YAML file
-			return chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
-		}
-
-		return nil
 	}
 
-	return cmd
+	rawCfg, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		return err
+	}
+
+	version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
+	if err != nil {
+		return err
+	}
+
+	// Config files with older versions must be migrated to the latest before executing the command
+	if version != chainconfig.LatestVersion {
+		// TODO: When "--yes" flag is present print a warning message to inform of config migration (cliui)?
+		// Confirm before overwritting the config file
+		if !getYes(cmd) {
+			confirmed := false
+			prompt := &survey.Confirm{
+				Message: fmt.Sprintf(migrateMsg, version, chainconfig.LatestVersion),
+			}
+
+			if err := survey.AskOne(prompt, &confirmed); err != nil {
+				return err
+			} else if !confirmed {
+				return fmt.Errorf(
+					"stopping because config version v%d is required to run the command",
+					chainconfig.LatestVersion,
+				)
+			}
+		}
+
+		file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0755)
+		if err != nil {
+			return err
+		}
+
+		defer file.Close()
+
+		// Convert the current config to the latest version and update the YAML file
+		return chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
+	}
+
+	return nil
 }
