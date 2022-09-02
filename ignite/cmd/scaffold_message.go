@@ -15,14 +15,17 @@ const flagSigner = "signer"
 // NewScaffoldMessage returns the command to scaffold messages
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "message [name] [field1] [field2] ...",
-		Short: "Message to perform state transition on the blockchain",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  messageHandler,
+		Use:     "message [name] [field1] [field2] ...",
+		Short:   "Message to perform state transition on the blockchain",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    messageHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")

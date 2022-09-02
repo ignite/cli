@@ -11,11 +11,15 @@ import (
 
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "vuex",
-		Short: "Generate Vuex store for you chain's frontend from your config.yml",
-		RunE:  generateVuexHandler,
+		Use:     "vuex",
+		Short:   "Generate Vuex store for you chain's frontend from your config.yml",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateVuexHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().AddFlagSet(flagSetYes())
+
 	return c
 }
 

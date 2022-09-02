@@ -13,14 +13,17 @@ const (
 // NewScaffoldMap returns a new command to scaffold a map.
 func NewScaffoldMap() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "map NAME [field]...",
-		Short: "CRUD for data stored as key-value pairs",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  scaffoldMapHandler,
+		Use:     "map NAME [field]...",
+		Short:   "CRUD for data stored as key-value pairs",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    scaffoldMapHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
 
