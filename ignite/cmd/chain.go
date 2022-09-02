@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	migrationMsg       = "Migrating blockchain config file from v%d to v%d..."
-	migrationCancelMsg = "Stopping because config version v%d is required to run the command"
-	migrationPromptMsg = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
+	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
+	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
+	msgMigrationPrompt = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -122,16 +122,16 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	if version != chainconfig.LatestVersion {
 		if !getYes(cmd) {
 			// Confirm before overwritting the config file
-			question := fmt.Sprintf(migrationPromptMsg, version, chainconfig.LatestVersion)
+			question := fmt.Sprintf(msgMigrationPrompt, version, chainconfig.LatestVersion)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(migrationCancelMsg, chainconfig.LatestVersion)
+					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
 				}
 
 				return err
 			}
 		} else {
-			session.Printf("%s %s\n", icons.Info, colors.Infof(migrationMsg, version, chainconfig.LatestVersion))
+			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, chainconfig.LatestVersion))
 		}
 
 		file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0755)
