@@ -12,7 +12,6 @@ import (
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/confile"
-	"github.com/ignite/cli/ignite/pkg/yaml"
 )
 
 const (
@@ -67,9 +66,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	// overwrite configuration changes from Ignite CLI's config.yml to
-	// over app's sdk configs.
-
+	// ovewrite app config files with the values defined in Ignite's config file
 	if err := c.plugin.Configure(home, conf); err != nil {
 		return err
 	}
@@ -79,52 +76,9 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		conf.Genesis["chain_id"] = chainID
 	}
 
-	// Initilize app config
-	genesisPath, err := c.GenesisPath()
-	if err != nil {
+	// update genesis file with the genesis values defined in the config
+	if err := c.updateGenesisFile(conf.Genesis); err != nil {
 		return err
-	}
-	appTOMLPath, err := c.AppTOMLPath()
-	if err != nil {
-		return err
-	}
-	clientTOMLPath, err := c.ClientTOMLPath()
-	if err != nil {
-		return err
-	}
-	configTOMLPath, err := c.ConfigTOMLPath()
-	if err != nil {
-		return err
-	}
-
-	validator := conf.Validators[0]
-	appconfigs := []struct {
-		ec      confile.EncodingCreator
-		path    string
-		changes map[string]interface{}
-	}{
-		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, validator.App},
-		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, validator.Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, validator.Config},
-	}
-
-	for _, ac := range appconfigs {
-		var conf map[string]interface{}
-
-		cf := confile.New(ac.ec, ac.path)
-		if err := cf.Load(&conf); err != nil {
-			return err
-		}
-
-		err := mergo.Merge(&conf, ac.changes, mergo.WithOverride, mergo.WithTransformers(yaml.MapIndexTransformer{}))
-		if err != nil {
-			return err
-		}
-
-		if err = cf.Save(conf); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -214,6 +168,29 @@ func (c *Chain) IsInitialized() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (c Chain) updateGenesisFile(data map[string]interface{}) error {
+	path, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+
+	genesis := make(map[string]interface{})
+	cf := confile.New(confile.DefaultJSONEncodingCreator, path)
+	if err := cf.Load(&genesis); err != nil {
+		return err
+	}
+
+	if err := mergo.Merge(&genesis, data, mergo.WithOverride); err != nil {
+		return err
+	}
+
+	if err = cf.Save(genesis); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type Validator struct {
