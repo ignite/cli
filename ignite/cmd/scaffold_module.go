@@ -202,10 +202,8 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	_, err = io.Copy(cmd.OutOrStdout(), &msg)
-	if err != nil {
-		return err
-	}
-	return nil
+	
+	return err
 }
 
 // in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
