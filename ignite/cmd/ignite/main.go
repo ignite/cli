@@ -8,12 +8,10 @@ import (
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	"github.com/ignite/cli/ignite/pkg/clictx"
-	"github.com/ignite/cli/ignite/pkg/cosmoscmd"
 	"github.com/ignite/cli/ignite/pkg/validation"
 )
 
 func main() {
-	_ = cosmoscmd.EncodingConfig{}
 	ctx := clictx.From(context.Background())
 
 	err := ignitecmd.New().ExecuteContext(ctx)

@@ -101,8 +101,8 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/ignite/cli/ignite/pkg/cosmoscmd"
-	"github.com/ignite/cli/ignite/pkg/openapiconsole"
+	"github.com/ignite/modules/cosmoscmd"
+	"github.com/ignite/modules/openapiconsole"
 
 	"<%= ModulePath %>/docs"
 

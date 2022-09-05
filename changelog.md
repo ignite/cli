@@ -7,6 +7,7 @@
 - Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
 - Removed `handler.go` from scaffolded module template
 - Migrated to `cosmossdk.io` packages for `errors` and `math`
+- Remove ignite/cli dependency from scaffolded chains
 
 ### Fixes
 - Improved error handling for crypto wrapper functions

@@ -3,10 +3,9 @@ package main
 import (
 	"os"
 
-    svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+  svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"<%= ModulePath %>/app"
-	"github.com/ignite/cli/ignite/pkg/cosmoscmd"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/modules/cosmoscmd"
 )
 
 func main() {
@@ -14,7 +13,7 @@ func main() {
         app.Name,
         app.AccountAddressPrefix,
         app.DefaultNodeHome,
-        xstrings.NoDash(app.Name),
+        strings.ReplaceAll(app.Name, "-", ""),
         app.ModuleBasics,
         app.New,
         // this line is used by starport scaffolding # root/arguments
