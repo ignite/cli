@@ -15,6 +15,9 @@
 
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 
+### Fixes
+
+- Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
