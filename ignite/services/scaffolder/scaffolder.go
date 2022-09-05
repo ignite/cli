@@ -105,7 +105,7 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				cosmosgen.VuexStoreModulePath(storeRootPath),
+				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)

@@ -9,8 +9,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 )
 
-func TestVuexStoreModulePath(t *testing.T) {
-	modulePath := VuexStoreModulePath("prefix")
+func TestTypescriptModulePath(t *testing.T) {
+	modulePath := TypescriptModulePath("prefix")
 
 	cases := []struct {
 		name         string

@@ -1,6 +1,6 @@
-import { Client, registry, MissingWalletError } from '{{ .User }}-{{ .Repo }}-client-ts'
+import { Client, registry, MissingWalletError } from '{{ .PackageNS }}-client-ts'
 
-{{ range .Module.Types }}import { {{ .Name }} } from "{{ $.User }}-{{ $.Repo }}-client-ts/{{ $.Module.Pkg.Name }}/types"
+{{ range .Module.Types }}import { {{ .Name }} } from "{{ $.PackageNS }}-client-ts/{{ $.Module.Pkg.Name }}/types"
 {{ end }}
 
 export { {{ range $i,$type:=.Module.Types }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };

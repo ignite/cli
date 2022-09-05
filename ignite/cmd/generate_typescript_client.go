@@ -1,12 +1,10 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
-	"github.com/ignite-hq/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 func NewGenerateTSClient() *cobra.Command {
@@ -20,20 +18,27 @@ func NewGenerateTSClient() *cobra.Command {
 }
 
 func generateTSClientHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Generating...")
-	defer s.Stop()
+	session := cliui.New()
+	defer session.Cleanup()
+
+	session.StartSpinner("Generating...")
 
 	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
 	if err != nil {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), chain.GenerateTSClient()); err != nil {
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
 		return err
 	}
 
-	s.Stop()
-	fmt.Println("⛏️  Generated Typescript Client")
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient()); err != nil {
+		return err
+	}
+
+	session.StopSpinner()
+	session.Println("⛏️  Generated Typescript Client")
 
 	return nil
 }

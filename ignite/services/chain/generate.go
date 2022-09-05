@@ -13,7 +13,7 @@ import (
 
 const (
 	defaultTSClientPath = "ts-client"
-	defaultVuexPath     = "vue/src/store/generated"
+	defaultVuexPath     = "vue/src/store"
 	defaultDartPath     = "flutter/lib"
 	defaultOpenAPIPath  = "docs/static/openapi.yml"
 )
@@ -136,14 +136,14 @@ func (c *Chain) Generate(
 		}
 
 		tsClientRootPath := filepath.Join(c.app.Path, tsClientPath)
-		if err := os.MkdirAll(tsClientRootPath, 0766); err != nil {
+		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
 				enableThirdPartyModuleCodegen,
-				cosmosgen.VuexStoreModulePath(tsClientRootPath),
+				cosmosgen.TypescriptModulePath(tsClientRootPath),
 				tsClientRootPath,
 			),
 		)
@@ -163,7 +163,7 @@ func (c *Chain) Generate(
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				cosmosgen.VuexStoreModulePath(storeRootPath),
+				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
@@ -171,7 +171,6 @@ func (c *Chain) Generate(
 
 	if targetOptions.isDartEnabled {
 		dartPath := conf.Client.Dart.Path
-
 		if dartPath == "" {
 			dartPath = defaultDartPath
 		}

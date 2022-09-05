@@ -1,49 +1,33 @@
 package cosmosgen
 
 import (
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/giturl"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-
 	"os"
-	"path/filepath"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
+
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 type vuexGenerator struct {
 	g *generator
 }
 
-type generateVuexPayload struct {
-	Modules []module.Module
-	User    string ``
-	Repo    string ``
-}
-
 func newVuexGenerator(g *generator) *vuexGenerator {
-	return &vuexGenerator{
-		g: g,
-	}
+	return &vuexGenerator{g}
 }
 
 func (g *generator) generateVuex() error {
-	vsg := newVuexGenerator(g)
-
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
 	}
 
-	chainInfo, err := giturl.Parse(chainPath.RawPath)
-	if err != nil {
-		return err
-	}
-
+	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	data := generatePayload{
-		Modules: g.appModules,
-		User:    chainInfo.User,
-		Repo:    chainInfo.Repo,
+		Modules:   g.appModules,
+		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
 	if g.o.jsIncludeThirdParty {
@@ -52,61 +36,50 @@ func (g *generator) generateVuex() error {
 		}
 	}
 
+	vsg := newVuexGenerator(g)
 	if err := vsg.generateVueTemplates(data); err != nil {
 		return err
 	}
 
-	if err := vsg.generateRootTemplates(data); err != nil {
-		return err
-	}
-
-	return nil
+	return vsg.generateRootTemplates(data)
 }
 
-func (g *vuexGenerator) generateVueTemplates(payload generatePayload) error {
+func (g *vuexGenerator) generateVueTemplates(p generatePayload) error {
 	gg := &errgroup.Group{}
 
-	generate := func() {
-		for _, m := range payload.Modules {
+	func() {
+		for _, m := range p.Modules {
 			m := m
 
 			gg.Go(func() error {
-				vueAPIOut := filepath.Join(g.g.o.vuexRootPath, m.Pkg.Name)
-
-				if err := os.MkdirAll(vueAPIOut, 0766); err != nil {
-					return err
-				}
-
-				if err := templateTSClientVue.Write(vueAPIOut, "", struct {
-					Module module.Module
-					User   string
-					Repo   string
-				}{
-					Module: m,
-					User:   payload.User,
-					Repo:   payload.Repo,
-				}); err != nil {
-					return err
-				}
-
-				return nil
+				return g.generateVueTemplate(m, p)
 			})
 		}
-	}
-
-	generate()
+	}()
 
 	return gg.Wait()
 }
 
-func (g *vuexGenerator) generateRootTemplates(payload generatePayload) error {
-	vueOut := filepath.Join(g.g.o.vuexRootPath)
-	if err := os.MkdirAll(vueOut, 0766); err != nil {
-		return err
-	}
-	if err := templateTSClientVueRoot.Write(vueOut, "", payload); err != nil {
+func (g *vuexGenerator) generateVueTemplate(m module.Module, p generatePayload) error {
+	outDir := g.g.o.jsOut(m)
+	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
 
-	return nil
+	return templateTSClientVue.Write(outDir, "", struct {
+		Module    module.Module
+		PackageNS string
+	}{
+		Module:    m,
+		PackageNS: p.PackageNS,
+	})
+}
+
+func (g *vuexGenerator) generateRootTemplates(p generatePayload) error {
+	outDir := g.g.o.vuexRootPath
+	if err := os.MkdirAll(outDir, 0o766); err != nil {
+		return err
+	}
+
+	return templateTSClientVueRoot.Write(outDir, "", p)
 }

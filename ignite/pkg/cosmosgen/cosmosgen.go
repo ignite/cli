@@ -48,6 +48,7 @@ func WithTSClientGeneration(includeThirdPartyModules bool, out ModulePathFunc, t
 		o.tsClientRootPath = tsClientRootPath
 	}
 }
+
 func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
 		o.vuexOut = out
@@ -55,6 +56,7 @@ func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, vuexR
 		o.vuexRootPath = vuexRootPath
 	}
 }
+
 func WithDartGeneration(includeThirdPartyModules bool, out ModulePathFunc, rootPath string) Option {
 	return func(o *generateOptions) {
 		o.dartOut = out
@@ -154,9 +156,9 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	return nil
 }
 
-// VuexStoreModulePath generates Vuex store module paths for Cosmos SDK modules.
+// TypescriptModulePath generates module paths for Cosmos SDK modules.
 // The root path is used as prefix for the generated paths.
-func VuexStoreModulePath(rootPath string) ModulePathFunc {
+func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		appModulePath := gomodulepath.ExtractAppPath(m.GoModulePath)
 		return filepath.Join(rootPath, appModulePath, m.Pkg.Name, "module")
