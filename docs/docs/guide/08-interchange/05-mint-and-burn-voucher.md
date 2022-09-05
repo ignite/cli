@@ -27,11 +27,12 @@ Create a new `x/dex/keeper/mint.go` file:
 package keeper
 
 import (
-  "fmt"
-  "strings"
+   "fmt"
+   "strings"
 
-  sdk "github.com/cosmos/cosmos-sdk/types"
-  ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+   sdkmath "cosmossdk.io/math"
+   sdk "github.com/cosmos/cosmos-sdk/types"
+   ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
   "interchange/x/dex/types"
 )
@@ -45,12 +46,12 @@ func isIBCToken(denom string) bool {
 func (k Keeper) SafeBurn(ctx sdk.Context, port string, channel string, sender sdk.AccAddress, denom string, amount int32) error {
   if isIBCToken(denom) {
     // Burn the tokens
-    if err := k.BurnTokens(ctx, sender, sdk.NewCoin(denom, sdk.NewInt(int64(amount)))); err != nil {
+    if err := k.BurnTokens(ctx, sender, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
       return err
     }
   } else {
     // Lock the tokens
-    if err := k.LockTokens(ctx, port, channel, sender, sdk.NewCoin(denom, sdk.NewInt(int64(amount)))); err != nil {
+    if err := k.LockTokens(ctx, port, channel, sender, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
       return err
     }
   }
@@ -215,7 +216,7 @@ Go back to the `x/dex/keeper/mint.go` file and add the following code:
 func (k Keeper) SafeMint(ctx sdk.Context, port string, channel string, receiver sdk.AccAddress, denom string, amount int32) error {
 	if isIBCToken(denom) {
 		// Mint IBC tokens
-		if err := k.MintTokens(ctx, receiver, sdk.NewCoin(denom, sdk.NewInt(int64(amount)))); err != nil {
+		if err := k.MintTokens(ctx, receiver, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
 			return err
 		}
 	} else {
@@ -225,7 +226,7 @@ func (k Keeper) SafeMint(ctx sdk.Context, port string, channel string, receiver 
 			port,
 			channel,
 			receiver,
-			sdk.NewCoin(denom, sdk.NewInt(int64(amount))),
+			sdk.NewCoin(denom, sdkmath.NewInt(int64(amount))),
 		); err != nil {
 			return err
 		}
