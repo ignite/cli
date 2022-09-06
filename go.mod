@@ -31,7 +31,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
-	github.com/ignite/modules v0.0.0-00010101000000-000000000000
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.7.7
 	github.com/manifoldco/promptui v0.9.0
@@ -42,6 +41,7 @@ require (
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rs/cors v1.8.2
+	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
@@ -49,6 +49,7 @@ require (
 	github.com/tendermint/flutter/v2 v2.0.4
 	github.com/tendermint/spn v0.2.1-0.20220826123316-985b629a92dd
 	github.com/tendermint/tendermint v0.34.21
+	github.com/tendermint/tm-db v0.6.7
 	github.com/tendermint/vue v0.3.5
 	github.com/vektra/mockery/v2 v2.14.0
 	go.etcd.io/bbolt v1.3.6
@@ -216,7 +217,6 @@ require (
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
 	github.com/spf13/afero v1.8.2 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
@@ -225,7 +225,6 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
@@ -247,5 +246,3 @@ require (
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-
-replace github.com/ignite/modules => ../modules

@@ -2,14 +2,15 @@ package main
 
 import (
 	"os"
+  "strings"
 
   svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"<%= ModulePath %>/app"
-	"github.com/ignite/modules/cosmoscmd"
+	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
 )
 
 func main() {
-	rootCmd, _ := cosmoscmd.NewRootCmd(
+	rootCmd, _ := cmd.NewRootCmd(
         app.Name,
         app.AccountAddressPrefix,
         app.DefaultNodeHome,

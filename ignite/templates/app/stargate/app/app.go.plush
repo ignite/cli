@@ -101,10 +101,9 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/ignite/modules/cosmoscmd"
-	"github.com/ignite/modules/openapiconsole"
-
 	"<%= ModulePath %>/docs"
+	"<%= ModulePath %>/docs/openapiconsole"
+	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
@@ -179,7 +178,7 @@ var (
 )
 
 var (
-	_ cosmoscmd.App           = (*App)(nil)
+	_ cmd.App                 = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 	_ simapp.App              = (*App)(nil)
 )
@@ -254,10 +253,10 @@ func New(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig cosmoscmd.EncodingConfig,
+	encodingConfig cmd.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmoscmd.App {
+) cmd.App {
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry

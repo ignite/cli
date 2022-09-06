@@ -31,7 +31,7 @@ import (
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/ignite/modules/openapiconsole"
+	"github.com/ignite/cli/ignite/pkg/openapiconsole"
 
 	"github.com/tendermint/testchain/docs"
 
