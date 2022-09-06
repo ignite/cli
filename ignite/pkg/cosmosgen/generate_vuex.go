@@ -47,15 +47,13 @@ func (g *generator) generateVuex() error {
 func (g *vuexGenerator) generateVueTemplates(p generatePayload) error {
 	gg := &errgroup.Group{}
 
-	func() {
-		for _, m := range p.Modules {
-			m := m
+	for _, m := range p.Modules {
+		m := m
 
-			gg.Go(func() error {
-				return g.generateVueTemplate(m, p)
-			})
-		}
-	}()
+		gg.Go(func() error {
+			return g.generateVueTemplate(m, p)
+		})
+	}
 
 	return gg.Wait()
 }
