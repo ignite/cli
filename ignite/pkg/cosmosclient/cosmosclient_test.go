@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -246,12 +247,37 @@ func TestClientStatus(t *testing.T) {
 			NodeInfo: p2p.DefaultNodeInfo{Network: "mychain"},
 		}
 	)
-	c := newClient(t, func(s suite) {
-		s.rpcClient.EXPECT().Status(ctx).Return(expectedStatus, nil).Once()
-	})
+	tests := []struct {
+		name          string
+		expectedError string
+		setup         func(suite)
+	}{
+		{
+			name: "ok",
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Status(ctx).Return(expectedStatus, nil).Once()
+			},
+		},
+		{
+			name:          "fail",
+			expectedError: "error while requesting node 'http://localhost:26657': oups",
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Status(ctx).Return(expectedStatus, errors.New("oups")).Once()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := newClient(t, tt.setup)
 
-	status, err := c.Status(ctx)
+			status, err := c.Status(ctx)
 
-	require.NoError(t, err)
-	assert.Equal(t, expectedStatus, status)
+			if tt.expectedError != "" {
+				require.EqualError(t, err, tt.expectedError)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, expectedStatus, status)
+		})
+	}
 }
