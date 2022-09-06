@@ -1,23 +1,51 @@
 # Changelog
 
-## Unreleased
+## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
+
+### Features
+
+- Change chain init to check that no gentx are present in the initial genesis
+- Add `network rewards release` command
+- Add "make mocks" target to Makefile
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+- Add `node query tx` command to query a transaction in any chain.
+- Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to an other in any chain.
 
 ### Changes
 
+- Refactor `templates/app` to remove `monitoringp` module from the default template
+- Updated keyring dependency to match what Cosmos SDK is using
+- Speed up the integration tests
+- Refactor ignite network and fix genesis generation bug
+- Implement `network profile` command
+- Make Go dependency verification optional during build by adding the `--check-dependencies` flag
+  so Ignite CLI can work in a Go workspace context.
+- Temporary SPN address change for nightly
+- Rename `simapp.go.plush` simulation file template to `helpers.go.plush`
+- Remove campaign creation from the `network chain publish` command
 - Upgraded Cosmos SDK to v0.46.0 and IBC to v5 in CLI and scaffolding templates
+- Optimized JavaScript generator to use a single typescript API generator binary
+- Improve documentation and add support for protocol buffers and Go modules syntax
+- Add inline documentation for `scaffold` and `scaffold module` CLI commands
+- Change `cmd/account` to skip passphrase prompt when importing from mnemonic
+- Remove usage of deprecated `io/ioutil` package
+- Add nodejs version in the output of ignite version
 - Removed `handler.go` from scaffolded module template
 - Migrated to `cosmossdk.io` packages for `errors` and `math`
 
 ### Fixes
+
 - Improved error handling for crypto wrapper functions
-
-### Features
-
-- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
-
-### Fixes
-
 - Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
+- Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
+- Fix cosmoscmd appID parameter value to sign a transaction correctly
+- Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
+- Fix flaky integration tests issue that failed with "text file busy"
+- Fix default chain ID for publish
+- Replace os.Rename with xos.Rename
+- Fix CLI reference generation to add `ignite completion` documentation
+
 
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
@@ -47,7 +75,6 @@
 ### Changes
 
 - Rename `ignite-hq` to `ignite`
-
 
 ## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
 
