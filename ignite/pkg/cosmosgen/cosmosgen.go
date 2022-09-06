@@ -8,7 +8,6 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 // generateOptions used to configure code generation.
@@ -160,7 +159,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 // The root path is used as prefix for the generated paths.
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
-		appModulePath := gomodulepath.ExtractAppPath(m.GoModulePath)
-		return filepath.Join(rootPath, appModulePath, m.Pkg.Name)
+		return filepath.Join(rootPath, m.Pkg.Name)
 	}
 }
