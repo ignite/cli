@@ -161,6 +161,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		appModulePath := gomodulepath.ExtractAppPath(m.GoModulePath)
-		return filepath.Join(rootPath, appModulePath, m.Pkg.Name, "module")
+		return filepath.Join(rootPath, appModulePath, m.Pkg.Name)
 	}
 }
