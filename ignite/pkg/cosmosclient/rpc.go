@@ -24,7 +24,6 @@ func rpcError(node string, err error) error {
 	return fmt.Errorf("error while requesting node '%s': %w", node, err)
 }
 
-// Reading from abci app
 func (rpc rpcWrapper) ABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, error) {
 	res, err := rpc.Client.ABCIInfo(ctx)
 	if err != nil {
@@ -39,7 +38,6 @@ func (rpc rpcWrapper) ABCIQuery(ctx context.Context, path string, data bytes.Hex
 		return nil, rpcError(rpc.nodeAddress, err)
 	}
 	return res, nil
-	// TODO: Implement
 }
 
 func (rpc rpcWrapper) ABCIQueryWithOptions(ctx context.Context, path string, data bytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
@@ -50,7 +48,6 @@ func (rpc rpcWrapper) ABCIQueryWithOptions(ctx context.Context, path string, dat
 	return res, nil
 }
 
-// Writing to abci app
 func (rpc rpcWrapper) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*ctypes.ResultBroadcastTxCommit, error) {
 	res, err := rpc.Client.BroadcastTxCommit(ctx, tx)
 	if err != nil {
