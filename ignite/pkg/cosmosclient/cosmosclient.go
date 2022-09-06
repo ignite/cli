@@ -88,6 +88,7 @@ type Client struct {
 	gasPrices     string
 	fees          string
 	broadcastMode string
+	generateOnly  bool
 }
 
 // Option configures your client.
@@ -177,6 +178,12 @@ func WithFees(fees string) Option {
 func WithBroadcastMode(broadcastMode string) Option {
 	return func(c *Client) {
 		c.broadcastMode = broadcastMode
+	}
+}
+
+func WithGenerateOnly(generateOnly bool) Option {
+	return func(c *Client) {
+		c.generateOnly = generateOnly
 	}
 }
 
@@ -412,6 +419,16 @@ func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg)
 func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
+	if c.useFaucet && !c.generateOnly {
+		addr, err := account.Address(c.addressPrefix)
+		if err != nil {
+			return TxService{}, err
+		}
+		if err := c.makeSureAccountHasTokens(context.Background(), addr); err != nil {
+			return TxService{}, err
+		}
+	}
+
 	sdkaddr, err := account.Record.GetAddress()
 	if err != nil {
 		return TxService{}, err
@@ -461,35 +478,6 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 		txBuilder:     txUnsigned,
 		txFactory:     txf,
 	}, nil
-}
-
-// prepareBroadcast performs checks and operations before broadcasting messages
-func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []sdktypes.Msg) error {
-	// TODO uncomment after https://github.com/tendermint/spn/issues/363
-	// validate msgs.
-	//  for _, msg := range msgs {
-	//  if err := msg.ValidateBasic(); err != nil {
-	//  return err
-	//  }
-	//  }
-
-	account, err := c.account(accountName)
-	if err != nil {
-		return err
-	}
-
-	// make sure that account has enough balances before broadcasting.
-	if c.useFaucet {
-		addr, err := account.Address(c.addressPrefix)
-		if err != nil {
-			return err
-		}
-		if err := c.makeSureAccountHasTokens(ctx, addr); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // makeSureAccountHasTokens makes sure the address has a positive balance
@@ -604,7 +592,8 @@ func (c Client) newContext() client.Context {
 		WithHomeDir(c.homePath).
 		WithClient(c.RPC).
 		WithSkipConfirmation(true).
-		WithKeyring(c.AccountRegistry.Keyring)
+		WithKeyring(c.AccountRegistry.Keyring).
+		WithGenerateOnly(c.generateOnly)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {
