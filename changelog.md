@@ -38,6 +38,7 @@
 
 - Improved error handling for crypto wrapper functions
 - Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
+- Test and refactor `pkg/comosclient`.
 - Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
 - Fix cosmoscmd appID parameter value to sign a transaction correctly
 - Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
