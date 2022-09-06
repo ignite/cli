@@ -59,7 +59,7 @@ func (g *generator) generateTS() error {
 		return err
 	}
 
-	return tsg.generateRootTemplates(appModulePath, data)
+	return tsg.generateRootTemplates(data)
 }
 
 func (g *tsGenerator) generateModuleTemplates() error {
@@ -198,8 +198,8 @@ func (g *tsGenerator) generateModuleTemplate(
 	})
 }
 
-func (g *tsGenerator) generateRootTemplates(appModulePath string, p generatePayload) error {
-	outDir := filepath.Join(g.g.o.tsClientRootPath, appModulePath)
+func (g *tsGenerator) generateRootTemplates(p generatePayload) error {
+	outDir := filepath.Join(g.g.o.tsClientRootPath)
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
