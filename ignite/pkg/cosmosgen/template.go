@@ -9,6 +9,8 @@ import (
 
 	"github.com/iancoleman/strcase"
 	"github.com/takuoki/gocase"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -54,8 +56,9 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 		},
 		"capitalCase": func(word string) string {
 			replacer := strings.NewReplacer("-", "_", ".", "_")
+			word = strcase.ToCamel(replacer.Replace(word))
 
-			return strings.Title(strcase.ToCamel(replacer.Replace(word)))
+			return cases.Title(language.English).String(word)
 		},
 		"camelCaseLowerSta": func(word string) string {
 			replacer := strings.NewReplacer("-", "_", ".", "_")
