@@ -199,7 +199,7 @@ func (g *tsGenerator) generateModuleTemplate(
 }
 
 func (g *tsGenerator) generateRootTemplates(p generatePayload) error {
-	outDir := filepath.Join(g.g.o.tsClientRootPath)
+	outDir := g.g.o.tsClientRootPath
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
