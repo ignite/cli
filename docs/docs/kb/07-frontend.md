@@ -21,7 +21,7 @@ client:
     path: "js"
 ```
 
-A TS client is generated in the `vue/src/generated` directory.
+A TS client is generated in the `ts-client` directory.
 
 ## Client code regeneration
 
