@@ -49,7 +49,6 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	)
 
 	g.RunFn(protoQueryModify(replacer, opts))
-	g.RunFn(moduleGRPCGatewayModify(replacer, opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 
@@ -238,22 +237,6 @@ message QueryAll%[2]vResponse {
 		)
 		content = replacer.Replace(content, typed.Placeholder3, replacementMessages)
 
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		replacement := `"context"`
-		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacement)
-		replacement = `types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))`
-		content = replacer.ReplaceOnce(content, typed.Placeholder2, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
