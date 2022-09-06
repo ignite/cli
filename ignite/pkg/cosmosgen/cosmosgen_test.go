@@ -22,25 +22,25 @@ func TestTypescriptModulePath(t *testing.T) {
 			name:         "github uri",
 			goModulePath: "github.com/owner/app",
 			protoPkgName: "owner.app.module",
-			want:         "prefix/owner/app/owner.app.module/module",
+			want:         "prefix/owner/app/owner.app.module",
 		},
 		{
 			name:         "short uri",
 			goModulePath: "domain.com/app",
 			protoPkgName: "app.module",
-			want:         "prefix/app/app.module/module",
+			want:         "prefix/app/app.module",
 		},
 		{
 			name:         "path",
 			goModulePath: "owner/app",
 			protoPkgName: "owner.app.module",
-			want:         "prefix/owner/app/owner.app.module/module",
+			want:         "prefix/owner/app/owner.app.module",
 		},
 		{
 			name:         "name",
 			goModulePath: "app",
 			protoPkgName: "app.module",
-			want:         "prefix/app/app.module/module",
+			want:         "prefix/app/app.module",
 		},
 	}
 
