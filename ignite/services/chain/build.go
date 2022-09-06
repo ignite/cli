@@ -185,7 +185,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 	if err != nil {
 		return nil, err
 	}
-	
+
 	chainID, err := c.ID()
 	if err != nil {
 		return nil, err

@@ -54,7 +54,7 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 
 	var rows [][]string
 	for _, b := range balances {
-		rows = append(rows, []string{fmt.Sprintf("%s", b.Amount), b.Denom})
+		rows = append(rows, []string{fmt.Sprintf("%d", b.Amount), b.Denom})
 	}
 
 	session.StopSpinner()
