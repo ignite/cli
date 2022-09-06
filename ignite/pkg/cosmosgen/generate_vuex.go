@@ -59,7 +59,7 @@ func (g *vuexGenerator) generateVueTemplates(p generatePayload) error {
 }
 
 func (g *vuexGenerator) generateVueTemplate(m module.Module, p generatePayload) error {
-	outDir := g.g.o.jsOut(m)
+	outDir := g.g.o.vuexOut(m)
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
