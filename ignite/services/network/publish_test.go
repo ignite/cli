@@ -72,6 +72,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    false,
 					CampaignID:     0,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
