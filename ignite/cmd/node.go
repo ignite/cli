@@ -70,7 +70,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	return cosmosclient.New(cmd.Context(), options...)
 }
 
-func getNode(cmd *cobra.Command) (rpc string) {
-	rpc, _ = cmd.Flags().GetString(flagNode)
+func getNode(cmd *cobra.Command) (node string) {
+	node, _ = cmd.Flags().GetString(flagNode)
 	return
 }
