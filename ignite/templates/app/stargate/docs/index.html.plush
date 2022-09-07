@@ -14,7 +14,7 @@
             // init Swagger for faucet's openapi.yml.
             window.onload = function() {
               window.ui = SwaggerUIBundle({
-                url: "static/openapi.yaml",
+                url: "/static/openapi.yml",
                 dom_id: "#swagger-ui",
                 deepLinking: true,
                 layout: "BaseLayout",

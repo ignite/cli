@@ -19,8 +19,8 @@ import (
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/localfs"
-	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/pkg/xhttp"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -222,8 +222,16 @@ func (c *Chain) setup() error {
 // dependencies and pre-conditions.
 func (c *Chain) checkSystem() error {
 	// check if Go has installed.
-	if !xexec.IsCommandAvailable("go") {
+	if !gocmd.Available() {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
+	}
+	// Check version>=1.17
+	ok, err := gocmd.IsMinVersion("1.17")
+	if err != nil {
+		return errors.Wrap(err, "checking go version")
+	}
+	if !ok {
+		return errors.New("Go version >=1.17 is required")
 	}
 	return nil
 }
