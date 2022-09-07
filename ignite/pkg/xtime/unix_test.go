@@ -1,7 +1,8 @@
-package xtime
+package xtime_test
 
 import (
 	"fmt"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 	"testing"
 	"time"
 
@@ -17,7 +18,7 @@ func TestSeconds(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("test %d value", tt), func(t *testing.T) {
-			got := Seconds(tt)
+			got := xtime.Seconds(tt)
 			require.Equal(t, time.Duration(tt)*time.Second, got)
 		})
 	}
@@ -32,7 +33,7 @@ func TestNowAfter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("test %d value", tt), func(t *testing.T) {
-			got := NowAfter(Seconds(tt))
+			got := xtime.NowAfter(xtime.Seconds(tt))
 			date := time.Now().Add(time.Duration(tt) * time.Second)
 			require.Equal(t, date.Format(time.UnixDate), got)
 		})
@@ -59,7 +60,7 @@ func TestFormatUnix(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run("test date "+tt.date.String(), func(t *testing.T) {
-			got := FormatUnix(tt.date)
+			got := xtime.FormatUnix(tt.date)
 			require.Equal(t, tt.want, got)
 		})
 	}
