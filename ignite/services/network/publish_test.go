@@ -138,6 +138,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    true,
 					CampaignID:     testutil.CampaignID,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -225,6 +226,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    true,
 					CampaignID:     testutil.CampaignID,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -289,6 +291,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    customGenesisHash,
 					HasCampaign:    false,
 					CampaignID:     0,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -343,6 +346,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    false,
 					CampaignID:     0,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -539,6 +543,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    false,
 					CampaignID:     0,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -685,6 +690,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    false,
 					CampaignID:     0,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -739,6 +745,7 @@ func TestPublish(t *testing.T) {
 					GenesisHash:    "",
 					HasCampaign:    false,
 					CampaignID:     0,
+					AccountBalance: sdk.NewCoins(),
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
