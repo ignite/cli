@@ -1,20 +1,16 @@
 package gocmd
 
 import (
-	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/blang/semver"
-	"github.com/pkg/errors"
-
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/goenv"
-	"github.com/ignite/cli/ignite/pkg/xexec"
 )
 
 const (
@@ -32,9 +28,6 @@ const (
 
 	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
-
-	// CommandEnv represends go "env" command.
-	CommandEnv = "env"
 )
 
 const (
@@ -45,44 +38,9 @@ const (
 )
 
 const (
-	EnvGOOS      = "GOOS"
-	EnvGOARCH    = "GOARCH"
-	EnvGOVERSION = "GOVERSION"
+	EnvGOOS   = "GOOS"
+	EnvGOARCH = "GOARCH"
 )
-
-// Available returns true if the go command is available.
-func Available() bool {
-	return xexec.IsCommandAvailable("go")
-}
-
-// IsMinVersion returns true if v is less or equal to current go version.
-func IsMinVersion(v string) (bool, error) {
-	minVersion, err := semver.ParseTolerant(v)
-	if err != nil {
-		return false, errors.Wrapf(err, "semver parse %s", v)
-	}
-	e, err := Env(EnvGOVERSION)
-	if err != nil {
-		return false, err
-	}
-	e = e[2:] // remove go prefix
-	version, err := semver.ParseTolerant(e)
-	if err != nil {
-		return false, errors.Wrapf(err, "semver parse %s", e)
-	}
-	return minVersion.LTE(version), nil
-}
-
-// Env returns the output of "go env key" command.
-func Env(key string) (string, error) {
-	var b bytes.Buffer
-	err := exec.Exec(context.Background(), []string{
-		Name(),
-		CommandEnv,
-		key,
-	}, exec.StepOption(step.Stdout(&b)))
-	return b.String(), err
-}
 
 // Name returns the name of Go binary to use.
 func Name() string {
