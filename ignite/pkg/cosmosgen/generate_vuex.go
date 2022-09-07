@@ -23,10 +23,11 @@ func newVuexGenerator(g *generator) *vuexGenerator {
 }
 
 func (g *generator) updateVueDependencies() error {
-	// TODO: Find the full path to the configured vue folder instead of using the default one
-	packagesPath := filepath.Join(g.appPath, "vue", "package.json")
+	// Init the path to the "vue" folder inside the app
+	vuePath := filepath.Join(g.appPath, "vue")
+	packagesPath := filepath.Join(vuePath, "package.json")
 
-	// Read the VUE package file
+	// Read the Vue app package file
 	b, err := os.ReadFile(packagesPath)
 	if err != nil {
 		return err
@@ -47,9 +48,10 @@ func (g *generator) updateVueDependencies() error {
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
 	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
-
-	// TODO: Make the path relative to the VUE app folder
-	tsClientPath := g.o.tsClientRootPath
+	tsClientPath, err := filepath.Rel(vuePath, g.o.tsClientRootPath)
+	if err != nil {
+		return err
+	}
 
 	err = mergo.Merge(&pkg, map[string]interface{}{
 		"dependencies": map[string]interface{}{
@@ -69,7 +71,7 @@ func (g *generator) updateVueDependencies() error {
 	defer file.Close()
 
 	enc := json.NewEncoder(file)
-	enc.SetIndent("", " ")
+	enc.SetIndent("", "  ")
 
 	return enc.Encode(pkg)
 }
