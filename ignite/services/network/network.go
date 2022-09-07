@@ -4,8 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/ignite/cli/ignite/pkg/xtime"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -22,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 )
 
 //go:generate mockery --name CosmosClient --case underscore
