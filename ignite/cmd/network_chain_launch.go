@@ -27,7 +27,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 	c.Flags().String(
 		flagLauchTime,
 		"",
-		"Timestamp the chain is effectively launched (example \"2022-01-01T00:00:00Z\"",
+		"Timestamp the chain is effectively launched (example \"2022-01-01T00:00:00Z\")",
 	)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
