@@ -221,6 +221,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			genesisHash,
 			campaignID != 0,
 			campaignID,
+			sdk.NewCoins(),
 			nil,
 		)
 		res, err := n.cosmos.BroadcastTx(n.account, msgCreateChain)

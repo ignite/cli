@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -33,7 +34,7 @@ type Chain struct {
 	hash        string
 	genesisURL  string
 	genesisHash string
-	launchTime  int64
+	launchTime  time.Time
 
 	keyringBackend chaincmd.KeyringBackend
 

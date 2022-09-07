@@ -136,7 +136,7 @@ func (c Chain) buildGenesis(
 	// set genesis time and chain id
 	genesisFields := []cosmosutil.GenesisField{
 		cosmosutil.WithKeyValue(cosmosutil.FieldChainID, c.id),
-		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime),
+		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime.Unix()),
 	}
 
 	// TODO: implement a single option for all reward related fields

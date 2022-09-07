@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -44,6 +45,7 @@ type Network struct {
 	bankQuery               banktypes.QueryClient
 	monitoringConsumerQuery monitoringctypes.QueryClient
 	monitoringProviderQuery monitoringptypes.QueryClient
+	clock                   xtime.Clock
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -107,6 +109,12 @@ func WithBankQueryClient(client banktypes.QueryClient) Option {
 	}
 }
 
+func WithCustomClock(clock xtime.Clock) Option {
+	return func(n *Network) {
+		n.clock = clock
+	}
+}
+
 // CollectEvents collects events from the network builder.
 func CollectEvents(ev events.Bus) Option {
 	return func(n *Network) {
@@ -127,6 +135,7 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 		stakingQuery:            stakingtypes.NewQueryClient(cosmos.Context()),
 		bankQuery:               banktypes.NewQueryClient(cosmos.Context()),
 		monitoringConsumerQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
+		clock:                   xtime.NewClockSystem(),
 	}
 	for _, opt := range options {
 		opt(&n)
