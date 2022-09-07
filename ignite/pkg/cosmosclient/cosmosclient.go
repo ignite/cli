@@ -29,6 +29,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
@@ -36,11 +37,13 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 )
 
-// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
-// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
-var FaucetTransferEnsureDuration = time.Second * 40
+var (
+	// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
+	// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
+	FaucetTransferEnsureDuration = time.Second * 40
 
-var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+	errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+)
 
 const (
 	defaultNodeAddress   = "http://localhost:26657"
@@ -57,7 +60,7 @@ const (
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
-	RPC *rpchttp.HTTP
+	RPC rpcclient.Client
 
 	// Factory is a Cosmos SDK tx factory.
 	Factory tx.Factory
@@ -187,6 +190,13 @@ func WithGenerateOnly(generateOnly bool) Option {
 	}
 }
 
+// WithRPCClient sets a tendermint RPC client.
+func WithRPCClient(rpc rpcclient.Client) Option {
+	return func(c *Client) {
+		c.RPC = rpc
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -207,8 +217,10 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		apply(&c)
 	}
 
-	if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
-		return Client{}, err
+	if c.RPC == nil {
+		if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
+			return Client{}, err
+		}
 	}
 
 	statusResp, err := c.RPC.Status(ctx)
@@ -249,8 +261,8 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 }
 
 // LatestBlockHeight returns the lastest block height of the app.
-func (c Client) LatestBlockHeight() (int64, error) {
-	resp, err := c.Status(context.Background())
+func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
+	resp, err := c.Status(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -260,38 +272,42 @@ func (c Client) LatestBlockHeight() (int64, error) {
 // WaitForNextBlock waits until next block is committed.
 // It reads the current block height and then waits for another block to be
 // committed.
-func (c Client) WaitForNextBlock() error {
-	return c.WaitForNBlocks(1)
+// A timeout occurs after 10 seconds, to customize the timeout, use the
+// WaitForNBlocks(ctx, 1, timeout) function.
+func (c Client) WaitForNextBlock(ctx context.Context) error {
+	return c.WaitForNBlocks(ctx, 1, time.Second*10)
 }
 
 // WaitForNBlocks reads the current block height and then waits for anothers n
 // blocks to be committed.
-func (c Client) WaitForNBlocks(n int64) error {
-	start, err := c.LatestBlockHeight()
+func (c Client) WaitForNBlocks(ctx context.Context, n int64, timeout time.Duration) error {
+	start, err := c.LatestBlockHeight(ctx)
 	if err != nil {
 		return err
 	}
-	return c.WaitForBlockHeight(start + n)
+	return c.WaitForBlockHeight(ctx, start+n, timeout)
 }
 
-// WaitForBlockHeight waits until block height h is committed, or return an
-// error if a timeout is reached (10s).
-func (c Client) WaitForBlockHeight(h int64) error {
+// WaitForBlockHeight waits until block height h is committed, or returns an
+// error if ctx is canceled or if timeout is reached.
+func (c Client) WaitForBlockHeight(ctx context.Context, h int64, timeout time.Duration) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	timeout := time.After(10 * time.Second)
+	timeoutc := time.After(timeout)
 
 	for {
-		status, err := c.RPC.Status(context.Background())
+		latestHeight, err := c.LatestBlockHeight(ctx)
 		if err != nil {
 			return err
 		}
-		if status.SyncInfo.LatestBlockHeight >= h {
+		if latestHeight >= h {
 			return nil
 		}
 		select {
-		case <-timeout:
+		case <-timeoutc:
 			return errors.New("timeout exceeded waiting for block")
+		case <-ctx.Done():
+			return ctx.Err()
 		case <-ticker.C:
 		}
 	}
@@ -301,30 +317,20 @@ func (c Client) WaitForBlockHeight(h int64) error {
 func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
 	defer c.lockBech32Prefix()()
 
-	return c.account(nameOrAddress)
-}
-
-func (c Client) account(nameOrAddress string) (cosmosaccount.Account, error) {
-	a, err := c.AccountRegistry.GetByName(nameOrAddress)
+	acc, err := c.AccountRegistry.GetByName(nameOrAddress)
 	if err == nil {
-		return a, nil
+		return acc, nil
 	}
 	return c.AccountRegistry.GetByAddress(nameOrAddress)
 }
 
 // Address returns the account address from account name.
 func (c Client) Address(accountName string) (string, error) {
-	defer c.lockBech32Prefix()()
-
-	account, err := c.account(accountName)
+	a, err := c.AccountRegistry.GetByName(accountName)
 	if err != nil {
 		return "", err
 	}
-	sdkaddr, err := account.Record.GetAddress()
-	if err != nil {
-		return "", err
-	}
-	return sdkaddr.String(), nil
+	return a.Address(c.addressPrefix)
 }
 
 // Context returns client context
