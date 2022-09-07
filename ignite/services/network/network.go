@@ -2,8 +2,9 @@ package network
 
 import (
 	"context"
-	"github.com/ignite/cli/ignite/pkg/xtime"
 	"strconv"
+
+	"github.com/ignite/cli/ignite/pkg/xtime"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"

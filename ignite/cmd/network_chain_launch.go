@@ -4,9 +4,10 @@ import (
 	"time"
 
 	timeparser "github.com/aws/smithy-go/time"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/network"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -23,7 +24,11 @@ func NewNetworkChainLaunch() *cobra.Command {
 		RunE:  networkChainLaunchHandler,
 	}
 
-	c.Flags().String(flagLauchTime, "", "Timestamp the chain is effectively launched")
+	c.Flags().String(
+		flagLauchTime,
+		"",
+		"Timestamp the chain is effectively launched (example \"2022-01-01T00:00:00Z\"",
+	)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())

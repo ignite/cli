@@ -2,9 +2,10 @@ package xtime_test
 
 import (
 	"fmt"
-	"github.com/ignite/cli/ignite/pkg/xtime"
 	"testing"
 	"time"
+
+	"github.com/ignite/cli/ignite/pkg/xtime"
 
 	"github.com/stretchr/testify/require"
 )

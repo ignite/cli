@@ -6,6 +6,7 @@ require (
 	cosmossdk.io/math v1.0.0-beta.3
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.1.1
+	github.com/aws/smithy-go v1.8.0
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
 	github.com/buger/jsonparser v1.1.1
