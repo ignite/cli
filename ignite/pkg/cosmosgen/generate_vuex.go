@@ -23,7 +23,7 @@ func newVuexGenerator(g *generator) *vuexGenerator {
 }
 
 func (g *generator) updateVueDependencies() error {
-	// TODO: Find the full path to the vue folder instead of using a default
+	// TODO: Find the full path to the configured vue folder instead of using the default one
 	packagesPath := filepath.Join(g.appPath, "vue", "package.json")
 
 	// Read the VUE package file
@@ -32,13 +32,13 @@ func (g *generator) updateVueDependencies() error {
 		return err
 	}
 
-	// Add the link to the ts-client to the VUE app dependencies
 	var pkg map[string]interface{}
 
 	if err := json.Unmarshal(b, &pkg); err != nil {
 		return err
 	}
 
+	// Add the link to the ts-client to the VUE app dependencies
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
@@ -60,6 +60,7 @@ func (g *generator) updateVueDependencies() error {
 		return err
 	}
 
+	// Save the modified package.json with the new dependencies
 	file, err := os.OpenFile(packagesPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
@@ -67,8 +68,10 @@ func (g *generator) updateVueDependencies() error {
 
 	defer file.Close()
 
-	// TODO: Indent the JSON
-	return json.NewEncoder(file).Encode(pkg)
+	enc := json.NewEncoder(file)
+	enc.SetIndent("", " ")
+
+	return enc.Encode(pkg)
 }
 
 func (g *generator) generateVuex() error {
