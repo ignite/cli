@@ -138,6 +138,10 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		if err := g.generateVuex(); err != nil {
 			return err
 		}
+
+		if err := g.updateVueDependencies(); err != nil {
+			return err
+		}
 	}
 
 	if g.o.dartOut != nil {

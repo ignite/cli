@@ -1,13 +1,17 @@
 package cosmosgen
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/imdario/mergo"
 )
 
 type vuexGenerator struct {
@@ -16,6 +20,55 @@ type vuexGenerator struct {
 
 func newVuexGenerator(g *generator) *vuexGenerator {
 	return &vuexGenerator{g}
+}
+
+func (g *generator) updateVueDependencies() error {
+	// TODO: Find the full path to the vue folder instead of using a default
+	packagesPath := filepath.Join(g.appPath, "vue", "package.json")
+
+	// Read the VUE package file
+	b, err := os.ReadFile(packagesPath)
+	if err != nil {
+		return err
+	}
+
+	// Add the link to the ts-client to the VUE app dependencies
+	var pkg map[string]interface{}
+
+	if err := json.Unmarshal(b, &pkg); err != nil {
+		return err
+	}
+
+	chainPath, _, err := gomodulepath.Find(g.appPath)
+	if err != nil {
+		return err
+	}
+
+	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
+	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
+	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
+
+	// TODO: Make the path relative to the VUE app folder
+	tsClientPath := g.o.tsClientRootPath
+
+	err = mergo.Merge(&pkg, map[string]interface{}{
+		"dependencies": map[string]interface{}{
+			tsClientName: fmt.Sprintf("file:%s", tsClientPath),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(packagesPath, os.O_RDWR|os.O_TRUNC, 0o644)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	// TODO: Indent the JSON
+	return json.NewEncoder(file).Encode(pkg)
 }
 
 func (g *generator) generateVuex() error {
