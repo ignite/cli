@@ -14,6 +14,7 @@
 
 ### Changes
 
+- Add changelog merge strategy in .gitattributes to avoid conflicts.
 - Refactor `templates/app` to remove `monitoringp` module from the default template
 - Updated keyring dependency to match what Cosmos SDK is using
 - Speed up the integration tests
