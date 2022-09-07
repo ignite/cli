@@ -50,10 +50,12 @@ const (
 	EnvGOVERSION = "GOVERSION"
 )
 
+// Available returns true if the go command is available.
 func Available() bool {
 	return xexec.IsCommandAvailable("go")
 }
 
+// IsMinVersion returns true if v is less or equal to current go version.
 func IsMinVersion(v string) (bool, error) {
 	minVersion, err := semver.ParseTolerant(v)
 	if err != nil {
@@ -71,6 +73,7 @@ func IsMinVersion(v string) (bool, error) {
 	return minVersion.LTE(version), nil
 }
 
+// Env returns the output of "go env key" command.
 func Env(key string) (string, error) {
 	var b bytes.Buffer
 	err := exec.Exec(context.Background(), []string{
