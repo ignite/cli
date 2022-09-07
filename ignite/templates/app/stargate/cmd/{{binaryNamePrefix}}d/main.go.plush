@@ -2,9 +2,9 @@ package main
 
 import (
 	"os"
-  "strings"
+	"strings"
 
-  svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"<%= ModulePath %>/app"
 	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
 )
