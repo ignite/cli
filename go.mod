@@ -13,7 +13,7 @@ require (
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.46.1
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v5 v5.0.0-rc0
+	github.com/cosmos/ibc-go/v5 v5.0.0-rc1
 	github.com/docker/docker v20.10.17+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.13.0
@@ -58,7 +58,7 @@ require (
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.12
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/gofumpt v0.3.1
