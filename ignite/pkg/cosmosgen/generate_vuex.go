@@ -36,7 +36,7 @@ func (g *generator) updateVueDependencies() error {
 	var pkg map[string]interface{}
 
 	if err := json.Unmarshal(b, &pkg); err != nil {
-		return err
+		return fmt.Errorf("error parsing %s: %w", packagesPath, err)
 	}
 
 	// Add the link to the ts-client to the VUE app dependencies
@@ -59,7 +59,7 @@ func (g *generator) updateVueDependencies() error {
 		},
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to link ts-client dependency in the Vue app: %w", err)
 	}
 
 	// Save the modified package.json with the new dependencies
@@ -72,8 +72,11 @@ func (g *generator) updateVueDependencies() error {
 
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", "  ")
+	if err := enc.Encode(pkg); err != nil {
+		return fmt.Errorf("error updating %s: %w", packagesPath, err)
+	}
 
-	return enc.Encode(pkg)
+	return nil
 }
 
 func (g *generator) generateVuex() error {
