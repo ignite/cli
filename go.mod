@@ -31,7 +31,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
-	github.com/ignite/web v0.3.9
+	github.com/ignite/web v0.3.10
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.7.7
 	github.com/manifoldco/promptui v0.9.0
