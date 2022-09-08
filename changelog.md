@@ -34,6 +34,7 @@
 - Add nodejs version in the output of ignite version
 - Removed `handler.go` from scaffolded module template
 - Migrated to `cosmossdk.io` packages for `errors` and `math`
+- Upgraded `spn` version
 
 ### Fixes
 
