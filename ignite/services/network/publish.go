@@ -24,6 +24,7 @@ type publishOptions struct {
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
 	mainnet          bool
+	accountBalance   sdk.Coins
 }
 
 // PublishOption configures chain creation.
@@ -75,6 +76,13 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	return func(c *publishOptions) {
 		c.sharePercentages = sharePercentages
+	}
+}
+
+// WithAccountBalance set a balance used for all genesis account of the chain
+func WithAccountBalance(accountBalance sdk.Coins) PublishOption {
+	return func(c *publishOptions) {
+		c.accountBalance = accountBalance
 	}
 }
 
@@ -221,7 +229,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			genesisHash,
 			campaignID != 0,
 			campaignID,
-			sdk.NewCoins(),
+			o.accountBalance,
 			nil,
 		)
 		res, err := n.cosmos.BroadcastTx(n.account, msgCreateChain)
