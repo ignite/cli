@@ -9,8 +9,9 @@ import (
 // NewScaffoldList returns a new command to scaffold a list.
 func NewScaffoldList() *cobra.Command {
 	c := &cobra.Command{
-		Use: "list NAME [field]...",
-		Short: `The "list" scaffolding command is used to generate files that implement the
+		Use:   "list NAME [field]...",
+		Short: "CRUD for data stored as an array",
+		Long: `The "list" scaffolding command is used to generate files that implement the
 logic for storing and interacting with data stored as a list in the blockchain
 state.
 
