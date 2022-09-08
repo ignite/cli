@@ -1,8 +1,9 @@
 package networktypes
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
