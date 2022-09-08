@@ -1,6 +1,7 @@
 package networktypes
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -23,6 +24,7 @@ type (
 		LaunchTriggered        bool        `json:"LaunchTriggered"`
 		Network                NetworkType `json:"Network"`
 		Reward                 string      `json:"Reward,omitempty"`
+		AccountBalance         sdk.Coins   `json:"AccountBalance"`
 	}
 )
 
@@ -57,6 +59,7 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		CampaignID:             chain.CampaignID,
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,
+		AccountBalance:         chain.AccountBalance,
 	}
 
 	// check if custom genesis URL is provided.
