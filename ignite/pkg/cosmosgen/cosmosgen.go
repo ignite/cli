@@ -37,13 +37,11 @@ type ModulePathFunc func(module.Module) string
 // Option configures code generation.
 type Option func(*generateOptions)
 
-// WithTSClientGeneration adds Typescript Client code generation. tsClientRootPath is used to determine the root path of generated
-// Typescript Classes. includeThirdPartyModules and out configures the underlying JS lib generation which is
-// documented in WithJSGeneration.
-func WithTSClientGeneration(includeThirdPartyModules bool, out ModulePathFunc, tsClientRootPath string) Option {
+// WithTSClientGeneration adds Typescript Client code generation.
+// The tsClientRootPath is used to determine the root path of generated Typescript classes.
+func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.tsClientRootPath = tsClientRootPath
 	}
 }
@@ -119,15 +117,14 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		return err
 	}
 
+	// Go generation must run first so the types are created before other
+	// generated code that requires sdk.Msg implementations to be defined
 	if g.o.gomodPath != "" {
 		if err := g.generateGo(); err != nil {
 			return err
 		}
 	}
 
-	// js generation requires Go types to be existent in the source code. because
-	// sdk.Msg implementations defined on the generated Go types.
-	// so it needs to run after Go code gen.
 	if g.o.jsOut != nil {
 		if err := g.generateTS(); err != nil {
 			return err
@@ -139,6 +136,9 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 
+		// Update Vue app dependeciens when Vuex stores are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
 		if err := g.updateVueDependencies(); err != nil {
 			return err
 		}

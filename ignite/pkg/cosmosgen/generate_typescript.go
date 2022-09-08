@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"golang.org/x/sync/errgroup"
@@ -48,11 +49,20 @@ func (g *generator) generateTS() error {
 		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
-	if g.o.jsIncludeThirdParty {
-		for _, modules := range g.thirdModules {
-			data.Modules = append(data.Modules, modules...)
-		}
+	// Third party modules are always required to generate the root
+	// template because otherwise it would be generated only with
+	// custom modules loosing the registration of the third party
+	// modules when the root templates are re-generated.
+	for _, modules := range g.thirdModules {
+		data.Modules = append(data.Modules, modules...)
 	}
+
+	// Make sure the modules are always sorted to keep the import
+	// and module registration order consistent so the generated
+	// files are not changed.
+	sort.SliceStable(data.Modules, func(i, j int) bool {
+		return data.Modules[i].Pkg.Name < data.Modules[j].Pkg.Name
+	})
 
 	tsg := newTSGenerator(g)
 	if err := tsg.generateModuleTemplates(); err != nil {
@@ -114,10 +124,13 @@ func (g *tsGenerator) generateModuleTemplates() error {
 
 	add(g.g.appPath, g.g.appModules)
 
-	if g.g.o.jsIncludeThirdParty {
-		for sourcePath, modules := range g.g.thirdModules {
-			add(sourcePath, modules)
-		}
+	// Always generate third party modules; This is required because not generating them might
+	// lead to issues with the module registration in the root template. The root template must
+	// always be generated with 3rd party modules which means that if a new 3rd party module
+	// is available and not generated it would lead to the registration of a new not generated
+	// 3rd party module.
+	for sourcePath, modules := range g.g.thirdModules {
+		add(sourcePath, modules)
 	}
 
 	return gg.Wait()

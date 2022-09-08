@@ -142,7 +142,6 @@ func (c *Chain) Generate(
 
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
-				enableThirdPartyModuleCodegen,
 				cosmosgen.TypescriptModulePath(tsClientRootPath),
 				tsClientRootPath,
 			),
