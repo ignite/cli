@@ -21,11 +21,13 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
+	gogogrpc "github.com/gogo/protobuf/grpc"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
@@ -57,19 +59,34 @@ const (
 	defaultFaucetMinAmount = 100
 )
 
+// FaucetClient allows to mock the cosmosfaucet.Client.
+type FaucetClient interface {
+	Transfer(context.Context, cosmosfaucet.TransferRequest) (cosmosfaucet.TransferResponse, error)
+}
+
+// Gasometer allows to mock the tx.CalculateGas func.
+type Gasometer interface {
+	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
+}
+
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
 	RPC rpcclient.Client
 
-	// Factory is a Cosmos SDK tx factory.
-	Factory tx.Factory
+	// TxFactory is a Cosmos SDK tx factory.
+	TxFactory tx.Factory
 
 	// context is a Cosmos SDK client context.
 	context client.Context
 
 	// AccountRegistry is the retistry to access accounts.
 	AccountRegistry cosmosaccount.Registry
+
+	accountRetriever client.AccountRetriever
+	bankQueryClient  banktypes.QueryClient
+	faucetClient     FaucetClient
+	gasometer        Gasometer
 
 	addressPrefix string
 
@@ -184,6 +201,7 @@ func WithBroadcastMode(broadcastMode string) Option {
 	}
 }
 
+// WithGenerateOnly tells if txs will be generated only.
 func WithGenerateOnly(generateOnly bool) Option {
 	return func(c *Client) {
 		c.generateOnly = generateOnly
@@ -191,9 +209,42 @@ func WithGenerateOnly(generateOnly bool) Option {
 }
 
 // WithRPCClient sets a tendermint RPC client.
+// Already set by default.
 func WithRPCClient(rpc rpcclient.Client) Option {
 	return func(c *Client) {
 		c.RPC = rpc
+	}
+}
+
+// WithAccountRetriever sets the account retriever
+// Already set by default.
+func WithAccountRetriever(accountRetriever client.AccountRetriever) Option {
+	return func(c *Client) {
+		c.accountRetriever = accountRetriever
+	}
+}
+
+// WithBankQueryClient sets the bank query client.
+// Already set by default.
+func WithBankQueryClient(bankQueryClient banktypes.QueryClient) Option {
+	return func(c *Client) {
+		c.bankQueryClient = bankQueryClient
+	}
+}
+
+// WithFaucetClient sets the faucet client.
+// Already set by default.
+func WithFaucetClient(faucetClient FaucetClient) Option {
+	return func(c *Client) {
+		c.faucetClient = faucetClient
+	}
+}
+
+// WithGasometer sets the gasometer.
+// Already set by default.
+func WithGasometer(gasometer Gasometer) Option {
+	return func(c *Client) {
+		c.gasometer = gasometer
 	}
 }
 
@@ -252,8 +303,20 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	}
 
 	c.context = c.newContext()
-	c.Factory = newFactory(c.context)
+	c.TxFactory = newFactory(c.context)
 
+	if c.accountRetriever == nil {
+		c.accountRetriever = authtypes.AccountRetriever{}
+	}
+	if c.bankQueryClient == nil {
+		c.bankQueryClient = banktypes.NewQueryClient(c.context)
+	}
+	if c.faucetClient == nil {
+		c.faucetClient = cosmosfaucet.NewClient(c.faucetAddress)
+	}
+	if c.gasometer == nil {
+		c.gasometer = gasometer{}
+	}
 	// set address prefix in SDK global config
 	c.SetConfigAddressPrefix()
 
@@ -444,7 +507,7 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 		WithFromName(account.Name).
 		WithFromAddress(sdkaddr)
 
-	txf, err := prepareFactory(ctx, c.Factory)
+	txf, err := c.prepareFactory(ctx)
 	if err != nil {
 		return TxService{}, err
 	}
@@ -456,7 +519,7 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 			return TxService{}, err
 		}
 	} else {
-		_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
+		_, gas, err = c.gasometer.CalculateGas(ctx, txf, msgs...)
 		if err != nil {
 			return TxService{}, err
 		}
@@ -494,8 +557,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	}
 
 	// request coins from the faucet.
-	fc := cosmosfaucet.NewClient(c.faucetAddress)
-	faucetResp, err := fc.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
+	faucetResp, err := c.faucetClient.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
 	if err != nil {
 		return errors.Wrap(errCannotRetrieveFundsFromFaucet, err.Error())
 	}
@@ -513,7 +575,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 }
 
 func (c *Client) checkAccountBalance(ctx context.Context, address string) error {
-	resp, err := banktypes.NewQueryClient(c.context).Balance(ctx, &banktypes.QueryBalanceRequest{
+	resp, err := c.bankQueryClient.Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   c.faucetDenom,
 	})
@@ -544,16 +606,19 @@ func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	return nil
 }
 
-func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
-	from := clientCtx.GetFromAddress()
+func (c *Client) prepareFactory(clientCtx client.Context) (tx.Factory, error) {
+	var (
+		from = clientCtx.GetFromAddress()
+		txf  = c.TxFactory
+	)
 
-	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
+	if err := c.accountRetriever.EnsureExists(clientCtx, from); err != nil {
 		return txf, err
 	}
 
 	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
 	if initNum == 0 || initSeq == 0 {
-		num, seq, err := txf.AccountRetriever().GetAccountNumberSequence(clientCtx, from)
+		num, seq, err := c.accountRetriever.GetAccountNumberSequence(clientCtx, from)
 		if err != nil {
 			return txf, err
 		}
@@ -593,7 +658,7 @@ func (c Client) newContext() client.Context {
 		WithLegacyAmino(amino).
 		WithInput(os.Stdin).
 		WithOutput(c.out).
-		WithAccountRetriever(authtypes.AccountRetriever{}).
+		WithAccountRetriever(c.accountRetriever).
 		WithBroadcastMode(c.broadcastMode).
 		WithHomeDir(c.homePath).
 		WithClient(c.RPC).
