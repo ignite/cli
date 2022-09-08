@@ -261,11 +261,14 @@ func (n Network) sendAccountRequest(
 		return err
 	}
 
-	msg := launchtypes.NewMsgRequestAddAccount(
+	msg := launchtypes.NewMsgSendRequest(
 		addr,
 		launchID,
-		address,
-		amount,
+		launchtypes.NewGenesisAccount(
+			launchID,
+			address,
+			amount,
+		),
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
@@ -274,7 +277,7 @@ func (n Network) sendAccountRequest(
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestAddAccountResponse
+	var requestRes launchtypes.MsgSendRequestResponse
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
