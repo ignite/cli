@@ -172,9 +172,9 @@ The next step is to define the `AppendPost` keeper method.
 
 Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function and what you want to call the prefixes. The file will be empty for now.
 
-- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product-` or `post-`.
+- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product/` or `post/`.
 
-- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post-value-` and `Post-count-`. 
+- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post/value/` and `Post/count/`. 
 
 Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and add a comment that describes the keys:
 
@@ -183,8 +183,8 @@ const (
   // ...
 
   // Keep track of the index of posts  
-  PostKey      = "Post-value-"
-  PostCountKey = "Post-count-"
+  PostKey      = "Post/value/"
+  PostCountKey = "Post/count/"
 )
 ```
 
@@ -223,7 +223,7 @@ First, implement `GetPostCount`:
 
 ```go
 func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
-  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
+  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post/count/")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
 
   // Convert the PostCountKey to bytes
@@ -246,7 +246,7 @@ Now that `GetPostCount` returns the correct number of posts in the store, implem
 
 ```go
 func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
-  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
+  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post/count/")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
 
   // Convert the PostCountKey to bytes
@@ -256,7 +256,7 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   bz := make([]byte, 8)
   binary.BigEndian.PutUint64(bz, count)
 
-  // Set the value of Post-count- to count
+  // Set the value of Post/count/ to count
   store.Set(byteKey, bz)
 }
 ```
