@@ -8,19 +8,25 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+  <%= if (isIBC) { %>host "github.com/cosmos/ibc-go/v5/modules/core/24-host"<% } %>
+
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	<%= if (isIBC) { %>"github.com/ignite/cli/ignite/pkg/cosmosibckeeper"<% } %>
 )
 
 type (
 	Keeper struct {
-		<%= if (isIBC) { %>*cosmosibckeeper.Keeper<% } %>
 		cdc      	codec.BinaryCodec
 		storeKey 	storetypes.StoreKey
 		memKey   	storetypes.StoreKey
 		paramstore	paramtypes.Subspace
 		<%= for (dependency) in dependencies { %>
         <%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper<% } %>
+		<%= if (isIBC) { %>
+    portKey []byte
+    ChannelKeeper types.ChannelKeeper
+    PortKeeper    types.PortKeeper
+    ScopedKeeper types.ScopedKeeper
+    <% } %>
 	}
 )
 
@@ -29,9 +35,9 @@ func NewKeeper(
     storeKey,
     memKey storetypes.StoreKey,
 	ps paramtypes.Subspace,
-    <%= if (isIBC) { %>channelKeeper cosmosibckeeper.ChannelKeeper,
-    portKeeper cosmosibckeeper.PortKeeper,
-    scopedKeeper cosmosibckeeper.ScopedKeeper,<% } %>
+    <%= if (isIBC) { %>channelKeeper types.ChannelKeeper,
+    portKeeper types.PortKeeper,
+    scopedKeeper types.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper,<% } %>
 ) *Keeper {
 	// set KeyTable if it has not already been set
@@ -40,13 +46,10 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		<%= if (isIBC) { %>Keeper: cosmosibckeeper.NewKeeper(
-			types.PortKey,
-			storeKey,
-			channelKeeper,
-			portKeeper,
-			scopedKeeper,
-		),<% } %>
+		<%= if (isIBC) { %>portKey: types.PortKey,
+		ChannelKeeper: channelKeeper,
+		PortKeeper:    portKeeper,
+		ScopedKeeper:  scopedKeeper,<% } %>
 		cdc:      	cdc,
 		storeKey: 	storeKey,
 		memKey:   	memKey,
@@ -58,3 +61,30 @@ func NewKeeper(
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+<%= if (isIBC) { %>
+// IsBound checks if the transfer module is already bound to the desired port
+func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
+	_, ok := k.ScopedKeeper.GetCapability(ctx, host.PortPath(portID))
+	return ok
+}
+
+// BindPort defines a wrapper function for the ort Keeper's function in
+// order to expose it to module's InitGenesis function
+func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
+	cap := k.PortKeeper.BindPort(ctx, portID)
+	return k.ScopedKeeper.ClaimCapability(ctx, cap, host.PortPath(portID))
+}
+
+// GetPort returns the portID for the transfer module. Used in ExportGenesis
+func (k Keeper) GetPort(ctx sdk.Context) string {
+	store := ctx.KVStore(k.storeKey)
+	return string(store.Get(types.PortKey))
+}
+
+// SetPort sets the portID for the transfer module. Used in InitGenesis
+func (k Keeper) SetPort(ctx sdk.Context, portID string) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.PortKey, []byte(portID))
+}
+<% } %>
