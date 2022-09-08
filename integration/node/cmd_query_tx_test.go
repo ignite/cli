@@ -48,7 +48,7 @@ func TestNodeQueryTx(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock())
+		require.NoError(t, client.WaitForNextBlock(context.Background()))
 
 		b := &bytes.Buffer{}
 		env.Exec("send 100token from alice to bob",
@@ -75,7 +75,7 @@ func TestNodeQueryTx(t *testing.T) {
 		res := regexp.MustCompile(`\(hash = (\w+)\)`).FindAllStringSubmatch(b.String(), -1)
 		require.Len(t, res[0], 2, "can't extract hash from command output")
 		hash := res[0][1]
-		require.NoError(t, client.WaitForNextBlock())
+		require.NoError(t, client.WaitForNextBlock(context.Background()))
 
 		env.Must(env.Exec("query tx",
 			step.NewSteps(step.New(

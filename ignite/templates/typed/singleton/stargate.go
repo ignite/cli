@@ -88,7 +88,7 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 		}
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[1]vKey= "%[1]v-value-"
+	%[1]vKey= "%[1]v/value/"
 )
 `, opts.TypeName.UpperCamel)
 		newFile := genny.NewFileS(path, content)
