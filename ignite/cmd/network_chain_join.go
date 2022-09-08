@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/xchisel"
 	"github.com/ignite/cli/ignite/services/network"
@@ -121,17 +123,18 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// genesis account request
 	if !noAccount {
-		if c.IsAccountBalanceFixed() {
+		switch {
+		case c.IsAccountBalanceFixed():
 			// fixed account balance
 			joinOptions = append(joinOptions, network.WithAccountRequest(c.AccountBalance()))
-		} else if amount != "" {
+		case amount != "":
 			// account balance set by user
 			amountCoins, err := sdk.ParseCoinsNormalized(amount)
 			if err != nil {
 				return errors.Wrap(err, "error parsing amount")
 			}
 			joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
-		} else {
+		default:
 			// fixed balance and no amount entered by the user, we ask if they want to skip account request
 			if !getYes(cmd) {
 				question := fmt.Sprintf(
