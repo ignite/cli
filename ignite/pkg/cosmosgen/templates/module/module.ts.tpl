@@ -37,7 +37,7 @@ class SDKModule extends Api<any> {
 
 	constructor(client: IgniteClient) {		
 		super({baseUrl: client.env.apiURL});
-		this._signer = client.env.signer;		
+		this._signer = client.signer;		
 		this._rpcAddr = client.env.rpcURL;
 		this._prefix = client.env.prefix ?? 'cosmos';
 	}
@@ -51,10 +51,11 @@ class SDKModule extends Api<any> {
 		if (!this._rpcAddr) {
             throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Address is not present.')
         }
-		try {
+		try {			
+  		const { address } = (await this._signer.getAccounts())[0]; 
 			const signingClient = await SigningStargateClient.connectWithSigner(this._rpcAddr,this._signer,{registry: new Registry(this.registry), prefix:this._prefix});
 			let msg = this.{{ camelCase .Name }}({ value: {{ .Name }}.fromPartial(value) })
-			return await signingClient.signAndBroadcast(this._rpcAddr, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
+			return await signingClient.signAndBroadcast(address, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
 		} catch (e: any) {
 			throw new Error('TxClient:send{{ .Name }}: Could not broadcast Tx: '+ e.message)
 		}
