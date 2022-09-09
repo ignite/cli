@@ -110,8 +110,7 @@ func TestGetRegisteredModules(t *testing.T) {
 	}, registeredModules)
 }
 
-func TestParseAppModulesFromIdent(t *testing.T) {
-	// Arrange
+func TestParseAppModules(t *testing.T) {
 	want := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
 		"github.com/cosmos/cosmos-sdk/x/bank",
@@ -119,10 +118,26 @@ func TestParseAppModulesFromIdent(t *testing.T) {
 		"github.com/username/test/x/foo",
 	}
 
-	// Act
-	m, err := app.FindRegisteredModules("testdata/modules/ident")
+	cases := []struct {
+		name string
+		path string
+	}{
+		{
+			name: "same file variable",
+			path: "testdata/modules/file_variable",
+		},
+		{
+			name: "same package variable",
+			path: "testdata/modules/package_variable",
+		},
+	}
 
-	// Assert
-	require.NoError(t, err)
-	require.Equal(t, want, m)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			m, err := app.FindRegisteredModules(tt.path)
+
+			require.NoError(t, err)
+			require.Equal(t, want, m)
+		})
+	}
 }

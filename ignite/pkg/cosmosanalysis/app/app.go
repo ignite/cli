@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
@@ -99,11 +100,20 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 		return nil, err
 	}
 
+	// The directory where the app file is located.
+	// This is required to resolve references within the app package.
+	appDir := filepath.Dir(appFilePath)
+
 	var basicModules []string
 	ast.Inspect(f, func(n ast.Node) bool {
-		if pkgsReg := findBasicManagerRegistrations(n, basicManagerModule); pkgsReg != nil {
+		if pkgsReg := findBasicManagerRegistrations(n, basicManagerModule, appDir); pkgsReg != nil {
 			for _, rp := range pkgsReg {
 				importModule := packages[rp]
+				if importModule == "" {
+					// When the package is not defined in the same file use the package name as import
+					importModule = rp
+				}
+
 				basicModules = append(basicModules, importModule)
 			}
 
@@ -128,7 +138,7 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 	return basicModules, nil
 }
 
-func findBasicManagerRegistrations(n ast.Node, basicManagerModule string) []string {
+func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string) []string {
 	callExprType, ok := n.(*ast.CallExpr)
 	if !ok {
 		return nil
@@ -144,6 +154,7 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule string) []stri
 		return nil
 	}
 
+	// TODO: Move parsing for each type of node to different functions
 	var packagesRegistered []string
 	for _, arg := range callExprType.Args {
 		argAsCompositeLitType, ok := arg.(*ast.CompositeLit)
@@ -173,51 +184,13 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule string) []stri
 			}
 		}
 
-		// The list of modules are defined in a variable
+		// The list of modules are defined in a local variable
 		if ident, ok := arg.(*ast.Ident); ok {
-			if p := parseAppModulesFromIdent(ident); p != nil {
-				packagesRegistered = append(packagesRegistered, p...)
-			}
+			packagesRegistered = append(packagesRegistered, parseAppModulesFromIdent(ident, pkgDir)...)
 		}
 	}
 
 	return packagesRegistered
-}
-
-func parseAppModulesFromIdent(n *ast.Ident) (pkgNames []string) {
-	if n == nil || n.Obj == nil {
-		// The variable is defined in another file
-		// TODO: Implement support to read modules from other files
-		return
-	}
-
-	decl, ok := n.Obj.Decl.(*ast.ValueSpec)
-	if !ok {
-		return
-	}
-
-	values, ok := decl.Values[0].(*ast.CompositeLit)
-	if !ok {
-		return
-	}
-
-	for _, e := range values.Elts {
-		v, ok := e.(*ast.CompositeLit)
-		if !ok {
-			continue
-		}
-
-		vt, ok := v.Type.(*ast.SelectorExpr)
-		if !ok {
-			continue
-		}
-
-		if pkg, ok := vt.X.(*ast.Ident); ok {
-			pkgNames = append(pkgNames, pkg.Name)
-		}
-	}
-
-	return pkgNames
 }
 
 func findBasicManagerModule(pkgs map[string]string) (string, error) {
