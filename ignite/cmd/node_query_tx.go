@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 )
 
@@ -24,11 +23,12 @@ func nodeQueryTxHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	rpc, err := sdkclient.NewClientFromNode(getRPC(cmd))
+	client, err := newNodeCosmosClient(cmd)
 	if err != nil {
 		return err
 	}
-	resp, err := rpc.Tx(cmd.Context(), bz, false)
+
+	resp, err := client.RPC.Tx(cmd.Context(), bz, false)
 	if err != nil {
 		return err
 	}

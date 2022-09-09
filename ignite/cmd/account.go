@@ -70,7 +70,7 @@ func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) error 
 
 func flagSetKeyringBackend() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagKeyringBackend, "test", "Keyring backend to store your account keys")
+	fs.String(flagKeyringBackend, string(cosmosaccount.KeyringTest), "Keyring backend to store your account keys")
 	return fs
 }
 
