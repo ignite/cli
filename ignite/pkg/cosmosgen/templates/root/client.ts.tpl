@@ -1,8 +1,14 @@
-import { GeneratedType, OfflineSigner } from "@cosmjs/proto-signing";
+import { GeneratedType, OfflineSigner, EncodeObject, Registry } from "@cosmjs/proto-signing";
+import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Env } from "./env";
 import { UnionToIntersection, Return, Constructor } from "./helpers";
 import { Module } from "./modules";
+
+const defaultFee = {
+  amount: [],
+  gas: "200000",
+};
 
 export class IgniteClient {
 	static plugins: Module[] = [];
@@ -23,6 +29,11 @@ export class IgniteClient {
 
     type Extension = Return<T>['module']
     return AugmentedClient as typeof AugmentedClient & Constructor<Extension>;
+  }
+  async signAndBroadcast(msgs: EncodeObject[], fee: StdFee, memo: string) {
+    const { address } = (await this.signer.getAccounts())[0]; 
+    const signingClient = await SigningStargateClient.connectWithSigner(this.env.rpcURL, this.signer, {registry: new Registry(this.registry), prefix: this.env.prefix});
+		return await signingClient.signAndBroadcast(address, msgs, fee ? fee : defaultFee, memo)
   }
   constructor(env: Env, signer: OfflineSigner) {
     this.env = env;
