@@ -1,13 +1,12 @@
 package app_test
 
 import (
+	_ "embed"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	_ "embed"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 )
@@ -109,4 +108,21 @@ func TestGetRegisteredModules(t *testing.T) {
 		"github.com/cosmos/cosmos-sdk/x/auth/tx",
 		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 	}, registeredModules)
+}
+
+func TestParseAppModulesFromIdent(t *testing.T) {
+	// Arrange
+	want := []string{
+		"github.com/cosmos/cosmos-sdk/x/auth",
+		"github.com/cosmos/cosmos-sdk/x/bank",
+		"github.com/cosmos/cosmos-sdk/x/staking",
+		"github.com/username/test/x/foo",
+	}
+
+	// Act
+	m, err := app.FindRegisteredModules("testdata/modules/ident")
+
+	// Assert
+	require.NoError(t, err)
+	require.Equal(t, want, m)
 }

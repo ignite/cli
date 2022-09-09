@@ -144,8 +144,8 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule string) []stri
 		return nil
 	}
 
-	packagesRegistered := make([]string, len(callExprType.Args))
-	for i, arg := range callExprType.Args {
+	var packagesRegistered []string
+	for _, arg := range callExprType.Args {
 		argAsCompositeLitType, ok := arg.(*ast.CompositeLit)
 		if ok {
 			compositeTypeSelectorExpr, ok := argAsCompositeLitType.Type.(*ast.SelectorExpr)
@@ -155,7 +155,7 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule string) []stri
 
 			compositeTypeX, ok := compositeTypeSelectorExpr.X.(*ast.Ident)
 			if ok {
-				packagesRegistered[i] = compositeTypeX.Name
+				packagesRegistered = append(packagesRegistered, compositeTypeX.Name)
 				continue
 			}
 		}
@@ -169,12 +169,55 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule string) []stri
 
 			argX, ok := argAsFunctionType.X.(*ast.Ident)
 			if ok {
-				packagesRegistered[i] = argX.Name
+				packagesRegistered = append(packagesRegistered, argX.Name)
+			}
+		}
+
+		// The list of modules are defined in a variable
+		if ident, ok := arg.(*ast.Ident); ok {
+			if p := parseAppModulesFromIdent(ident); p != nil {
+				packagesRegistered = append(packagesRegistered, p...)
 			}
 		}
 	}
 
 	return packagesRegistered
+}
+
+func parseAppModulesFromIdent(n *ast.Ident) (pkgNames []string) {
+	if n == nil || n.Obj == nil {
+		// The variable is defined in another file
+		// TODO: Implement support to read modules from other files
+		return
+	}
+
+	decl, ok := n.Obj.Decl.(*ast.ValueSpec)
+	if !ok {
+		return
+	}
+
+	values, ok := decl.Values[0].(*ast.CompositeLit)
+	if !ok {
+		return
+	}
+
+	for _, e := range values.Elts {
+		v, ok := e.(*ast.CompositeLit)
+		if !ok {
+			continue
+		}
+
+		vt, ok := v.Type.(*ast.SelectorExpr)
+		if !ok {
+			continue
+		}
+
+		if pkg, ok := vt.X.(*ast.Ident); ok {
+			pkgNames = append(pkgNames, pkg.Name)
+		}
+	}
+
+	return pkgNames
 }
 
 func findBasicManagerModule(pkgs map[string]string) (string, error) {
