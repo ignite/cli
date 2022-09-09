@@ -24,52 +24,68 @@ type {{ camelCase .Name }}Params = {
 };
 {{ end }}
 
+export const registry = new Registry(msgTypes);
+
 const defaultFee = {
   amount: [],
   gas: "200000",
 };
 
-class SDKModule extends Api<any> {
-	private _signer: OfflineSigner;
-	private _rpcAddr: string;
-	private _prefix: string;
+interface TxClientOptions {
+  addr: string
+	prefix: string
+	signer?: OfflineSigner
+}
+
+export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "http://localhost:26657", prefix: "cosmos" }) => {
+
+  return {
+		{{ range .Module.Msgs }}
+		async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
+			if (!signer) {
+					throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Signer is not present.')
+			}
+			try {			
+				const { address } = (await signer.getAccounts())[0]; 
+				const signingClient = await SigningStargateClient.connectWithSigner(addr,signer,{registry, prefix});
+				let msg = this.{{ camelCase .Name }}({ value: {{ .Name }}.fromPartial(value) })
+				return await signingClient.signAndBroadcast(address, [msg], fee ? fee : defaultFee, memo)
+			} catch (e: any) {
+				throw new Error('TxClient:send{{ .Name }}: Could not broadcast Tx: '+ e.message)
+			}
+		},
+		{{ end }}
+		{{ range .Module.Msgs }}
+		{{ camelCase .Name }}({ value }: {{ camelCase .Name }}Params): EncodeObject {
+			try {
+				return { typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( value ) }  
+			} catch (e: any) {
+				throw new Error('TxClient:{{ .Name }}: Could not create message: ' + e.message)
+			}
+		},
+		{{ end }}
+	}
+};
+
+interface QueryClientOptions {
+  addr: string
+}
+
+export const queryClient = ({ addr: addr }: QueryClientOptions = { addr: "http://localhost:1317" }) => {
+  return new Api({ baseUrl: addr });
+};
+
+class SDKModule {
+	public query: ReturnType<typeof queryClient>;
+	public tx: ReturnType<typeof txClient>;
+	
 	public registry: Array<[string, GeneratedType]>;
 
 	constructor(client: IgniteClient) {		
-		super({baseUrl: client.env.apiURL});
-		this._signer = client.signer;		
-		this._rpcAddr = client.env.rpcURL;
-		this._prefix = client.env.prefix ?? 'cosmos';
+	
+		this.query = queryClient({ addr: client.env.apiURL });
+		this.tx = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
 	}
-
-
-	{{ range .Module.Msgs }}
-	async send{{ .Name }}({ value, fee, memo }: send{{ .Name }}Params): Promise<DeliverTxResponse> {
-		if (!this._signer) {
-		    throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Signer is not present.')
-		}
-		if (!this._rpcAddr) {
-            throw new Error('TxClient:send{{ .Name }}: Unable to sign Tx. Address is not present.')
-        }
-		try {			
-  		const { address } = (await this._signer.getAccounts())[0]; 
-			const signingClient = await SigningStargateClient.connectWithSigner(this._rpcAddr,this._signer,{registry: new Registry(this.registry), prefix:this._prefix});
-			let msg = this.{{ camelCase .Name }}({ value: {{ .Name }}.fromPartial(value) })
-			return await signingClient.signAndBroadcast(address, [msg], fee ? fee : { amount: [], gas: '200000' }, memo)
-		} catch (e: any) {
-			throw new Error('TxClient:send{{ .Name }}: Could not broadcast Tx: '+ e.message)
-		}
-	}
-	{{ end }}
-	{{ range .Module.Msgs }}
-	{{ camelCase .Name }}({ value }: {{ camelCase .Name }}Params): EncodeObject {
-		try {
-			return { typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( value ) }  
-		} catch (e: any) {
-			throw new Error('TxClient:{{ .Name }}: Could not create message: ' + e.message)
-		}
-	}
-	{{ end }}
 };
 
 const Module = (test: IgniteClient) => {
