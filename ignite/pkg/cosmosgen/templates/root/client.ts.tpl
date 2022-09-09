@@ -14,7 +14,7 @@ export class IgniteClient {
 	static plugins: Module[] = [];
   env: Env;
   signer: OfflineSigner;
-  registry: Array<[string, GeneratedType]>
+  registry: Array<[string, GeneratedType]> = [];
   static plugin<T extends Module | Module[]>(plugin: T) {
     const currentPlugins = this.plugins;
 
