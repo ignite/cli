@@ -130,6 +130,10 @@ func TestParseAppModules(t *testing.T) {
 			name: "same package variable",
 			path: "testdata/modules/package_variable",
 		},
+		{
+			name: "other package variable",
+			path: "testdata/modules/external_variable",
+		},
 	}
 
 	for _, tt := range cases {

@@ -2,6 +2,7 @@ package app
 
 import (
 	"go/ast"
+	"go/build"
 	"go/parser"
 	"go/token"
 	"os"
@@ -70,6 +71,29 @@ func parseAppModulesFromIdent(n *ast.Ident, pkgDir string) (pkgNames []string) {
 	}
 
 	return pkgNames
+}
+
+func parseAppModulesFromSelectorExpr(n *ast.SelectorExpr, pkgDir string, pkgs map[string]string) []string {
+	if n == nil {
+		return nil
+	}
+
+	// Get the name of the package where the app modules variable is defined
+	ident, ok := n.X.(*ast.Ident)
+	if !ok {
+		return nil
+	}
+
+	// Get the import path of that package and resolve the full path to it
+	ctx := build.Default
+	ctx.Dir = pkgDir
+
+	pkg, err := ctx.Import(pkgs[ident.Name], "", build.FindOnly)
+	if err != nil {
+		return nil
+	}
+
+	return parseAppModulesFromPkgIdent(n.Sel.Name, pkg.Dir)
 }
 
 func parseAppModulesFromPkgIdent(identName, pkgDir string) (packages []string) {

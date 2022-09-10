@@ -106,7 +106,7 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 
 	var basicModules []string
 	ast.Inspect(f, func(n ast.Node) bool {
-		if pkgsReg := findBasicManagerRegistrations(n, basicManagerModule, appDir); pkgsReg != nil {
+		if pkgsReg := findBasicManagerRegistrations(n, basicManagerModule, appDir, packages); pkgsReg != nil {
 			for _, rp := range pkgsReg {
 				importModule := packages[rp]
 				if importModule == "" {
@@ -138,7 +138,7 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 	return basicModules, nil
 }
 
-func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string) []string {
+func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string, pkgs map[string]string) []string {
 	callExprType, ok := n.(*ast.CallExpr)
 	if !ok {
 		return nil
@@ -188,6 +188,12 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string
 		if ident, ok := arg.(*ast.Ident); ok {
 			packagesRegistered = append(packagesRegistered, parseAppModulesFromIdent(ident, pkgDir)...)
 		}
+
+		// The list of modules is defined in a variable of a different package
+		if se, ok := arg.(*ast.SelectorExpr); ok {
+			packagesRegistered = append(packagesRegistered, parseAppModulesFromSelectorExpr(se, pkgDir, pkgs)...)
+		}
+
 	}
 
 	return packagesRegistered
