@@ -88,6 +88,24 @@ const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend(
 );
 ```
 
+If you prefer, you can construct a lighter client using only the modules you are interested in by importing the generic client class and expanding it with the modules you need:
+
+```typescript
+import { IgniteClient } from '<path-to-ts-client>/client';
+import { Module as CosmosBankV1Beta1 } from '<path-to-ts-client>/cosmos.bank.v1beta1'
+import { Module as CosmosStakingV1Beta1 } from '<path-to-ts-client>/cosmos.staking.v1beta1'
+
+const CustomClient = IgniteClient.plugin([CosmosBankV1Beta1, CosmosStakingV1Beta1]);
+
+const client = new CustomClient({ 
+		apiURL: "http://localhost:1317",
+		rpcURL: "http://localhost:26657",
+		prefix: "cosmos"
+	},
+	window.keplr.getOfflineSigner()
+);
+```
+
 You can also construct TX messages separately and send them in a single TX using a global signing client like so:
 
 ```typescript
