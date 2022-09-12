@@ -31,6 +31,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
+	github.com/ignite/web v0.3.10
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.7.7
 	github.com/manifoldco/promptui v0.9.0
@@ -50,7 +51,6 @@ require (
 	github.com/tendermint/spn v0.2.1-0.20220826123316-985b629a92dd
 	github.com/tendermint/tendermint v0.34.21
 	github.com/tendermint/tm-db v0.6.7
-	github.com/tendermint/vue v0.3.5
 	github.com/vektra/mockery/v2 v2.14.0
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
