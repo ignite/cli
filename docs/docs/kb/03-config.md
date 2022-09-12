@@ -71,7 +71,17 @@ client:
     path: "vue/src/store"
 ```
 
-Generates TypeScript Vuex client for the blockchain in `path` on `serve` and `build` commands.
+Generates Vuex stores for the blockchain in `path` on `serve` and `build` commands.
+
+### client.typescript
+
+```yaml
+client:
+  typescript:
+    path: "vue/src/generated"
+```
+
+Generates TypeScript clients for the blockchain in `path` on `serve` and `build` commands.
 
 ### client.openapi
 

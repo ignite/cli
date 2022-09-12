@@ -11,17 +11,19 @@ The frontend app is built using the `@starport/vue` and `@starport/vuex` package
 
 ## Client code generation
 
-JavaScript (JS), TypeScript (TS), and Vuex clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules.
+A TypeScript (TS) client and associated Vuex stores are automatically generated for your blockchain for custom and standard Cosmos SDK modules.
 
 To enable client code generation, add the `client` entries to `config.yml`:
 
 ```yaml
 client:
+  typescript:
+    path: "ts-client"
   vuex:
-    path: "js"
+    path: "vue/src/store"
 ```
 
-A Vuex client is generated in the `js` directory. JS and TS clients are also generated because they are dependencies of the Vuex client.
+A TS client is generated in the `ts-client` directory (see: [TypeScript client information](https://docs.ignite.com/clients/typescript)) and Vuex store modules making use of this client are generated in the `vue/src/store` directory.
 
 ## Client code regeneration
 
@@ -33,6 +35,7 @@ To regenerate all clients for custom and standard Cosmos SDK modules, run this c
 ignite generate vuex
 ```
 
+(Note: this command also runs the typescript client generation and you do not need to run `ignite generate ts-client` separately.)
 ## Preventing client code regeneration	
 
-To prevent regenerating the client, remove the `client` property from `config.yml`.	
+To prevent regenerating the client, remove the `client:vuex` property from `config.yml`.	

@@ -78,7 +78,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	if getBroadcastMode(cmd) != flags.BroadcastBlock {
 		session.Println("Transaction waiting to be included in a block.")
 		session.Println("Run the following command to follow the transaction status:")
-		session.Printf("  ignite node --node %s q tx %s\n", getRPC(cmd), resp.TxHash)
+		session.Printf("  ignite node --node %s q tx %s\n", getNode(cmd), resp.TxHash)
 	}
 	return nil
 }

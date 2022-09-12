@@ -12,7 +12,6 @@ import (
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
-	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -44,7 +43,6 @@ type Network struct {
 	stakingQuery            stakingtypes.QueryClient
 	bankQuery               banktypes.QueryClient
 	monitoringConsumerQuery monitoringctypes.QueryClient
-	monitoringProviderQuery monitoringptypes.QueryClient
 	clock                   xtime.Clock
 }
 
