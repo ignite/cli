@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/libs/bytes"
-	"github.com/tendermint/tendermint/rpc/client"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/types"
@@ -35,7 +34,7 @@ func (rpc rpcWrapper) ABCIQuery(ctx context.Context, path string, data bytes.Hex
 	return res, rpcError(rpc.nodeAddress, err)
 }
 
-func (rpc rpcWrapper) ABCIQueryWithOptions(ctx context.Context, path string, data bytes.HexBytes, opts client.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
+func (rpc rpcWrapper) ABCIQueryWithOptions(ctx context.Context, path string, data bytes.HexBytes, opts rpcclient.ABCIQueryOptions) (*ctypes.ResultABCIQuery, error) {
 	res, err := rpc.Client.ABCIQueryWithOptions(ctx, path, data, opts)
 	return res, rpcError(rpc.nodeAddress, err)
 }

@@ -9,7 +9,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     # - errcheck
@@ -28,7 +27,6 @@ linters:
     - nakedret
     - exportloopref
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
