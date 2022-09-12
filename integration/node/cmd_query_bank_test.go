@@ -108,7 +108,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock())
+		require.NoError(t, client.WaitForNextBlock(context.Background()))
 
 		b := &bytes.Buffer{}
 

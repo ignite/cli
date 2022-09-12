@@ -251,7 +251,7 @@ message Post {
 
 The function `ignite scaffold list comment --no-message` has fetched all of the required functions for keeper. 
 
-Inside `x/blog/types/keys.go` file, you can see that the `comment-value` and `comment-count` keys are added.
+Inside `x/blog/types/keys.go` file, you can see that the `Comment/value/` and `Comment/count/` keys are added.
 
 ## Write data to the store
 

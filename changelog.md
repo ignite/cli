@@ -11,11 +11,13 @@
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 - Add `node query tx` command to query a transaction in any chain.
 - Add `node query bank` command to query an account's bank balance in any chain.
-- Add `node tx bank send` command to send funds from one account to an other in any chain.
+- Add `node tx bank send` command to send funds from one account to another in any chain.
 - Implement `network profile` command
+- Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
 
 ### Changes
 
+- Add changelog merge strategy in .gitattributes to avoid conflicts.
 - Refactor `templates/app` to remove `monitoringp` module from the default template
 - Updated keyring dependency to match Cosmos SDK
 - Speed up the integration tests
@@ -32,11 +34,14 @@
 - Add nodejs version in the output of ignite version
 - Removed `handler.go` from scaffolded module template
 - Migrated to `cosmossdk.io` packages for and `math`
+- Vuex stores from the `generate vuex` command use the new TypeScript client
+- Upgraded frontend Vue template to v0.3.10
 
 ### Fixes
 
 - Improved error handling for crypto wrapper functions
 - Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
+- Test and refactor `pkg/comosclient`.
 - Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
 - Fix cosmoscmd appID parameter value to sign a transaction correctly
 - Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
