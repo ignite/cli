@@ -273,6 +273,11 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 			return Client{}, err
 		}
 	}
+	// Wrap RPC client to have more contextualized errors
+	c.RPC = rpcWrapper{
+		Client:      c.RPC,
+		nodeAddress: c.nodeAddress,
+	}
 
 	statusResp, err := c.RPC.Status(ctx)
 	if err != nil {
