@@ -7,17 +7,18 @@
 		"build": "pkg --public-packages \"*\" --public --no-bytecode -c package.json -o nodetime nodetime"
 	},
 	"dependencies": {
-		"@confio/relayer": "0.2.0",
-		"@cosmjs/crypto": "0.25.0",
-		"@cosmjs/launchpad": "0.25.0",
-		"@cosmjs/proto-signing": "0.25.0",
-		"@cosmjs/stargate": "0.25.0",
-		"@cosmjs/tendermint-rpc": "0.25.0",
+		"@confio/relayer": "0.5.1",
+		"@cosmjs/crypto": "0.28.11",
+		"@cosmjs/encoding": "0.28.11",
+		"@cosmjs/proto-signing": "0.28.11",
+		"@cosmjs/stargate": "0.28.11",
+		"@cosmjs/tendermint-rpc": "0.28.11",
 		"js-yaml": "^4.0.0",
 		"json-rpc-2.0": "^0.2.16",
 		"long": "^4.0.0",
 		"pkg": "github:vercel/pkg#main",
 		"protobufjs": "^6.10.2",
+		"sinon": "^9.2.4",
 		"swagger-combine": "^1.3.0",
 		"swagger-typescript-api": "^5.1.7",
 		"ts-proto": "^1.68.0"
@@ -43,4 +44,3 @@
 		"typescript": "^4.2.4"
 	}
 }
-

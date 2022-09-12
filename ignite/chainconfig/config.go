@@ -21,12 +21,10 @@ var (
 	ConfigFileNames = []string{"config.yml", "config.yaml"}
 )
 
-var (
-	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New(
-		"could not locate a config.yml in your chain. please follow the link for" +
-			"how-to: https://github.com/ignite/cli/blob/develop/docs/configure/index.md")
-)
+// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
+var ErrCouldntLocateConfig = errors.New(
+	"could not locate a config.yml in your chain. please follow the link for" +
+		"how-to: https://github.com/ignite/cli/blob/develop/docs/configure/index.md")
 
 // DefaultConf holds default configuration.
 var DefaultConf = Config{
@@ -114,8 +112,11 @@ type Proto struct {
 
 // Client configures code generation for clients.
 type Client struct {
-	// Vuex configures code generation for Vuex.
-	Vuex Vuex `yaml:"vuex"`
+	// TSClient configures code generation for Typescript Client.
+	Typescript Typescript `yaml:"typescript"`
+
+	// Vuex configures code generation for Vuex stores.
+	Vuex Typescript `yaml:"vuex"`
 
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart"`
@@ -124,9 +125,15 @@ type Client struct {
 	OpenAPI OpenAPI `yaml:"openapi"`
 }
 
-// Vuex configures code generation for Vuex.
+// TSClient configures code generation for Typescript Client.
+type Typescript struct {
+	// Path configures out location for generated Typescript Client code.
+	Path string `yaml:"path"`
+}
+
+// Vuex configures code generation for Vuex stores.
 type Vuex struct {
-	// Path configures out location for generated Vuex code.
+	// Path configures out location for generated Vuex stores code.
 	Path string `yaml:"path"`
 }
 
@@ -265,5 +272,5 @@ func CreateConfigDir() error {
 		return err
 	}
 
-	return os.MkdirAll(confPath, 0755)
+	return os.MkdirAll(confPath, 0o755)
 }

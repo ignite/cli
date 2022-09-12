@@ -30,6 +30,7 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 	c.Flags().String(flagCampaignTotalSupply, "", "Update the total of the mainnet of a campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 

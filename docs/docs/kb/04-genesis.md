@@ -15,7 +15,7 @@ To set and test different values, add the `genesis` parameter to `config.yml`.
 
 To change the value of one parameter, add the key-value pair under the `genesis` parameter. For example, change the value of `chain-id`:
 
-```yml
+```yaml
 genesis:
   chain_id: "foobar"
 ```
@@ -24,7 +24,7 @@ genesis:
 
 You can change one or more parameters of different modules. For example, in the `staking` module you can add a key-value pair to `bond_denom` to change which token gets staked:
 
-```yml
+```yaml
 genesis:
   app_state:
     staking:

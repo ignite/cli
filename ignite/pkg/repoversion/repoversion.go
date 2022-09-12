@@ -45,7 +45,6 @@ func Determine(path string) (v Version, err error) {
 	idMap := make(map[string]int)
 
 	err = cIter.ForEach(func(c *object.Commit) error {
-
 		idMap[c.Hash.String()] = commitIndex
 		commitIndex++
 
@@ -81,7 +80,6 @@ func Determine(path string) (v Version, err error) {
 			}
 
 			commit, err := repo.CommitObject(t.Hash())
-
 			if err != nil {
 				return err
 			}

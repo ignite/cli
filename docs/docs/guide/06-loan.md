@@ -110,7 +110,7 @@ Use the `--no-message` flag to disable CRUD messages in the scaffold.
 
 The data you store in an array-like data structure are the loans, with these parameters that are defined in the `Loan` message in `proto/loan/loan.proto`:
 
-```proto
+```protobuf
 message Loan {
   uint64 id = 1;
   string amount = 2;
@@ -411,7 +411,7 @@ import (
 
 // x/loan module sentinel errors
 var (
-	ErrWrongLoanState = sdkerrors.Register(ModuleName, 1, "wrong loan state")
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
 )
 ```
 
@@ -717,8 +717,8 @@ import (
 
 // x/loan module sentinel errors
 var (
-	ErrWrongLoanState = sdkerrors.Register(ModuleName, 1, "wrong loan state")
-	ErrDeadline       = sdkerrors.Register(ModuleName, 2, "deadline")
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
+	ErrDeadline       = sdkerrors.Register(ModuleName, 3, "deadline")
 )
 ```
 

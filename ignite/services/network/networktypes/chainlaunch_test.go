@@ -2,6 +2,7 @@ package networktypes_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -46,7 +47,7 @@ func TestToChainLaunch(t *testing.T) {
 				SourceURL:       "bar.com",
 				SourceHash:      "0xbbb",
 				LaunchTriggered: true,
-				LaunchTimestamp: 100,
+				LaunchTime:      time.Unix(100, 100).UTC(),
 				InitialGenesis: launchtypes.NewGenesisURL(
 					"genesisfoo.com",
 					"0xccc",
@@ -60,7 +61,7 @@ func TestToChainLaunch(t *testing.T) {
 				GenesisURL:      "genesisfoo.com",
 				GenesisHash:     "0xccc",
 				LaunchTriggered: true,
-				LaunchTime:      100,
+				LaunchTime:      time.Unix(100, 100).UTC(),
 				CampaignID:      0,
 				Network:         "testnet",
 			},

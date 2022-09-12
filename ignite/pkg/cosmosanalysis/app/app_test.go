@@ -59,7 +59,7 @@ func TestCheckKeeper(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
 			tmpFile := filepath.Join(tmpDir, "app.go")
-			err := os.WriteFile(tmpFile, tt.appFile, 0644)
+			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
 			require.NoError(t, err)
 
 			err = app.CheckKeeper(tmpDir, tt.keeperName)
@@ -77,11 +77,11 @@ func TestGetRegisteredModules(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, AppFullFile, 0644)
+	err := os.WriteFile(tmpFile, AppFullFile, 0o644)
 	require.NoError(t, err)
 
 	tmpNoAppFile := filepath.Join(tmpDir, "someOtherFile.go")
-	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0644)
+	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0o644)
 	require.NoError(t, err)
 
 	registeredModules, err := app.FindRegisteredModules(tmpDir)
@@ -99,10 +99,10 @@ func TestGetRegisteredModules(t *testing.T) {
 		"github.com/cosmos/cosmos-sdk/x/crisis",
 		"github.com/cosmos/cosmos-sdk/x/slashing",
 		"github.com/cosmos/cosmos-sdk/x/feegrant/module",
-		"github.com/cosmos/ibc-go/v3/modules/core",
+		"github.com/cosmos/ibc-go/v5/modules/core",
 		"github.com/cosmos/cosmos-sdk/x/upgrade",
 		"github.com/cosmos/cosmos-sdk/x/evidence",
-		"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+		"github.com/cosmos/ibc-go/v5/modules/apps/transfer",
 		"github.com/cosmos/cosmos-sdk/x/auth/vesting",
 		"github.com/tendermint/testchain/x/testchain",
 		"github.com/tendermint/testchain/x/queryonlymod",

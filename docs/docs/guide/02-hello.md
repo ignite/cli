@@ -154,7 +154,7 @@ git commit -am "Scaffolded a hello query with Ignite CLI"
 
 In the `proto/hello/query.proto` file, the `Hello` rpc has been added to the `Query` service.
 
-```proto
+```protobuf
 service Query {
 	rpc Hello(QueryHelloRequest) returns (QueryHelloResponse) {
 		option (google.api.http).get = "/hello/hello/hello";
@@ -173,7 +173,7 @@ Here's how the `Hello` rpc for the `Query` service works:
 
 Now, take a look at the following request and response types:
 
-```proto
+```protobuf
 message QueryHelloRequest {
 }
 
@@ -239,10 +239,12 @@ Make the required changes to the `x/hello/module.go` file.
 
     ```go
     import (
-      "encoding/json"
-      "fmt"
-      //...
+      // ...
+
       "context"
+
+      // ...
+    )
     ```
 
     Do not save the file yet, you need to continue with these modifications.
@@ -259,7 +261,7 @@ Make the required changes to the `x/hello/module.go` file.
 
 2. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
 
-    ```go
+    ```json
     {
       "text": "Hello, Ignite CLI!",
     }

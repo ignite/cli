@@ -17,6 +17,8 @@ Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.g
 ```go
 // x/scavenge/keeper/msg_server_submit_scavenge.go
 
+package keeper
+
 import (
   "context"
 
@@ -82,6 +84,9 @@ To use the `BankKeeper` interface in the keeper methods of the `scavenge` module
 
 ```go
 // x/scavenge/types/expected_keepers.go
+
+package types
+
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -100,6 +105,8 @@ Make the required changes in the `x/scavenge/keeper/msg_server_commit_solution.g
 
 ```go
 // x/scavenge/keeper/msg_server_commit_solution.go
+
+package keeper
 
 import (
 	"context"
@@ -146,6 +153,8 @@ Make the required changes in the `x/scavenge/keeper/msg_server_reveal_solution.g
 
 ```go
 // x/scavenge/keeper/msg_server_reveal_solution.go
+
+package keeper
 
 import (
 	"context"

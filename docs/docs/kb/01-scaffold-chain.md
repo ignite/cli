@@ -12,12 +12,12 @@ The `ignite scaffold chain` command scaffolds a new Cosmos SDK blockchain projec
 To build the planet application:
 
 ```bash
-ignite scaffold chain github.com/username/planet
+ignite scaffold chain planet
 ```
 
 ## Directory structure
 
-The `ignite scaffold chain github.com/username/planet` command creates a directory called `planet` that contains all the files for your project and initializes a local git repository. The `github.com` URL in the argument is a string that is used for the Go module path. The repository name (`planet`, in this case) is used as the project's name.
+The `ignite scaffold chain planet` command creates a directory called `planet` that contains all the files for your project and initializes a local git repository. The `planet` argument is a string that is used for the Go module path. The repository name (`planet`, in this case) is used as the project's name.
 
 The project directory structure:
 
@@ -54,17 +54,14 @@ Account addresses on Cosmos SDK-based blockchains have string prefixes. For exam
 When you create a new blockchain, pass a prefix as a value to the `--address-prefix` flag:
 
 ```bash
-ignite scaffold chain github.com/username/planet --address-prefix moonlight
+ignite scaffold chain planet --address-prefix moonlight
 ```
 
 Using the `moonlight` prefix, account addresses on your blockchain look like this: `moonlight12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf`.
 
 ### Change prefix on existing blockchains
 
-To change the prefix after the blockchain has been scaffolded, modify the `AccountAddressPrefix` in the `app/prefix.go` file.
-
-1. Change the `AccountAddressPrefix` variable in the `/app/prefix.go` file. Be sure to preserve other variables in the file.
-2. To recognize the new prefix, change the `VITE_ADDRESS_PREFIX` variable in `/vue/.env`.
+To change the prefix after the blockchain has been scaffolded, modify the `AccountAddressPrefix` in the `app/app.go` file.
 
 ## Cosmos SDK version
 

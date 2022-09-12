@@ -29,11 +29,11 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
+	spnNodeAddressNightly   = "http://178.128.251.28:26657"
+	spnFaucetAddressNightly = "http://178.128.251.28:4500"
 
-	spnNodeAddressLocal   = "http://0.0.0.0:26657"
-	spnFaucetAddressLocal = "http://0.0.0.0:4500"
+	spnNodeAddressLocal   = "http://0.0.0.0:26661"
+	spnFaucetAddressLocal = "http://0.0.0.0:4502"
 )
 
 // NewNetwork creates a new network command that holds some other sub commands
@@ -59,7 +59,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
-		NewNetworkClient(),
+		NewNetworkProfile(),
 	)
 
 	return c
@@ -156,6 +156,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithAddressPrefix(networktypes.SPN),
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
+		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

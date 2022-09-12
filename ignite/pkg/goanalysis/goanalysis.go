@@ -15,10 +15,8 @@ const (
 	goFileExtension = ".go"
 )
 
-var (
-	// ErrMultipleMainPackagesFound is returned when multiple main packages found while expecting only one.
-	ErrMultipleMainPackagesFound = errors.New("multiple main packages found")
-)
+// ErrMultipleMainPackagesFound is returned when multiple main packages found while expecting only one.
+var ErrMultipleMainPackagesFound = errors.New("multiple main packages found")
 
 // DiscoverMain finds main Go packages under path.
 func DiscoverMain(path string) (pkgPaths []string, err error) {

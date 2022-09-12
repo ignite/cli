@@ -19,10 +19,13 @@ In this section, define the keepers that are required by the nameservice module:
 
 ## Buy Name
 
-To define the keeper for the buy name transaction, add this code to the `msg_server_buy_name.go` file:
+To define the keeper for the buy name transaction, add this code to the `x/nameservice/keeper/msg_server_buy_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_buy_name.go
+
+package keeper
+
 import (
 	"context"
 
@@ -91,10 +94,13 @@ This dependency automatically created an `expected_keepers.go` file with a `Bank
 
 The `BuyName` transaction uses `SendCoins` and `SendCoinsFromAccountToModule` methods from the `bank` module. 
 
-Edit the `expected_keepers.go` file to add `SendCoins` and `SendCoinsFromAccountToModule` to be able to use it in the keeper methods of the `nameservice` module.
+Edit the `x/nameservice/types/expected_keepers.go` file to add `SendCoins` and `SendCoinsFromAccountToModule` to be able to use it in the keeper methods of the `nameservice` module.
 
 ```go
 // x/nameservice/types/expected_keepers.go
+
+package types
+
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -107,10 +113,13 @@ type BankKeeper interface {
 
 ## Set Name
 
-To define the keeper for the set name transaction, add this code to the `msg_server_set_name.go` file:
+To define the keeper for the set name transaction, add this code to the `x/nameservice/keeper/msg_server_set_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_set_name.go
+
+package keeper
+
 import (
 	"context"
 
@@ -148,10 +157,13 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 ## Delete Name
 
-To define the keeper for the delete name transaction, add this code to the `msg_server_delete_name.go` file:
+To define the keeper for the delete name transaction, add this code to the `x/nameservice/keeper/msg_server_delete_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_delete_name.go
+
+package keeper
+
 import (
 	"context"
 

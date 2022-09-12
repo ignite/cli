@@ -26,10 +26,11 @@ This method makes it easier to incorporate different modules for different reaso
 ```go
 // x/scavenge/client/cli/tx_commit_solution.go
 
+package cli
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -93,10 +94,11 @@ Note that this file makes use of the `sha256` library for hashing the plain text
 ```go
 // x/scavenge/client/cli/tx_submit_scavenge.go
 
+package cli
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

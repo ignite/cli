@@ -35,10 +35,12 @@ First, create a new blockchain.
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
 ```bash
-ignite scaffold chain blog
+ignite scaffold chain blog --address-prefix blog
 ```
 
 The `blog` directory is created with the default directory structure.
+
+The new blockchain is scaffolded with the `--address-prefix blog` flag to use "blog" instead of the default "cosmos" address prefix.
 
 ## High-level transaction review
 
@@ -66,11 +68,10 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-```bash
+```
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_post.go
-modify x/blog/handler.go
 create x/blog/keeper/msg_server_create_post.go
 modify x/blog/module_simulation.go
 create x/blog/simulation/create_post.go
@@ -83,7 +84,7 @@ create x/blog/types/message_create_post_test.go
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
-```go
+```protobuf
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -104,27 +105,6 @@ service Msg {
   rpc CreatePost(MsgCreatePost) returns (MsgCreatePostResponse);
 }
 ```
-
-Next, look at the `x/blog/handler.go` file. Ignite CLI has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message:
-
-```go
-func NewHandler(k keeper.Keeper) sdk.Handler {
-  //...
-  return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
-    //...
-    switch msg := msg.(type) {
-    case *types.MsgCreatePost:
-      res, err := msgServer.CreatePost(sdk.WrapSDKContext(ctx), msg)
-      return sdk.WrapServiceResult(ctx, res, err)
-    //...
-    }
-  }
-}
-```
-
-The `case *types.MsgCreatePost` statement handles messages of type `MsgCreatePost`, calls the `CreatePost` method, and returns back the response.
-
-Every module has a handler function like this to process messages and call keeper methods.
 
 ## Define messages logic
 
@@ -163,7 +143,7 @@ When you define the `Post` type in a proto file, Ignite CLI (with the help of `p
 
 Create the `proto/blog/post.proto` file and define the `Post` message:
 
-```go
+```protobuf
 syntax = "proto3";
 
 package blog.blog;
@@ -192,19 +172,19 @@ The next step is to define the `AppendPost` keeper method.
 
 Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function and what you want to call the prefixes. The file will be empty for now.
 
-- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product-` or `post-`.
+- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product/` or `post/`.
 
-- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post-value-` and `Post-count-`. 
+- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post/value/` and `Post/count/`. 
 
 Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and add a comment that describes the keys:
 
 ```go
 const (
-  //...
+  // ...
 
   // Keep track of the index of posts  
-  PostKey      = "Post-value-"
-  PostCountKey = "Post-count-"
+  PostKey      = "Post/value/"
+  PostCountKey = "Post/count/"
 )
 ```
 
@@ -217,9 +197,20 @@ Your blog is now updated to take these actions when a `Post` message is sent to 
 
 ## Write data to the store
 
-Now, after the `import` section in the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
+In the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize what you do next:
 
 ```go
+package keeper
+
+import (
+  "encoding/binary"
+
+  "github.com/cosmos/cosmos-sdk/store/prefix"
+  sdk "github.com/cosmos/cosmos-sdk/types"
+
+  "blog/x/blog/types"
+)
+
 // func (k Keeper) AppendPost() uint64 {
 // 	 count := k.GetPostCount()
 // 	 store.Set()
@@ -232,7 +223,7 @@ First, implement `GetPostCount`:
 
 ```go
 func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
-  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
+  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post/count/")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
 
   // Convert the PostCountKey to bytes
@@ -255,7 +246,7 @@ Now that `GetPostCount` returns the correct number of posts in the store, implem
 
 ```go
 func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
-  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post-count-")
+  // Get the store using storeKey (which is "blog") and PostCountKey (which is "Post/count/")
   store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
 
   // Convert the PostCountKey to bytes
@@ -265,7 +256,7 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   bz := make([]byte, 8)
   binary.BigEndian.PutUint64(bz, count)
 
-  // Set the value of Post-count- to count
+  // Set the value of Post/count/ to count
   store.Set(byteKey, bz)
 }
 ```
@@ -273,17 +264,6 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 Now that you have implemented functions for getting the number of posts and setting the post count, at the top of the same `x/blog/keeper/post.go` file, implement the logic behind the `AppendPost` function:
 
 ```go
-package keeper
-
-import (
-  "encoding/binary"
-
-  "github.com/cosmos/cosmos-sdk/store/prefix"
-  sdk "github.com/cosmos/cosmos-sdk/types"
-
-  "blog/x/blog/types"
-)
-
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   // Get the current number of posts in the store
   count := k.GetPostCount(ctx)
@@ -312,7 +292,7 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
 
 By following these steps, you have implemented all of the code required to create new posts and store them on-chain. Now, when a transaction that contains a message of type `MsgCreatePost` is broadcast, the message is routed to your blog module.
 
-- `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`
+- `k.CreatePost` calls `AppendPost`
 - `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID
 
 Now that you have added the functionality to create posts and broadcast them to our chain, you can add querying.
@@ -336,13 +316,13 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-```go
+```protobuf
 import "blog/post.proto";
 ```
 
 2. Add pagination to the post request:
 
-```go
+```protobuf
 message QueryPostsRequest {
   // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
@@ -428,7 +408,7 @@ In the `x/blog/module.go` file:
 import (
 	"context"
 
-	// ... other imports
+	// ...
 )
 ```
 
@@ -467,8 +447,8 @@ blogd tx blog create-post foo bar --from alice
 
 The transaction is output to the terminal. You are prompted to confirm the transaction:
 
-```bash
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"cosmos1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+```
+{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
@@ -487,10 +467,10 @@ blogd q blog posts
 
 The result: 
 
-```bash
+```yaml
 Post:
 - body: bar
-  creator: cosmos1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
+  creator: blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
   id: "0"
   title: foo
 pagination:

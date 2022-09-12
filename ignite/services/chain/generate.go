@@ -12,16 +12,18 @@ import (
 )
 
 const (
-	defaultVuexPath    = "vue/src/store"
-	defaultDartPath    = "flutter/lib"
-	defaultOpenAPIPath = "docs/static/openapi.yml"
+	defaultTSClientPath = "ts-client"
+	defaultVuexPath     = "vue/src/store"
+	defaultDartPath     = "flutter/lib"
+	defaultOpenAPIPath  = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
-	isGoEnabled      bool
-	isVuexEnabled    bool
-	isDartEnabled    bool
-	isOpenAPIEnabled bool
+	isGoEnabled       bool
+	isTSClientEnabled bool
+	isVuexEnabled     bool
+	isDartEnabled     bool
+	isOpenAPIEnabled  bool
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -34,9 +36,17 @@ func GenerateGo() GenerateTarget {
 	}
 }
 
-// GenerateVuex enables generating proto based Vuex store.
+// GenerateTSClient enables generating proto based Typescript Client.
+func GenerateTSClient() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+	}
+}
+
+// GenerateTSClient enables generating proto based Typescript Client.
 func GenerateVuex() GenerateTarget {
 	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
 	}
 }
@@ -55,13 +65,19 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-func (c *Chain) generateAll(ctx context.Context, cacheStorage cache.Storage) error {
+// generateFromConfig makes code generation from proto files from the given config
+func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
 
 	var additionalTargets []GenerateTarget
+
+	// parse config for additional target
+	if conf.Client.Typescript.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateTSClient())
+	}
 
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
@@ -112,7 +128,26 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Vuex code as well if it is enabled.
+	// generate Typescript Client code as well if it is enabled.
+	if targetOptions.isTSClientEnabled {
+		tsClientPath := conf.Client.Typescript.Path
+		if tsClientPath == "" {
+			tsClientPath = defaultTSClientPath
+		}
+
+		tsClientRootPath := filepath.Join(c.app.Path, tsClientPath)
+		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithTSClientGeneration(
+				cosmosgen.TypescriptModulePath(tsClientRootPath),
+				tsClientRootPath,
+			),
+		)
+	}
+
 	if targetOptions.isVuexEnabled {
 		vuexPath := conf.Client.Vuex.Path
 		if vuexPath == "" {
@@ -120,14 +155,14 @@ func (c *Chain) Generate(
 		}
 
 		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
+		if err := os.MkdirAll(storeRootPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				cosmosgen.VuexStoreModulePath(storeRootPath),
+				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
@@ -135,13 +170,12 @@ func (c *Chain) Generate(
 
 	if targetOptions.isDartEnabled {
 		dartPath := conf.Client.Dart.Path
-
 		if dartPath == "" {
 			dartPath = defaultDartPath
 		}
 
 		rootPath := filepath.Join(c.app.Path, dartPath, "generated")
-		if err := os.MkdirAll(rootPath, 0766); err != nil {
+		if err := os.MkdirAll(rootPath, 0o766); err != nil {
 			return err
 		}
 

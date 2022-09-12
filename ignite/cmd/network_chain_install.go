@@ -24,6 +24,7 @@ func NewNetworkChainInstall() *cobra.Command {
 
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	return c
 }
 
@@ -57,7 +58,13 @@ func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	var networkOptions []networkchain.Option
+
+	if flagGetCheckDependencies(cmd) {
+		networkOptions = append(networkOptions, networkchain.CheckDependencies())
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}

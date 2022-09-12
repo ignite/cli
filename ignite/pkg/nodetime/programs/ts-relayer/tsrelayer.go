@@ -31,7 +31,7 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 
 	resr, resw := io.Pipe()
 
-	g := errgroup.Group{}
+	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		defer resw.Close()
 

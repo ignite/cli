@@ -24,7 +24,6 @@ type (
 
 // ToRequest converts a request data from SPN and returns a Request object
 func ToRequest(request launchtypes.Request) Request {
-
 	return Request{
 		LaunchID:  request.LaunchID,
 		RequestID: request.RequestID,

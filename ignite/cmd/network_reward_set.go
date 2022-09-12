@@ -21,6 +21,7 @@ func NewNetworkRewardSet() *cobra.Command {
 		RunE:  networkChainRewardSetHandler,
 	}
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c

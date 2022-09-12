@@ -6,13 +6,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -20,11 +21,9 @@ const (
 	moduleCacheNamespace = "generate.setup.module"
 )
 
-var (
-	protocGlobalInclude = xfilepath.List(
-		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
-		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
-	)
+var protocGlobalInclude = xfilepath.List(
+	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
+	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
 
 type ModulesInPath struct {
