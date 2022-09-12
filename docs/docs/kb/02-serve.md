@@ -33,7 +33,7 @@ The `ignite chain serve` command performs the following tasks:
 - Installs dependencies
 - Imports state, if possible
 - Builds protocol buffer files
-- Optionally generates a TypeScript (TS) Client
+- Optionally generates TypeScript clients and Vuex stores 
 - Builds a compiled blockchain binary
 - Creates accounts
 - Initializes a blockchain node

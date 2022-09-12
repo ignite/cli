@@ -63,6 +63,16 @@ build:
 
 Configures and enables client code generation. To prevent Ignite CLI from regenerating the client, remove the `client` property.
 
+### client.vuex
+
+```yaml
+client:
+  vuex:
+    path: "vue/src/store"
+```
+
+Generates Vuex stores for the blockchain in `path` on `serve` and `build` commands.
+
 ### client.typescript
 
 ```yaml
@@ -71,7 +81,7 @@ client:
     path: "vue/src/generated"
 ```
 
-Generates TypeScript client for the blockchain in `path` on `serve` and `build` commands.
+Generates TypeScript clients for the blockchain in `path` on `serve` and `build` commands.
 
 ### client.openapi
 
