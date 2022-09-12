@@ -106,14 +106,17 @@ func (n Network) sendValidatorRequest(
 		return err
 	}
 
-	msg := launchtypes.NewMsgRequestAddValidator(
+	msg := launchtypes.NewMsgSendRequest(
 		addr,
 		launchID,
-		valAddress,
-		gentx,
-		gentxInfo.PubKey,
-		gentxInfo.SelfDelegation,
-		peer,
+		launchtypes.NewGenesisValidator(
+			launchID,
+			valAddress,
+			gentx,
+			gentxInfo.PubKey,
+			gentxInfo.SelfDelegation,
+			peer,
+		),
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
@@ -123,7 +126,7 @@ func (n Network) sendValidatorRequest(
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestAddValidatorResponse
+	var requestRes launchtypes.MsgSendRequestResponse
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}

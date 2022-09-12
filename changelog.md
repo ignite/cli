@@ -35,6 +35,7 @@
 - Add nodejs version in the output of ignite version
 - Removed `handler.go` from scaffolded module template
 - Migrated to `cosmossdk.io` packages for `errors` and `math`
+- Upgraded `spn` version
 - Vuex stores from the `generate vuex` command use the new TypeScript client
 - Upgraded frontend Vue template to v0.3.10
 
