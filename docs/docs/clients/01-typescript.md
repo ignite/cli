@@ -47,7 +47,7 @@ To instantiate the client you need to provide environment information (endpoints
 
 For example, to connect to a local chain instance running under the Ignite CLI defaults, using Keplr as a wallet:
 
-```
+```typescript
 import { Client } from '<path-to-ts-client>';
 
 const client = new Client({ apiURL: "http://localhost:1317", rpcURL: "http://localhost:26657", prefix: "cosmos"},window.keplr.getOfflineSigner());
@@ -57,13 +57,13 @@ The resulting client instance contains namespaces for each module, each with a `
 
 e.g.
 
-```
+```typescript
 const balances = await client.CosmosBankV1Beta1.query.queryAllBalances('cosmos1qqqsyqcyq5rqwzqfys8f67');
 ```
 
 And for transactions:
 
-```
+```typescript
 const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend(
 	{ 
 		value: {
@@ -84,7 +84,7 @@ const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend(
 
 You can also construct TX messages separately and send them in a single TX using a global signing client like so:
 
-```
+```typescript
 const msg1 = await client.CosmosBankV1Beta1.tx.msgSend(
 	{ 
 		value: {
@@ -120,7 +120,7 @@ Finally, for additional ease-of-use, apart from the modular client mentioned abo
 
 e.g.
 
-```
+```typescript
 import { queryClient } from '<path-to-ts-client>/cosmos.bank.v1beta1';
 
 const client = queryClient({ addr: 'http://localhost:1317' });
@@ -129,7 +129,7 @@ const balances = await client.queryAllBalances('cosmos1qqqsyqcyq5rqwzqfys8f67');
 
 and
 
-```
+```typescript
 import { txClient } from '<path-to-ts-client>/cosmos.bank.v1beta1';
 
 const client = txClient({ signer: window.keplr.getOfflineSigner(), prefix: 'cosmos', addr: 'http://localhost:26657' });
