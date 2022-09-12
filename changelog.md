@@ -11,6 +11,7 @@
 - Add `node query tx` command to query a transaction in any chain.
 - Add `node query bank` command to query an account's bank balance in any chain.
 - Add `node tx bank send` command to send funds from one account to an other in any chain.
+- Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
 
 ### Changes
 
@@ -34,6 +35,8 @@
 - Add nodejs version in the output of ignite version
 - Removed `handler.go` from scaffolded module template
 - Migrated to `cosmossdk.io` packages for `errors` and `math`
+- Vuex stores from the `generate vuex` command use the new TypeScript client
+- Upgraded frontend Vue template to v0.3.10
 
 ### Fixes
 
