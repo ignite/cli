@@ -50,7 +50,13 @@ For example, to connect to a local chain instance running under the Ignite CLI d
 ```typescript
 import { Client } from '<path-to-ts-client>';
 
-const client = new Client({ apiURL: "http://localhost:1317", rpcURL: "http://localhost:26657", prefix: "cosmos"},window.keplr.getOfflineSigner());
+const client = new Client({ 
+		apiURL: "http://localhost:1317",
+		rpcURL: "http://localhost:26657",
+		prefix: "cosmos"
+	},
+	window.keplr.getOfflineSigner()
+);
 ```
 
 The resulting client instance contains namespaces for each module, each with a `query` and `tx` namespace containing the module's relevant querying and transacting methods with full type and auto-completion support. 
@@ -132,7 +138,12 @@ and
 ```typescript
 import { txClient } from '<path-to-ts-client>/cosmos.bank.v1beta1';
 
-const client = txClient({ signer: window.keplr.getOfflineSigner(), prefix: 'cosmos', addr: 'http://localhost:26657' });
+const client = txClient({
+	signer: window.keplr.getOfflineSigner(),
+	prefix: 'cosmos',
+	addr: 'http://localhost:26657'
+});
+
 const tx_result = await client.sendMsgSend(
 	{ 
 		value: {
