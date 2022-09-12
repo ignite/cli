@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+
 	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/xchisel"
 	"github.com/ignite/cli/ignite/services/network"
@@ -19,8 +21,9 @@ import (
 )
 
 const (
-	flagGentx  = "gentx"
-	flagAmount = "amount"
+	flagGentx     = "gentx"
+	flagAmount    = "amount"
+	flagNoAccount = "no-account"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
@@ -34,7 +37,8 @@ func NewNetworkChainJoin() *cobra.Command {
 	}
 
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
+	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -53,6 +57,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		joinOptions  []network.JoinOption
 		gentxPath, _ = cmd.Flags().GetString(flagGentx)
 		amount, _    = cmd.Flags().GetString(flagAmount)
+		noAccount, _ = cmd.Flags().GetBool(flagNoAccount)
 	)
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -116,25 +121,33 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if amount != "" {
-		// parse the amount.
-		amountCoins, err := sdk.ParseCoinsNormalized(amount)
-		if err != nil {
-			return errors.Wrap(err, "error parsing amount")
-		}
-		joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
-	} else {
-		if !getYes(cmd) {
-			question := fmt.Sprintf(
-				"You haven't set the --%s flag and therefore an account request won't be submitted. Do you confirm",
-				flagAmount,
-			)
-			if err := session.AskConfirm(question); err != nil {
-				return session.PrintSaidNo()
+	// genesis account request
+	if !noAccount {
+		switch {
+		case c.IsAccountBalanceFixed():
+			// fixed account balance
+			joinOptions = append(joinOptions, network.WithAccountRequest(c.AccountBalance()))
+		case amount != "":
+			// account balance set by user
+			amountCoins, err := sdk.ParseCoinsNormalized(amount)
+			if err != nil {
+				return errors.Wrap(err, "error parsing amount")
 			}
-		}
+			joinOptions = append(joinOptions, network.WithAccountRequest(amountCoins))
+		default:
+			// fixed balance and no amount entered by the user, we ask if they want to skip account request
+			if !getYes(cmd) {
+				question := fmt.Sprintf(
+					"You haven't set the --%s flag and therefore an account request won't be submitted. Do you confirm",
+					flagAmount,
+				)
+				if err := session.AskConfirm(question); err != nil {
+					return session.PrintSaidNo()
+				}
+			}
 
-		_ = session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
+			_ = session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
+		}
 	}
 
 	// create the message to add the validator.

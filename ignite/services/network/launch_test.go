@@ -10,15 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/ignite/cli/ignite/pkg/xtime"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 	"github.com/ignite/cli/ignite/services/network/testutil"
 )
 
 const (
-	TestMinRemainingTime = 3600
-	TestMaxRemainingTime = 86400
-	TestRevertDelay      = 3600
+	TestMinRemainingTime = time.Second * 3600
+	TestMaxRemainingTime = time.Second * 86400
+	TestRevertDelay      = time.Second * 3600
 )
 
 func TestTriggerLaunch(t *testing.T) {
@@ -41,14 +40,14 @@ func TestTriggerLaunch(t *testing.T) {
 			On("BroadcastTx",
 				account,
 				&launchtypes.MsgTriggerLaunch{
-					Coordinator:   addr,
-					LaunchID:      testutil.LaunchID,
-					RemainingTime: TestMaxRemainingTime,
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+					LaunchTime:  sampleTime.Add(TestMaxRemainingTime),
 				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunchResponse{}), nil).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.NoError(t, launchError)
 		suite.AssertAllMocks(t)
 	})
@@ -57,7 +56,7 @@ func TestTriggerLaunch(t *testing.T) {
 		var (
 			account                       = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network                = newSuite(account)
-			remainingTimeLowerThanMinimum = (TestMinRemainingTime - 60) * time.Second
+			remainingTimeLowerThanMinimum = sampleTime
 		)
 
 		suite.LaunchQueryMock.
@@ -72,8 +71,8 @@ func TestTriggerLaunch(t *testing.T) {
 			t,
 			launchError,
 			"remaining time %s lower than minimum %s",
-			xtime.NowAfter(remainingTimeLowerThanMinimum),
-			xtime.NowAfter(TestMinRemainingTime),
+			remainingTimeLowerThanMinimum.String(),
+			sampleTime.Add(TestMinRemainingTime).Add(MinLaunchTimeOffset).String(),
 		)
 		suite.AssertAllMocks(t)
 	})
@@ -82,7 +81,7 @@ func TestTriggerLaunch(t *testing.T) {
 		var (
 			account                         = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network                  = newSuite(account)
-			remainingTimeGreaterThanMaximum = (TestMaxRemainingTime + 60) * time.Hour
+			remainingTimeGreaterThanMaximum = sampleTime.Add(TestMaxRemainingTime).Add(time.Second)
 		)
 
 		suite.LaunchQueryMock.
@@ -97,8 +96,8 @@ func TestTriggerLaunch(t *testing.T) {
 			t,
 			launchError,
 			"remaining time %s greater than maximum %s",
-			xtime.NowAfter(remainingTimeGreaterThanMaximum),
-			xtime.NowAfter(TestMaxRemainingTime),
+			remainingTimeGreaterThanMaximum.String(),
+			sampleTime.Add(TestMaxRemainingTime).String(),
 		)
 		suite.AssertAllMocks(t)
 	})
@@ -123,14 +122,14 @@ func TestTriggerLaunch(t *testing.T) {
 			On("BroadcastTx",
 				account,
 				&launchtypes.MsgTriggerLaunch{
-					Coordinator:   addr,
-					LaunchID:      testutil.LaunchID,
-					RemainingTime: TestMaxRemainingTime,
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+					LaunchTime:  sampleTime.Add(TestMaxRemainingTime),
 				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunch{}), expectedError).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.Error(t, launchError)
 		require.Equal(t, expectedError, launchError)
 		suite.AssertAllMocks(t)
@@ -156,14 +155,14 @@ func TestTriggerLaunch(t *testing.T) {
 			On("BroadcastTx",
 				account,
 				&launchtypes.MsgTriggerLaunch{
-					Coordinator:   addr,
-					LaunchID:      testutil.LaunchID,
-					RemainingTime: TestMaxRemainingTime,
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+					LaunchTime:  sampleTime.Add(TestMaxRemainingTime),
 				}).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{}), expectedError).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.Error(t, launchError)
 		require.Equal(t, expectedError, launchError)
 		suite.AssertAllMocks(t)
@@ -183,7 +182,7 @@ func TestTriggerLaunch(t *testing.T) {
 			}, expectedError).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, (TestMaxRemainingTime+60)*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.Error(t, launchError)
 		require.Equal(t, expectedError, launchError)
 		suite.AssertAllMocks(t)
