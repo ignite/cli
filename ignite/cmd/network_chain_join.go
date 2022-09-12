@@ -37,7 +37,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	}
 
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
 	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
