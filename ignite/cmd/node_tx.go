@@ -30,7 +30,7 @@ func NewNodeTx() *cobra.Command {
 	c.PersistentFlags().AddFlagSet(flagSetGenerateOnly())
 	c.PersistentFlags().AddFlagSet(flagSetGasFlags())
 	c.PersistentFlags().String(flagFees, "", "Fees to pay along with transaction; eg: 10uatom")
-	c.PersistentFlags().String(flagBroadcastMode, flags.BroadcastBlock, "Transaction broadcasting mode (sync|async|block), use sync if you encounter timeouts")
+	c.PersistentFlags().String(flagBroadcastMode, flags.BroadcastSync, "Transaction broadcasting mode (sync|async|block)")
 
 	c.AddCommand(NewNodeTxBank())
 

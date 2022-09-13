@@ -273,7 +273,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		faucetMinAmount: defaultFaucetMinAmount,
 		out:             io.Discard,
 		gas:             strconv.Itoa(defaultGasLimit),
-		broadcastMode:   flags.BroadcastBlock,
+		broadcastMode:   flags.BroadcastSync,
 	}
 
 	var err error

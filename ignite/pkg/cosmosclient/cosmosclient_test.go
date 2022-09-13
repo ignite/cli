@@ -1,11 +1,16 @@
 package cosmosclient_test
 
 import (
+	"bufio"
 	"context"
+	"io"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -74,6 +79,37 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 	c, err := cosmosclient.New(context.Background(), opts...)
 	require.NoError(t, err)
 	return c
+}
+
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	c := newClient(t, nil)
+
+	ctx := c.Context()
+	assert.Equal("mychain", ctx.ChainID)
+	assert.NotNil(ctx.InterfaceRegistry)
+	assert.NotNil(ctx.Codec)
+	assert.NotNil(ctx.TxConfig)
+	assert.NotNil(ctx.LegacyAmino)
+	assert.Equal(bufio.NewReader(os.Stdin), ctx.Input)
+	assert.Equal(io.Discard, ctx.Output)
+	assert.NotNil(ctx.AccountRetriever)
+	assert.Equal(flags.BroadcastSync, ctx.BroadcastMode)
+	home, err := os.UserHomeDir()
+	require.NoError(t, err)
+	assert.Equal(home+"/.mychain", ctx.HomeDir)
+	assert.NotNil(ctx.Client)
+	assert.True(ctx.SkipConfirm)
+	assert.Equal(c.AccountRegistry.Keyring, ctx.Keyring)
+	assert.False(ctx.GenerateOnly)
+	txf := c.TxFactory
+	assert.Equal("mychain", txf.ChainID())
+	assert.Equal(c.AccountRegistry.Keyring, txf.Keybase())
+	assert.EqualValues(300000, txf.Gas())
+	assert.Equal(1.0, txf.GasAdjustment())
+	assert.Equal(signing.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
+	assert.NotNil(txf.AccountRetriever())
 }
 
 func TestClientWaitForBlockHeight(t *testing.T) {
