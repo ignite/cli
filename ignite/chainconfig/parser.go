@@ -112,8 +112,12 @@ func decodeConfig(r io.Reader, version config.Version) (config.Converter, error)
 		return nil, &UnsupportedVersionError{version}
 	}
 
-	cfg := c.Clone()
-	if err := cfg.Decode(r); err != nil {
+	cfg, err := c.Clone()
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cfg.Decode(r); err != nil {
 		return nil, err
 	}
 

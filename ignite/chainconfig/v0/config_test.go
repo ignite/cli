@@ -18,8 +18,9 @@ func TestClone(t *testing.T) {
 	}
 
 	// Act
-	c2 := c.Clone()
+	c2, err := c.Clone()
 
 	// Assert
+	require.NoError(t, err)
 	require.Equal(t, c, c2)
 }

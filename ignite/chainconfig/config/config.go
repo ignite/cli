@@ -14,7 +14,7 @@ type Version uint
 // Converter defines the interface required to migrate configurations to newer versions.
 type Converter interface {
 	// Clone clones the config by returning a new copy of the current one.
-	Clone() Converter
+	Clone() (Converter, error)
 
 	// SetDefaults assigns default values to empty config fields.
 	SetDefaults() error

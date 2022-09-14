@@ -3,6 +3,7 @@ package v1
 import (
 	"io"
 
+	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/chainconfig/config"
@@ -37,9 +38,13 @@ func (c *Config) SetDefaults() error {
 }
 
 // Clone returns an identical copy of the instance
-func (c *Config) Clone() config.Converter {
-	copy := *c
-	return &copy
+func (c *Config) Clone() (config.Converter, error) {
+	copy := Config{}
+	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
+		return nil, err
+	}
+
+	return &copy, nil
 }
 
 // Decode decodes the config file values from YAML.
