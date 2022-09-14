@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Change vuex generation to use a default TS client path.
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
