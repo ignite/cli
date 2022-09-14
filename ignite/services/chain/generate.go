@@ -6,16 +6,16 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
 
 const (
-	defaultTSClientPath = "ts-client"
-	defaultVuexPath     = "vue/src/store"
-	defaultDartPath     = "flutter/lib"
-	defaultOpenAPIPath  = "docs/static/openapi.yml"
+	defaultVuexPath    = "vue/src/store"
+	defaultDartPath    = "flutter/lib"
+	defaultOpenAPIPath = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
@@ -130,12 +130,8 @@ func (c *Chain) Generate(
 
 	// generate Typescript Client code as well if it is enabled.
 	if targetOptions.isTSClientEnabled {
-		tsClientPath := conf.Client.Typescript.Path
-		if tsClientPath == "" {
-			tsClientPath = defaultTSClientPath
-		}
-
-		tsClientRootPath := filepath.Join(c.app.Path, tsClientPath)
+		// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
+		tsClientRootPath := filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
 		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
 			return err
 		}

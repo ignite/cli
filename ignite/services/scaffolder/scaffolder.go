@@ -98,9 +98,9 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
-	// generate Typescript Client code as well if it is enabled.
-	if conf.Client.Typescript.Path != "" {
-		tsClientRootPath := filepath.Join(projectPath, conf.Client.Typescript.Path)
+	// generate Typescript Client code as well if it is enabled or when the vuex store is being generated
+	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" {
+		tsClientRootPath := filepath.Join(projectPath, chainconfig.TSClientPath(conf))
 		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
 			return err
 		}
