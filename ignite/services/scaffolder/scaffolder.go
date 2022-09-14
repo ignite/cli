@@ -98,6 +98,21 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
+	// generate Typescript Client code as well if it is enabled.
+	if conf.Client.Typescript.Path != "" {
+		tsClientRootPath := filepath.Join(projectPath, conf.Client.Typescript.Path)
+		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithTSClientGeneration(
+				cosmosgen.TypescriptModulePath(tsClientRootPath),
+				tsClientRootPath,
+			),
+		)
+	}
+
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
@@ -105,7 +120,7 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				cosmosgen.VuexStoreModulePath(storeRootPath),
+				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)

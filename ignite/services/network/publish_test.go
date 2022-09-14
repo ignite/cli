@@ -90,6 +90,69 @@ func TestPublish(t *testing.T) {
 		suite.AssertAllMocks(t)
 	})
 
+	t.Run("publish chain with custom account balance", func(t *testing.T) {
+		var (
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			suite, network = newSuite(account)
+		)
+
+		accountBalance, err := sdk.ParseCoinsNormalized("1000foo,500bar")
+		require.NoError(t, err)
+
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
+		suite.ProfileQueryMock.
+			On(
+				"CoordinatorByAddress",
+				context.Background(),
+				&profiletypes.QueryGetCoordinatorByAddressRequest{
+					Address: addr,
+				},
+			).
+			Return(&profiletypes.QueryGetCoordinatorByAddressResponse{
+				CoordinatorByAddress: profiletypes.CoordinatorByAddress{
+					Address:       addr,
+					CoordinatorID: 1,
+				},
+			}, nil).
+			Once()
+		suite.CosmosClientMock.
+			On(
+				"BroadcastTx",
+				account,
+				&launchtypes.MsgCreateChain{
+					Coordinator:    addr,
+					GenesisChainID: testutil.ChainID,
+					SourceURL:      testutil.ChainSourceURL,
+					SourceHash:     testutil.ChainSourceHash,
+					GenesisURL:     "",
+					GenesisHash:    "",
+					HasCampaign:    false,
+					CampaignID:     0,
+					AccountBalance: accountBalance,
+				},
+			).
+			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
+				LaunchID: testutil.LaunchID,
+			}), nil).
+			Once()
+		suite.ChainMock.On("SourceHash").Return(testutil.ChainSourceHash).Once()
+		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
+		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
+		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
+
+		launchID, campaignID, publishError := network.Publish(
+			context.Background(),
+			suite.ChainMock,
+			WithAccountBalance(accountBalance),
+		)
+		require.NoError(t, publishError)
+		require.Equal(t, testutil.LaunchID, launchID)
+		require.Equal(t, uint64(0), campaignID)
+		suite.AssertAllMocks(t)
+	})
+
 	t.Run("publish chain with pre created campaign", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)

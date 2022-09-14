@@ -8,9 +8,14 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/xtime"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
+
+// MinLaunchTimeOffset represents an offset used when minimum launch time is used
+// minimum launch time will be block time + minimum launch time duration param
+// block time when tx is executed is not predicable, therefore we add few seconds
+// to ensure the minimum duration is reached
+const MinLaunchTimeOffset = time.Second * 30
 
 // LaunchParams fetches the chain launch module params from SPN
 func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
@@ -22,7 +27,7 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 }
 
 // TriggerLaunch launches a chain as a coordinator
-func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTime time.Duration) error {
+func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime time.Time) error {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
@@ -30,29 +35,34 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	var (
-		minLaunch = xtime.Seconds(params.LaunchTimeRange.MinLaunchTime)
-		maxLaunch = xtime.Seconds(params.LaunchTimeRange.MaxLaunchTime)
+		minLaunchTime = n.clock.Now().Add(params.LaunchTimeRange.MinLaunchTime).Add(MinLaunchTimeOffset)
+		maxLaunchTime = n.clock.Now().Add(params.LaunchTimeRange.MaxLaunchTime)
 	)
 	address, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return err
 	}
 
-	switch {
-	case remainingTime == 0:
-		// if the user does not specify the remaining time, use the minimal one
-		remainingTime = minLaunch
-	case remainingTime < minLaunch:
-		return fmt.Errorf("remaining time %s lower than minimum %s",
-			xtime.NowAfter(remainingTime),
-			xtime.NowAfter(minLaunch))
-	case remainingTime > maxLaunch:
-		return fmt.Errorf("remaining time %s greater than maximum %s",
-			xtime.NowAfter(remainingTime),
-			xtime.NowAfter(maxLaunch))
+	if launchTime.IsZero() {
+		// Use minimum launch time by default
+		launchTime = minLaunchTime
+	} else {
+		// check launch time is in range
+		switch {
+		case launchTime.Before(minLaunchTime):
+			return fmt.Errorf("launch time %s lower than minimum %s",
+				launchTime.String(),
+				minLaunchTime.String(),
+			)
+		case launchTime.After(maxLaunchTime):
+			return fmt.Errorf("launch time %s bigger than maximum %s",
+				launchTime.String(),
+				maxLaunchTime.String(),
+			)
+		}
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, int64(remainingTime.Seconds()))
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, launchTime)
 	n.ev.Send(events.New(events.StatusOngoing, "Setting launch time"))
 	res, err := n.cosmos.BroadcastTx(n.account, msg)
 	if err != nil {
@@ -65,7 +75,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf("Chain %d will be launched on %s", launchID, xtime.NowAfter(remainingTime)),
+		fmt.Sprintf("Chain %d will be launched on %s", launchID, launchTime.String()),
 	))
 	return nil
 }
