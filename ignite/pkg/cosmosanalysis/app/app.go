@@ -154,49 +154,25 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string
 		return nil
 	}
 
-	// TODO: Move parsing for each type of node to different functions
-	var packagesRegistered []string
+	var packages []string
 	for _, arg := range callExprType.Args {
-		argAsCompositeLitType, ok := arg.(*ast.CompositeLit)
-		if ok {
-			compositeTypeSelectorExpr, ok := argAsCompositeLitType.Type.(*ast.SelectorExpr)
-			if !ok {
-				continue
-			}
-
-			compositeTypeX, ok := compositeTypeSelectorExpr.X.(*ast.Ident)
-			if ok {
-				packagesRegistered = append(packagesRegistered, compositeTypeX.Name)
-				continue
-			}
+		switch v := arg.(type) {
+		case *ast.CompositeLit:
+			// The arg is an app module
+			packages = append(packages, parsePkgNameFromCompositeLit(v))
+		case *ast.CallExpr:
+			// The arg is a function call that returns the app module
+			packages = append(packages, parsePkgNameFromCall(v))
+		case *ast.Ident:
+			// The list of modules are defined in a local variable
+			packages = append(packages, parseAppModulesFromIdent(v, pkgDir)...)
+		case *ast.SelectorExpr:
+			// The list of modules is defined in a variable of a different package
+			packages = append(packages, parseAppModulesFromSelectorExpr(v, pkgDir, pkgs)...)
 		}
-
-		argAsCallType, ok := arg.(*ast.CallExpr)
-		if ok {
-			argAsFunctionType, ok := argAsCallType.Fun.(*ast.SelectorExpr)
-			if !ok {
-				continue
-			}
-
-			argX, ok := argAsFunctionType.X.(*ast.Ident)
-			if ok {
-				packagesRegistered = append(packagesRegistered, argX.Name)
-			}
-		}
-
-		// The list of modules are defined in a local variable
-		if ident, ok := arg.(*ast.Ident); ok {
-			packagesRegistered = append(packagesRegistered, parseAppModulesFromIdent(ident, pkgDir)...)
-		}
-
-		// The list of modules is defined in a variable of a different package
-		if se, ok := arg.(*ast.SelectorExpr); ok {
-			packagesRegistered = append(packagesRegistered, parseAppModulesFromSelectorExpr(se, pkgDir, pkgs)...)
-		}
-
 	}
 
-	return packagesRegistered
+	return packages
 }
 
 func findBasicManagerModule(pkgs map[string]string) (string, error) {
