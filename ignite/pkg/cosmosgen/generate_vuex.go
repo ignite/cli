@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,6 +28,9 @@ func (g *generator) updateVueDependencies() error {
 	// Init the path to the "vue" folder inside the app
 	vuePath := filepath.Join(g.appPath, "vue")
 	packagesPath := filepath.Join(vuePath, "package.json")
+	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
 
 	// Read the Vue app package file
 	b, err := os.ReadFile(packagesPath)
