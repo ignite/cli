@@ -133,21 +133,48 @@ func parseAppModulesFromPkgIdent(identName, pkgDir string) (packages []string) {
 		imports := parseImports(f.Imports)
 
 		for _, e := range values.Elts {
-			v, ok := e.(*ast.CompositeLit)
-			if !ok {
-				continue
+			var pkgName string
+
+			switch v := e.(type) {
+			case *ast.CompositeLit:
+				// The app module is defined using a struct
+				pkgName = parsePkgNameFromCompositeLit(v)
+			case *ast.CallExpr:
+				// The app module is defined using a function call that returns it
+				pkgName = parsePkgNameFromCall(v)
 			}
 
-			vt, ok := v.Type.(*ast.SelectorExpr)
-			if !ok {
-				continue
-			}
-
-			if pkg, ok := vt.X.(*ast.Ident); ok {
-				packages = append(packages, imports[pkg.Name])
+			if p := imports[pkgName]; p != "" {
+				packages = append(packages, p)
 			}
 		}
 	}
 
 	return packages
+}
+
+func parsePkgNameFromCompositeLit(n *ast.CompositeLit) string {
+	s, ok := n.Type.(*ast.SelectorExpr)
+	if !ok {
+		return ""
+	}
+
+	if pkg, ok := s.X.(*ast.Ident); ok {
+		return pkg.Name
+	}
+
+	return ""
+}
+
+func parsePkgNameFromCall(n *ast.CallExpr) string {
+	s, ok := n.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return ""
+	}
+
+	if pkg, ok := s.X.(*ast.Ident); ok {
+		return pkg.Name
+	}
+
+	return ""
 }
