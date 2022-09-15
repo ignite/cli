@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
