@@ -43,7 +43,7 @@ jobs:
         with:
           tag: nightly
           name: nightly
-          body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@v0.0.0-nightly! | bash`"
+          body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@nightly! | bash`"
           prerelease: true
 
   releases-binaries:
@@ -58,11 +58,11 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1.31
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_name: "nightly"
-          overwrite: true
-          goos: ${{ matrix.goos }}
-          goarch: ${{ matrix.goarch }}
-          # goversion: "https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz"
           project_path: "./ignite/cmd/ignite"
           binary_name: "ignite"
-          #extra_files: LICENSE README.md
+          asset_name: ignite-${{ matrix.goos }}-${{ matrix.goarch }}
+          release_name: "nightly"
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version={{.Tag}} -X github.com/ignite/cli/ignite/version.Date={{.Date}} -X github.com/ignite/cli/ignite/version.Head={{.FullCommit}}
+          goversion: "1.18"
