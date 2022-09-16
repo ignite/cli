@@ -73,7 +73,10 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 		}
 
 		// Otherwise (when the bid is higher), send tokens from the buyer's account to the module's account (as a payment for the name)
-		k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, bid)
+		err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, bid)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Create an updated whois record
