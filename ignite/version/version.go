@@ -20,7 +20,7 @@ import (
 
 const (
 	versionDev     = "development"
-	versionNightly = "v0.0.0-nightly"
+	versionNightly = "nightly"
 )
 
 const prefix = "v"

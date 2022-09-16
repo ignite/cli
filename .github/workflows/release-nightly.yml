@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - chore/fix-nightly-builds
 
 jobs:
   consecutiveness:
@@ -25,22 +26,22 @@ jobs:
       - name: Delete the nightly release
         uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
-          tag_name: v0.0.0-nightly
+          tag_name: nightly
           delete_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Bump version and push tag
+      - name: Push new nightly tag
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: v0.0.0-nightly
+          custom_tag: nightly
           tag_prefix: ""
 
-      - name: Upsert the nightly release
+      - name: Create the new nightly release
         uses: ncipollo/release-action@v1
         with:
-          tag: v0.0.0-nightly
+          tag: nightly
           name: nightly
           body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@v0.0.0-nightly! | bash`"
           prerelease: true
