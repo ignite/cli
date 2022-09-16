@@ -46,21 +46,29 @@ jobs:
           body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@v0.0.0-nightly! | bash`"
           prerelease: true
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
+  releases-matrix:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
+        goos: [linux, windows, darwin]
+        goarch: ["386", amd64, arm64]
+        exclude:
+          - goarch: "386"
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.31
         with:
-          go-version: 1.18
-
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          path: ${{ env.working-directory }}
-          fetch-depth: 0
-
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          workdir: ${{ env.working-directory }}
-          args: release --rm-dist --skip-validate -f .goreleaser.nightly.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: "nightly"
+          overwrite: true
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          # goversion: "https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz"
+          project_path: "./ignite/cmd/ignite"
+          binary_name: "ignite"
+          #extra_files: LICENSE README.md
