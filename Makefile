@@ -4,8 +4,7 @@
 PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 HEAD = $(shell git rev-parse HEAD)
-LD_FLAGS = -X github.com/ignite/cli/ignite/version.Head='$(HEAD)' \
-	-X github.com/ignite/cli/ignite/version.Date='$(DATE)'
+LD_FLAGS = 
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
 

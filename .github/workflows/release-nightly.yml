@@ -60,9 +60,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           project_path: "./ignite/cmd/ignite"
           binary_name: "ignite"
-          asset_name: ignite-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_name: ignite-nightly-${{ matrix.goos }}-${{ matrix.goarch }}
           release_name: "nightly"
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version={{.Tag}} -X github.com/ignite/cli/ignite/version.Date={{.Date}} -X github.com/ignite/cli/ignite/version.Head={{.FullCommit}}
+          ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version=nightly
           goversion: "1.18"
