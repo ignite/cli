@@ -63,13 +63,20 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 // Long generates a detailed version info.
 func Long(ctx context.Context) string {
 	var (
-		w        = &tabwriter.Writer{}
-		b        = &bytes.Buffer{}
-		date     = "undefined"
-		head     = "undefined"
-		modified bool
+		w          = &tabwriter.Writer{}
+		b          = &bytes.Buffer{}
+		date       = "undefined"
+		head       = "undefined"
+		modified   bool
+		sdkVersion = "undefined"
 	)
 	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, dep := range info.Deps {
+			if dep.Path == "github.com/cosmos/cosmos-sdk" {
+				sdkVersion = dep.Version
+				break
+			}
+		}
 		for _, kv := range info.Settings {
 			switch kv.Key {
 			case "vcs.revision":
@@ -95,6 +102,7 @@ func Long(ctx context.Context) string {
 	write("Ignite CLI version", Version)
 	write("Ignite CLI build date", date)
 	write("Ignite CLI source hash", head)
+	write("Cosmos SDK version", sdkVersion)
 
 	write("Your OS", runtime.GOOS)
 	write("Your arch", runtime.GOARCH)
