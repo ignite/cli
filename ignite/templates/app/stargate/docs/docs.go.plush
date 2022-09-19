@@ -4,6 +4,3 @@ import "embed"
 
 //go:embed static
 var Docs embed.FS
-
-//go:embed index.html
-var IndexHTML []byte

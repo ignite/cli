@@ -100,6 +100,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
+	
+	"github.com/ignite/cli/ignite/pkg/openapiconsole"
 
 	"<%= ModulePath %>/docs"
 	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
@@ -789,9 +791,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 	// register app's OpenAPI routes.
 	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write(docs.IndexHTML)
-	})
+	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
