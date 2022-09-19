@@ -33,6 +33,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
+	github.com/ignite/cli/ignite/pkg/openapiconsole v0.0.0-00010101000000-000000000000
 	github.com/ignite/web v0.3.10
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.7.7
@@ -368,3 +369,5 @@ require (
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
+replace github.com/ignite/cli/ignite/pkg/openapiconsole => ./ignite/pkg/openapiconsole/

@@ -6,6 +6,10 @@
 
 - Fix cli action org in templates.
 
+### Changes
+
+- Create openapiconsole sub module
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
