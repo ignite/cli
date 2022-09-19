@@ -20,11 +20,17 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 )
 
+const (
+	defaultFaucetDenom     = "token"
+	defaultFaucetMinAmount = 100
+)
+
 //go:generate mockery --srcpkg github.com/tendermint/tendermint/rpc/client/ --name Client --structname RPCClient --filename rpclient.go --with-expecter
 //go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/client --name AccountRetriever --filename account_retriever.go --with-expecter
 //go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/x/bank/types --name QueryClient --structname BankQueryClient --filename bank_query_client.go --with-expecter
 //go:generate mockery --srcpkg . --name FaucetClient --structname FaucetClient --filename faucet_client.go --with-expecter
 //go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
+//go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
 
 type suite struct {
 	rpcClient        *mocks.RPCClient
@@ -32,6 +38,7 @@ type suite struct {
 	bankQueryClient  *mocks.BankQueryClient
 	gasometer        *mocks.Gasometer
 	faucetClient     *mocks.FaucetClient
+	signer           *mocks.Signer
 }
 
 func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cosmosclient.Client {
@@ -41,6 +48,7 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 		bankQueryClient:  mocks.NewBankQueryClient(t),
 		gasometer:        mocks.NewGasometer(t),
 		faucetClient:     mocks.NewFaucetClient(t),
+		signer:           mocks.NewSigner(t),
 	}
 	// Because rpcClient is passed as argument inside clientContext of mocked
 	// methods, we must EXPECT a call to String (because testify/mock is calling
@@ -61,6 +69,7 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 		cosmosclient.WithBankQueryClient(s.bankQueryClient),
 		cosmosclient.WithGasometer(s.gasometer),
 		cosmosclient.WithFaucetClient(s.faucetClient),
+		cosmosclient.WithSigner(s.signer),
 	}...)
 	c, err := cosmosclient.New(context.Background(), opts...)
 	require.NoError(t, err)
@@ -309,10 +318,6 @@ func TestClientStatus(t *testing.T) {
 }
 
 func TestClientCreateTx(t *testing.T) {
-	const (
-		defaultFaucetDenom     = "token"
-		defaultFaucetMinAmount = 100
-	)
 	var (
 		accountName = "bob"
 		passphrase  = "passphrase"
@@ -354,12 +359,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -376,26 +376,9 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				balance := sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(defaultFaucetMinAmount))
-				s.bankQueryClient.EXPECT().Balance(
-					context.Background(),
-					&banktypes.QueryBalanceRequest{
-						Address: sdkaddress.String(),
-						Denom:   defaultFaucetDenom,
-					},
-				).Return(
-					&banktypes.QueryBalanceResponse{
-						Balance: &balance,
-					},
-					nil,
-				)
+				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
 
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -412,46 +395,8 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				balance := sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(defaultFaucetMinAmount-1))
-				s.bankQueryClient.EXPECT().Balance(
-					context.Background(),
-					&banktypes.QueryBalanceRequest{
-						Address: sdkaddress.String(),
-						Denom:   defaultFaucetDenom,
-					},
-				).Return(
-					&banktypes.QueryBalanceResponse{
-						Balance: &balance,
-					},
-					nil,
-				).Once()
-
-				s.faucetClient.EXPECT().Transfer(context.Background(),
-					cosmosfaucet.TransferRequest{AccountAddress: sdkaddress.String()},
-				).Return(
-					cosmosfaucet.TransferResponse{}, nil,
-				)
-
-				newBalance := sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(defaultFaucetMinAmount))
-				s.bankQueryClient.EXPECT().Balance(
-					mock.Anything,
-					&banktypes.QueryBalanceRequest{
-						Address: sdkaddress.String(),
-						Denom:   defaultFaucetDenom,
-					},
-				).Return(
-					&banktypes.QueryBalanceResponse{
-						Balance: &newBalance,
-					},
-					nil,
-				).Once()
-
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount-1)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -468,12 +413,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"10"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -491,12 +431,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"900000"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -514,12 +449,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedError: "cannot provide both fees and gas prices",
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -536,12 +466,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 				s.gasometer.EXPECT().
 					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, 42, nil)
@@ -561,12 +486,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 				s.gasometer.EXPECT().
 					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, 42, nil)
@@ -597,4 +517,53 @@ func TestClientCreateTx(t *testing.T) {
 			assert.JSONEq(tt.expectedJSONTx, string(bz))
 		})
 	}
+}
+
+func (s suite) expectMakeSureAccountHasToken(address string, balance int64) {
+	currentBalance := sdktypes.NewInt64Coin(defaultFaucetDenom, balance)
+	s.bankQueryClient.EXPECT().Balance(
+		context.Background(),
+		&banktypes.QueryBalanceRequest{
+			Address: address,
+			Denom:   defaultFaucetDenom,
+		},
+	).Return(
+		&banktypes.QueryBalanceResponse{
+			Balance: &currentBalance,
+		},
+		nil,
+	).Once()
+	if balance >= defaultFaucetMinAmount {
+		// balance is high enought, faucet won't be called
+		return
+	}
+
+	s.faucetClient.EXPECT().Transfer(context.Background(),
+		cosmosfaucet.TransferRequest{AccountAddress: address},
+	).Return(
+		cosmosfaucet.TransferResponse{}, nil,
+	)
+
+	newBalance := sdktypes.NewInt64Coin(defaultFaucetDenom, defaultFaucetMinAmount)
+	s.bankQueryClient.EXPECT().Balance(
+		mock.Anything,
+		&banktypes.QueryBalanceRequest{
+			Address: address,
+			Denom:   defaultFaucetDenom,
+		},
+	).Return(
+		&banktypes.QueryBalanceResponse{
+			Balance: &newBalance,
+		},
+		nil,
+	).Once()
+}
+
+func (s suite) expectPrepareFactory(sdkaddress sdktypes.Address) {
+	s.accountRetriever.EXPECT().
+		EnsureExists(mock.Anything, sdkaddress).
+		Return(nil)
+	s.accountRetriever.EXPECT().
+		GetAccountNumberSequence(mock.Anything, sdkaddress).
+		Return(1, 2, nil)
 }
