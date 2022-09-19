@@ -24,6 +24,7 @@ type generateOptions struct {
 	isVuexEnabled     bool
 	isDartEnabled     bool
 	isOpenAPIEnabled  bool
+	tsClientPath      string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -40,6 +41,14 @@ func GenerateGo() GenerateTarget {
 func GenerateTSClient() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
+	}
+}
+
+// TSClientPath assigns the output path to use for the generated Typescript client.
+// The path value overrides the one configured in the `config.yaml` file.
+func TSClientPath(path string) GenerateTarget {
+	return func(o *generateOptions) {
+		o.tsClientPath = path
 	}
 }
 
@@ -130,16 +139,20 @@ func (c *Chain) Generate(
 
 	// generate Typescript Client code as well if it is enabled.
 	if targetOptions.isTSClientEnabled {
-		// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
-		tsClientRootPath := filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
-		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
+		tsClientPath := targetOptions.tsClientPath
+		if tsClientPath == "" {
+			// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
+			tsClientPath = filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
+		}
+
+		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
-				cosmosgen.TypescriptModulePath(tsClientRootPath),
-				tsClientRootPath,
+				cosmosgen.TypescriptModulePath(tsClientPath),
+				tsClientPath,
 			),
 		)
 	}
