@@ -276,7 +276,7 @@ func FaucetHost(conf Config) string {
 // Path is relative to the app's directory.
 func TSClientPath(conf Config) string {
 	if path := strings.TrimSpace(conf.Client.Typescript.Path); path != "" {
-		return path
+		return filepath.Clean(path)
 	}
 
 	return DefaultTSClientPath
