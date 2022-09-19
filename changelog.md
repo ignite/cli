@@ -5,6 +5,7 @@
 ### Fixes
 
 - Change vuex generation to use a default TS client path.
+- Fix cli action org in templates.
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
