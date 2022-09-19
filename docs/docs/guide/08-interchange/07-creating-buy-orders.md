@@ -63,7 +63,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
 
-  // Use SafeBurn to ensure no new native tokens are minted
+	// Use SafeBurn to ensure no new native tokens are minted
 	if err := k.SafeBurn(ctx, msg.Port, msg.ChannelID, sender, msg.PriceDenom, msg.Amount*msg.Price); err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
@@ -75,7 +75,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 	var packet types.BuyOrderPacketData
 	packet.Buyer = msg.Creator
 
-  // Transmit an IBC packet...
+	// Transmit an IBC packet...
 	return &types.MsgSendBuyOrderResponse{}, nil
 }
 ```
@@ -105,7 +105,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 	// Fill buy order
 	remaining, liquidated, purchase, _ := book.FillBuyOrder(types.Order{
 		Amount: data.Amount,
-		Price: data.Price,
+		Price:  data.Price,
 	})
 
 	// Return remaining amount and gains
@@ -198,51 +198,51 @@ The `LiquidateFromSellOrder` function liquidates the first sell order of the boo
 // x/dex/types/buy_order_book.go
 
 func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
-	 remainingSellOrder Order,
-	 liquidatedBuyOrder Order,
-	 gain int32,
-	 match bool,
-	 filled bool,
- ) {
-	 remainingSellOrder = order
+	remainingSellOrder Order,
+	liquidatedBuyOrder Order,
+	gain int32,
+	match bool,
+	filled bool,
+) {
+	remainingSellOrder = order
 
-	 // No match if no order
-	 orderCount := len(b.Book.Orders)
-	 if orderCount == 0 {
-		 return order, liquidatedBuyOrder, gain, false, false
-	 }
+	// No match if no order
+	orderCount := len(b.Book.Orders)
+	if orderCount == 0 {
+		return order, liquidatedBuyOrder, gain, false, false
+	}
 
-	 // Check if match
-	 highestBid := b.Book.Orders[orderCount-1]
-	 if order.Price > highestBid.Price {
-		 return order, liquidatedBuyOrder, gain, false, false
-	 }
+	// Check if match
+	highestBid := b.Book.Orders[orderCount-1]
+	if order.Price > highestBid.Price {
+		return order, liquidatedBuyOrder, gain, false, false
+	}
 
-	 liquidatedBuyOrder = *highestBid
+	liquidatedBuyOrder = *highestBid
 
-	 // Check if sell order can be entirely filled
-	 if highestBid.Amount >= order.Amount {
-		 remainingSellOrder.Amount = 0
-		 liquidatedBuyOrder.Amount = order.Amount
-		 gain = order.Amount * highestBid.Price
+	// Check if sell order can be entirely filled
+	if highestBid.Amount >= order.Amount {
+		remainingSellOrder.Amount = 0
+		liquidatedBuyOrder.Amount = order.Amount
+		gain = order.Amount * highestBid.Price
 
-		 // Remove highest bid if it has been entirely liquidated
-		 highestBid.Amount -= order.Amount
-		 if highestBid.Amount == 0 {
-			 b.Book.Orders = b.Book.Orders[:orderCount-1]
-		 } else {
-			 b.Book.Orders[orderCount-1] = highestBid
-		 }
+		// Remove highest bid if it has been entirely liquidated
+		highestBid.Amount -= order.Amount
+		if highestBid.Amount == 0 {
+			b.Book.Orders = b.Book.Orders[:orderCount-1]
+		} else {
+			b.Book.Orders[orderCount-1] = highestBid
+		}
 
-		 return remainingSellOrder, liquidatedBuyOrder, gain, true, true
-	 }
+		return remainingSellOrder, liquidatedBuyOrder, gain, true, true
+	}
 
-	 // Not entirely filled
-	 gain = highestBid.Amount * highestBid.Price
-	 b.Book.Orders = b.Book.Orders[:orderCount-1]
-	 remainingSellOrder.Amount -= highestBid.Amount
+	// Not entirely filled
+	gain = highestBid.Amount * highestBid.Price
+	b.Book.Orders = b.Book.Orders[:orderCount-1]
+	remainingSellOrder.Amount -= highestBid.Amount
 
-	 return remainingSellOrder, liquidatedBuyOrder, gain, true, false
+	return remainingSellOrder, liquidatedBuyOrder, gain, true, false
 }
 ```
 
@@ -283,7 +283,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.BuyOrderPacketAck
-        
+
 		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
@@ -351,7 +351,7 @@ Add the following function to the `x/dex/types/buy_order_book.go` file in the `t
 // x/dex/types/buy_order_book.go
 
 func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
-  return b.Book.appendOrder(creator, amount, price, Increasing)
+	return b.Book.appendOrder(creator, amount, price, Increasing)
 }
 ```
 
