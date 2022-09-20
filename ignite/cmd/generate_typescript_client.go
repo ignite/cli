@@ -42,7 +42,7 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(), chain.TSClientPath(output))
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output))
 	if err != nil {
 		return err
 	}

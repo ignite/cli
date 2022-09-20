@@ -38,16 +38,11 @@ func GenerateGo() GenerateTarget {
 }
 
 // GenerateTSClient enables generating proto based Typescript Client.
-func GenerateTSClient() GenerateTarget {
+// The path assigns the output path to use for the generated Typescript client
+// overriding the configured or default path. Path can be an empty string.
+func GenerateTSClient(path string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
-	}
-}
-
-// TSClientPath assigns the output path to use for the generated Typescript client.
-// The path value overrides the one configured in the `config.yaml` file.
-func TSClientPath(path string) GenerateTarget {
-	return func(o *generateOptions) {
 		o.tsClientPath = path
 	}
 }
@@ -84,8 +79,8 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	var additionalTargets []GenerateTarget
 
 	// parse config for additional target
-	if conf.Client.Typescript.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateTSClient())
+	if p := conf.Client.Typescript.Path; p != "" {
+		additionalTargets = append(additionalTargets, GenerateTSClient(p))
 	}
 
 	if conf.Client.Vuex.Path != "" {
