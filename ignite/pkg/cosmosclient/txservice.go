@@ -2,6 +2,7 @@ package cosmosclient
 
 import (
 	"context"
+	"errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -22,6 +23,10 @@ func (s TxService) Gas() uint64 {
 }
 
 // Broadcast signs and broadcasts this tx.
+// If faucet is enabled and if the from account doesn't have enough funds, is
+// it automatically filled with the default amount, and the tx is broadcasted
+// again. Note that this may still end with the same error if the amount is
+// greater than the amount dumped by the faucet.
 func (s TxService) Broadcast() (Response, error) {
 	defer s.client.lockBech32Prefix()()
 
@@ -35,7 +40,7 @@ func (s TxService) Broadcast() (Response, error) {
 		}
 	}
 
-	if err := tx.Sign(s.txFactory, accountName, s.txBuilder, true); err != nil {
+	if err := s.client.signer.Sign(s.txFactory, accountName, s.txBuilder, true); err != nil {
 		return Response{}, err
 	}
 
@@ -45,7 +50,7 @@ func (s TxService) Broadcast() (Response, error) {
 	}
 
 	resp, err := s.clientContext.BroadcastTx(txBytes)
-	if err == sdkerrors.ErrInsufficientFunds {
+	if s.client.useFaucet && errors.Is(err, sdkerrors.ErrInsufficientFunds) {
 		err = s.client.makeSureAccountHasTokens(context.Background(), accountAddress.String())
 		if err != nil {
 			return Response{}, err
