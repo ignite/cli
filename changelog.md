@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- Upgrade `ts-proto` package from `1.68.0` to `1.125.0`
+
 ### Fixes
 
 - Fix cli action org in templates.
@@ -79,7 +83,7 @@
 
 ## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
 
-### Features 
+### Features
 
 - Enable Darwin ARM 64 target for chain binary releases in CI templates
 
@@ -89,30 +93,30 @@
 
 ## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
 
-### Fixes 
+### Fixes
 
 - Fix IBC module scaffolding interface in templates
 
 ## [`v0.22.0`](https://github.com/ignite/cli/releases/tag/v0.22.0)
 
-### Features 
+### Features
 
 - Optimized the build system. The `chain serve`, `chain build`, `chain generate` commands and other variants are way faster now
 - Upgraded CLI and templates to use IBC v3
 
-### Fixes 
+### Fixes
 
 - Add a fix in code generation to avoid user's NodeJS configs to break TS client generation routine
 
 ## [`v0.21.2`](https://github.com/ignite/cli/releases/tag/v0.21.2)
 
-### Fixes 
+### Fixes
 
-- Set min. gas to zero when running `chain` command set 
+- Set min. gas to zero when running `chain` command set
 
 ## [`v0.21.1`](https://github.com/ignite/cli/releases/tag/v0.21.1)
 
-### Features 
+### Features
 
 - Add compatibility to run chains built with Cosmos-SDK `v0.46.0-alpha1` and above
 - Scaffold chains now will have `auth` module enabled by default
@@ -124,10 +128,10 @@
 
 ## [`v0.21.0`](https://github.com/ignite/cli/releases/tag/v0.21.0)
 
-### Features 
+### Features
 
 - Support simple app names when scaffolding chains. e.g.: `ignite scaffold chain mars`
-- Ask confirmation when scaffolding over changes that are not committed yet 
+- Ask confirmation when scaffolding over changes that are not committed yet
 
 ## [`v0.20.4`](https://github.com/ignite/cli/releases/tag/v0.20.4)
 
@@ -205,12 +209,12 @@ Our new name is **Ignite CLI**!
 
 ### Breaking Changes
 
-- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite/cli/pull/1971/files) 
- 
-    Updates are required if your chain uses these packages: 
+- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite/cli/pull/1971/files)
+
+    Updates are required if your chain uses these packages:
 
     - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
-    - `spm/cosmoscmd` is now `pkg/cosmoscmd` 
+    - `spm/cosmoscmd` is now `pkg/cosmoscmd`
     - `spm/openapiconsole` is now `pkg/openapiconsole`
     - `testutil/sample` is now `cosmostestutil/sample`
 
