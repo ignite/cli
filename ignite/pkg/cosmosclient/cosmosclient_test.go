@@ -3,6 +3,7 @@ package cosmosclient_test
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"io"
 	"os"
 	"testing"
@@ -165,6 +166,80 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 				return
 			}
 			require.NoError(err)
+		})
+	}
+}
+
+func TestClientWaitForTx(t *testing.T) {
+	var (
+		ctx          = context.Background()
+		hash         = "abcd"
+		hashBytes, _ = hex.DecodeString(hash)
+		result       = &ctypes.ResultTx{
+			Hash: hashBytes,
+		}
+	)
+	tests := []struct {
+		name           string
+		hash           string
+		expectedError  string
+		expectedResult *ctypes.ResultTx
+		setup          func(suite)
+	}{
+		{
+			name:          "fail: hash not in hex format",
+			hash:          "zzz",
+			expectedError: "unable to decode tx hash 'zzz': encoding/hex: invalid byte: U+007A 'z'",
+		},
+		{
+			name:           "ok: tx found immediately",
+			hash:           hash,
+			expectedResult: result,
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(result, nil)
+			},
+		},
+		{
+			name:          "fail: tx returns an unexpected error",
+			hash:          hash,
+			expectedError: "fetching tx 'abcd': error while requesting node 'http://localhost:26657': oups",
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(nil, errors.New("oups"))
+			},
+		},
+		{
+			name:           "ok: tx found after 1 block",
+			hash:           hash,
+			expectedResult: result,
+			setup: func(s suite) {
+				// tx is not found
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(nil, errors.New("tx abcd not found")).Once()
+				// wait for next block
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 1},
+				}, nil).Once()
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 2},
+				}, nil).Once()
+				// next block reached, check tx again, this time it's found.
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(result, nil).Once()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
+			c := newClient(t, tt.setup)
+
+			res, err := c.WaitForTx(ctx, tt.hash)
+
+			if tt.expectedError != "" {
+				require.EqualError(err, tt.expectedError)
+				return
+			}
+			require.NoError(err)
+			assert.Equal(tt.expectedResult, res)
 		})
 	}
 }

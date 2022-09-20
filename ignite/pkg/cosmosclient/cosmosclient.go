@@ -393,8 +393,29 @@ func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	}
 }
 
-func (c Client) WaitForTx(ctx context.Context, txHash string) error {
-	return nil
+// WaitForTx requests the tx from hash, if not found, waits for next block and
+// tries again. Returns an error if ctx is canceled.
+func (c Client) WaitForTx(ctx context.Context, hash string) (*ctypes.ResultTx, error) {
+	bz, err := hex.DecodeString(hash)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to decode tx hash '%s'", hash)
+	}
+	for {
+		resp, err := c.RPC.Tx(ctx, bz, false)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				// Tx not found, wait for next block and try again
+				err := c.WaitForNextBlock(ctx)
+				if err != nil {
+					return nil, errors.Wrap(err, "waiting for next block")
+				}
+				continue
+			}
+			return nil, errors.Wrapf(err, "fetching tx '%s'", hash)
+		}
+		// Tx found
+		return resp, nil
+	}
 }
 
 // Account returns the account with name or address equal to nameOrAddress.
