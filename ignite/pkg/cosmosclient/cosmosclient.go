@@ -356,29 +356,26 @@ func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
 
 // WaitForNextBlock waits until next block is committed.
 // It reads the current block height and then waits for another block to be
-// committed.
-// A timeout occurs after 10 seconds, to customize the timeout, use the
-// WaitForNBlocks(ctx, 1, timeout) function.
+// committed, or returns an error if ctx is canceled.
 func (c Client) WaitForNextBlock(ctx context.Context) error {
-	return c.WaitForNBlocks(ctx, 1, time.Second*10)
+	return c.WaitForNBlocks(ctx, 1)
 }
 
 // WaitForNBlocks reads the current block height and then waits for anothers n
-// blocks to be committed.
-func (c Client) WaitForNBlocks(ctx context.Context, n int64, timeout time.Duration) error {
+// blocks to be committed, or returns an error if ctx is canceled.
+func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
 	start, err := c.LatestBlockHeight(ctx)
 	if err != nil {
 		return err
 	}
-	return c.WaitForBlockHeight(ctx, start+n, timeout)
+	return c.WaitForBlockHeight(ctx, start+n)
 }
 
 // WaitForBlockHeight waits until block height h is committed, or returns an
-// error if ctx is canceled or if timeout is reached.
-func (c Client) WaitForBlockHeight(ctx context.Context, h int64, timeout time.Duration) error {
+// error if ctx is canceled.
+func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	timeoutc := time.After(timeout)
 
 	for {
 		latestHeight, err := c.LatestBlockHeight(ctx)
@@ -389,13 +386,15 @@ func (c Client) WaitForBlockHeight(ctx context.Context, h int64, timeout time.Du
 			return nil
 		}
 		select {
-		case <-timeoutc:
-			return errors.New("timeout exceeded waiting for block")
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Wrap(ctx.Err(), "timeout exceeded waiting for block")
 		case <-ticker.C:
 		}
 	}
+}
+
+func (c Client) WaitForTx(ctx context.Context, txHash string) error {
+	return nil
 }
 
 // Account returns the account with name or address equal to nameOrAddress.

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,12 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
 )
+
+func waitForNextBlock(t *testing.T, client cosmosclient.Client) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	require.NoError(t, client.WaitForNextBlock(ctx))
+}
 
 func TestNodeTxBankSend(t *testing.T) {
 	var (
@@ -108,7 +115,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock(context.Background()))
+		waitForNextBlock(t, client)
 
 		env.Exec("send 100token from alice to bob",
 			step.NewSteps(step.New(

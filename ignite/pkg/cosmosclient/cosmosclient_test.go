@@ -113,59 +113,39 @@ func TestNew(t *testing.T) {
 }
 
 func TestClientWaitForBlockHeight(t *testing.T) {
-	var (
-		ctx                 = context.Background()
-		canceledCtx, cancel = context.WithTimeout(ctx, 0)
-		targetBlockHeight   = int64(42)
-	)
-	cancel()
+	targetBlockHeight := int64(42)
 	tests := []struct {
-		name              string
-		ctx               context.Context
-		waitBlockDuration time.Duration
-		expectedError     string
-		setup             func(suite)
+		name          string
+		timeout       time.Duration
+		expectedError string
+		setup         func(suite)
 	}{
 		{
 			name: "ok: no wait",
-			ctx:  ctx,
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
 				}, nil)
 			},
 		},
 		{
-			name:              "ok: wait 1 time",
-			ctx:               ctx,
-			waitBlockDuration: time.Second * 2, // must exceed the wait loop duration
+			name:    "ok: wait 1 time",
+			timeout: time.Second * 2, // must exceed the wait loop duration
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
 				}, nil).Once()
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
 				}, nil).Once()
 			},
 		},
 		{
-			name:              "fail: wait expired",
-			ctx:               ctx,
-			waitBlockDuration: time.Millisecond,
-			expectedError:     "timeout exceeded waiting for block",
+			name:          "fail: wait expired",
+			timeout:       time.Millisecond,
+			expectedError: "timeout exceeded waiting for block: context deadline exceeded",
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
-					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
-				}, nil)
-			},
-		},
-		{
-			name:              "fail: canceled context",
-			ctx:               canceledCtx,
-			waitBlockDuration: time.Millisecond,
-			expectedError:     canceledCtx.Err().Error(),
-			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(canceledCtx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
 				}, nil)
 			},
@@ -175,8 +155,10 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			c := newClient(t, tt.setup)
+			ctx, cancel := context.WithTimeout(context.Background(), tt.timeout)
+			defer cancel()
 
-			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight, tt.waitBlockDuration)
+			err := c.WaitForBlockHeight(ctx, targetBlockHeight)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
