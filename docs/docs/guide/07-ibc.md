@@ -166,23 +166,23 @@ To make sure the receiving chain has content on the creator of a blog post, add 
 - The sender is verified as the signer of the message, so you can add the `msg.Sender` as the creator to the new packet before it is sent over IBC.
 
 ```go
-    // x/blog/keeper/msg_server_ibc_post.go
+	// x/blog/keeper/msg_server_ibc_post.go
 
-    // Construct the packet
-    var packet types.IbcPostPacketData
-    packet.Title = msg.Title
-    packet.Content = msg.Content
-    packet.Creator = msg.Creator // < ---
+	// Construct the packet
+	var packet types.IbcPostPacketData
+	packet.Title = msg.Title
+	packet.Content = msg.Content
+	packet.Creator = msg.Creator // < ---
 
-    // Transmit the packet
-    err := k.TransmitIbcPostPacket(
-        ctx,
-        packet,
-        msg.Port,
-        msg.ChannelID,
-        clienttypes.ZeroHeight(),
-        msg.TimeoutTimestamp,
-    )
+	// Transmit the packet
+	err := k.TransmitIbcPostPacket(
+		ctx,
+		packet,
+		msg.Port,
+		msg.ChannelID,
+		clienttypes.ZeroHeight(),
+		msg.TimeoutTimestamp,
+	)
 ```
 
 ### Receive the post
@@ -216,11 +216,11 @@ In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below `
 ```go
 // x/blog/keeper/ibc_post.go
 import (
-  //...
+	//...
 
-  "strconv"
+	"strconv"
 
-  //...
+	//...
 )
 ```
 
@@ -228,23 +228,23 @@ Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 
 ```go
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
-    // validate packet data upon receiving
-    if err := data.ValidateBasic(); err != nil {
-        return packetAck, err
-    }
+	// validate packet data upon receiving
+	if err := data.ValidateBasic(); err != nil {
+		return packetAck, err
+	}
 
-    id := k.AppendPost(
-        ctx,
-        types.Post{
-            Creator: packet.SourcePort+"-"+packet.SourceChannel+"-"+data.Creator,
-            Title: data.Title,
-            Content: data.Content,
-        },
-    )
+	id := k.AppendPost(
+		ctx,
+		types.Post{
+			Creator: packet.SourcePort + "-" + packet.SourceChannel + "-" + data.Creator,
+			Title:   data.Title,
+			Content: data.Content,
+		},
+	)
 
-    packetAck.PostID = strconv.FormatUint(id, 10)
+	packetAck.PostID = strconv.FormatUint(id, 10)
 
-    return packetAck, nil
+	return packetAck, nil
 }
 ```
 

@@ -27,36 +27,36 @@ Create a new `x/dex/keeper/mint.go` file:
 package keeper
 
 import (
-   "fmt"
-   "strings"
+	"fmt"
+	"strings"
 
-   sdkmath "cosmossdk.io/math"
-   sdk "github.com/cosmos/cosmos-sdk/types"
-   ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
-  "interchange/x/dex/types"
+	"interchange/x/dex/types"
 )
 
 // isIBCToken checks if the token came from the IBC module
 // Each IBC token starts with an ibc/ denom, the check is rather simple
 func isIBCToken(denom string) bool {
-  return strings.HasPrefix(denom, "ibc/")
+	return strings.HasPrefix(denom, "ibc/")
 }
 
 func (k Keeper) SafeBurn(ctx sdk.Context, port string, channel string, sender sdk.AccAddress, denom string, amount int32) error {
-  if isIBCToken(denom) {
-    // Burn the tokens
-    if err := k.BurnTokens(ctx, sender, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
-      return err
-    }
-  } else {
-    // Lock the tokens
-    if err := k.LockTokens(ctx, port, channel, sender, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
-      return err
-    }
-  }
+	if isIBCToken(denom) {
+		// Burn the tokens
+		if err := k.BurnTokens(ctx, sender, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
+			return err
+		}
+	} else {
+		// Lock the tokens
+		if err := k.LockTokens(ctx, port, channel, sender, sdk.NewCoin(denom, sdkmath.NewInt(int64(amount)))); err != nil {
+			return err
+		}
+	}
 
-  return nil
+	return nil
 }
 ```
 
@@ -68,21 +68,21 @@ Now, implement the `BurnTokens` keeper method as used in the previous function. 
 // x/dex/keeper/mint.go
 
 func (k Keeper) BurnTokens(ctx sdk.Context, sender sdk.AccAddress, tokens sdk.Coin) error {
-  // transfer the coins to the module account and burn them
+	// transfer the coins to the module account and burn them
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, sdk.NewCoins(tokens)); err != nil {
 		return err
 	}
 
-  if err := k.bankKeeper.BurnCoins(
-    ctx, types.ModuleName, sdk.NewCoins(tokens),
-  ); err != nil {
-    // NOTE: should not happen as the module account was
-    // retrieved on the step above and it has enough balance
-    // to burn.
-    panic(fmt.Sprintf("cannot burn coins after a successful send to a module account: %v", err))
-  }
+	if err := k.bankKeeper.BurnCoins(
+		ctx, types.ModuleName, sdk.NewCoins(tokens),
+	); err != nil {
+		// NOTE: should not happen as the module account was
+		// retrieved on the step above and it has enough balance
+		// to burn.
+		panic(fmt.Sprintf("cannot burn coins after a successful send to a module account: %v", err))
+	}
 
-  return nil
+	return nil
 }
 ```
 
@@ -94,17 +94,17 @@ To lock token from a native chain, you can send the native token to the Escrow A
 // x/dex/keeper/mint.go
 
 func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel string, sender sdk.AccAddress, tokens sdk.Coin) error {
-  // create the escrow address for the tokens
-  escrowAddress := ibctransfertypes.GetEscrowAddress(sourcePort, sourceChannel)
+	// create the escrow address for the tokens
+	escrowAddress := ibctransfertypes.GetEscrowAddress(sourcePort, sourceChannel)
 
-  // escrow source tokens. It fails if balance insufficient
-  if err := k.bankKeeper.SendCoins(
-    ctx, sender, escrowAddress, sdk.NewCoins(tokens),
-  ); err != nil {
-    return err
-  }
+	// escrow source tokens. It fails if balance insufficient
+	if err := k.bankKeeper.SendCoins(
+		ctx, sender, escrowAddress, sdk.NewCoins(tokens),
+	); err != nil {
+		return err
+	}
 
-  return nil
+	return nil
 }
 ```
 
@@ -121,10 +121,10 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 
 // BankKeeper defines the expected bank keeper
 type BankKeeper interface {
-  //...
-  SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-  BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-  SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	//...
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 ```
 
@@ -168,16 +168,16 @@ Finally, the last function to implement is the `VoucherDenom` function that retu
 // x/dex/keeper/denom.go
 
 func VoucherDenom(port string, channel string, denom string) string {
-  // since SendPacket did not prefix the denomination, we must prefix denomination here
-  sourcePrefix := ibctransfertypes.GetDenomPrefix(port, channel)
+	// since SendPacket did not prefix the denomination, we must prefix denomination here
+	sourcePrefix := ibctransfertypes.GetDenomPrefix(port, channel)
 
-  // NOTE: sourcePrefix contains the trailing "/"
-  prefixedDenom := sourcePrefix + denom
+	// NOTE: sourcePrefix contains the trailing "/"
+	prefixedDenom := sourcePrefix + denom
 
-  // construct the denomination trace from the full raw denomination
-  denomTrace := ibctransfertypes.ParseDenomTrace(prefixedDenom)
-  voucher := denomTrace.IBCDenom()
-  return voucher[:16]
+	// construct the denomination trace from the full raw denomination
+	denomTrace := ibctransfertypes.ParseDenomTrace(prefixedDenom)
+	voucher := denomTrace.IBCDenom()
+	return voucher[:16]
 }
 ```
 
@@ -289,7 +289,7 @@ To import these methods, add their signatures to the `BankKeeper` interface in t
 // x/dex/types/expected_keepers.go
 
 type BankKeeper interface {
-  // ...
+	// ...
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 }
