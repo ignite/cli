@@ -54,8 +54,8 @@ func TestJoin(t *testing.T) {
 						[]byte{},
 						sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
 						launchtypes.Peer{
-							testutil.NodeID,
-							&launchtypes.Peer_TcpAddress{
+							Id: testutil.NodeID,
+							Connection: &launchtypes.Peer_TcpAddress{
 								TcpAddress: testutil.TCPAddress,
 							},
 						}),
