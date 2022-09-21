@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- Improve genesis parser for `network` commands
+
 ### Fixes
 
 - Fix cli action org in templates.
