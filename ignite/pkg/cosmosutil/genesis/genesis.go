@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/ignite-hq/cli/ignite/pkg/jsonfile"
+	"github.com/ignite/cli/ignite/pkg/jsonfile"
 )
 
 const (
