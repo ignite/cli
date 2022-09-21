@@ -53,14 +53,14 @@ func TestToVestingAccount(t *testing.T) {
 				VestingOptions: *launchtypes.NewDelayedVesting(
 					sampleCoins,
 					sampleCoins,
-					1000,
+					time.Unix(0, 0),
 				),
 			},
 			expected: networktypes.VestingAccount{
 				Address:      "spn123",
 				TotalBalance: sampleCoins,
 				Vesting:      sampleCoins,
-				EndTime:      1000,
+				EndTime:      time.Unix(0, 0).Unix(),
 			},
 		},
 		{
@@ -172,7 +172,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					*launchtypes.NewDelayedVesting(
 						newCoins("1000bar"),
 						newCoins("500bar"),
-						time.Now().Unix(),
+						time.Now(),
 					),
 				),
 			},
@@ -225,7 +225,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					*launchtypes.NewDelayedVesting(
 						newCoins("1000bar"),
 						newCoins("500bar"),
-						time.Now().Unix(),
+						time.Now(),
 					),
 				),
 			},
@@ -241,7 +241,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					*launchtypes.NewDelayedVesting(
 						newCoins("1000bar"),
 						newCoins("500bar"),
-						time.Now().Unix(),
+						time.Now(),
 					),
 				),
 			},
