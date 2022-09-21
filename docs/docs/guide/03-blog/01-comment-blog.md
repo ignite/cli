@@ -154,16 +154,16 @@ You need to do the following things:
 
 ```go
 import (
-    // ...
+	// ...
 
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    // ...
+	// ...
 )
 
 func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComment) (*types.MsgCreateCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	
+
 	// Check if the Post Exists for which a comment is being created
 	post, found := k.GetPost(ctx, msg.PostID)
 	if !found {
@@ -179,7 +179,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 		PostID:    msg.PostID,
 		CreatedAt: ctx.BlockHeight(),
 	}
-	
+
 	// Check if the comment is older than the Post. If more than 100 blocks, then return error.
 	if comment.CreatedAt > post.CreatedAt+100 {
 		return nil, sdkerrors.Wrapf(types.ErrCommentOld, "Comment created at %d is older than post created at %d", comment.CreatedAt, post.CreatedAt)
@@ -356,7 +356,7 @@ For your blog chain, you want to delete the contents of the comment. Add the cod
 ```go
 package keeper
 
- import (
+import (
 	"context"
 	"encoding/binary"
 
@@ -365,9 +365,9 @@ package keeper
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"blog/x/blog/types"
- )
+)
 
- func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
+func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	comment, exist := k.GetComment(ctx, msg.CommentID)
@@ -386,7 +386,6 @@ package keeper
 
 	return &types.MsgDeleteCommentResponse{}, nil
 }
-
 ```
 
 ## Display posts
@@ -447,22 +446,22 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 
 	// Define a variable that will store a list of posts
 	var comments []*types.Comment
-	
+
 	// Get context with the information about the environment
 	ctx := sdk.UnwrapSDKContext(c)
-	
+
 	// Get the key-value module store using the store key (in this case store key is "chain")
 	store := ctx.KVStore(k.storeKey)
-	
+
 	// Get the part of the store that keeps posts (using post key, which is "Post-value-")
 	commentStore := prefix.NewStore(store, []byte(types.CommentKey))
 
-	// Get the post by ID 
+	// Get the post by ID
 	post, _ := k.GetPost(ctx, req.Id)
 
 	// Get the post ID
 	postID := post.Id
-	
+
 	// Paginate the posts store based on PageRequest
 	pageRes, err := query.Paginate(commentStore, req.Pagination, func(key []byte, value []byte) error {
 		var comment types.Comment
@@ -471,9 +470,9 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 		}
 
 		if comment.PostID == postID {
-			comments = append(comments, &comment)	
+			comments = append(comments, &comment)
 		}
-		
+
 		return nil
 	})
 
