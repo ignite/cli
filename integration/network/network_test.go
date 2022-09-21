@@ -70,7 +70,9 @@ func TestNetworkPublish(t *testing.T) {
 			step.NewSteps(step.New(
 				step.Exec(
 					envtest.IgniteApp,
-					"network", "chain", "publish", "https://github.com/lubtd/planet",
+					"network", "chain", "publish",
+					"https://github.com/lubtd/planet",
+					"--local",
 				),
 				step.Stdout(&b),
 			)),
