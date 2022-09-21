@@ -13,6 +13,7 @@ const (
 	fieldPathStakeDenom = "app_state.staking.params.bond_denom"
 	fieldPathChainID    = "chain_id"
 	fieldPathAccounts   = "app_state.auth.accounts"
+	fieldPathGentxs     = "app_state.genutil.gen_txs"
 
 	FieldGenesisTime                 = "genesis_time"
 	FieldChainID                     = "chain_id"
@@ -33,6 +34,7 @@ type (
 	accounts []struct {
 		Address string `json:"address"`
 	}
+	gentxs []struct{}
 )
 
 // FromPath parse genesis object from path
@@ -102,4 +104,11 @@ func (g *Genesis) Accounts() ([]string, error) {
 		accountList[i] = acc.Address
 	}
 	return accountList, err
+}
+
+// GentxCount returns the number of gentx in the genesis
+func (g *Genesis) GentxCount() (int, error) {
+	var gentxs gentxs
+	err := g.Field(fieldPathGentxs, &gentxs)
+	return len(gentxs), err
 }
