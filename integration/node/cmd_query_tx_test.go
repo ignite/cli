@@ -64,7 +64,6 @@ func TestNodeQueryTx(t *testing.T) {
 					"100token",
 					"--node", node,
 					"--keyring-dir", home,
-					"--broadcast-mode", "sync",
 				),
 				step.Stdout(b),
 			)),

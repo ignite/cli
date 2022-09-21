@@ -15,6 +15,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
@@ -120,6 +121,11 @@ func (a App) Serve(msg string, options ...ExecOption) (ok bool) {
 	if a.configPath != "" {
 		serveCommand = append(serveCommand, "--config", a.configPath)
 	}
+	a.env.t.Cleanup(func() {
+		// Serve install the app binary in GOBIN, let's clean that.
+		appBinary := path.Join(goenv.Bin(), a.Binary())
+		os.Remove(appBinary)
+	})
 
 	return a.env.Exec(msg,
 		step.NewSteps(step.New(
