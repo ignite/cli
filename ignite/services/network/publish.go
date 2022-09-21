@@ -3,9 +3,10 @@ package network
 import (
 	"context"
 	"fmt"
-	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"os"
 	"path/filepath"
+
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"

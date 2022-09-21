@@ -3,12 +3,13 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
-	"github.com/ignite/cli/ignite/pkg/jsonfile"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
+	"github.com/ignite/cli/ignite/pkg/jsonfile"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"

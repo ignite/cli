@@ -74,8 +74,7 @@ func New(file ReadWriteSeeker) *JSONFile {
 
 // FromPath parse JSONFile object from path
 func FromPath(path string) (*JSONFile, error) {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0600)
-
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0o600)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot open the file")
 	}
@@ -106,7 +105,7 @@ func FromURL(ctx context.Context, url, destPath, tarballFileName string) (*JSONF
 	if err := os.RemoveAll(destPath); err != nil {
 		return nil, err
 	}
-	file, err := os.OpenFile(destPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0600)
+	file, err := os.OpenFile(destPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0o600)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create the file")
 	}
