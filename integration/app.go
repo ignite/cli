@@ -220,18 +220,22 @@ func (a App) UseRandomHomeDir() (homeDirPath string) {
 	return dir
 }
 
-func (a App) EditConfig(apply func(*chainconfig.Config)) {
-	f, err := os.OpenFile(a.configPath, os.O_RDWR|os.O_CREATE, 0o755)
+func (a App) Config() chainconfig.Config {
+	bz, err := os.ReadFile(a.configPath)
 	require.NoError(a.env.t, err)
-	defer f.Close()
 
 	var conf chainconfig.Config
-	require.NoError(a.env.t, yaml.NewDecoder(f).Decode(&conf))
+	err = yaml.Unmarshal(bz, &conf)
+	require.NoError(a.env.t, err)
+	return conf
+}
 
+func (a App) EditConfig(apply func(*chainconfig.Config)) {
+	conf := a.Config()
 	apply(&conf)
 
-	require.NoError(a.env.t, f.Truncate(0))
-	_, err = f.Seek(0, 0)
+	bz, err := yaml.Marshal(conf)
 	require.NoError(a.env.t, err)
-	require.NoError(a.env.t, yaml.NewEncoder(f).Encode(conf))
+	err = os.WriteFile(a.configPath, bz, 0o644)
+	require.NoError(a.env.t, err)
 }
