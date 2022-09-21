@@ -518,31 +518,31 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	return mconf.Unlock
 }
 
-func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
-	txService, err := c.CreateTx(account, msgs...)
+func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
+	txService, err := c.CreateTx(ctx, account, msgs...)
 	if err != nil {
 		return Response{}, err
 	}
 
-	return txService.Broadcast()
+	return txService.Broadcast(ctx)
 }
 
-func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
 		addr, err := account.Address(c.addressPrefix)
 		if err != nil {
-			return TxService{}, err
+			return TxService{}, errors.WithStack(err)
 		}
-		if err := c.makeSureAccountHasTokens(context.Background(), addr); err != nil {
+		if err := c.makeSureAccountHasTokens(goCtx, addr); err != nil {
 			return TxService{}, err
 		}
 	}
 
 	sdkaddr, err := account.Record.GetAddress()
 	if err != nil {
-		return TxService{}, err
+		return TxService{}, errors.WithStack(err)
 	}
 
 	ctx := c.context.
@@ -558,12 +558,12 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 	if c.gas != "" && c.gas != "auto" {
 		gas, err = strconv.ParseUint(c.gas, 10, 64)
 		if err != nil {
-			return TxService{}, err
+			return TxService{}, errors.WithStack(err)
 		}
 	} else {
 		_, gas, err = c.gasometer.CalculateGas(ctx, txf, msgs...)
 		if err != nil {
-			return TxService{}, err
+			return TxService{}, errors.WithStack(err)
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
 		// we add an additional amount to ensure sufficient gas is provided
@@ -578,7 +578,7 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
-		return TxService{}, err
+		return TxService{}, errors.WithStack(err)
 	}
 
 	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
@@ -643,7 +643,7 @@ func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	}
 
 	if resp.Code > 0 {
-		return fmt.Errorf("error code: '%d' msg: '%s'", resp.Code, resp.RawLog)
+		return errors.Errorf("error code: '%d' msg: '%s'", resp.Code, resp.RawLog)
 	}
 	return nil
 }
@@ -655,14 +655,14 @@ func (c *Client) prepareFactory(clientCtx client.Context) (tx.Factory, error) {
 	)
 
 	if err := c.accountRetriever.EnsureExists(clientCtx, from); err != nil {
-		return txf, err
+		return txf, errors.WithStack(err)
 	}
 
 	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
 	if initNum == 0 || initSeq == 0 {
 		num, seq, err := c.accountRetriever.GetAccountNumberSequence(clientCtx, from)
 		if err != nil {
-			return txf, err
+			return txf, errors.WithStack(err)
 		}
 
 		if initNum == 0 {

@@ -49,7 +49,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	tx, err := client.BankSendTx(fromAccount, toAddress, coins)
+	tx, err := client.BankSendTx(cmd.Context(), fromAccount, toAddress, coins)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	session.StartSpinner("Sending transaction...")
-	resp, err := tx.Broadcast()
+	resp, err := tx.Broadcast(cmd.Context())
 	if err != nil {
 		return err
 	}

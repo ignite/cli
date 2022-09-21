@@ -43,6 +43,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -96,6 +97,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -146,6 +148,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -202,6 +205,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -229,6 +233,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,

@@ -38,6 +38,7 @@ func TestTriggerLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgTriggerLaunch{
 					Coordinator: addr,
@@ -120,6 +121,7 @@ func TestTriggerLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgTriggerLaunch{
 					Coordinator: addr,
@@ -153,6 +155,7 @@ func TestTriggerLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgTriggerLaunch{
 					Coordinator: addr,
@@ -202,6 +205,7 @@ func TestRevertLaunch(t *testing.T) {
 		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgRevertLaunch{
 					Coordinator: addr,
@@ -210,7 +214,7 @@ func TestRevertLaunch(t *testing.T) {
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
 			Once()
 
-		revertError := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
+		revertError := network.RevertLaunch(context.Background(), testutil.LaunchID, suite.ChainMock)
 		require.NoError(t, revertError)
 		suite.AssertAllMocks(t)
 	})
@@ -227,6 +231,7 @@ func TestRevertLaunch(t *testing.T) {
 
 		suite.CosmosClientMock.
 			On("BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgRevertLaunch{
 					Coordinator: addr,
@@ -238,7 +243,7 @@ func TestRevertLaunch(t *testing.T) {
 			).
 			Once()
 
-		revertError := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
+		revertError := network.RevertLaunch(context.Background(), testutil.LaunchID, suite.ChainMock)
 		require.Error(t, revertError)
 		require.Equal(t, expectedError, revertError)
 		suite.AssertAllMocks(t)
@@ -260,6 +265,7 @@ func TestRevertLaunch(t *testing.T) {
 			Once()
 		suite.CosmosClientMock.
 			On("BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgRevertLaunch{
 					Coordinator: addr,
@@ -268,7 +274,7 @@ func TestRevertLaunch(t *testing.T) {
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
 			Once()
 
-		revertError := network.RevertLaunch(testutil.LaunchID, suite.ChainMock)
+		revertError := network.RevertLaunch(context.Background(), testutil.LaunchID, suite.ChainMock)
 		require.Error(t, revertError)
 		require.Equal(t, expectedError, revertError)
 		suite.AssertAllMocks(t)

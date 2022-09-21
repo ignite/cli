@@ -412,6 +412,7 @@ func TestClientStatus(t *testing.T) {
 
 func TestClientCreateTx(t *testing.T) {
 	var (
+		ctx         = context.Background()
 		accountName = "bob"
 		passphrase  = "passphrase"
 	)
@@ -597,7 +598,7 @@ func TestClientCreateTx(t *testing.T) {
 			account, err := c.AccountRegistry.Import(accountName, key, passphrase)
 			require.NoError(err)
 
-			txs, err := c.CreateTx(account, tt.msg)
+			txs, err := c.CreateTx(ctx, account, tt.msg)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)

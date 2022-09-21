@@ -1,6 +1,7 @@
 package cosmosclient_test
 
 import (
+	"context"
 	"encoding/hex"
 	"testing"
 
@@ -20,6 +21,7 @@ import (
 
 func TestTxServiceBroadcast(t *testing.T) {
 	var (
+		goCtx       = context.Background()
 		accountName = "bob"
 		passphrase  = "passphrase"
 		txHash      = []byte{1, 2, 3}
@@ -197,10 +199,10 @@ func TestTxServiceBroadcast(t *testing.T) {
 			ctx := c.Context().
 				WithFromName(accountName).
 				WithFromAddress(sdkaddress)
-			txService, err := c.CreateTx(account, tt.msg)
+			txService, err := c.CreateTx(goCtx, account, tt.msg)
 			require.NoError(err)
 
-			res, err := txService.Broadcast()
+			res, err := txService.Broadcast(goCtx)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
