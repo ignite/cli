@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- Switch to broadcast mode sync in cosmosclient
+
 ### Fixes
 
 - Fix cli action org in templates.
