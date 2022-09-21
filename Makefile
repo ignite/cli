@@ -41,6 +41,11 @@ govet:
 	@echo Running go vet...
 	@go vet ./...
 
+## govulncheck: Run govulncheck
+govulncheck:
+	@echo Running govulncheck...
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
+
 ## format: Install and run goimports and gofumpt
 format:
 	@echo Formatting...
@@ -65,7 +70,7 @@ test-integration: install
 	@go test -race -failfast -v -timeout 60m ./integration/...
 
 ## test: Run unit and integration tests.
-test: govet test-unit test-integration
+test: govet govulncheck test-unit test-integration
 
 .PHONY: test-unit test-integration test
 
