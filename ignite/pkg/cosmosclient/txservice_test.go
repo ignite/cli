@@ -94,49 +94,6 @@ func TestTxServiceBroadcast(t *testing.T) {
 			},
 		},
 		{
-			name:          "fail: ErrInsufficientFunds and disabled faucet",
-			msg:           msg,
-			expectedError: "error while requesting node 'http://localhost:26657': " + sdkerrors.ErrInsufficientFunds.Error(),
-
-			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
-				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
-					Return(nil)
-				s.rpcClient.EXPECT().
-					BroadcastTxSync(mock.Anything, mock.Anything).
-					Return(nil, sdkerrors.ErrInsufficientFunds)
-			},
-		},
-		{
-			name:          "fail: ErrInsufficientFunds, enabled faucet but still not enough funds",
-			msg:           msg,
-			expectedError: "error while requesting node 'http://localhost:26657': " + sdkerrors.ErrInsufficientFunds.Error(),
-			opts: []cosmosclient.Option{
-				cosmosclient.WithUseFaucet("localhost:1234", "", 0),
-			},
-
-			setup: func(s suite) {
-				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
-				s.expectPrepareFactory(sdkaddress)
-				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
-					Return(nil)
-				s.rpcClient.EXPECT().
-					BroadcastTxSync(mock.Anything, mock.Anything).
-					Return(nil, sdkerrors.ErrInsufficientFunds).
-					Once()
-
-				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
-
-				// Once balance is fine, broadcast the tx again, but still no funds
-				s.rpcClient.EXPECT().
-					BroadcastTxSync(mock.Anything, mock.Anything).
-					Return(nil, sdkerrors.ErrInsufficientFunds).
-					Once()
-			},
-		},
-		{
 			name: "ok: tx confirmed immediately",
 			msg:  msg,
 			expectedResponse: &sdktypes.TxResponse{
@@ -224,44 +181,6 @@ func TestTxServiceBroadcast(t *testing.T) {
 						SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 2},
 					}, nil).Once()
 				// Then try gain to fetch the tx, this time it is confirmed
-				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
-					Return(&ctypes.ResultTx{
-						Hash: txHash,
-					}, nil)
-			},
-		},
-		{
-			name: "ok: ErrInsufficientFunds and enabled faucet",
-			msg:  msg,
-			opts: []cosmosclient.Option{
-				cosmosclient.WithUseFaucet("localhost:1234", "", 0),
-			},
-			expectedResponse: &sdktypes.TxResponse{
-				TxHash: txHashStr,
-			},
-
-			setup: func(s suite) {
-				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
-				s.expectPrepareFactory(sdkaddress)
-				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
-					Return(nil)
-				s.rpcClient.EXPECT().
-					BroadcastTxSync(mock.Anything, mock.Anything).
-					Return(nil, sdkerrors.ErrInsufficientFunds).
-					Once()
-
-				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
-
-				// Once balance is fine, broadcast the tx again
-				s.rpcClient.EXPECT().
-					BroadcastTxSync(mock.Anything, mock.Anything).
-					Return(&ctypes.ResultBroadcastTx{
-						Hash: txHash,
-					}, nil).
-					Once()
-
-				// Tx is broadcasted, now check for confirmation
 				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
 					Return(&ctypes.ResultTx{
 						Hash: txHash,

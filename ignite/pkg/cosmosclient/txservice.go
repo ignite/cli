@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/pkg/errors"
 )
 
@@ -31,9 +30,6 @@ func (s TxService) Gas() uint64 {
 func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 	defer s.client.lockBech32Prefix()()
 
-	accountName := s.clientContext.GetFromName()
-	accountAddress := s.clientContext.GetFromAddress()
-
 	// validate msgs.
 	for _, msg := range s.txBuilder.GetTx().GetMsgs() {
 		if err := msg.ValidateBasic(); err != nil {
@@ -41,6 +37,7 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 		}
 	}
 
+	accountName := s.clientContext.GetFromName()
 	if err := s.client.signer.Sign(s.txFactory, accountName, s.txBuilder, true); err != nil {
 		return Response{}, errors.WithStack(err)
 	}
@@ -51,14 +48,6 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 	}
 
 	resp, err := s.clientContext.BroadcastTx(txBytes)
-	if s.client.useFaucet && errors.Is(err, sdkerrors.ErrInsufficientFunds) {
-		err = s.client.makeSureAccountHasTokens(context.Background(), accountAddress.String())
-		if err != nil {
-			return Response{}, errors.WithStack(err)
-		}
-		resp, err = s.clientContext.BroadcastTx(txBytes)
-	}
-
 	if err := handleBroadcastResult(resp, err); err != nil {
 		return Response{}, err
 	}

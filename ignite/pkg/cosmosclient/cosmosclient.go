@@ -629,7 +629,6 @@ func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your account has enough balance")
 		}
-
 		return err
 	}
 
