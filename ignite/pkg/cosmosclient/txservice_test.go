@@ -9,6 +9,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -70,7 +71,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
+					BroadcastTxSync(mock.Anything, mock.Anything).
 					Return(nil, sdkerrors.ErrNotFound)
 			},
 		},
@@ -85,12 +86,10 @@ func TestTxServiceBroadcast(t *testing.T) {
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
-					Return(&ctypes.ResultBroadcastTxCommit{
-						CheckTx: abci.ResponseCheckTx{
-							Code: 42,
-							Log:  "oups",
-						},
+					BroadcastTxSync(mock.Anything, mock.Anything).
+					Return(&ctypes.ResultBroadcastTx{
+						Code: 42,
+						Log:  "oups",
 					}, nil)
 			},
 		},
@@ -105,7 +104,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
+					BroadcastTxSync(mock.Anything, mock.Anything).
 					Return(nil, sdkerrors.ErrInsufficientFunds)
 			},
 		},
@@ -124,7 +123,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
+					BroadcastTxSync(mock.Anything, mock.Anything).
 					Return(nil, sdkerrors.ErrInsufficientFunds).
 					Once()
 
@@ -132,13 +131,69 @@ func TestTxServiceBroadcast(t *testing.T) {
 
 				// Once balance is fine, broadcast the tx again, but still no funds
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
+					BroadcastTxSync(mock.Anything, mock.Anything).
 					Return(nil, sdkerrors.ErrInsufficientFunds).
 					Once()
 			},
 		},
 		{
-			name: "ok: basic usecase",
+			name: "ok: tx confirmed immediately",
+			msg:  msg,
+			expectedResponse: &sdktypes.TxResponse{
+				TxHash: txHashStr,
+				RawLog: "log",
+			},
+
+			setup: func(s suite) {
+				s.expectPrepareFactory(sdkaddress)
+				s.signer.EXPECT().
+					Sign(mock.Anything, "bob", mock.Anything, true).
+					Return(nil)
+				s.rpcClient.EXPECT().
+					BroadcastTxSync(mock.Anything, mock.Anything).
+					Return(&ctypes.ResultBroadcastTx{
+						Hash: txHash,
+					}, nil)
+
+				// Tx is broadcasted, now check for confirmation
+				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+					Return(&ctypes.ResultTx{
+						Hash: txHash,
+						TxResult: abci.ResponseDeliverTx{
+							Log: "log",
+						},
+					}, nil)
+			},
+		},
+		{
+			name:          "fail: tx confirmed with error code",
+			msg:           msg,
+			expectedError: "error code: '42' msg: 'oups'",
+
+			setup: func(s suite) {
+				s.expectPrepareFactory(sdkaddress)
+				s.signer.EXPECT().
+					Sign(mock.Anything, "bob", mock.Anything, true).
+					Return(nil)
+				s.rpcClient.EXPECT().
+					BroadcastTxSync(mock.Anything, mock.Anything).
+					Return(&ctypes.ResultBroadcastTx{
+						Hash: txHash,
+					}, nil)
+
+				// Tx is broadcasted, now check for confirmation
+				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+					Return(&ctypes.ResultTx{
+						Hash: txHash,
+						TxResult: abci.ResponseDeliverTx{
+							Code: 42,
+							Log:  "oups",
+						},
+					}, nil)
+			},
+		},
+		{
+			name: "ok: tx confirmed after a while",
 			msg:  msg,
 			expectedResponse: &sdktypes.TxResponse{
 				TxHash: txHashStr,
@@ -150,8 +205,27 @@ func TestTxServiceBroadcast(t *testing.T) {
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
-					Return(&ctypes.ResultBroadcastTxCommit{
+					BroadcastTxSync(mock.Anything, mock.Anything).
+					Return(&ctypes.ResultBroadcastTx{
+						Hash: txHash,
+					}, nil)
+
+				// Tx is broadcasted, now check for confirmation
+				// First time the tx is not found (not confirmed yet)
+				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+					Return(nil, errors.New("not found")).Once()
+				// Wait for 1 block
+				s.rpcClient.EXPECT().Status(goCtx).
+					Return(&ctypes.ResultStatus{
+						SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 1},
+					}, nil).Once()
+				s.rpcClient.EXPECT().Status(goCtx).
+					Return(&ctypes.ResultStatus{
+						SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 2},
+					}, nil).Once()
+				// Then try gain to fetch the tx, this time it is confirmed
+				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+					Return(&ctypes.ResultTx{
 						Hash: txHash,
 					}, nil)
 			},
@@ -173,7 +247,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
+					BroadcastTxSync(mock.Anything, mock.Anything).
 					Return(nil, sdkerrors.ErrInsufficientFunds).
 					Once()
 
@@ -181,11 +255,17 @@ func TestTxServiceBroadcast(t *testing.T) {
 
 				// Once balance is fine, broadcast the tx again
 				s.rpcClient.EXPECT().
-					BroadcastTxCommit(mock.Anything, mock.Anything).
-					Return(&ctypes.ResultBroadcastTxCommit{
+					BroadcastTxSync(mock.Anything, mock.Anything).
+					Return(&ctypes.ResultBroadcastTx{
 						Hash: txHash,
 					}, nil).
 					Once()
+
+				// Tx is broadcasted, now check for confirmation
+				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+					Return(&ctypes.ResultTx{
+						Hash: txHash,
+					}, nil)
 			},
 		},
 	}

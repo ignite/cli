@@ -110,11 +110,10 @@ type Client struct {
 	keyringBackend     cosmosaccount.KeyringBackend
 	keyringDir         string
 
-	gas           string
-	gasPrices     string
-	fees          string
-	broadcastMode string
-	generateOnly  bool
+	gas          string
+	gasPrices    string
+	fees         string
+	generateOnly bool
 }
 
 // Option configures your client.
@@ -200,13 +199,6 @@ func WithFees(fees string) Option {
 	}
 }
 
-// WithBroadcastMode sets the broadcast mode
-func WithBroadcastMode(broadcastMode string) Option {
-	return func(c *Client) {
-		c.broadcastMode = broadcastMode
-	}
-}
-
 // WithGenerateOnly tells if txs will be generated only.
 func WithGenerateOnly(generateOnly bool) Option {
 	return func(c *Client) {
@@ -273,7 +265,6 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		faucetMinAmount: defaultFaucetMinAmount,
 		out:             io.Discard,
 		gas:             strconv.Itoa(defaultGasLimit),
-		broadcastMode:   flags.BroadcastSync,
 	}
 
 	var err error
@@ -701,7 +692,7 @@ func (c Client) newContext() client.Context {
 		WithInput(os.Stdin).
 		WithOutput(c.out).
 		WithAccountRetriever(c.accountRetriever).
-		WithBroadcastMode(c.broadcastMode).
+		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(c.homePath).
 		WithClient(c.RPC).
 		WithSkipConfirmation(true).
