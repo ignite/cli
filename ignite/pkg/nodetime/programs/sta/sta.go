@@ -68,6 +68,7 @@ func Generate(ctx context.Context, outPath, specPath string, options ...Option) 
 
 	// command constructs the sta command.
 	command = append(command, []string{
+		"--axios",
 		"--module-name-index",
 		"-1", // -1 removes the route namespace
 		"-p",
