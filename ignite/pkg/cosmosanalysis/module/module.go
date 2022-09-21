@@ -79,11 +79,11 @@ type moduleDiscoverer struct {
 // chainRoot is the root path of the chain
 // sourcePath is the root path of the go module which the proto dir is from
 //
-// discovery algorithm make use of registered modules and proto definitions to find relevant registered modules
-// It does so by:
-// 1. Getting all the registered go modules from the app
-// 2. Parsing the proto files to find services and messages
-// 3. Check if the proto services are implemented in any of the registered modules
+// Discovery algorithm make use of registered modules and proto definitions to find relevant
+// registered modules. It does so by:
+//   1. Getting all the registered Go modules from the app
+//   2. Parsing the proto files to find services and messages
+//   3. Check if the proto services are implemented in any of the registered modules
 func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
@@ -94,21 +94,25 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		return nil, err
 	}
 
+	// Find all the modules registered by the app
 	registeredModules, err := app.FindRegisteredModules(chainRoot)
 	if err != nil {
 		return nil, err
 	}
 
+	// Go import path of the app module
 	basegopath := gm.Module.Mod.Path
 
-	// Just filter out the registered modules that are not possibly relevant here
-	potentialModules := make([]string, 0)
+	// Keep the custom app's modules and filter out the third
+	// party ones that are not defined within the app.
+	appModules := make([]string, 0)
 	for _, m := range registeredModules {
 		if strings.HasPrefix(m, basegopath) {
-			potentialModules = append(potentialModules, m)
+			appModules = append(appModules, m)
 		}
 	}
-	if len(potentialModules) == 0 {
+
+	if len(appModules) == 0 {
 		return []Module{}, nil
 	}
 
@@ -116,14 +120,15 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		protoPath:         filepath.Join(sourcePath, protoDir),
 		sourcePath:        sourcePath,
 		basegopath:        basegopath,
-		registeredModules: potentialModules,
+		registeredModules: appModules,
 	}
 
-	// find proto packages that belong to modules under x/.
+	// Find proto packages that belong to modules under x/.
 	pkgs, err := md.findModuleProtoPkgs(ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	if len(pkgs) == 0 {
 		return []Module{}, nil
 	}
@@ -136,6 +141,10 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 			return nil, err
 		}
 
+		if m.Name == "" {
+			continue
+		}
+
 		modules = append(modules, m)
 	}
 
@@ -144,18 +153,17 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 
 // discover discovers and sdk module by a proto pkg.
 func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
-	pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
-	pkgpath := filepath.Join(d.sourcePath, pkgrelpath)
-
-	found, err := d.pkgIsFromRegisteredModule(pkg)
-	if err != nil {
+	// Check if the proto package services are implemented
+	// by any of the modules registered by the app.
+	if ok, err := d.isPkgFromRegisteredModule(pkg); err != nil || !ok {
 		return Module{}, err
 	}
-	if !found {
-		return Module{}, nil
-	}
 
-	msgs, err := cosmosanalysis.FindImplementation(pkgpath, messageImplementation)
+	pkgRelPath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
+	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
+
+	// Find the `sdk.Msg` interface implementation
+	msgs, err := cosmosanalysis.FindImplementation(pkgPath, messageImplementation)
 	if err != nil {
 		return Module{}, err
 	}
@@ -263,17 +271,20 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 	return xprotopkgs, nil
 }
 
-// Checks if the pkg is implemented in any of the registered modules
-func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
-	for _, rm := range d.registeredModules {
-		implRelPath := strings.TrimPrefix(rm, d.basegopath)
+// Checks if the proto package is implemented by any of the modules registered by the app.
+func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
+	for _, m := range d.registeredModules {
+		implRelPath := strings.TrimPrefix(m, d.basegopath)
 		implPath := filepath.Join(d.sourcePath, implRelPath)
 
 		for _, s := range pkg.Services {
+			// List of the RPC method names defined by the current proto package service
 			methods := make([]string, len(s.RPCFuncs))
 			for i, rpcFunc := range s.RPCFuncs {
 				methods[i] = rpcFunc.Name
 			}
+
+			// Find the Go implementation of the service defined in the proto package
 			found, err := cosmosanalysis.DeepFindImplementation(implPath, methods)
 			if err != nil {
 				return false, err
@@ -281,9 +292,10 @@ func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) 
 
 			// In some cases, the module registration is in another level of sub dir in the module.
 			// TODO: find the closest sub dir among proto packages.
-			if len(found) == 0 && strings.HasPrefix(rm, pkg.GoImportName) {
+			if len(found) == 0 && strings.HasPrefix(m, pkg.GoImportName) {
 				altImplRelPath := strings.TrimPrefix(pkg.GoImportName, d.basegopath)
 				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
+
 				found, err = cosmosanalysis.DeepFindImplementation(altImplPath, methods)
 				if err != nil {
 					return false, err
@@ -294,7 +306,6 @@ func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) 
 				return true, nil
 			}
 		}
-
 	}
 
 	return false, nil
