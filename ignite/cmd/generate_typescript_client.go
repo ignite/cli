@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -13,7 +14,10 @@ func NewGenerateTSClient() *cobra.Command {
 		Short: "Generate Typescript client for your chain's frontend",
 		RunE:  generateTSClientHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().StringP(flagOutput, "o", chainconfig.DefaultTSClientPath, "typescript client output path")
+
 	return c
 }
 
@@ -33,7 +37,13 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
+		return err
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output))
+	if err != nil {
 		return err
 	}
 
