@@ -6,11 +6,18 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
 
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
+)
+
+const (
+	// DefaultTSClientPath defines the default relative path to use when generating the TS client.
+	// The path is relative to the app's directory.
+	DefaultTSClientPath = "ts-client"
 )
 
 var (
@@ -253,7 +260,7 @@ func LocateDefault(root string) (path string, err error) {
 	return "", ErrCouldntLocateConfig
 }
 
-// FaucetHost returns the faucet host to use
+// FaucetHost returns the faucet host to use.
 func FaucetHost(conf Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
@@ -263,6 +270,16 @@ func FaucetHost(conf Config) string {
 	}
 
 	return host
+}
+
+// TSClientPath returns the relative path to the Typescript client directory.
+// Path is relative to the app's directory.
+func TSClientPath(conf Config) string {
+	if path := strings.TrimSpace(conf.Client.Typescript.Path); path != "" {
+		return filepath.Clean(path)
+	}
+
+	return DefaultTSClientPath
 }
 
 // CreateConfigDir creates config directory if it is not created yet.
