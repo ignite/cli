@@ -59,7 +59,8 @@ require (
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 	golang.org/x/text v0.3.7
-	golang.org/x/tools v0.1.12
+	golang.org/x/tools v0.1.13-0.20220803210227-8b9a1fbdf5c3
+	golang.org/x/vuln v0.0.0-20220919155316-41b1fc70d0a6
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v2 v2.4.0
