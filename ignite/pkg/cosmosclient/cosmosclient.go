@@ -69,6 +69,11 @@ type Gasometer interface {
 	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
 }
 
+// Signer allows to mock the tx.Sign func.
+type Signer interface {
+	Sign(txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
+}
+
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
@@ -87,6 +92,7 @@ type Client struct {
 	bankQueryClient  banktypes.QueryClient
 	faucetClient     FaucetClient
 	gasometer        Gasometer
+	signer           Signer
 
 	addressPrefix string
 
@@ -248,6 +254,14 @@ func WithGasometer(gasometer Gasometer) Option {
 	}
 }
 
+// WithSigner sets the signer.
+// Already set by default.
+func WithSigner(signer Signer) Option {
+	return func(c *Client) {
+		c.signer = signer
+	}
+}
+
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
@@ -321,6 +335,9 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	}
 	if c.gasometer == nil {
 		c.gasometer = gasometer{}
+	}
+	if c.signer == nil {
+		c.signer = signer{}
 	}
 	// set address prefix in SDK global config
 	c.SetConfigAddressPrefix()

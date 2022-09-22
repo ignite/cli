@@ -20,13 +20,13 @@ Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.g
 package keeper
 
 import (
-  "context"
+	"context"
 
-  sdk "github.com/cosmos/cosmos-sdk/types"
-  sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-  "github.com/tendermint/tendermint/crypto"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tendermint/tendermint/crypto"
 
-  "scavenge/x/scavenge/types"
+	"scavenge/x/scavenge/types"
 )
 
 func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitScavenge) (*types.MsgSubmitScavengeResponse, error) {
