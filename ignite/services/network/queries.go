@@ -3,9 +3,10 @@ package network
 import (
 	"context"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	"sort"
 	"sync"
+
+	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
