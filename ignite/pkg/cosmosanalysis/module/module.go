@@ -3,6 +3,7 @@ package module
 import (
 	"context"
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"golang.org/x/mod/semver"
 )
 
 // Msgs is a module import path-sdk msgs pair.
@@ -151,6 +153,34 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 	return modules, nil
 }
 
+// RootImportPath returns a Go import path with the version suffix removed.
+func RootImportPath(importPath string) string {
+	if p, v := path.Split(importPath); semver.IsValid(v) {
+		return strings.TrimRight(p, "/")
+	}
+
+	return importPath
+}
+
+func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
+	// Remove the import prefix to get the relative path
+	if strings.HasPrefix(pkgGoImportPath, baseGoPath) {
+		return strings.TrimPrefix(pkgGoImportPath, baseGoPath), nil
+	}
+
+	// When the import path prefix defined by the proto package
+	// doesn't match the base Go import path it means that the
+	// latter might have a version suffix and the former doesn't.
+	if p, v := path.Split(baseGoPath); semver.IsValid(v) {
+		// Use the import path without the version as prefix
+		p = strings.TrimRight(p, "/")
+
+		return strings.TrimPrefix(pkgGoImportPath, p), nil
+	}
+
+	return "", fmt.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
+}
+
 // discover discovers and sdk module by a proto pkg.
 func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// Check if the proto package services are implemented
@@ -159,10 +189,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		return Module{}, err
 	}
 
-	pkgRelPath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
-	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
+	pkgRelPath, err := extractRelPath(pkg.GoImportPath(), d.basegopath)
+	if err != nil {
+		return Module{}, err
+	}
 
 	// Find the `sdk.Msg` interface implementation
+	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
 	msgs, err := cosmosanalysis.FindImplementation(pkgPath, messageImplementation)
 	if err != nil {
 		return Module{}, err
@@ -258,10 +291,15 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 		return nil, err
 	}
 
+	// Remove version suffix from the Go import path if it exists.
+	// Proto files might omit the version in the Go import path even
+	// when the app module is using versioning.
+	basegopath := RootImportPath(d.basegopath)
+
 	// filter out proto packages that do not represent x/ modules of blockchain.
 	var xprotopkgs []protoanalysis.Package
 	for _, pkg := range allprotopkgs {
-		if !strings.HasPrefix(pkg.GoImportName, d.basegopath) {
+		if !strings.HasPrefix(pkg.GoImportPath(), basegopath) {
 			continue
 		}
 
@@ -273,6 +311,8 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 
 // Checks if the proto package is implemented by any of the modules registered by the app.
 func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
+	goImportPath := pkg.GoImportPath()
+
 	for _, m := range d.registeredModules {
 		implRelPath := strings.TrimPrefix(m, d.basegopath)
 		implPath := filepath.Join(d.sourcePath, implRelPath)
@@ -292,8 +332,8 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 
 			// In some cases, the module registration is in another level of sub dir in the module.
 			// TODO: find the closest sub dir among proto packages.
-			if len(found) == 0 && strings.HasPrefix(m, pkg.GoImportName) {
-				altImplRelPath := strings.TrimPrefix(pkg.GoImportName, d.basegopath)
+			if len(found) == 0 && strings.HasPrefix(m, goImportPath) {
+				altImplRelPath := strings.TrimPrefix(goImportPath, d.basegopath)
 				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
 
 				found, err = cosmosanalysis.DeepFindImplementation(altImplPath, methods)
