@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"sort"
 	"sync"
 
@@ -38,12 +39,14 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 }
 
 // ChainLaunchesWithReward fetches the chain launches with rewards from Network
-func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
+func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.PageRequest) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
 	res, err := n.launchQuery.
-		ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
+		ChainAll(ctx, &launchtypes.QueryAllChainRequest{
+			Pagination: pagination,
+		})
 	if err != nil {
 		return nil, err
 	}
