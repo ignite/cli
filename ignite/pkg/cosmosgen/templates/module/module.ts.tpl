@@ -85,6 +85,9 @@ class SDKModule {
 	
 		this.query = queryClient({ addr: client.env.apiURL });
 		this.tx = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
+		client.on('signer-changed',(signer) => {
+			this.tx = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
+		})
 	}
 };
 
