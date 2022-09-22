@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	spnURL    = "git@github.com:tendermint/spn"
+	spnURL    = "https://github.com/tendermint/spn"
 	spnBranch = "develop"
 	spnHash   = "5da0c7ae019d376f782fa3baeb2c0ac5654f2d1f"
 )
