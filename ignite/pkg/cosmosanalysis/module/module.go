@@ -309,16 +309,49 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 	return xprotopkgs, nil
 }
 
+// IsModuleRootPath checks if a Go import path is a custom app module.
+// Custom app modules are defined inside the "x" directory.
+func IsModuleRootPath(path string) bool {
+	return filepath.Base(filepath.Dir(path)) == "x"
+}
+
+// GetModuleRootPath returns the Go import path of a custom app module.
+// An empty string is returned when the path doesn't belong to a custom module.
+func GetModuleRootPath(path string) string {
+	for !IsModuleRootPath(path) {
+		if path = filepath.Dir(path); path == "." {
+			return ""
+		}
+	}
+
+	return path
+}
+
 // Checks if the proto package is implemented by any of the modules registered by the app.
 func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
-	goImportPath := pkg.GoImportPath()
+	// Get the Go module import defined by the proto package
+	goModuleImport := pkg.GoImportPath()
+
+	// Try to get the Go import path of the custom app module that should implement
+	// the package RPC services. When the import path doesn't import a package
+	// from the standard "x" folder use the path defined by the proto package.
+	// Using the custom app module root path guarantees that if the RPC services
+	// implementation exists in the module it will always be found.
+	if p := GetModuleRootPath(goModuleImport); p != "" {
+		goModuleImport = p
+	}
 
 	for _, m := range d.registeredModules {
+		// Don't search for RPC services implementation in other Go packages
+		if !strings.HasPrefix(m, goModuleImport) {
+			continue
+		}
+
 		implRelPath := strings.TrimPrefix(m, d.basegopath)
 		implPath := filepath.Join(d.sourcePath, implRelPath)
 
 		for _, s := range pkg.Services {
-			// List of the RPC method names defined by the current proto package service
+			// List of the RPC service method names defined by the current proto's service
 			methods := make([]string, len(s.RPCFuncs))
 			for i, rpcFunc := range s.RPCFuncs {
 				methods[i] = rpcFunc.Name
@@ -330,10 +363,11 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 				return false, err
 			}
 
-			// In some cases, the module registration is in another level of sub dir in the module.
-			// TODO: find the closest sub dir among proto packages.
-			if len(found) == 0 && strings.HasPrefix(m, goImportPath) {
-				altImplRelPath := strings.TrimPrefix(goImportPath, d.basegopath)
+			// Some times the registered module definition is located in a different
+			// directory branch from where the RPC implementation is defined. In this
+			// case search the RPC implementation in all of the custom app module files.
+			if len(found) == 0 && strings.HasPrefix(goModuleImport, d.basegopath) {
+				altImplRelPath := strings.TrimPrefix(goModuleImport, d.basegopath)
 				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
 
 				found, err = cosmosanalysis.DeepFindImplementation(altImplPath, methods)
