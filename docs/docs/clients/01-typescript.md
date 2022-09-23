@@ -76,17 +76,21 @@ By default, the generated client exports a client class that includes all the Co
 
 To instantiate the client you need to provide environment information (endpoints and chain prefix) and an optional wallet (implementing the CosmJS OfflineSigner interface).
 
-For example, to connect to a local chain instance running under the Ignite CLI defaults, using Keplr as a wallet:
+For example, to connect to a local chain instance running under the Ignite CLI defaults, using a CosmJS wallet:
 
 ```typescript
 import { Client } from '<path-to-ts-client>';
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic);
 
 const client = new Client({ 
 		apiURL: "http://localhost:1317",
 		rpcURL: "http://localhost:26657",
 		prefix: "cosmos"
 	},
-	window.keplr.getOfflineSigner()
+	wallet
 );
 ```
 
@@ -125,7 +129,10 @@ If you prefer, you can construct a lighter client using only the modules you are
 import { IgniteClient } from '<path-to-ts-client>/client';
 import { Module as CosmosBankV1Beta1 } from '<path-to-ts-client>/cosmos.bank.v1beta1'
 import { Module as CosmosStakingV1Beta1 } from '<path-to-ts-client>/cosmos.staking.v1beta1'
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
+const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic);
 const CustomClient = IgniteClient.plugin([CosmosBankV1Beta1, CosmosStakingV1Beta1]);
 
 const client = new CustomClient({ 
@@ -133,7 +140,7 @@ const client = new CustomClient({
 		rpcURL: "http://localhost:26657",
 		prefix: "cosmos"
 	},
-	window.keplr.getOfflineSigner()
+	wallet
 );
 ```
 
@@ -186,9 +193,13 @@ and
 
 ```typescript
 import { txClient } from '<path-to-ts-client>/cosmos.bank.v1beta1';
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic);
 
 const client = txClient({
-	signer: window.keplr.getOfflineSigner(),
+	signer: wallet,
 	prefix: 'cosmos',
 	addr: 'http://localhost:26657'
 });
@@ -209,4 +220,83 @@ const tx_result = await client.sendMsgSend(
 		memo
 	}
 );
+```
+
+## Usage with Keplr
+
+Normally, Keplr provides a wallet object implementing the OfflineSigner interface so you can simply replace the wallet arhument in client instantiation with that like so:
+
+
+```typescript
+import { Client } from '<path-to-ts-client>';
+
+const chainId = 'mychain-1'
+const client = new Client({ 
+		apiURL: "http://localhost:1317",
+		rpcURL: "http://localhost:26657",
+		prefix: "cosmos"
+	},
+	window.keplr.getOfflineSigner(chainId)
+);
+```
+
+The problem is that for a new Ignite CLI scaffolded chain, Keplr has no knowledge of it thus requiring an initial call to [`experimentalSuggestChain()`](https://docs.keplr.app/api/suggest-chain.html) method to add the chain information to the user's Keplr instance.
+
+The generated client makes this easier by offering a `useKeplr()` method that autodiscovers the chain information and sets it up for you. Thus you can instantiate the client without a wallet and then call `useKeplr()` to enable transacting via Keplr like so:
+
+```typescript
+import { Client } from '<path-to-ts-client>';
+
+const client = new Client({ 
+		apiURL: "http://localhost:1317",
+		rpcURL: "http://localhost:26657",
+		prefix: "cosmos"
+	}
+);
+await client.useKeplr();
+```
+
+`useKeplr()` optionally accepts an object argument that contains one or more of the same keys as the `ChainInfo` type argument of `experimentalSuggestChain()` allowing you to override the auto-discovered values.
+
+For example, the default chain name and token precision (which are not recorded on-chain) are set to `<chainId> Network` and `0` while the ticker for the denom is set to the denom name in uppercase. If you wanted to override these, you could do something like:
+
+
+```typescript
+import { Client } from '<path-to-ts-client>';
+
+const client = new Client({ 
+		apiURL: "http://localhost:1317",
+		rpcURL: "http://localhost:26657",
+		prefix: "cosmos"
+	}
+);
+await client.useKeplr({ chainName: 'My Great Chain', stakeCurrency : { coinDenom: 'TOKEN', coinMinimalDenom: 'utoken', coinDecimals: '6' } });
+```
+
+## Wallet switching
+
+The client also allows you to switch out the wallet for a different one on an already instantiated client like so:
+
+```typescript
+import { Client } from '<path-to-ts-client>';
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic);
+
+
+const client = new Client({ 
+		apiURL: "http://localhost:1317",
+		rpcURL: "http://localhost:26657",
+		prefix: "cosmos"
+	}
+);
+await client.useKeplr();
+
+// transact using Keplr Wallet
+
+client.useSigner(wallet);
+
+//transact using CosmJS wallet
+
 ```
