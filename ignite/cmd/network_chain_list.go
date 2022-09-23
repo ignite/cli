@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -36,7 +37,7 @@ func NewNetworkChainList() *cobra.Command {
 	}
 	c.Flags().Bool(flagAdvanced, false, "Show advanced information about the chains")
 	c.Flags().Uint64(flagLimit, 100, "Limit of results per page")
-	c.Flags().Uint64(flagPage, 0, "Page for chain list result")
+	c.Flags().Uint64(flagPage, 1, "Page for chain list result")
 
 	return c
 }
@@ -51,6 +52,10 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.Cleanup()
 
+	if page == 0 {
+		return errors.New("invalid page value")
+	}
+
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
@@ -60,7 +65,7 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 	chainLaunches, err := n.ChainLaunchesWithReward(cmd.Context(), &query.PageRequest{
-		Offset: limit * page,
+		Offset: limit * (page - 1),
 		Limit:  limit,
 	})
 	if err != nil {
