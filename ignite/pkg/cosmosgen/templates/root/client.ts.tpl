@@ -37,11 +37,17 @@ export class IgniteClient extends EventEmitter {
     type Extension = Return<T>['module']
     return AugmentedClient as typeof AugmentedClient & Constructor<Extension>;
   }
+
   async signAndBroadcast(msgs: EncodeObject[], fee: StdFee, memo: string) {
-    const { address } = (await this.signer.getAccounts())[0]; 
-    const signingClient = await SigningStargateClient.connectWithSigner(this.env.rpcURL, this.signer, {registry: new Registry(this.registry), prefix: this.env.prefix});
-		return await signingClient.signAndBroadcast(address, msgs, fee ? fee : defaultFee, memo)
+    if (this.signer) {
+      const { address } = (await this.signer.getAccounts())[0];
+      const signingClient = await SigningStargateClient.connectWithSigner(this.env.rpcURL, this.signer, { registry: new Registry(this.registry), prefix: this.env.prefix });
+      return await signingClient.signAndBroadcast(address, msgs, fee ? fee : defaultFee, memo)
+    } else {
+      throw new Error(" Signer is not present.");
+    }
   }
+
   constructor(env: Env, signer?: OfflineSigner) {
     super();
     this.env = env;
@@ -60,7 +66,7 @@ export class IgniteClient extends EventEmitter {
       this.signer = signer;
       this.emit("signer-changed", this.signer);
   }
-  async useKeplr(keplrChainInfo: Partial<ChainInfo>) {
+  async useKeplr(keplrChainInfo: Partial<ChainInfo> = {}) {
     // Using queryClients directly because BaseClient has no knowledge of the modules at this stage
     try {
       const queryClient = (
