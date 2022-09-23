@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Updated `nodetime`: `ts-proto` to `v1.126.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
+
 ### Fixes
 
 - Change vuex generation to use a default TS client path.
