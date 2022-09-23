@@ -220,13 +220,21 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, err
 		}
 
+		// get initial genesis
+		initialGenesis := launchtypes.NewDefaultInitialGenesis()
+		if o.genesisURL != "" {
+			initialGenesis = launchtypes.NewGenesisURL(
+				o.genesisURL,
+				genesisHash,
+			)
+		}
+
 		msgCreateChain := launchtypes.NewMsgCreateChain(
 			addr,
 			chainID,
 			c.SourceURL(),
 			c.SourceHash(),
-			o.genesisURL,
-			genesisHash,
+			initialGenesis,
 			campaignID != 0,
 			campaignID,
 			o.accountBalance,

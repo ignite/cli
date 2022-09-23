@@ -61,7 +61,7 @@ func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 		Address:      acc.Address,
 		TotalBalance: delayedVesting.TotalBalance,
 		Vesting:      delayedVesting.Vesting,
-		EndTime:      delayedVesting.EndTime,
+		EndTime:      delayedVesting.EndTime.Unix(),
 	}, nil
 }
 
