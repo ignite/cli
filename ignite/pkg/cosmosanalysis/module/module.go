@@ -83,9 +83,9 @@ type moduleDiscoverer struct {
 //
 // Discovery algorithm make use of registered modules and proto definitions to find relevant
 // registered modules. It does so by:
-//   1. Getting all the registered Go modules from the app
-//   2. Parsing the proto files to find services and messages
-//   3. Check if the proto services are implemented in any of the registered modules
+// 1. Getting all the registered Go modules from the app
+// 2. Parsing the proto files to find services and messages
+// 3. Check if the proto services are implemented in any of the registered modules
 func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
@@ -104,12 +104,13 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 
 	// Go import path of the app module
 	basegopath := gm.Module.Mod.Path
+	rootgopath := RootGoImportPath(basegopath)
 
 	// Keep the custom app's modules and filter out the third
 	// party ones that are not defined within the app.
 	appModules := make([]string, 0)
 	for _, m := range registeredModules {
-		if strings.HasPrefix(m, basegopath) {
+		if strings.HasPrefix(m, rootgopath) {
 			appModules = append(appModules, m)
 		}
 	}
@@ -153,8 +154,26 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 	return modules, nil
 }
 
-// RootImportPath returns a Go import path with the version suffix removed.
-func RootImportPath(importPath string) string {
+// IsRootPath checks if a Go import path is a custom app module.
+// Custom app modules are defined inside the "x" directory.
+func IsRootPath(path string) bool {
+	return filepath.Base(filepath.Dir(path)) == "x"
+}
+
+// RootPath returns the Go import path of a custom app module.
+// An empty string is returned when the path doesn't belong to a custom module.
+func RootPath(path string) string {
+	for !IsRootPath(path) {
+		if path = filepath.Dir(path); path == "." {
+			return ""
+		}
+	}
+
+	return path
+}
+
+// RootGoImportPath returns a Go import path with the version suffix removed.
+func RootGoImportPath(importPath string) string {
 	if p, v := path.Split(importPath); semver.IsValid(v) {
 		return strings.TrimRight(p, "/")
 	}
@@ -294,7 +313,7 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 	// Remove version suffix from the Go import path if it exists.
 	// Proto files might omit the version in the Go import path even
 	// when the app module is using versioning.
-	basegopath := RootImportPath(d.basegopath)
+	basegopath := RootGoImportPath(d.basegopath)
 
 	// filter out proto packages that do not represent x/ modules of blockchain.
 	var xprotopkgs []protoanalysis.Package
@@ -309,24 +328,6 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 	return xprotopkgs, nil
 }
 
-// IsModuleRootPath checks if a Go import path is a custom app module.
-// Custom app modules are defined inside the "x" directory.
-func IsModuleRootPath(path string) bool {
-	return filepath.Base(filepath.Dir(path)) == "x"
-}
-
-// GetModuleRootPath returns the Go import path of a custom app module.
-// An empty string is returned when the path doesn't belong to a custom module.
-func GetModuleRootPath(path string) string {
-	for !IsModuleRootPath(path) {
-		if path = filepath.Dir(path); path == "." {
-			return ""
-		}
-	}
-
-	return path
-}
-
 // Checks if the proto package is implemented by any of the modules registered by the app.
 func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
 	// Get the Go module import defined by the proto package
@@ -337,17 +338,24 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 	// from the standard "x" folder use the path defined by the proto package.
 	// Using the custom app module root path guarantees that if the RPC services
 	// implementation exists in the module it will always be found.
-	if p := GetModuleRootPath(goModuleImport); p != "" {
+	if p := RootPath(goModuleImport); p != "" {
 		goModuleImport = p
 	}
 
+	// Get a Go import path with the version suffix removed
+	rootGoPath := RootGoImportPath(d.basegopath)
+
 	for _, m := range d.registeredModules {
-		// Don't search for RPC services implementation in other Go packages
-		if !strings.HasPrefix(m, goModuleImport) {
-			continue
+		// Extract the relative module path from the Go import path
+		implRelPath := strings.TrimPrefix(m, d.basegopath)
+
+		// Handle the case where the Go module has a version
+		// suffix and the registered module doesn't.
+		if implRelPath == m {
+			implRelPath = strings.TrimPrefix(m, rootGoPath)
 		}
 
-		implRelPath := strings.TrimPrefix(m, d.basegopath)
+		// Absolute path to the app module
 		implPath := filepath.Join(d.sourcePath, implRelPath)
 
 		for _, s := range pkg.Services {
@@ -366,8 +374,12 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 			// Some times the registered module definition is located in a different
 			// directory branch from where the RPC implementation is defined. In this
 			// case search the RPC implementation in all of the custom app module files.
-			if len(found) == 0 && strings.HasPrefix(goModuleImport, d.basegopath) {
+			if len(found) == 0 && strings.HasPrefix(m, goModuleImport) {
 				altImplRelPath := strings.TrimPrefix(goModuleImport, d.basegopath)
+				if altImplRelPath == goModuleImport {
+					altImplRelPath = strings.TrimPrefix(goModuleImport, rootGoPath)
+				}
+
 				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
 
 				found, err = cosmosanalysis.DeepFindImplementation(altImplPath, methods)
