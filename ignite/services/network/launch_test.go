@@ -33,7 +33,13 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
@@ -63,7 +69,13 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 
@@ -88,7 +100,13 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 
@@ -116,7 +134,13 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
@@ -150,7 +174,13 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
@@ -181,7 +211,13 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, expectedError).
 			Once()
 

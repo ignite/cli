@@ -18,6 +18,7 @@
     "@cosmjs/launchpad": "0.27.0",
     "@cosmjs/proto-signing": "0.27.0",
     "@cosmjs/stargate": "0.27.0",
+    "axios": "^0.27.2",
     "buffer": "^6.0.3"
   },
   "peerDependencies": {
