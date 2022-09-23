@@ -42,9 +42,10 @@ export class IgniteClient extends EventEmitter {
     const signingClient = await SigningStargateClient.connectWithSigner(this.env.rpcURL, this.signer, {registry: new Registry(this.registry), prefix: this.env.prefix});
 		return await signingClient.signAndBroadcast(address, msgs, fee ? fee : defaultFee, memo)
   }
-  constructor(env: Env, signer: OfflineSigner) {
+  constructor(env: Env, signer?: OfflineSigner) {
     super();
     this.env = env;
+    this.setMaxListeners(0);
     this.signer = signer;
     const classConstructor = this.constructor as typeof IgniteClient;
     classConstructor.plugins.forEach(plugin => {
@@ -55,7 +56,10 @@ export class IgniteClient extends EventEmitter {
       }
 		});		
   }
-
+  async useSigner(signer: OfflineSigner) {    
+      this.signer = signer;
+      this.emit("signer-changed", this.signer);
+  }
   async useKeplr(keplrChainInfo: Partial<ChainInfo>) {
     // Using queryClients directly because BaseClient has no knowledge of the modules at this stage
     try {
