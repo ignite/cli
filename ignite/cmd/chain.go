@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/manifoldco/promptui"
@@ -106,7 +105,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 		}
 	}
 
-	rawCfg, err := ioutil.ReadFile(configPath)
+	rawCfg, err := os.ReadFile(configPath)
 	if err != nil {
 		return err
 	}
