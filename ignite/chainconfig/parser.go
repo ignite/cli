@@ -2,10 +2,8 @@ package chainconfig
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 
@@ -67,43 +65,6 @@ func ReadConfigVersion(configFile io.Reader) (config.Version, error) {
 	err := yaml.NewDecoder(configFile).Decode(&c)
 
 	return c.Version, err
-}
-
-// LocateDefault locates the default path for the config file.
-// Returns ErrConfigNotFound when no config file found.
-func LocateDefault(root string) (path string, err error) {
-	for _, name := range ConfigFileNames {
-		path = filepath.Join(root, name)
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		} else if !os.IsNotExist(err) {
-			return "", err
-		}
-	}
-
-	return "", ErrConfigNotFound
-}
-
-// FaucetHost returns the faucet host to use.
-func FaucetHost(cfg *Config) string {
-	// We keep supporting Port option for backward compatibility
-	// TODO: drop this option in the future
-	host := cfg.Faucet.Host
-	if cfg.Faucet.Port != 0 {
-		host = fmt.Sprintf(":%d", cfg.Faucet.Port)
-	}
-
-	return host
-}
-
-// CreateConfigDir creates config directory if it is not created yet.
-func CreateConfigDir() error {
-	path, err := ConfigDirPath()
-	if err != nil {
-		return err
-	}
-
-	return os.MkdirAll(path, 0755)
 }
 
 func decodeConfig(r io.Reader, version config.Version) (config.Converter, error) {

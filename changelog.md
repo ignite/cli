@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+- Updated `nodetime`: `ts-proto` to `v1.126.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
+- Switched codegen client to use `axios` instead of `fetch`
+
 ### Fixes
 
+- Change vuex generation to use a default TS client path.
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
 

@@ -6,6 +6,8 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/cosmos/cosmos-sdk/types/query"
+
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -38,12 +40,14 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 }
 
 // ChainLaunchesWithReward fetches the chain launches with rewards from Network
-func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
+func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.PageRequest) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
 	res, err := n.launchQuery.
-		ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
+		ChainAll(ctx, &launchtypes.QueryAllChainRequest{
+			Pagination: pagination,
+		})
 	if err != nil {
 		return nil, err
 	}
