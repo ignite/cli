@@ -224,7 +224,7 @@ const tx_result = await client.sendMsgSend(
 
 ## Usage with Keplr
 
-Normally, Keplr provides a wallet object implementing the OfflineSigner interface so you can simply replace the wallet arhument in client instantiation with that like so:
+Normally, Keplr provides a wallet object implementing the OfflineSigner interface so you can simply replace the wallet argument in client instantiation with it like so:
 
 
 ```typescript
