@@ -164,7 +164,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		m.Pkg.Path,
 		includePaths,
 		tsOut,
-		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=true --ts_proto_opt=esModuleInterop=true "),
+		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=true", "--ts_proto_opt=esModuleInterop=true"),
 		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
 		protoc.WithCommand(protocCmd),
 	)
