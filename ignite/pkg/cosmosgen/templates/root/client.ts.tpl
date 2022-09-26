@@ -89,7 +89,6 @@ export class IgniteClient extends EventEmitter {
       const addrPrefix = this.env.prefix ?? "cosmos";
       const rpc = this.env.rpcURL;
       const rest = this.env.apiURL;
-      let features = ["no-legacy-stdTx"];
       let stakeCurrency = {
         coinDenom: staking.params?.bond_denom?.toUpperCase() ?? "",
         coinMinimalDenom: staking.params?.bond_denom ?? "",
@@ -133,7 +132,6 @@ export class IgniteClient extends EventEmitter {
 
       if (chainId) {
         const suggestOptions: ChainInfo = {
-          features,
           chainId,
           chainName,
           rpc,
