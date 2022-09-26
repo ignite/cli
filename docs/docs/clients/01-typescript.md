@@ -44,23 +44,32 @@ You will also need to polyfill the client's dependencies. The following is an ex
 
 ```bash
 npm create vite@latest my-frontend-app -- --template vanilla-ts
-npm install --save-dev buffer @rollup/plugin-node-resolve
+npm install --save-dev @esbuild-plugins/node-globals-polyfill @rollup/plugin-node-resolve
 ```
 
 You must then create the necessary `vite.config.ts` file.
 
 ```typescript
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import { Buffer } from 'buffer'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  define: {
-    global: {
-      Buffer: Buffer
-    }
-  },
-  plugins: [nodeResolve()],
+  
+	plugins: [nodeResolve()],
+
+	optimizeDeps: {
+		esbuildOptions: {
+			define: {
+				global: 'globalThis',
+			},
+			plugins: [
+				NodeGlobalsPolyfillPlugin({
+					buffer:true
+				}),
+			],
+		},
+	}
 })
 ```
 
