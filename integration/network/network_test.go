@@ -5,40 +5,64 @@ import (
 	"context"
 	"os"
 	"path"
+	"strings"
 	"testing"
 
+	"github.com/blang/semver"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/gomodule"
 	envtest "github.com/ignite/cli/integration"
 )
 
 const (
-	spnURL    = "https://github.com/tendermint/spn"
-	spnBranch = "develop"
-	spnHash   = "5da0c7ae019d376f782fa3baeb2c0ac5654f2d1f"
+	spnModule  = "github.com/tendermint/spn"
+	spnRepoURL = "https://" + spnModule
 )
 
 func cloneSPN(t *testing.T) string {
-	path, err := os.MkdirTemp("", "spn")
-	require.NoError(t, err)
+	path := t.TempDir()
 	repo, err := git.PlainClone(path, false, &git.CloneOptions{
-		URL:           spnURL,
-		ReferenceName: plumbing.NewBranchReferenceName("develop"),
-		Progress:      os.Stdout,
-	})
-	w, err := repo.Worktree()
-	require.NoError(t, err)
-	err = w.Checkout(&git.CheckoutOptions{
-		Hash: plumbing.NewHash(spnHash),
+		URL:      spnRepoURL,
+		Progress: os.Stdout,
 	})
 	require.NoError(t, err)
 
-	t.Cleanup(func() {
-		os.RemoveAll(path)
+	// Read spn version from go.mod
+	gm, err := gomodule.ParseAt("../..")
+	require.NoError(t, err)
+	var spnVersion string
+	for _, r := range gm.Require {
+		if r.Mod.Path == spnModule {
+			spnVersion = r.Mod.Version
+			break
+		}
+	}
+	if spnVersion == "" {
+		t.Fatal("unable to read spn version from go.mod")
+	}
+	t.Logf("spn version found %q", spnVersion)
+
+	// Check if spnVersion is a tag or a pseudo-version
+	v, err := semver.ParseTolerant(spnVersion)
+	require.NoError(t, err)
+	if n := len(v.Pre); n > 0 {
+		// pseudo version, need to extract hash
+		spnVersion = strings.Split(v.Pre[n-1].VersionStr, "-")[1]
+	}
+	rev, err := repo.ResolveRevision(plumbing.Revision(spnVersion))
+	require.NoError(t, err)
+	w, err := repo.Worktree()
+	require.NoError(t, err)
+	err = w.Checkout(&git.CheckoutOptions{
+		Hash: *rev,
 	})
+	require.NoError(t, err)
+	t.Logf("Checkout spn to ref %q", rev)
+
 	return path
 }
 
@@ -48,7 +72,7 @@ func TestNetworkPublish(t *testing.T) {
 		env     = envtest.New(t)
 		spn     = env.App(
 			spnPath,
-			envtest.AppHomePath("/tmp/spnhome"),
+			envtest.AppHomePath(t.TempDir()),
 			envtest.AppConfigPath(path.Join(spnPath, "config_2.yml")),
 		)
 		servers = spn.Config().Host
@@ -78,6 +102,7 @@ func TestNetworkPublish(t *testing.T) {
 			)),
 		)
 		require.False(t, env.HasFailed(), b.String())
+		t.Log(b.String())
 	}()
 
 	env.Must(spn.Serve("serve spn chain", envtest.ExecCtx(ctx)))
