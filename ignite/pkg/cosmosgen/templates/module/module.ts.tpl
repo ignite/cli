@@ -72,7 +72,7 @@ interface QueryClientOptions {
 }
 
 export const queryClient = ({ addr: addr }: QueryClientOptions = { addr: "http://localhost:1317" }) => {
-  return new Api({ baseUrl: addr });
+  return new Api({ baseURL: addr });
 };
 
 class SDKModule {

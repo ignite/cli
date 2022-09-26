@@ -18,8 +18,9 @@
     "@cosmjs/launchpad": "0.27.0",
     "@cosmjs/proto-signing": "0.27.0",
     "@cosmjs/stargate": "0.27.0",
-    "@keplr-wallet/types": "^0.11.3",
-    "buffer": "^6.0.3", 
+    "@keplr-wallet/types": "^0.11.3", 
+    "axios": "^0.27.2",
+    "buffer": "^6.0.3",
     "events": "^3.3.0"
   },
   "peerDependencies": {
