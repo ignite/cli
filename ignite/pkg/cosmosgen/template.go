@@ -9,16 +9,18 @@ import (
 
 	"github.com/iancoleman/strcase"
 	"github.com/takuoki/gocase"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateJSClient  = newTemplateWriter("js")         // js wrapper client.
-	templateVuexRoot  = newTemplateWriter("vuex/root")  // vuex store loader.
-	templateVuexStore = newTemplateWriter("vuex/store") // vuex store.
-
+	templateTSClientRoot    = newTemplateWriter("root")
+	templateTSClientModule  = newTemplateWriter("module")
+	templateTSClientVue     = newTemplateWriter("vue")
+	templateTSClientVueRoot = newTemplateWriter("vue-root")
 )
 
 type templateWriter struct {
@@ -52,6 +54,22 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 		"camelCaseSta": func(word string) string {
 			return gocase.Revert(strcase.ToLowerCamel(word))
 		},
+		"capitalCase": func(word string) string {
+			replacer := strings.NewReplacer("-", "_", ".", "_")
+			word = strcase.ToCamel(replacer.Replace(word))
+
+			return cases.Title(language.English).String(word)
+		},
+		"camelCaseLowerSta": func(word string) string {
+			replacer := strings.NewReplacer("-", "_", ".", "_")
+
+			return strcase.ToLowerCamel(replacer.Replace(word))
+		},
+		"camelCaseUpperSta": func(word string) string {
+			replacer := strings.NewReplacer("-", "_", ".", "_")
+
+			return strcase.ToCamel(replacer.Replace(word))
+		},
 		"resolveFile": func(fullPath string) string {
 			rel, _ := filepath.Rel(protoPath, fullPath)
 			rel = strings.TrimSuffix(rel, ".proto")
@@ -75,7 +93,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 		out := filepath.Join(destDir, strings.TrimSuffix(filepath.Base(path), ".tpl"))
 
-		f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0766)
+		f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o766)
 		if err != nil {
 			return err
 		}

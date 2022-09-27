@@ -6,10 +6,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -17,29 +19,31 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 )
 
 //go:generate mockery --name CosmosClient --case underscore
 type CosmosClient interface {
-	Account(accountName string) (cosmosaccount.Account, error)
-	Address(accountName string) (sdktypes.AccAddress, error)
 	Context() client.Context
-	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
-	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
+	BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
 	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
 }
 
 // Network is network builder.
 type Network struct {
-	ev            events.Bus
-	cosmos        CosmosClient
-	account       cosmosaccount.Account
-	campaignQuery campaigntypes.QueryClient
-	launchQuery   launchtypes.QueryClient
-	profileQuery  profiletypes.QueryClient
-	rewardQuery   rewardtypes.QueryClient
-	stakingQuery  stakingtypes.QueryClient
+	node                    Node
+	ev                      events.Bus
+	cosmos                  CosmosClient
+	account                 cosmosaccount.Account
+	campaignQuery           campaigntypes.QueryClient
+	launchQuery             launchtypes.QueryClient
+	profileQuery            profiletypes.QueryClient
+	rewardQuery             rewardtypes.QueryClient
+	stakingQuery            stakingtypes.QueryClient
+	bankQuery               banktypes.QueryClient
+	monitoringConsumerQuery monitoringctypes.QueryClient
+	clock                   xtime.Clock
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -87,7 +91,25 @@ func WithRewardQueryClient(client rewardtypes.QueryClient) Option {
 
 func WithStakingQueryClient(client stakingtypes.QueryClient) Option {
 	return func(n *Network) {
-		n.stakingQuery = client
+		n.node.stakingQuery = client
+	}
+}
+
+func WithMonitoringConsumerQueryClient(client monitoringctypes.QueryClient) Option {
+	return func(n *Network) {
+		n.monitoringConsumerQuery = client
+	}
+}
+
+func WithBankQueryClient(client banktypes.QueryClient) Option {
+	return func(n *Network) {
+		n.bankQuery = client
+	}
+}
+
+func WithCustomClock(clock xtime.Clock) Option {
+	return func(n *Network) {
+		n.clock = clock
 	}
 }
 
@@ -101,13 +123,17 @@ func CollectEvents(ev events.Bus) Option {
 // New creates a Builder.
 func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) Network {
 	n := Network{
-		cosmos:        cosmos,
-		account:       account,
-		campaignQuery: campaigntypes.NewQueryClient(cosmos.Context()),
-		launchQuery:   launchtypes.NewQueryClient(cosmos.Context()),
-		profileQuery:  profiletypes.NewQueryClient(cosmos.Context()),
-		rewardQuery:   rewardtypes.NewQueryClient(cosmos.Context()),
-		stakingQuery:  stakingtypes.NewQueryClient(cosmos.Context()),
+		cosmos:                  cosmos,
+		account:                 account,
+		node:                    NewNode(cosmos),
+		campaignQuery:           campaigntypes.NewQueryClient(cosmos.Context()),
+		launchQuery:             launchtypes.NewQueryClient(cosmos.Context()),
+		profileQuery:            profiletypes.NewQueryClient(cosmos.Context()),
+		rewardQuery:             rewardtypes.NewQueryClient(cosmos.Context()),
+		stakingQuery:            stakingtypes.NewQueryClient(cosmos.Context()),
+		bankQuery:               banktypes.NewQueryClient(cosmos.Context()),
+		monitoringConsumerQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
+		clock:                   xtime.NewClockSystem(),
 	}
 	for _, opt := range options {
 		opt(&n)
@@ -118,10 +144,10 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 func ParseID(id string) (uint64, error) {
 	objID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return 0, errors.Wrap(err, "error parsing launchID")
+		return 0, errors.Wrap(err, "error parsing ID")
 	}
 	if objID == 0 {
-		return 0, errors.New("launch ID must be greater than 0")
+		return 0, errors.New("ID must be greater than 0")
 	}
 	return objID, nil
 }

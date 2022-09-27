@@ -63,7 +63,7 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		genesisAccEntries = append(genesisAccEntries, []string{address, acc.Coins})
+		genesisAccEntries = append(genesisAccEntries, []string{address, acc.Coins.String()})
 	}
 	genesisVestingAccEntries := make([][]string, 0)
 	for _, acc := range vestingAccs {
@@ -74,8 +74,8 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 
 		genesisVestingAccEntries = append(genesisVestingAccEntries, []string{
 			address,
-			acc.TotalBalance,
-			acc.Vesting,
+			acc.TotalBalance.String(),
+			acc.Vesting.String(),
 			strconv.FormatInt(acc.EndTime, 10),
 		})
 	}

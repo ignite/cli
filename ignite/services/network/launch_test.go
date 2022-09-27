@@ -10,15 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/ignite/cli/ignite/pkg/xtime"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 	"github.com/ignite/cli/ignite/services/network/testutil"
 )
 
 const (
-	TestMinRemainingTime = 3600
-	TestMaxRemainingTime = 86400
-	TestRevertDelay      = 3600
+	TestMinRemainingTime = time.Second * 3600
+	TestMaxRemainingTime = time.Second * 86400
+	TestRevertDelay      = time.Second * 3600
 )
 
 func TestTriggerLaunch(t *testing.T) {
@@ -28,22 +27,33 @@ func TestTriggerLaunch(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   account.Address(networktypes.SPN),
-				LaunchID:      testutil.LaunchID,
-				RemainingTime: TestMaxRemainingTime,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgTriggerLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+					LaunchTime:  sampleTime.Add(TestMaxRemainingTime),
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunchResponse{}), nil).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.NoError(t, launchError)
 		suite.AssertAllMocks(t)
 	})
@@ -52,13 +62,19 @@ func TestTriggerLaunch(t *testing.T) {
 		var (
 			account                       = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network                = newSuite(account)
-			remainingTimeLowerThanMinimum = (TestMinRemainingTime - 60) * time.Second
+			remainingTimeLowerThanMinimum = sampleTime
 		)
 
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 
@@ -67,8 +83,8 @@ func TestTriggerLaunch(t *testing.T) {
 			t,
 			launchError,
 			"remaining time %s lower than minimum %s",
-			xtime.NowAfter(remainingTimeLowerThanMinimum),
-			xtime.NowAfter(TestMinRemainingTime),
+			remainingTimeLowerThanMinimum.String(),
+			sampleTime.Add(TestMinRemainingTime).Add(MinLaunchTimeOffset).String(),
 		)
 		suite.AssertAllMocks(t)
 	})
@@ -77,13 +93,19 @@ func TestTriggerLaunch(t *testing.T) {
 		var (
 			account                         = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network                  = newSuite(account)
-			remainingTimeGreaterThanMaximum = (TestMaxRemainingTime + 60) * time.Hour
+			remainingTimeGreaterThanMaximum = sampleTime.Add(TestMaxRemainingTime).Add(time.Second)
 		)
 
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 
@@ -92,8 +114,8 @@ func TestTriggerLaunch(t *testing.T) {
 			t,
 			launchError,
 			"remaining time %s greater than maximum %s",
-			xtime.NowAfter(remainingTimeGreaterThanMaximum),
-			xtime.NowAfter(TestMaxRemainingTime),
+			remainingTimeGreaterThanMaximum.String(),
+			sampleTime.Add(TestMaxRemainingTime).String(),
 		)
 		suite.AssertAllMocks(t)
 	})
@@ -105,22 +127,33 @@ func TestTriggerLaunch(t *testing.T) {
 			expectedError  = errors.New("Failed to fetch")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   account.Address(networktypes.SPN),
-				LaunchID:      testutil.LaunchID,
-				RemainingTime: TestMaxRemainingTime,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgTriggerLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+					LaunchTime:  sampleTime.Add(TestMaxRemainingTime),
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgTriggerLaunch{}), expectedError).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.Error(t, launchError)
 		require.Equal(t, expectedError, launchError)
 		suite.AssertAllMocks(t)
@@ -133,22 +166,33 @@ func TestTriggerLaunch(t *testing.T) {
 			expectedError  = errors.New("failed to fetch")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, nil).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgTriggerLaunch{
-				Coordinator:   account.Address(networktypes.SPN),
-				LaunchID:      testutil.LaunchID,
-				RemainingTime: TestMaxRemainingTime,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgTriggerLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+					LaunchTime:  sampleTime.Add(TestMaxRemainingTime),
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{}), expectedError).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, TestMaxRemainingTime*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.Error(t, launchError)
 		require.Equal(t, expectedError, launchError)
 		suite.AssertAllMocks(t)
@@ -164,11 +208,17 @@ func TestTriggerLaunch(t *testing.T) {
 		suite.LaunchQueryMock.
 			On("Params", context.Background(), &launchtypes.QueryParamsRequest{}).
 			Return(&launchtypes.QueryParamsResponse{
-				Params: launchtypes.NewParams(TestMinRemainingTime, TestMaxRemainingTime, TestRevertDelay, sdk.Coins(nil)),
+				Params: launchtypes.NewParams(
+					TestMinRemainingTime,
+					TestMaxRemainingTime,
+					TestRevertDelay,
+					sdk.Coins(nil),
+					sdk.Coins(nil),
+				),
 			}, expectedError).
 			Once()
 
-		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, (TestMaxRemainingTime+60)*time.Second)
+		launchError := network.TriggerLaunch(context.Background(), testutil.LaunchID, sampleTime.Add(TestMaxRemainingTime))
 		require.Error(t, launchError)
 		require.Equal(t, expectedError, launchError)
 		suite.AssertAllMocks(t)
@@ -182,12 +232,17 @@ func TestRevertLaunch(t *testing.T) {
 			suite, network = newSuite(account)
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ChainMock.On("ResetGenesisTime").Return(nil).Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
-				LaunchID:    testutil.LaunchID,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgRevertLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
 			Once()
 
@@ -203,11 +258,16 @@ func TestRevertLaunch(t *testing.T) {
 			expectedError  = errors.New("failed to revert launch")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
-				LaunchID:    testutil.LaunchID,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgRevertLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+				}).
 			Return(
 				testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}),
 				expectedError,
@@ -227,15 +287,20 @@ func TestRevertLaunch(t *testing.T) {
 			expectedError  = errors.New("failed to reset genesis time")
 		)
 
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.ChainMock.
 			On("ResetGenesisTime").
 			Return(expectedError).
 			Once()
 		suite.CosmosClientMock.
-			On("BroadcastTx", account.Name, &launchtypes.MsgRevertLaunch{
-				Coordinator: account.Address(networktypes.SPN),
-				LaunchID:    testutil.LaunchID,
-			}).
+			On("BroadcastTx",
+				account,
+				&launchtypes.MsgRevertLaunch{
+					Coordinator: addr,
+					LaunchID:    testutil.LaunchID,
+				}).
 			Return(testutil.NewResponse(&launchtypes.MsgRevertLaunchResponse{}), nil).
 			Once()
 
@@ -244,5 +309,4 @@ func TestRevertLaunch(t *testing.T) {
 		require.Equal(t, expectedError, revertError)
 		suite.AssertAllMocks(t)
 	})
-
 }

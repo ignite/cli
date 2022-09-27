@@ -99,13 +99,27 @@ func findImplementationInFiles(files []*ast.File, interfaceList []string) (found
 
 			// find the struct name that method belongs to.
 			t := methodDecl.Recv.List[0].Type
-			ident, ok := t.(*ast.Ident)
-			if !ok {
-				sexp, ok := t.(*ast.StarExpr)
-				if !ok {
+			var ident *ast.Ident
+			switch t := t.(type) {
+			case *ast.Ident:
+				// method with a value receiver
+				ident = t
+			case *ast.IndexExpr:
+				// generic method with a value receiver
+				ident = t.X.(*ast.Ident)
+			case *ast.StarExpr:
+				switch t := t.X.(type) {
+				case *ast.Ident:
+					// method with a pointer receiver
+					ident = t
+				case *ast.IndexExpr:
+					// generic method with a pointer receiver
+					ident = t.X.(*ast.Ident)
+				default:
 					return true
 				}
-				ident = sexp.X.(*ast.Ident)
+			default:
+				return true
 			}
 			structName := ident.Name
 

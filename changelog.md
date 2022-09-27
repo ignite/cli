@@ -1,5 +1,87 @@
 # Changelog
 
+## Unreleased
+
+- Updated `nodetime`: `ts-proto` to `v1.126.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
+- Switched codegen client to use `axios` instead of `fetch`
+
+### Fixes
+
+- Change vuex generation to use a default TS client path.
+- Fix cli action org in templates.
+- Seal the capability keeper in the `app.go` template
+
+## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
+
+### Features
+
+- Upgraded Cosmos SDK to `v0.46.0` and IBC to `v5` in CLI and scaffolding templates
+- Change chain init to check that no gentx are present in the initial genesis
+- Add `network rewards release` command
+- Add "make mocks" target to Makefile
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+- Add `node query tx` command to query a transaction in any chain.
+- Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to another in any chain.
+- Implement `network profile` command
+- Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
+
+### Changes
+
+- Add changelog merge strategy in .gitattributes to avoid conflicts.
+- Refactor `templates/app` to remove `monitoringp` module from the default template
+- Updated keyring dependency to match Cosmos SDK
+- Speed up the integration tests
+- Refactor ignite network and fix genesis generation bug
+- Make Go dependency verification optional during build by adding the `--check-dependencies` flag
+  so Ignite CLI can work in a Go workspace context.
+- Temporary SPN address change for nightly
+- Rename `simapp.go.plush` simulation file template to `helpers.go.plush`
+- Remove campaign creation from the `network chain publish` command
+- Optimized JavaScript generator to use a single typescript API generator binary
+- Improve documentation and add support for protocol buffers and Go modules syntax
+- Add inline documentation for CLI commands
+- Change `cmd/account` to skip passphrase prompt when importing from mnemonic
+- Add nodejs version in the output of ignite version
+- Removed `handler.go` from scaffolded module template
+- Migrated to `cosmossdk.io` packages for and `math`
+- Vuex stores from the `generate vuex` command use the new TypeScript client
+- Upgraded frontend Vue template to v0.3.10
+
+### Fixes
+
+- Improved error handling for crypto wrapper functions
+- Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
+- Test and refactor `pkg/comosclient`.
+- Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
+- Fix cosmoscmd appID parameter value to sign a transaction correctly
+- Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
+- Fix flaky integration tests issue that failed with "text file busy"
+- Fix default chain ID for publish
+- Replace `os.Rename` with `xos.Rename`
+- Fix CLI reference generation to add `ignite completion` documentation
+- Remove usage of deprecated `io/ioutil` package
+
+
+## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
+
+### Features
+
+- Apps can now use generics
+
+### Fixes
+
+- Fix `pkg/cosmosanalysis` to support apps with generics
+- Remove `ignite-hq/cli` from dependency list in scaffolded chains
+
+### Changes
+
+- Change `pkg/cosmosgen` to allow importing IBC proto files
+- Improve docs for Docker related commands
+- Improve and fix documentation issues in developer tutorials
+- Add migration docs for v0.22.2
+- Improve `go mod download` error report in `pkg/cosmosgen`
+
 ## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
 
 ### Features 
@@ -9,7 +91,6 @@
 ### Changes
 
 - Rename `ignite-hq` to `ignite`
-
 
 ## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
 

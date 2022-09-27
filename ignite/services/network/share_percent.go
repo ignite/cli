@@ -102,7 +102,7 @@ func ParseSharePercents(percents string) (SharePercents, error) {
 }
 
 func uintPow(x, y uint64) uint64 {
-	var result = x
+	result := x
 	for i := 1; uint64(i) < y; i++ {
 		result *= x
 	}

@@ -14,7 +14,7 @@ In this chapter, you create the basic blockchain module for the interchain excha
 Scaffold a new blockchain called `interchange`:
 
 ```bash
-ignite scaffold chain github.com/username/interchange --no-module
+ignite scaffold chain interchange --no-module
 ```
 
 A new directory named `interchange` is created. 
@@ -57,7 +57,7 @@ The values are:
 - `amountDenom`: the token to be sold and in which quantity
 - `priceDenom`: the token selling price
 
-The `--indexed` flag creates an "indexed type". Without this flag, a type is implemented like a list with new items appended. Indexed types act like key-value stores.
+The `--no-message` flag specifies to skip the message creation. Custom messages will be created in the next steps.
 
 The `--module dex` flag specifies to scaffold the type in the `dex` module.
 
@@ -83,7 +83,7 @@ Cancelling orders is done locally in the network, there is no packet to send.
 
 Use the `message` command to create a message to cancel a sell or buy order:
 
-```go
+```bash
 ignite scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module dex
 ignite scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module dex
 ```
@@ -101,7 +101,7 @@ The token denoms must have the same behavior as described in the `ibc-transfer` 
 
 For a `voucher` you store, define the source port ID, source channel ID, and the original denom:
 
-```go
+```bash
 ignite scaffold map denom-trace port channel origin --no-message --module dex
 ```
 
@@ -154,7 +154,8 @@ host:
   rpc: ":26659"
   p2p: ":26658"
   prof: ":6061"
-  grpc: ":9091"
+  grpc: ":9092"
+  grpc-web: ":9093"
   api: ":1318"
 genesis:
   chain_id: "venus"

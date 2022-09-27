@@ -85,7 +85,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error
 	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
 	config.Set("minimum-gas-prices", gas.String())
 
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) er
 	config.Set("p2p.laddr", p2pAddr)
 	config.Set("rpc.pprof_laddr", conf.Host.Prof)
 
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (p *stargatePlugin) clientTOML(homePath string) error {
 	}
 	config.Set("keyring-backend", "test")
 	config.Set("broadcast-mode", "block")
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}

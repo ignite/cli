@@ -1,4 +1,6 @@
 package types
 
-type QueryMyQueryRequest struct{}
-type QueryMyQueryResponse struct{}
+type (
+	QueryMyQueryRequest  struct{}
+	QueryMyQueryResponse struct{}
+)

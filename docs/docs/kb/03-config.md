@@ -21,6 +21,10 @@ A list of user accounts created during genesis of the blockchain.
 | address  | N        | String          | Account address in Bech32 address format.                                                                                        |
 | mnemonic | N        | String          | Mnemonic used to generate an account. This field is ignored if `address` is specified.                                           |
 
+Note that you can only use `address` OR `mnemonic` for an account. You can't use both, because an address is derived from a mnemonic.
+
+If an account is a validator account (`alice` by default), it cannot have an `address` field.
+
 **accounts example**
 
 ```yaml
@@ -67,7 +71,17 @@ client:
     path: "vue/src/store"
 ```
 
-Generates TypeScript Vuex client for the blockchain in `path` on `serve` and `build` commands.
+Generates Vuex stores for the blockchain in `path` on `serve` and `build` commands.
+
+### client.typescript
+
+```yaml
+client:
+  typescript:
+    path: "vue/src/generated"
+```
+
+Generates TypeScript clients for the blockchain in `path` on `serve` and `build` commands.
 
 ### client.openapi
 
@@ -88,7 +102,7 @@ The faucet service sends tokens to addresses. The default address for the web us
 | name              | Y        | String          | Name of a key pair. The `name` key pair must be in `accounts`.            |
 | coins             | Y        | List of Strings | One or more coins with denominations sent per request.       |
 | coins_max         | N        | List of Strings | One or more maximum amounts of tokens sent for each address. |
-| host              | N        | String          | Host and port number. Default: `:4500`                      |
+| host              | N        | String          | Host and port number. Default: `:4500`. Cannot be higher than 65536 |
 | rate_limit_window | N        | String          | Time after which the token limit is reset (in seconds).      |
 
 **faucet example**
@@ -154,7 +168,7 @@ init:
 
 ## host
 
-Configuration of host names and ports for processes started by Ignite CLI:
+Configuration of host names and ports for processes started by Ignite CLI. Port numbers can't exceed 65536.
 
 **host example**
 

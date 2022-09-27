@@ -18,7 +18,6 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 	name, err := multiformatname.NewName(fieldSplit[0])
 	if err != nil {
 		return name, "", err
-
 	}
 
 	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code

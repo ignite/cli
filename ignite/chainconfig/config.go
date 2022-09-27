@@ -6,11 +6,18 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
 
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
+)
+
+const (
+	// DefaultTSClientPath defines the default relative path to use when generating the TS client.
+	// The path is relative to the app's directory.
+	DefaultTSClientPath = "ts-client"
 )
 
 var (
@@ -21,12 +28,10 @@ var (
 	ConfigFileNames = []string{"config.yml", "config.yaml"}
 )
 
-var (
-	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New(
-		"could not locate a config.yml in your chain. please follow the link for" +
-			"how-to: https://github.com/ignite/cli/blob/develop/docs/configure/index.md")
-)
+// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
+var ErrCouldntLocateConfig = errors.New(
+	"could not locate a config.yml in your chain. please follow the link for" +
+		"how-to: https://github.com/ignite/cli/blob/develop/docs/configure/index.md")
 
 // DefaultConf holds default configuration.
 var DefaultConf = Config{
@@ -114,8 +119,11 @@ type Proto struct {
 
 // Client configures code generation for clients.
 type Client struct {
-	// Vuex configures code generation for Vuex.
-	Vuex Vuex `yaml:"vuex"`
+	// TSClient configures code generation for Typescript Client.
+	Typescript Typescript `yaml:"typescript"`
+
+	// Vuex configures code generation for Vuex stores.
+	Vuex Typescript `yaml:"vuex"`
 
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart"`
@@ -124,9 +132,15 @@ type Client struct {
 	OpenAPI OpenAPI `yaml:"openapi"`
 }
 
-// Vuex configures code generation for Vuex.
+// TSClient configures code generation for Typescript Client.
+type Typescript struct {
+	// Path configures out location for generated Typescript Client code.
+	Path string `yaml:"path"`
+}
+
+// Vuex configures code generation for Vuex stores.
 type Vuex struct {
-	// Path configures out location for generated Vuex code.
+	// Path configures out location for generated Vuex stores code.
 	Path string `yaml:"path"`
 }
 
@@ -246,7 +260,7 @@ func LocateDefault(root string) (path string, err error) {
 	return "", ErrCouldntLocateConfig
 }
 
-// FaucetHost returns the faucet host to use
+// FaucetHost returns the faucet host to use.
 func FaucetHost(conf Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
@@ -258,6 +272,16 @@ func FaucetHost(conf Config) string {
 	return host
 }
 
+// TSClientPath returns the relative path to the Typescript client directory.
+// Path is relative to the app's directory.
+func TSClientPath(conf Config) string {
+	if path := strings.TrimSpace(conf.Client.Typescript.Path); path != "" {
+		return filepath.Clean(path)
+	}
+
+	return DefaultTSClientPath
+}
+
 // CreateConfigDir creates config directory if it is not created yet.
 func CreateConfigDir() error {
 	confPath, err := ConfigDirPath()
@@ -265,5 +289,5 @@ func CreateConfigDir() error {
 		return err
 	}
 
-	return os.MkdirAll(confPath, 0755)
+	return os.MkdirAll(confPath, 0o755)
 }

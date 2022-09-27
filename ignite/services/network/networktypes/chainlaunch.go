@@ -1,6 +1,12 @@
 package networktypes
 
-import launchtypes "github.com/tendermint/spn/x/launch/types"
+import (
+	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+)
 
 type (
 	NetworkType string
@@ -14,11 +20,12 @@ type (
 		SourceHash             string      `json:"SourceHash"`
 		GenesisURL             string      `json:"GenesisURL"`
 		GenesisHash            string      `json:"GenesisHash"`
-		LaunchTime             int64       `json:"LaunchTime"`
+		LaunchTime             time.Time   `json:"LaunchTime"`
 		CampaignID             uint64      `json:"CampaignID"`
 		LaunchTriggered        bool        `json:"LaunchTriggered"`
 		Network                NetworkType `json:"Network"`
 		Reward                 string      `json:"Reward,omitempty"`
+		AccountBalance         sdk.Coins   `json:"AccountBalance"`
 	}
 )
 
@@ -33,9 +40,9 @@ func (n NetworkType) String() string {
 
 // ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
 func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
-	var launchTime int64
+	var launchTime time.Time
 	if chain.LaunchTriggered {
-		launchTime = chain.LaunchTimestamp
+		launchTime = chain.LaunchTime
 	}
 
 	network := NetworkTypeTestnet
@@ -53,6 +60,7 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		CampaignID:             chain.CampaignID,
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,
+		AccountBalance:         chain.AccountBalance,
 	}
 
 	// check if custom genesis URL is provided.

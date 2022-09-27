@@ -45,10 +45,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         if: env.GIT_DIFF
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Install Ignite CLI
         if: env.GIT_DIFF
         run: go install ./...

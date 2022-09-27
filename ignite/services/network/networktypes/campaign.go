@@ -44,3 +44,17 @@ func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 		Shares:  acc.Shares,
 	}
 }
+
+// CampaignChains represents the chains of a campaign on SPN
+type CampaignChains struct {
+	CampaignID uint64   `json:"CampaignID"`
+	Chains     []uint64 `json:"Chains"`
+}
+
+// ToCampaignChains converts a campaign chains data from SPN and returns a CampaignChains object
+func ToCampaignChains(c campaigntypes.CampaignChains) CampaignChains {
+	return CampaignChains{
+		CampaignID: c.CampaignID,
+		Chains:     c.Chains,
+	}
+}

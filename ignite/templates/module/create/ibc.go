@@ -93,7 +93,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
@@ -177,15 +177,26 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 			return err
 		}
 
+		// create IBC module
+		templateIBCModule := `%[2]vIBCModule := %[2]vmodule.NewIBCModule(app.%[3]vKeeper)
+%[1]v`
+		replacementIBCModule := fmt.Sprintf(
+			templateIBCModule,
+			module.PlaceholderSgAppKeeperDefinition,
+			opts.ModuleName,
+			xstrings.Title(opts.ModuleName),
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderSgAppKeeperDefinition, replacementIBCModule)
+
 		// Add route to IBC router
-		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)
+		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 %[1]v`
 		replacementRouter := fmt.Sprintf(
 			templateRouter,
 			module.PlaceholderIBCAppRouter,
 			opts.ModuleName,
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderIBCAppRouter, replacementRouter)
+		content = replacer.Replace(content, module.PlaceholderIBCAppRouter, replacementRouter)
 
 		// Scoped keeper declaration for the module
 		templateScopedKeeperDeclaration := `Scoped%[1]vKeeper capabilitykeeper.ScopedKeeper`

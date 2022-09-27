@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -11,10 +12,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-var (
-	sampleCoins    = sdk.NewCoins(sdk.NewCoin("bar", sdk.NewInt(1000)), sdk.NewCoin("foo", sdk.NewInt(2000)))
-	sampleCoinsStr = sampleCoins.String()
-)
+var sampleCoins = sdk.NewCoins(sdk.NewCoin("bar", sdkmath.NewInt(1000)), sdk.NewCoin("foo", sdkmath.NewInt(2000)))
 
 func TestToGenesisAccount(t *testing.T) {
 	tests := []struct {
@@ -30,7 +28,7 @@ func TestToGenesisAccount(t *testing.T) {
 			},
 			expected: networktypes.GenesisAccount{
 				Address: "spn123",
-				Coins:   sampleCoinsStr,
+				Coins:   sampleCoins,
 			},
 		},
 	}
@@ -55,14 +53,14 @@ func TestToVestingAccount(t *testing.T) {
 				VestingOptions: *launchtypes.NewDelayedVesting(
 					sampleCoins,
 					sampleCoins,
-					1000,
+					time.Unix(0, 0),
 				),
 			},
 			expected: networktypes.VestingAccount{
 				Address:      "spn123",
-				TotalBalance: sampleCoinsStr,
-				Vesting:      sampleCoinsStr,
-				EndTime:      1000,
+				TotalBalance: sampleCoins,
+				Vesting:      sampleCoins,
+				EndTime:      time.Unix(0, 0).Unix(),
 			},
 		},
 		{
@@ -127,14 +125,14 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 		[]networktypes.GenesisAccount{
 			{
 				Address: "spn1g50xher44l9hjuatjdfxgv254jh2wgzfs55yu3",
-				Coins:   "1000foo",
+				Coins:   sdk.NewCoins(sdk.NewCoin("foo", sdkmath.NewInt(1000))),
 			},
 		},
 		[]networktypes.VestingAccount{
 			{
 				Address:      "spn1gkzf4e0x6wr4djfd8h82v6cy507gy5v4spaus3",
-				TotalBalance: "1000foo",
-				Vesting:      "500foo",
+				TotalBalance: sdk.NewCoins(sdk.NewCoin("foo", sdkmath.NewInt(1000))),
+				Vesting:      sdk.NewCoins(sdk.NewCoin("foo", sdkmath.NewInt(500))),
 				EndTime:      time.Now().Unix(),
 			},
 		},
@@ -174,7 +172,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					*launchtypes.NewDelayedVesting(
 						newCoins("1000bar"),
 						newCoins("500bar"),
-						time.Now().Unix(),
+						time.Now(),
 					),
 				),
 			},
@@ -227,7 +225,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					*launchtypes.NewDelayedVesting(
 						newCoins("1000bar"),
 						newCoins("500bar"),
-						time.Now().Unix(),
+						time.Now(),
 					),
 				),
 			},
@@ -243,7 +241,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					*launchtypes.NewDelayedVesting(
 						newCoins("1000bar"),
 						newCoins("500bar"),
-						time.Now().Unix(),
+						time.Now(),
 					),
 				),
 			},

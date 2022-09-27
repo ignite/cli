@@ -15,8 +15,8 @@ import (
 func TestCosmosGen(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		path         = env.Scaffold("github.com/test/blog")
-		dirGenerated = filepath.Join(path, "vue/src/store/generated")
+		app          = env.Scaffold("github.com/test/blog")
+		dirGenerated = filepath.Join(app.SourcePath(), "vue/src/store/generated")
 	)
 
 	const (
@@ -33,7 +33,7 @@ func TestCosmosGen(t *testing.T) {
 				"--yes",
 				withMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -50,7 +50,7 @@ func TestCosmosGen(t *testing.T) {
 				"--module",
 				withMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -63,7 +63,7 @@ func TestCosmosGen(t *testing.T) {
 				"--yes",
 				withoutMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -79,7 +79,7 @@ func TestCosmosGen(t *testing.T) {
 				"--module",
 				withoutMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -95,13 +95,13 @@ func TestCosmosGen(t *testing.T) {
 				"--module",
 				withoutMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	require.NoError(t, os.RemoveAll(dirGenerated))
 
-	env.Must(env.Exec("generate vuex",
+	env.Must(env.Exec("generate typescript",
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
@@ -110,11 +110,11 @@ func TestCosmosGen(t *testing.T) {
 				"--yes",
 				"--proto-all-modules",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	var expectedCosmosModules = []string{
+	expectedCosmosModules := []string{
 		"cosmos.auth.v1beta1",
 		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
@@ -124,7 +124,10 @@ func TestCosmosGen(t *testing.T) {
 		"cosmos.evidence.v1beta1",
 		"cosmos.feegrant.v1beta1",
 		"cosmos.gov.v1beta1",
+		"cosmos.gov.v1",
+		"cosmos.group.v1",
 		"cosmos.mint.v1beta1",
+		"cosmos.nft.v1beta1",
 		"cosmos.params.v1beta1",
 		"cosmos.slashing.v1beta1",
 		"cosmos.staking.v1beta1",
@@ -133,29 +136,21 @@ func TestCosmosGen(t *testing.T) {
 		"cosmos.vesting.v1beta1",
 	}
 
-	var expectedCustomModules = []string{
+	expectedCustomModules := []string{
 		"test.blog.blog",
 		"test.blog.withmsg",
 		"test.blog.withoutmsg",
 	}
 
-	for _, chainModule := range expectedCustomModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, "test/blog", chainModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s vuex store should have be generated", chainModule))
+	for _, customModule := range expectedCustomModules {
+		_, statErr := os.Stat(filepath.Join(dirGenerated, customModule))
+		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", customModule))
 		require.NoError(t, statErr)
 	}
-
-	chainDir, err := os.ReadDir(filepath.Join(dirGenerated, "test/blog"))
-	require.Equal(t, len(expectedCustomModules), len(chainDir), "no extra modules should have been generated for test/blog")
-	require.NoError(t, err)
 
 	for _, cosmosModule := range expectedCosmosModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, "cosmos/cosmos-sdk", cosmosModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s code generation for module should have be made", cosmosModule))
+		_, statErr := os.Stat(filepath.Join(dirGenerated, cosmosModule))
+		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", cosmosModule))
 		require.NoError(t, statErr)
 	}
-
-	cosmosDirs, err := os.ReadDir(filepath.Join(dirGenerated, "cosmos/cosmos-sdk"))
-	require.Equal(t, len(expectedCosmosModules), len(cosmosDirs), "no extra modules should have been generated for cosmos/cosmos-sdk")
-	require.NoError(t, err)
 }
