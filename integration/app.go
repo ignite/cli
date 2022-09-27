@@ -240,7 +240,7 @@ func (a App) EditConfig(apply func(*chainconfig.Config)) {
 func (a App) GenerateTSClient() bool {
 	return a.env.Exec("generate typescript client", step.NewSteps(
 		step.New(
-			step.Exec(IgniteApp, "g", "ts-client", "--proto-all-modules", "--yes", "--clear-cache"),
+			step.Exec(IgniteApp, "g", "ts-client", "--yes", "--clear-cache"),
 			step.Workdir(a.path),
 		),
 	))
