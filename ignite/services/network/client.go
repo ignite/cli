@@ -12,6 +12,7 @@ import (
 
 // CreateClient send create client message to SPN
 func (n Network) CreateClient(
+	ctx context.Context,
 	launchID uint64,
 	unbondingTime int64,
 	rewardsInfo networktypes.Reward,
@@ -30,7 +31,7 @@ func (n Network) CreateClient(
 		rewardsInfo.RevisionHeight,
 	)
 
-	res, err := n.cosmos.BroadcastTx(n.account, msgCreateClient)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateClient)
 	if err != nil {
 		return "", err
 	}
