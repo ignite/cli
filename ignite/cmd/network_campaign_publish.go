@@ -48,7 +48,7 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	metadata, _ := cmd.Flags().GetString(flagMetadata)
-	campaignID, err := n.CreateCampaign(args[0], metadata, totalSupply)
+	campaignID, err := n.CreateCampaign(cmd.Context(), args[0], metadata, totalSupply)
 	if err != nil {
 		return err
 	}

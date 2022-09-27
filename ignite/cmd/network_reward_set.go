@@ -58,5 +58,5 @@ func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.SetReward(launchID, lastRewardHeight, coins)
+	return n.SetReward(cmd.Context(), launchID, lastRewardHeight, coins)
 }

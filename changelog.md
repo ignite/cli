@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Switch to broadcast mode sync in `cosmosclient`
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
 - Switched codegen client to use `axios` instead of `fetch`
 - Added `useKeplr()` and `useSigner()` methods to TS client. Allowed query-only instantiation.
