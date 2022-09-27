@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
 	"github.com/stretchr/testify/require"
@@ -16,8 +15,8 @@ import (
 func TestBankModule(t *testing.T) {
 	var (
 		env  = envtest.New(t)
-		path = env.Scaffold("chain")
-		host = env.RandomizeServerPorts(path, "")
+		app  = env.Scaffold("chain", "--no-module")
+		host = app.RandomizeServerPorts()
 	)
 
 	queryAPI, err := xurl.HTTP(host.API)
@@ -57,23 +56,17 @@ func TestBankModule(t *testing.T) {
 		},
 	}
 
-	env.UpdateConfig(path, "", func(cfg *chainconfig.Config) error {
+	app.EditConfig(func(cfg *chainconfig.Config) {
 		cfg.Accounts = append(cfg.Accounts, accounts...)
-		return nil
 	})
 
-	env.Must(env.Exec("generate vuex store", step.NewSteps(
-		step.New(
-			step.Exec(envtest.IgniteApp, "g", "vuex", "--proto-all-modules", "--yes"),
-			step.Workdir(path),
-		),
-	)))
+	env.Must(app.GenerateTSClient())
 
 	ctx, cancel := context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 	defer cancel()
 
 	go func() {
-		env.Serve("should serve app", path, "", "", envtest.ExecCtx(ctx))
+		app.Serve("should serve app", envtest.ExecCtx(ctx))
 	}()
 
 	// Wait for the server to be up before running the client tests
@@ -83,8 +76,7 @@ func TestBankModule(t *testing.T) {
 	testAccounts, err := json.Marshal(accounts)
 	require.NoError(t, err)
 
-	env.Must(env.RunClientTests(
-		path,
+	env.Must(app.RunClientTests(
 		envtest.ClientTestFile("bank_module_test.ts"),
 		envtest.ClientEnv(map[string]string{
 			"TEST_QUERY_API": queryAPI,
