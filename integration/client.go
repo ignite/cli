@@ -2,7 +2,6 @@ package envtest
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 )
@@ -46,26 +46,29 @@ func ClientTestFile(filePath string) ClientOption {
 }
 
 // RunClientTests runs the Typescript client tests.
-func (e Env) RunClientTests(path string, options ...ClientOption) bool {
+func (a App) RunClientTests(options ...ClientOption) bool {
 	npm, err := exec.LookPath("npm")
-	require.NoError(e.t, err, "npm binary not found")
+	require.NoError(a.env.t, err, "npm binary not found")
 
 	// The root dir for the tests must be an absolute path.
 	// It is used as the start search point to find test files.
 	rootDir, err := os.Getwd()
-	require.NoError(e.t, err)
+	require.NoError(a.env.t, err)
 
 	// The filename of this module is required to be able to define the location
 	// of the TS client test runner package to be used as working directory when
 	// running the tests.
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
-		e.t.Fatal("failed to read file name")
+		a.env.t.Fatal("failed to read file name")
 	}
 
 	opts := clientOptions{
 		env: map[string]string{
-			"TEST_CHAIN_PATH": path,
+			// Absolute path to the blockchain app directory
+			"TEST_CHAIN_PATH": a.path,
+			// Absolute path to the TS client directory
+			"TEST_TSCLIENT_DIR": filepath.Join(a.path, chainconfig.DefaultTSClientPath),
 		},
 	}
 	for _, o := range options {
@@ -78,15 +81,15 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	)
 
 	//  Install the dependencies needed to run TS client tests
-	ok = e.Exec("install client dependencies", step.NewSteps(
+	ok = a.env.Exec("install client dependencies", step.NewSteps(
 		step.New(
-			step.Workdir(fmt.Sprintf("%s/vue", path)),
+			step.Workdir(filepath.Join(a.path, chainconfig.DefaultTSClientPath)),
 			step.Stdout(&output),
 			step.Exec(npm, "install"),
 			step.PostExec(func(err error) error {
 				// Print the npm output when there is an error
 				if err != nil {
-					e.t.Log("\n", output.String())
+					a.env.t.Log("\n", output.String())
 				}
 
 				return err
@@ -116,7 +119,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 	runnerDir := filepath.Join(filepath.Dir(filename), "testdata/tstestrunner")
 
 	// TODO: Ignore stderr ? Errors are already displayed with traceback in the stdout
-	return e.Exec("run client tests", step.NewSteps(
+	return a.env.Exec("run client tests", step.NewSteps(
 		// Make sure the test runner dependencies are installed
 		step.New(
 			step.Workdir(runnerDir),
@@ -125,7 +128,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 			step.PostExec(func(err error) error {
 				// Print the npm output when there is an error
 				if err != nil {
-					e.t.Log("\n", output.String())
+					a.env.t.Log("\n", output.String())
 				}
 
 				return err
@@ -145,7 +148,7 @@ func (e Env) RunClientTests(path string, options ...ClientOption) bool {
 			step.Exec(npm, args...),
 			step.PostExec(func(err error) error {
 				// Always print tests output to be available on errors or when verbose is enabled
-				e.t.Log("\n", output.String())
+				a.env.t.Log("\n", output.String())
 
 				return err
 			}),
