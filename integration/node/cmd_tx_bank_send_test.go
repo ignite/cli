@@ -20,10 +20,10 @@ import (
 	envtest "github.com/ignite/cli/integration"
 )
 
-func waitForNextBlock(t *testing.T, client cosmosclient.Client) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+func waitForNextBlock(env envtest.Env, client cosmosclient.Client) {
+	ctx, cancel := context.WithTimeout(env.Ctx(), time.Second*10)
 	defer cancel()
-	require.NoError(t, client.WaitForNextBlock(ctx))
+	require.NoError(env.T(), client.WaitForNextBlock(ctx))
 }
 
 func TestNodeTxBankSend(t *testing.T) {
@@ -115,7 +115,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		waitForNextBlock(t, client)
+		waitForNextBlock(env, client)
 
 		env.Exec("send 100token from alice to bob",
 			step.NewSteps(step.New(
