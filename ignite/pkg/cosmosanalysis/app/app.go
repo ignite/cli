@@ -189,7 +189,8 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string
 		return
 	}
 
-	for _, arg := range callExprType.Args {
+	// n is the call to NewBasicManager, let's loop on its args to discover modules
+ 	for _, arg := range callExprType.Args {
 		switch v := arg.(type) {
 		case *ast.CompositeLit:
 			// The arg is an app module
