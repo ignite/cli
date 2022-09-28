@@ -79,7 +79,7 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 }
 
 // CreateCampaign creates a campaign in Network
-func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
+func (n Network) CreateCampaign(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -91,7 +91,7 @@ func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (u
 		totalSupply,
 		[]byte(metadata),
 	)
-	res, err := n.cosmos.BroadcastTx(n.account, msgCreateCampaign)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateCampaign)
 	if err != nil {
 		return 0, err
 	}
@@ -106,6 +106,7 @@ func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (u
 
 // InitializeMainnet Initialize the mainnet of the campaign.
 func (n Network) InitializeMainnet(
+	ctx context.Context,
 	campaignID uint64,
 	sourceURL,
 	sourceHash string,
@@ -125,7 +126,7 @@ func (n Network) InitializeMainnet(
 		mainnetChainID,
 	)
 
-	res, err := n.cosmos.BroadcastTx(n.account, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return 0, err
 	}
@@ -142,6 +143,7 @@ func (n Network) InitializeMainnet(
 
 // UpdateCampaign updates the campaign name or metadata
 func (n Network) UpdateCampaign(
+	ctx context.Context,
 	id uint64,
 	props ...Prop,
 ) error {
@@ -173,7 +175,7 @@ func (n Network) UpdateCampaign(
 		))
 	}
 
-	if _, err := n.cosmos.BroadcastTx(n.account, msgs...); err != nil {
+	if _, err := n.cosmos.BroadcastTx(ctx, n.account, msgs...); err != nil {
 		return err
 	}
 	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
