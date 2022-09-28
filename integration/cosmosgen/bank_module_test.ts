@@ -6,7 +6,7 @@ describe('bank module', async () => {
   const { Client } = await import('client')
 
   it('should transfer to two different addresses', async () => {
-    const { account1, account2, account3 } = global.accounts
+    const { account1, account2, account3 } = globalThis.accounts
 
     const mnemonic = account1['Mnemonic']
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic)
@@ -15,8 +15,8 @@ describe('bank module', async () => {
     const denom = 'token'
     const env = {
       denom,
-	  rpcURL: global.txApi,
-	  apiURL: global.queryApi,
+	    rpcURL: globalThis.txApi,
+	    apiURL: globalThis.queryApi,
     }
     const client = new Client(env, wallet)
 

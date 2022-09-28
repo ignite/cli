@@ -16,18 +16,18 @@ type GlobalAccounts = {
 
 beforeAll(() => {
     // Initialize required globals
-    global.txApi = process.env.TEST_TX_API || ''
-    global.queryApi = process.env.TEST_QUERY_API || ''
+    globalThis.txApi = process.env.TEST_TX_API || ''
+    globalThis.queryApi = process.env.TEST_QUERY_API || ''
 
-    expect(global.txApi, 'TEST_TX_API is required').not.toEqual('')
-    expect(global.queryApi, 'TEST_QUERY_API is required').not.toEqual('')
+    expect(globalThis.txApi, 'TEST_TX_API is required').not.toEqual('')
+    expect(globalThis.queryApi, 'TEST_QUERY_API is required').not.toEqual('')
 
     // Initialize the global accounts
-    global.accounts = <GlobalAccounts>{}
+    globalThis.accounts = <GlobalAccounts>{}
 
     JSON.parse(process.env.TEST_ACCOUNTS || '[]').forEach((account: Account) => {
       const name = account['Name']
 
-      global.accounts[name] = account
+      globalThis.accounts[name] = account
     })
 })
