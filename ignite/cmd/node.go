@@ -38,7 +38,6 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		gas            = getGas(cmd)
 		gasPrices      = getGasPrices(cmd)
 		fees           = getFees(cmd)
-		broadcastMode  = getBroadcastMode(cmd)
 		generateOnly   = getGenerateOnly(cmd)
 	)
 	if keyringBackend == "" {
@@ -53,7 +52,6 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithKeyringBackend(keyringBackend),
 		cosmosclient.WithKeyringDir(keyringDir),
 		cosmosclient.WithNodeAddress(xurl.HTTPEnsurePort(node)),
-		cosmosclient.WithBroadcastMode(broadcastMode),
 		cosmosclient.WithGenerateOnly(generateOnly),
 	}
 

@@ -262,13 +262,13 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !rewardCoins.IsZero() && rewardDuration > 0 {
-		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
+		if err := n.SetReward(cmd.Context(), launchID, rewardDuration, rewardCoins); err != nil {
 			return err
 		}
 	}
 
 	if !amountCoins.IsZero() {
-		if err := n.SendAccountRequestForCoordinator(launchID, amountCoins); err != nil {
+		if err := n.SendAccountRequestForCoordinator(cmd.Context(), launchID, amountCoins); err != nil {
 			return err
 		}
 	}
