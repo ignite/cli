@@ -14,7 +14,7 @@ import (
 )
 
 // SetReward set a chain reward
-func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
+func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
 	n.ev.Send(events.New(
 		events.StatusOngoing,
 		fmt.Sprintf("Setting reward %s to the chain %d at height %d",
@@ -35,7 +35,7 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 		lastRewardHeight,
 		coins,
 	)
-	res, err := n.cosmos.BroadcastTx(n.account, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
@@ -49,7 +48,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	tx, err := client.BankSendTx(fromAccount, toAddress, coins)
+	tx, err := client.BankSendTx(cmd.Context(), fromAccount, toAddress, coins)
 	if err != nil {
 		return err
 	}
@@ -67,7 +66,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	session.StartSpinner("Sending transaction...")
-	resp, err := tx.Broadcast()
+	resp, err := tx.Broadcast(cmd.Context())
 	if err != nil {
 		return err
 	}
@@ -75,10 +74,5 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	session.StopSpinner()
 	session.Printf("Transaction broadcast successful! (hash = %s)\n", resp.TxHash)
 	session.Printf("%s sent from %s to %s\n", amount, fromAccountInput, toAccountInput)
-	if getBroadcastMode(cmd) != flags.BroadcastBlock {
-		session.Println("Transaction waiting to be included in a block.")
-		session.Println("Run the following command to follow the transaction status:")
-		session.Printf("  ignite node --node %s q tx %s\n", getNode(cmd), resp.TxHash)
-	}
 	return nil
 }

@@ -25,7 +25,7 @@ func (c Client) BankBalances(ctx context.Context, address string, pagination *qu
 	return resp.Balances, nil
 }
 
-func (c Client) BankSendTx(fromAccount cosmosaccount.Account, toAddress string, amount sdk.Coins) (TxService, error) {
+func (c Client) BankSendTx(ctx context.Context, fromAccount cosmosaccount.Account, toAddress string, amount sdk.Coins) (TxService, error) {
 	addr, err := fromAccount.Address(c.addressPrefix)
 	if err != nil {
 		return TxService{}, err
@@ -37,5 +37,5 @@ func (c Client) BankSendTx(fromAccount cosmosaccount.Account, toAddress string, 
 		Amount:      amount,
 	}
 
-	return c.CreateTx(fromAccount, msg)
+	return c.CreateTx(ctx, fromAccount, msg)
 }
