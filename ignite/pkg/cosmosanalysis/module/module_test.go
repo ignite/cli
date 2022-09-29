@@ -2,6 +2,7 @@ package module_test
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,107 +11,149 @@ import (
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 )
 
-var testModule = module.Module{
-	Name:         "planet",
-	GoModulePath: "github.com/tendermint/planet",
-	Pkg: protoanalysis.Package{
-		Name:         "tendermint.planet.planet",
-		Path:         "testdata/planet/proto/planet",
-		Files:        protoanalysis.Files{protoanalysis.File{Path: "testdata/planet/proto/planet/planet.proto", Dependencies: []string{"google/api/annotations.proto"}}},
-		GoImportName: "github.com/tendermint/planet/x/planet/types",
-		Messages: []protoanalysis.Message{
-			{Name: "QueryMyQueryRequest", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 1},
-			{Name: "QueryMyQueryResponse", Path: "testdata/planet/proto/planet/planet.proto", HighestFieldNumber: 0},
-		},
-		Services: []protoanalysis.Service{
-			{
-				Name: "Query",
-				RPCFuncs: []protoanalysis.RPCFunc{
-					{
-						Name:        "MyQuery",
-						RequestType: "QueryMyQueryRequest",
-						ReturnsType: "QueryMyQueryResponse",
-						HTTPRules: []protoanalysis.HTTPRule{
-							{
-								Params:   []string{"mytypefield"},
-								HasQuery: false, HasBody: false,
+func newModule(relChainPath, goImportPath string) module.Module {
+	return module.Module{
+		Name:         "planet",
+		GoModulePath: goImportPath,
+		Pkg: protoanalysis.Package{
+			Name: "tendermint.planet.planet",
+			Path: filepath.Join(relChainPath, "proto/planet"),
+			Files: protoanalysis.Files{
+				protoanalysis.File{
+					Path:         filepath.Join(relChainPath, "proto/planet/planet.proto"),
+					Dependencies: []string{"google/api/annotations.proto"},
+				},
+			},
+			GoImportName: "github.com/tendermint/planet/x/planet/types",
+			Messages: []protoanalysis.Message{
+				{
+					Name:               "QueryMyQueryRequest",
+					Path:               filepath.Join(relChainPath, "proto/planet/planet.proto"),
+					HighestFieldNumber: 1,
+				},
+				{
+					Name:               "QueryMyQueryResponse",
+					Path:               filepath.Join(relChainPath, "proto/planet/planet.proto"),
+					HighestFieldNumber: 0,
+				},
+			},
+			Services: []protoanalysis.Service{
+				{
+					Name: "Query",
+					RPCFuncs: []protoanalysis.RPCFunc{
+						{
+							Name:        "MyQuery",
+							RequestType: "QueryMyQueryRequest",
+							ReturnsType: "QueryMyQueryResponse",
+							HTTPRules: []protoanalysis.HTTPRule{
+								{
+									Params:   []string{"mytypefield"},
+									HasQuery: false,
+									HasBody:  false,
+								},
 							},
 						},
 					},
 				},
 			},
 		},
-	},
-	Msgs: []module.Msg(nil),
-	HTTPQueries: []module.HTTPQuery{
-		{
-			Name:     "MyQuery",
-			FullName: "QueryMyQuery",
-			Rules: []protoanalysis.HTTPRule{
-				{
-					Params:   []string{"mytypefield"},
-					HasQuery: false,
-					HasBody:  false,
+		Msgs: []module.Msg(nil),
+		HTTPQueries: []module.HTTPQuery{
+			{
+				Name:     "MyQuery",
+				FullName: "QueryMyQuery",
+				Rules: []protoanalysis.HTTPRule{
+					{
+						Params:   []string{"mytypefield"},
+						HasQuery: false,
+						HasBody:  false,
+					},
 				},
 			},
 		},
-	},
-	Types: []module.Type(nil),
+		Types: []module.Type(nil),
+	}
 }
 
 func TestDiscover(t *testing.T) {
-	type args struct {
-		sourcePath string
-		protoDir   string
-	}
+	ctx := context.Background()
+	sourcePath := "testdata/planet"
+	testModule := newModule(sourcePath, "github.com/tendermint/planet")
+
 	tests := []struct {
-		name string
-		args args
-		want []module.Module
+		name, sourcePath, protoDir string
+		want                       []module.Module
 	}{
 		{
-			name: "test valid",
-			args: args{
-				sourcePath: "testdata/planet",
-				protoDir:   "proto",
-			},
-			want: []module.Module{testModule},
+			name:       "test valid",
+			sourcePath: sourcePath,
+			protoDir:   "proto",
+			want:       []module.Module{testModule},
 		}, {
-			name: "test no proto folder",
-			args: args{
-				sourcePath: "testdata/planet",
-				protoDir:   "",
-			},
-			want: []module.Module{testModule},
+			name:       "test no proto folder",
+			sourcePath: sourcePath,
+			protoDir:   "",
+			want:       []module.Module{testModule},
 		}, {
-			name: "test invalid proto folder",
-			args: args{
-				sourcePath: "testdata/planet",
-				protoDir:   "invalid",
-			},
-			want: []module.Module{},
+			name:       "test invalid proto folder",
+			sourcePath: sourcePath,
+			protoDir:   "invalid",
+			want:       []module.Module{},
 		}, {
-			name: "test invalid folder",
-			args: args{
-				sourcePath: "testdata/invalid",
-				protoDir:   "",
-			},
-			want: []module.Module{},
+			name:       "test invalid folder",
+			sourcePath: "testdata/invalid",
+			protoDir:   "",
+			want:       []module.Module{},
 		}, {
-			name: "test invalid main and proto folder",
-			args: args{
-				sourcePath: "../../..",
-				protoDir:   "proto",
-			},
-			want: []module.Module{},
+			name:       "test invalid main and proto folder",
+			sourcePath: "../../..",
+			protoDir:   "proto",
+			want:       []module.Module{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := module.Discover(context.Background(), "testdata/planet", tt.args.sourcePath, tt.args.protoDir)
+			modules, err := module.Discover(ctx, sourcePath, tt.sourcePath, tt.protoDir)
 
 			require.NoError(t, err)
-			require.Equal(t, tt.want, got)
+			require.Equal(t, tt.want, modules)
+		})
+	}
+}
+
+func TestDiscoverWithVersionedApp(t *testing.T) {
+	ctx := context.Background()
+	sourcePath := "testdata/planet_v2"
+	testModule := newModule(sourcePath, "github.com/tendermint/planet/v2")
+
+	tests := []struct {
+		name, protoDir string
+		want           []module.Module
+	}{
+		{
+			name:     "test valid",
+			protoDir: "proto",
+			want:     []module.Module{testModule},
+		}, {
+			name:     "test valid with version suffix",
+			protoDir: "proto",
+			want:     []module.Module{testModule},
+		}, {
+			name:     "test no proto folder",
+			protoDir: "",
+			want:     []module.Module{testModule},
+		}, {
+			name:     "test invalid proto folder",
+			protoDir: "invalid",
+			want:     []module.Module{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			modules, err := module.Discover(ctx, sourcePath, sourcePath, tt.protoDir)
+
+			require.NoError(t, err)
+			require.Equal(t, tt.want, modules)
 		})
 	}
 }
