@@ -67,9 +67,9 @@ func (e Env) Ctx() context.Context {
 }
 
 // IsAppServed checks that app is served properly and servers are started to listening before ctx canceled.
-func (e Env) IsAppServed(ctx context.Context, h Hosts) error {
+func (e Env) IsAppServed(ctx context.Context, apiAddr string) error {
 	checkAlive := func() error {
-		addr, err := xurl.HTTP(h.API)
+		addr, err := xurl.HTTP(apiAddr)
 		if err != nil {
 			return err
 		}
