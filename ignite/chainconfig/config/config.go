@@ -148,12 +148,12 @@ type Host struct {
 
 // BaseConfig defines a struct with the fields that are common to all config versions.
 type BaseConfig struct {
-	Version  Version                `yaml:"version"`
-	Build    Build                  `yaml:"build"`
-	Accounts []Account              `yaml:"accounts"`
-	Faucet   Faucet                 `yaml:"faucet,omitempty"`
-	Client   Client                 `yaml:"client,omitempty"`
-	Genesis  map[string]interface{} `yaml:"genesis,omitempty"`
+	Version  Version   `yaml:"version"`
+	Build    Build     `yaml:"build"`
+	Accounts []Account `yaml:"accounts"`
+	Faucet   Faucet    `yaml:"faucet,omitempty"`
+	Client   Client    `yaml:"client,omitempty"`
+	Genesis  xyaml.Map `yaml:"genesis,omitempty"`
 }
 
 // GetVersion returns the config version.
