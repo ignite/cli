@@ -111,7 +111,7 @@ func TestGetRegisteredModules(t *testing.T) {
 }
 
 func TestParseAppModules(t *testing.T) {
-	want := []string{
+	basicModules := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
 		"github.com/cosmos/cosmos-sdk/x/bank",
 		"github.com/cosmos/cosmos-sdk/x/staking",
@@ -119,24 +119,65 @@ func TestParseAppModules(t *testing.T) {
 	}
 
 	cases := []struct {
-		name string
-		path string
+		name            string
+		path            string
+		expectedModules []string
 	}{
 		{
-			name: "new basic manager arguments",
-			path: "testdata/modules/arguments",
+			name:            "new basic manager arguments",
+			path:            "testdata/modules/arguments",
+			expectedModules: basicModules,
 		},
 		{
-			name: "same file variable",
-			path: "testdata/modules/file_variable",
+			name:            "same file variable",
+			path:            "testdata/modules/file_variable",
+			expectedModules: basicModules,
 		},
 		{
-			name: "same package variable",
-			path: "testdata/modules/package_variable",
+			name:            "same package variable",
+			path:            "testdata/modules/package_variable",
+			expectedModules: basicModules,
 		},
 		{
-			name: "other package variable",
-			path: "testdata/modules/external_variable",
+			name:            "other package variable",
+			path:            "testdata/modules/external_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name: "osmosis",
+			path: "testdata/modules/osmosis",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/osmosis-labs/osmosis/v12/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/ibc-go/v3/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/osmosis-labs/osmosis/v12/x/gamm",
+				"github.com/osmosis-labs/osmosis/v12/x/twap/twapmodule",
+				"github.com/osmosis-labs/osmosis/v12/x/txfees",
+				"github.com/osmosis-labs/osmosis/v12/x/incentives",
+				"github.com/osmosis-labs/osmosis/v12/x/lockup",
+				"github.com/osmosis-labs/osmosis/v12/x/pool-incentives",
+				"github.com/osmosis-labs/osmosis/v12/x/epochs",
+				"github.com/osmosis-labs/osmosis/v12/x/superfluid",
+				"github.com/osmosis-labs/osmosis/v12/x/tokenfactory",
+				"github.com/CosmWasm/wasmd/x/wasm",
+				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
 		},
 	}
 
@@ -145,7 +186,7 @@ func TestParseAppModules(t *testing.T) {
 			m, err := app.FindRegisteredModules(tt.path)
 
 			require.NoError(t, err)
-			require.Equal(t, want, m)
+			require.Equal(t, tt.expectedModules, m)
 		})
 	}
 }
