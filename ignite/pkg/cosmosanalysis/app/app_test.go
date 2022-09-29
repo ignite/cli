@@ -144,6 +144,15 @@ func TestParseAppModules(t *testing.T) {
 			expectedModules: basicModules,
 		},
 		{
+			name: "with api routes",
+			path: "testdata/modules/api_routes",
+			expectedModules: append(
+				basicModules,
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			),
+		},
+		{
 			name: "osmosis",
 			path: "testdata/modules/osmosis",
 			expectedModules: []string{
