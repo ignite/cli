@@ -13,15 +13,17 @@ import (
 func TestServeHTTPCORS(t *testing.T) {
 	f := cosmosfaucet.Faucet{}
 	cases := []struct {
-		name, method string
+		name, method, path string
 	}{
 		{
 			name:   "root endpoint",
 			method: "POST",
+			path:   "/",
 		},
 		{
 			name:   "info endpoint",
 			method: "GET",
+			path:   "/info",
 		},
 	}
 
@@ -29,7 +31,7 @@ func TestServeHTTPCORS(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Arrange
 			res := httptest.NewRecorder()
-			req, _ := http.NewRequest("OPTIONS", "/", nil)
+			req, _ := http.NewRequest("OPTIONS", tt.path, nil)
 			req.Header.Set("Access-Control-Request-Method", tt.method)
 
 			// Act
