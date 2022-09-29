@@ -123,6 +123,10 @@ func TestParseAppModules(t *testing.T) {
 		path string
 	}{
 		{
+			name: "new basic manager arguments",
+			path: "testdata/modules/arguments",
+		},
+		{
 			name: "same file variable",
 			path: "testdata/modules/file_variable",
 		},
