@@ -1,4 +1,4 @@
-package module
+package module_test
 
 import (
 	"context"
@@ -6,10 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 )
 
-var testModule = Module{
+var testModule = module.Module{
 	Name:         "planet",
 	GoModulePath: "github.com/tendermint/planet",
 	Pkg: protoanalysis.Package{
@@ -40,8 +41,8 @@ var testModule = Module{
 			},
 		},
 	},
-	Msgs: []Msg(nil),
-	HTTPQueries: []HTTPQuery{
+	Msgs: []module.Msg(nil),
+	HTTPQueries: []module.HTTPQuery{
 		{
 			Name:     "MyQuery",
 			FullName: "QueryMyQuery",
@@ -54,7 +55,7 @@ var testModule = Module{
 			},
 		},
 	},
-	Types: []Type(nil),
+	Types: []module.Type(nil),
 }
 
 func TestDiscover(t *testing.T) {
@@ -65,7 +66,7 @@ func TestDiscover(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []Module
+		want []module.Module
 	}{
 		{
 			name: "test valid",
@@ -73,42 +74,113 @@ func TestDiscover(t *testing.T) {
 				sourcePath: "testdata/planet",
 				protoDir:   "proto",
 			},
-			want: []Module{testModule},
+			want: []module.Module{testModule},
 		}, {
 			name: "test no proto folder",
 			args: args{
 				sourcePath: "testdata/planet",
 				protoDir:   "",
 			},
-			want: []Module{testModule},
+			want: []module.Module{testModule},
 		}, {
 			name: "test invalid proto folder",
 			args: args{
 				sourcePath: "testdata/planet",
 				protoDir:   "invalid",
 			},
-			want: []Module{},
+			want: []module.Module{},
 		}, {
 			name: "test invalid folder",
 			args: args{
 				sourcePath: "testdata/invalid",
 				protoDir:   "",
 			},
-			want: []Module{},
+			want: []module.Module{},
 		}, {
 			name: "test invalid main and proto folder",
 			args: args{
 				sourcePath: "../../..",
 				protoDir:   "proto",
 			},
-			want: []Module{},
+			want: []module.Module{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Discover(context.Background(), "testdata/planet", tt.args.sourcePath, tt.args.protoDir)
+			got, err := module.Discover(context.Background(), "testdata/planet", tt.args.sourcePath, tt.args.protoDir)
+
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestIsRootPath(t *testing.T) {
+	cases := []struct {
+		name, path string
+		want       bool
+	}{
+		{
+			name: "custom module import path",
+			path: "github.com/chain/x/my_module",
+			want: true,
+		},
+		{
+			name: "generic import path",
+			path: "github.com/username/project",
+			want: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, module.IsRootPath(tt.path))
+		})
+	}
+}
+
+func TestRootPath(t *testing.T) {
+	cases := []struct {
+		name, path, want string
+	}{
+		{
+			name: "custom module import path",
+			path: "github.com/username/chain/x/my_module/child/folder",
+			want: "github.com/username/chain/x/my_module",
+		},
+		{
+			name: "generic import path",
+			path: "github.com/username/project/child/folder",
+			want: "",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, module.RootPath(tt.path))
+		})
+	}
+}
+
+func TestRootGoImportPath(t *testing.T) {
+	cases := []struct {
+		name, path, want string
+	}{
+		{
+			name: "go import path with version suffix",
+			path: "github.com/username/chain/v2",
+			want: "github.com/username/chain",
+		},
+		{
+			name: "go import path without version suffix",
+			path: "github.com/username/chain",
+			want: "github.com/username/chain",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, module.RootGoImportPath(tt.path))
 		})
 	}
 }
