@@ -34,13 +34,6 @@ const (
 	defaultFaucetMinAmount = 100
 )
 
-//go:generate mockery --srcpkg github.com/tendermint/tendermint/rpc/client/ --name Client --structname RPCClient --filename rpclient.go --with-expecter
-//go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/client --name AccountRetriever --filename account_retriever.go --with-expecter
-//go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/x/bank/types --name QueryClient --structname BankQueryClient --filename bank_query_client.go --with-expecter
-//go:generate mockery --srcpkg . --name FaucetClient --structname FaucetClient --filename faucet_client.go --with-expecter
-//go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
-//go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
-
 type suite struct {
 	rpcClient        *mocks.RPCClient
 	accountRetriever *mocks.AccountRetriever
