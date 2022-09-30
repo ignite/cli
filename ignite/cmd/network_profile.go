@@ -23,7 +23,7 @@ func NewNetworkProfile() *cobra.Command {
 }
 
 func networkProfileHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.Cleanup()
 
 	nb, err := newNetworkBuilder(cmd)
