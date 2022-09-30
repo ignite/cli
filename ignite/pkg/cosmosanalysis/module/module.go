@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/mod/semver"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"golang.org/x/mod/semver"
 )
 
 // Msgs is a module import path-sdk msgs pair.
