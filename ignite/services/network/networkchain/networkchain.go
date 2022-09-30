@@ -5,7 +5,9 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
@@ -33,7 +35,9 @@ type Chain struct {
 	hash        string
 	genesisURL  string
 	genesisHash string
-	launchTime  int64
+	launchTime  time.Time
+
+	accountBalance sdk.Coins
 
 	keyringBackend chaincmd.KeyringBackend
 
@@ -95,6 +99,7 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 		c.genesisHash = launch.GenesisHash
 		c.home = ChainHome(launch.ID)
 		c.launchTime = launch.LaunchTime
+		c.accountBalance = launch.AccountBalance
 	}
 }
 
@@ -238,6 +243,14 @@ func (c Chain) SourceURL() string {
 
 func (c Chain) SourceHash() string {
 	return c.hash
+}
+
+func (c Chain) IsAccountBalanceFixed() bool {
+	return !c.accountBalance.IsZero()
+}
+
+func (c Chain) AccountBalance() sdk.Coins {
+	return c.accountBalance
 }
 
 func (c Chain) IsHomeDirExist() (ok bool, err error) {

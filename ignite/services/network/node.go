@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	ibcconntypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	ibcconntypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	spntypes "github.com/tendermint/spn/pkg/types"
 	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 

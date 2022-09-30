@@ -1,12 +1,13 @@
 package network
 
 import (
+	"context"
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
 	"github.com/ignite/cli/ignite/services/network/networktypes"
@@ -18,16 +19,20 @@ func TestSetReward(t *testing.T) {
 		var (
 			account         = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network  = newSuite(account)
-			coins           = sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))
+			coins           = sdk.NewCoins(sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)))
 			lastRewarHeight = int64(10)
 		)
+
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
 
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				context.Background(),
+				account,
 				&rewardtypes.MsgSetRewards{
-					Provider:         account.Address(networktypes.SPN),
+					Provider:         addr,
 					LaunchID:         testutil.LaunchID,
 					Coins:            coins,
 					LastRewardHeight: lastRewarHeight,
@@ -41,7 +46,7 @@ func TestSetReward(t *testing.T) {
 			}), nil).
 			Once()
 
-		setRewardError := network.SetReward(testutil.LaunchID, lastRewarHeight, coins)
+		setRewardError := network.SetReward(context.Background(), testutil.LaunchID, lastRewarHeight, coins)
 		require.NoError(t, setRewardError)
 		suite.AssertAllMocks(t)
 	})
@@ -49,16 +54,21 @@ func TestSetReward(t *testing.T) {
 		var (
 			account         = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network  = newSuite(account)
-			coins           = sdk.NewCoins(sdk.NewCoin(TestDenom, sdk.NewInt(TestAmountInt)))
+			coins           = sdk.NewCoins(sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)))
 			lastRewarHeight = int64(10)
 			expectedErr     = errors.New("failed to set reward")
 		)
+
+		addr, err := account.Address(networktypes.SPN)
+		require.NoError(t, err)
+
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
-				account.Name,
+				context.Background(),
+				account,
 				&rewardtypes.MsgSetRewards{
-					Provider:         account.Address(networktypes.SPN),
+					Provider:         addr,
 					LaunchID:         testutil.LaunchID,
 					Coins:            coins,
 					LastRewardHeight: lastRewarHeight,
@@ -66,7 +76,7 @@ func TestSetReward(t *testing.T) {
 			).
 			Return(testutil.NewResponse(&rewardtypes.MsgSetRewardsResponse{}), expectedErr).
 			Once()
-		setRewardError := network.SetReward(testutil.LaunchID, lastRewarHeight, coins)
+		setRewardError := network.SetReward(context.Background(), testutil.LaunchID, lastRewarHeight, coins)
 		require.Error(t, setRewardError)
 		require.Equal(t, expectedErr, setRewardError)
 		suite.AssertAllMocks(t)

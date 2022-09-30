@@ -88,7 +88,10 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 
 // Profile returns the address profile info
 func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.Profile, error) {
-	address := n.account.Address(networktypes.SPN)
+	address, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return networktypes.Profile{}, err
+	}
 
 	// fetch vouchers held by the account
 	coins, err := n.Balances(ctx, address)

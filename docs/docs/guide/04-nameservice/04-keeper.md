@@ -19,10 +19,13 @@ In this section, define the keepers that are required by the nameservice module:
 
 ## Buy Name
 
-To define the keeper for the buy name transaction, add this code to the `msg_server_buy_name.go` file:
+To define the keeper for the buy name transaction, add this code to the `x/nameservice/keeper/msg_server_buy_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_buy_name.go
+
+package keeper
+
 import (
 	"context"
 
@@ -58,7 +61,10 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 		}
 
 		// Otherwise (when the bid is higher), send tokens from the buyer to the owner
-		k.bankKeeper.SendCoins(ctx, buyer, owner, bid)
+		err := k.bankKeeper.SendCoins(ctx, buyer, owner, bid)
+		if err != nil {
+			return nil, err
+		}
 	} else { // If the name is not found in the store
 		// If the minimum price is higher than the bid
 		if minPrice.IsAllGT(bid) {
@@ -67,16 +73,19 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 		}
 
 		// Otherwise (when the bid is higher), send tokens from the buyer's account to the module's account (as a payment for the name)
-		k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, bid)
+		err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, bid)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Create an updated whois record
 	newWhois := types.Whois{
-		Index:   msg.Name,
-		Name:    msg.Name,
-		Value:   whois.Value,
-		Price:   bid.String(),
-		Owner:   buyer.String(),
+		Index: msg.Name,
+		Name:  msg.Name,
+		Value: whois.Value,
+		Price: bid.String(),
+		Owner: buyer.String(),
 	}
 
 	// Write whois information to the store
@@ -91,10 +100,13 @@ This dependency automatically created an `expected_keepers.go` file with a `Bank
 
 The `BuyName` transaction uses `SendCoins` and `SendCoinsFromAccountToModule` methods from the `bank` module. 
 
-Edit the `expected_keepers.go` file to add `SendCoins` and `SendCoinsFromAccountToModule` to be able to use it in the keeper methods of the `nameservice` module.
+Edit the `x/nameservice/types/expected_keepers.go` file to add `SendCoins` and `SendCoinsFromAccountToModule` to be able to use it in the keeper methods of the `nameservice` module.
 
 ```go
 // x/nameservice/types/expected_keepers.go
+
+package types
+
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -107,10 +119,13 @@ type BankKeeper interface {
 
 ## Set Name
 
-To define the keeper for the set name transaction, add this code to the `msg_server_set_name.go` file:
+To define the keeper for the set name transaction, add this code to the `x/nameservice/keeper/msg_server_set_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_set_name.go
+
+package keeper
+
 import (
 	"context"
 
@@ -133,11 +148,11 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 	// Otherwise, create an updated whois record
 	newWhois := types.Whois{
-		Index:   msg.Name,
-		Name:    msg.Name,
-		Value:   msg.Value,
-		Owner:   whois.Owner,
-		Price:   whois.Price,
+		Index: msg.Name,
+		Name:  msg.Name,
+		Value: msg.Value,
+		Owner: whois.Owner,
+		Price: whois.Price,
 	}
 
 	// Write whois information to the store
@@ -148,10 +163,13 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 ## Delete Name
 
-To define the keeper for the delete name transaction, add this code to the `msg_server_delete_name.go` file:
+To define the keeper for the delete name transaction, add this code to the `x/nameservice/keeper/msg_server_delete_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_delete_name.go
+
+package keeper
+
 import (
 	"context"
 

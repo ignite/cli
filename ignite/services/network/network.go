@@ -12,7 +12,6 @@ import (
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	monitoringctypes "github.com/tendermint/spn/x/monitoringc/types"
-	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -20,15 +19,13 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 )
 
 //go:generate mockery --name CosmosClient --case underscore
 type CosmosClient interface {
-	Account(accountName string) (cosmosaccount.Account, error)
-	Address(accountName string) (sdktypes.AccAddress, error)
 	Context() client.Context
-	BroadcastTx(accountName string, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
-	BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (gas uint64, broadcast func() (cosmosclient.Response, error), err error)
+	BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (cosmosclient.Response, error)
 	Status(ctx context.Context) (*ctypes.ResultStatus, error)
 	ConsensusInfo(ctx context.Context, height int64) (cosmosclient.ConsensusInfo, error)
 }
@@ -46,7 +43,7 @@ type Network struct {
 	stakingQuery            stakingtypes.QueryClient
 	bankQuery               banktypes.QueryClient
 	monitoringConsumerQuery monitoringctypes.QueryClient
-	monitoringProviderQuery monitoringptypes.QueryClient
+	clock                   xtime.Clock
 }
 
 //go:generate mockery --name Chain --case underscore
@@ -110,6 +107,12 @@ func WithBankQueryClient(client banktypes.QueryClient) Option {
 	}
 }
 
+func WithCustomClock(clock xtime.Clock) Option {
+	return func(n *Network) {
+		n.clock = clock
+	}
+}
+
 // CollectEvents collects events from the network builder.
 func CollectEvents(ev events.Bus) Option {
 	return func(n *Network) {
@@ -130,6 +133,7 @@ func New(cosmos CosmosClient, account cosmosaccount.Account, options ...Option) 
 		stakingQuery:            stakingtypes.NewQueryClient(cosmos.Context()),
 		bankQuery:               banktypes.NewQueryClient(cosmos.Context()),
 		monitoringConsumerQuery: monitoringctypes.NewQueryClient(cosmos.Context()),
+		clock:                   xtime.NewClockSystem(),
 	}
 	for _, opt := range options {
 		opt(&n)

@@ -30,6 +30,7 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 	c.Flags().String(flagCampaignTotalSupply, "", "Update the total of the mainnet of a campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
@@ -85,7 +86,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		proposals = append(proposals, network.WithCampaignTotalSupply(totalSupply))
 	}
 
-	if err = n.UpdateCampaign(campaignID, proposals...); err != nil {
+	if err = n.UpdateCampaign(cmd.Context(), campaignID, proposals...); err != nil {
 		return err
 	}
 

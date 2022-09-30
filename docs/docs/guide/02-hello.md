@@ -154,7 +154,7 @@ git commit -am "Scaffolded a hello query with Ignite CLI"
 
 In the `proto/hello/query.proto` file, the `Hello` rpc has been added to the `Query` service.
 
-```proto
+```protobuf
 service Query {
 	rpc Hello(QueryHelloRequest) returns (QueryHelloResponse) {
 		option (google.api.http).get = "/hello/hello/hello";
@@ -173,7 +173,7 @@ Here's how the `Hello` rpc for the `Query` service works:
 
 Now, take a look at the following request and response types:
 
-```proto
+```protobuf
 message QueryHelloRequest {
 }
 
@@ -222,7 +222,7 @@ func (k Keeper) Hello(c context.Context, req *types.QueryHelloRequest) (*types.Q
 	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	_ = ctx
-  return &types.QueryHelloResponse{Text: "Hello, Ignite CLI!"}, nil // <--
+	return &types.QueryHelloResponse{Text: "Hello, Ignite CLI!"}, nil // <--
 }
 ```
 
@@ -238,11 +238,13 @@ Make the required changes to the `x/hello/module.go` file.
 1. Add `"context"` to the list of packages in the import statement.
 
     ```go
-    import (
-      "encoding/json"
-      "fmt"
-      //...
-      "context"
+	import (
+		// ...
+
+		"context"
+
+		// ...
+	)
     ```
 
     Do not save the file yet, you need to continue with these modifications.
@@ -252,14 +254,14 @@ Make the required changes to the `x/hello/module.go` file.
 1. Register the query handlers:
 
     ```go
-    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-      types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-    }
+	func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+		types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	}
     ```
 
 2. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
 
-    ```go
+    ```json
     {
       "text": "Hello, Ignite CLI!",
     }
@@ -267,7 +269,7 @@ Make the required changes to the `x/hello/module.go` file.
 
 The `query` command has also scaffolded `x/hello/client/cli/query_hello.go` that implements a CLI equivalent of the hello query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
-```go
+```bash
 hellod q hello hello
 ```
 

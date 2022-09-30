@@ -49,7 +49,6 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	)
 
 	g.RunFn(protoQueryModify(replacer, opts))
-	g.RunFn(moduleGRPCGatewayModify(replacer, opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 
@@ -58,7 +57,6 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 
 	if !opts.NoMessage {
 		// Modifications for new messages
-		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(protoTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
@@ -79,41 +77,6 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	g.RunFn(frontendSrcStoreAppModify(replacer, opts))
 
 	return g, typed.Box(componentTemplate, opts, g)
-}
-
-func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Set once the MsgServer definition if it is not defined yet
-		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
-
-		templateHandlers := `case *types.MsgCreate%[2]v:
-					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-
-		case *types.MsgUpdate%[2]v:
-					res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-
-		case *types.MsgDelete%[2]v:
-					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-
-%[1]v`
-		replacementHandlers := fmt.Sprintf(templateHandlers,
-			typed.Placeholder,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, typed.Placeholder, replacementHandlers)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
 }
 
 func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
@@ -279,22 +242,6 @@ message QueryAll%[2]vResponse {
 	}
 }
 
-func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		replacement := `"context"`
-		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacement)
-		replacement = `types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))`
-		content = replacer.ReplaceOnce(content, typed.Placeholder2, replacement)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
@@ -304,8 +251,8 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 		}
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[1]vKey= "%[1]v-value-"
-	%[1]vCountKey= "%[1]v-count-"
+	%[1]vKey= "%[1]v/value/"
+	%[1]vCountKey= "%[1]v/count/"
 )
 `, opts.TypeName.UpperCamel)
 		newFile := genny.NewFileS(path, content)

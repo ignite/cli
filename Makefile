@@ -3,7 +3,6 @@
 # Project variables.
 PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
-FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go'
 HEAD = $(shell git rev-parse HEAD)
 LD_FLAGS = -X github.com/ignite/cli/ignite/version.Head='$(HEAD)' \
 	-X github.com/ignite/cli/ignite/version.Date='$(DATE)'
@@ -42,17 +41,21 @@ govet:
 	@echo Running go vet...
 	@go vet ./...
 
-## format: Run gofmt.
+## govulncheck: Run govulncheck
+govulncheck:
+	@echo Running govulncheck...
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
+
+## format: Install and run goimports and gofumpt
 format:
 	@echo Formatting...
-	@find . $(FIND_ARGS) | xargs gofmt -d -s
-	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/ignite/cli
+	@go run mvdan.cc/gofumpt -w .
+	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli .
 
 ## lint: Run Golang CI Lint.
 lint:
 	@echo Running gocilint...
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.47.2
-	@golangci-lint run --out-format=tab --issues-exit-code=0
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --out-format=tab --issues-exit-code=0
 
 .PHONY: govet format lint
 
@@ -67,7 +70,7 @@ test-integration: install
 	@go test -race -failfast -v -timeout 60m ./integration/...
 
 ## test: Run unit and integration tests.
-test: govet test-unit test-integration
+test: govet govulncheck test-unit test-integration
 
 .PHONY: test-unit test-integration test
 

@@ -210,7 +210,6 @@ func TestAppendOrder(t *testing.T) {
 		require.Equal(t, newOrder.Id, orderID)
 	}
 
-
 	require.Len(t, buyBook.Book.Orders, 20)
 	require.True(t, sort.SliceIsSorted(buyBook.Book.Orders, func(i, j int) bool {
 		return buyBook.Book.Orders[i].Price < buyBook.Book.Orders[j].Price
@@ -725,6 +724,6 @@ func TestFillBuyOrder(t *testing.T) {
 
 When the tests are successful, your output is:
 
-```go
-ok      github.com/username/interchange/x/dex/types       0.550s
+```
+ok      interchange/x/dex/types       0.550s
 ```

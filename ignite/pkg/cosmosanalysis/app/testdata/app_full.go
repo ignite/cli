@@ -27,8 +27,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	"github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
+	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
+	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/ignite/cli/ignite/pkg/openapiconsole"

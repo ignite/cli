@@ -49,7 +49,7 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 1. Edit your `~/.zshrc` file to add the plugins to load on startup:
 
-    ```sh
+    ```
     plugins=(
       git
       zsh-autosuggestions

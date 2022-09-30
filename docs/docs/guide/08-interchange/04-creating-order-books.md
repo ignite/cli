@@ -22,9 +22,9 @@ First, define a function that returns an order book store key:
 // x/dex/types/keys.go
 import "fmt"
 
-//...
-func OrderBookIndex( portID string, channelID string, sourceDenom string, targetDenom string, ) string {
-  return fmt.Sprintf("%s-%s-%s-%s", portID, channelID, sourceDenom, targetDenom, )
+// ...
+func OrderBookIndex(portID string, channelID string, sourceDenom string, targetDenom string) string {
+	return fmt.Sprintf("%s-%s-%s-%s", portID, channelID, sourceDenom, targetDenom)
 }
 ```
 
@@ -32,7 +32,6 @@ The `send-create-pair` command is used to create order books. This command:
 
 - Creates and broadcasts a transaction with a message of type `SendCreatePair`.
 - The message gets routed to the `dex` module.
-- The message is processed by the message handler in `x/dex/handler.go`.
 - Finally, a `SendCreatePair` keeper method is called.
 
 You need the `send-create-pair` command to do the following:
@@ -57,9 +56,9 @@ Now, add the logic to check for an existing order book for a particular pair of 
 // x/dex/keeper/msg_server_create_pair.go
 
 import (
-  "errors"
+	"errors"
 
-  //...
+	//...
 )
 
 func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreatePair) (*types.MsgSendCreatePairResponse, error) {
@@ -120,7 +119,7 @@ First, add the proto buffer files to build the Go code files. You can modify the
 
 Create a new `order.proto` file in the `proto/dex` directory and add the content:
 
-```proto
+```protobuf
 // proto/dex/order.proto
 
 syntax = "proto3";
@@ -147,7 +146,7 @@ Don't forget to add the import as well.
 
 **Tip:** Don't forget to add the import as well.
 
-```proto
+```protobuf
 // proto/dex/buy_order_book.proto
 
 // ...
@@ -163,7 +162,7 @@ Modify the `sell_order_book.proto` file to add the order book into the buy order
 
 The proto definition for the `SellOrderBook` looks like:
 
-```proto
+```protobuf
 // proto/dex/sell_order_book.proto
 
 // ...
@@ -210,8 +209,8 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 	book := NewOrderBook()
 	return BuyOrderBook{
 		AmountDenom: AmountDenom,
-		PriceDenom: PriceDenom,
-		Book: &book,
+		PriceDenom:  PriceDenom,
+		Book:        &book,
 	}
 }
 ```
@@ -223,26 +222,26 @@ When an IBC packet is received on the target chain, the module must check whethe
 // x/dex/keeper/create_pair.go
 
 func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData) (packetAck types.CreatePairPacketAck, err error) {
-  // ...
+	// ...
 
-  // Get an order book index
-  pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
+	// Get an order book index
+	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
 
-  // If an order book is found, return an error
-  _, found := k.GetBuyOrderBook(ctx, pairIndex)
-  if found {
-    return packetAck, errors.New("the pair already exist")
-  }
+	// If an order book is found, return an error
+	_, found := k.GetBuyOrderBook(ctx, pairIndex)
+	if found {
+		return packetAck, errors.New("the pair already exist")
+	}
 
-  // Create a new buy order book for source and target denoms
-  book := types.NewBuyOrderBook(data.SourceDenom, data.TargetDenom)
+	// Create a new buy order book for source and target denoms
+	book := types.NewBuyOrderBook(data.SourceDenom, data.TargetDenom)
 
-  // Assign order book index
-  book.Index = pairIndex
+	// Assign order book index
+	book.Index = pairIndex
 
-  // Save the order book to the store
-  k.SetBuyOrderBook(ctx, book)
-  return packetAck, nil
+	// Save the order book to the store
+	k.SetBuyOrderBook(ctx, book)
+	return packetAck, nil
 }
 ```
 
@@ -263,8 +262,8 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 	book := NewOrderBook()
 	return SellOrderBook{
 		AmountDenom: AmountDenom,
-		PriceDenom: PriceDenom,
-		Book: &book,
+		PriceDenom:  PriceDenom,
+		Book:        &book,
 	}
 }
 ```
@@ -313,8 +312,8 @@ In this section, you implemented the logic behind the new `send-create-pair` com
 package types
 
 import (
-  "errors"
-  "sort"
+	"errors"
+	"sort"
 )
 
 func NewOrderBook() OrderBook {

@@ -30,6 +30,7 @@ func NewNetworkRequestApprove() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
@@ -83,7 +84,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	for _, id := range ids {
 		reviewals = append(reviewals, network.ApproveRequest(id))
 	}
-	if err := n.SubmitRequest(launchID, reviewals...); err != nil {
+	if err := n.SubmitRequest(cmd.Context(), launchID, reviewals...); err != nil {
 		return err
 	}
 

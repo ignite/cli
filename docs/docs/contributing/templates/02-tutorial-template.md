@@ -82,13 +82,13 @@ Finally...
 
 To verify the version of Ignite CLI that is installed, run the following command:
 
-```sh
+```bash
 ignite --version
 ```
 
 You'll see release details like the following output:
 
-```bash
+```
 Ignite version:	v0.19.6
 Ignite CLI build date:	2021-12-18T05:56:36Z
 Ignite CLI source hash:	-
@@ -105,8 +105,8 @@ When showing the contents of a file, try to show only the relevant parts and exp
 
 Modify the title by changing the contents of the `<title>` tag:
 
-```js
-...
+```protobuf
+// ...
 
 message Post {
   string creator = 1;
@@ -121,7 +121,7 @@ message MsgCreatePost {
   string body = 3; 
 }
 
-...
+// ...
 ```
 
 Now transition to the next step by telling the user what's next.
@@ -160,7 +160,7 @@ This is `inline code`. Use single tick marks for filenames and commands.
 
 Here's a command you can type on a command line:
 
-```sh
+```bash
 which go
 ```
 

@@ -8,7 +8,6 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 // generateOptions used to configure code generation.
@@ -18,7 +17,10 @@ type generateOptions struct {
 
 	jsOut               func(module.Module) string
 	jsIncludeThirdParty bool
-	vuexStoreRootPath   string
+	tsClientRootPath    string
+
+	vuexOut      func(module.Module) string
+	vuexRootPath string
 
 	specOut string
 
@@ -35,25 +37,20 @@ type ModulePathFunc func(module.Module) string
 // Option configures code generation.
 type Option func(*generateOptions)
 
-// WithJSGeneration adds JS code generation. out hook is called for each module to
-// retrieve the path that should be used to place generated js code inside for a given module.
-// if includeThirdPartyModules set to true, code generation will be made for the 3rd party modules
-// used by the app -including the SDK- as well.
-func WithJSGeneration(includeThirdPartyModules bool, out ModulePathFunc) Option {
+// WithTSClientGeneration adds Typescript Client code generation.
+// The tsClientRootPath is used to determine the root path of generated Typescript classes.
+func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
+		o.tsClientRootPath = tsClientRootPath
 	}
 }
 
-// WithVuexGeneration adds Vuex code generation. storeRootPath is used to determine the root path of generated
-// Vuex stores. includeThirdPartyModules and out configures the underlying JS lib generation which is
-// documented in WithJSGeneration.
-func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, storeRootPath string) Option {
+func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
-		o.jsOut = out
+		o.vuexOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
-		o.vuexStoreRootPath = storeRootPath
+		o.vuexRootPath = vuexRootPath
 	}
 }
 
@@ -120,17 +117,29 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		return err
 	}
 
+	// Go generation must run first so the types are created before other
+	// generated code that requires sdk.Msg implementations to be defined
 	if g.o.gomodPath != "" {
 		if err := g.generateGo(); err != nil {
 			return err
 		}
 	}
 
-	// js generation requires Go types to be existent in the source code. because
-	// sdk.Msg implementations defined on the generated Go types.
-	// so it needs to run after Go code gen.
 	if g.o.jsOut != nil {
-		if err := g.generateJS(); err != nil {
+		if err := g.generateTS(); err != nil {
+			return err
+		}
+	}
+
+	if g.o.vuexOut != nil {
+		if err := g.generateVuex(); err != nil {
+			return err
+		}
+
+		// Update Vue app dependeciens when Vuex stores are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateVueDependencies(); err != nil {
 			return err
 		}
 	}
@@ -150,11 +159,10 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	return nil
 }
 
-// VuexStoreModulePath generates Vuex store module paths for Cosmos SDK modules.
+// TypescriptModulePath generates module paths for Cosmos SDK modules.
 // The root path is used as prefix for the generated paths.
-func VuexStoreModulePath(rootPath string) ModulePathFunc {
+func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
-		appModulePath := gomodulepath.ExtractAppPath(m.GoModulePath)
-		return filepath.Join(rootPath, appModulePath, m.Pkg.Name, "module")
+		return filepath.Join(rootPath, m.Pkg.Name)
 	}
 }

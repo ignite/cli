@@ -85,6 +85,7 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
 	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -99,6 +100,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
@@ -486,7 +488,10 @@ func initChain(
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
-	accountAddr := account.Address(addressPrefix)
+	accountAddr, err := account.Address(addressPrefix)
+	if err != nil {
+		return nil, err
+	}
 
 	session.StopSpinner()
 	session.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)

@@ -9,7 +9,7 @@ In this chapter, you implement the logic for creating sell orders.
 
 The packet proto file for a sell order is already generated. Add the seller information:
 
-```proto
+```protobuf
 // proto/dex/packet.proto
 
 message SellOrderPacketData {
@@ -40,12 +40,14 @@ The `SendSellOrder` command:
 ```go
 // x/dex/keeper/msg_server_sell_order.go
 
+package keeper
+
 import (
 	"context"
 	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
 
 	"interchange/x/dex/types"
 )

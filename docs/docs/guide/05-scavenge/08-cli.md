@@ -26,10 +26,11 @@ This method makes it easier to incorporate different modules for different reaso
 ```go
 // x/scavenge/client/cli/tx_commit_solution.go
 
+package cli
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -45,7 +46,7 @@ func CmdCommitSolution() *cobra.Command {
 		Use:   "commit-solution [solution]",
 		Short: "Broadcast message commit-solution",
 		// set the number of arguments to 1
-		Args:  cobra.ExactArgs(1),
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -93,10 +94,11 @@ Note that this file makes use of the `sha256` library for hashing the plain text
 ```go
 // x/scavenge/client/cli/tx_submit_scavenge.go
 
+package cli
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

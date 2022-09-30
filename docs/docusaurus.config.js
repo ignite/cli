@@ -197,6 +197,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        additionalLanguages: ["protobuf", "go-module"],  // https://prismjs.com/#supported-languages
       },
       algolia: {
         appId: "VVETP7QCVE",

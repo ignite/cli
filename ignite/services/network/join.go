@@ -85,40 +85,49 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.sendAccountRequest(launchID, accountAddress, o.accountAmount); err != nil {
+		if err := n.sendAccountRequest(ctx, launchID, accountAddress, o.accountAmount); err != nil {
 			return err
 		}
 	}
 
-	return n.sendValidatorRequest(launchID, peer, accountAddress, gentx, gentxInfo)
+	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
 func (n Network) sendValidatorRequest(
+	ctx context.Context,
 	launchID uint64,
 	peer launchtypes.Peer,
 	valAddress string,
 	gentx []byte,
 	gentxInfo cosmosutil.GentxInfo,
 ) error {
-	msg := launchtypes.NewMsgRequestAddValidator(
-		n.account.Address(networktypes.SPN),
-		launchID,
-		valAddress,
-		gentx,
-		gentxInfo.PubKey,
-		gentxInfo.SelfDelegation,
-		peer,
-	)
-
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
-
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestAddValidatorResponse
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewGenesisValidator(
+			launchID,
+			valAddress,
+			gentx,
+			gentxInfo.PubKey,
+			gentxInfo.SelfDelegation,
+			peer,
+		),
+	)
+
+	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}

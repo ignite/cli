@@ -20,6 +20,7 @@ func NewNetworkChainRevertLaunch() *cobra.Command {
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
@@ -54,5 +55,5 @@ func networkChainRevertLaunchHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.RevertLaunch(launchID, c)
+	return n.RevertLaunch(cmd.Context(), launchID, c)
 }

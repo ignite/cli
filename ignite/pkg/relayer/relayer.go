@@ -2,11 +2,13 @@ package relayer
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -19,6 +21,7 @@ import (
 )
 
 const (
+	algoSecp256k1       = "secp256k1"
 	ibcSetupGas   int64 = 2256000
 	relayDuration       = time.Second * 5
 )
@@ -180,8 +183,13 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		return relayerconf.Chain{}, "", err
 	}
 
+	addr, err := account.Address(chain.AddressPrefix)
+	if err != nil {
+		return relayerconf.Chain{}, "", err
+	}
+
 	errMissingBalance := fmt.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
-		account.Address(chain.AddressPrefix),
+		addr,
 		chain.Account,
 		chain.ID,
 	)
@@ -200,12 +208,25 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		}
 	}
 
-	key, err := r.ca.ExportHex(chain.Account, "")
+	// Get the key in ASCII armored format
+	passphrase := ""
+	key, err := r.ca.Export(chain.Account, passphrase)
 	if err != nil {
 		return relayerconf.Chain{}, "", err
 	}
 
-	return chain, key, nil
+	// Unarmor the key to be able to read it as bytes
+	priv, algo, err := crypto.UnarmorDecryptPrivKey(key, passphrase)
+	if err != nil {
+		return relayerconf.Chain{}, "", err
+	}
+
+	// Check the algorithm because the TS relayer expects a secp256k1 private key
+	if algo != algoSecp256k1 {
+		return relayerconf.Chain{}, "", fmt.Errorf("private key algorithm must be secp256k1 instead of %s", algo)
+	}
+
+	return chain, hex.EncodeToString(priv.Bytes()), nil
 }
 
 func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix string) (sdk.Coins, error) {
@@ -219,7 +240,10 @@ func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix
 		return nil, err
 	}
 
-	addr := acc.Address(addressPrefix)
+	addr, err := acc.Address(addressPrefix)
+	if err != nil {
+		return nil, err
+	}
 
 	queryClient := banktypes.NewQueryClient(client.Context())
 	res, err := queryClient.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{Address: addr})
