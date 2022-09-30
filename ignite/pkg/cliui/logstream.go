@@ -5,8 +5,8 @@ import (
 
 	"github.com/docker/docker/pkg/ioutils"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/lineprefixer"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/prefixgen"
+	"github.com/ignite/cli/ignite/pkg/cliui/lineprefixer"
+	"github.com/ignite/cli/ignite/pkg/cliui/prefixgen"
 )
 
 const (

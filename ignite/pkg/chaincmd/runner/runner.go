@@ -11,9 +11,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/cliui/lineprefixer"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/lineprefixer"
 	"github.com/ignite/cli/ignite/pkg/truncatedbuffer"
 )
 

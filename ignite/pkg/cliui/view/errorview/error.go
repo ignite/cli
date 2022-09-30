@@ -1,6 +1,6 @@
 package errorview
 
-import "github.com/ignite-hq/cli/ignite/pkg/cliui/colors"
+import "github.com/ignite/cli/ignite/pkg/cliui/colors"
 
 type Error struct {
 	Err error
