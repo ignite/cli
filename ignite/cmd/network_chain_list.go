@@ -73,8 +73,6 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return renderLaunchSummaries(chainLaunches, session, advanced)
 }
 

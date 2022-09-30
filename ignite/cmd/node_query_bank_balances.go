@@ -55,6 +55,5 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		rows = append(rows, []string{b.Amount.String(), b.Denom})
 	}
 
-	session.StopSpinner()
 	return session.PrintTable([]string{"Amount", "Denom"}, rows...)
 }

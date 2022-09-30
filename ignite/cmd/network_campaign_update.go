@@ -43,6 +43,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		metadata, _            = cmd.Flags().GetString(flagCampaignMetadata)
 		campaignTotalSupply, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
 	)
+
 	totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupply)
 	if err != nil {
 		return err
@@ -100,8 +101,6 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Print(info)
 }

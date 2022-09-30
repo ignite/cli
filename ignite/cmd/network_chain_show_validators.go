@@ -65,7 +65,5 @@ func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error 
 		return session.Printf("%s %s\n", icons.Info, "no account found")
 	}
 
-	session.StopSpinner()
-
 	return session.PrintTable(chainGenesisValSummaryHeader, validatorEntries...)
 }

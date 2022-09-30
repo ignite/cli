@@ -53,7 +53,5 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 }

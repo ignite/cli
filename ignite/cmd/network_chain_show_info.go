@@ -63,7 +63,5 @@ func networkChainShowInfoHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return session.Print(info)
 }

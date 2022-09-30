@@ -101,8 +101,9 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
 		output, _         = cmd.Flags().GetString(flagOutput)
-		session           = cliui.New(cliui.WithVerbosity(logLevel(cmd)))
+		session           = cliui.New(cliui.WithVerbosity(logLevel(cmd)), cliui.StartSpinner())
 	)
+
 	defer session.Cleanup()
 
 	chainOption := []chain.Option{
@@ -133,7 +134,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		if err != nil {
 			return err
 		}
-		session.StopSpinner()
+
 		return session.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 	}
 
@@ -141,8 +142,6 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	if output == "" {
 		return session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))

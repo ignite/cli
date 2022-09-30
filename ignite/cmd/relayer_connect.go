@@ -77,7 +77,6 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if len(use) == 0 {
-		session.StopSpinner()
 		return session.Println("No chains found to connect.")
 	}
 

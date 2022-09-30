@@ -452,7 +452,6 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 		return err
 	}
 
-	session.StopSpinner()
 	return session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 }
 

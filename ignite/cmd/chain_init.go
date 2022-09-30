@@ -88,7 +88,11 @@ commands manually to ensure a production-level node initialization.
 }
 
 func chainInitHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New(cliui.WithVerbosity(logLevel(cmd)))
+	session := cliui.New(
+		cliui.WithVerbosity(logLevel(cmd)),
+		cliui.StartSpinner(),
+	)
+
 	defer session.Cleanup()
 
 	chainOption := []chain.Option{
@@ -123,6 +127,5 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	session.StopSpinner()
 	return session.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 }

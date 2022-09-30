@@ -173,7 +173,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	session.StopSpinner()
 	if err := printSection(session, "Paths"); err != nil {
 		return err
 	}
@@ -184,8 +183,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)

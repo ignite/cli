@@ -29,8 +29,12 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	var (
 		toAddress = args[0]
 		coins     = args[1]
-		session   = cliui.New(cliui.WithVerbosity(logLevel(cmd)))
+		session   = cliui.New(
+			cliui.WithVerbosity(logLevel(cmd)),
+			cliui.StartSpinner(),
+		)
 	)
+
 	defer session.Cleanup()
 
 	chainOption := []chain.Option{
@@ -60,6 +64,5 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
 	return session.Println("📨 Coins sent.")
 }

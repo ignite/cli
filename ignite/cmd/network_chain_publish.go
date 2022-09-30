@@ -273,7 +273,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
 	if isMainnet {
 		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)

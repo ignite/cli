@@ -90,7 +90,5 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return session.Printf("%s Genesis generated: %s\n", icons.Bullet, out)
 }
