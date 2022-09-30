@@ -3,9 +3,10 @@ package cosmostxcollector
 import (
 	"context"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter"
-	"golang.org/x/sync/errgroup"
 )
 
 // TXsCollecter defines the interface for Cosmos clients that support collection of transactions.

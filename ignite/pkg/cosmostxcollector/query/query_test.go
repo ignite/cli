@@ -3,9 +3,10 @@ package query_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
-	"github.com/stretchr/testify/require"
 )
 
 var (

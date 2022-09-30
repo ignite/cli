@@ -11,12 +11,13 @@ import (
 	"testing/fstest"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
 )
 
 func TestUpdateSchema(t *testing.T) {

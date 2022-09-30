@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	_ "github.com/lib/pq" // required to register postgres sql driver
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
-	_ "github.com/lib/pq" // required to register postgres sql driver
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 )
 
 const (
@@ -51,10 +51,8 @@ const (
 //go:embed schemas/*
 var fsSchemas embed.FS
 
-var (
-	// ErrClosed is returned when database connection is not open.
-	ErrClosed = errors.New("no database connection")
-)
+// ErrClosed is returned when database connection is not open.
+var ErrClosed = errors.New("no database connection")
 
 // Option defines an option for the adapter.
 type Option func(*Adapter)
