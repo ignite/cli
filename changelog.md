@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+
 ### Changes
 
 - Switch to broadcast mode sync in `cosmosclient`
