@@ -288,7 +288,8 @@ func (n Network) sendAccountRequest(
 		),
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	n.ev.SendString("Broadcasting account transactions", events.ProgressStarted())
+
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
@@ -300,12 +301,12 @@ func (n Network) sendAccountRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+		n.ev.SendString("Account added to the network by the coordinator!", events.ProgressStarted())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to add account to the network has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.SendString(
+			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
+			events.ProgressStarted(),
+		)
 	}
 	return nil
 }
