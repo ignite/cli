@@ -21,8 +21,7 @@ type (
 	Option func(*Options)
 
 	Options struct {
-		writer           io.Writer
-		startImmediately bool
+		writer io.Writer
 	}
 )
 

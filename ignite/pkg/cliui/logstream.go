@@ -16,7 +16,7 @@ const (
 
 // LogStreamer specifies that object could create new LogStream objects
 type LogStreamer interface {
-	NewLogStream(label string, color uint8) (logStream LogStream)
+	NewLogStream(label string, color uint8) LogStream
 }
 
 // LogStream API of Session which provides ability to write logs to io.WriteCloser type object
@@ -44,10 +44,9 @@ func (s Session) NewLogStream(label string, color uint8) (logStream LogStream) {
 	}
 
 	verbosity := s.verbosity
-	if s.isDefaultLogStreamInitialised && verbosity != VerbosityVerbose {
+	if verbosity != VerbosityVerbose {
 		verbosity = VerbositySilent
 	}
-	s.isDefaultLogStreamInitialised = true
 
 	switch verbosity {
 	case VerbositySilent:

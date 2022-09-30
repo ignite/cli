@@ -36,9 +36,8 @@ type Session struct {
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
-	verbosity                     Verbosity
-	defaultLogStream              LogStream
-	isDefaultLogStreamInitialised bool
+	verbosity        Verbosity
+	defaultLogStream LogStream
 
 	printLoopWg *sync.WaitGroup
 }
