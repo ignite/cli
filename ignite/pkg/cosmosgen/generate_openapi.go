@@ -8,11 +8,11 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/dirchange"
-	swaggercombine "github.com/ignite-hq/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/dirchange"
+	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
+	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
 var openAPIOut = []string{
@@ -65,7 +65,7 @@ func generateOpenAPISpec(g *generator) error {
 		}
 
 		if err != cache.ErrorNotFound {
-			if err := os.WriteFile(specPath, existingSpec, 0644); err != nil {
+			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
 		} else {
@@ -141,7 +141,7 @@ func generateOpenAPISpec(g *generator) error {
 
 	// ensure out dir exists.
 	outDir := filepath.Dir(out)
-	if err := os.MkdirAll(outDir, 0766); err != nil {
+	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
 

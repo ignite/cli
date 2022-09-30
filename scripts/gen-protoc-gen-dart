@@ -34,12 +34,12 @@ if [[ $(basename ${setdir}) = "scripts" ]] ; then
     if [[ $(basename $(dirname "${setdir}")) = "cli" ]] ; then
         [[ -d $(dirname "${setdir}/pkg/protoc-gen-dart/data") ]] || mkdir -p "$(dirname "${setdir}")/ignite/pkg/protoc-gen-dart/data"
     else
-        echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/ignite-hq/cli"
+        echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/ignite/cli"
         exit 1
     fi
 else
     echo "$setdir"
-    echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/ignite-hq/cli"
+    echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/ignite/cli"
     exit 1
 fi
 

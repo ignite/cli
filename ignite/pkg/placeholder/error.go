@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/pkg/validation"
 )
 
 var _ validation.Error = (*MissingPlaceholdersError)(nil)

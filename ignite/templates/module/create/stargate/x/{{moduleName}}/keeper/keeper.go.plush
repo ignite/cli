@@ -4,20 +4,20 @@ import (
 	"fmt"
 
 	"github.com/tendermint/tendermint/libs/log"
-
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	<%= if (isIBC) { %>"github.com/ignite-hq/cli/ignite/pkg/cosmosibckeeper"<% } %>
+	<%= if (isIBC) { %>"github.com/ignite/cli/ignite/pkg/cosmosibckeeper"<% } %>
 )
 
 type (
 	Keeper struct {
 		<%= if (isIBC) { %>*cosmosibckeeper.Keeper<% } %>
 		cdc      	codec.BinaryCodec
-		storeKey 	sdk.StoreKey
-		memKey   	sdk.StoreKey
+		storeKey 	storetypes.StoreKey
+		memKey   	storetypes.StoreKey
 		paramstore	paramtypes.Subspace
 		<%= for (dependency) in dependencies { %>
         <%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper<% } %>
@@ -27,7 +27,7 @@ type (
 func NewKeeper(
     cdc codec.BinaryCodec,
     storeKey,
-    memKey sdk.StoreKey,
+    memKey storetypes.StoreKey,
 	ps paramtypes.Subspace,
     <%= if (isIBC) { %>channelKeeper cosmosibckeeper.ChannelKeeper,
     portKeeper cosmosibckeeper.PortKeeper,

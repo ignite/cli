@@ -39,7 +39,6 @@ func TestReplace(t *testing.T) {
 			missing: []string{"#one"},
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			tr := New()
 			content := tc.content
@@ -81,7 +80,6 @@ func TestReplaceAll(t *testing.T) {
 			missing: []string{"#one"},
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			tr := New()
 			content := tc.content

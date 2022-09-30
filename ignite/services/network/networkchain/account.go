@@ -6,10 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/randstr"
-	"github.com/ignite-hq/cli/ignite/services/chain"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/randstr"
+	"github.com/ignite/cli/ignite/pkg/xos"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
@@ -48,7 +49,7 @@ func (c Chain) InitAccount(ctx context.Context, v chain.Validator, accountName s
 
 	// rename the issued gentx into gentx.json
 	gentxPath := filepath.Join(filepath.Dir(issuedGentxPath), cosmosutil.GentxFilename)
-	return gentxPath, os.Rename(issuedGentxPath, gentxPath)
+	return gentxPath, xos.Rename(issuedGentxPath, gentxPath)
 }
 
 // ImportAccount imports an account from Starport into the chain.

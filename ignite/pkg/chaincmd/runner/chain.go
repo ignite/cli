@@ -14,9 +14,9 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 )
 
 // Start starts the blockchain.
@@ -239,7 +239,7 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	// Make sure the path exists
 	dir := filepath.Dir(exportedFile)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 
@@ -257,7 +257,7 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	}
 
 	// Save the new state
-	return os.WriteFile(exportedFile, exportedState, 0644)
+	return os.WriteFile(exportedFile, exportedState, 0o644)
 }
 
 // EventSelector is used to query events.

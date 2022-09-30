@@ -4,8 +4,8 @@ package field
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
 // Field represents a field inside a structure for a component

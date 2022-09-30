@@ -11,12 +11,12 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 
-	"github.com/ignite-hq/cli/ignite/pkg/availableport"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/availableport"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
+	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 const (
@@ -30,9 +30,6 @@ func (c Chain) SimulateRequests(
 	cacheStorage cache.Storage,
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
-	rewardsInfo networktypes.Reward,
-	lastBlockHeight,
-	unbondingTime int64,
 ) (err error) {
 	c.ev.SendString("Verifying requests format", events.ProgressStarted())
 	for _, req := range reqs {
@@ -54,10 +51,10 @@ func (c Chain) SimulateRequests(
 		ctx,
 		cacheStorage,
 		gi,
-		rewardsInfo,
+		networktypes.Reward{RevisionHeight: 1},
 		networktypes.SPNChainID,
-		lastBlockHeight,
-		unbondingTime,
+		1,
+		2,
 	); err != nil {
 		return err
 	}
@@ -80,7 +77,7 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 	}
 
 	// set the config with random ports to test the start command
-	addressAPI, err := c.setSimulationConfig()
+	rpcAddr, err := c.setSimulationConfig()
 	if err != nil {
 		return err
 	}
@@ -92,7 +89,7 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 	// routine to check the app is listening
 	go func() {
 		defer cancel()
-		exit <- isChainListening(ctx, addressAPI)
+		exit <- isChainListening(ctx, rpcAddr)
 	}()
 
 	// routine chain start
@@ -142,7 +139,7 @@ func (c Chain) setSimulationConfig() (string, error) {
 	config.Set("api.address", apiAddr)
 	config.Set("grpc.address", genAddr(ports[1]))
 
-	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return "", err
 	}
@@ -179,7 +176,7 @@ func (c Chain) setSimulationConfig() (string, error) {
 	config.Set("p2p.laddr", p2pAddr)
 	config.Set("rpc.pprof_laddr", genAddr(ports[4]))
 
-	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return "", err
 	}
@@ -187,18 +184,18 @@ func (c Chain) setSimulationConfig() (string, error) {
 
 	_, err = config.WriteTo(file)
 
-	return genAddr(ports[0]), err
+	return genAddr(ports[2]), err
 }
 
-// isChainListening checks if the chain is listening for API queries on the specified address
-func isChainListening(ctx context.Context, addressAPI string) error {
+// isChainListening checks if the chain is listening for RPC queries on the specified address
+func isChainListening(ctx context.Context, rpcAddr string) error {
 	checkAlive := func() error {
-		addr, err := xurl.HTTP(addressAPI)
+		addr, err := xurl.HTTP(rpcAddr)
 		if err != nil {
-			return fmt.Errorf("invalid api address format %s: %w", addressAPI, err)
+			return fmt.Errorf("invalid rpc address format %s: %w", rpcAddr, err)
 		}
 
-		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/node_info", addr))
+		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/health", addr))
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}

@@ -6,8 +6,8 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/xtime"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 )
 
 type (
@@ -24,7 +24,6 @@ type (
 
 // ToRequest converts a request data from SPN and returns a Request object
 func ToRequest(request launchtypes.Request) Request {
-
 	return Request{
 		LaunchID:  request.LaunchID,
 		RequestID: request.RequestID,

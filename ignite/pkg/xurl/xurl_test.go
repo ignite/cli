@@ -46,18 +46,18 @@ func TestTCP(t *testing.T) {
 	}{
 		{
 			name: "with scheme",
-			addr: "tcp://github.com/ignite-hq/cli",
-			want: "tcp://github.com/ignite-hq/cli",
+			addr: "tcp://github.com/ignite/cli",
+			want: "tcp://github.com/ignite/cli",
 		},
 		{
 			name: "without scheme",
-			addr: "github.com/ignite-hq/cli",
-			want: "tcp://github.com/ignite-hq/cli",
+			addr: "github.com/ignite/cli",
+			want: "tcp://github.com/ignite/cli",
 		},
 		{
 			name: "with invalid scheme",
-			addr: "ftp://github.com/ignite-hq/cli",
-			want: "tcp://github.com/ignite-hq/cli",
+			addr: "ftp://github.com/ignite/cli",
+			want: "tcp://github.com/ignite/cli",
 		},
 		{
 			name: "with ip and port",
@@ -103,18 +103,18 @@ func TestHTTP(t *testing.T) {
 	}{
 		{
 			name: "with scheme",
-			addr: "http://github.com/ignite-hq/cli",
-			want: "http://github.com/ignite-hq/cli",
+			addr: "http://github.com/ignite/cli",
+			want: "http://github.com/ignite/cli",
 		},
 		{
 			name: "without scheme",
-			addr: "github.com/ignite-hq/cli",
-			want: "http://github.com/ignite-hq/cli",
+			addr: "github.com/ignite/cli",
+			want: "http://github.com/ignite/cli",
 		},
 		{
 			name: "with invalid scheme",
-			addr: "ftp://github.com/ignite-hq/cli",
-			want: "http://github.com/ignite-hq/cli",
+			addr: "ftp://github.com/ignite/cli",
+			want: "http://github.com/ignite/cli",
 		},
 		{
 			name: "with ip and port",
@@ -160,18 +160,18 @@ func TestHTTPS(t *testing.T) {
 	}{
 		{
 			name: "with scheme",
-			addr: "https://github.com/ignite-hq/cli",
-			want: "https://github.com/ignite-hq/cli",
+			addr: "https://github.com/ignite/cli",
+			want: "https://github.com/ignite/cli",
 		},
 		{
 			name: "without scheme",
-			addr: "github.com/ignite-hq/cli",
-			want: "https://github.com/ignite-hq/cli",
+			addr: "github.com/ignite/cli",
+			want: "https://github.com/ignite/cli",
 		},
 		{
 			name: "with invalid scheme",
-			addr: "ftp://github.com/ignite-hq/cli",
-			want: "https://github.com/ignite-hq/cli",
+			addr: "ftp://github.com/ignite/cli",
+			want: "https://github.com/ignite/cli",
 		},
 		{
 			name: "with ip and port",
@@ -217,18 +217,18 @@ func TestWS(t *testing.T) {
 	}{
 		{
 			name: "with scheme",
-			addr: "ws://github.com/ignite-hq/cli",
-			want: "ws://github.com/ignite-hq/cli",
+			addr: "ws://github.com/ignite/cli",
+			want: "ws://github.com/ignite/cli",
 		},
 		{
 			name: "without scheme",
-			addr: "github.com/ignite-hq/cli",
-			want: "ws://github.com/ignite-hq/cli",
+			addr: "github.com/ignite/cli",
+			want: "ws://github.com/ignite/cli",
 		},
 		{
 			name: "with invalid scheme",
-			addr: "ftp://github.com/ignite-hq/cli",
-			want: "ws://github.com/ignite-hq/cli",
+			addr: "ftp://github.com/ignite/cli",
+			want: "ws://github.com/ignite/cli",
 		},
 		{
 			name: "with ip and port",
@@ -274,23 +274,23 @@ func TestMightHTTPS(t *testing.T) {
 	}{
 		{
 			name: "with http scheme",
-			addr: "http://github.com/ignite-hq/cli",
-			want: "http://github.com/ignite-hq/cli",
+			addr: "http://github.com/ignite/cli",
+			want: "http://github.com/ignite/cli",
 		},
 		{
 			name: "with https scheme",
-			addr: "https://github.com/ignite-hq/cli",
-			want: "https://github.com/ignite-hq/cli",
+			addr: "https://github.com/ignite/cli",
+			want: "https://github.com/ignite/cli",
 		},
 		{
 			name: "without scheme",
-			addr: "github.com/ignite-hq/cli",
-			want: "https://github.com/ignite-hq/cli",
+			addr: "github.com/ignite/cli",
+			want: "https://github.com/ignite/cli",
 		},
 		{
 			name: "with invalid scheme",
-			addr: "ftp://github.com/ignite-hq/cli",
-			want: "https://github.com/ignite-hq/cli",
+			addr: "ftp://github.com/ignite/cli",
+			want: "https://github.com/ignite/cli",
 		},
 		{
 			name: "with ip and port",

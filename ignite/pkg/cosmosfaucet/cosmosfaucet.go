@@ -5,9 +5,10 @@ import (
 	"context"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
 const (
@@ -81,7 +82,7 @@ func Account(name, mnemonic string, coinType string) Option {
 // denom is denomination of the coin to be distributed by the faucet.
 func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
-		f.coins = append(f.coins, sdk.NewCoin(denom, sdk.NewIntFromUint64(amount)))
+		f.coins = append(f.coins, sdk.NewCoin(denom, sdkmath.NewIntFromUint64(amount)))
 		f.coinsMax[denom] = maxAmount
 	}
 }

@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 // NewNetworkRewardSet creates a new chain reward set command to
@@ -21,6 +21,7 @@ func NewNetworkRewardSet() *cobra.Command {
 		RunE:  networkChainRewardSetHandler,
 	}
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c
@@ -57,5 +58,5 @@ func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.SetReward(launchID, lastRewardHeight, coins)
+	return n.SetReward(cmd.Context(), launchID, lastRewardHeight, coins)
 }

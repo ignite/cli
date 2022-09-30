@@ -5,31 +5,28 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	sperrors "github.com/ignite-hq/cli/ignite/errors"
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/repoversion"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/chainconfig"
+	sperrors "github.com/ignite/cli/ignite/errors"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/repoversion"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
-var (
-	appBackendSourceWatchPaths = []string{
-		"app",
-		"cmd",
-		"x",
-		"proto",
-		"third_party",
-	}
-)
+var appBackendSourceWatchPaths = []string{
+	"app",
+	"cmd",
+	"x",
+	"proto",
+	"third_party",
+}
 
 type version struct {
 	tag  string
@@ -72,6 +69,10 @@ type chainOptions struct {
 	// isThirdPartyModuleCodegen indicates if proto code generation should be made
 	// for 3rd party modules. SDK modules are also considered as a 3rd party.
 	isThirdPartyModuleCodegenEnabled bool
+
+	// checkDependencies checks that cached Go dependencies of the chain have not
+	// been modified since they were downloaded.
+	checkDependencies bool
 
 	// path of a custom config file
 	ConfigFile string
@@ -130,6 +131,15 @@ func WithLogStreamer(ls cliui.LogStreamer) Option {
 	}
 }
 
+// CheckDependencies checks that cached Go dependencies of the chain have not
+// been modified since they were downloaded. Dependencies are checked by
+// running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.options.checkDependencies = true
+	}
+}
+
 // New initializes a new Chain with options that its source lives at path.
 func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
@@ -168,7 +178,6 @@ func New(path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-
 	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
@@ -239,11 +248,7 @@ func (c *Chain) ID() (string, error) {
 
 // ChainID returns the default network chain's id.
 func (c *Chain) ChainID() (string, error) {
-	chainID, err := c.ID()
-	if err != nil {
-		return "", err
-	}
-	return chainid.NewGenesisChainID(chainID, 1), nil
+	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
 // Name returns the chain's name
@@ -446,7 +451,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	var ccrOptions = []chaincmdrunner.Option{}
+	ccrOptions := []chaincmdrunner.Option{}
 
 	if c.logStreamer != nil {
 		logStream := c.logStreamer.NewLogStream(c.app.D(), 96)

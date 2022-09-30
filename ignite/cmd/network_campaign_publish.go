@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
 const (
@@ -23,6 +23,7 @@ func NewNetworkCampaignPublish() *cobra.Command {
 	c.Flags().String(flagMetadata, "", "Add a metada to the chain")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
@@ -47,7 +48,7 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	metadata, _ := cmd.Flags().GetString(flagMetadata)
-	campaignID, err := n.CreateCampaign(args[0], metadata, totalSupply)
+	campaignID, err := n.CreateCampaign(cmd.Context(), args[0], metadata, totalSupply)
 	if err != nil {
 		return err
 	}

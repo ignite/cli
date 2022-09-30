@@ -16,15 +16,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	ignitecmd "github.com/ignite-hq/cli/ignite/cmd"
+	ignitecmd "github.com/ignite/cli/ignite/cmd"
 )
 
 const head = `---
-order: 1
-description: Ignite CLI docs. 
-parent:
-  order: 8
-  title: CLI Reference
+sidebar_position: 7
+description: Ignite CLI docs.
 ---
 
 # CLI Reference
@@ -36,16 +33,19 @@ func main() {
 	outPath := flag.String("out", ".", ".md file path to place Ignite CLI docs inside")
 	flag.Parse()
 
-	if err := generate(ignitecmd.New(), *outPath); err != nil {
+	// Run ExecuteC so cobra adds the completion command.
+	cmd, _ := ignitecmd.New().ExecuteC()
+
+	if err := generate(cmd, *outPath); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func generate(cmd *cobra.Command, outPath string) error {
-	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return err
 	}
-	f, err := os.OpenFile(outPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(outPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}

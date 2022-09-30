@@ -7,17 +7,17 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	sperrors "github.com/ignite-hq/cli/ignite/errors"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodule"
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/chainconfig"
+	sperrors "github.com/ignite/cli/ignite/errors"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.
@@ -98,6 +98,21 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
+	// generate Typescript Client code as well if it is enabled or when the vuex store is being generated
+	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" {
+		tsClientRootPath := filepath.Join(projectPath, chainconfig.TSClientPath(conf))
+		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithTSClientGeneration(
+				cosmosgen.TypescriptModulePath(tsClientRootPath),
+				tsClientRootPath,
+			),
+		)
+	}
+
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
@@ -105,7 +120,7 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				cosmosgen.VuexStoreModulePath(storeRootPath),
+				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)

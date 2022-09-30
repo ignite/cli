@@ -2,9 +2,9 @@ package chain
 
 import (
 	"path/filepath"
-	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 // App keeps info about chain.
@@ -29,7 +29,7 @@ func NewAppAt(path string) (App, error) {
 
 // N returns app name without dashes.
 func (a App) N() string {
-	return strings.ReplaceAll(a.Name, "-", "")
+	return xstrings.NoDash(a.Name)
 }
 
 // D returns appd name.

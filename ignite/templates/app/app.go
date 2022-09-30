@@ -7,15 +7,13 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
-var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
-)
+//go:embed stargate/* stargate/**/*
+var fsStargate embed.FS
 
 // New returns the generator to scaffold a new Cosmos SDK app
 func New(opts *Options) (*genny.Generator, error) {

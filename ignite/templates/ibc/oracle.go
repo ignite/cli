@@ -10,19 +10,17 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	"github.com/ignite-hq/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
+	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
-var (
-	//go:embed oracle/* oracle/**/*
-	fsOracle embed.FS
-)
+//go:embed oracle/* oracle/**/*
+var fsOracle embed.FS
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
 type OracleOptions struct {
@@ -43,7 +41,6 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g.RunFn(moduleOracleModify(replacer, opts))
 	g.RunFn(protoQueryOracleModify(replacer, opts))
 	g.RunFn(protoTxOracleModify(replacer, opts))
-	g.RunFn(handlerTxOracleModify(replacer, opts))
 	g.RunFn(clientCliQueryOracleModify(replacer, opts))
 	g.RunFn(clientCliTxOracleModify(replacer, opts))
 	g.RunFn(codecOracleModify(replacer, opts))
@@ -86,9 +83,9 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		}
 
 		// Recv packet dispatch
-		templateRecv := `oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
+		templateRecv := `oracleAck, err := im.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()).Error())
+		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()))
 	} else if ack != oracleAck {
 		return oracleAck
 	}
@@ -97,7 +94,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		content := replacer.ReplaceOnce(f.String(), PlaceholderOraclePacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
-		templateAck := `sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
+		templateAck := `sdkResult, err := im.handleOracleAcknowledgment(ctx, ack, modulePacket)
 	if err != nil {
 		return err
 	}
@@ -229,29 +226,6 @@ message Msg%[2]vDataResponse {
 	}
 }
 
-func handlerTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Set once the MsgServer definition if it is not defined yet
-		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
-
-		templateHandlers := `case *types.Msg%[2]vData:
-					res, err := msgServer.%[2]vData(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-%[1]v`
-		replacementHandlers := fmt.Sprintf(templateHandlers, Placeholder, opts.QueryName.UpperCamel)
-		content = replacer.Replace(content, Placeholder, replacementHandlers)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
 func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
@@ -330,11 +304,11 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 	case types.%[3]vClientIDKey:
 		var %[2]vResult types.%[3]vResult
 		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
-			ack = channeltypes.NewErrorAcknowledgement(err.Error())
+			ack = channeltypes.NewErrorAcknowledgement(err)
 			return ack, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest,
 				"cannot decode the %[2]v received packet")
 		}
-		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
+		im.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
 	
 		// TODO: %[3]v oracle data reception logic
 %[1]v`
@@ -350,7 +324,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 			return nil, sdkerrors.Wrap(err,
 				"cannot decode the %[2]v oracle acknowledgment packet")
 		}
-		am.keeper.SetLast%[3]vID(ctx, requestID)
+		im.keeper.SetLast%[3]vID(ctx, requestID)
 		return &sdk.Result{}, nil
 %[1]v`
 		replacementInterface := fmt.Sprintf(templateAck, PlaceholderOracleModuleAck,

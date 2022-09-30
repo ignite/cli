@@ -43,7 +43,7 @@ See [Install Ignite CLI](docs/install.md).
 
 ## Clone the Ignite CLI repo
 
-`git clone --depth=1 git@github.com:ignite-hq/cli.git`
+`git clone --depth=1 git@github.com:ignite/cli.git`
 
 ## Run make install
 

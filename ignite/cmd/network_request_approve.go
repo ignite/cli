@@ -4,10 +4,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/numbers"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/numbers"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 const (
@@ -30,6 +30,7 @@ func NewNetworkRequestApprove() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
@@ -83,7 +84,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	for _, id := range ids {
 		reviewals = append(reviewals, network.ApproveRequest(id))
 	}
-	if err := n.SubmitRequest(launchID, reviewals...); err != nil {
+	if err := n.SubmitRequest(cmd.Context(), launchID, reviewals...); err != nil {
 		return err
 	}
 

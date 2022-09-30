@@ -1,12 +1,126 @@
 # Changelog
 
-## [`v0.21.2`](https://github.com/ignite-hq/cli/releases/tag/v0.21.2)
+## Unreleased
+
+### Changes
+
+- Switch to broadcast mode sync in `cosmosclient`
+- Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
+- Switched codegen client to use `axios` instead of `fetch`
+- nodetime built with `vercel/pkg@5.6.0`
+
+### Fixes
+
+- Change vuex generation to use a default TS client path.
+- Fix cli action org in templates.
+- Seal the capability keeper in the `app.go` template
+- Change faucet to allow C.O.R.S. preflight requests.
+
+## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
+
+### Features
+
+- Upgraded Cosmos SDK to `v0.46.0` and IBC to `v5` in CLI and scaffolding templates
+- Change chain init to check that no gentx are present in the initial genesis
+- Add `network rewards release` command
+- Add "make mocks" target to Makefile
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+- Add `node query tx` command to query a transaction in any chain.
+- Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to another in any chain.
+- Implement `network profile` command
+- Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
+
+### Changes
+
+- Add changelog merge strategy in .gitattributes to avoid conflicts.
+- Refactor `templates/app` to remove `monitoringp` module from the default template
+- Updated keyring dependency to match Cosmos SDK
+- Speed up the integration tests
+- Refactor ignite network and fix genesis generation bug
+- Make Go dependency verification optional during build by adding the `--check-dependencies` flag
+  so Ignite CLI can work in a Go workspace context.
+- Temporary SPN address change for nightly
+- Rename `simapp.go.plush` simulation file template to `helpers.go.plush`
+- Remove campaign creation from the `network chain publish` command
+- Optimized JavaScript generator to use a single typescript API generator binary
+- Improve documentation and add support for protocol buffers and Go modules syntax
+- Add inline documentation for CLI commands
+- Change `cmd/account` to skip passphrase prompt when importing from mnemonic
+- Add nodejs version in the output of ignite version
+- Removed `handler.go` from scaffolded module template
+- Migrated to `cosmossdk.io` packages for and `math`
+- Vuex stores from the `generate vuex` command use the new TypeScript client
+- Upgraded frontend Vue template to v0.3.10
+
+### Fixes
+
+- Improved error handling for crypto wrapper functions
+- Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
+- Test and refactor `pkg/comosclient`.
+- Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified in the docs
+- Fix cosmoscmd appID parameter value to sign a transaction correctly
+- Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
+- Fix flaky integration tests issue that failed with "text file busy"
+- Fix default chain ID for publish
+- Replace `os.Rename` with `xos.Rename`
+- Fix CLI reference generation to add `ignite completion` documentation
+- Remove usage of deprecated `io/ioutil` package
+
+
+## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
+
+### Features
+
+- Apps can now use generics
+
+### Fixes
+
+- Fix `pkg/cosmosanalysis` to support apps with generics
+- Remove `ignite-hq/cli` from dependency list in scaffolded chains
+
+### Changes
+
+- Change `pkg/cosmosgen` to allow importing IBC proto files
+- Improve docs for Docker related commands
+- Improve and fix documentation issues in developer tutorials
+- Add migration docs for v0.22.2
+- Improve `go mod download` error report in `pkg/cosmosgen`
+
+## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
+
+### Features 
+
+- Enable Darwin ARM 64 target for chain binary releases in CI templates
+
+### Changes
+
+- Rename `ignite-hq` to `ignite`
+
+## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
+
+### Fixes 
+
+- Fix IBC module scaffolding interface in templates
+
+## [`v0.22.0`](https://github.com/ignite/cli/releases/tag/v0.22.0)
+
+### Features 
+
+- Optimized the build system. The `chain serve`, `chain build`, `chain generate` commands and other variants are way faster now
+- Upgraded CLI and templates to use IBC v3
+
+### Fixes 
+
+- Add a fix in code generation to avoid user's NodeJS configs to break TS client generation routine
+
+## [`v0.21.2`](https://github.com/ignite/cli/releases/tag/v0.21.2)
 
 ### Fixes 
 
 - Set min. gas to zero when running `chain` command set 
 
-## [`v0.21.1`](https://github.com/ignite-hq/cli/releases/tag/v0.21.1)
+## [`v0.21.1`](https://github.com/ignite/cli/releases/tag/v0.21.1)
 
 ### Features 
 
@@ -18,38 +132,38 @@
 - Fixed shell completion generation
 - Make sure proto package names are valid when using simple app names
 
-## [`v0.21.0`](https://github.com/ignite-hq/cli/releases/tag/v0.21.0)
+## [`v0.21.0`](https://github.com/ignite/cli/releases/tag/v0.21.0)
 
 ### Features 
 
 - Support simple app names when scaffolding chains. e.g.: `ignite scaffold chain mars`
 - Ask confirmation when scaffolding over changes that are not committed yet 
 
-## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
+## [`v0.20.4`](https://github.com/ignite/cli/releases/tag/v0.20.4)
 
 ### Fixes
 
 - Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
 
-## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
+## [`v0.20.3`](https://github.com/ignite/cli/releases/tag/v0.20.3)
 
 ### Fixes
 
 - Use latest version of CLI in templates to fix Linux ARM support _(It's now possible to develop chains in Linux ARM machines and since the chain depends on the CLI in its go.mod, it needs to use the latest version that support ARM targets)_
 
-## [`v0.20.2`](https://github.com/ignite-hq/cli/releases/tag/v0.20.2)
+## [`v0.20.2`](https://github.com/ignite/cli/releases/tag/v0.20.2)
 
 ### Fixes
 
 - Use `unsafe-reset-all` cmd under `tendermint` cmd for chains that use `=> v0.45.3` version of Cosmos SDK
 
-## [`v0.20.1`](https://github.com/ignite-hq/cli/releases/tag/v0.20.1)
+## [`v0.20.1`](https://github.com/ignite/cli/releases/tag/v0.20.1)
 
 ### Features
 
 - Release the CLI with Linux ARM and native M1 binaries
 
-## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.0)
+## [`v0.20.0`](https://github.com/ignite/cli/releases/tag/v0.20.0)
 
 Our new name is **Ignite CLI**!
 
@@ -61,7 +175,7 @@ Our new name is **Ignite CLI**!
 - Added support for in memory backend in `pkg/cosmosclient` package
 - Improved our tutorials and documentation
 
-## [`v0.19.5`](https://github.com/ignite-hq/cli/pull/2158/commits)
+## [`v0.19.5`](https://github.com/ignite/cli/pull/2158/commits)
 
 ### Features
 
@@ -87,7 +201,7 @@ Our new name is **Ignite CLI**!
 
 - Upgraded Flutter template to `v2.0.3`
 
-## [`v0.19.2`](https://github.com/ignite-hq/cli/milestone/14)
+## [`v0.19.2`](https://github.com/ignite/cli/milestone/14)
 
 ### Fixes
 
@@ -101,7 +215,7 @@ Our new name is **Ignite CLI**!
 
 ### Breaking Changes
 
-- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite-hq/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite-hq/cli/pull/1971/files) 
+- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite/cli/pull/1971/files) 
  
     Updates are required if your chain uses these packages: 
 
@@ -110,7 +224,7 @@ Our new name is **Ignite CLI**!
     - `spm/openapiconsole` is now `pkg/openapiconsole`
     - `testutil/sample` is now `cosmostestutil/sample`
 
-- Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/ignite-hq/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
+- Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/ignite/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
 
 ## `v0.19.1`
 

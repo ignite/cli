@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 func newNetworkChainShowPeers() *cobra.Command {
@@ -62,14 +62,14 @@ func networkChainShowPeersHandler(cmd *cobra.Command, args []string) error {
 
 	}
 
-	if err := os.MkdirAll(filepath.Dir(out), 0744); err != nil {
+	if err := os.MkdirAll(filepath.Dir(out), 0o744); err != nil {
 		return err
 	}
 
 	b := &bytes.Buffer{}
 	peerList := strings.Join(peers, ",")
 	fmt.Fprintln(b, peerList)
-	if err := os.WriteFile(out, b.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(out, b.Bytes(), 0o644); err != nil {
 		return err
 	}
 

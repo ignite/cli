@@ -9,26 +9,23 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     # - errcheck
     - goconst
     - gocritic
-    - gofmt
-    - goimports
+    - gofumpt
     - revive
     # - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
+    # - interfacer
     # - maligned
     - misspell
     - nakedret
-    - scopelint
+    - exportloopref
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert

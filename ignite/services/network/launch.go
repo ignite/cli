@@ -7,10 +7,15 @@ import (
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/xtime"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
+
+// MinLaunchTimeOffset represents an offset used when minimum launch time is used
+// minimum launch time will be block time + minimum launch time duration param
+// block time when tx is executed is not predicable, therefore we add few seconds
+// to ensure the minimum duration is reached
+const MinLaunchTimeOffset = time.Second * 30
 
 // LaunchParams fetches the chain launch module params from SPN
 func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
@@ -22,7 +27,7 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 }
 
 // TriggerLaunch launches a chain as a coordinator
-func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTime time.Duration) error {
+func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime time.Time) error {
 	n.ev.SendString(fmt.Sprintf("Launching chain %d", launchID), events.ProgressStarted())
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
@@ -30,27 +35,30 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	var (
-		minLaunch = xtime.Seconds(params.LaunchTimeRange.MinLaunchTime)
-		maxLaunch = xtime.Seconds(params.LaunchTimeRange.MaxLaunchTime)
-		address   = n.account.Address(networktypes.SPN)
+		minLaunchTime = n.clock.Now().Add(params.LaunchTimeRange.MinLaunchTime).Add(MinLaunchTimeOffset)
+		maxLaunchTime = n.clock.Now().Add(params.LaunchTimeRange.MaxLaunchTime)
 	)
-	switch {
-	case remainingTime == 0:
-		// if the user does not specify the remaining time, use the minimal one
-		remainingTime = minLaunch
-	case remainingTime < minLaunch:
-		return fmt.Errorf("remaining time %s lower than minimum %s",
-			xtime.NowAfter(remainingTime),
-			xtime.NowAfter(minLaunch))
-	case remainingTime > maxLaunch:
-		return fmt.Errorf("remaining time %s greater than maximum %s",
-			xtime.NowAfter(remainingTime),
-			xtime.NowAfter(maxLaunch))
+	address, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, int64(remainingTime.Seconds()))
+	if launchTime.IsZero() {
+		// Use minimum launch time by default
+		launchTime = minLaunchTime
+	} else {
+		// check launch time is in range
+		switch {
+		case launchTime.Before(minLaunchTime):
+			return fmt.Errorf("launch time %s lower than minimum %s", launchTime, minLaunchTime)
+		case launchTime.After(maxLaunchTime):
+			return fmt.Errorf("launch time %s bigger than maximum %s", launchTime, maxLaunchTime)
+		}
+	}
+
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, launchTime)
 	n.ev.SendString("Setting launch time", events.ProgressStarted())
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
 	}
@@ -61,19 +69,23 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	n.ev.SendString(
-		fmt.Sprintf("Chain %d will be launched on %s", launchID, xtime.NowAfter(remainingTime)),
+		fmt.Sprintf("Chain %d will be launched on %s", launchID, launchTime),
 		events.ProgressFinished(),
 	)
 	return nil
 }
 
 // RevertLaunch reverts a launched chain as a coordinator
-func (n Network) RevertLaunch(launchID uint64, chain Chain) error {
+func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain) error {
 	n.ev.SendString(fmt.Sprintf("Reverting launched chain %d", launchID), events.ProgressStarted())
 
-	address := n.account.Address(networktypes.SPN)
+	address, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msg := launchtypes.NewMsgRevertLaunch(address, launchID)
-	_, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	_, err = n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
 	}

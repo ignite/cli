@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/xurl"
+	envtest "github.com/ignite/cli/integration"
 )
 
 const (
@@ -32,9 +32,9 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		apath        = env.Scaffold("github.com/test/faucet")
-		servers      = env.RandomizeServerPorts(apath, "")
-		faucetURL    = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
+		app          = env.Scaffold("github.com/test/faucet")
+		servers      = app.RandomizeServerPorts()
+		faucetURL    = app.EnableFaucet(defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 		faucetClient = cosmosfaucet.NewClient(faucetURL)
 	)
@@ -46,7 +46,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// serve the app
 	go func() {
-		env.Serve("should serve app", apath, "", "", envtest.ExecCtx(ctx))
+		app.Serve("should serve app", envtest.ExecCtx(ctx))
 	}()
 
 	// wait servers to be online

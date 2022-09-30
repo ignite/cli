@@ -5,14 +5,12 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/typed"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
-var (
-	//go:embed stargate/component/* stargate/component/**/*
-	fsStargateComponent embed.FS
-)
+//go:embed stargate/component/* stargate/component/**/*
+var fsStargateComponent embed.FS
 
 // NewStargate returns the generator to scaffold a basic type in a Stargate module.
 func NewStargate(opts *typed.Options) (*genny.Generator, error) {

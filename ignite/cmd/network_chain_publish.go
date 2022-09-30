@@ -9,26 +9,26 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 const (
-	flagTag          = "tag"
-	flagBranch       = "branch"
-	flagHash         = "hash"
-	flagGenesis      = "genesis"
-	flagCampaign     = "campaign"
-	flagShares       = "shares"
-	flagNoCheck      = "no-check"
-	flagChainID      = "chain-id"
-	flagMainnet      = "mainnet"
-	flagRewardCoins  = "reward.coins"
-	flagRewardHeight = "reward.height"
+	flagTag            = "tag"
+	flagBranch         = "branch"
+	flagHash           = "hash"
+	flagGenesis        = "genesis"
+	flagCampaign       = "campaign"
+	flagShares         = "shares"
+	flagNoCheck        = "no-check"
+	flagChainID        = "chain-id"
+	flagMainnet        = "mainnet"
+	flagAccountBalance = "account-balance"
+	flagRewardCoins    = "reward.coins"
+	flagRewardHeight   = "reward.height"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -52,12 +52,16 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
 	c.Flags().String(flagShares, "", "Add shares for the campaign")
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
+	c.Flags().String(flagAccountBalance, "", "Balance for each approved genesis account for the chain")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
 	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
+	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
@@ -78,9 +82,22 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaignTotalSupplyStr, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
 		sharesStr, _              = cmd.Flags().GetString(flagShares)
 		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
+		accountBalance, _         = cmd.Flags().GetString(flagAccountBalance)
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
+		amount, _                 = cmd.Flags().GetString(flagAmount)
 	)
+
+	// parse the amount.
+	amountCoins, err := sdk.ParseCoinsNormalized(amount)
+	if err != nil {
+		return errors.Wrap(err, "error parsing amount")
+	}
+
+	accountBalanceCoins, err := sdk.ParseCoinsNormalized(accountBalance)
+	if err != nil {
+		return errors.Wrap(err, "error parsing account balance")
+	}
 
 	source, err := xurl.MightHTTPS(args[0])
 	if err != nil {
@@ -193,6 +210,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
 	}
 
+	if !accountBalanceCoins.IsZero() {
+		publishOptions = append(publishOptions, network.WithAccountBalance(accountBalanceCoins))
+	}
+
 	if isMainnet {
 		publishOptions = append(publishOptions, network.Mainnet())
 	}
@@ -202,12 +223,18 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if sharesStr != "" {
-		coins, err := cosmosutil.ParseCoinsNormalizedWithPercentageRequired(sharesStr)
+		sharePercentages, err := network.ParseSharePercents(sharesStr)
 		if err != nil {
 			return err
 		}
 
-		publishOptions = append(publishOptions, network.WithPercentageShares(coins))
+		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
+	}
+
+	// TODO: Issue an error or warning when this flag is used with "no-check"?
+	//       The "check-dependencies" flag is ignored when the "no-check" one is present.
+	if flagGetCheckDependencies(cmd) {
+		initOptions = append(initOptions, networkchain.CheckDependencies())
 	}
 
 	// init the chain.
@@ -229,23 +256,32 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, mainnetID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
 
-	if !rewardCoins.Empty() && rewardDuration > 0 {
-		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
+	if !rewardCoins.IsZero() && rewardDuration > 0 {
+		if err := n.SetReward(cmd.Context(), launchID, rewardDuration, rewardCoins); err != nil {
+			return err
+		}
+	}
+
+	if !amountCoins.IsZero() {
+		if err := n.SendAccountRequestForCoordinator(cmd.Context(), launchID, amountCoins); err != nil {
 			return err
 		}
 	}
 
 	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
-	session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
-	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	if isMainnet {
-		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, mainnetID)
+		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)
+	} else {
+		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
+	}
+	if campaignID != 0 {
+		session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 	}
 
 	return nil

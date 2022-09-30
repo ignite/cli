@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
 )
 
 var (
@@ -142,11 +142,11 @@ func createMainFiles(tmpDir string, mainFiles []string) (pathsWithMain []string,
 		mainFile := filepath.Join(tmpDir, mf)
 		dir := filepath.Dir(mainFile)
 
-		if err = os.MkdirAll(dir, 0770); err != nil {
+		if err = os.MkdirAll(dir, 0o770); err != nil {
 			return nil, err
 		}
 
-		if err = os.WriteFile(mainFile, MainFile, 0644); err != nil {
+		if err = os.WriteFile(mainFile, MainFile, 0o644); err != nil {
 			return nil, err
 		}
 
@@ -160,7 +160,7 @@ func TestFindImportedPackages(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, ImportFile, 0644)
+	err := os.WriteFile(tmpFile, ImportFile, 0o644)
 	require.NoError(t, err)
 
 	packages, err := goanalysis.FindImportedPackages(tmpFile)

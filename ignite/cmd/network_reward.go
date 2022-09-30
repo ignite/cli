@@ -12,6 +12,7 @@ func NewNetworkReward() *cobra.Command {
 	}
 	c.AddCommand(
 		NewNetworkRewardSet(),
+		NewNetworkRewardRelease(),
 	)
 	return c
 }

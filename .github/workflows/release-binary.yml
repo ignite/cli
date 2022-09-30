@@ -8,13 +8,13 @@ jobs:
   binary:
     runs-on: ubuntu-latest
     env:
-      working-directory: go/src/github.com/ignite-hq/cli 
+      working-directory: go/src/github.com/ignite/cli
     
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
 
       - name: Checkout
         uses: actions/checkout@v2

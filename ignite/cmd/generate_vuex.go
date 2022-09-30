@@ -5,14 +5,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite-hq/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "vuex",
-		Short: "Generate Vuex store for you chain's frontend from your config.yml",
+		Short: "Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
 		RunE:  generateVuexHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
@@ -38,7 +38,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	s.Stop()
-	fmt.Println("⛏️  Generated vuex stores.")
+	fmt.Println("⛏️  Generated Typescript Client and Vuex stores")
 
 	return nil
 }

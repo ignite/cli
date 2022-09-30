@@ -5,13 +5,11 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
 
-var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
-)
+//go:embed stargate/* stargate/**/*
+var fsStargate embed.FS
 
 // Register testutil template using existing generator.
 // Register is meant to be used by modules that depend on this module.

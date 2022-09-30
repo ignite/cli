@@ -3,10 +3,9 @@
 # Project variables.
 PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
-FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go'
 HEAD = $(shell git rev-parse HEAD)
-LD_FLAGS = -X github.com/ignite-hq/cli/ignite/version.Head='$(HEAD)' \
-	-X github.com/ignite-hq/cli/ignite/version.Date='$(DATE)'
+LD_FLAGS = -X github.com/ignite/cli/ignite/version.Head='$(HEAD)' \
+	-X github.com/ignite/cli/ignite/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
 
@@ -22,28 +21,43 @@ build:
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 
+## mocks: generate mocks
+mocks:
+	@echo Generating mocks
+	@go install github.com/vektra/mockery/v2
+	@go generate ./...
+
+
 ## clean: Clean build files. Also runs `go clean` internally.
 clean:
 	@echo Cleaning build cache...
 	@-rm -rf $(BUILD_FOLDER) 2> /dev/null
 	@go clean ./...
 
+.PHONY: install build mocks clean
+
 ## govet: Run go vet.
 govet:
 	@echo Running go vet...
 	@go vet ./...
 
-## format: Run gofmt.
+## govulncheck: Run govulncheck
+govulncheck:
+	@echo Running govulncheck...
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
+
+## format: Install and run goimports and gofumpt
 format:
 	@echo Formatting...
-	@find . $(FIND_ARGS) | xargs gofmt -d -s
-	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/ignite-hq/cli
+	@go run mvdan.cc/gofumpt -w .
+	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli .
 
 ## lint: Run Golang CI Lint.
 lint:
 	@echo Running gocilint...
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
-	@golangci-lint run --out-format=tab --issues-exit-code=0
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --out-format=tab --issues-exit-code=0
+
+.PHONY: govet format lint
 
 ## test-unit: Run the unit tests.
 test-unit:
@@ -56,7 +70,9 @@ test-integration: install
 	@go test -race -failfast -v -timeout 60m ./integration/...
 
 ## test: Run unit and integration tests.
-test: govet test-unit test-integration
+test: govet govulncheck test-unit test-integration
+
+.PHONY: test-unit test-integration test
 
 help: Makefile
 	@echo
@@ -64,5 +80,7 @@ help: Makefile
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
+
+.PHONY: help
 
 .DEFAULT_GOAL := install

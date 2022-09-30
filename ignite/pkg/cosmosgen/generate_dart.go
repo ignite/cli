@@ -11,16 +11,14 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/protoc"
-	protocgendart "github.com/ignite-hq/cli/ignite/pkg/protoc-gen-dart"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/protoc"
+	protocgendart "github.com/ignite/cli/ignite/pkg/protoc-gen-dart"
 )
 
-var (
-	dartOut = []string{
-		"--dart_out=grpc:.",
-	}
-)
+var dartOut = []string{
+	"--dart_out=grpc:.",
+}
 
 const (
 	dartExportFileName = "export.dart"
@@ -84,7 +82,7 @@ func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath stri
 	if err := os.RemoveAll(out); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(clientOut, 0766); err != nil {
+	if err := os.MkdirAll(clientOut, 0o766); err != nil {
 		return err
 	}
 
@@ -116,6 +114,6 @@ func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath stri
 		exportContent.WriteString(fmt.Sprintf("export '%s';\n", path))
 	}
 
-	err = os.WriteFile(exportOut, exportContent.Bytes(), 0644)
+	err = os.WriteFile(exportOut, exportContent.Bytes(), 0o644)
 	return errors.Wrap(err, "could not create the Dart export file for module")
 }
