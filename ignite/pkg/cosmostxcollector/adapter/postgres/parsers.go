@@ -42,9 +42,7 @@ const (
 var (
 	ErrUnknownEntity    = errors.New("unknown query entity")
 	ErrInvalidSortOrder = errors.New("invalid query sort order")
-)
 
-var (
 	fieldMap = map[query.Field]string{
 		adapter.FieldTXHash:          fieldTXHash,
 		adapter.FieldTXIndex:         fieldTXIndex,

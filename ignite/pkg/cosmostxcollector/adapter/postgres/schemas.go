@@ -105,7 +105,6 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
