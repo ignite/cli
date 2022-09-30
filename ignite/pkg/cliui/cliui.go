@@ -229,17 +229,17 @@ func (s Session) printLoop() {
 			}
 			s.StopSpinner()
 			if event.HasIcon() {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content.String())
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content)
 			} else {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content.String())
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content)
 			}
 
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
 			if event.HasIcon() {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content.String())
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content)
 			} else {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content.String())
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content)
 			}
 			resume()
 		}
