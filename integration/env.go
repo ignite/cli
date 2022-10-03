@@ -36,7 +36,6 @@ var (
 	IgniteApp = path.Join(os.TempDir(), "ignite-tests", "ignite")
 
 	isCI, _           = strconv.ParseBool(os.Getenv("CI"))
-	mainPackage       = path.Join("ignite", "cmd", "ignite")
 	compileBinaryOnce sync.Once
 )
 
@@ -72,7 +71,7 @@ func compileBinary(ctx context.Context) {
 	}
 	var (
 		output, binary = filepath.Split(IgniteApp)
-		path           = path.Join(appPath, mainPackage)
+		path           = path.Join(appPath, "ignite", "cmd", "ignite")
 	)
 	err = gocmd.BuildPath(ctx, output, binary, path, nil)
 	if err != nil {
