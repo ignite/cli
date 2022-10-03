@@ -226,12 +226,9 @@ func (s Session) printLoop() {
 			if event.Icon == "" {
 				event.Icon = icons.OK
 			}
+
 			s.StopSpinner()
-			if event.HasIcon() {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content)
-			} else {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content)
-			}
+			fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content)
 
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
