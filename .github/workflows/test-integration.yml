@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Finding files and store to output
         id: set-matrix
-        run: echo "::set-output name=matrix::$({ cd integration && find . -type d -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)"
+        run: echo "::set-output name=matrix::$({ cd integration && find . -type d ! -name testdata -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)"
 
   integration:
     name: test ${{ matrix.test-path }}
