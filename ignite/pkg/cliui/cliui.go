@@ -95,13 +95,13 @@ func New(options ...Option) Session {
 		apply(&session)
 	}
 
-	if session.startSpinnerImmediately {
-		session.spinner = clispinner.New(clispinner.WithWriter(session.defaultLogStream.Stdout()))
-	}
-
 	session.defaultLogStream = session.NewLogStream(defaultLogStreamLabel, defaultLogStreamColor)
 	if session.verbosity != VerbosityVerbose {
 		session.verbosity = VerbositySilent
+	}
+
+	if session.startSpinnerImmediately {
+		session.spinner = clispinner.New(clispinner.WithWriter(session.defaultLogStream.Stdout()))
 	}
 
 	session.printLoopWg.Add(1)
