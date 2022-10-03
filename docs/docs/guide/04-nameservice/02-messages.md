@@ -106,7 +106,7 @@ These are the changes for each one of these files:
 
     Open the `tx.proto` file to view the changes:
 
-    ```go
+    ```protobuf
     syntax = "proto3";
 
     package nameservice.nameservice;

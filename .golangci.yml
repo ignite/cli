@@ -9,14 +9,12 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     # - errcheck
     - goconst
     - gocritic
-    - gofmt
-    - goimports
+    - gofumpt
     - revive
     # - gosec
     - gosimple
@@ -28,7 +26,6 @@ linters:
     - nakedret
     - exportloopref
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert

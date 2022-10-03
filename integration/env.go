@@ -80,6 +80,10 @@ func compileBinary(ctx context.Context) {
 	}
 }
 
+func (e Env) T() *testing.T {
+	return e.t
+}
+
 // SetCleanup registers a function to be called when the test (or subtest) and all its
 // subtests complete.
 func (e Env) SetCleanup(f func()) {

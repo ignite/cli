@@ -24,6 +24,7 @@ type publishOptions struct {
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
 	mainnet          bool
+	accountBalance   sdk.Coins
 }
 
 // PublishOption configures chain creation.
@@ -75,6 +76,13 @@ func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	return func(c *publishOptions) {
 		c.sharePercentages = sharePercentages
+	}
+}
+
+// WithAccountBalance set a balance used for all genesis account of the chain
+func WithAccountBalance(accountBalance sdk.Coins) PublishOption {
+	return func(c *publishOptions) {
+		c.accountBalance = accountBalance
 	}
 }
 
@@ -140,7 +148,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			"",
 			"",
 		)
-		if _, err := n.cosmos.BroadcastTx(n.account, msgCreateCoordinator); err != nil {
+		if _, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateCoordinator); err != nil {
 			return 0, 0, err
 		}
 	} else if err != nil {
@@ -159,7 +167,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	} else if o.mainnet {
 		// a mainnet is always associated to a campaign
 		// if no campaign is provided, we create one, and we directly initialize the mainnet
-		campaignID, err = n.CreateCampaign(c.Name(), o.metadata, o.totalSupply)
+		campaignID, err = n.CreateCampaign(ctx, c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -194,7 +202,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			campaignID,
 			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
-		_, err = n.cosmos.BroadcastTx(n.account, msgMintVouchers)
+		_, err = n.cosmos.BroadcastTx(ctx, n.account, msgMintVouchers)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -202,7 +210,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	// depending on mainnet flag initialize mainnet or testnet
 	if o.mainnet {
-		launchID, err = n.InitializeMainnet(campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		launchID, err = n.InitializeMainnet(ctx, campaignID, c.SourceURL(), c.SourceHash(), chainID)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -212,18 +220,27 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, err
 		}
 
+		// get initial genesis
+		initialGenesis := launchtypes.NewDefaultInitialGenesis()
+		if o.genesisURL != "" {
+			initialGenesis = launchtypes.NewGenesisURL(
+				o.genesisURL,
+				genesisHash,
+			)
+		}
+
 		msgCreateChain := launchtypes.NewMsgCreateChain(
 			addr,
 			chainID,
 			c.SourceURL(),
 			c.SourceHash(),
-			o.genesisURL,
-			genesisHash,
+			initialGenesis,
 			campaignID != 0,
 			campaignID,
+			o.accountBalance,
 			nil,
 		)
-		res, err := n.cosmos.BroadcastTx(n.account, msgCreateChain)
+		res, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateChain)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -240,17 +257,18 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	return launchID, campaignID, nil
 }
 
-func (n Network) SendAccountRequestForCoordinator(launchID uint64, amount sdk.Coins) error {
+func (n Network) SendAccountRequestForCoordinator(ctx context.Context, launchID uint64, amount sdk.Coins) error {
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return err
 	}
 
-	return n.sendAccountRequest(launchID, addr, amount)
+	return n.sendAccountRequest(ctx, launchID, addr, amount)
 }
 
 // SendAccountRequest creates an add AddAccount request message.
 func (n Network) sendAccountRequest(
+	ctx context.Context,
 	launchID uint64,
 	address string,
 	amount sdk.Coins,
@@ -260,20 +278,23 @@ func (n Network) sendAccountRequest(
 		return err
 	}
 
-	msg := launchtypes.NewMsgRequestAddAccount(
+	msg := launchtypes.NewMsgSendRequest(
 		addr,
 		launchID,
-		address,
-		amount,
+		launchtypes.NewGenesisAccount(
+			launchID,
+			address,
+			amount,
+		),
 	)
 
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-	res, err := n.cosmos.BroadcastTx(n.account, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestAddAccountResponse
+	var requestRes launchtypes.MsgSendRequestResponse
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}

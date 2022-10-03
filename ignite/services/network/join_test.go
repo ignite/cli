@@ -43,23 +43,26 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
-				&launchtypes.MsgRequestAddValidator{
-					Creator:        addr,
-					LaunchID:       testutil.LaunchID,
-					ValAddress:     addr,
-					GenTx:          gentx.JSON(t),
-					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
-					Peer: launchtypes.Peer{
-						Id: testutil.NodeID,
-						Connection: &launchtypes.Peer_TcpAddress{
-							TcpAddress: testutil.TCPAddress,
-						},
-					},
-				},
+				launchtypes.NewMsgSendRequest(
+					addr,
+					testutil.LaunchID,
+					launchtypes.NewGenesisValidator(
+						testutil.LaunchID,
+						addr,
+						gentx.JSON(t),
+						[]byte{},
+						sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
+						launchtypes.Peer{
+							Id: testutil.NodeID,
+							Connection: &launchtypes.Peer_TcpAddress{
+								TcpAddress: testutil.TCPAddress,
+							},
+						}),
+				),
 			).
-			Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
+			Return(testutil.NewResponse(&launchtypes.MsgSendRequestResponse{
 				RequestID:    TestGenesisValidatorRequestID,
 				AutoApproved: false,
 			}), nil).
@@ -94,23 +97,27 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
-				&launchtypes.MsgRequestAddValidator{
-					Creator:        addr,
-					LaunchID:       testutil.LaunchID,
-					ValAddress:     addr,
-					GenTx:          gentx.JSON(t),
-					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
-					Peer: launchtypes.Peer{
-						Id: testutil.NodeID,
-						Connection: &launchtypes.Peer_TcpAddress{
-							TcpAddress: testutil.TCPAddress,
+				launchtypes.NewMsgSendRequest(
+					addr,
+					testutil.LaunchID,
+					launchtypes.NewGenesisValidator(
+						testutil.LaunchID,
+						addr,
+						gentx.JSON(t),
+						[]byte{},
+						sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
+						launchtypes.Peer{
+							Id: testutil.NodeID,
+							Connection: &launchtypes.Peer_TcpAddress{
+								TcpAddress: testutil.TCPAddress,
+							},
 						},
-					},
-				},
+					),
+				),
 			).
-			Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
+			Return(testutil.NewResponse(&launchtypes.MsgSendRequestResponse{
 				RequestID:    TestGenesisValidatorRequestID,
 				AutoApproved: false,
 			}), nil).
@@ -141,24 +148,28 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
-				&launchtypes.MsgRequestAddValidator{
-					Creator:        addr,
-					LaunchID:       testutil.LaunchID,
-					ValAddress:     addr,
-					GenTx:          gentx.JSON(t),
-					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
-					Peer: launchtypes.Peer{
-						Id: testutil.NodeID,
-						Connection: &launchtypes.Peer_TcpAddress{
-							TcpAddress: testutil.TCPAddress,
+				launchtypes.NewMsgSendRequest(
+					addr,
+					testutil.LaunchID,
+					launchtypes.NewGenesisValidator(
+						testutil.LaunchID,
+						addr,
+						gentx.JSON(t),
+						[]byte{},
+						sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
+						launchtypes.Peer{
+							Id: testutil.NodeID,
+							Connection: &launchtypes.Peer_TcpAddress{
+								TcpAddress: testutil.TCPAddress,
+							},
 						},
-					},
-				},
+					),
+				),
 			).
 			Return(
-				testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{}),
+				testutil.NewResponse(&launchtypes.MsgSendRequestResponse{}),
 				expectedError,
 			).
 			Once()
@@ -194,23 +205,27 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
-				&launchtypes.MsgRequestAddValidator{
-					Creator:        addr,
-					LaunchID:       testutil.LaunchID,
-					ValAddress:     addr,
-					GenTx:          gentx.JSON(t),
-					ConsPubKey:     []byte{},
-					SelfDelegation: sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
-					Peer: launchtypes.Peer{
-						Id: testutil.NodeID,
-						Connection: &launchtypes.Peer_TcpAddress{
-							TcpAddress: testutil.TCPAddress,
+				launchtypes.NewMsgSendRequest(
+					addr,
+					testutil.LaunchID,
+					launchtypes.NewGenesisValidator(
+						testutil.LaunchID,
+						addr,
+						gentx.JSON(t),
+						[]byte{},
+						sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
+						launchtypes.Peer{
+							Id: testutil.NodeID,
+							Connection: &launchtypes.Peer_TcpAddress{
+								TcpAddress: testutil.TCPAddress,
+							},
 						},
-					},
-				},
+					),
+				),
 			).
-			Return(testutil.NewResponse(&launchtypes.MsgRequestAddValidatorResponse{
+			Return(testutil.NewResponse(&launchtypes.MsgSendRequestResponse{
 				RequestID:    TestGenesisValidatorRequestID,
 				AutoApproved: false,
 			}), nil).
@@ -218,15 +233,19 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
-				&launchtypes.MsgRequestAddAccount{
-					Creator:  addr,
-					LaunchID: testutil.LaunchID,
-					Address:  addr,
-					Coins:    sdk.NewCoins(sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt))),
-				},
+				launchtypes.NewMsgSendRequest(
+					addr,
+					testutil.LaunchID,
+					launchtypes.NewGenesisAccount(
+						testutil.LaunchID,
+						addr,
+						sdk.NewCoins(sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt))),
+					),
+				),
 			).
-			Return(testutil.NewResponse(&launchtypes.MsgRequestAddAccountResponse{
+			Return(testutil.NewResponse(&launchtypes.MsgSendRequestResponse{
 				RequestID:    TestAccountRequestID,
 				AutoApproved: false,
 			}), nil).

@@ -3,12 +3,16 @@ package network
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/xtime"
 	"github.com/ignite/cli/ignite/services/network/testutil"
 )
+
+var sampleTime = time.Unix(1000, 1000)
 
 func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
 	suite := testutil.NewSuite()
@@ -22,6 +26,7 @@ func newSuite(account cosmosaccount.Account) (testutil.Suite, Network) {
 		WithStakingQueryClient(suite.StakingClient),
 		WithMonitoringConsumerQueryClient(suite.MonitoringConsumerClient),
 		WithBankQueryClient(suite.BankClient),
+		WithCustomClock(xtime.NewClockMock(sampleTime)),
 	)
 }
 

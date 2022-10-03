@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
@@ -31,15 +32,19 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	var (
 		home           = getHome(cmd)
 		prefix         = getAddressPrefix(cmd)
-		node           = getRPC(cmd)
+		node           = getNode(cmd)
 		keyringBackend = getKeyringBackend(cmd)
 		keyringDir     = getKeyringDir(cmd)
 		gas            = getGas(cmd)
 		gasPrices      = getGasPrices(cmd)
 		fees           = getFees(cmd)
-		broadcastMode  = getBroadcastMode(cmd)
 		generateOnly   = getGenerateOnly(cmd)
 	)
+	if keyringBackend == "" {
+		// Makes cosmosclient usable for commands that doesn't expose the keyring
+		// backend flag (cosmosclient.New returns an error if it's empty).
+		keyringBackend = cosmosaccount.KeyringTest
+	}
 
 	options := []cosmosclient.Option{
 		cosmosclient.WithAddressPrefix(prefix),
@@ -47,7 +52,6 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithKeyringBackend(keyringBackend),
 		cosmosclient.WithKeyringDir(keyringDir),
 		cosmosclient.WithNodeAddress(xurl.HTTPEnsurePort(node)),
-		cosmosclient.WithBroadcastMode(broadcastMode),
 		cosmosclient.WithGenerateOnly(generateOnly),
 	}
 
@@ -64,7 +68,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	return cosmosclient.New(cmd.Context(), options...)
 }
 
-func getRPC(cmd *cobra.Command) (rpc string) {
-	rpc, _ = cmd.Flags().GetString(flagNode)
+func getNode(cmd *cobra.Command) (node string) {
+	node, _ = cmd.Flags().GetString(flagNode)
 	return
 }

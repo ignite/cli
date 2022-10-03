@@ -12,7 +12,7 @@ import (
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "vuex",
-		Short: "Generate Vuex store for you chain's frontend from your config.yml",
+		Short: "Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
 		RunE:  generateVuexHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
@@ -38,7 +38,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	s.Stop()
-	fmt.Println("⛏️  Generated vuex stores.")
+	fmt.Println("⛏️  Generated Typescript Client and Vuex stores")
 
 	return nil
 }

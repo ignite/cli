@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -18,10 +19,12 @@ const (
 )
 
 type generateOptions struct {
-	isGoEnabled      bool
-	isVuexEnabled    bool
-	isDartEnabled    bool
-	isOpenAPIEnabled bool
+	isGoEnabled       bool
+	isTSClientEnabled bool
+	isVuexEnabled     bool
+	isDartEnabled     bool
+	isOpenAPIEnabled  bool
+	tsClientPath      string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -34,9 +37,20 @@ func GenerateGo() GenerateTarget {
 	}
 }
 
-// GenerateVuex enables generating proto based Vuex store.
+// GenerateTSClient enables generating proto based Typescript Client.
+// The path assigns the output path to use for the generated Typescript client
+// overriding the configured or default path. Path can be an empty string.
+func GenerateTSClient(path string) GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+		o.tsClientPath = path
+	}
+}
+
+// GenerateTSClient enables generating proto based Typescript Client.
 func GenerateVuex() GenerateTarget {
 	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
 	}
 }
@@ -65,6 +79,10 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	var additionalTargets []GenerateTarget
 
 	// parse config for additional target
+	if p := conf.Client.Typescript.Path; p != "" {
+		additionalTargets = append(additionalTargets, GenerateTSClient(p))
+	}
+
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
 	}
@@ -114,7 +132,26 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Vuex code as well if it is enabled.
+	// generate Typescript Client code as well if it is enabled.
+	if targetOptions.isTSClientEnabled {
+		tsClientPath := targetOptions.tsClientPath
+		if tsClientPath == "" {
+			// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
+			tsClientPath = filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
+		}
+
+		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithTSClientGeneration(
+				cosmosgen.TypescriptModulePath(tsClientPath),
+				tsClientPath,
+			),
+		)
+	}
+
 	if targetOptions.isVuexEnabled {
 		vuexPath := conf.Client.Vuex.Path
 		if vuexPath == "" {
@@ -129,7 +166,7 @@ func (c *Chain) Generate(
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				cosmosgen.VuexStoreModulePath(storeRootPath),
+				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
@@ -137,7 +174,6 @@ func (c *Chain) Generate(
 
 	if targetOptions.isDartEnabled {
 		dartPath := conf.Client.Dart.Path
-
 		if dartPath == "" {
 			dartPath = defaultDartPath
 		}
