@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Plugin system
+
 ### Changes
 
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
