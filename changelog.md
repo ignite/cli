@@ -17,6 +17,10 @@
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
 
+### Features
+
+- Add generated TS client test support to integration tests.
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
