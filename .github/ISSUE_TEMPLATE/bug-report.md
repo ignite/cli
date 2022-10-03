@@ -2,7 +2,7 @@
 name: Ignite CLI bug report
 about: Create a report to help us improve
 title: ''
-labels: report
+labels: bug
 assignees: ''
 ---
 
