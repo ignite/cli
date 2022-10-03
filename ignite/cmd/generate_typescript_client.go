@@ -14,7 +14,6 @@ func NewGenerateTSClient() *cobra.Command {
 		RunE:  generateTSClientHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
 
 	return c
