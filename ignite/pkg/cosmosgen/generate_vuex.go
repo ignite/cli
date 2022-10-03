@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,6 +28,9 @@ func (g *generator) updateVueDependencies() error {
 	// Init the path to the "vue" folder inside the app
 	vuePath := filepath.Join(g.appPath, "vue")
 	packagesPath := filepath.Join(vuePath, "package.json")
+	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
 
 	// Read the Vue app package file
 	b, err := os.ReadFile(packagesPath)
@@ -40,23 +44,29 @@ func (g *generator) updateVueDependencies() error {
 		return fmt.Errorf("error parsing %s: %w", packagesPath, err)
 	}
 
-	// Add the link to the ts-client to the VUE app dependencies
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
 	}
 
+	// Make sure the TS client path is absolute
+	tsClientPath, err := filepath.Abs(g.o.tsClientRootPath)
+	if err != nil {
+		return fmt.Errorf("failed to read the absolute typescript client path: %w", err)
+	}
+
+	// Add the link to the ts-client to the VUE app dependencies
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
 	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
-	tsClientPath, err := filepath.Rel(vuePath, g.o.tsClientRootPath)
+	tsClientRelPath, err := filepath.Rel(vuePath, tsClientPath)
 	if err != nil {
 		return err
 	}
 
 	err = mergo.Merge(&pkg, map[string]interface{}{
 		"dependencies": map[string]interface{}{
-			tsClientName: fmt.Sprintf("file:%s", tsClientPath),
+			tsClientName: fmt.Sprintf("file:%s", tsClientRelPath),
 		},
 	})
 	if err != nil {

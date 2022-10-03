@@ -66,14 +66,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    false,
 					CampaignID:     0,
 				},
@@ -124,14 +124,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    false,
 					CampaignID:     0,
 					AccountBalance: accountBalance,
@@ -194,14 +194,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    true,
 					CampaignID:     testutil.CampaignID,
 				},
@@ -269,6 +269,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				campaigntypes.NewMsgMintVouchers(
 					addr,
@@ -281,14 +282,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    true,
 					CampaignID:     testutil.CampaignID,
 				},
@@ -345,16 +346,19 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: customGenesisChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     gts.URL,
-					GenesisHash:    customGenesisHash,
-					HasCampaign:    false,
-					CampaignID:     0,
+					InitialGenesis: launchtypes.NewGenesisURL(
+						gts.URL,
+						customGenesisHash,
+					),
+					HasCampaign: false,
+					CampaignID:  0,
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -399,14 +403,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    false,
 					CampaignID:     0,
 				},
@@ -455,6 +459,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&campaigntypes.MsgCreateCampaign{
 					Coordinator:  addr,
@@ -469,6 +474,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&campaigntypes.MsgInitializeMainnet{
 					Coordinator:    addr,
@@ -523,6 +529,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&campaigntypes.MsgCreateCampaign{
 					Coordinator:  addr,
@@ -537,6 +544,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&campaigntypes.MsgInitializeMainnet{
 					Coordinator:    addr,
@@ -557,7 +565,7 @@ func TestPublish(t *testing.T) {
 
 		_, _, publishError := network.Publish(context.Background(), suite.ChainMock, Mainnet())
 		require.Error(t, publishError)
-		require.Equal(t, expectedError, publishError)
+		require.ErrorIs(t, publishError, expectedError)
 		suite.AssertAllMocks(t)
 	})
 
@@ -594,14 +602,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    false,
 					CampaignID:     0,
 				},
@@ -613,6 +621,7 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&profiletypes.MsgCreateCoordinator{
 					Address: addr,
@@ -652,7 +661,7 @@ func TestPublish(t *testing.T) {
 
 		_, _, publishError := network.Publish(context.Background(), suite.ChainMock)
 		require.Error(t, publishError)
-		require.Equal(t, expectedError, publishError)
+		require.ErrorIs(t, publishError, expectedError)
 		suite.AssertAllMocks(t)
 	})
 
@@ -670,7 +679,7 @@ func TestPublish(t *testing.T) {
 
 		_, _, publishError := network.Publish(context.Background(), suite.ChainMock)
 		require.Error(t, publishError)
-		require.Equal(t, expectedError, publishError)
+		require.ErrorIs(t, publishError, expectedError)
 		suite.AssertAllMocks(t)
 	})
 
@@ -708,7 +717,7 @@ func TestPublish(t *testing.T) {
 
 		_, _, publishError := network.Publish(context.Background(), suite.ChainMock, WithCampaign(testutil.CampaignID))
 		require.Error(t, publishError)
-		require.Equal(t, cosmoserror.ErrNotFound, publishError)
+		require.ErrorIs(t, publishError, cosmoserror.ErrNotFound)
 		suite.AssertAllMocks(t)
 	})
 
@@ -740,14 +749,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    false,
 					CampaignID:     0,
 				},
@@ -794,14 +803,14 @@ func TestPublish(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&launchtypes.MsgCreateChain{
 					Coordinator:    addr,
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					GenesisURL:     "",
-					GenesisHash:    "",
+					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    false,
 					CampaignID:     0,
 				},
@@ -820,7 +829,7 @@ func TestPublish(t *testing.T) {
 
 		_, _, publishError := network.Publish(context.Background(), suite.ChainMock)
 		require.Error(t, publishError)
-		require.Equal(t, expectedError, publishError)
+		require.ErrorIs(t, publishError, expectedError)
 		suite.AssertAllMocks(t)
 	})
 }

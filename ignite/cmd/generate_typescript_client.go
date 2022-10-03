@@ -13,7 +13,10 @@ func NewGenerateTSClient() *cobra.Command {
 		Short: "Generate Typescript client for your chain's frontend",
 		RunE:  generateTSClientHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
+
 	return c
 }
 
@@ -33,7 +36,13 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
+		return err
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output))
+	if err != nil {
 		return err
 	}
 

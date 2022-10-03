@@ -1,11 +1,17 @@
 package cosmosclient_test
 
 import (
+	"bufio"
 	"context"
+	"encoding/hex"
+	"io"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -76,60 +82,71 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 	return c
 }
 
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	c := newClient(t, nil)
+
+	ctx := c.Context()
+	assert.Equal("mychain", ctx.ChainID)
+	assert.NotNil(ctx.InterfaceRegistry)
+	assert.NotNil(ctx.Codec)
+	assert.NotNil(ctx.TxConfig)
+	assert.NotNil(ctx.LegacyAmino)
+	assert.Equal(bufio.NewReader(os.Stdin), ctx.Input)
+	assert.Equal(io.Discard, ctx.Output)
+	assert.NotNil(ctx.AccountRetriever)
+	assert.Equal(flags.BroadcastSync, ctx.BroadcastMode)
+	home, err := os.UserHomeDir()
+	require.NoError(t, err)
+	assert.Equal(home+"/.mychain", ctx.HomeDir)
+	assert.NotNil(ctx.Client)
+	assert.True(ctx.SkipConfirm)
+	assert.Equal(c.AccountRegistry.Keyring, ctx.Keyring)
+	assert.False(ctx.GenerateOnly)
+	txf := c.TxFactory
+	assert.Equal("mychain", txf.ChainID())
+	assert.Equal(c.AccountRegistry.Keyring, txf.Keybase())
+	assert.EqualValues(300000, txf.Gas())
+	assert.Equal(1.0, txf.GasAdjustment())
+	assert.Equal(signing.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
+	assert.NotNil(txf.AccountRetriever())
+}
+
 func TestClientWaitForBlockHeight(t *testing.T) {
-	var (
-		ctx                 = context.Background()
-		canceledCtx, cancel = context.WithTimeout(ctx, 0)
-		targetBlockHeight   = int64(42)
-	)
-	cancel()
+	targetBlockHeight := int64(42)
 	tests := []struct {
-		name              string
-		ctx               context.Context
-		waitBlockDuration time.Duration
-		expectedError     string
-		setup             func(suite)
+		name          string
+		timeout       time.Duration
+		expectedError string
+		setup         func(suite)
 	}{
 		{
 			name: "ok: no wait",
-			ctx:  ctx,
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
 				}, nil)
 			},
 		},
 		{
-			name:              "ok: wait 1 time",
-			ctx:               ctx,
-			waitBlockDuration: time.Second * 2, // must exceed the wait loop duration
+			name:    "ok: wait 1 time",
+			timeout: time.Second * 2, // must exceed the wait loop duration
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
 				}, nil).Once()
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
 				}, nil).Once()
 			},
 		},
 		{
-			name:              "fail: wait expired",
-			ctx:               ctx,
-			waitBlockDuration: time.Millisecond,
-			expectedError:     "timeout exceeded waiting for block",
+			name:          "fail: wait expired",
+			timeout:       time.Millisecond,
+			expectedError: "timeout exceeded waiting for block: context deadline exceeded",
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
-					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
-				}, nil)
-			},
-		},
-		{
-			name:              "fail: canceled context",
-			ctx:               canceledCtx,
-			waitBlockDuration: time.Millisecond,
-			expectedError:     canceledCtx.Err().Error(),
-			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(canceledCtx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
 				}, nil)
 			},
@@ -139,14 +156,90 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			c := newClient(t, tt.setup)
+			ctx, cancel := context.WithTimeout(context.Background(), tt.timeout)
+			defer cancel()
 
-			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight, tt.waitBlockDuration)
+			err := c.WaitForBlockHeight(ctx, targetBlockHeight)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
 				return
 			}
 			require.NoError(err)
+		})
+	}
+}
+
+func TestClientWaitForTx(t *testing.T) {
+	var (
+		ctx          = context.Background()
+		hash         = "abcd"
+		hashBytes, _ = hex.DecodeString(hash)
+		result       = &ctypes.ResultTx{
+			Hash: hashBytes,
+		}
+	)
+	tests := []struct {
+		name           string
+		hash           string
+		expectedError  string
+		expectedResult *ctypes.ResultTx
+		setup          func(suite)
+	}{
+		{
+			name:          "fail: hash not in hex format",
+			hash:          "zzz",
+			expectedError: "unable to decode tx hash 'zzz': encoding/hex: invalid byte: U+007A 'z'",
+		},
+		{
+			name:           "ok: tx found immediately",
+			hash:           hash,
+			expectedResult: result,
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(result, nil)
+			},
+		},
+		{
+			name:          "fail: tx returns an unexpected error",
+			hash:          hash,
+			expectedError: "fetching tx 'abcd': error while requesting node 'http://localhost:26657': oups",
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(nil, errors.New("oups"))
+			},
+		},
+		{
+			name:           "ok: tx found after 1 block",
+			hash:           hash,
+			expectedResult: result,
+			setup: func(s suite) {
+				// tx is not found
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(nil, errors.New("tx abcd not found")).Once()
+				// wait for next block
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 1},
+				}, nil).Once()
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 2},
+				}, nil).Once()
+				// next block reached, check tx again, this time it's found.
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(result, nil).Once()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
+			c := newClient(t, tt.setup)
+
+			res, err := c.WaitForTx(ctx, tt.hash)
+
+			if tt.expectedError != "" {
+				require.EqualError(err, tt.expectedError)
+				return
+			}
+			require.NoError(err)
+			assert.Equal(tt.expectedResult, res)
 		})
 	}
 }
@@ -319,6 +412,7 @@ func TestClientStatus(t *testing.T) {
 
 func TestClientCreateTx(t *testing.T) {
 	var (
+		ctx         = context.Background()
 		accountName = "bob"
 		passphrase  = "passphrase"
 	)
@@ -504,7 +598,7 @@ func TestClientCreateTx(t *testing.T) {
 			account, err := c.AccountRegistry.Import(accountName, key, passphrase)
 			require.NoError(err)
 
-			txs, err := c.CreateTx(account, tt.msg)
+			txs, err := c.CreateTx(ctx, account, tt.msg)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
