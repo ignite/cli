@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReadFile(t *testing.T) {
+func TestExtractFile(t *testing.T) {
 	exampleJSON, err := os.ReadFile("testdata/example.json")
 	require.NoError(t, err)
 
