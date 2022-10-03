@@ -27,11 +27,12 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateProtoImport := `import "%[2]v/%[3]v.proto";
+		templateProtoImport := `import "%[2]v/%[3]v/%[4]v.proto";
 %[1]v`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,
 			typed.PlaceholderGenesisProtoImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 		)

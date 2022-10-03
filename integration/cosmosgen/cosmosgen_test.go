@@ -101,7 +101,7 @@ func TestCosmosGen(t *testing.T) {
 
 	require.NoError(t, os.RemoveAll(dirGenerated))
 
-	env.Must(env.Exec("generate typescript",
+	env.Must(env.Exec("generate vuex",
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
