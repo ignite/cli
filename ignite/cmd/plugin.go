@@ -10,6 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
@@ -200,6 +202,10 @@ func NewPluginScaffold() *cobra.Command {
 			}
 			name := path.Base(moduleName)
 			fullpath := path.Join(wd, name)
+
+			if err := xgit.InitAndCommit(fullpath); err != nil {
+				return err
+			}
 
 			message := `
 ⭐️ Successfully created a new plugin '%[1]s'.
