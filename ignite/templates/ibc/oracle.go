@@ -121,9 +121,9 @@ func protoQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) 
 		}
 
 		// Import the type
-		templateImport := `import "%[2]v/%[3]v.proto";
+		templateImport := `import "%[2]v/%[3]v/%[4]v.proto";
 %[1]v`
-		replacementImport := fmt.Sprintf(templateImport, Placeholder, opts.ModuleName, opts.QueryName.Snake)
+		replacementImport := fmt.Sprintf(templateImport, Placeholder, opts.AppName, opts.ModuleName, opts.QueryName.Snake)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
 		// Add the service

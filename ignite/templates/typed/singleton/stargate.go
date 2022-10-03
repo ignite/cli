@@ -105,9 +105,10 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		}
 
 		// Import the type
-		templateImport := `import "%s/%s.proto";
+		templateImport := `import "%s/%s/%s.proto";
 %s`
 		replacementImport := fmt.Sprintf(templateImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 			typed.Placeholder,
@@ -351,9 +352,10 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		}
 
 		// Import
-		templateImport := `import "%s/%s.proto";
+		templateImport := `import "%s/%s/%s.proto";
 %s`
 		replacementImport := fmt.Sprintf(templateImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 			typed.PlaceholderProtoTxImport,
