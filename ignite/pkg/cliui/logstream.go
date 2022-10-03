@@ -3,10 +3,9 @@ package cliui
 import (
 	"io"
 
-	"github.com/docker/docker/pkg/ioutils"
-
 	"github.com/ignite/cli/ignite/pkg/cliui/lineprefixer"
 	"github.com/ignite/cli/ignite/pkg/cliui/prefixgen"
+	"github.com/ignite/cli/ignite/pkg/xio"
 )
 
 const (
@@ -40,6 +39,7 @@ func (s Session) NewLogStream(label string, color uint8) (logStream LogStream) {
 	prefixed := func(w io.Writer) *lineprefixer.Writer {
 		options := prefixgen.Common(prefixgen.Color(color))
 		prefixStr := prefixgen.New(label, options...).Gen()
+
 		return lineprefixer.NewWriter(w, func() string { return prefixStr })
 	}
 
@@ -50,11 +50,11 @@ func (s Session) NewLogStream(label string, color uint8) (logStream LogStream) {
 
 	switch verbosity {
 	case VerbositySilent:
-		logStream.stdout = ioutils.NopWriteCloser(io.Discard)
-		logStream.stderr = ioutils.NopWriteCloser(io.Discard)
+		logStream.stdout = xio.NopWriteCloser(io.Discard)
+		logStream.stderr = xio.NopWriteCloser(io.Discard)
 	case VerbosityVerbose:
-		logStream.stdout = prefixed(s.stdout)
-		logStream.stderr = prefixed(s.stderr)
+		logStream.stdout = xio.NopWriteCloser(prefixed(s.stdout))
+		logStream.stderr = xio.NopWriteCloser(prefixed(s.stderr))
 	default:
 		logStream.stdout = s.stdout
 		logStream.stderr = s.stderr

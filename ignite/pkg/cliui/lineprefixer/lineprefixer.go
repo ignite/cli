@@ -46,7 +46,3 @@ func (p *Writer) Write(b []byte) (n int, err error) {
 	}
 	return blen, nil
 }
-
-func (p *Writer) Close() error {
-	return nil
-}
