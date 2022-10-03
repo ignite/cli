@@ -49,7 +49,6 @@ func (g *generator) setup() (err error) {
 		return errors.Wrap(err, errb.String())
 	}
 
-	// parse the go.mod of the app and extract dependencies.
 	modfile, err := gomodule.ParseAt(g.appPath)
 	if err != nil {
 		return err
@@ -66,43 +65,48 @@ func (g *generator) setup() (err error) {
 		}
 	}
 
+	// Read the dependencies defined in the `go.mod` file
 	g.deps, err = gomodule.ResolveDependencies(modfile)
 	if err != nil {
 		return err
 	}
 
-	// this is for user's app itself. it may contain custom modules. it is the first place to look for.
+	// Discover any custom modules defined by the user's app
 	g.appModules, err = g.discoverModules(g.appPath, g.protoDir)
 	if err != nil {
 		return err
 	}
 
-	// go through the Go dependencies (inside go.mod) of the user's app, some of them might be hosting
-	// Cosmos SDK modules that could be in use by user's blockchain.
+	// Go through the Go dependencies of the user's app within go.mod, some of them might be hosting Cosmos SDK modules
+	// that could be in use by user's blockchain.
 	//
 	// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be discovering all modules of the
 	// SDK as well during this process.
 	//
-	// even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
-	// this is fine, we can still generate JS clients for those non modules, it is up to user to use (import in JS)
+	// Even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
+	// this is fine, we can still generate TS clients for those non modules, it is up to user to use (import in typescript)
 	// not use generated modules.
-	// not used ones will never get resolved inside JS environment and will not ship to production, JS bundlers will avoid.
 	//
 	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
 	// at some point, it is a nice to have.
 	moduleCache := cache.New[ModulesInPath](g.cacheStorage, moduleCacheNamespace)
 	for _, dep := range g.deps {
+		// Try to get the cached list of modules for the current dependency package
 		cacheKey := cache.Key(dep.Path, dep.Version)
 		modulesInPath, err := moduleCache.Get(cacheKey)
 		if err != nil && err != cache.ErrorNotFound {
 			return err
 		}
 
+		// Discover the modules of the dependecy package when they are not cached
 		if err == cache.ErrorNotFound {
+			// Get the absolute path to the packages's directory
 			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
 			if err != nil {
 				return err
 			}
+
+			// Discover any modules defined by the package
 			modules, err := g.discoverModules(path, "")
 			if err != nil {
 				return err
@@ -112,6 +116,7 @@ func (g *generator) setup() (err error) {
 				Path:    path,
 				Modules: modules,
 			}
+
 			if err := moduleCache.Put(cacheKey, modulesInPath); err != nil {
 				return err
 			}
@@ -189,11 +194,13 @@ func (g *generator) discoverModules(path, protoDir string) ([]module.Module, err
 		return nil, err
 	}
 
+	protoPath := filepath.Join(path, g.protoDir)
+
 	for _, m := range modules {
-		pp := filepath.Join(path, g.protoDir)
-		if !strings.HasPrefix(m.Pkg.Path, pp) {
+		if !strings.HasPrefix(m.Pkg.Path, protoPath) {
 			continue
 		}
+
 		filteredModules = append(filteredModules, m)
 	}
 
