@@ -245,3 +245,13 @@ func (a App) EditConfig(apply func(*chainconfig.Config)) {
 	err = os.WriteFile(a.configPath, bz, 0o644)
 	require.NoError(a.env.t, err)
 }
+
+// GenerateTSClient runs the command to generate the Typescript client code.
+func (a App) GenerateTSClient() bool {
+	return a.env.Exec("generate typescript client", step.NewSteps(
+		step.New(
+			step.Exec(IgniteApp, "g", "ts-client", "--yes", "--clear-cache"),
+			step.Workdir(a.path),
+		),
+	))
+}
