@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -75,7 +76,13 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewTools())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
+	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
+
+	err := loadPlugins(c)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return c
 }
@@ -162,7 +169,7 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
