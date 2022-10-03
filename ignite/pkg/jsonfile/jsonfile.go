@@ -82,6 +82,9 @@ func FromPath(path string) (*JSONFile, error) {
 }
 
 // FromURL fetches the file from the given URL and returns its content.
+// If tarballFileName is not empty, the URL is interpreted as a tarball file,
+// tarballFileName is extracted from it and is returned instead of the URL
+// content.
 func FromURL(ctx context.Context, url, destPath, tarballFileName string) (*JSONFile, error) {
 	// TODO create a cache system to avoid download genesis with the same hash again
 
