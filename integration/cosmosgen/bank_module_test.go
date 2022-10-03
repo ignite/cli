@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
-	"github.com/stretchr/testify/require"
 )
 
 func TestBankModule(t *testing.T) {
