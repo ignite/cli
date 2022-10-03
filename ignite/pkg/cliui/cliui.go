@@ -26,9 +26,7 @@ const (
 
 // Session controls command line interaction with users.
 type Session struct {
-	ev       events.Bus
-	eventsWg *sync.WaitGroup
-
+	ev                      events.Bus
 	spinner                 *clispinner.Spinner
 	startSpinnerImmediately bool
 
@@ -88,7 +86,6 @@ func New(options ...Option) Session {
 		in:          os.Stdin,
 		stdout:      os.Stdout,
 		stderr:      os.Stderr,
-		eventsWg:    wg,
 		printLoopWg: &sync.WaitGroup{},
 	}
 	for _, apply := range options {
@@ -147,7 +144,6 @@ func (s Session) PauseSpinner() (mightResume func()) {
 
 // Printf prints formatted arbitrary message.
 func (s Session) Printf(format string, a ...interface{}) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprintf(s.defaultLogStream.Stdout(), format, a...)
 	return err
@@ -155,7 +151,6 @@ func (s Session) Printf(format string, a ...interface{}) error {
 
 // Println prints arbitrary message with line break.
 func (s Session) Println(messages ...interface{}) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprintln(s.defaultLogStream.Stdout(), messages...)
 	return err
@@ -168,7 +163,6 @@ func (s Session) PrintSaidNo() error {
 
 // Println prints arbitrary message
 func (s Session) Print(messages ...interface{}) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprint(s.defaultLogStream.Stdout(), messages...)
 	return err
@@ -176,7 +170,6 @@ func (s Session) Print(messages ...interface{}) error {
 
 // Ask asks questions in the terminal and collect answers.
 func (s Session) Ask(questions ...cliquiz.Question) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	// TODO provide writer from the session
 	return cliquiz.Ask(questions...)
@@ -184,7 +177,6 @@ func (s Session) Ask(questions ...cliquiz.Question) error {
 
 // AskConfirm asks yes/no question in the terminal.
 func (s Session) AskConfirm(message string) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	prompt := promptui.Prompt{
 		Label:     message,
@@ -198,14 +190,8 @@ func (s Session) AskConfirm(message string) error {
 
 // PrintTable prints table data.
 func (s Session) PrintTable(header []string, entries ...[]string) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	return entrywriter.MustWrite(s.defaultLogStream.Stdout(), header, entries...)
-}
-
-// Wait blocks until all queued events are handled.
-func (s Session) Wait() {
-	s.eventsWg.Wait()
 }
 
 // Cleanup ensure spinner is stopped and printLoop exited correctly.
@@ -239,8 +225,7 @@ func (s Session) printLoop() {
 			}
 			resume()
 		}
-
-		s.eventsWg.Done()
 	}
+
 	s.printLoopWg.Done()
 }
