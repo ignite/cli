@@ -33,7 +33,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/hashicorp/go-hclog v1.2.0
-	github.com/hashicorp/go-plugin v1.4.5
+	github.com/hashicorp/go-plugin v1.4.4
 	github.com/iancoleman/strcase v0.2.0
 	github.com/ignite/web v0.3.10
 	github.com/imdario/mergo v0.3.13
