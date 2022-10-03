@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
 - Switch to broadcast mode sync in `cosmosclient`
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
 - Switched codegen client to use `axios` instead of `fetch`
@@ -14,6 +15,7 @@
 - Change vuex generation to use a default TS client path.
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
+- Change faucet to allow C.O.R.S. preflight requests.
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 

@@ -3,7 +3,6 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -16,7 +15,7 @@ func NewGenerateTSClient() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
-	c.Flags().StringP(flagOutput, "o", chainconfig.DefaultTSClientPath, "typescript client output path")
+	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
 
 	return c
 }
