@@ -2,7 +2,7 @@ syntax = "proto3";
 package <%= protoPkgName %>;
 
 import "gogoproto/gogo.proto";
-import "<%= moduleName %>/params.proto";
+import "<%= appName %>/<%= moduleName %>/params.proto";
 // this line is used by starport scaffolding # genesis/proto/import
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
