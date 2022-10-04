@@ -36,7 +36,7 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 
 func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	var (
 		campaignName, _        = cmd.Flags().GetString(flagCampaignName)

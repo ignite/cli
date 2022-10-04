@@ -104,7 +104,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		session           = cliui.New(cliui.WithVerbosity(logLevel(cmd)), cliui.StartSpinner())
 	)
 
-	defer session.Cleanup()
+	defer session.End()
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

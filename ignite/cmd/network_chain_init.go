@@ -55,7 +55,7 @@ func NewNetworkChainInit() *cobra.Command {
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {

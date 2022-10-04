@@ -22,7 +22,7 @@ func newNetworkChainShowInfo() *cobra.Command {
 
 func networkChainShowInfoHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, launchID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {

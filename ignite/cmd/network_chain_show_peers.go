@@ -29,7 +29,7 @@ func newNetworkChainShowPeers() *cobra.Command {
 
 func networkChainShowPeersHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	out, _ := cmd.Flags().GetString(flagOut)
 

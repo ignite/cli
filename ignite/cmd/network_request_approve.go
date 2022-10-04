@@ -36,7 +36,7 @@ func NewNetworkRequestApprove() *cobra.Command {
 
 func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {

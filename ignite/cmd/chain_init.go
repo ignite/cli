@@ -93,7 +93,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		cliui.StartSpinner(),
 	)
 
-	defer session.Cleanup()
+	defer session.End()
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

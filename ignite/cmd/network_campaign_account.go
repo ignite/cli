@@ -34,7 +34,7 @@ func newNetworkCampaignAccountList() *cobra.Command {
 
 func newNetworkCampaignAccountListHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, campaignID, err := networkChainLaunch(cmd, args, session)
 	if err != nil {

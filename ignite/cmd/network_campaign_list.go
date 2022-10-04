@@ -31,7 +31,7 @@ func NewNetworkCampaignList() *cobra.Command {
 func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinner())
 
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {

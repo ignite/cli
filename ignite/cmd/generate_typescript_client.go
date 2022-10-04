@@ -23,7 +23,7 @@ func NewGenerateTSClient() *cobra.Command {
 
 func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	session.StartSpinner("Generating...")
 

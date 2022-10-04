@@ -42,7 +42,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	force, _ := cmd.Flags().GetBool(flagForce)
 

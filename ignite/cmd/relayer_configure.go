@@ -96,7 +96,7 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	}()
 
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),

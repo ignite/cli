@@ -26,7 +26,7 @@ func newNetworkChainShowValidators() *cobra.Command {
 
 func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	addressPrefix := getAddressPrefix(cmd)
 

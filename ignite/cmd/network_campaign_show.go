@@ -21,7 +21,7 @@ func NewNetworkCampaignShow() *cobra.Command {
 
 func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	// parse campaign ID
 	campaignID, err := network.ParseID(args[0])

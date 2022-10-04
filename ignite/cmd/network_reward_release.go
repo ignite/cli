@@ -64,7 +64,7 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	}()
 
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	session.StartSpinner("Setting up chains...")
 

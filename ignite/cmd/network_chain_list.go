@@ -51,7 +51,7 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 
 	session := cliui.New(cliui.StartSpinner())
 
-	defer session.Cleanup()
+	defer session.End()
 
 	if page == 0 {
 		return errors.New("invalid page value")

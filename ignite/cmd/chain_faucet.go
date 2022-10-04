@@ -35,7 +35,7 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		)
 	)
 
-	defer session.Cleanup()
+	defer session.End()
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

@@ -30,7 +30,7 @@ func NewNetworkChainInstall() *cobra.Command {
 
 func networkChainInstallHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
-	defer session.Cleanup()
+	defer session.End()
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
