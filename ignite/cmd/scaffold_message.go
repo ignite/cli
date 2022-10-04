@@ -61,12 +61,15 @@ Message scaffolding follows the rules as "ignite scaffold list/map/single" and
 supports fields with standard and custom types. See "ignite scaffold list —help"
 for details.
 `,
-		Args: cobra.MinimumNArgs(1),
-		RunE: messageHandler,
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    messageHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")

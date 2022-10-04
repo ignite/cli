@@ -51,7 +51,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// wait servers to be online
 	defer cancel()
-	err := env.IsAppServed(ctx, servers)
+	err := env.IsAppServed(ctx, servers.API)
 	require.NoError(t, err)
 
 	err = env.IsFaucetServed(ctx, faucetClient)
