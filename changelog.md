@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Improve genesis parser for `network` commands
 - Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
 - Switch to broadcast mode sync in `cosmosclient`
