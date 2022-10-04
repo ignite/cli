@@ -31,13 +31,7 @@ jobs:
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2
-      - uses: technote-space/get-diff-action@v4
-        with:
-          PATTERNS: |
-            **/*
-            !**/*.md
       - uses: actions/cache@v2
-        if: env.GIT_DIFF
         with:
           path: |
             ~/.cache/go-build
@@ -46,11 +40,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - uses: actions/setup-go@v3
-        if: env.GIT_DIFF
         with:
           go-version: 1.19
       - name: Run Integration Tests
-        if: env.GIT_DIFF
         run: go test -v -timeout 60m ./integration/${{ matrix.test-path }}
 
   status:

@@ -4,10 +4,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/yaml"
 	"github.com/ignite/cli/ignite/services/network"
-	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 func newNetworkChainShowInfo() *cobra.Command {
@@ -44,21 +42,7 @@ func networkChainShowInfoHandler(cmd *cobra.Command, args []string) error {
 	}
 	chainLaunch.Reward = reward.RemainingCoins.String()
 
-	var genesis []byte
-	if chainLaunch.GenesisURL != "" {
-		genesis, _, err = cosmosutil.GenesisAndHashFromURL(cmd.Context(), chainLaunch.GenesisURL)
-		if err != nil {
-			return err
-		}
-	}
-	chainInfo := struct {
-		Chain   networktypes.ChainLaunch `json:"Chain"`
-		Genesis []byte                   `json:"Genesis"`
-	}{
-		Chain:   chainLaunch,
-		Genesis: genesis,
-	}
-	info, err := yaml.Marshal(cmd.Context(), chainInfo, "$.Genesis")
+	info, err := yaml.Marshal(cmd.Context(), chainLaunch)
 	if err != nil {
 		return err
 	}
