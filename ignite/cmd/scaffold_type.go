@@ -9,14 +9,17 @@ import (
 // NewScaffoldType returns a new command to scaffold a type.
 func NewScaffoldType() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "type NAME [field]...",
-		Short: "Scaffold only a type definition",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  scaffoldTypeHandler,
+		Use:     "type NAME [field]...",
+		Short:   "Scaffold only a type definition",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    scaffoldTypeHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c

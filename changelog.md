@@ -23,6 +23,11 @@
 
 - Add generated TS client test support to integration tests.
 
+### Changes
+
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
@@ -34,6 +39,8 @@
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 - Add `node query tx` command to query a transaction in any chain.
 - Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to an other in any chain.
+- Add migration system for the config file to allow config versioning
 - Add `node tx bank send` command to send funds from one account to another in any chain.
 - Implement `network profile` command
 - Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
