@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
 - Switch to broadcast mode sync in `cosmosclient`
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
@@ -32,6 +33,8 @@
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 - Add `node query tx` command to query a transaction in any chain.
 - Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to an other in any chain.
+- Add migration system for the config file to allow config versioning
 - Add `node tx bank send` command to send funds from one account to another in any chain.
 - Implement `network profile` command
 - Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
