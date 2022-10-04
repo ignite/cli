@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sync"
 
 	"github.com/manifoldco/promptui"
 
@@ -36,8 +35,6 @@ type Session struct {
 
 	verbosity Verbosity
 	logStream LogStream
-
-	printLoopWg *sync.WaitGroup
 }
 
 // Option is used to customize Session during creation
@@ -81,12 +78,12 @@ func StartSpinner() Option {
 // New creates new Session.
 func New(options ...Option) Session {
 	session := Session{
-		ev:          events.NewBus(),
-		in:          os.Stdin,
-		stdout:      os.Stdout,
-		stderr:      os.Stderr,
-		printLoopWg: &sync.WaitGroup{},
+		ev:     events.NewBus(),
+		in:     os.Stdin,
+		stdout: os.Stdout,
+		stderr: os.Stderr,
 	}
+
 	for _, apply := range options {
 		apply(&session)
 	}
@@ -100,45 +97,46 @@ func New(options ...Option) Session {
 		session.spinner = clispinner.New(clispinner.WithWriter(session.logStream.Stdout()))
 	}
 
-	session.printLoopWg.Add(1)
-	go session.printLoop()
+	go session.handleEvents()
+
 	return session
 }
 
-// StopSpinner returns session's event bus.
+// EventBus returns the event bus of the session.
 func (s Session) EventBus() events.Bus {
 	return s.ev
 }
 
-// StartSpinner starts spinner.
+// StartSpinner starts the spinner.
 func (s Session) StartSpinner(text string) {
 	if s.spinner == nil {
 		s.spinner = clispinner.New(clispinner.WithWriter(s.logStream.Stdout()))
 	}
+
 	s.spinner.SetText(text).Start()
 }
 
-// StopSpinner stops spinner.
+// StopSpinner stops the spinner.
 func (s Session) StopSpinner() {
 	if s.spinner == nil {
 		return
 	}
+
 	s.spinner.Stop()
 }
 
-// PauseSpinner pauses spinner, returns resume function to start paused spinner again.
-func (s Session) PauseSpinner() (mightResume func()) {
+// PauseSpinner pauses spinner and returns a function to restart the spinner.
+func (s Session) PauseSpinner() (restart func()) {
 	isActive := s.spinner != nil && s.spinner.IsActive()
-	f := func() {
+	if isActive {
+		s.spinner.Stop()
+	}
+
+	return func() {
 		if isActive {
 			s.spinner.Start()
 		}
 	}
-
-	if isActive {
-		s.spinner.Stop()
-	}
-	return f
 }
 
 // Printf prints formatted arbitrary message.
@@ -193,26 +191,26 @@ func (s Session) PrintTable(header []string, entries ...[]string) error {
 	return entrywriter.MustWrite(s.logStream.Stdout(), header, entries...)
 }
 
-// Cleanup ensure spinner is stopped and printLoop exited correctly.
-func (s Session) Cleanup() {
+// End finishes the session by stopping the spinner and the event bus.
+// Once the session is ended it should not be used anymore.
+func (s Session) End() {
 	s.StopSpinner()
 	s.ev.Stop()
-	s.printLoopWg.Wait()
 }
 
-// printLoop handles events.
-func (s Session) printLoop() {
+func (s Session) handleEvents() {
 	for event := range s.ev.Events() {
 		switch event.ProgressIndication {
 		case events.IndicationStart:
 			s.StartSpinner(event.Message)
 		case events.IndicationFinish:
-			if event.Icon == "" {
-				event.Icon = icons.OK
+			icon := event.Icon
+			if icon == "" {
+				icon = icons.OK
 			}
 
 			s.StopSpinner()
-			fmt.Fprintf(s.logStream.Stdout(), "%s %s\n", event.Icon, event.Message)
+			fmt.Fprintf(s.logStream.Stdout(), "%s %s\n", icon, event.Message)
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
 
@@ -225,6 +223,4 @@ func (s Session) printLoop() {
 			resume()
 		}
 	}
-
-	s.printLoopWg.Done()
 }
