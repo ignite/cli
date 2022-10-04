@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
@@ -87,17 +88,17 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	}
 
 	c.AddCommand(NewScaffoldChain())
-	c.AddCommand(addGitChangesVerifier(NewScaffoldModule()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldList()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldMap()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldSingle()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldType()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldMessage()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldQuery()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldPacket()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldBandchain()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldVue()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldFlutter()))
+	c.AddCommand(NewScaffoldModule())
+	c.AddCommand(NewScaffoldList())
+	c.AddCommand(NewScaffoldMap())
+	c.AddCommand(NewScaffoldSingle())
+	c.AddCommand(NewScaffoldType())
+	c.AddCommand(NewScaffoldMessage())
+	c.AddCommand(NewScaffoldQuery())
+	c.AddCommand(NewScaffoldPacket())
+	c.AddCommand(NewScaffoldBandchain())
+	c.AddCommand(NewScaffoldVue())
+	c.AddCommand(NewScaffoldFlutter())
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
@@ -168,36 +169,38 @@ func scaffoldType(
 	return nil
 }
 
-func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().AddFlagSet(flagSetYes())
-
-	preRunFun := cmd.PreRunE
-	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if preRunFun != nil {
-			if err := preRunFun(cmd, args); err != nil {
-				return err
-			}
-		}
-
-		appPath := flagGetPath(cmd)
-
-		changesCommitted, err := xgit.AreChangesCommitted(appPath)
-		if err != nil {
-			return err
-		}
-
-		if !getYes(cmd) && !changesCommitted {
-			var confirmed bool
-			prompt := &survey.Confirm{
-				Message: "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
-			}
-			if err := survey.AskOne(prompt, &confirmed); err != nil || !confirmed {
-				return errors.New("said no")
-			}
-		}
+func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
+	// Don't confirm when the "--yes" flag is present
+	if getYes(cmd) {
 		return nil
 	}
-	return cmd
+
+	appPath := flagGetPath(cmd)
+	session := cliui.New()
+
+	defer session.Cleanup()
+
+	return confirmWhenUncommittedChanges(session, appPath)
+}
+
+func confirmWhenUncommittedChanges(session cliui.Session, appPath string) error {
+	cleanState, err := xgit.AreChangesCommitted(appPath)
+	if err != nil {
+		return err
+	}
+
+	if !cleanState {
+		question := "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed without committing your saved changes"
+		if err := session.AskConfirm(question); err != nil {
+			if errors.Is(err, promptui.ErrAbort) {
+				return errors.New("No")
+			}
+
+			return err
+		}
+	}
+
+	return nil
 }
 
 func flagSetScaffoldType() *flag.FlagSet {

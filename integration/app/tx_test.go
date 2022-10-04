@@ -25,13 +25,13 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 		env         = envtest.New(t)
 		appname     = "dashed-app-name"
 		app         = env.Scaffold(appname)
-		host        = app.RandomizeServerPorts()
+		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
-	nodeAddr, err := xurl.TCP(host.RPC)
+	nodeAddr, err := xurl.TCP(servers.RPC)
 	if err != nil {
-		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", host.RPC, err)
+		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", servers.RPC, err)
 	}
 
 	env.Exec("scaffold a simple list",
@@ -65,13 +65,13 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				"output", "json",
 			),
 			step.PreExec(func() error {
-				return env.IsAppServed(ctx, host)
+				return env.IsAppServed(ctx, servers.API)
 			}),
 		),
 		step.New(
 			step.Stdout(output),
 			step.PreExec(func() error {
-				err := env.IsAppServed(ctx, host)
+				err := env.IsAppServed(ctx, servers.API)
 				return err
 			}),
 			step.Exec(
@@ -116,7 +116,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
 		app         = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
-		host        = app.RandomizeServerPorts()
+		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
@@ -148,7 +148,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				"output", "json",
 			),
 			step.PreExec(func() error {
-				return env.IsAppServed(ctx, host)
+				return env.IsAppServed(ctx, servers.API)
 			}),
 		),
 		step.New(
@@ -182,7 +182,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					return errors.New("expected alice and bob accounts to be created")
 				}
 
-				nodeAddr, err := xurl.TCP(host.RPC)
+				nodeAddr, err := xurl.TCP(servers.RPC)
 				if err != nil {
 					return err
 				}
@@ -219,7 +219,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 							return err
 						}
 
-						apiAddr, err := xurl.HTTP(host.API)
+						apiAddr, err := xurl.HTTP(servers.API)
 						if err != nil {
 							return err
 						}

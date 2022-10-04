@@ -40,7 +40,7 @@ func TestNodeQueryTx(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+		if isBackendAliveErr = env.IsAppServed(ctx, servers.API); isBackendAliveErr != nil {
 			return
 		}
 		client, err := cosmosclient.New(context.Background(),
