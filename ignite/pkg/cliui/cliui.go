@@ -80,9 +80,8 @@ func StartSpinner() Option {
 
 // New creates new Session.
 func New(options ...Option) Session {
-	wg := &sync.WaitGroup{}
 	session := Session{
-		ev:          events.NewBus(events.WithWaitGroup(wg)),
+		ev:          events.NewBus(),
 		in:          os.Stdin,
 		stdout:      os.Stdout,
 		stderr:      os.Stderr,
@@ -206,23 +205,23 @@ func (s Session) printLoop() {
 	for event := range s.ev.Events() {
 		switch event.ProgressIndication {
 		case events.IndicationStart:
-			s.StartSpinner(event.Content.String())
-
+			s.StartSpinner(event.Message)
 		case events.IndicationFinish:
 			if event.Icon == "" {
 				event.Icon = icons.OK
 			}
 
 			s.StopSpinner()
-			fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content)
-
+			fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Message)
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
+
 			if event.HasIcon() {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Content)
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Message)
 			} else {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Content)
+				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Message)
 			}
+
 			resume()
 		}
 	}

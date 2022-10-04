@@ -71,7 +71,7 @@ func TestBusShutdown(t *testing.T) {
 		},
 		{
 			name: "shutdown bus with size correctly",
-			bus:  events.NewBus(events.WithCustomBufferSize(1)),
+			bus:  events.NewBus(events.WithBufferSize(1)),
 		},
 	}
 	for _, tt := range tests {

@@ -16,7 +16,7 @@ type (
 	Event struct {
 		ProgressIndication ProgressIndication
 		Icon               string
-		Content            Content
+		Message            string
 		Verbose            bool
 	}
 
@@ -53,13 +53,13 @@ func Icon(icon string) Option {
 }
 
 // New creates a new event with given config.
-func New(content Content, options ...Option) Event {
-	ev := Event{
-		Content: content,
-	}
+func New(message string, options ...Option) Event {
+	ev := Event{Message: message}
+
 	for _, applyOption := range options {
 		applyOption(&ev)
 	}
+
 	return ev
 }
 
