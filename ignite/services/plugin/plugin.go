@@ -214,7 +214,7 @@ func (p *Plugin) load() {
 	p.Interface = raw.(Interface)
 }
 
-// fetch clones the plugin repository at the expected referrence.
+// fetch clones the plugin repository at the expected reference.
 func (p *Plugin) fetch() {
 	if p.isLocal() {
 		return

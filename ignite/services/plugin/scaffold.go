@@ -10,13 +10,12 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/pkg/errors"
+
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
 
-var (
-	//go:embed template/*
-	fsPluginSource embed.FS
-)
+//go:embed template/*
+var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(moduleName).
 func Scaffold(dir, moduleName string) error {

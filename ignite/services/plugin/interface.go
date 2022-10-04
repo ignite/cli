@@ -1,10 +1,9 @@
 package plugin
 
 import (
+	"encoding/gob"
 	"log"
 	"net/rpc"
-
-	"encoding/gob"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/spf13/cobra"
@@ -20,7 +19,7 @@ type Interface interface {
 	// Commands returns one or multiple commands that will be added to the list
 	// of ignite commands. It's invoked each time ignite is executed, in
 	// order to display the list of available commands.
-	// Each commands are independant, for nested commands, use the field
+	// Each commands are independent, for nested commands, use the field
 	// Command.Commands.
 	Commands() []Command
 	// Execute will be invoked by ignite when a plugin commands is executed.
