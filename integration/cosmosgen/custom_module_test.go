@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
@@ -16,19 +17,19 @@ import (
 
 func TestCustomModule(t *testing.T) {
 	var (
-		env  = envtest.New(t)
-		app  = env.Scaffold("chain", "--no-module")
-		host = app.RandomizeServerPorts()
+		env     = envtest.New(t)
+		app     = env.Scaffold("chain", "--no-module")
+		servers = app.RandomizeServerPorts()
 	)
 
-	queryAPI, err := xurl.HTTP(host.API)
+	queryAPI, err := xurl.HTTP(servers.API)
 	require.NoError(t, err)
 
-	txAPI, err := xurl.TCP(host.RPC)
+	txAPI, err := xurl.TCP(servers.RPC)
 	require.NoError(t, err)
 
 	// Accounts to be included in the genesis
-	accounts := []chainconfig.Account{
+	accounts := []config.Account{
 		{
 			Name:    "account1",
 			Address: "cosmos1j8hw8283hj80hhq8urxaj40syrzqp77dt8qwhm",
@@ -70,7 +71,7 @@ func TestCustomModule(t *testing.T) {
 	}()
 
 	// Wait for the server to be up before running the client tests
-	err = env.IsAppServed(ctx, host)
+	err = env.IsAppServed(ctx, servers.API)
 	require.NoError(t, err)
 
 	testAccounts, err := json.Marshal(accounts)
