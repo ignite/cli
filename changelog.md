@@ -22,6 +22,11 @@
 
 - Add generated TS client test support to integration tests.
 
+### Changes
+
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
