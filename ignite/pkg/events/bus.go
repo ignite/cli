@@ -1,39 +1,32 @@
 package events
 
-import (
-	"fmt"
-	"sync"
-)
+import "fmt"
+
+// DefaultBufferSize defines the default maximum number
+// of events that the bus can cache before they are handled.
+const DefaultBufferSize = 50
 
 type (
 	// Bus is a send/receive event bus.
 	Bus struct {
-		evchan chan Event
-		buswg  *sync.WaitGroup
+		evChan chan Event
 	}
 
 	// BusOption is used to specify Bus parameters
 	BusOption func(*Bus)
 )
 
-// WithWaitGroup sets wait group which is blocked if events bus is not empty.
-func WithWaitGroup(wg *sync.WaitGroup) BusOption {
+// WithBufferSize assigns the size of the buffer to use for buffering events.
+func WithBufferSize(size int) BusOption {
 	return func(bus *Bus) {
-		bus.buswg = wg
-	}
-}
-
-// WithCustomBufferSize configures buffer size of underlying bus channel
-func WithCustomBufferSize(size int) BusOption {
-	return func(bus *Bus) {
-		bus.evchan = make(chan Event, size)
+		bus.evChan = make(chan Event, size)
 	}
 }
 
 // NewBus creates a new event bus to send/receive events.
 func NewBus(options ...BusOption) Bus {
 	bus := Bus{
-		evchan: make(chan Event),
+		evChan: make(chan Event, DefaultBufferSize),
 	}
 
 	for _, apply := range options {
@@ -44,36 +37,41 @@ func NewBus(options ...BusOption) Bus {
 }
 
 // Send sends a new event to bus.
-func (b Bus) Send(content Content, options ...Option) {
-	if b.evchan == nil {
+// This method will block if the event bus buffer is full.
+// The default buffer size can be changed using the `WithBufferSize` option.
+func (b Bus) Send(content string, options ...Option) {
+	if b.evChan == nil {
 		return
 	}
-	if b.buswg != nil {
-		b.buswg.Add(1)
-	}
-	b.evchan <- New(content, options...)
+
+	b.evChan <- New(content, options...)
 }
 
-// SendString sends an Event with a string content to the bus
-func (b Bus) SendString(content string, options ...Option) {
-	b.Send(StringContent(content), options...)
-}
-
-// Sendf sends formatted Event to the bus
+// Sendf sends formatted Event to the bus.
 func (b Bus) Sendf(options []Option, format string, args ...interface{}) {
-	content := fmt.Sprintf(format, args...)
-	b.Send(StringContent(content), options...)
+	b.Send(fmt.Sprintf(format, args...), options...)
 }
 
-// Events returns go channel with Event accessible only for read.
+// SendView sends a new event for a view to the bus.
+func (b Bus) SendView(s fmt.Stringer, options ...Option) {
+	b.Send(s.String(), options...)
+}
+
+// SendError sends a new event for an error to the bus.
+func (b Bus) SendError(err error, options ...Option) {
+	b.Send(err.Error(), options...)
+}
+
+// Events returns a read only channel to read the events.
 func (b *Bus) Events() <-chan Event {
-	return b.evchan
+	return b.evChan
 }
 
 // Shutdown shutdowns event bus.
 func (b Bus) Shutdown() {
-	if b.evchan == nil {
+	if b.evChan == nil {
 		return
 	}
-	close(b.evchan)
+
+	close(b.evChan)
 }
