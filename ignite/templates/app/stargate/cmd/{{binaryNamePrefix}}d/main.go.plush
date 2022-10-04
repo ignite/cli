@@ -3,23 +3,16 @@ package main
 import (
 	"os"
 
-    svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"<%= ModulePath %>/app"
-	"github.com/ignite/cli/ignite/pkg/cosmoscmd"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
+
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 func main() {
-	rootCmd, _ := cosmoscmd.NewRootCmd(
-        app.Name,
-        app.AccountAddressPrefix,
-        app.DefaultNodeHome,
-        xstrings.NoDash(app.Name),
-        app.ModuleBasics,
-        app.New,
-        // this line is used by starport scaffolding # root/arguments
-    )
-    if err := svrcmd.Execute(rootCmd, "", app.DefaultNodeHome); err != nil {
+	rootCmd, _ := cmd.NewRootCmd()
+	// TODO do like gaia  there
+  if err := svrcmd.Execute(rootCmd, "", app.DefaultNodeHome); err != nil {
 		os.Exit(1)
 	}
 }
