@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"testing"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -155,7 +156,13 @@ func TestPluginLoad(t *testing.T) {
 		require.NoError(err)
 		_, err = w.Add(".")
 		require.NoError(err)
-		_, err = w.Commit("msg", &git.CommitOptions{})
+		_, err = w.Commit("msg", &git.CommitOptions{
+			Author: &object.Signature{
+				Name:  "bob",
+				Email: "bob@example.com",
+				When:  time.Now(),
+			},
+		})
 		require.NoError(err)
 		return repoDir, repo
 	}
