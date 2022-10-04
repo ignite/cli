@@ -5,6 +5,7 @@
 ### Changes
 
 - Improve genesis parser for `network` commands
+- Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
 - Switch to broadcast mode sync in `cosmosclient`
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
