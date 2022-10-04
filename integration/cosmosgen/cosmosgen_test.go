@@ -113,6 +113,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 				"vuex",
 				"--yes",
 				"--proto-all-modules",
+				"--clear-cache",
 			),
 			step.Workdir(app.SourcePath()),
 		)),
@@ -147,8 +148,9 @@ func TestCosmosGenScaffold(t *testing.T) {
 	for _, mod := range expectedModules {
 		for _, dir := range []string{vueDirGenerated, tsDirGenerated} {
 			_, err := os.Stat(filepath.Join(dir, mod))
-			assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, dir)
-			require.NoError(t, err)
+			if assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, dir) {
+				assert.NoError(t, err)
+			}
 		}
 	}
 }
