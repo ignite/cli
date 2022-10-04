@@ -383,7 +383,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {

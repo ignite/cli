@@ -175,7 +175,7 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {
@@ -244,7 +244,7 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateProtoImport := `import "%[2]v/%[3]v%[4]v.proto";
+		templateProtoImport := `import "%[2]v/%[3]v/%[4]v.proto";
 %[1]v`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,

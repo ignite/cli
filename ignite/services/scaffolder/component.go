@@ -207,8 +207,8 @@ func checkForbiddenOracleFieldName(name string) error {
 }
 
 // checkCustomTypes returns error if one of the types is invalid
-func checkCustomTypes(ctx context.Context, path, module string, fields []string) error {
-	protoPath := filepath.Join(path, protoFolder, module)
+func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
+	protoPath := filepath.Join(path, protoFolder, appName, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
 		fieldSplit := strings.Split(name, datatype.Separator)
