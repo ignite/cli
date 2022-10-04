@@ -196,7 +196,7 @@ func (s Session) PrintTable(header []string, entries ...[]string) error {
 // Cleanup ensure spinner is stopped and printLoop exited correctly.
 func (s Session) Cleanup() {
 	s.StopSpinner()
-	s.ev.Shutdown()
+	s.ev.Stop()
 	s.printLoopWg.Wait()
 }
 

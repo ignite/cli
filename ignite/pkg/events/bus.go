@@ -77,8 +77,9 @@ func (b *Bus) Events() <-chan Event {
 	return b.evChan
 }
 
-// Shutdown shutdowns event bus.
-func (b Bus) Shutdown() {
+// Stop stops the event bus.
+// All new events are ignired once the event bus is stopped.
+func (b Bus) Stop() {
 	if b.evChan == nil {
 		return
 	}

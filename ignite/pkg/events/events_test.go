@@ -18,7 +18,7 @@ func TestBusSend(t *testing.T) {
 		{
 			name:  "send status ongoing event",
 			bus:   events.NewBus(),
-			event: events.New(events.StringContent("description"), events.ProgressStarted()),
+			event: events.New("description", events.ProgressStarted()),
 			options: []events.Option{
 				events.ProgressStarted(),
 			},
@@ -26,7 +26,7 @@ func TestBusSend(t *testing.T) {
 		{
 			name:  "send status done event",
 			bus:   events.NewBus(),
-			event: events.New(events.StringContent("description"), events.ProgressFinished()),
+			event: events.New("description", events.ProgressFinished()),
 			options: []events.Option{
 				events.ProgressFinished(),
 			},
@@ -34,12 +34,12 @@ func TestBusSend(t *testing.T) {
 		{
 			name:  "send status neutral event",
 			bus:   events.NewBus(),
-			event: events.New(events.StringContent("description")),
+			event: events.New("description"),
 		},
 		{
 			name:  "send event on nil bus",
 			bus:   events.Bus{},
-			event: events.New(events.StringContent("description"), events.ProgressFinished()),
+			event: events.New("description", events.ProgressFinished()),
 			options: []events.Option{
 				events.ProgressFinished(),
 			},
@@ -47,16 +47,18 @@ func TestBusSend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			go tt.bus.Send(tt.event.Content, tt.options...)
+			go tt.bus.Send(tt.event.Message, tt.options...)
+
 			if tt.bus.Events() != nil {
 				require.Equal(t, tt.event, <-tt.bus.Events())
 			}
-			tt.bus.Shutdown()
+
+			tt.bus.Stop()
 		})
 	}
 }
 
-func TestBusShutdown(t *testing.T) {
+func TestBusStop(t *testing.T) {
 	tests := []struct {
 		name string
 		bus  events.Bus
@@ -76,116 +78,98 @@ func TestBusShutdown(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.bus.Shutdown()
+			tt.bus.Stop()
 		})
 	}
 }
 
 func TestEventIsOngoing(t *testing.T) {
-	type fields struct {
-		status      events.ProgressIndication
-		description string
-	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   bool
+		name    string
+		status  events.ProgressIndication
+		message string
+		want    bool
 	}{
-		{"status ongoing", fields{events.IndicationStart, "description"}, true},
-		{"status done", fields{events.IndicationFinish, "description"}, false},
+		{"status ongoing", events.IndicationStart, "description", true},
+		{"status done", events.IndicationFinish, "description", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := events.Event{
-				ProgressIndication: tt.fields.status,
-				Content:            events.StringContent(tt.fields.description),
+				ProgressIndication: tt.status,
+				Message:            tt.message,
 			}
+
 			require.Equal(t, tt.want, e.IsOngoing())
 		})
 	}
 }
 
 func TestEventString(t *testing.T) {
-	type fields struct {
-		status      events.ProgressIndication
-		description string
-	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   string
+		name    string
+		status  events.ProgressIndication
+		message string
+		want    string
 	}{
 		{
-			name: "status done",
-			fields: fields{
-				status:      events.IndicationFinish,
-				description: "description",
-			},
-			want: "description",
+			name:    "status done",
+			status:  events.IndicationFinish,
+			message: "message",
+			want:    "message",
 		},
 		{
-			name: "status ongoing",
-			fields: fields{
-				status:      events.IndicationStart,
-				description: "description",
-			},
-			want: "description",
+			name:    "status ongoing",
+			status:  events.IndicationStart,
+			message: "message",
+			want:    "message",
 		},
 		{
-			name: "status ongoing with empty description",
-			fields: fields{
-				status:      events.IndicationStart,
-				description: "",
-			},
-			want: "",
+			name:    "status ongoing with empty message",
+			status:  events.IndicationStart,
+			message: "",
+			want:    "",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := events.Event{
-				ProgressIndication: tt.fields.status,
-				Content:            events.StringContent(tt.fields.description),
+				ProgressIndication: tt.status,
+				Message:            tt.message,
 			}
-			require.Equal(t, tt.want, e.Content.String())
+
+			require.Equal(t, tt.want, e.Message)
 		})
 	}
 }
 
 func TestNew(t *testing.T) {
-	type args struct {
-		content events.Content
-		options []events.Option
-	}
 	tests := []struct {
-		name string
-		args args
-		want events.Event
+		name    string
+		message string
+		options []events.Option
+		want    events.Event
 	}{
 		{
-			"zero value args",
-			args{},
-			events.Event{},
+			name: "zero value args",
+			want: events.Event{},
 		},
 		{
-			"status ongoing",
-			args{
-				options: []events.Option{events.ProgressStarted()},
-				content: events.StringContent("description"),
-			},
-			events.Event{ProgressIndication: 1, Content: events.StringContent("description")},
+			name:    "status ongoing",
+			options: []events.Option{events.ProgressStarted()},
+			message: "message",
+			want:    events.Event{ProgressIndication: 1, Message: "message"},
 		},
 		{
-			"status done",
-			args{
-				options: []events.Option{events.ProgressFinished()},
-				content: events.StringContent("description"),
-			},
-			events.Event{ProgressIndication: 2, Content: events.StringContent("description")},
+			name:    "status done",
+			options: []events.Option{events.ProgressFinished()},
+			message: "message",
+			want:    events.Event{ProgressIndication: 2, Message: "message"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.want, events.New(tt.args.content, tt.args.options...))
+			require.Equal(t, tt.want, events.New(tt.message, tt.options...))
 		})
 	}
 }
