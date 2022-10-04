@@ -105,7 +105,7 @@ func flagSetHome() *flag.FlagSet {
 
 func flagNetworkFrom() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	fs.String(flagFrom, cosmosaccount.DefaultAccount, "account name to use for sending transactions to SPN")
 	return fs
 }
 
@@ -114,9 +114,20 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
+func flagSetConfig() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.StringP(flagConfig, "c", "", "ignite config file (default: ./config.yml)")
+	return fs
+}
+
+func getConfig(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagConfig)
+	return
+}
+
 func flagSetYes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.BoolP(flagYes, "y", false, "Answers interactive yes/no questions with yes")
+	fs.BoolP(flagYes, "y", false, "answers interactive yes/no questions with yes")
 	return fs
 }
 

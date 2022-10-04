@@ -14,15 +14,18 @@ import (
 // NewScaffoldBandchain creates a new BandChain oracle in the module
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "band [queryName] --module [moduleName]",
-		Short: "Scaffold an IBC BandChain query oracle to request real-time data",
-		Long:  "Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  createBandchainHandler,
+		Use:     "band [queryName] --module [moduleName]",
+		Short:   "Scaffold an IBC BandChain query oracle to request real-time data",
+		Long:    "Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    createBandchainHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
