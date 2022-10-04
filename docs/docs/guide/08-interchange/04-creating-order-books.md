@@ -22,9 +22,9 @@ First, define a function that returns an order book store key:
 // x/dex/types/keys.go
 import "fmt"
 
-//...
-func OrderBookIndex( portID string, channelID string, sourceDenom string, targetDenom string, ) string {
-  return fmt.Sprintf("%s-%s-%s-%s", portID, channelID, sourceDenom, targetDenom, )
+// ...
+func OrderBookIndex(portID string, channelID string, sourceDenom string, targetDenom string) string {
+	return fmt.Sprintf("%s-%s-%s-%s", portID, channelID, sourceDenom, targetDenom)
 }
 ```
 
@@ -56,9 +56,9 @@ Now, add the logic to check for an existing order book for a particular pair of 
 // x/dex/keeper/msg_server_create_pair.go
 
 import (
-  "errors"
+	"errors"
 
-  //...
+	//...
 )
 
 func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreatePair) (*types.MsgSendCreatePairResponse, error) {
@@ -209,8 +209,8 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 	book := NewOrderBook()
 	return BuyOrderBook{
 		AmountDenom: AmountDenom,
-		PriceDenom: PriceDenom,
-		Book: &book,
+		PriceDenom:  PriceDenom,
+		Book:        &book,
 	}
 }
 ```
@@ -222,26 +222,26 @@ When an IBC packet is received on the target chain, the module must check whethe
 // x/dex/keeper/create_pair.go
 
 func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData) (packetAck types.CreatePairPacketAck, err error) {
-  // ...
+	// ...
 
-  // Get an order book index
-  pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
+	// Get an order book index
+	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
 
-  // If an order book is found, return an error
-  _, found := k.GetBuyOrderBook(ctx, pairIndex)
-  if found {
-    return packetAck, errors.New("the pair already exist")
-  }
+	// If an order book is found, return an error
+	_, found := k.GetBuyOrderBook(ctx, pairIndex)
+	if found {
+		return packetAck, errors.New("the pair already exist")
+	}
 
-  // Create a new buy order book for source and target denoms
-  book := types.NewBuyOrderBook(data.SourceDenom, data.TargetDenom)
+	// Create a new buy order book for source and target denoms
+	book := types.NewBuyOrderBook(data.SourceDenom, data.TargetDenom)
 
-  // Assign order book index
-  book.Index = pairIndex
+	// Assign order book index
+	book.Index = pairIndex
 
-  // Save the order book to the store
-  k.SetBuyOrderBook(ctx, book)
-  return packetAck, nil
+	// Save the order book to the store
+	k.SetBuyOrderBook(ctx, book)
+	return packetAck, nil
 }
 ```
 
@@ -262,8 +262,8 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 	book := NewOrderBook()
 	return SellOrderBook{
 		AmountDenom: AmountDenom,
-		PriceDenom: PriceDenom,
-		Book: &book,
+		PriceDenom:  PriceDenom,
+		Book:        &book,
 	}
 }
 ```
@@ -312,8 +312,8 @@ In this section, you implemented the logic behind the new `send-create-pair` com
 package types
 
 import (
-  "errors"
-  "sort"
+	"errors"
+	"sort"
 )
 
 func NewOrderBook() OrderBook {
