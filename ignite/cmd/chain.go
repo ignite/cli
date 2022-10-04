@@ -1,6 +1,25 @@
 package ignitecmd
 
-import "github.com/spf13/cobra"
+import (
+	"bytes"
+	"errors"
+	"fmt"
+	"os"
+
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+)
+
+var (
+	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
+	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
+	msgMigrationPrompt = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
+)
 
 // NewChain returns a command that groups sub commands related to compiling, serving
 // blockchains and so on.
@@ -56,17 +75,77 @@ to send token from any other account that exists on chain.
 The "simulate" command helps you start a simulation testing process for your
 chain.
 `,
-		Aliases: []string{"c"},
-		Args:    cobra.ExactArgs(1),
+		Aliases:           []string{"c"},
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: configMigrationPreRunHandler,
 	}
 
-	c.AddCommand(
-		NewChainServe(),
-		NewChainBuild(),
-		NewChainInit(),
-		NewChainFaucet(),
-		NewChainSimulate(),
-	)
+	// Add flags required for the configMigrationPreRunHandler
+	c.PersistentFlags().AddFlagSet(flagSetConfig())
+	c.PersistentFlags().AddFlagSet(flagSetYes())
+
+	c.AddCommand(NewChainServe())
+	c.AddCommand(NewChainBuild())
+	c.AddCommand(NewChainInit())
+	c.AddCommand(NewChainFaucet())
+	c.AddCommand(NewChainSimulate())
 
 	return c
+}
+
+func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error) {
+	session := cliui.New()
+	defer session.Cleanup()
+
+	appPath := flagGetPath(cmd)
+	configPath := getConfig(cmd)
+	if configPath == "" {
+		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
+			return err
+		}
+	}
+
+	rawCfg, err := os.ReadFile(configPath)
+	if err != nil {
+		return err
+	}
+
+	version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
+	if err != nil {
+		return err
+	}
+
+	// Config files with older versions must be migrated to the latest before executing the command
+	if version != chainconfig.LatestVersion {
+		if !getYes(cmd) {
+			// Confirm before overwritting the config file
+			question := fmt.Sprintf(msgMigrationPrompt, version, chainconfig.LatestVersion)
+			if err := session.AskConfirm(question); err != nil {
+				if errors.Is(err, promptui.ErrAbort) {
+					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
+				}
+
+				return err
+			}
+
+			// Confirm before migrating the config if there are uncommitted changes
+			if err := confirmWhenUncommittedChanges(session, appPath); err != nil {
+				return err
+			}
+		} else {
+			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, chainconfig.LatestVersion))
+		}
+
+		file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0o755)
+		if err != nil {
+			return err
+		}
+
+		defer file.Close()
+
+		// Convert the current config to the latest version and update the YAML file
+		return chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
+	}
+
+	return nil
 }

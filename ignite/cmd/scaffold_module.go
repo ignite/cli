@@ -88,12 +88,15 @@ you can specify a type for each param. For example:
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
 `,
-		Args: cobra.ExactArgs(1),
-		RunE: scaffoldModuleHandler,
+		Args:    cobra.ExactArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    scaffoldModuleHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
