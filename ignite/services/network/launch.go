@@ -28,7 +28,7 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 
 // TriggerLaunch launches a chain as a coordinator
 func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime time.Time) error {
-	n.ev.SendString(fmt.Sprintf("Launching chain %d", launchID), events.ProgressStarted())
+	n.ev.Send(fmt.Sprintf("Launching chain %d", launchID), events.ProgressStarted())
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime 
 	}
 
 	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, launchTime)
-	n.ev.SendString("Setting launch time", events.ProgressStarted())
+	n.ev.Send("Setting launch time", events.ProgressStarted())
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime 
 		return err
 	}
 
-	n.ev.SendString(
+	n.ev.Send(
 		fmt.Sprintf("Chain %d will be launched on %s", launchID, launchTime),
 		events.ProgressFinished(),
 	)
@@ -77,7 +77,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime 
 
 // RevertLaunch reverts a launched chain as a coordinator
 func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain) error {
-	n.ev.SendString(fmt.Sprintf("Reverting launched chain %d", launchID), events.ProgressStarted())
+	n.ev.Send(fmt.Sprintf("Reverting launched chain %d", launchID), events.ProgressStarted())
 
 	address, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -90,15 +90,15 @@ func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain)
 		return err
 	}
 
-	n.ev.SendString(
+	n.ev.Send(
 		fmt.Sprintf("Chain %d launch was reverted", launchID),
 		events.ProgressFinished(),
 	)
 
-	n.ev.SendString("Resetting the genesis time", events.ProgressStarted())
+	n.ev.Send("Resetting the genesis time", events.ProgressStarted())
 	if err := chain.ResetGenesisTime(); err != nil {
 		return err
 	}
-	n.ev.SendString("Genesis time was reset", events.ProgressFinished())
+	n.ev.Send("Genesis time was reset", events.ProgressFinished())
 	return nil
 }

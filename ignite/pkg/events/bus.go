@@ -1,18 +1,22 @@
 package events
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+)
 
 // DefaultBufferSize defines the default maximum number
 // of events that the bus can cache before they are handled.
 const DefaultBufferSize = 50
 
 type (
-	// Bus is a send/receive event bus.
+	// Bus defines a bus to send and receive events.
 	Bus struct {
 		evChan chan Event
 	}
 
-	// BusOption is used to specify Bus parameters
+	// BusOption configures the Bus.
 	BusOption func(*Bus)
 )
 
@@ -23,7 +27,7 @@ func WithBufferSize(size int) BusOption {
 	}
 }
 
-// NewBus creates a new event bus to send/receive events.
+// NewBus creates a new event bus.
 func NewBus(options ...BusOption) Bus {
 	bus := Bus{
 		evChan: make(chan Event, DefaultBufferSize),
@@ -38,28 +42,34 @@ func NewBus(options ...BusOption) Bus {
 
 // Send sends a new event to bus.
 // This method will block if the event bus buffer is full.
-// The default buffer size can be changed using the `WithBufferSize` option.
-func (b Bus) Send(content string, options ...Option) {
+func (b Bus) Send(message string, options ...Option) {
 	if b.evChan == nil {
 		return
 	}
 
-	b.evChan <- New(content, options...)
+	b.evChan <- New(message, options...)
 }
 
-// Sendf sends formatted Event to the bus.
-func (b Bus) Sendf(options []Option, format string, args ...interface{}) {
-	b.Send(fmt.Sprintf(format, args...), options...)
+// Sendf sends a new event with a formatted message to bus.
+func (b Bus) Sendf(format string, a ...any) {
+	b.Send(fmt.Sprintf(format, a...))
+}
+
+// SendInfo sends an info event to the bus.
+func (b Bus) SendInfo(message string, options ...Option) {
+	b.Send(colors.Info(message), options...)
+}
+
+// SendInfo sends an error event to the bus.
+func (b Bus) SendError(err error, options ...Option) {
+	b.Send(colors.Error(err.Error()), options...)
 }
 
 // SendView sends a new event for a view to the bus.
+// Views are types that implement the `fmt.Stringer` interface
+// which allow events with complex message formats.
 func (b Bus) SendView(s fmt.Stringer, options ...Option) {
 	b.Send(s.String(), options...)
-}
-
-// SendError sends a new event for an error to the bus.
-func (b Bus) SendError(err error, options ...Option) {
-	b.Send(err.Error(), options...)
 }
 
 // Events returns a read only channel to read the events.

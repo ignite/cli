@@ -31,7 +31,7 @@ func (c Chain) SimulateRequests(
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
 ) (err error) {
-	c.ev.SendString("Verifying requests format", events.ProgressStarted())
+	c.ev.Send("Verifying requests format", events.ProgressStarted())
 	for _, req := range reqs {
 		// static verification of the request
 		if err := networktypes.VerifyRequest(req); err != nil {
@@ -44,7 +44,7 @@ func (c Chain) SimulateRequests(
 			return err
 		}
 	}
-	c.ev.SendString("Requests format verified", events.ProgressFinished())
+	c.ev.Send("Requests format verified", events.ProgressFinished())
 
 	// prepare the chain with the requests
 	if err := c.Prepare(
@@ -59,11 +59,11 @@ func (c Chain) SimulateRequests(
 		return err
 	}
 
-	c.ev.SendString("Trying starting the network with the requests", events.ProgressStarted())
+	c.ev.Send("Trying starting the network with the requests", events.ProgressStarted())
 	if err := c.simulateChainStart(ctx); err != nil {
 		return err
 	}
-	c.ev.SendString("The network can be started", events.ProgressFinished())
+	c.ev.Send("The network can be started", events.ProgressFinished())
 
 	return nil
 }

@@ -158,8 +158,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		}
 	}
 
-	c.ev.SendString("🗂  Initialize accounts...")
-	c.ev.Send(accview.Collection(accs...))
+	c.ev.Send("🗂  Initialize accounts...")
+	c.ev.SendView(accview.Collection(accs...))
 
 	_, err = c.IssueGentx(ctx, Validator{
 		Name:          conf.Validator.Name,

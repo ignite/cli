@@ -18,7 +18,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	"github.com/ignite/cli/ignite/pkg/localfs"
@@ -158,11 +157,11 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if c.served {
 						c.served = false
 
-						c.ev.SendString("💿 Saving genesis state...")
+						c.ev.Send("💿 Saving genesis state...")
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							c.ev.Send(errorview.NewError(err))
+							c.ev.SendError(err)
 							return err
 						}
 
@@ -170,17 +169,18 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						if err != nil {
 							return err
 						}
-						c.ev.SendString(fmt.Sprintf("💿 Genesis state saved in %s", genesisPath))
+
+						c.ev.Sendf("💿 Genesis state saved in %s", genesisPath)
 					}
 				case errors.As(err, &buildErr):
-					c.ev.Send(errorview.NewError(err))
+					c.ev.SendError(err)
 
 					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
-						c.ev.SendString("see: https://github.com/ignite/cli#configure")
+						c.ev.Send("see: https://github.com/ignite/cli#configure")
 					}
 
-					c.ev.SendString(colors.Info("Waiting for a fix before retrying..."))
+					c.ev.SendInfo("Waiting for a fix before retrying...")
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -189,7 +189,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
-						c.ev.SendString(
+						c.ev.Send(
 							fmt.Sprintf(
 								"%s %s",
 								colors.Info("Blockchain failed to start.\nIf the new code is no longer compatible with the saved state, you can reset the database by launching:"),
@@ -217,7 +217,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 }
 
 func (c *Chain) setup() error {
-	c.ev.SendString(fmt.Sprintf("Cosmos SDK's version is: %s", colors.Info(c.Version)))
+	c.ev.Sendf("Cosmos SDK's version is: %s", colors.Info(c.Version))
 
 	return c.checkSystem()
 }
@@ -293,7 +293,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 
 		if forceReset || configModified {
 			// if forceReset is set, we consider the app as being not initialized
-			c.ev.SendString("🔄 Resetting the app state...")
+			c.ev.Send("🔄 Resetting the app state...")
 			isInit = false
 		}
 	}
@@ -349,7 +349,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	// init phase
 	// nolint:gocritic
 	if !isInit || (appModified && !exportGenesisExists) {
-		c.ev.SendString("💿 Initializing the app...")
+		c.ev.Send("💿 Initializing the app...")
 
 		if err := c.Init(ctx, true); err != nil {
 			return err
@@ -357,7 +357,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
-		c.ev.SendString("💿 Existent genesis detected, restoring the database...")
+		c.ev.Send("💿 Existent genesis detected, restoring the database...")
 
 		if err := commands.UnsafeReset(ctx); err != nil {
 			return err
@@ -367,7 +367,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 			return err
 		}
 	} else {
-		c.ev.SendString("▶  Restarting existing app...")
+		c.ev.Send("▶  Restarting existing app...")
 	}
 
 	// save checksums
@@ -431,12 +431,12 @@ func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	apiAddr, _ := xurl.HTTP(config.Host.API)
 
 	// log the server addresses.
-	c.ev.SendString(fmt.Sprintf("🌍 Tendermint node: %s", rpcAddr))
-	c.ev.SendString(fmt.Sprintf("🌍 Blockchain API: %s", apiAddr))
+	c.ev.Sendf("🌍 Tendermint node: %s", rpcAddr)
+	c.ev.Sendf("🌍 Blockchain API: %s", apiAddr)
 
 	if isFaucetEnabled {
 		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
-		c.ev.SendString(fmt.Sprintf("🌍 Token faucet: %s", faucetAddr))
+		c.ev.Sendf("🌍 Token faucet: %s", faucetAddr)
 	}
 
 	return g.Wait()

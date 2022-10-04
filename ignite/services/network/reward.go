@@ -15,7 +15,7 @@ import (
 
 // SetReward set a chain reward
 func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
-	n.ev.SendString(
+	n.ev.Send(
 		fmt.Sprintf("Setting reward %s to the chain %d at height %d", coins, launchID, lastRewardHeight),
 		events.ProgressStarted(),
 	)
@@ -42,9 +42,9 @@ func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeigh
 	}
 
 	if setRewardRes.PreviousCoins.Empty() {
-		n.ev.SendString("The reward pool was empty", events.Icon(icons.Info), events.ProgressFinished())
+		n.ev.Send("The reward pool was empty", events.Icon(icons.Info), events.ProgressFinished())
 	} else {
-		n.ev.SendString(
+		n.ev.Send(
 			fmt.Sprintf("Previous reward pool %s at height %d is overwritten", coins, lastRewardHeight),
 			events.Icon(icons.Info),
 			events.ProgressFinished(),
@@ -52,9 +52,9 @@ func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeigh
 	}
 
 	if setRewardRes.NewCoins.Empty() {
-		n.ev.SendString("The reward pool is removed", events.ProgressFinished())
+		n.ev.Send("The reward pool is removed", events.ProgressFinished())
 	} else {
-		n.ev.SendString(
+		n.ev.Send(
 			fmt.Sprintf(
 				"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
 				coins,

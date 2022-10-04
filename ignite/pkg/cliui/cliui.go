@@ -34,8 +34,8 @@ type Session struct {
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
-	verbosity        Verbosity
-	defaultLogStream LogStream
+	verbosity Verbosity
+	logStream LogStream
 
 	printLoopWg *sync.WaitGroup
 }
@@ -91,13 +91,13 @@ func New(options ...Option) Session {
 		apply(&session)
 	}
 
-	session.defaultLogStream = session.NewLogStream(defaultLogStreamLabel, defaultLogStreamColor)
+	session.logStream = session.NewLogStream(defaultLogStreamLabel, defaultLogStreamColor)
 	if session.verbosity != VerbosityVerbose {
 		session.verbosity = VerbositySilent
 	}
 
 	if session.startSpinnerImmediately {
-		session.spinner = clispinner.New(clispinner.WithWriter(session.defaultLogStream.Stdout()))
+		session.spinner = clispinner.New(clispinner.WithWriter(session.logStream.Stdout()))
 	}
 
 	session.printLoopWg.Add(1)
@@ -113,7 +113,7 @@ func (s Session) EventBus() events.Bus {
 // StartSpinner starts spinner.
 func (s Session) StartSpinner(text string) {
 	if s.spinner == nil {
-		s.spinner = clispinner.New(clispinner.WithWriter(s.defaultLogStream.Stdout()))
+		s.spinner = clispinner.New(clispinner.WithWriter(s.logStream.Stdout()))
 	}
 	s.spinner.SetText(text).Start()
 }
@@ -144,14 +144,14 @@ func (s Session) PauseSpinner() (mightResume func()) {
 // Printf prints formatted arbitrary message.
 func (s Session) Printf(format string, a ...interface{}) error {
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprintf(s.defaultLogStream.Stdout(), format, a...)
+	_, err := fmt.Fprintf(s.logStream.Stdout(), format, a...)
 	return err
 }
 
 // Println prints arbitrary message with line break.
 func (s Session) Println(messages ...interface{}) error {
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprintln(s.defaultLogStream.Stdout(), messages...)
+	_, err := fmt.Fprintln(s.logStream.Stdout(), messages...)
 	return err
 }
 
@@ -163,7 +163,7 @@ func (s Session) PrintSaidNo() error {
 // Println prints arbitrary message
 func (s Session) Print(messages ...interface{}) error {
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprint(s.defaultLogStream.Stdout(), messages...)
+	_, err := fmt.Fprint(s.logStream.Stdout(), messages...)
 	return err
 }
 
@@ -180,7 +180,7 @@ func (s Session) AskConfirm(message string) error {
 	prompt := promptui.Prompt{
 		Label:     message,
 		IsConfirm: true,
-		Stdout:    s.defaultLogStream.Stdout(),
+		Stdout:    s.logStream.Stdout(),
 		Stdin:     s.in,
 	}
 	_, err := prompt.Run()
@@ -190,7 +190,7 @@ func (s Session) AskConfirm(message string) error {
 // PrintTable prints table data.
 func (s Session) PrintTable(header []string, entries ...[]string) error {
 	defer s.PauseSpinner()()
-	return entrywriter.MustWrite(s.defaultLogStream.Stdout(), header, entries...)
+	return entrywriter.MustWrite(s.logStream.Stdout(), header, entries...)
 }
 
 // Cleanup ensure spinner is stopped and printLoop exited correctly.
@@ -212,14 +212,14 @@ func (s Session) printLoop() {
 			}
 
 			s.StopSpinner()
-			fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Message)
+			fmt.Fprintf(s.logStream.Stdout(), "%s %s\n", event.Icon, event.Message)
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
 
 			if event.HasIcon() {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s %s\n", event.Icon, event.Message)
+				fmt.Fprintf(s.logStream.Stdout(), "%s %s\n", event.Icon, event.Message)
 			} else {
-				fmt.Fprintf(s.defaultLogStream.Stdout(), "%s\n", event.Message)
+				fmt.Fprintf(s.logStream.Stdout(), "%s\n", event.Message)
 			}
 
 			resume()
