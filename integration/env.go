@@ -6,9 +6,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -17,17 +19,25 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 const (
-	IgniteApp = "ignite"
-	Stargate  = "stargate"
+	ConfigYML = "config.yml"
 )
 
-var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
+var (
+	// IgniteApp hold the location of the ignite binary used in the integration
+	// tests. The binary is compiled the first time the env.New() function is
+	// invoked.
+	IgniteApp = path.Join(os.TempDir(), "ignite-tests", "ignite")
+
+	isCI, _           = strconv.ParseBool(os.Getenv("CI"))
+	compileBinaryOnce sync.Once
+)
 
 // Env provides an isolated testing environment and what's needed to
 // make it possible.
@@ -44,12 +54,29 @@ func New(t *testing.T) Env {
 		ctx: ctx,
 	}
 	t.Cleanup(cancel)
-
-	if !xexec.IsCommandAvailable(IgniteApp) {
-		t.Fatal("ignite needs to be installed")
-	}
-
+	compileBinaryOnce.Do(func() {
+		compileBinary(ctx)
+	})
 	return e
+}
+
+func compileBinary(ctx context.Context) {
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(fmt.Sprintf("unable to get working dir: %v", err))
+	}
+	_, appPath, err := gomodulepath.Find(wd)
+	if err != nil {
+		panic(fmt.Sprintf("unable to read go module path: %v", err))
+	}
+	var (
+		output, binary = filepath.Split(IgniteApp)
+		path           = path.Join(appPath, "ignite", "cmd", "ignite")
+	)
+	err = gocmd.BuildPath(ctx, output, binary, path, nil)
+	if err != nil {
+		panic(fmt.Sprintf("error while building binary: %v", err))
+	}
 }
 
 func (e Env) T() *testing.T {
