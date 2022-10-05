@@ -11,6 +11,9 @@
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
 - Switched codegen client to use `axios` instead of `fetch`
 - nodetime built with `vercel/pkg@5.6.0`
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
+- Update `cosmos-sdk` version to `v0.46.2` and `ibc-go` to `v5.0.0`
 
 ### Fixes
 
@@ -24,10 +27,6 @@
 
 - Add generated TS client test support to integration tests.
 
-### Changes
-
-- Change nightly tag format
-- Add cosmos-sdk version in `version` command
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
