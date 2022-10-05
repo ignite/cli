@@ -96,21 +96,19 @@ type runOptions struct {
 
 // run executes a command.
 func (r Runner) run(ctx context.Context, runOptions runOptions, stepOptions ...step.Option) error {
-	var (
-		stdout, stderr io.Writer
+	// we use a truncated buffer to prevent memory leak
+	// this is because Stargate app currently send logs to StdErr
+	// therefore if the app successfully starts, the written logs can become extensive
+	errb := truncatedbuffer.NewTruncatedBuffer(runOptions.wrappedStdErrMaxLen)
 
-		// we use a truncated buffer to prevent memory leak
-		// this is because Stargate app currently send logs to StdErr
-		// therefore if the app successfully starts, the written logs can become extensive
-		errb = truncatedbuffer.NewTruncatedBuffer(runOptions.wrappedStdErrMaxLen)
-	)
-
+	stdout := r.stdout
 	if runOptions.stdout != nil {
-		stdout = io.MultiWriter(r.stdout, runOptions.stdout)
+		stdout = io.MultiWriter(stdout, runOptions.stdout)
 	}
 
+	stderr := r.stderr
 	if runOptions.stderr != nil {
-		stderr = io.MultiWriter(r.stderr, runOptions.stderr)
+		stderr = io.MultiWriter(stderr, runOptions.stderr)
 	}
 
 	stderr = io.MultiWriter(stderr, errb)
