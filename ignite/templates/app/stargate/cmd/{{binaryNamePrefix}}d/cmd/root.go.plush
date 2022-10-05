@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"<%= ModulePath %>/app"
+
 	appparams "<%= ModulePath %>/app/params"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
