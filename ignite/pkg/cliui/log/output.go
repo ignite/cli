@@ -25,8 +25,9 @@ const (
 
 // Output stores writers for standard output and error.
 type Output struct {
-	stdout io.WriteCloser
-	stderr io.WriteCloser
+	verbosity Verbosity
+	stdout    io.WriteCloser
+	stderr    io.WriteCloser
 }
 
 // Stdout returns the standard output writer.
@@ -37,6 +38,11 @@ func (o Output) Stdout() io.WriteCloser {
 // Stderr returns the standard error writer.
 func (o Output) Stderr() io.WriteCloser {
 	return o.stderr
+}
+
+// Verbosity returns the log output verbosity.
+func (o Output) Verbosity() Verbosity {
+	return o.verbosity
 }
 
 type option struct {
@@ -103,6 +109,8 @@ func NewOutput(options ...Option) (out Output) {
 	for _, apply := range options {
 		apply(&o)
 	}
+
+	out.verbosity = o.verbosity
 
 	switch o.verbosity {
 	case VerbositySilent:
