@@ -115,14 +115,14 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 
 func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Import the type
-		templateImport := `import "%s/%s%/s.proto";
+		templateImport := `import "%s/%s/%s.proto";
 %s`
 		replacementImport := fmt.Sprintf(templateImport,
 			opts.AppName,
@@ -238,13 +238,13 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		templateProtoImport := `import "%[2]v/%[3]v/%[4].proto";
+		templateProtoImport := `import "%[2]v/%[3]v/%[4]v.proto";
 %[1]v`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,
@@ -478,16 +478,17 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Import
-		templateImport := `import "%s/%s.proto";
+		templateImport := `import "%s/%s/%s.proto";
 %s`
 		replacementImport := fmt.Sprintf(templateImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 			typed.PlaceholderProtoTxImport,
