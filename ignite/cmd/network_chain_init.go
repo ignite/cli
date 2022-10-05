@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
@@ -126,13 +126,17 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.ParseGenesisFromPath(genesisPath)
+	genesis, err := cosmosgenesis.FromPath(genesisPath)
+	if err != nil {
+		return err
+	}
+	stakeDenom, err := genesis.StakeDenom()
 	if err != nil {
 		return err
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, session, genesis.StakeDenom)
+	v, err := askValidatorInfo(cmd, session, stakeDenom)
 	if err != nil {
 		return err
 	}

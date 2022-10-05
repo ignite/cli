@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"text/tabwriter"
 
@@ -20,21 +21,11 @@ import (
 
 const (
 	versionDev     = "development"
-	versionNightly = "v0.0.0-nightly"
+	versionNightly = "nightly"
 )
 
-const prefix = "v"
-
-var (
-	// Version is the semantic version of Ignite CLI.
-	Version = versionDev
-
-	// Date is the build date of Ignite CLI.
-	Date = "-"
-
-	// Head is the HEAD of the current branch.
-	Head = "-"
-)
+// Version is the semantic version of Ignite CLI.
+var Version = versionDev
 
 // CheckNext checks whether there is a new version of Ignite CLI.
 func CheckNext(ctx context.Context) (isAvailable bool, version string, err error) {
@@ -54,12 +45,12 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		return false, "", nil
 	}
 
-	currentVersion, err := semver.Parse(strings.TrimPrefix(Version, prefix))
+	currentVersion, err := semver.ParseTolerant(Version)
 	if err != nil {
 		return false, "", err
 	}
 
-	latestVersion, err := semver.Parse(strings.TrimPrefix(*latest.TagName, prefix))
+	latestVersion, err := semver.ParseTolerant(*latest.TagName)
 	if err != nil {
 		return false, "", err
 	}
@@ -72,9 +63,35 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 // Long generates a detailed version info.
 func Long(ctx context.Context) string {
 	var (
-		w = &tabwriter.Writer{}
-		b = &bytes.Buffer{}
+		w          = &tabwriter.Writer{}
+		b          = &bytes.Buffer{}
+		date       = "undefined"
+		head       = "undefined"
+		modified   bool
+		sdkVersion = "undefined"
 	)
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, dep := range info.Deps {
+			if dep.Path == "github.com/cosmos/cosmos-sdk" {
+				sdkVersion = dep.Version
+				break
+			}
+		}
+		for _, kv := range info.Settings {
+			switch kv.Key {
+			case "vcs.revision":
+				head = kv.Value
+			case "vcs.time":
+				date = kv.Value
+			case "vcs.modified":
+				modified = kv.Value == "true"
+			}
+		}
+		if modified {
+			// add * suffix to head to indicate the sources have been modified.
+			head += "*"
+		}
+	}
 
 	write := func(k string, v interface{}) {
 		fmt.Fprintf(w, "%s:\t%v\n", k, v)
@@ -83,8 +100,9 @@ func Long(ctx context.Context) string {
 	w.Init(b, 0, 8, 0, '\t', 0)
 
 	write("Ignite CLI version", Version)
-	write("Ignite CLI build date", Date)
-	write("Ignite CLI source hash", Head)
+	write("Ignite CLI build date", date)
+	write("Ignite CLI source hash", head)
+	write("Cosmos SDK version", sdkVersion)
 
 	write("Your OS", runtime.GOOS)
 	write("Your arch", runtime.GOARCH)
