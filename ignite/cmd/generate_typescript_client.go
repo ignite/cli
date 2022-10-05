@@ -27,7 +27,7 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 
 	session.StartSpinner("Generating...")
 
-	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
+	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen(), chain.WithSession(session))
 	if err != nil {
 		return err
 	}
