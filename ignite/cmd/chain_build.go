@@ -101,7 +101,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
 		output, _         = cmd.Flags().GetString(flagOutput)
-		session           = cliui.New(cliui.WithVerbosity(logLevel(cmd)), cliui.StartSpinner())
+		session           = cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
 	)
 
 	defer session.End()

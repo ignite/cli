@@ -89,7 +89,7 @@ commands manually to ensure a production-level node initialization.
 
 func chainInitHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(
-		cliui.WithVerbosity(logLevel(cmd)),
+		cliui.WithVerbosity(getVerbosity(cmd)),
 		cliui.StartSpinner(),
 	)
 

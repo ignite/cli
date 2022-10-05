@@ -30,7 +30,7 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		toAddress = args[0]
 		coins     = args[1]
 		session   = cliui.New(
-			cliui.WithVerbosity(logLevel(cmd)),
+			cliui.WithVerbosity(getVerbosity(cmd)),
 			cliui.StartSpinner(),
 		)
 	)

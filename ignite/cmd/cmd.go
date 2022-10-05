@@ -81,7 +81,7 @@ ignite scaffold chain github.com/username/mars`,
 	return c
 }
 
-func logLevel(cmd *cobra.Command) uilog.Verbosity {
+func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
 	if verbose, _ := cmd.Flags().GetBool("verbose"); verbose {
 		return uilog.VerbosityVerbose
 	}
