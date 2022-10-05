@@ -118,13 +118,6 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
-// CollectEvents defines an event bus for the chain.
-func CollectEvents(bus events.Bus) Option {
-	return func(c *Chain) {
-		c.ev = bus
-	}
-}
-
 // WithSession sets the CLI output session for the chain.
 func WithSession(s cliui.Session) Option {
 	return func(c *Chain) {

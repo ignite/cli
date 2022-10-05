@@ -97,7 +97,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
-		chain.CollectEvents(session.EventBus()),
+		chain.WithSession(session),
 	}
 
 	if flagGetCheckDependencies(cmd) {

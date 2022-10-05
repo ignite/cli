@@ -74,7 +74,6 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	chainOption := []chain.Option{
-		chain.CollectEvents(session.EventBus()),
 		chain.WithSession(session),
 	}
 
