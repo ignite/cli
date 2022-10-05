@@ -13,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -51,8 +52,8 @@ type Chain struct {
 	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
 	protoBuiltAtLeastOnce bool
 
-	ev          events.Bus
-	logStreamer cliui.LogStreamer
+	ev      events.Bus
+	session *cliui.Session
 }
 
 // chainOptions holds user given options that overwrites chain's defaults.
@@ -117,17 +118,18 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
-// CollectEvents defines an event bus for the chain
+// CollectEvents defines an event bus for the chain.
 func CollectEvents(bus events.Bus) Option {
 	return func(c *Chain) {
 		c.ev = bus
 	}
 }
 
-// WithLogStreamer sets the log streamer for the chain
-func WithLogStreamer(ls cliui.LogStreamer) Option {
+// WithSession sets the CLI output session for the chain.
+func WithSession(s cliui.Session) Option {
 	return func(c *Chain) {
-		c.logStreamer = ls
+		c.session = &s
+		c.ev = c.session.EventBus()
 	}
 }
 
@@ -453,12 +455,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	ccrOptions := []chaincmdrunner.Option{}
 
-	if c.logStreamer != nil {
-		logStream := c.logStreamer.NewLogStream(c.app.D(), 96)
+	// Enable command output only when CLI session verbosity is enabled
+	if c.session != nil && c.session.Verbosity() == uilog.VerbosityVerbose {
+		out := c.session.LogOutput(c.app.D(), 96)
 		ccrOptions = append(
 			ccrOptions,
-			chaincmdrunner.Stdout(logStream.Stdout()),
-			chaincmdrunner.Stderr(logStream.Stderr()))
+			chaincmdrunner.Stdout(out.Stdout()),
+			chaincmdrunner.Stderr(out.Stderr()),
+		)
 	}
 
 	return chaincmdrunner.New(ctx, cc, ccrOptions...)

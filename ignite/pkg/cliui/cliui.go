@@ -11,90 +11,93 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-// Verbosity enumerates possible verbosity levels for cli output
-type Verbosity uint8
-
-const (
-	VerbosityRegular = iota
-	VerbositySilent
-	VerbosityVerbose
-)
-
-// Session controls command line interaction with users.
-type Session struct {
-	ev                      events.Bus
-	spinner                 *clispinner.Spinner
-	startSpinnerImmediately bool
-
-	in     io.ReadCloser
+type sessionOptions struct {
+	stdin  io.ReadCloser
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
-	verbosity Verbosity
-	logStream LogStream
+	startSpinner bool
+	verbosity    uilog.Verbosity
 }
 
-// Option is used to customize Session during creation
+// Session controls command line interaction with users.
+type Session struct {
+	options sessionOptions
+	ev      events.Bus
+	spinner *clispinner.Spinner
+	out     uilog.Output
+}
+
+// Option configures session options.
 type Option func(s *Session)
 
-// WithStdout sets base stdout for a Session.
+// WithStdout sets the starndard output for the session.
 func WithStdout(stdout io.WriteCloser) Option {
 	return func(s *Session) {
-		s.stdout = stdout
+		s.options.stdout = stdout
 	}
 }
 
 // WithStderr sets base stderr for a Session
 func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
-		s.stderr = stderr
+		s.options.stderr = stderr
 	}
 }
 
-// WithInput sets input stream for a Session.
-func WithInput(input io.ReadCloser) Option {
+// WithStdout sets the starndard input for the session.
+func WithStdin(stdin io.ReadCloser) Option {
 	return func(s *Session) {
-		s.in = input
+		s.options.stdin = stdin
 	}
 }
 
-// WithVerbosity sets verbosity level for Session
-func WithVerbosity(v Verbosity) Option {
+// WithVerbosity sets a verbosity level for the Session.
+func WithVerbosity(v uilog.Verbosity) Option {
 	return func(s *Session) {
-		s.verbosity = v
+		s.options.verbosity = v
 	}
 }
 
-// StartSpinner forces spinner to be spinning right after creation
+// StartSpinner forces spinner to be spinning right after creation.
 func StartSpinner() Option {
 	return func(s *Session) {
-		s.startSpinnerImmediately = true
+		s.options.startSpinner = true
 	}
 }
 
-// New creates new Session.
+// New creates a new Session.
 func New(options ...Option) Session {
 	session := Session{
-		ev:     events.NewBus(),
-		in:     os.Stdin,
-		stdout: os.Stdout,
-		stderr: os.Stderr,
+		ev: events.NewBus(),
+		options: sessionOptions{
+			stdin:  os.Stdin,
+			stdout: os.Stdout,
+			stderr: os.Stderr,
+		},
 	}
 
 	for _, apply := range options {
 		apply(&session)
 	}
 
-	session.logStream = session.NewLogStream(defaultLogStreamLabel, defaultLogStreamColor)
-	if session.verbosity != VerbosityVerbose {
-		session.verbosity = VerbositySilent
+	logOptions := []uilog.Option{
+		uilog.WithStdout(session.options.stdout),
+		uilog.WithStderr(session.options.stderr),
 	}
 
-	if session.startSpinnerImmediately {
-		session.spinner = clispinner.New(clispinner.WithWriter(session.logStream.Stdout()))
+	if session.options.verbosity == uilog.VerbosityVerbose {
+		logOptions = append(logOptions, uilog.Verbose())
+	}
+
+	session.out = uilog.NewOutput(logOptions...)
+
+	if session.options.startSpinner {
+		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
 	}
 
 	go session.handleEvents()
@@ -107,10 +110,32 @@ func (s Session) EventBus() events.Bus {
 	return s.ev
 }
 
+// Verbosity returns the verbosity level for the session output.
+func (s Session) Verbosity() uilog.Verbosity {
+	return s.options.verbosity
+}
+
+// LogOutput returns a new log output bound to the session.
+// The new output will use the session's verbosity, stderr and stdout.
+// Label and color arguments are used to prefix the output when the
+// session verbosity is verbose.
+func (s Session) LogOutput(label string, color uint8) uilog.Output {
+	options := []uilog.Option{
+		uilog.WithStdout(s.options.stdout),
+		uilog.WithStderr(s.options.stderr),
+	}
+
+	if s.options.verbosity == uilog.VerbosityVerbose {
+		options = append(options, uilog.CustomVerbose(label, color))
+	}
+
+	return uilog.NewOutput(options...)
+}
+
 // StartSpinner starts the spinner.
 func (s Session) StartSpinner(text string) {
 	if s.spinner == nil {
-		s.spinner = clispinner.New(clispinner.WithWriter(s.logStream.Stdout()))
+		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
 	}
 
 	s.spinner.SetText(text).Start()
@@ -142,14 +167,14 @@ func (s Session) PauseSpinner() (restart func()) {
 // Printf prints formatted arbitrary message.
 func (s Session) Printf(format string, a ...interface{}) error {
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprintf(s.logStream.Stdout(), format, a...)
+	_, err := fmt.Fprintf(s.out.Stdout(), format, a...)
 	return err
 }
 
 // Println prints arbitrary message with line break.
 func (s Session) Println(messages ...interface{}) error {
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprintln(s.logStream.Stdout(), messages...)
+	_, err := fmt.Fprintln(s.out.Stdout(), messages...)
 	return err
 }
 
@@ -161,7 +186,7 @@ func (s Session) PrintSaidNo() error {
 // Println prints arbitrary message
 func (s Session) Print(messages ...interface{}) error {
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprint(s.logStream.Stdout(), messages...)
+	_, err := fmt.Fprint(s.out.Stdout(), messages...)
 	return err
 }
 
@@ -178,8 +203,8 @@ func (s Session) AskConfirm(message string) error {
 	prompt := promptui.Prompt{
 		Label:     message,
 		IsConfirm: true,
-		Stdout:    s.logStream.Stdout(),
-		Stdin:     s.in,
+		Stdout:    s.out.Stdout(),
+		Stdin:     s.options.stdin,
 	}
 	_, err := prompt.Run()
 	return err
@@ -188,7 +213,7 @@ func (s Session) AskConfirm(message string) error {
 // PrintTable prints table data.
 func (s Session) PrintTable(header []string, entries ...[]string) error {
 	defer s.PauseSpinner()()
-	return entrywriter.MustWrite(s.logStream.Stdout(), header, entries...)
+	return entrywriter.MustWrite(s.out.Stdout(), header, entries...)
 }
 
 // End finishes the session by stopping the spinner and the event bus.
@@ -199,6 +224,8 @@ func (s Session) End() {
 }
 
 func (s Session) handleEvents() {
+	stdout := s.out.Stdout()
+
 	for event := range s.ev.Events() {
 		switch event.ProgressIndication {
 		case events.IndicationStart:
@@ -210,14 +237,14 @@ func (s Session) handleEvents() {
 			}
 
 			s.StopSpinner()
-			fmt.Fprintf(s.logStream.Stdout(), "%s %s\n", icon, event.Message)
+			fmt.Fprintf(stdout, "%s %s\n", icon, event.Message)
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
 
 			if event.HasIcon() {
-				fmt.Fprintf(s.logStream.Stdout(), "%s %s\n", event.Icon, event.Message)
+				fmt.Fprintf(stdout, "%s %s\n", event.Icon, event.Message)
 			} else {
-				fmt.Fprintf(s.logStream.Stdout(), "%s\n", event.Message)
+				fmt.Fprintf(stdout, "%s\n", event.Message)
 			}
 
 			resume()

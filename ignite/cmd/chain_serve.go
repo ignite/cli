@@ -75,7 +75,7 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 
 	chainOption := []chain.Option{
 		chain.CollectEvents(session.EventBus()),
-		chain.WithLogStreamer(session),
+		chain.WithSession(session),
 	}
 
 	if flagGetProto3rdParty(cmd) {

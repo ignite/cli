@@ -16,6 +16,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
@@ -80,12 +81,12 @@ ignite scaffold chain github.com/username/mars`,
 	return c
 }
 
-func logLevel(cmd *cobra.Command) cliui.Verbosity {
-	verbose, _ := cmd.Flags().GetBool("verbose")
-	if verbose {
-		return cliui.VerbosityVerbose
+func logLevel(cmd *cobra.Command) uilog.Verbosity {
+	if verbose, _ := cmd.Flags().GetBool("verbose"); verbose {
+		return uilog.VerbosityVerbose
 	}
-	return cliui.VerbosityRegular
+
+	return uilog.VerbosityDefault
 }
 
 func flagSetPath(cmd *cobra.Command) {
