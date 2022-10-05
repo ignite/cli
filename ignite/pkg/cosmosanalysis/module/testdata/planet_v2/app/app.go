@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/cosmos/cosmos-sdk/api/tendermint/abci"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	planet "github.com/tendermint/planet/x/planet"
+	planet "github.com/tendermint/mars/x/mars"
 )
 
 type Foo struct {
