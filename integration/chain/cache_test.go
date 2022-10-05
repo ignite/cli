@@ -90,7 +90,7 @@ func TestCliWithCaching(t *testing.T) {
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 

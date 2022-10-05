@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -13,14 +14,16 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	envtest "github.com/ignite/cli/integration"
 )
 
 const (
-	spnModule  = "github.com/tendermint/spn"
-	spnRepoURL = "https://" + spnModule
+	spnModule     = "github.com/tendermint/spn"
+	spnRepoURL    = "https://" + spnModule
+	spnConfigFile = "config_2.yml"
 )
 
 func cloneSPN(t *testing.T) string {
@@ -66,6 +69,26 @@ func cloneSPN(t *testing.T) string {
 	return path
 }
 
+func migrateSPNConfig(t *testing.T, spnPath string) {
+	configPath := filepath.Join(spnPath, spnConfigFile)
+	rawCfg, err := os.ReadFile(configPath)
+	require.NoError(t, err)
+
+	version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
+	require.NoError(t, err)
+	if version != chainconfig.LatestVersion {
+		t.Logf("migrating spn config from v%d to v%d", version, chainconfig.LatestVersion)
+
+		file, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o755)
+		require.NoError(t, err)
+
+		defer file.Close()
+
+		err = chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
+		require.NoError(t, err)
+	}
+}
+
 func TestNetworkPublish(t *testing.T) {
 	var (
 		spnPath = cloneSPN(t)
@@ -73,9 +96,8 @@ func TestNetworkPublish(t *testing.T) {
 		spn     = env.App(
 			spnPath,
 			envtest.AppHomePath(t.TempDir()),
-			envtest.AppConfigPath(path.Join(spnPath, "config_2.yml")),
+			envtest.AppConfigPath(path.Join(spnPath, spnConfigFile)),
 		)
-		servers = spn.Config().Host
 	)
 
 	var (
@@ -83,10 +105,17 @@ func TestNetworkPublish(t *testing.T) {
 		isBackendAliveErr error
 	)
 
+	// Make sure that the SPN config file is at the latest version
+	migrateSPNConfig(t, spnPath)
+
+	validator := spn.Config().Validators[0]
+	servers, err := validator.GetServers()
+	require.NoError(t, err)
+
 	go func() {
 		defer cancel()
 
-		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+		if isBackendAliveErr = env.IsAppServed(ctx, servers.API.Address); isBackendAliveErr != nil {
 			return
 		}
 		var b bytes.Buffer
