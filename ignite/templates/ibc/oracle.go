@@ -182,9 +182,9 @@ import "cosmos/base/v1beta1/coin.proto";`, "")
 		// Import
 		templateImport := `import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "%[2]v/%[3]v.proto";
+import "%[2]v/%[3]v/%[4]v.proto";
 %[1]v`
-		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport, opts.ModuleName, opts.QueryName.Snake)
+		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport, opts.AppName, opts.ModuleName, opts.QueryName.Snake)
 		content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 
 		// RPC
