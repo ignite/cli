@@ -9,6 +9,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 
+	"github.com/tendermint/spn/pkg/chainid"
+
 	"github.com/ignite/cli/ignite/chainconfig"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
@@ -17,7 +19,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
 	"github.com/ignite/cli/ignite/pkg/xurl"
-	"github.com/tendermint/spn/pkg/chainid"
 )
 
 var (

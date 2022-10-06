@@ -3,8 +3,9 @@ package xnet_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/ignite/pkg/xnet"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
 func TestLocalhostIPv4Address(t *testing.T) {
