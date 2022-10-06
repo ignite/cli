@@ -34,6 +34,9 @@ type Adapter interface {
 	// GetLatestHeight returns the height of the latest block known by the data backend.
 	GetLatestHeight(context.Context) (int64, error)
 
+	// QueryEvents executes an event query in the data backend.
+	QueryEvents(context.Context, query.EventQuery) ([]query.Event, error)
+
 	// Query executes a query in the data backend.
 	Query(context.Context, query.Query) (query.Cursor, error)
 }

@@ -11,11 +11,6 @@ import (
 )
 
 const (
-	entityEvent     = "event"
-	entityEventAttr = "attribute"
-)
-
-const (
 	fieldEventAttrName  = "attribute.name"
 	fieldEventAttrValue = "attribute.value"
 	fieldEventCreatedAt = "event.created_at"
@@ -33,10 +28,15 @@ const (
 const (
 	sqlSelectAll = "SELECT *"
 	sqlFromTX    = "FROM tx"
-)
+	sqlWhereTrue = "WHERE true"
+	sqlFromEvent = "FROM event INNER JOIN attribute ON event.id = attribute.event_id"
 
-const (
-	tplFromEventSQL = "FROM %[1]v INNER JOIN %[2]v ON %[1]v.id = %[2]v.event_id"
+	tplSelectEventsSQL = `
+		SELECT e.id, e.index, e.tx_hash, e.type, e.created_at
+		FROM event AS e INNER JOIN tx ON e.tx_hash = tx.hash
+		%s
+		ORDER BY tx.height, tx.index, e.index
+	`
 )
 
 var (
@@ -78,9 +78,7 @@ func parseCallQuery(q query.Query) (string, error) {
 	}
 
 	// Add WHERE
-	if s := parseFilters(q.GetFilters()); s != "" {
-		sections = append(sections, s)
-	}
+	sections = append(sections, parseFilters(q.GetFilters()))
 
 	// Add ORDER BY
 	sortBy, err := parseSortBy(q.GetSortBy())
@@ -93,11 +91,25 @@ func parseCallQuery(q query.Query) (string, error) {
 	}
 
 	// Add LIMIT/OFFSET
-	if q.IsPagingEnabled() {
-		sections = append(sections, parsePaging(q))
+	if s := parsePaging(q); s != "" {
+		sections = append(sections, s)
 	}
 
 	return strings.Join(sections, " "), nil
+}
+
+func parseEventQuery(q query.EventQuery) string {
+	// Add SELECT
+	sections := []string{
+		fmt.Sprintf(tplSelectEventsSQL, parseFilters(q.GetFilters())),
+	}
+
+	// Add LIMIT/OFFSET
+	if s := parsePaging(q); s != "" {
+		sections = append(sections, s)
+	}
+
+	return strings.Join(sections, " ")
 }
 
 func parseEntityQuery(q query.Query) (string, error) {
@@ -182,7 +194,7 @@ func parseEntity(e query.Entity) (string, error) {
 	case adapter.EntityTX:
 		return sqlFromTX, nil
 	case adapter.EntityEvent:
-		return fmt.Sprintf(tplFromEventSQL, entityEvent, entityEventAttr), nil
+		return sqlFromEvent, nil
 	}
 
 	return "", ErrUnknownEntity
@@ -190,7 +202,7 @@ func parseEntity(e query.Entity) (string, error) {
 
 func parseFilters(filters []query.Filter) string {
 	if len(filters) == 0 {
-		return ""
+		return sqlWhereTrue
 	}
 
 	pos := 0
@@ -236,7 +248,11 @@ func parseSortBy(sortInfo []query.SortBy) (string, error) {
 	return orderBy, nil
 }
 
-func parsePaging(q query.Query) string {
+func parsePaging(q query.Pager) string {
+	if !q.IsPagingEnabled() {
+		return ""
+	}
+
 	// Get the current page and make sure that the page number is valid
 	page := q.GetAtPage()
 	if page == 0 {

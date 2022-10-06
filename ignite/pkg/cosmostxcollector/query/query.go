@@ -16,6 +16,18 @@ const (
 	SortOrderDesc = "desc"
 )
 
+// Pager describes support for paging query results.
+type Pager interface {
+	// GetPageSize returns the size for each query result set.
+	GetPageSize() uint32
+
+	// GetAtPage returns the result set page to query.
+	GetAtPage() uint32
+
+	// IsPagingEnabled checks if the query results should be paginated.
+	IsPagingEnabled() bool
+}
+
 // Entity defines a data backend entity.
 type Entity uint
 

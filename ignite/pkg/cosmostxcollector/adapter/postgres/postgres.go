@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	_ "github.com/lib/pq" // required to register postgres sql driver
+	"github.com/lib/pq"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -29,6 +29,11 @@ const (
 	sqlSelectBlockHeight = `
 		SELECT COALESCE(MAX(height), 0)
 		FROM tx
+	`
+	sqlSelectEventAttrs = `
+		SELECT event_id, name, value FROM attribute
+		WHERE event_id = ANY($1)
+		ORDER BY event_id
 	`
 	sqlInsertTX = `
 		INSERT INTO tx (hash, index, height, block_time)
@@ -228,19 +233,78 @@ func (a Adapter) GetLatestHeight(ctx context.Context) (height int64, err error) 
 	return height, nil
 }
 
+func (a Adapter) QueryEvents(ctx context.Context, q query.EventQuery) ([]query.Event, error) {
+	db, err := a.getDB()
+	if err != nil {
+		return nil, err
+	}
+
+	sql := parseEventQuery(q)
+	args := extractEventQueryArgs(q)
+	rows, err := db.QueryContext(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		events   []query.Event
+		eventIDs []int64
+
+		// Keep an index of the event position within the events slice
+		// to find them later when updating their attributes.
+		eventIndexes = make(map[int64]int)
+	)
+
+	for i := 0; rows.Next(); i++ {
+		e := query.Event{}
+		if err := rows.Scan(&e.ID, &e.Index, &e.TXHash, &e.Type, &e.CreatedAt); err != nil {
+			return nil, fmt.Errorf("failed to read event: %w", err)
+		}
+
+		events = append(events, e)
+		eventIDs = append(eventIDs, e.ID)
+
+		eventIndexes[e.ID] = i
+	}
+
+	// Select the attributes for the events that matched the query
+	rows, err = db.QueryContext(ctx, sqlSelectEventAttrs, pq.Array(eventIDs))
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the attributes of the selected events
+	for rows.Next() {
+		var (
+			eventID int64
+			name    string
+			value   []byte
+		)
+
+		if err := rows.Scan(&eventID, &name, &value); err != nil {
+			return nil, fmt.Errorf("failed to read event attribute: %w", err)
+		}
+
+		i := eventIndexes[eventID]
+		events[i].Attributes = append(events[i].Attributes, query.NewAttribute(name, value))
+	}
+
+	return events, nil
+}
+
 func (a Adapter) Query(ctx context.Context, q query.Query) (query.Cursor, error) {
 	db, err := a.getDB()
 	if err != nil {
 		return nil, err
 	}
 
-	query, err := parseQuery(q)
+	sql, err := parseQuery(q)
 	if err != nil {
 		return nil, err
 	}
 
 	args := extractQueryArgs(q)
-	rows, err := db.QueryContext(ctx, query, args...)
+	rows, err := db.QueryContext(ctx, sql, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -339,6 +403,16 @@ func extractQueryArgs(q query.Query) (args []any) {
 	}
 
 	// Add the values from the filters
+	for _, f := range q.GetFilters() {
+		if a := f.Value(); a != nil {
+			args = append(args, a)
+		}
+	}
+
+	return args
+}
+
+func extractEventQueryArgs(q query.EventQuery) (args []any) {
 	for _, f := range q.GetFilters() {
 		if a := f.Value(); a != nil {
 			args = append(args, a)
