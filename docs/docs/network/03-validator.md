@@ -1,0 +1,148 @@
+---
+sidebar_position: 3
+description: Ignite Network commands for validator.
+---
+
+# Validator Guide
+
+Validators join as genesis validator for chain launches on Ignite Chain
+
+---
+
+## List all published chains
+
+```
+ignite n chain list
+```
+
+### Output
+
+```
+Launch Id 	Chain Id 	Source ...
+
+3 		    example-1 	https://github.com/ignite/example
+2 		    spn-10 		https://github.com/tendermint/spn
+1 	        example-20 	https://github.com/tendermint/spn
+```
+
+---
+
+## Request network participation
+
+### Simple Flow
+
+`ignite` can handle validator setup automatically. Initialize the node and generate a gentx file with default values:
+
+```
+ignite n chain init 3
+```
+
+_NOTE: here "3" is specifying the `LaunchID`_
+
+#### Output
+
+```
+✔ Source code fetched
+✔ Blockchain set up
+✔ Blockchain initialized
+✔ Genesis initialized
+? Staking amount 95000000stake
+? Commission rate 0.10
+? Commission max rate 0.20
+? Commission max change rate 0.01
+⋆ Gentx generated: /Users/lucas/spn/3/config/gentx/gentx.json
+```
+
+Now, create and broadcast a request to join a chain as a validator:
+
+```
+ignite n chain join 3 --amount 100000000stake
+```
+
+The join command accepts an optional --amount flag with a comma-separated list of tokens. If the flag is provided, the
+command will broadcast a request to add the validator’s address as an account to the genesis with the specific amount.
+
+#### Output
+
+```
+? Peer's address 192.168.0.1:26656
+✔ Source code fetched
+✔ Blockchain set up
+✔ Account added to the network by the coordinator!
+✔ Validator added to the network by the coordinator!
+```
+
+---
+
+### Advanced Flow
+
+Using a more advanced setup (e.g. custom `gentx`), validators must provide an additional flag to their command
+to point to the custom file:
+
+```
+ignite n chain join 3 --amount 100000000stake --gentx ~/chain/config/gentx/gentx.json
+```
+
+---
+
+## Launch the network
+
+### Simple Flow
+
+Generate the final genesis and config of the node:
+
+```
+ignite n chain prepare 3
+```
+
+#### Output
+
+```
+✔ Source code fetched
+✔ Blockchain set up
+✔ Chain's binary built
+✔ Genesis initialized
+✔ Genesis built
+✔ Chain is prepared for launch
+```
+
+Next, start the node:
+
+```
+exampled start --home ~/spn/3
+```
+
+---
+
+### Advanced Flow
+
+Fetch the final genesis for the chain:
+
+```
+ignite n chain show genesis 3
+```
+
+#### Output
+
+```
+✔ Source code fetched
+✔ Blockchain set up
+✔ Blockchain initialized
+✔ Genesis initialized
+✔ Genesis built
+⋆ Genesis generated: ./genesis.json
+```
+
+Next, fetch the persistent peer list:
+
+```
+ignite n chain show peers 3
+```
+
+#### Output
+
+```
+⋆ Peer list generated: ./peers.txt
+```
+
+The fetched genesis file and peer list can be used for a manual node setup.
