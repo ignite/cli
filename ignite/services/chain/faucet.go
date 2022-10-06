@@ -55,7 +55,13 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	// construct faucet options.
-	apiAddress := conf.Host.API
+	validator := conf.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
+		return cosmosfaucet.Faucet{}, err
+	}
+
+	apiAddress := servers.API.Address
 	if envAPIAddress != "" {
 		apiAddress = envAPIAddress
 	}

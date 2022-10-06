@@ -16,14 +16,17 @@ const (
 // NewScaffoldQuery command creates a new type command to scaffold queries
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "query [name] [request_field1] [request_field2] ...",
-		Short: "Query to get data from the blockchain",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  queryHandler,
+		Use:     "query [name] [request_field1] [request_field2] ...",
+		Short:   "Query to get data from the blockchain",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    queryHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")

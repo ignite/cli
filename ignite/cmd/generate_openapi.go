@@ -10,11 +10,16 @@ import (
 )
 
 func NewGenerateOpenAPI() *cobra.Command {
-	return &cobra.Command{
-		Use:   "openapi",
-		Short: "Generate generates an OpenAPI spec for your chain from your config.yml",
-		RunE:  generateOpenAPIHandler,
+	c := &cobra.Command{
+		Use:     "openapi",
+		Short:   "Generate generates an OpenAPI spec for your chain from your config.yml",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateOpenAPIHandler,
 	}
+
+	c.Flags().AddFlagSet(flagSetYes())
+
+	return c
 }
 
 func generateOpenAPIHandler(cmd *cobra.Command, args []string) error {

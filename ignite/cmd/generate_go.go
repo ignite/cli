@@ -10,11 +10,16 @@ import (
 )
 
 func NewGenerateGo() *cobra.Command {
-	return &cobra.Command{
-		Use:   "proto-go",
-		Short: "Generate proto based Go code needed for the app's source code",
-		RunE:  generateGoHandler,
+	c := &cobra.Command{
+		Use:     "proto-go",
+		Short:   "Generate proto based Go code needed for the app's source code",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateGoHandler,
 	}
+
+	c.Flags().AddFlagSet(flagSetYes())
+
+	return c
 }
 
 func generateGoHandler(cmd *cobra.Command, args []string) error {

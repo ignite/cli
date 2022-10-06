@@ -14,26 +14,11 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/jsonfile"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
-
-// ResetGenesisTime reset the chain genesis time
-func (c Chain) ResetGenesisTime() error {
-	// set the genesis time for the chain
-	genesisPath, err := c.GenesisPath()
-	if err != nil {
-		return errors.Wrap(err, "genesis of the blockchain can't be read")
-	}
-
-	if err := cosmosutil.UpdateGenesis(
-		genesisPath,
-		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, 0),
-	); err != nil {
-		return errors.Wrap(err, "genesis time can't be set")
-	}
-	return nil
-}
 
 // Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(
@@ -133,31 +118,32 @@ func (c Chain) buildGenesis(
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
 
-	// set genesis time and chain id
-	genesisFields := []cosmosutil.GenesisField{
-		cosmosutil.WithKeyValue(cosmosutil.FieldChainID, c.id),
-		cosmosutil.WithKeyValueTimestamp(cosmosutil.FieldGenesisTime, c.launchTime.Unix()),
+	genesis, err := cosmosgenesis.FromPath(genesisPath)
+	if err != nil {
+		return errors.Wrap(err, "genesis of the blockchain can't be parsed")
 	}
 
-	// TODO: implement a single option for all reward related fields
-	// a single query will include all these options on SPN https://github.com/tendermint/spn/issues/815
-	// such a refactoring can be worked afte the implementation of the query
+	// update chain ID and launch time
+	if err := genesis.Update(
+		jsonfile.WithKeyValue(cosmosgenesis.FieldChainID, c.id),
+		jsonfile.WithKeyValueTimestamp(cosmosgenesis.FieldGenesisTime, c.launchTime.Unix()),
+	); err != nil {
+		return errors.Wrap(err, "genesis cannot be updated")
+	}
+
+	// update reward related fields if the testnet is incentivized (with a last block height for reward distribution)
 	if lastBlockHeight > 0 {
-		genesisFields = append(
-			genesisFields,
-			cosmosutil.WithKeyValue(cosmosutil.FieldConsensusTimestamp, rewardsInfo.ConsensusState.Timestamp),
-			cosmosutil.WithKeyValue(cosmosutil.FieldConsensusNextValidatorsHash, rewardsInfo.ConsensusState.NextValidatorsHash),
-			cosmosutil.WithKeyValue(cosmosutil.FieldConsensusRootHash, rewardsInfo.ConsensusState.Root.Hash),
-			cosmosutil.WithKeyValueUint(cosmosutil.FieldConsumerRevisionHeight, rewardsInfo.RevisionHeight),
-			cosmosutil.WithKeyValue(cosmosutil.FieldConsumerChainID, spnChainID),
-			cosmosutil.WithKeyValueInt(cosmosutil.FieldLastBlockHeight, lastBlockHeight),
-			cosmosutil.WithKeyValueInt(cosmosutil.FieldConsumerUnbondingPeriod, consumerUnbondingTime),
-		)
-	}
-
-	// update genesis
-	if err := cosmosutil.UpdateGenesis(genesisPath, genesisFields...); err != nil {
-		return errors.Wrap(err, "genesis time can't be set")
+		if err := genesis.Update(
+			jsonfile.WithKeyValue(cosmosgenesis.FieldConsumerChainID, spnChainID),
+			jsonfile.WithKeyValueInt(cosmosgenesis.FieldLastBlockHeight, lastBlockHeight),
+			jsonfile.WithKeyValue(cosmosgenesis.FieldConsensusTimestamp, rewardsInfo.ConsensusState.Timestamp),
+			jsonfile.WithKeyValue(cosmosgenesis.FieldConsensusNextValidatorsHash, rewardsInfo.ConsensusState.NextValidatorsHash),
+			jsonfile.WithKeyValue(cosmosgenesis.FieldConsensusRootHash, rewardsInfo.ConsensusState.Root.Hash),
+			jsonfile.WithKeyValueInt(cosmosgenesis.FieldConsumerUnbondingPeriod, consumerUnbondingTime),
+			jsonfile.WithKeyValueUint(cosmosgenesis.FieldConsumerRevisionHeight, rewardsInfo.RevisionHeight),
+		); err != nil {
+			return errors.Wrap(err, "genesis cannot be updated for reward related fields")
+		}
 	}
 
 	c.ev.Send(events.New(events.StatusDone, "Genesis built"))
