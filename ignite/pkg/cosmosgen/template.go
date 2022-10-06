@@ -21,6 +21,8 @@ var (
 	templateTSClientModule  = newTemplateWriter("module")
 	templateTSClientVue     = newTemplateWriter("vue")
 	templateTSClientVueRoot = newTemplateWriter("vue-root")
+	templateTSClientComposable     = newTemplateWriter("composable")
+	templateTSClientComposableRoot = newTemplateWriter("composable-root")
 )
 
 type templateWriter struct {

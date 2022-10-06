@@ -13,18 +13,20 @@ import (
 )
 
 const (
-	defaultVuexPath    = "vue/src/store"
-	defaultDartPath    = "flutter/lib"
-	defaultOpenAPIPath = "docs/static/openapi.yml"
+	defaultVuexPath        = "vue/src/store"
+	defaultComposablesPath = "vue/src/composables"
+	defaultDartPath        = "flutter/lib"
+	defaultOpenAPIPath     = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
-	isGoEnabled       bool
-	isTSClientEnabled bool
-	isVuexEnabled     bool
-	isDartEnabled     bool
-	isOpenAPIEnabled  bool
-	tsClientPath      string
+	isGoEnabled          bool
+	isTSClientEnabled    bool
+	isComposablesEnabled bool
+	isVuexEnabled        bool
+	isDartEnabled        bool
+	isOpenAPIEnabled     bool
+	tsClientPath         string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -47,11 +49,19 @@ func GenerateTSClient(path string) GenerateTarget {
 	}
 }
 
-// GenerateTSClient enables generating proto based Typescript Client.
+// GenerateVuex enables generating proto based Typescript Client and Vuex Stores.
 func GenerateVuex() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
+	}
+}
+
+// GenerateComposables enables generating proto based Typescript Client and Vue 3 composables.
+func GenerateComposables() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+		o.isComposablesEnabled = true
 	}
 }
 
@@ -85,6 +95,10 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
+	}
+
+	if conf.Client.Composables.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateComposables())
 	}
 
 	if conf.Client.Dart.Path != "" {
@@ -168,6 +182,25 @@ func (c *Chain) Generate(
 				enableThirdPartyModuleCodegen,
 				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
+			),
+		)
+	}
+
+	if targetOptions.isComposablesEnabled {
+		composablesPath := conf.Client.Composables.Path
+		if composablesPath == "" {
+			composablesPath = defaultComposablesPath
+		}
+
+		if err := os.MkdirAll(composablesPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithComposablesGeneration(
+				enableThirdPartyModuleCodegen,
+				cosmosgen.ComposableModulePath(composablesPath),
+				composablesPath,
 			),
 		)
 	}

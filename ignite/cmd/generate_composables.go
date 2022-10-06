@@ -9,17 +9,17 @@ import (
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
-func NewGenerateVuex() *cobra.Command {
+func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "vuex",
-		Short: "*DEPRECATED* Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
-		RunE:  generateVuexHandler,
+		Use:   "composables",
+		Short: "Generate Typescript client and Vue 3 composables for your chain's frontend from your `config.yml` file",
+		RunE:  generateComposablesHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	return c
 }
 
-func generateVuexHandler(cmd *cobra.Command, args []string) error {
+func generateComposablesHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
@@ -33,12 +33,12 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateVuex()); err != nil {
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables()); err != nil {
 		return err
 	}
 
 	s.Stop()
-	fmt.Println("⛏️  Generated Typescript Client and Vuex stores")
+	fmt.Println("⛏️  Generated Typescript Client and Vue 3 composables")
 
 	return nil
 }

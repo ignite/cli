@@ -123,7 +123,10 @@ type Client struct {
 	Typescript Typescript `yaml:"typescript"`
 
 	// Vuex configures code generation for Vuex stores.
-	Vuex Typescript `yaml:"vuex"`
+	Vuex Vuex `yaml:"vuex"`
+
+	// Composables configures code generation for Vue 3 composables.
+	Composables Composables `yaml:"composables"`
 
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart"`
@@ -140,6 +143,12 @@ type Typescript struct {
 
 // Vuex configures code generation for Vuex stores.
 type Vuex struct {
+	// Path configures out location for generated Vuex stores code.
+	Path string `yaml:"path"`
+}
+
+// Vuex configures code generation for Vuex stores.
+type Composables struct {
 	// Path configures out location for generated Vuex stores code.
 	Path string `yaml:"path"`
 }
