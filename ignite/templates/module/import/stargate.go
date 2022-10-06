@@ -148,21 +148,29 @@ func appModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny
 // main.go modification on Stargate when importing wasm
 func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "cmd", opts.BinaryNamePrefix+"d/main.go")
+		path := filepath.Join(opts.AppPath, "cmd", opts.BinaryNamePrefix+"d/cmd/root.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		templateArgs := `cosmoscmd.AddSubCmd(wasmcmd.GenesisWasmMsgCmd(app.DefaultNodeHome)),
-cosmoscmd.CustomizeStartCmd(wasmcmd.AddModuleInitFlags),
+		// add wasm import
+		templateImport := `%[1]v
+		"github.com/tendermint/spm-extras/wasmcmd"`
+		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgRootModuleImport)
+		content := replacer.Replace(f.String(), module.PlaceholderSgRootModuleImport, replacementImport)
+
+		// add wasm command
+		templateCommands := `wasmcmd.GenesisWasmMsgCmd(app.DefaultNodeHome),
+		%[1]v`
+		replacementCommands := fmt.Sprintf(templateCommands, module.PlaceholderSgRootCommands)
+		content = replacer.Replace(content, module.PlaceholderSgRootCommands, replacementCommands)
+
+		// add wasm start args
+		templateArgs := `wasmcmd.AddModuleInitFlags(startCmd)
 		%[1]v`
 		replacementArgs := fmt.Sprintf(templateArgs, module.PlaceholderSgRootArgument)
-		content := replacer.Replace(f.String(), module.PlaceholderSgRootArgument, replacementArgs)
-
-		// import spm-extras.
-		content = replacer.Replace(content, "package main", `package main
-import "github.com/tendermint/spm-extras/wasmcmd"`)
+		content = replacer.Replace(content, module.PlaceholderSgRootArgument, replacementArgs)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
