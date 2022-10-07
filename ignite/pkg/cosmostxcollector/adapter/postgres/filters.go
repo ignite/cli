@@ -84,23 +84,31 @@ func (f Filter) applyModifiers(field string) string {
 	return field
 }
 
-func NewSliceFilter(field string, values []any, options ...FilterOption) SliceFilter {
+// NewStringSliceFilter creates a new string slice equality filter.
+func NewStringSliceFilter(field string, values []string, options ...FilterOption) SliceFilter {
 	return SliceFilter{
-		Filter: NewFilter(field, values),
+		Filter: NewFilter(field, pq.Array(values)),
 	}
 }
 
+// NewIntSliceFilter creates a new int64 slice equality filter.
+func NewIntSliceFilter(field string, values []int64, options ...FilterOption) SliceFilter {
+	return SliceFilter{
+		Filter: NewFilter(field, pq.Array(values)),
+	}
+}
+
+// Filter defines a generic slice/array equality filter.
 type SliceFilter struct {
 	Filter
 }
 
 func (f SliceFilter) String() string {
-	return fmt.Sprintf("%s IN (%s)", f.applyModifiers(f.field), filterPlaceholder)
+	return fmt.Sprintf("%s = ANY(%s)", f.applyModifiers(f.field), filterPlaceholder)
 }
 
 func (f SliceFilter) Value() any {
-	// Make sure the value is treated as an array
-	return pq.Array(f.Filter.Value())
+	return f.Filter.Value()
 }
 
 // FilterByEventType creates a new filter to match events by type.
@@ -110,13 +118,7 @@ func FilterByEventType(eventType string) Filter {
 
 // FilterByEventTXs creates a new filter to match events by TX hashes.
 func FilterByEventTXs(hashes ...string) SliceFilter {
-	var values []any
-
-	for _, v := range hashes {
-		values = append(values, v)
-	}
-
-	return NewSliceFilter(FieldEventTXHash, values)
+	return NewStringSliceFilter(FieldEventTXHash, hashes)
 }
 
 // FilterByEventAttrName creates a new filter to match events by attribute name.
