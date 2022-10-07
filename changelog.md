@@ -15,6 +15,7 @@
 
 ### Fixes
 
+- Fix ICA controller wiring.
 - Change vuex generation to use a default TS client path.
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
