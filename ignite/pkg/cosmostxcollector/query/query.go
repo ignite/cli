@@ -1,42 +1,30 @@
 package query
 
-import (
-	"fmt"
-
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
-)
+import "fmt"
 
 const (
 	// DefaultPageSize defines the default number of results to select per page.
 	DefaultPageSize = 30
-)
 
-const (
 	SortOrderAsc  = "asc"
 	SortOrderDesc = "desc"
 )
 
 // Pager describes support for paging query results.
 type Pager interface {
-	// GetPageSize returns the size for each query result set.
-	GetPageSize() uint32
+	// PageSize returns the size for each query result set.
+	PageSize() uint32
 
-	// GetAtPage returns the result set page to query.
-	GetAtPage() uint32
+	// AtPage returns the result set page to query.
+	AtPage() uint32
 
 	// IsPagingEnabled checks if the query results should be paginated.
 	IsPagingEnabled() bool
 }
 
-// Entity defines a data backend entity.
-type Entity uint
-
-// Field defines an entity field.
-type Field uint
-
 // SortBy contains info on how to sort query results.
 type SortBy struct {
-	Field Field
+	Field string
 	Order string
 }
 
@@ -51,128 +39,161 @@ type Filter interface {
 	Value() any
 }
 
-// New creates a new query.
-func New(e Entity, f ...Field) Query {
-	return Query{
-		entity:   e,
-		fields:   f,
-		pageSize: DefaultPageSize,
-		atPage:   1,
-	}
+// Filterer describes support for filtering query results.
+type Filterer interface {
+	// Filters returns the list of filters to apply to the query.
+	Filters() []Filter
 }
 
-// NewCall creates a new query that selects results from a view or function.
-func NewCall(c call.Call) Query {
-	return Query{
-		call:     c,
-		pageSize: DefaultPageSize,
-		atPage:   1,
-	}
-}
-
-// Query describes a how to select values from a data backend.
-type Query struct {
-	entity   Entity
-	fields   []Field
-	sortBy   []SortBy
+type queryOptions struct {
 	pageSize uint32
 	atPage   uint32
-	call     call.Call
+	args     []any
+	fields   []string
+	sortBy   []SortBy
 	filters  []Filter
 }
 
-// GetEntity returns the name of the data entity to select.
-func (q Query) GetEntity() Entity {
-	return q.entity
-}
-
-// GetFields returns list of data entity fields to select.
-func (q Query) GetFields() []Field {
-	return q.fields
-}
-
-// GetSortBy returns the sort info for the query.
-func (q Query) GetSortBy() []SortBy {
-	return q.sortBy
-}
-
-// GetPageSize returns the size for each query result set.
-func (q Query) GetPageSize() uint32 {
-	return q.pageSize
-}
-
-// GetAtPage returns the result set page to query.
-func (q Query) GetAtPage() uint32 {
-	return q.atPage
-}
-
-// GetCall returns the function or view to query.
-func (q Query) GetCall() call.Call {
-	return q.call
-}
-
-// GetFilters returns the list of filters to apply to the query.
-func (q Query) GetFilters() []Filter {
-	return q.filters
-}
-
-// IsPagingEnabled checks if the query results should be paginated.
-func (q Query) IsPagingEnabled() bool {
-	return q.pageSize > 0
-}
-
-// IsCall checks if the query is a call to a function or view.
-func (q Query) IsCall() bool {
-	return q.call.Name() != ""
-}
+// Option configures queries.
+type Option func(*Query)
 
 // AtPage assigns a page to select.
 // Pages start from page one, so assigning page zero selects the first page.
-func (q Query) AtPage(page uint32) Query {
-	if page == 0 {
-		q.atPage = 1
-	} else {
-		q.atPage = page
+func AtPage(page uint32) Option {
+	return func(q *Query) {
+		if page == 0 {
+			q.options.atPage = 1
+		} else {
+			q.options.atPage = page
+		}
 	}
-
-	return q
 }
 
 // WithPageSize assigns the number of results to select per page.
 // The default page size is used when size zero is assigned.
-func (q Query) WithPageSize(size uint32) Query {
-	if size == 0 {
-		q.pageSize = DefaultPageSize
-	} else {
-		q.pageSize = size
+func WithPageSize(size uint32) Option {
+	return func(q *Query) {
+		if size == 0 {
+			q.options.pageSize = DefaultPageSize
+		} else {
+			q.options.pageSize = size
+		}
 	}
-
-	return q
 }
 
 // WithoutPaging disables the paging of results.
 // All results are selected when paging is disabled.
-func (q Query) WithoutPaging() Query {
-	q.pageSize = 0
-
-	return q
+func WithoutPaging() Option {
+	return func(q *Query) {
+		q.options.pageSize = 0
+	}
 }
 
-// AppendSortBy appends ordering information for one or more fields.
-func (q Query) AppendSortBy(order string, fields ...Field) Query {
-	for _, f := range fields {
-		q.sortBy = append(q.sortBy, SortBy{
-			Field: f,
-			Order: order,
-		})
+// WithFilters adds one or more filters to apply to the query.
+func WithFilters(f ...Filter) Option {
+	return func(q *Query) {
+		q.options.filters = f
+	}
+}
+
+// WithArgs adds one or more arguments to the query.
+func WithArgs(args ...any) Option {
+	return func(q *Query) {
+		q.options.args = args
+	}
+}
+
+// Fields assigns the field names to query.
+// The default is to select all fields.
+func Fields(fields ...string) Option {
+	return func(q *Query) {
+		q.options.fields = fields
+	}
+}
+
+// SortByFields orders the query by one or more fields.
+// Use `WithSortBy` option when multiple order by directions are needed.
+func SortByFields(order string, fields ...string) Option {
+	return func(q *Query) {
+		for _, f := range fields {
+			q.options.sortBy = append(q.options.sortBy, SortBy{
+				Field: f,
+				Order: order,
+			})
+		}
+	}
+}
+
+// WithSortBy orders the query by one or more fields.
+func WithSortBy(o ...SortBy) Option {
+	return func(q *Query) {
+		q.options.sortBy = append(q.options.sortBy, o...)
+	}
+}
+
+// New creates a new query that selects results from an entity.
+// The name is the name of an entity which depending on the data backend have
+// different meanings. In a relational database the name should be a table,
+// function or view, while in a NoSQL database it should be a collection.
+func New(name string, options ...Option) Query {
+	q := Query{
+		name: name,
+		options: queryOptions{
+			pageSize: DefaultPageSize,
+			atPage:   1,
+		},
+	}
+
+	for _, apply := range options {
+		apply(&q)
 	}
 
 	return q
 }
 
-// AppendFilters appends one or more filters to apply to the query.
-func (q Query) AppendFilters(f ...Filter) Query {
-	q.filters = append(q.filters, f...)
+// Query describes how to select values from a data backend.
+type Query struct {
+	name    string
+	options queryOptions
+}
 
-	return q
+// Name returns the name of the database table, collection, view or function to select.
+func (q Query) Name() string {
+	return q.name
+}
+
+// Args returns the arguments for query.
+// Arguments are used when the query calls a function in the data backend.
+func (q Query) Args() []any {
+	return q.options.args
+}
+
+// Fields returns list of field names to select.
+func (q Query) Fields() []string {
+	return q.options.fields
+}
+
+// SortBy returns the sort info for the query.
+func (q Query) SortBy() []SortBy {
+	return q.options.sortBy
+}
+
+// PageSize returns the size for each query result set.
+func (q Query) PageSize() uint32 {
+	return q.options.pageSize
+}
+
+// AtPage returns the result set page to query.
+func (q Query) AtPage() uint32 {
+	return q.options.atPage
+}
+
+// Filters returns the list of filters to apply to the query.
+func (q Query) Filters() []Filter {
+	return q.options.filters
+}
+
+// IsPagingEnabled checks if the query results should be paginated.
+func (q Query) IsPagingEnabled() bool {
+	return q.options.pageSize > 0
 }

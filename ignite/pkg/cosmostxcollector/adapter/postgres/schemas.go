@@ -15,15 +15,11 @@ const SchemasDir = "schemas"
 
 const (
 	defaultSchemasTableName = "schema"
-)
 
-const (
 	sqlBeginTX       = "BEGIN"
 	sqlCommitTX      = "COMMIT"
 	sqlCommandSuffix = ";"
-)
 
-const (
 	tplSchemaInsertSQL = `
 		INSERT INTO %s(version)
 		VALUES(%d)

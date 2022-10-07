@@ -5,83 +5,51 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
-)
-
-const (
-	fieldEventAttrName  = "attribute.name"
-	fieldEventAttrValue = "attribute.value"
-	fieldEventCreatedAt = "event.created_at"
-	fieldEventID        = "event.id"
-	fieldEventIndex     = "event.index"
-	fieldEventTXHash    = "event.tx_hash"
-	fieldEventType      = "event.type"
-	fieldTXCreatedAt    = "tx.created_at"
-	fieldTXBlockHeight  = "tx.height"
-	fieldTXBlockTime    = "tx.block_time"
-	fieldTXHash         = "tx.hash"
-	fieldTXIndex        = "tx.index"
 )
 
 const (
 	sqlSelectAll = "SELECT *"
-	sqlFromTX    = "FROM tx"
 	sqlWhereTrue = "WHERE true"
-	sqlFromEvent = "FROM event INNER JOIN attribute ON event.id = attribute.event_id"
 
 	tplSelectEventsSQL = `
-		SELECT e.id, e.index, e.tx_hash, e.type, e.created_at
-		FROM event AS e INNER JOIN tx ON e.tx_hash = tx.hash
+		SELECT event.id, event.index, event.tx_hash, event.type, event.created_at
+		FROM event INNER JOIN tx ON event.tx_hash = tx.hash
 		%s
-		ORDER BY tx.height, tx.index, e.index
+		ORDER BY tx.height, tx.index, event.index
+	`
+	tplSelectEventsWithAttrSQL = `
+		SELECT DISTINCT events.*
+		FROM (
+			SELECT event.id, event.index, event.tx_hash, event.type, event.created_at
+			FROM event
+				INNER JOIN tx ON event.tx_hash = tx.hash
+				INNER JOIN attribute ON event.id = attribute.event_id
+			%s
+			ORDER BY tx.height, tx.index, event.index
+		) AS events
 	`
 )
 
 var (
 	ErrUnknownEntity    = errors.New("unknown query entity")
 	ErrInvalidSortOrder = errors.New("invalid query sort order")
-
-	fieldMap = map[query.Field]string{
-		adapter.FieldTXHash:          fieldTXHash,
-		adapter.FieldTXIndex:         fieldTXIndex,
-		adapter.FieldTXBlockHeight:   fieldTXBlockHeight,
-		adapter.FieldTXBlockTime:     fieldTXBlockTime,
-		adapter.FieldTXCreateTime:    fieldTXCreatedAt,
-		adapter.FieldEventID:         fieldEventID,
-		adapter.FieldEventTXHash:     fieldEventTXHash,
-		adapter.FieldEventType:       fieldEventType,
-		adapter.FieldEventIndex:      fieldEventIndex,
-		adapter.FieldEventAttrName:   fieldEventAttrName,
-		adapter.FieldEventAttrValue:  fieldEventAttrValue,
-		adapter.FieldEventCreateTime: fieldEventCreatedAt,
-	}
 )
 
-// TODO: use an SQL builder/parser to build the queries
+// TODO: Use an SQL builder/parser to build the queries?
 func parseQuery(q query.Query) (string, error) {
-	if q.IsCall() {
-		return parseCallQuery(q)
-	}
-
-	return parseEntityQuery(q)
-}
-
-func parseCallQuery(q query.Query) (string, error) {
-	call := q.GetCall()
 	sections := []string{
 		// Add SELECT
-		parseCustomFields(call.Fields()),
+		parseFields(q.Fields()),
 		// Add FROM
-		parseCall(call),
+		parseFrom(q),
 	}
 
 	// Add WHERE
-	sections = append(sections, parseFilters(q.GetFilters()))
+	sections = append(sections, parseFilters(q.Filters()))
 
 	// Add ORDER BY
-	sortBy, err := parseSortBy(q.GetSortBy())
+	sortBy, err := parseSortBy(q.SortBy())
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +59,7 @@ func parseCallQuery(q query.Query) (string, error) {
 	}
 
 	// Add LIMIT/OFFSET
-	if s := parsePaging(q); s != "" {
+	if s, ok := parsePaging(q); ok {
 		sections = append(sections, s)
 	}
 
@@ -99,57 +67,34 @@ func parseCallQuery(q query.Query) (string, error) {
 }
 
 func parseEventQuery(q query.EventQuery) string {
+	sql := tplSelectEventsSQL
+	filters := q.Filters()
+
+	// Check if any of the filters references an event attribute
+	// and if so add the required INNER JOIN to the raw SQL query.
+	// The JOIN is not present by default to improve events queries.
+	for _, f := range filters {
+		if f.Field() == FieldEventAttrValue {
+			sql = tplSelectEventsWithAttrSQL
+
+			break
+		}
+	}
+
 	// Add SELECT
 	sections := []string{
-		fmt.Sprintf(tplSelectEventsSQL, parseFilters(q.GetFilters())),
+		fmt.Sprintf(sql, parseFilters(q.Filters())),
 	}
 
 	// Add LIMIT/OFFSET
-	if s := parsePaging(q); s != "" {
+	if s, ok := parsePaging(q); ok {
 		sections = append(sections, s)
 	}
 
 	return strings.Join(sections, " ")
 }
 
-func parseEntityQuery(q query.Query) (string, error) {
-	// TODO: entities can be inferred from the fields
-	fromEntity, err := parseEntity(q.GetEntity())
-	if err != nil {
-		return "", err
-	}
-
-	sections := []string{
-		// Add SELECT
-		parseFields(q.GetFields()),
-		// Add FROM
-		fromEntity,
-	}
-
-	// Add WHERE
-	if s := parseFilters(q.GetFilters()); s != "" {
-		sections = append(sections, s)
-	}
-
-	// Add ORDER BY
-	sortBy, err := parseSortBy(q.GetSortBy())
-	if err != nil {
-		return "", err
-	}
-
-	if sortBy != "" {
-		sections = append(sections, sortBy)
-	}
-
-	// Add LIMIT/OFFSET
-	if q.IsPagingEnabled() {
-		sections = append(sections, parsePaging(q))
-	}
-
-	return strings.Join(sections, " "), nil
-}
-
-func parseCustomFields(fields []string) string {
+func parseFields(fields []string) string {
 	if len(fields) == 0 {
 		// By default select all fields
 		return sqlSelectAll
@@ -158,46 +103,22 @@ func parseCustomFields(fields []string) string {
 	return fmt.Sprintf("SELECT DISTINCT %s", strings.Join(fields, ", "))
 }
 
-func parseFields(fields []query.Field) string {
-	var names []string
-
-	for _, f := range fields {
-		if n := fieldMap[f]; n != "" {
-			names = append(names, n)
-		}
-	}
-
-	return parseCustomFields(names)
-}
-
-func parseCall(c call.Call) string {
-	args := c.Args()
-	params := make([]string, len(args))
-
+func parseFrom(q query.Query) string {
 	// Init the function call placeholders for the arguments
+	args := q.Args()
+	placeholders := make([]string, len(args))
 	for i := range args {
-		params[i] = fmt.Sprintf("$%d", i+1)
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
 	}
 
 	// When there are arguments it means it is a postgres function
-	// call otherwise the call is treated as a view
-	s := fmt.Sprintf("FROM %s", c.Name())
-	if len(params) > 0 {
-		s = fmt.Sprintf("%s(%s)", s, strings.Join(params, ", "))
+	// call otherwise the call is treated as a table or view.
+	s := fmt.Sprintf("FROM %s", q.Name())
+	if len(placeholders) > 0 {
+		s = fmt.Sprintf("%s(%s)", s, strings.Join(placeholders, ", "))
 	}
 
 	return s
-}
-
-func parseEntity(e query.Entity) (string, error) {
-	switch e {
-	case adapter.EntityTX:
-		return sqlFromTX, nil
-	case adapter.EntityEvent:
-		return sqlFromEvent, nil
-	}
-
-	return "", ErrUnknownEntity
 }
 
 func parseFilters(filters []query.Filter) string {
@@ -238,29 +159,25 @@ func parseSortBy(sortInfo []query.SortBy) (string, error) {
 			return "", ErrInvalidSortOrder
 		}
 
-		if n := fieldMap[s.Field]; n != "" {
-			items = append(items, fmt.Sprintf("%s %s", n, s.Order))
-		}
+		items = append(items, fmt.Sprintf("%s %s", s.Field, s.Order))
 	}
 
-	orderBy := fmt.Sprintf("ORDER BY %s", strings.Join(items, ", "))
-
-	return orderBy, nil
+	return fmt.Sprintf("ORDER BY %s", strings.Join(items, ", ")), nil
 }
 
-func parsePaging(q query.Pager) string {
+func parsePaging(q query.Pager) (string, bool) {
 	if !q.IsPagingEnabled() {
-		return ""
+		return "", false
 	}
 
 	// Get the current page and make sure that the page number is valid
-	page := q.GetAtPage()
+	page := q.AtPage()
 	if page == 0 {
 		page = 1
 	}
 
-	limit := q.GetPageSize()
+	limit := q.PageSize()
 	offset := limit * (page - 1)
 
-	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
+	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset), true
 }

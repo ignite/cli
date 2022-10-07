@@ -6,79 +6,61 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
-)
-
-var (
-	entity query.Entity = 1
-	field  query.Field  = 1
 )
 
 func TestQuery(t *testing.T) {
-	qry := query.New(entity, field)
+	// Arrange
+	name := "entity"
+	field := "foo"
 
-	// Assert entity query
-	require.Equal(t, entity, qry.GetEntity())
-	require.Equal(t, []query.Field{field}, qry.GetFields())
-	require.False(t, qry.IsCall())
+	// Act
+	qry := query.New(name, query.Fields(field))
 
-	// Assert defaults
-	require.Nil(t, qry.GetSortBy())
-	require.Nil(t, qry.GetFilters())
+	// Assert
+	require.Equal(t, name, qry.Name())
+	require.Equal(t, []string{field}, qry.Fields())
+	require.Nil(t, qry.SortBy())
+	require.Nil(t, qry.Filters())
+	require.Nil(t, qry.Args())
 	require.True(t, qry.IsPagingEnabled())
-	require.EqualValues(t, query.DefaultPageSize, qry.GetPageSize())
-	require.EqualValues(t, 1, qry.GetAtPage())
-}
-
-func TestCallQuery(t *testing.T) {
-	c := call.New("test")
-	qry := query.NewCall(c)
-
-	// Assert call query
-	require.True(t, qry.IsCall())
-	require.True(t, qry.GetCall().Name() == c.Name())
-
-	// Assert defaults
-	require.Nil(t, qry.GetSortBy())
-	require.Nil(t, qry.GetFilters())
-	require.True(t, qry.IsPagingEnabled())
-	require.EqualValues(t, query.DefaultPageSize, qry.GetPageSize())
-	require.EqualValues(t, 1, qry.GetAtPage())
+	require.EqualValues(t, query.DefaultPageSize, qry.PageSize())
+	require.EqualValues(t, 1, qry.AtPage())
 }
 
 func TestPaging(t *testing.T) {
+	// Arrange
 	var (
 		page     uint32 = 42
 		pageSize uint32 = 100
 	)
 
-	qry := query.
-		New(entity, field).
-		WithPageSize(pageSize).
-		AtPage(page)
+	// Act
+	qry := query.New(
+		"name",
+		query.WithPageSize(pageSize),
+		query.AtPage(page),
+	)
 
 	// Assert
 	require.True(t, qry.IsPagingEnabled())
-	require.EqualValues(t, pageSize, qry.GetPageSize())
-	require.EqualValues(t, page, qry.GetAtPage())
+	require.EqualValues(t, pageSize, qry.PageSize())
+	require.EqualValues(t, page, qry.AtPage())
 }
 
 func TestDisablePaging(t *testing.T) {
-	qry := query.
-		New(entity, field).
-		WithoutPaging()
+	// Act
+	qry := query.New("name", query.WithoutPaging())
 
 	// Assert
 	require.False(t, qry.IsPagingEnabled())
-	require.EqualValues(t, 0, qry.GetPageSize())
+	require.EqualValues(t, 0, qry.PageSize())
 }
 
 func TestAtPageZero(t *testing.T) {
-	qry := query.
-		New(entity, field).
-		AtPage(0)
+	// Act
+	qry := query.New("name", query.AtPage(0))
 
 	// Assert
 	require.True(t, qry.IsPagingEnabled())
-	require.EqualValues(t, 1, qry.GetAtPage())
+	require.EqualValues(t, 1, qry.AtPage())
 }

@@ -4,8 +4,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	"github.com/lib/pq"
+)
+
+const (
+	FieldEventAttrName  = "attribute.name"
+	FieldEventAttrValue = "attribute.value"
+	FieldEventTXHash    = "event.tx_hash"
+	FieldEventType      = "event.type"
 )
 
 const (
@@ -34,13 +40,6 @@ func WithModifiers(m ...Modifier) FilterOption {
 	return func(f *Filter) {
 		f.modifiers = m
 	}
-}
-
-// NewFilter creates a new generic equality filter for a query field.
-// The result is a generic equality filter that maps the query field
-// to the database field name.
-func NewFilterFromField(f query.Field, value any, options ...FilterOption) Filter {
-	return NewFilter(fieldMap[f], value, options...)
 }
 
 // NewFilter creates a new generic equality filter.
@@ -85,14 +84,44 @@ func (f Filter) applyModifiers(field string) string {
 	return field
 }
 
+func NewSliceFilter(field string, values []any, options ...FilterOption) SliceFilter {
+	return SliceFilter{
+		Filter: NewFilter(field, values),
+	}
+}
+
+type SliceFilter struct {
+	Filter
+}
+
+func (f SliceFilter) String() string {
+	return fmt.Sprintf("%s IN (%s)", f.applyModifiers(f.field), filterPlaceholder)
+}
+
+func (f SliceFilter) Value() any {
+	// Make sure the value is treated as an array
+	return pq.Array(f.Filter.Value())
+}
+
 // FilterByEventType creates a new filter to match events by type.
 func FilterByEventType(eventType string) Filter {
-	return NewFilterFromField(adapter.FieldEventType, eventType)
+	return NewFilter(FieldEventType, eventType)
+}
+
+// FilterByEventTXs creates a new filter to match events by TX hashes.
+func FilterByEventTXs(hashes ...string) SliceFilter {
+	var values []any
+
+	for _, v := range hashes {
+		values = append(values, v)
+	}
+
+	return NewSliceFilter(FieldEventTXHash, values)
 }
 
 // FilterByEventAttrName creates a new filter to match events by attribute name.
 func FilterByEventAttrName(name string) Filter {
-	return NewFilterFromField(adapter.FieldEventAttrName, name)
+	return NewFilter(FieldEventAttrName, name)
 }
 
 // FilterByEventAttrValue creates a new filter to match events by attribute value.
@@ -101,5 +130,11 @@ func FilterByEventAttrValue(v string) Filter {
 	v = strconv.Quote(v)
 
 	// Use a field modifier to cast the event attribute value JSONB field to text
-	return NewFilterFromField(adapter.FieldEventAttrValue, v, WithModifiers(CastJSONToText))
+	return NewFilter(FieldEventAttrValue, v, WithModifiers(CastJSONToText))
+}
+
+// FilterByEventAttrValueInt creates a new filter to match events by attribute value.
+func FilterByEventAttrValueInt(v int64) Filter {
+	// Use a field modifier to cast the event attribute value JSONB field to numeric
+	return NewFilter(FieldEventAttrValue, v, WithModifiers(CastJSONToNumeric))
 }

@@ -17,7 +17,6 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query/call"
 )
 
 func TestUpdateSchema(t *testing.T) {
@@ -195,7 +194,7 @@ func TestGetLatestHeight(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestQueryWithArg(t *testing.T) {
+func TestQueryWithFilter(t *testing.T) {
 	// Arrange
 	var (
 		cursorNextSucceded bool
@@ -208,16 +207,17 @@ func TestQueryWithArg(t *testing.T) {
 	adapter := Adapter{db: db}
 	ctx := context.Background()
 
-	// Arrange: Call Query
+	// Arrange: Query
 	wantArg := "bar"
 
-	c := call.New("baz", call.WithFields("foo"))
-	qry := query.
-		NewCall(c).
-		AppendFilters(
+	qry := query.New(
+		"baz",
+		query.Fields("foo"),
+		query.WithFilters(
 			NewFilter("foo", wantArg),
-		).
-		WithoutPaging()
+		),
+		query.WithoutPaging(),
+	)
 
 	// Arrange: Database mock and expectations
 	wantRowValue := "expected"
@@ -244,7 +244,7 @@ func TestQueryWithArg(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestQueryWithoutArgs(t *testing.T) {
+func TestQueryWithoutFilter(t *testing.T) {
 	// Arrange
 	var (
 		cursorNextSucceded bool
@@ -257,15 +257,14 @@ func TestQueryWithoutArgs(t *testing.T) {
 	adapter := Adapter{db: db}
 	ctx := context.Background()
 
-	// Arrange: Call Query
-	c := call.New("baz", call.WithFields("foo"))
-	qry := query.NewCall(c).WithoutPaging()
+	// Arrange: Query
+	qry := query.New("baz", query.Fields("foo"), query.WithoutPaging())
 
 	// Arrange: Database mock and expectations
 	wantRowValue := "expected"
 
 	mock.
-		ExpectQuery("SELECT DISTINCT foo FROM baz").
+		ExpectQuery("SELECT DISTINCT foo FROM baz WHERE true").
 		WillReturnRows(
 			sqlmock.NewRows([]string{"foo"}).AddRow(wantRowValue),
 		)
@@ -293,15 +292,14 @@ func TestQueryError(t *testing.T) {
 	adapter := Adapter{db: db}
 	ctx := context.Background()
 
-	// Arrange: Call Query
-	c := call.New("baz")
-	qry := query.NewCall(c).WithoutPaging()
+	// Arrange: Query
+	qry := query.New("baz", query.Fields("foo"), query.WithoutPaging())
 
 	// Arrange: Database mock and expectations
 	wantErr := errors.New("expected error")
 
 	mock.
-		ExpectQuery("SELECT * FROM baz").
+		ExpectQuery("SELECT DISTINCT foo FROM baz WHERE true").
 		WillReturnError(wantErr)
 
 	// Act
@@ -322,8 +320,7 @@ func TestQueryRowError(t *testing.T) {
 	cols := []string{"name"}
 
 	// Arrange: Call Query
-	c := call.New("baz", call.WithFields(cols[0]))
-	qry := query.NewCall(c).WithoutPaging()
+	qry := query.New("baz", query.Fields(cols[0]), query.WithoutPaging())
 
 	// Arrange: Database mock and expectations
 	wantErr := errors.New("expected error")
@@ -334,7 +331,7 @@ func TestQueryRowError(t *testing.T) {
 		RowError(0, wantErr)
 
 	mock.
-		ExpectQuery("SELECT DISTINCT name FROM baz").
+		ExpectQuery("SELECT DISTINCT name FROM baz WHERE true").
 		WillReturnRows(row)
 
 	// Act

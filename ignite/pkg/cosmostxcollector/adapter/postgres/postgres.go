@@ -23,9 +23,7 @@ const (
 
 const (
 	adapterType = "postgres"
-)
 
-const (
 	sqlSelectBlockHeight = `
 		SELECT COALESCE(MAX(height), 0)
 		FROM tx
@@ -115,7 +113,6 @@ func NewAdapter(database string, options ...Option) (Adapter, error) {
 		return Adapter{}, err
 	}
 
-	// TODO: Move DB outside Adapter to use "postgres_test" package to test this file?
 	adapter.db = db
 
 	return adapter, nil
@@ -395,15 +392,13 @@ func saveTX(ctx context.Context, txStmt, evtStmt, attrStmt *sql.Stmt, tx cosmosc
 	return nil
 }
 
-func extractQueryArgs(q query.Query) (args []any) {
+func extractQueryArgs(q query.Query) []any {
 	// When the query is a call to a postgres function
 	// add the arguments before the filter values
-	if call := q.GetCall(); len(call.Args()) > 0 {
-		args = append(args, call.Args()...)
-	}
+	args := q.Args()
 
 	// Add the values from the filters
-	for _, f := range q.GetFilters() {
+	for _, f := range q.Filters() {
 		if a := f.Value(); a != nil {
 			args = append(args, a)
 		}
@@ -413,7 +408,7 @@ func extractQueryArgs(q query.Query) (args []any) {
 }
 
 func extractEventQueryArgs(q query.EventQuery) (args []any) {
-	for _, f := range q.GetFilters() {
+	for _, f := range q.Filters() {
 		if a := f.Value(); a != nil {
 			args = append(args, a)
 		}
