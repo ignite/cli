@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-description: Ignite Network commands for coordinator.
+description: Ignite Network commands for coordinators.
 ---
 
 # Coordinator Guide
@@ -111,7 +111,7 @@ ignite n request reject 3 3,4
 
 When enough validators are approved for the genesis and the coordinator deems the chain ready to be launched, the coordinator can initiate the launch of the chain.
 
-This action will finalize the genesis of chain, this means that no new requests can be approved for the chain.
+This action will finalize the genesis of chain, meaning that no new requests can be approved for the chain.
 
 This action also sets the launch time (or genesis time) for the chain, the time when the blockchain network will go live.
 
@@ -129,7 +129,7 @@ This example output shows the launch time of the chain on the network.
 
 ### Set a custom launch time
 
-By default, the launch time will be set to the earliest date possible. In practice, the validators should have time in order to prepare their node for the network launch. If a validator fails to be online, they can get jailed for inactivity in the validator set.
+By default, the launch time will be set to the earliest date possible. In practice, the validators should have time to prepare their node for the network launch. If a validator fails to be online, they can get jailed for inactivity in the validator set.
 
 The coordinator can specify a custom time with the `--launch-time` flag.
 

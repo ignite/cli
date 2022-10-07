@@ -18,16 +18,16 @@ Launching with the CLI can be as simple as a few short commands with the the CLI
 
 > **NOTE:** `ignite n` can also be used as a shortcut for `ignite network`.
 
-To publish the information about your chain as a coordinator run the following command (the URL should point to a repository with a Cosmos SDK chain):
+To publish the information about your chain as a coordinator, run the following command (the URL should point to a repository with a Cosmos SDK chain):
 
 ```
 ignite network chain publish github.com/ignite/example
 ```
 
-This command will return a launch identifier you will be using in the following
+This command will return the launch identifier you will be using in the following
 commands. Let's say this identifier is 42.
-Next, ask validators to initialize their nodes and request to join the network
-as validators. For a testnet you can use the default values suggested by the
+Next, ask validators to initialize their nodes and request to join the network. 
+For a testnet you can use the default values suggested by the
 CLI.
 
 ```

@@ -1,11 +1,11 @@
 ---
 sidebar_position: 3
-description: Ignite Network commands for validator.
+description: Ignite Network commands for validators.
 ---
 
 # Validator Guide
 
-Validators join as genesis validator for chain launches on Ignite Chain.
+Validators join as genesis validators for chain launches on Ignite Chain.
 
 ---
 
@@ -22,8 +22,8 @@ ignite n chain list
 ```
 Launch Id 	Chain Id 	Source                              Phase
 
-3 		    example-1 	https://github.com/ignite/example   coordinating
-2 		    spn-10 		https://github.com/tendermint/spn   launched
+3 		example-1 	https://github.com/ignite/example   coordinating
+2 		spn-10 		https://github.com/tendermint/spn   launched
 1 	        example-20 	https://github.com/tendermint/spn   launching
 ```
 
@@ -31,16 +31,16 @@ Launch Id 	Chain Id 	Source                              Phase
 - `Chain ID` represents the identifer of the chain network once it will be launched. It should be a unique identifier in practice but doesn't need to be unique on Ignite.
 - `Source` is the repository URL of the project.
 - `Phase` is the current phase of the chain launch. A chain can have 3 different phases:
-  - `coordinating` the chain is open to receive requests from validators
-  - `launching`: the chain no longer receives requests but it hasn't been launched yet
-  - `launched`: the chain network has been launched
+  - `coordinating`: means the chain is open to receive requests from validators
+  - `launching`: means the chain no longer receives requests but it hasn't been launched yet
+  - `launched`: means the chain network has been launched
 
 ---
 
 ## Request network participation
 
 When the chain is in the coordination phase, validators can request to be a genesis validator for the chain.
-Ignite CLI supports an automatic workflow that can setup a node for the validator and a workflow for advanced users with a specific setup for their validator.
+Ignite CLI supports an automatic workflow that can setup a node for the validator and a workflow for advanced users with a specific setup for their node.
 
 ### Simple Flow
 
