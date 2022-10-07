@@ -1,6 +1,6 @@
 import useSWRV from 'swrv'
 import { useClient } from '../useClient';
-
+import type { Ref } from 'vue'
 
 type SwrvReturn<T> = {
   data: Ref<T>;
