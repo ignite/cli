@@ -37,6 +37,8 @@ import (
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
+
+	"github.com/ignite/cli/ignite/services/network"
 	// this line is used by starport scaffolding # root/moduleImport
 )
 
@@ -75,9 +77,6 @@ func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
 			}
-
-			// TODO run only with start-gitpod command
-			// startProxyForTunneledPeers(initClientCtx, cmd)
 
 			customAppTemplate, customAppConfig := initAppConfig()
 			customTMConfig := initTendermintConfig()
@@ -144,6 +143,7 @@ func initRootCmd(
 		queryCommand(),
 		txCommand(),
 		keys.Commands(app.DefaultNodeHome),
+		startWithTunnelingCommand(a, app.DefaultNodeHome),
 	)
 }
 
@@ -197,6 +197,28 @@ func txCommand() *cobra.Command {
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
+}
+
+// startWithTunnelingCommand returns a new start command with http tunneling
+// enabled.
+func startWithTunnelingCommand(appCreator appCreator, defaultNodeHome string) *cobra.Command {
+	startCmd := server.StartCmd(appCreator.newApp, defaultNodeHome)
+	startCmd.Use = "start-with-tunneling"
+	startCmd.Short = "Run the full node with http tunneling"
+	startPreRunE := startCmd.PreRunE
+	startCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		var (
+			ctx       = cmd.Context()
+			clientCtx = client.GetClientContextFromCmd(cmd)
+			serverCtx = server.GetServerContextFromCmd(cmd)
+		)
+		network.StartProxyForTunneledPeers(ctx, clientCtx, serverCtx)
+		if startPreRunE == nil {
+			return nil
+		}
+		return startPreRunE(cmd, args)
+	}
+	return startCmd
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
