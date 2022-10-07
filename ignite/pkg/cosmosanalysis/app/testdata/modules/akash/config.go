@@ -49,46 +49,44 @@ import (
 	icaauthtypes "github.com/ovrclk/akash/x/icaauth/types"
 )
 
-var (
-	mbasics = module.NewBasicManager(
-		append([]module.AppModuleBasic{
-			// accounts, fees.
-			auth.AppModuleBasic{},
-			// authorizations
-			authzmodule.AppModuleBasic{},
-			// genesis utilities
-			genutil.AppModuleBasic{},
-			// tokens, token balance.
-			bank.AppModuleBasic{},
-			capability.AppModuleBasic{},
-			// validator staking
-			staking.AppModuleBasic{},
-			// inflation
-			mint.AppModuleBasic{},
-			// distribution of fess and inflation
-			distr.AppModuleBasic{},
-			// governance functionality (voting)
-			gov.NewAppModuleBasic(
-				paramsclient.ProposalHandler, distrclient.ProposalHandler,
-				upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
-				ibcclient.UpdateClientProposalHandler, ibcclient.UpgradeProposalHandler,
-			),
-			// chain parameters
-			params.AppModuleBasic{},
-			crisis.AppModuleBasic{},
-			slashing.AppModuleBasic{},
-			ibc.AppModuleBasic{},
-			upgrade.AppModuleBasic{},
-			evidence.AppModuleBasic{},
-			transfer.AppModuleBasic{},
-			vesting.AppModuleBasic{},
-			ica.AppModuleBasic{},
-			icaauth.AppModuleBasic{},
-		},
-			// akash
-			akashModuleBasics()...,
-		)...,
-	)
+var mbasics = module.NewBasicManager(
+	append([]module.AppModuleBasic{
+		// accounts, fees.
+		auth.AppModuleBasic{},
+		// authorizations
+		authzmodule.AppModuleBasic{},
+		// genesis utilities
+		genutil.AppModuleBasic{},
+		// tokens, token balance.
+		bank.AppModuleBasic{},
+		capability.AppModuleBasic{},
+		// validator staking
+		staking.AppModuleBasic{},
+		// inflation
+		mint.AppModuleBasic{},
+		// distribution of fess and inflation
+		distr.AppModuleBasic{},
+		// governance functionality (voting)
+		gov.NewAppModuleBasic(
+			paramsclient.ProposalHandler, distrclient.ProposalHandler,
+			upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
+			ibcclient.UpdateClientProposalHandler, ibcclient.UpgradeProposalHandler,
+		),
+		// chain parameters
+		params.AppModuleBasic{},
+		crisis.AppModuleBasic{},
+		slashing.AppModuleBasic{},
+		ibc.AppModuleBasic{},
+		upgrade.AppModuleBasic{},
+		evidence.AppModuleBasic{},
+		transfer.AppModuleBasic{},
+		vesting.AppModuleBasic{},
+		ica.AppModuleBasic{},
+		icaauth.AppModuleBasic{},
+	},
+		// akash
+		akashModuleBasics()...,
+	)...,
 )
 
 // ModuleBasics returns all app modules basics
@@ -138,5 +136,4 @@ func transientStoreKeys() map[string]*sdk.TransientStoreKey {
 
 func memStoreKeys() map[string]*sdk.MemoryStoreKey {
 	return sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
-
 }
