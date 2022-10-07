@@ -125,7 +125,7 @@ ignite n chain launch 3
 ✔ Chain 3 will be launched on 2022-10-01 09:00:00.000000 +0200 CEST
 ```
 
-_This example output shows the launch time of the chain on the network._
+This example output shows the launch time of the chain on the network.
 
 ### Set a custom launch time
 
