@@ -9,14 +9,21 @@ import (
 	"fmt"
 	"testing"
 	"testing/fstest"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+)
+
+var (
+	eventFields     = []string{"id", "index", "tx_hash", "type", "created_at"}
+	eventAttrFields = []string{"event_id", "name", "value"}
 )
 
 func TestUpdateSchema(t *testing.T) {
@@ -194,13 +201,91 @@ func TestGetLatestHeight(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestQueryWithFilter(t *testing.T) {
+func TestQuery(t *testing.T) {
+	// Arrange
+	var rowValue string
+
+	db, mock := createMatchEqualSQLMock(t)
+	defer db.Close()
+
+	adapter := Adapter{db: db}
+	ctx := context.Background()
+
+	// Arrange: Query
+	qry := query.New("baz", query.Fields("foo"))
+
+	// Arrange: Database mock and expectations
+	wantRowValue := "expected"
+	fields := []string{"foo"}
+	rows := sqlmock.NewRows(fields).AddRow(wantRowValue)
+
+	mock.
+		ExpectQuery(`
+			SELECT DISTINCT foo
+			FROM baz
+			WHERE true
+			LIMIT 30 OFFSET 0
+		`).
+		WillReturnRows(rows)
+
+	// Act
+	cr, err := adapter.Query(ctx, qry)
+	if cr.Next() {
+		cr.Scan(&rowValue)
+	}
+
+	// Assert
+	require.NoError(t, err, "expected no query errors on execution")
+	require.Equal(t, wantRowValue, rowValue)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestQueryCursor(t *testing.T) {
 	// Arrange
 	var (
-		cursorNextSucceded bool
 		rowValue           string
+		cursorNextSucceded bool
+		err                error
 	)
 
+	db, mock := createMatchEqualSQLMock(t)
+	defer db.Close()
+
+	adapter := Adapter{db: db}
+	ctx := context.Background()
+
+	// Arrange: Query
+	qry := query.New("baz", query.Fields("foo"))
+
+	// Arrange: Database mock and expectations
+	wantRowValue := "expected"
+	fields := []string{"foo"}
+	rows := sqlmock.NewRows(fields).AddRow(wantRowValue)
+
+	mock.
+		ExpectQuery(`
+			SELECT DISTINCT foo
+			FROM baz
+			WHERE true
+			LIMIT 30 OFFSET 0
+		`).
+		WillReturnRows(rows)
+
+	// Act
+	cr, _ := adapter.Query(ctx, qry)
+	if cursorNextSucceded = cr.Next(); cursorNextSucceded {
+		err = cr.Scan(&rowValue)
+	}
+
+	// Assert
+	require.True(t, cursorNextSucceded, "expected cursor.Next() to succeed")
+	require.NoError(t, err, "expected no scan errors on execution")
+	require.Equal(t, wantRowValue, rowValue)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestQueryWithFilter(t *testing.T) {
+	// Arrange
 	db, mock := createMatchEqualSQLMock(t)
 	defer db.Close()
 
@@ -216,71 +301,27 @@ func TestQueryWithFilter(t *testing.T) {
 		query.WithFilters(
 			NewFilter("foo", wantArg),
 		),
-		query.WithoutPaging(),
 	)
 
 	// Arrange: Database mock and expectations
-	wantRowValue := "expected"
+	fields := []string{"baz"}
+	rows := sqlmock.NewRows(fields)
 
 	mock.
-		ExpectQuery("SELECT DISTINCT foo FROM baz WHERE foo = $1").
+		ExpectQuery(`
+			SELECT DISTINCT foo
+			FROM baz
+			WHERE foo = $1
+			LIMIT 30 OFFSET 0
+		`).
 		WithArgs(wantArg).
-		WillReturnRows(
-			sqlmock.NewRows([]string{"foo"}).AddRow(wantRowValue),
-		)
+		WillReturnRows(rows)
 
 	// Act
-	cr, err := adapter.Query(ctx, qry)
-	require.NoError(t, err, "expected no query errors on execution")
-
-	if cursorNextSucceded = cr.Next(); cursorNextSucceded {
-		err = cr.Scan(&rowValue)
-	}
+	_, err := adapter.Query(ctx, qry)
 
 	// Assert
-	require.NoError(t, err)
-	require.True(t, cursorNextSucceded, "expected cursor.Next() to succeed")
-	require.Equal(t, wantRowValue, rowValue)
-	require.NoError(t, mock.ExpectationsWereMet())
-}
-
-func TestQueryWithoutFilter(t *testing.T) {
-	// Arrange
-	var (
-		cursorNextSucceded bool
-		rowValue           string
-	)
-
-	db, mock := createMatchEqualSQLMock(t)
-	defer db.Close()
-
-	adapter := Adapter{db: db}
-	ctx := context.Background()
-
-	// Arrange: Query
-	qry := query.New("baz", query.Fields("foo"), query.WithoutPaging())
-
-	// Arrange: Database mock and expectations
-	wantRowValue := "expected"
-
-	mock.
-		ExpectQuery("SELECT DISTINCT foo FROM baz WHERE true").
-		WillReturnRows(
-			sqlmock.NewRows([]string{"foo"}).AddRow(wantRowValue),
-		)
-
-	// Act
-	cr, err := adapter.Query(ctx, qry)
 	require.NoError(t, err, "expected no query errors on execution")
-
-	if cursorNextSucceded = cr.Next(); cursorNextSucceded {
-		err = cr.Scan(&rowValue)
-	}
-
-	// Assert
-	require.NoError(t, err)
-	require.True(t, cursorNextSucceded, "expected cursor.Next() to succeed")
-	require.Equal(t, wantRowValue, rowValue)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -319,7 +360,7 @@ func TestQueryRowError(t *testing.T) {
 	ctx := context.Background()
 	cols := []string{"name"}
 
-	// Arrange: Call Query
+	// Arrange: Query
 	qry := query.New("baz", query.Fields(cols[0]), query.WithoutPaging())
 
 	// Arrange: Database mock and expectations
@@ -336,14 +377,164 @@ func TestQueryRowError(t *testing.T) {
 
 	// Act
 	cr, err := adapter.Query(ctx, qry)
-	require.NoError(t, err, "expected no query errors on execution")
-
-	cursorNextSucceded := cr.Next()
 
 	// Assert
-	require.NoError(t, err)
-	require.False(t, cursorNextSucceded, "expected cursor.Next() to fail")
+	require.NoError(t, err, "expected no query errors on execution")
+	require.False(t, cr.Next(), "expected cursor.Next() to fail")
 	require.Equal(t, wantErr, cr.Err())
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestEventQuery(t *testing.T) {
+	// Arrange
+	db, mock := createMatchEqualSQLMock(t)
+	defer db.Close()
+
+	adapter := Adapter{db: db}
+	ctx := context.Background()
+
+	// Arrange: Database mocks
+	attrName := "foo"
+	attrValue := []byte("42")
+	event := query.Event{
+		ID:     1,
+		TXHash: "ABC123",
+		Index:  0,
+		Type:   "test",
+		Attributes: []query.Attribute{
+			query.NewAttribute(attrName, attrValue),
+		},
+		CreatedAt: time.Now(),
+	}
+
+	eventRows := sqlmock.
+		NewRows(eventFields).
+		AddRow(event.ID, event.Index, event.TXHash, event.Type, event.CreatedAt)
+	eventAttrRows := sqlmock.
+		NewRows(eventAttrFields).
+		AddRow(event.ID, attrName, attrValue)
+
+	mock.
+		ExpectQuery(`
+			SELECT event.id, event.index, event.tx_hash, event.type, event.created_at
+			FROM event INNER JOIN tx ON event.tx_hash = tx.hash
+			WHERE true
+			ORDER BY tx.height, tx.index, event.index
+			LIMIT 30 OFFSET 0
+		`).
+		WillReturnRows(eventRows)
+	mock.
+		ExpectQuery(`
+			SELECT event_id, name, value FROM attribute
+            WHERE event_id = ANY($1)
+            ORDER BY event_id
+		`).
+		WillReturnRows(eventAttrRows).
+		WithArgs(pq.Array([]int64{event.ID}))
+
+	// Arrange: Expectations
+	wantEvents := []query.Event{event}
+
+	// Arrange: Query
+	qry := query.NewEventQuery()
+
+	// Act
+	events, err := adapter.QueryEvents(ctx, qry)
+
+	// Assert
+	require.NoError(t, err, "expected no query errors on execution")
+	require.Len(t, events, 1)
+	require.Equal(t, wantEvents, events)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestEventQueryWithFilters(t *testing.T) {
+	// Arrange
+	db, mock := createMatchEqualSQLMock(t)
+	defer db.Close()
+
+	adapter := Adapter{db: db}
+	ctx := context.Background()
+
+	// Arrange: Database mocks
+	indexValue := 2
+	typeValue := "chain.test.Test"
+	hashValues := []string{"HASH1", "HASH2"}
+	eventRows := sqlmock.NewRows(eventFields)
+
+	mock.
+		ExpectQuery(`
+			SELECT event.id, event.index, event.tx_hash, event.type, event.created_at
+			FROM event INNER JOIN tx ON event.tx_hash = tx.hash
+			WHERE event.index = $1 AND event.type = $2 AND event.tx_hash = ANY($3)
+			ORDER BY tx.height, tx.index, event.index
+			LIMIT 30 OFFSET 0
+		`).
+		WillReturnRows(eventRows).
+		WithArgs(indexValue, typeValue, pq.Array(hashValues))
+
+	// Arrange: Query
+	qry := query.NewEventQuery(
+		query.WithFilters(
+			NewFilter("event.index", indexValue),
+			FilterByEventType(typeValue),
+			FilterByEventTXs(hashValues...),
+		),
+	)
+
+	// Act
+	events, err := adapter.QueryEvents(ctx, qry)
+
+	// Assert
+	require.NoError(t, err, "expected no query errors on execution")
+	require.Len(t, events, 0)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestEventQueryWithEventAttrFilters(t *testing.T) {
+	// Arrange
+	db, mock := createMatchEqualSQLMock(t)
+	defer db.Close()
+
+	adapter := Adapter{db: db}
+	ctx := context.Background()
+
+	// Arrange: Database mocks
+	attrNameValue := "foo"
+	attrValue := int64(42)
+	eventRows := sqlmock.NewRows(eventFields)
+
+	mock.
+		ExpectQuery(`
+			SELECT DISTINCT events.*
+			FROM (
+				SELECT event.id, event.index, event.tx_hash, event.type, event.created_at
+				FROM event
+					INNER JOIN tx ON event.tx_hash = tx.hash
+					INNER JOIN attribute ON event.id = attribute.event_id
+				WHERE attribute.name = $1 AND attribute.name = $2 AND attribute.value::numeric = $3
+				ORDER BY tx.height, tx.index, event.index
+			) AS events
+			LIMIT 30 OFFSET 0
+		`).
+		WillReturnRows(eventRows).
+		WithArgs(attrNameValue, attrNameValue, attrValue)
+
+	// Arrange: Query
+	qry := query.NewEventQuery(
+		query.WithFilters(
+			NewFilter("attribute.name", attrNameValue),
+			FilterByEventAttrName(attrNameValue),
+			FilterByEventAttrValueInt(attrValue),
+		),
+	)
+
+	// Act
+	events, err := adapter.QueryEvents(ctx, qry)
+
+	// Assert
+	require.NoError(t, err, "expected no query errors on execution")
+	require.Len(t, events, 0)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
