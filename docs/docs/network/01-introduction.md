@@ -33,7 +33,7 @@ ignite network chain init 42
 ignite network chain join 42 --amount 95000000stake
 ```
 
-As a coordinator list all validator requests:
+As a coordinator, list all validator requests:
 
 ```
 ignite network request list 42

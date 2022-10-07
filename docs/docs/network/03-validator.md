@@ -17,7 +17,7 @@ Validators can list and explore published chains to be launched on Ignite.
 ignite n chain list
 ```
 
-### Output
+#### Output
 
 ```
 Launch Id 	Chain Id 	Source                              Phase
@@ -39,8 +39,8 @@ Launch Id 	Chain Id 	Source                              Phase
 
 ## Request network participation
 
-When the a chain is in the coordination phase, validators can request to be a genesis validator for the chain.
-Ignite CLI supports a automatic workflow that can setup a node for the validator and a workflow for advanced users with a specific setup for their validator.
+When the chain is in the coordination phase, validators can request to be a genesis validator for the chain.
+Ignite CLI supports an automatic workflow that can setup a node for the validator and a workflow for advanced users with a specific setup for their validator.
 
 ### Simple Flow
 
