@@ -9,6 +9,8 @@ import (
 )
 
 const (
+	eventAttrPrefix = "attribute."
+
 	sqlSelectAll = "SELECT *"
 	sqlWhereTrue = "WHERE true"
 
@@ -74,7 +76,7 @@ func parseEventQuery(q query.EventQuery) string {
 	// and if so add the required INNER JOIN to the raw SQL query.
 	// The JOIN is not present by default to improve events queries.
 	for _, f := range filters {
-		if f.Field() == FieldEventAttrValue {
+		if strings.HasPrefix(f.Field(), eventAttrPrefix) {
 			sql = tplSelectEventsWithAttrSQL
 
 			break
