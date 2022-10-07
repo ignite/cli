@@ -14,7 +14,9 @@ To launch a Cosmos blockchain you need someone to be a coordinator and others to
 
 ## Launching a chain on Ignite
 
-Launching with the CLI can be as simple as a few short commands.
+Launching with the CLI can be as simple as a few short commands with the the CLI using `ignite network` command namespace.
+
+**NOTE**: `ignite n` can also be used as a shortcut for `ignite network`.
 
 To publish the information about your chain as a coordinator run the following command (the URL should point to a repository with a Cosmos SDK chain):
 
@@ -59,7 +61,7 @@ ignite network chain prepare 42
 ```
 
 The output of this command will show a command that a validator would use to
-launch their node, for example “exampled --home ~/.example”. After enough
+launch their node, for example `exampled --home ~/.example`. After enough
 validators launch their nodes, a blockchain will be live.
 
 ---
