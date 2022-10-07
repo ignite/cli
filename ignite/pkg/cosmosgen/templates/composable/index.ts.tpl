@@ -1,6 +1,15 @@
 import useSWRV from 'swrv'
 import { useClient } from '../useClient';
 
+
+type SwrvReturn<T> = {
+  data: Ref<T>;
+  error: Ref<unknown>;
+};
+type SwrvHelper<T extends (...args: any) => any> = SwrvReturn<
+  Awaited<ReturnType<T>>["data"]
+>;
+
 export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
   const client = useClient();
 
@@ -45,7 +54,8 @@ export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
               {...key}
             {{- end -}}
             ).then( res => res.data );
-    });
+    }) as SwrvHelper<typeof client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCaseSta $FullName -}}
+        {{- $n -}}>
   }
   {{ end -}}
   {{- end }}
