@@ -5,7 +5,7 @@ description: Ignite Network commands for validator.
 
 # Validator Guide
 
-Validators join as genesis validator for chain launches on Ignite Chain
+Validators join as genesis validator for chain launches on Ignite Chain.
 
 ---
 
