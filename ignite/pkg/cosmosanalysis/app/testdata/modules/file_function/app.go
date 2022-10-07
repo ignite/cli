@@ -11,16 +11,19 @@ import (
 	foomodule "github.com/username/test/x/foo"
 )
 
-// App modules are defined as NewBasicManager arguments
-var ModuleBasics = module.NewBasicManager(
-	auth.AppModuleBasic{},
-	bank.AppModuleBasic{},
-	staking.AppModuleBasic{},
-	gov.NewAppModuleBasic([]govclient.ProposalHandler{
-		paramsclient.ProposalHandler,
-	}),
-	foomodule.AppModuleBasic{},
-)
+var ModuleBasics = module.NewBasicManager(basicModules()...)
+
+func basicModules() {
+	return []module.AppModuleBasic{
+		auth.AppModuleBasic{},
+		bank.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		gov.NewAppModuleBasic([]govclient.ProposalHandler{
+			paramsclient.ProposalHandler,
+		}),
+		foomodule.AppModuleBasic{},
+	}
+}
 
 type Foo struct{}
 
