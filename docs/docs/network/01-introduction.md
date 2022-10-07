@@ -12,7 +12,7 @@ To launch a Cosmos blockchain you need someone to be a coordinator and others to
 - A coordinator publishes information about a chain to be launched on the Ignite blockchain, approves validator requests and coordinates the launch.
 - Validators send requests to join a chain and start their nodes when a blockchain is ready for launch.
 
-# Launching a chain on Ignite
+## Launching a chain on Ignite
 
 Launching with the CLI can be as simple as a few short commands.
 
