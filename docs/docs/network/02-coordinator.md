@@ -15,7 +15,7 @@ The first step in the process of a chain launch is for the coordinator to publis
 The `publish` command publishes the intention of launching a chain on Ignite from a project git repository.
 
 ```shell
-ignite n publish https://github.com/ignite/example
+ignite n chain publish https://github.com/ignite/example
 ```
 
 #### Output
@@ -42,12 +42,12 @@ The coordinator can specify a custom initial genesis for the chain launch with t
 A URL must be provided for the `--genesis` flag. This can either directly point to a JSON genesis file or a tarball containing a genesis file.
 
 ```shell
-ignite n publish https://github.com/ignite/example --genesis https://example.com/genesis.tar.gz
+ignite n chain publish https://github.com/ignite/example --genesis https://example.com/genesis.tar.gz
 ```
 
 ## Approve validator requests
 
-When coordinating for a chain launch, validators send requests. These represent requests to be part of the genesis as a validator the chain.
+When coordinating for a chain launch, validators send requests. These represent requests to be part of the genesis as a validator for the chain.
 
 The coordinator can list these requests:
 
