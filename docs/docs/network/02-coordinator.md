@@ -18,7 +18,7 @@ The `publish` command publishes the intention of launching a chain on Ignite fro
 ignite n chain publish https://github.com/ignite/example
 ```
 
-#### Output
+**Output**
 
 ```
 ✔ Source code fetched
@@ -57,7 +57,7 @@ ignite n request list 3
 
 _NOTE: here "3" is specifying the `LaunchID`._
 
-#### Output
+**Output**
 
 ```
 Id 	Status 		Type 			Content
@@ -77,7 +77,7 @@ ignite n request approve 3 3,4
 
 _NOTE: when selecting a list of requests, both syntaxes can be used: `1,2,3,4` and `1-3,4`._
 
-#### Output
+**Output**
 
 ```
 ✔ Source code fetched
@@ -99,7 +99,7 @@ To reject the requests:
 ignite n request reject 3 3,4
 ```
 
-#### Output
+**Output**
 
 ```
 ✔ Request(s) #3, #4 rejected
@@ -119,7 +119,7 @@ This action also sets the launch time (or genesis time) for the chain, the time 
 ignite n chain launch 3
 ```
 
-#### Output
+**Output**
 
 ```
 ✔ Chain 3 will be launched on 2022-10-01 09:00:00.000000 +0200 CEST

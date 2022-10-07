@@ -17,7 +17,7 @@ Validators can list and explore published chains to be launched on Ignite.
 ignite n chain list
 ```
 
-#### Output
+**Output**
 
 ```
 Launch Id 	Chain Id 	Source                              Phase
@@ -50,7 +50,7 @@ Ignite CLI supports an automatic workflow that can setup a node for the validato
 ignite n chain init 3
 ```
 
-#### Output
+**Output**
 
 ```
 ✔ Source code fetched
@@ -73,7 +73,7 @@ ignite n chain join 3 --amount 100000000stake
 The join command accepts a `--amount` flag with a comma-separated list of tokens. If the flag is provided, the
 command will broadcast a request to add the validator’s address as an account to the genesis with the specific amount.
 
-#### Output
+**Output**
 
 ```
 ? Peer's address 192.168.0.1:26656
@@ -106,7 +106,7 @@ Generate the final genesis and config of the node:
 ignite n chain prepare 3
 ```
 
-#### Output
+**Output**
 
 ```
 ✔ Source code fetched
@@ -133,7 +133,7 @@ Fetch the final genesis for the chain:
 ignite n chain show genesis 3
 ```
 
-#### Output
+**Output**
 
 ```
 ✔ Source code fetched
@@ -150,7 +150,7 @@ Next, fetch the persistent peer list:
 ignite n chain show peers 3
 ```
 
-#### Output
+**Output**
 
 ```
 ⋆ Peer list generated: ./peers.txt
