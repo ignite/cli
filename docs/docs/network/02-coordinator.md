@@ -55,7 +55,7 @@ The coordinator can list these requests:
 ignite n request list 3
 ```
 
-**NOTE**: here "3" is specifying the `LaunchID`.
+> **_NOTE:_** here "3" is specifying the `LaunchID`.
 
 **Output**
 
@@ -75,7 +75,7 @@ To approve the requests:
 ignite n request approve 3 3,4
 ```
 
-**NOTE**: when selecting a list of requests, both syntaxes can be used: `1,2,3,4` and `1-3,4`.
+> **_NOTE:_** when selecting a list of requests, both syntaxes can be used: `1,2,3,4` and `1-3,4`.
 
 **Output**
 
