@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
 - Improve genesis parser for `network` commands
 - Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
