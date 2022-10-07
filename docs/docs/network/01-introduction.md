@@ -16,7 +16,7 @@ To launch a Cosmos blockchain you need someone to be a coordinator and others to
 
 Launching with the CLI can be as simple as a few short commands with the the CLI using `ignite network` command namespace.
 
-**NOTE**: `ignite n` can also be used as a shortcut for `ignite network`.
+> **_NOTE:_** `ignite n` can also be used as a shortcut for `ignite network`.
 
 To publish the information about your chain as a coordinator run the following command (the URL should point to a repository with a Cosmos SDK chain):
 
