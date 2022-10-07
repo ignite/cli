@@ -264,6 +264,11 @@ func (a Adapter) QueryEvents(ctx context.Context, q query.EventQuery) ([]query.E
 		eventIndexes[e.ID] = i
 	}
 
+	// Don't query attributes when there are no events
+	if len(events) == 0 {
+		return events, nil
+	}
+
 	// Select the attributes for the events that matched the query
 	rows, err = db.QueryContext(ctx, sqlSelectEventAttrs, pq.Array(eventIDs))
 	if err != nil {
