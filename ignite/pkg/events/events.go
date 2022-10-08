@@ -63,12 +63,7 @@ func New(message string, options ...Option) Event {
 	return ev
 }
 
-// IsOngoing checks if state change that triggered this event is still ongoing.
-func (e Event) IsOngoing() bool {
+// InProgress returns true when the event is in progress.
+func (e Event) InProgress() bool {
 	return e.ProgressIndication == IndicationStart
-}
-
-// HasIcon checks if event contains an icon
-func (e Event) HasIcon() bool {
-	return e.Icon != ""
 }

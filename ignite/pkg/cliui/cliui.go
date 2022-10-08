@@ -241,7 +241,7 @@ func (s Session) handleEvents() {
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
 
-			if event.HasIcon() {
+			if event.Icon != "" {
 				fmt.Fprintf(stdout, "%s %s\n", event.Icon, event.Message)
 			} else {
 				fmt.Fprintf(stdout, "%s\n", event.Message)

@@ -8,93 +8,46 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-func TestEventIsOngoing(t *testing.T) {
-	tests := []struct {
-		name    string
-		status  events.ProgressIndication
-		message string
-		want    bool
-	}{
-		{"status ongoing", events.IndicationStart, "description", true},
-		{"status done", events.IndicationFinish, "description", false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			e := events.Event{
-				ProgressIndication: tt.status,
-				Message:            tt.message,
-			}
-
-			require.Equal(t, tt.want, e.IsOngoing())
-		})
-	}
-}
-
-func TestEventString(t *testing.T) {
-	tests := []struct {
-		name    string
-		status  events.ProgressIndication
-		message string
-		want    string
-	}{
-		{
-			name:    "status done",
-			status:  events.IndicationFinish,
-			message: "message",
-			want:    "message",
-		},
-		{
-			name:    "status ongoing",
-			status:  events.IndicationStart,
-			message: "message",
-			want:    "message",
-		},
-		{
-			name:    "status ongoing with empty message",
-			status:  events.IndicationStart,
-			message: "",
-			want:    "",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			e := events.Event{
-				ProgressIndication: tt.status,
-				Message:            tt.message,
-			}
-
-			require.Equal(t, tt.want, e.Message)
-		})
-	}
-}
-
 func TestNew(t *testing.T) {
-	tests := []struct {
-		name    string
-		message string
-		options []events.Option
-		want    events.Event
+	msg := "message"
+	cases := []struct {
+		name, message       string
+		inProgress, hasIcon bool
+		options             []events.Option
+		event               events.Event
 	}{
 		{
-			name: "zero value args",
-			want: events.Event{},
+			name:  "event",
+			event: events.Event{},
 		},
 		{
-			name:    "status ongoing",
-			options: []events.Option{events.ProgressStarted()},
-			message: "message",
-			want:    events.Event{ProgressIndication: 1, Message: "message"},
+			name:       "in progress event",
+			message:    msg,
+			inProgress: true,
+			options:    []events.Option{events.ProgressStarted()},
+			event: events.Event{
+				ProgressIndication: events.IndicationStart,
+				Message:            msg,
+			},
 		},
 		{
-			name:    "status done",
+			name:    "finished event",
+			message: msg,
 			options: []events.Option{events.ProgressFinished()},
-			message: "message",
-			want:    events.Event{ProgressIndication: 2, Message: "message"},
+			event: events.Event{
+				ProgressIndication: events.IndicationFinish,
+				Message:            msg,
+			},
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.want, events.New(tt.message, tt.options...))
+			// Act
+			e := events.New(tt.message, tt.options...)
+
+			// Assert
+			require.Equal(t, tt.event, e)
+			require.Equal(t, tt.inProgress, e.InProgress())
 		})
 	}
 }
