@@ -178,7 +178,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 	session := cliui.New()
 
-	defer session.Cleanup()
+	defer session.End()
 
 	return confirmWhenUncommittedChanges(session, appPath)
 }
