@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
@@ -64,7 +64,23 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
-		genesis, hash, err := cosmosutil.GenesisAndHashFromURL(ctx, c.genesisURL)
+		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
+		genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
+		if err != nil {
+			return err
+		}
+
+		if genesis.TarballPath() != "" {
+			c.ev.Send(
+				events.New(events.StatusDone,
+					fmt.Sprintf("Extracted custom Genesis from tarball at %s", genesis.TarballPath()),
+				),
+			)
+		} else {
+			c.ev.Send(events.New(events.StatusDone, "Custom Genesis JSON from URL fetched"))
+		}
+
+		hash, err := genesis.Hash()
 		if err != nil {
 			return err
 		}
@@ -77,8 +93,13 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return fmt.Errorf("genesis from URL %s is invalid. expected hash %s, actual hash %s", c.genesisURL, c.genesisHash, hash)
 		}
 
+		genBytes, err := genesis.Bytes()
+		if err != nil {
+			return err
+		}
+
 		// replace the default genesis with the fetched genesis
-		if err := os.WriteFile(genesisPath, genesis, 0o644); err != nil {
+		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
 			return err
 		}
 	} else {
@@ -117,15 +138,15 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	genesisFile, err := os.ReadFile(genesisPath)
+	chainGenesis, err := cosmosgenesis.FromPath(genesisPath)
 	if err != nil {
 		return err
 	}
-	chainGenesis, err := cosmosutil.ParseChainGenesis(genesisFile)
+	gentxCount, err := chainGenesis.GentxCount()
 	if err != nil {
 		return err
 	}
-	if chainGenesis.GenTxCount() > 0 {
+	if gentxCount > 0 {
 		return errors.New("the initial genesis for the chain should not contain gentx")
 	}
 

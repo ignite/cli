@@ -3,13 +3,16 @@ package network
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
@@ -102,23 +105,26 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	var (
 		genesisHash string
-		genesisFile []byte
-		genesis     cosmosutil.ChainGenesis
+		genesis     *cosmosgenesis.Genesis
+		chainID     string
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.genesisURL != "" {
-		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+		genesis, err = cosmosgenesis.FromURL(ctx, o.genesisURL, filepath.Join(os.TempDir(), "genesis.json"))
 		if err != nil {
 			return 0, 0, err
 		}
-		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
+		genesisHash, err = genesis.Hash()
+		if err != nil {
+			return 0, 0, err
+		}
+		chainID, err = genesis.ChainID()
 		if err != nil {
 			return 0, 0, err
 		}
 	}
 
-	chainID := genesis.ChainID
 	// use chain id flag always in the highest priority.
 	if o.chainID != "" {
 		chainID = o.chainID

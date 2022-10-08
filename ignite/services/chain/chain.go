@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
+
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
@@ -193,7 +194,12 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		rpcAddress = conf.Host.RPC
+		validator := conf.Validators[0]
+		servers, err := validator.GetServers()
+		if err != nil {
+			return "", err
+		}
+		rpcAddress = servers.RPC.Address
 	}
 	return rpcAddress, nil
 }
@@ -212,10 +218,10 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (chainconfig.Config, error) {
+func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConf, nil
+		return chainconfig.DefaultConfig(), nil
 	}
 	return chainconfig.ParseFile(configPath)
 }
@@ -297,8 +303,9 @@ func (c *Chain) DefaultHome() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if config.Init.Home != "" {
-		return config.Init.Home, nil
+	validator := config.Validators[0]
+	if validator.Home != "" {
+		return validator.Home, nil
 	}
 
 	return c.plugin.Home(), nil
@@ -371,13 +378,14 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 2nd.
-	if config.Init.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+	validator := config.Validators[0]
+	if validator.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
 	}
 
 	// 3rd.
-	if config.Init.Client != nil {
-		if backend, ok := config.Init.Client["keyring-backend"]; ok {
+	if validator.Client != nil {
+		if backend, ok := validator.Client["keyring-backend"]; ok {
 			if backendStr, ok := backend.(string); ok {
 				return chaincmd.KeyringBackendFromString(backendStr)
 			}
@@ -431,7 +439,13 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	nodeAddr, err := xurl.TCP(config.Host.RPC)
+	validator := config.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	nodeAddr, err := xurl.TCP(servers.RPC.Address)
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}

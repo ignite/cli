@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
-var GentxFilename = "gentx.json"
+const GentxFilename = "gentx.json"
 
 type (
 	// GentxInfo represents the basic info about gentx file

@@ -95,10 +95,6 @@ func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain)
 		events.ProgressFinished(),
 	)
 
-	n.ev.Send("Resetting the genesis time", events.ProgressStarted())
-	if err := chain.ResetGenesisTime(); err != nil {
-		return err
-	}
 	n.ev.Send("Genesis time was reset", events.ProgressFinished())
 	return nil
 }

@@ -2,10 +2,10 @@ package network
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,15 +16,19 @@ import (
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmoserror"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 	"github.com/ignite/cli/ignite/services/network/testutil"
 )
 
-func startGenesisTestServer(genesis cosmosutil.ChainGenesis) *httptest.Server {
+func startGenesisTestServer(filepath string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		encodedGenesis, _ := json.Marshal(genesis)
-		w.Write(encodedGenesis)
+		file, err := os.ReadFile(filepath)
+		if err != nil {
+			panic(err)
+		}
+		if _, err = w.Write(file); err != nil {
+			panic(err)
+		}
 	}))
 }
 
@@ -315,8 +319,8 @@ func TestPublish(t *testing.T) {
 		var (
 			account              = testutil.NewTestAccount(t, testutil.TestAccountName)
 			customGenesisChainID = "test-custom-1"
-			customGenesisHash    = "61da86775013bd18d6a019b533eedf1304b778fe8005090a0a0223720adfd8eb"
-			gts                  = startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
+			customGenesisHash    = "86167654c1af18c801837d443563fd98b3fe5e8d337e70faad181cdf2100da52"
+			gts                  = startGenesisTestServer("mocks/data/genesis.json")
 			suite, network       = newSuite(account)
 		)
 		defer gts.Close()
@@ -428,10 +432,9 @@ func TestPublish(t *testing.T) {
 
 	t.Run("publish chain with mainnet", func(t *testing.T) {
 		var (
-			account              = testutil.NewTestAccount(t, testutil.TestAccountName)
-			customGenesisChainID = "test-custom-1"
-			gts                  = startGenesisTestServer(cosmosutil.ChainGenesis{ChainID: customGenesisChainID})
-			suite, network       = newSuite(account)
+			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
+			gts            = startGenesisTestServer("mocks/data/genesis.json")
+			suite, network = newSuite(account)
 		)
 		defer gts.Close()
 
@@ -571,7 +574,7 @@ func TestPublish(t *testing.T) {
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
 			gts            = startInvalidJSONServer()
-			expectedError  = errors.New("cannot unmarshal the chain genesis file: invalid character 'i' looking for beginning of value")
+			expectedError  = errors.New("JSON field not found")
 		)
 		defer gts.Close()
 

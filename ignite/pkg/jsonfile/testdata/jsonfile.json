@@ -1,0 +1,40 @@
+{
+  "app_state": {
+    "bank": {
+      "balances": [
+        {
+          "address": "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+          "coins": [
+            {
+              "amount": "95000000",
+              "denom": "stake"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "chain_id": "earth-1",
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1",
+      "time_iota_ms": 1000,
+      "best_blocks": [
+        100,
+        20,
+        11,
+        4,
+        2
+      ]
+    },
+    "evidence": {
+      "max_age_duration": "172800000000000",
+      "max_age_num_blocks": "100000",
+      "max_bytes": 1048576
+    }
+  },
+  "genesis_time": "2021-11-12T02:08:12.522572Z",
+  "initial_height": "1",
+  "launched": true
+}
