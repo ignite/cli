@@ -13,7 +13,8 @@ const DefaultBufferSize = 50
 type (
 	// Bus defines a bus to send and receive events.
 	Bus struct {
-		evChan chan Event
+		evChan  chan Event
+		stopped bool
 	}
 
 	// BusOption configures the Bus.
@@ -43,7 +44,7 @@ func NewBus(options ...BusOption) Bus {
 // Send sends a new event to bus.
 // This method will block if the event bus buffer is full.
 func (b Bus) Send(message string, options ...Option) {
-	if b.evChan == nil {
+	if b.evChan == nil || b.stopped {
 		return
 	}
 
@@ -73,16 +74,18 @@ func (b Bus) SendView(s fmt.Stringer, options ...Option) {
 }
 
 // Events returns a read only channel to read the events.
-func (b *Bus) Events() <-chan Event {
+func (b Bus) Events() <-chan Event {
 	return b.evChan
 }
 
 // Stop stops the event bus.
 // All new events are ignired once the event bus is stopped.
-func (b Bus) Stop() {
+func (b *Bus) Stop() {
 	if b.evChan == nil {
 		return
 	}
+
+	b.stopped = true
 
 	close(b.evChan)
 }
