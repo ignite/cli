@@ -217,7 +217,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 }
 
 func (c *Chain) setup() error {
-	c.ev.Sendf("Cosmos SDK's version is: %s", colors.Info(c.Version))
+	c.ev.Sendf("Cosmos SDK's version is: %s\n", colors.Info(c.Version))
 
 	return c.checkSystem()
 }
