@@ -20,6 +20,7 @@
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
+- Fix config file migration to void leaving end of file content chunks
 
 ### Features
 
