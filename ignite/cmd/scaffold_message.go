@@ -1,11 +1,9 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
@@ -89,8 +87,10 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		withoutSimulation = flagGetNoSimulation(cmd)
 	)
 
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
+	session.StartSpinner("Scaffolding...")
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
@@ -124,15 +124,13 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
 	modificationsStr, err := sourceModificationToString(sm)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(modificationsStr)
-	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
+	session.Println(modificationsStr)
+	session.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
 
 	return nil
 }

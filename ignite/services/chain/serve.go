@@ -447,6 +447,8 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 		c.ev.Sendf("🌍 Token faucet: %s", faucetAddr)
 	}
 
+	c.session.StopSpinner()
+
 	return g.Wait()
 }
 
