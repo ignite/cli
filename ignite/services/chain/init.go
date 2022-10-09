@@ -10,7 +10,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	accview "github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
+	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
 )
 
@@ -91,7 +91,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		return err
 	}
 
-	var accs accview.Accounts
+	var accounts accountview.Accounts
+
 	// add accounts from config into genesis
 	for _, account := range conf.Accounts {
 		var generatedAccount chaincmdrunner.Account
@@ -112,14 +113,18 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 
 		if account.Address == "" {
-			accs = append(accs, accview.NewAccount(generatedAccount.Name, accountAddress, accview.WithMnemonic(generatedAccount.Mnemonic)))
+			accounts = append(accounts, accountview.NewAccount(
+				generatedAccount.Name,
+				accountAddress,
+				accountview.WithMnemonic(generatedAccount.Mnemonic),
+			))
 		} else {
-			accs = append(accs, accview.NewAccount(account.Name, accountAddress))
+			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
 
 	c.ev.Send("🗂  Initialize accounts...")
-	c.ev.SendView(accview.Collection(accs...))
+	c.ev.SendView(accounts)
 
 	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
 

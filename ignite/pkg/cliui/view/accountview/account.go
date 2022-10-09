@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Option func(account *Account)
+type Option func(*Account)
 
 type Account struct {
 	Name     string
@@ -28,46 +28,33 @@ func NewAccount(name, address string, options ...Option) Account {
 	for _, apply := range options {
 		apply(&a)
 	}
+
 	return a
 }
 
-func (acc Account) String() string {
+func (a Account) String() string {
 	b := strings.Builder{}
-	b.WriteString(fmt.Sprintf("Account added: %s \n", acc.Name))
-	b.WriteString(fmt.Sprintf("Address: %s \n", acc.Address))
-	if acc.Mnemonic != "" {
-		b.WriteString(fmt.Sprintf("Mnemonic: %s \n", breakMnemonicIntoLines(acc.Mnemonic, 8)))
+	b.WriteString(fmt.Sprintf("🙂 Added account %s with address %s", a.Name, a.Address))
+
+	if a.Mnemonic != "" {
+		b.WriteString(fmt.Sprintf(" and mnemonic: %s", a.Mnemonic))
 	}
+
 	return b.String()
 }
 
 type Accounts []Account
 
-func Collection(accounts ...Account) Accounts {
-	return append(Accounts{}, accounts...)
-}
-
-func (accs Accounts) String() string {
+func (a Accounts) String() string {
 	b := strings.Builder{}
-	b.WriteString("\n")
-	for i, acc := range accs {
-		b.WriteString(acc.String())
-		if len(accs)-i != 1 {
-			b.WriteString("\n")
-		}
-	}
-	return b.String()
-}
 
-func breakMnemonicIntoLines(mnemonic string, breakAfterN int) string {
-	splitted := strings.Split(mnemonic, " ")
-	b := strings.Builder{}
-	for i, s := range splitted {
-		b.WriteString(s)
-		b.WriteString(" ")
-		if (i+1)%breakAfterN == 0 {
-			b.WriteString("\n")
+	for i, account := range a {
+		if i > 0 {
+			b.WriteRune('\n')
 		}
+
+		b.WriteString(account.String())
 	}
+
 	return b.String()
 }
