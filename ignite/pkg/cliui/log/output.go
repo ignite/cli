@@ -132,5 +132,5 @@ func NewOutput(options ...Option) (out Output) {
 		out.stderr = o.stderr
 	}
 
-	return
+	return out
 }
