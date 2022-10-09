@@ -438,6 +438,8 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	rpcAddr, _ := xurl.HTTP(servers.RPC.Address)
 	apiAddr, _ := xurl.HTTP(servers.API.Address)
 
+	c.session.StopSpinner()
+
 	// log the server addresses.
 	c.ev.Sendf("🌍 Tendermint node: %s", rpcAddr)
 	c.ev.Sendf("🌍 Blockchain API: %s", apiAddr)
@@ -446,8 +448,6 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
 		c.ev.Sendf("🌍 Token faucet: %s", faucetAddr)
 	}
-
-	c.session.StopSpinner()
 
 	return g.Wait()
 }
