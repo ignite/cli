@@ -147,9 +147,9 @@ type Vuex struct {
 	Path string `yaml:"path"`
 }
 
-// Vuex configures code generation for Vuex stores.
+// Composables configures code generation for vue-query hooks.
 type Composables struct {
-	// Path configures out location for generated Vuex stores code.
+	// Path configures out location for generated vue-query hooks.
 	Path string `yaml:"path"`
 }
 
