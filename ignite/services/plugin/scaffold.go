@@ -43,7 +43,6 @@ func Scaffold(dir, moduleName string) error {
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", moduleName)
 	ctx.Set("Name", name)
-	// plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	r := genny.WetRunner(ctx)
 	err := r.With(g)
