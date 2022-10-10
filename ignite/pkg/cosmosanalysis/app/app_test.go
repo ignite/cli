@@ -72,49 +72,12 @@ func TestCheckKeeper(t *testing.T) {
 	}
 }
 
-func TestGetRegisteredModules(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, AppFullFile, 0o644)
-	require.NoError(t, err)
-
-	tmpNoAppFile := filepath.Join(tmpDir, "someOtherFile.go")
-	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0o644)
-	require.NoError(t, err)
-
-	registeredModules, err := app.FindRegisteredModules(tmpDir)
-	require.NoError(t, err)
-	require.ElementsMatch(t, []string{
-		"github.com/cosmos/cosmos-sdk/x/auth",
-		"github.com/cosmos/cosmos-sdk/x/genutil",
-		"github.com/cosmos/cosmos-sdk/x/bank",
-		"github.com/cosmos/cosmos-sdk/x/capability",
-		"github.com/cosmos/cosmos-sdk/x/staking",
-		"github.com/cosmos/cosmos-sdk/x/mint",
-		"github.com/cosmos/cosmos-sdk/x/distribution",
-		"github.com/cosmos/cosmos-sdk/x/gov",
-		"github.com/cosmos/cosmos-sdk/x/params",
-		"github.com/cosmos/cosmos-sdk/x/crisis",
-		"github.com/cosmos/cosmos-sdk/x/slashing",
-		"github.com/cosmos/cosmos-sdk/x/feegrant/module",
-		"github.com/cosmos/ibc-go/v5/modules/core",
-		"github.com/cosmos/cosmos-sdk/x/upgrade",
-		"github.com/cosmos/cosmos-sdk/x/evidence",
-		"github.com/cosmos/ibc-go/v5/modules/apps/transfer",
-		"github.com/cosmos/cosmos-sdk/x/auth/vesting",
-		"github.com/tendermint/testchain/x/testchain",
-		"github.com/tendermint/testchain/x/queryonlymod",
-		"github.com/cosmos/cosmos-sdk/x/auth/tx",
-		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
-	}, registeredModules)
-}
-
-func TestParseAppModules(t *testing.T) {
+func TestFindRegisteredModules(t *testing.T) {
 	basicModules := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
 		"github.com/cosmos/cosmos-sdk/x/bank",
 		"github.com/cosmos/cosmos-sdk/x/staking",
+		"github.com/cosmos/cosmos-sdk/x/gov",
 		"github.com/username/test/x/foo",
 	}
 
@@ -126,6 +89,26 @@ func TestParseAppModules(t *testing.T) {
 		{
 			name:            "new basic manager arguments",
 			path:            "testdata/modules/arguments",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "cosmos-sdk/types/module with alias",
+			path:            "testdata/modules/package_alias",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "package not called app",
+			path:            "testdata/modules/package_not_called_app",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "append with arguments",
+			path:            "testdata/modules/append_arguments",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "registration not in app.go",
+			path:            "testdata/modules/registration_not_in_app_go",
 			expectedModules: basicModules,
 		},
 		{
@@ -151,6 +134,21 @@ func TestParseAppModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 			),
+		},
+		{
+			name:            "same file function",
+			path:            "testdata/modules/file_function",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same package function",
+			path:            "testdata/modules/package_function",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "append same package function",
+			path:            "testdata/modules/append_package_function",
+			expectedModules: basicModules,
 		},
 		{
 			name: "gaia",
@@ -283,14 +281,50 @@ func TestParseAppModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 			},
 		},
+		{
+			name: "akash",
+			path: "testdata/modules/akash",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/cosmos/cosmos-sdk/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/ibc-go/v3/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/ovrclk/akash/x/icaauth",
+				"github.com/ovrclk/akash/x/escrow",
+				"github.com/ovrclk/akash/x/deployment",
+				"github.com/ovrclk/akash/x/market",
+				"github.com/ovrclk/akash/x/provider",
+				"github.com/ovrclk/akash/x/audit",
+				"github.com/ovrclk/akash/x/cert",
+				"github.com/ovrclk/akash/x/inflation",
+			},
+		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+
 			m, err := app.FindRegisteredModules(tt.path)
 
-			require.NoError(t, err)
-			require.Equal(t, tt.expectedModules, m)
+			require.NoError(err)
+			require.ElementsMatch(tt.expectedModules, m)
 		})
 	}
 }
