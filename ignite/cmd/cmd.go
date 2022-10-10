@@ -79,7 +79,7 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
 
-	err := loadPlugins(c)
+	err := loadPlugins(context.Background(), c)
 	if err != nil {
 		log.Fatal(err)
 	}

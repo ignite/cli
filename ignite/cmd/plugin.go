@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -21,14 +22,14 @@ var plugins []*plugin.Plugin
 
 // loadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
-func loadPlugins(rootCmd *cobra.Command) error {
+func loadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// NOTE(tb) Not sure if it's the right place to load this.
-	c, err := NewChainWithHomeFlags(rootCmd)
+	chain, err := NewChainWithHomeFlags(rootCmd)
 	if err != nil {
 		// Binary is run outside of an chain app, plugins can't be loaded
 		return nil
 	}
-	plugins, err = plugin.Load(rootCmd.Context(), c)
+	plugins, err = plugin.Load(ctx, chain)
 	if err != nil {
 		return err
 	}
