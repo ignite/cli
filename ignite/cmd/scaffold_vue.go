@@ -12,12 +12,14 @@ import (
 // NewScaffoldVue scaffolds a Vue.js app for a chain.
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "vue",
-		Short: "Vue 3 web app template",
-		Args:  cobra.NoArgs,
-		RunE:  scaffoldVueHandler,
+		Use:     "vue",
+		Short:   "Vue 3 web app template",
+		Args:    cobra.NoArgs,
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    scaffoldVueHandler,
 	}
 
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringP(flagPath, "p", "./vue", "path to scaffold content of the Vue.js app")
 
 	return c

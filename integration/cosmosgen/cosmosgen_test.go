@@ -1,22 +1,21 @@
 package cosmosgen_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/integration"
 )
 
-func TestCosmosGen(t *testing.T) {
+func TestCosmosGenScaffold(t *testing.T) {
 	var (
-		env          = envtest.New(t)
-		app          = env.Scaffold("github.com/test/blog")
-		dirGenerated = filepath.Join(app.SourcePath(), "vue/src/store/generated")
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog")
 	)
 
 	const (
@@ -99,9 +98,14 @@ func TestCosmosGen(t *testing.T) {
 		)),
 	))
 
-	require.NoError(t, os.RemoveAll(dirGenerated))
+	var (
+		vueDirGenerated = filepath.Join(app.SourcePath(), "vue/src/store/generated")
+		tsDirGenerated  = filepath.Join(app.SourcePath(), "ts-client")
+	)
+	require.NoError(t, os.RemoveAll(vueDirGenerated))
+	require.NoError(t, os.RemoveAll(tsDirGenerated))
 
-	env.Must(env.Exec("generate typescript",
+	env.Must(env.Exec("generate vue and typescript",
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
@@ -109,12 +113,13 @@ func TestCosmosGen(t *testing.T) {
 				"vuex",
 				"--yes",
 				"--proto-all-modules",
+				"--clear-cache",
 			),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	expectedCosmosModules := []string{
+	expectedModules := []string{
 		"cosmos.auth.v1beta1",
 		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
@@ -134,23 +139,18 @@ func TestCosmosGen(t *testing.T) {
 		"cosmos.tx.v1beta1",
 		"cosmos.upgrade.v1beta1",
 		"cosmos.vesting.v1beta1",
-	}
-
-	expectedCustomModules := []string{
+		// custom modules
 		"test.blog.blog",
 		"test.blog.withmsg",
 		"test.blog.withoutmsg",
 	}
 
-	for _, customModule := range expectedCustomModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, customModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", customModule))
-		require.NoError(t, statErr)
-	}
-
-	for _, cosmosModule := range expectedCosmosModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, cosmosModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s module should have been generated", cosmosModule))
-		require.NoError(t, statErr)
+	for _, mod := range expectedModules {
+		for _, dir := range []string{vueDirGenerated, tsDirGenerated} {
+			_, err := os.Stat(filepath.Join(dir, mod))
+			if assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, dir) {
+				assert.NoError(t, err)
+			}
+		}
 	}
 }

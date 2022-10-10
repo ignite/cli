@@ -5,6 +5,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
 	foomodule "github.com/username/test/x/foo"
@@ -15,6 +17,9 @@ var basicModules = []module.AppModuleBasic{
 	auth.AppModuleBasic{},
 	bank.AppModuleBasic{},
 	staking.AppModuleBasic{},
+	gov.NewAppModuleBasic([]govclient.ProposalHandler{
+		paramsclient.ProposalHandler,
+	}),
 	foomodule.AppModuleBasic{},
 }
 

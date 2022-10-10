@@ -99,10 +99,6 @@ func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain)
 		fmt.Sprintf("Chain %d launch was reverted", launchID),
 	))
 
-	n.ev.Send(events.New(events.StatusOngoing, "Resetting the genesis time"))
-	if err := chain.ResetGenesisTime(); err != nil {
-		return err
-	}
 	n.ev.Send(events.New(events.StatusDone, "Genesis time was reset"))
 	return nil
 }
