@@ -13,8 +13,7 @@ func init() {
 	gob.Register(Command{})
 }
 
-// A ignite plugin must expose a global variable StarportPlugin that
-// implements the Plugin interface.
+// An ignite plugin must implements the Plugin interface.
 type Interface interface {
 	// Commands returns one or multiple commands that will be added to the list
 	// of ignite commands. It's invoked each time ignite is executed, in
