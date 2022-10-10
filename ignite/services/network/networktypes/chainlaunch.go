@@ -66,6 +66,8 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 
 	err := yaml.Unmarshal(chain.Metadata, &launch.Metadata)
 	if err != nil {
+		// an error shouldn't happen
+		// in case it occurs, we consider metadata as invalid and dismiss those
 		launch.Metadata = nil
 	}
 
