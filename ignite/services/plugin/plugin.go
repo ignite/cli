@@ -48,6 +48,8 @@ type Plugin struct {
 	reference  string
 	srcPath    string
 	binaryName string
+
+	client *hplugin.Client
 }
 
 // Load loads the plugins found in the chain config.
@@ -139,6 +141,12 @@ func newPlugin(pluginsDir string, cp chainconfig.Plugin) *Plugin {
 	return p
 }
 
+func (p *Plugin) KillClient() {
+	if p.client != nil {
+		p.client.Kill()
+	}
+}
+
 func (p *Plugin) isLocal() bool {
 	return p.cloneURL == ""
 }
@@ -183,10 +191,11 @@ func (p *Plugin) load(ctx context.Context) {
 	// Create an hclog.Logger
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   fmt.Sprintf("plugin %s", p.Name),
-		Output: os.Stdout,
+		Output: os.Stderr,
+		Level:  hclog.Error,
 	})
 	// We're a host! Start by launching the plugin process.
-	client := hplugin.NewClient(&hplugin.ClientConfig{
+	p.client = hplugin.NewClient(&hplugin.ClientConfig{
 		HandshakeConfig: handshakeConfig,
 		Plugins:         pluginMap,
 		Logger:          logger,
@@ -194,10 +203,9 @@ func (p *Plugin) load(ctx context.Context) {
 		SyncStderr:      os.Stderr,
 		SyncStdout:      os.Stdout,
 	})
-	// defer client.Kill()
 
 	// Connect via RPC
-	rpcClient, err := client.Client()
+	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
 		return

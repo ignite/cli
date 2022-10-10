@@ -96,6 +96,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
+			defer p.KillClient()
 			// Pass config parameters
 			pluginCmd.With = p.With
 			// Pass cobra cmd
