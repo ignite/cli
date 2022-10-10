@@ -4,9 +4,8 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-
 	yaml "github.com/goccy/go-yaml"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 type (
