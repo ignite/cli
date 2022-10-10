@@ -4,7 +4,7 @@
 package plugin
 
 import (
-	"bytes"
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
@@ -22,6 +22,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -61,7 +62,7 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(c *chain.Chain) ([]*Plugin, error) {
+func Load(ctx context.Context, c *chain.Chain) ([]*Plugin, error) {
 	conf, err := c.Config()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -73,7 +74,7 @@ func Load(c *chain.Chain) ([]*Plugin, error) {
 	var plugins []*Plugin
 	for _, cp := range conf.Plugins {
 		p := newPlugin(pluginsDir, cp)
-		p.load()
+		p.load(ctx)
 		plugins = append(plugins, p)
 	}
 	return plugins, nil
@@ -147,7 +148,7 @@ func (p *Plugin) binaryPath() string {
 }
 
 // load tries to fill p.Interface, ensuring the plugin is usable.
-func (p *Plugin) load() {
+func (p *Plugin) load(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
@@ -162,14 +163,14 @@ func (p *Plugin) load() {
 	if p.isLocal() {
 		// trigger rebuild for local plugin if binary is outdated
 		if p.outdatedBinary() {
-			p.build()
+			p.build(ctx)
 		}
 	} else {
 		// Check if binary is already build
 		_, err = os.Stat(p.binaryPath())
 		if err != nil {
 			// binary not found, need to build it
-			p.build()
+			p.build(ctx)
 		}
 	}
 	if p.Error != nil {
@@ -254,39 +255,20 @@ func (p *Plugin) fetch() {
 }
 
 // build compiles the plugin binary.
-func (p *Plugin) build() {
+func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
 	defer clispinner.New().SetText(fmt.Sprintf("Building plugin %q...", p.Name)).Stop()
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		p.Error = errors.Wrapf(err, "build")
+	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
+		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	err = os.Chdir(p.srcPath)
-	if err != nil {
-		p.Error = errors.Wrapf(err, "build")
+	if err := gocmd.BuildAll(ctx, p.binaryName, p.srcPath, nil); err != nil {
+		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
-	// Back to previous dir
-	defer os.Chdir(cwd)
-
-	run := func(name string, args ...string) {
-		cmd := exec.Command(name, args...)
-		var b bytes.Buffer
-		cmd.Stderr = &b
-		if err := cmd.Run(); err != nil {
-			p.Error = errors.Wrapf(err, "build: %s: %s", cmd, b.String())
-		}
-	}
-
-	run("go", "mod", "tidy")
-	if p.Error != nil {
-		return
-	}
-	run("go", "build", "-o", p.binaryName)
 }
 
 // clean removes the plugin cache (only for remote plugins).

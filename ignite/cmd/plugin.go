@@ -28,7 +28,7 @@ func loadPlugins(rootCmd *cobra.Command) error {
 		// Binary is run outside of an chain app, plugins can't be loaded
 		return nil
 	}
-	plugins, err = plugin.Load(c)
+	plugins, err = plugin.Load(rootCmd.Context(), c)
 	if err != nil {
 		return err
 	}

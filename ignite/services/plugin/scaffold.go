@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"embed"
 	"os"
 	"path"
@@ -11,6 +12,9 @@ import (
 	"github.com/gobuffalo/plushgen"
 	"github.com/pkg/errors"
 
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
 
@@ -46,6 +50,15 @@ func Scaffold(dir, moduleName string) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	err = r.Run()
-	return errors.WithStack(err)
+	if err := r.Run(); err != nil {
+		return errors.WithStack(err)
+	}
+	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
+	// Don't understand why...
+	// Related discussion: https://allinbits.slack.com/archives/C02NJAQN82Y/p1665403790764919
+	opt := exec.StepOption(step.Env("GOSUMDB=off"))
+	if err := gocmd.ModTidy(context.TODO(), finalDir, opt); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }

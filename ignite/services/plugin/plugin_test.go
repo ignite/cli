@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -189,7 +190,7 @@ func TestPluginLoad(t *testing.T) {
 					binaryName: "testdata",
 				}
 			},
-			expectedError: `no Go files in ` + wd + `/testdata`,
+			expectedError: `no packages to build`,
 		},
 		{
 			name: "ok: from local",
@@ -298,7 +299,7 @@ func TestPluginLoad(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			p := tt.buildPlugin(t)
 
-			p.load()
+			p.load(context.Background())
 
 			if tt.expectedError != "" {
 				require.Error(t, p.Error, "expected error %q", tt.expectedError)
