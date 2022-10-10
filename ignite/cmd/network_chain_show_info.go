@@ -41,7 +41,7 @@ func networkChainShowInfoHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	chainLaunch.Reward = reward.RemainingCoins.String()
-
+	
 	info, err := yaml.Marshal(cmd.Context(), chainLaunch)
 	if err != nil {
 		return err
