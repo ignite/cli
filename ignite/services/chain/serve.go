@@ -18,8 +18,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/localfs"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -126,6 +128,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 			if ctx.Err() != nil {
 				return ctx.Err()
 			}
+
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -137,10 +140,12 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 				}
 
 				var (
-					serveCtx context.Context
-					buildErr *CannotBuildAppError
-					startErr *CannotStartAppError
+					serveCtx      context.Context
+					buildErr      *CannotBuildAppError
+					startErr      *CannotStartAppError
+					validationErr *chainconfig.ValidationError
 				)
+
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
 				// determine if the chain should reset the state
@@ -172,15 +177,13 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 
 						c.ev.Sendf("💿 Genesis state saved in %s", genesisPath)
 					}
+				case errors.As(err, &validationErr):
+					// Change error message to add a link to the configuration docs
+					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
+
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
 				case errors.As(err, &buildErr):
-					c.ev.SendError(err)
-
-					var validationErr *chainconfig.ValidationError
-					if errors.As(err, &validationErr) {
-						c.ev.Send("see: https://github.com/ignite/cli#configure")
-					}
-
-					c.ev.SendInfo("Waiting for a fix before retrying...")
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
