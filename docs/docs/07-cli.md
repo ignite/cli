@@ -1,11 +1,12 @@
 ---
-sidebar_position: 7
+sidebar_position: 9
 description: Ignite CLI docs.
 ---
 
 # CLI Reference
 
 Documentation for Ignite CLI.
+
 ## ignite
 
 Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
@@ -28,17 +29,16 @@ ignite scaffold chain github.com/username/mars
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-* [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-* [ignite node](#ignite-node)	 - Make calls to a live blockchain node
-* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
-* [ignite version](#ignite-version)	 - Print the current build information
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
+- [ignite docs](#ignite-docs) - Show Ignite CLI docs
+- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
+- [ignite node](#ignite-node) - Make calls to a live blockchain node
+- [ignite relayer](#ignite-relayer) - Connect blockchains by using IBC protocol
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
+- [ignite tools](#ignite-tools) - Tools for advanced users
+- [ignite version](#ignite-version) - Print the current build information
 
 ## ignite account
 
@@ -55,7 +55,6 @@ you chain's binary to manage accounts from "config.yml". For example, if your
 blockchain is called "mychain", use "mychaind keys" to manage keys for the
 chain.
 
-
 **Options**
 
 ```
@@ -66,14 +65,13 @@ chain.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite account create](#ignite-account-create)	 - Create a new account
-* [ignite account delete](#ignite-account-delete)	 - Delete an account by name
-* [ignite account export](#ignite-account-export)	 - Export an account as a private key
-* [ignite account import](#ignite-account-import)	 - Import an account by using a mnemonic or a private key
-* [ignite account list](#ignite-account-list)	 - Show a list of all accounts
-* [ignite account show](#ignite-account-show)	 - Show detailed information about a particular account
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite account create](#ignite-account-create) - Create a new account
+- [ignite account delete](#ignite-account-delete) - Delete an account by name
+- [ignite account export](#ignite-account-export) - Export an account as a private key
+- [ignite account import](#ignite-account-import) - Import an account by using a mnemonic or a private key
+- [ignite account list](#ignite-account-list) - Show a list of all accounts
+- [ignite account show](#ignite-account-show) - Show detailed information about a particular account
 
 ## ignite account create
 
@@ -98,8 +96,7 @@ ignite account create [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
 
 ## ignite account delete
 
@@ -124,8 +121,7 @@ ignite account delete [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
 
 ## ignite account export
 
@@ -153,8 +149,7 @@ ignite account export [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
 
 ## ignite account import
 
@@ -182,8 +177,7 @@ ignite account import [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
 
 ## ignite account list
 
@@ -209,8 +203,7 @@ ignite account list [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
 
 ## ignite account show
 
@@ -236,8 +229,7 @@ ignite account show [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
-
+- [ignite account](#ignite-account) - Commands for managing Ignite accounts
 
 ## ignite chain
 
@@ -293,7 +285,6 @@ to send token from any other account that exists on chain.
 The "simulate" command helps you start a simulation testing process for your
 chain.
 
-
 **Options**
 
 ```
@@ -302,13 +293,12 @@ chain.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite chain build](#ignite-chain-build)	 - Build a node binary
-* [ignite chain faucet](#ignite-chain-faucet)	 - Send coins to an account
-* [ignite chain init](#ignite-chain-init)	 - Initialize your chain
-* [ignite chain serve](#ignite-chain-serve)	 - Start a blockchain node in development
-* [ignite chain simulate](#ignite-chain-simulate)	 - Run simulation testing for the blockchain
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite chain build](#ignite-chain-build) - Build a node binary
+- [ignite chain faucet](#ignite-chain-faucet) - Send coins to an account
+- [ignite chain init](#ignite-chain-init) - Initialize your chain
+- [ignite chain serve](#ignite-chain-serve) - Start a blockchain node in development
+- [ignite chain simulate](#ignite-chain-simulate) - Run simulation testing for the blockchain
 
 ## ignite chain build
 
@@ -316,27 +306,26 @@ Build a node binary
 
 **Synopsis**
 
-
 The build command compiles the source code of the project into a binary and
 installs the binary in the $(go env GOPATH)/bin directory.
 
 You can customize the output directory for the binary using a flag:
 
-  ignite chain build --output dist
+ignite chain build --output dist
 
 To compile the binary Ignite first compiles protocol buffer (proto) files into
 Go source code. Proto files contain required type and services definitions. If
 you're using another program to compile proto files, you can use a flag to tell
 Ignite to skip the proto compilation step:
 
-  ignite chain build --skip-proto
+ignite chain build --skip-proto
 
 Afterwards, Ignite install dependencies specified in the go.mod file. By default
 Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
-  ignite chain build --check-dependencies
+ignite chain build --check-dependencies
 
 Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
@@ -345,20 +334,18 @@ than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 
 build:
-  main: custom/path/to/main
+main: custom/path/to/main
 
 By default the binary name will match the top-level module name (specified in
 go.mod) with a suffix "d". This can be customized in config.yml:
 
 build:
-  binary: mychaind
+binary: mychaind
 
 You can also specify custom linker flags:
 
 build:
-  ldflags:
-    - "-X main.Version=development"
-    - "-X main.Date=01/05/2022T19:54"
+ldflags: - "-X main.Version=development" - "-X main.Date=01/05/2022T19:54"
 
 To build binaries for a release, use the --release flag. The binaries for one or
 more specified release targets are built in a "release/" directory in the
@@ -366,8 +353,7 @@ project's source directory. Specify the release targets with GOOS:GOARCH build
 tags. If the optional --release.targets is not specified, a binary is created
 for your current environment.
 
-  ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
-
+ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
 ignite chain build [flags]
@@ -391,8 +377,7 @@ ignite chain build [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 ## ignite chain faucet
 
@@ -413,8 +398,7 @@ ignite chain faucet [address] [coin<,...>] [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 ## ignite chain init
 
@@ -432,7 +416,7 @@ By default, the data directory will be initialized in $HOME/.mychain, where
 --home flag or set the value in config.yml:
 
 init:
-  home: "~/.customdir"
+home: "~/.customdir"
 
 The data directory contains three files in the "config" directory: app.toml,
 config.toml, client.toml. These files let you customize the behavior of your
@@ -441,14 +425,14 @@ data directory can be reset. To make some values in these files persistent, set
 them in config.yml:
 
 init:
-  app:
-    minimum-gas-prices: "0.025stake"
-  config:
-    consensus:
-      timeout_commit: "5s"
-      timeout_propose: "5s"
-  client:
-    output: "json"
+app:
+minimum-gas-prices: "0.025stake"
+config:
+consensus:
+timeout_commit: "5s"
+timeout_propose: "5s"
+client:
+output: "json"
 
 The configuration above changes the minimum gas price of the validator (by
 default the gas price is set to 0 to allow "free" transactions), sets the block
@@ -470,10 +454,10 @@ including consensus and module parameters. You can customize the values of the
 genesis in config.yml:
 
 genesis:
-  app_state:
-    staking:
-      params:
-        bond_denom: "foo"
+app_state:
+staking:
+params:
+bond_denom: "foo"
 
 The example above changes the staking token to "foo". If you change the staking
 denom, make sure the validator account has the right tokens.
@@ -482,7 +466,6 @@ The init command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
 hood it runs commands like "appd init", "appd add-genesis-account", "appd
 gentx", and "appd collect-gentx". For production, you may want to run these
 commands manually to ensure a production-level node initialization.
-
 
 ```
 ignite chain init [flags]
@@ -501,8 +484,7 @@ ignite chain init [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 ## ignite chain serve
 
@@ -525,24 +507,23 @@ exporting and importing the genesis file.
 To force Ignite to start from a clean slate even if a genesis file exists, use
 the following flag:
 
-  ignite chain serve --reset-once
+ignite chain serve --reset-once
 
 To force Ignite to reset the state every time the source code is modified, use
 the following flag:
 
-  ignite chain serve --force-reset
+ignite chain serve --force-reset
 
 With Ignite it's possible to start more than one blockchain from the same source
 code using different config files. This is handy if you're building
 inter-blockchain functionality and, for example, want to try sending packets
 from one blockchain to another. To start a node using a specific config file:
 
-  ignite chain serve --config mars.yml
+ignite chain serve --config mars.yml
 
 The serve command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
 hood, it runs "appd start", where "appd" is the name of your chain's binary. For
 production, you may want to run "appd start" manually.
-
 
 ```
 ignite chain serve [flags]
@@ -566,8 +547,7 @@ ignite chain serve [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 ## ignite chain simulate
 
@@ -605,8 +585,7 @@ ignite chain simulate [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
-
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 ## ignite completion
 
@@ -617,7 +596,6 @@ Generate the autocompletion script for the specified shell
 Generate the autocompletion script for ignite for the specified shell.
 See each sub-command's help for details on how to use the generated script.
 
-
 **Options**
 
 ```
@@ -626,12 +604,11 @@ See each sub-command's help for details on how to use the generated script.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite completion bash](#ignite-completion-bash)	 - Generate the autocompletion script for bash
-* [ignite completion fish](#ignite-completion-fish)	 - Generate the autocompletion script for fish
-* [ignite completion powershell](#ignite-completion-powershell)	 - Generate the autocompletion script for powershell
-* [ignite completion zsh](#ignite-completion-zsh)	 - Generate the autocompletion script for zsh
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite completion bash](#ignite-completion-bash) - Generate the autocompletion script for bash
+- [ignite completion fish](#ignite-completion-fish) - Generate the autocompletion script for fish
+- [ignite completion powershell](#ignite-completion-powershell) - Generate the autocompletion script for powershell
+- [ignite completion zsh](#ignite-completion-zsh) - Generate the autocompletion script for zsh
 
 ## ignite completion bash
 
@@ -646,20 +623,19 @@ If it is not installed already, you can install it via your OS's package manager
 
 To load completions in your current shell session:
 
-	source <(ignite completion bash)
+    source <(ignite completion bash)
 
 To load completions for every new session, execute once:
 
 **#### Linux:**
 
-	ignite completion bash > /etc/bash_completion.d/ignite
+    ignite completion bash > /etc/bash_completion.d/ignite
 
 **#### macOS:**
 
-	ignite completion bash > $(brew --prefix)/etc/bash_completion.d/ignite
+    ignite completion bash > $(brew --prefix)/etc/bash_completion.d/ignite
 
 You will need to start a new shell for this setup to take effect.
-
 
 ```
 ignite completion bash
@@ -674,8 +650,7 @@ ignite completion bash
 
 **SEE ALSO**
 
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
+- [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
 
 ## ignite completion fish
 
@@ -687,14 +662,13 @@ Generate the autocompletion script for the fish shell.
 
 To load completions in your current shell session:
 
-	ignite completion fish | source
+    ignite completion fish | source
 
 To load completions for every new session, execute once:
 
-	ignite completion fish > ~/.config/fish/completions/ignite.fish
+    ignite completion fish > ~/.config/fish/completions/ignite.fish
 
 You will need to start a new shell for this setup to take effect.
-
 
 ```
 ignite completion fish [flags]
@@ -709,8 +683,7 @@ ignite completion fish [flags]
 
 **SEE ALSO**
 
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
+- [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
 
 ## ignite completion powershell
 
@@ -722,11 +695,10 @@ Generate the autocompletion script for powershell.
 
 To load completions in your current shell session:
 
-	ignite completion powershell | Out-String | Invoke-Expression
+    ignite completion powershell | Out-String | Invoke-Expression
 
 To load completions for every new session, add the output of the above command
 to your powershell profile.
-
 
 ```
 ignite completion powershell [flags]
@@ -741,8 +713,7 @@ ignite completion powershell [flags]
 
 **SEE ALSO**
 
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
+- [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
 
 ## ignite completion zsh
 
@@ -753,26 +724,25 @@ Generate the autocompletion script for zsh
 Generate the autocompletion script for the zsh shell.
 
 If shell completion is not already enabled in your environment you will need
-to enable it.  You can execute the following once:
+to enable it. You can execute the following once:
 
-	echo "autoload -U compinit; compinit" >> ~/.zshrc
+    echo "autoload -U compinit; compinit" >> ~/.zshrc
 
 To load completions in your current shell session:
 
-	source <(ignite completion zsh); compdef _ignite ignite
+    source <(ignite completion zsh); compdef _ignite ignite
 
 To load completions for every new session, execute once:
 
 **#### Linux:**
 
-	ignite completion zsh > "${fpath[1]}/_ignite"
+    ignite completion zsh > "${fpath[1]}/_ignite"
 
 **#### macOS:**
 
-	ignite completion zsh > $(brew --prefix)/share/zsh/site-functions/_ignite
+    ignite completion zsh > $(brew --prefix)/share/zsh/site-functions/_ignite
 
 You will need to start a new shell for this setup to take effect.
-
 
 ```
 ignite completion zsh [flags]
@@ -787,8 +757,7 @@ ignite completion zsh [flags]
 
 **SEE ALSO**
 
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
+- [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
 
 ## ignite docs
 
@@ -806,8 +775,7 @@ ignite docs [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 ## ignite generate
 
@@ -831,13 +799,12 @@ Produced source code can be regenerated by running a command again and is not me
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite generate dart](#ignite-generate-dart)	 - Generate a Dart client
-* [ignite generate openapi](#ignite-generate-openapi)	 - Generate generates an OpenAPI spec for your chain from your config.yml
-* [ignite generate proto-go](#ignite-generate-proto-go)	 - Generate proto based Go code needed for the app's source code
-* [ignite generate ts-client](#ignite-generate-ts-client)	 - Generate Typescript client for your chain's frontend
-* [ignite generate vuex](#ignite-generate-vuex)	 - Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite generate dart](#ignite-generate-dart) - Generate a Dart client
+- [ignite generate openapi](#ignite-generate-openapi) - Generate generates an OpenAPI spec for your chain from your config.yml
+- [ignite generate proto-go](#ignite-generate-proto-go) - Generate proto based Go code needed for the app's source code
+- [ignite generate ts-client](#ignite-generate-ts-client) - Generate Typescript client for your chain's frontend
+- [ignite generate vuex](#ignite-generate-vuex) - Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file
 
 ## ignite generate dart
 
@@ -863,8 +830,7 @@ ignite generate dart [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
+- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
 
 ## ignite generate openapi
 
@@ -890,8 +856,7 @@ ignite generate openapi [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
+- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
 
 ## ignite generate proto-go
 
@@ -917,8 +882,7 @@ ignite generate proto-go [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
+- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
 
 ## ignite generate ts-client
 
@@ -945,8 +909,7 @@ ignite generate ts-client [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
+- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
 
 ## ignite generate vuex
 
@@ -973,8 +936,7 @@ ignite generate vuex [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
+- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
 
 ## ignite node
 
@@ -989,10 +951,9 @@ Make calls to a live blockchain node
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-* [ignite node tx](#ignite-node-tx)	 - Transactions subcommands
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite node query](#ignite-node-query) - Querying subcommands
+- [ignite node tx](#ignite-node-tx) - Transactions subcommands
 
 ## ignite node query
 
@@ -1012,10 +973,9 @@ Querying subcommands
 
 **SEE ALSO**
 
-* [ignite node](#ignite-node)	 - Make calls to a live blockchain node
-* [ignite node query bank](#ignite-node-query-bank)	 - Querying commands for the bank module
-* [ignite node query tx](#ignite-node-query-tx)	 - Query for transaction by hash
-
+- [ignite node](#ignite-node) - Make calls to a live blockchain node
+- [ignite node query bank](#ignite-node-query-bank) - Querying commands for the bank module
+- [ignite node query tx](#ignite-node-query-tx) - Query for transaction by hash
 
 ## ignite node query bank
 
@@ -1035,9 +995,8 @@ Querying commands for the bank module
 
 **SEE ALSO**
 
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-* [ignite node query bank balances](#ignite-node-query-bank-balances)	 - Query for account balances by account name or address
-
+- [ignite node query](#ignite-node-query) - Querying subcommands
+- [ignite node query bank balances](#ignite-node-query-bank-balances) - Query for account balances by account name or address
 
 ## ignite node query bank balances
 
@@ -1071,8 +1030,7 @@ ignite node query bank balances [from_account_or_address] [flags]
 
 **SEE ALSO**
 
-* [ignite node query bank](#ignite-node-query-bank)	 - Querying commands for the bank module
-
+- [ignite node query bank](#ignite-node-query-bank) - Querying commands for the bank module
 
 ## ignite node query tx
 
@@ -1096,8 +1054,7 @@ ignite node query tx [hash] [flags]
 
 **SEE ALSO**
 
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-
+- [ignite node query](#ignite-node-query) - Querying subcommands
 
 ## ignite node tx
 
@@ -1126,9 +1083,8 @@ Transactions subcommands
 
 **SEE ALSO**
 
-* [ignite node](#ignite-node)	 - Make calls to a live blockchain node
-* [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
-
+- [ignite node](#ignite-node) - Make calls to a live blockchain node
+- [ignite node tx bank](#ignite-node-tx-bank) - Bank transaction subcommands
 
 ## ignite node tx bank
 
@@ -1157,9 +1113,8 @@ Bank transaction subcommands
 
 **SEE ALSO**
 
-* [ignite node tx](#ignite-node-tx)	 - Transactions subcommands
-* [ignite node tx bank send](#ignite-node-tx-bank-send)	 - Send funds from one account to another.
-
+- [ignite node tx](#ignite-node-tx) - Transactions subcommands
+- [ignite node tx bank send](#ignite-node-tx-bank-send) - Send funds from one account to another.
 
 ## ignite node tx bank send
 
@@ -1192,8 +1147,7 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
 
 **SEE ALSO**
 
-* [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
-
+- [ignite node tx bank](#ignite-node-tx-bank) - Bank transaction subcommands
 
 ## ignite relayer
 
@@ -1207,10 +1161,9 @@ Connect blockchains by using IBC protocol
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite relayer configure](#ignite-relayer-configure)	 - Configure source and target chains for relaying
-* [ignite relayer connect](#ignite-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite relayer configure](#ignite-relayer-configure) - Configure source and target chains for relaying
+- [ignite relayer connect](#ignite-relayer-connect) - Link chains associated with paths and start relaying tx packets in between
 
 ## ignite relayer configure
 
@@ -1251,8 +1204,7 @@ ignite relayer configure [flags]
 
 **SEE ALSO**
 
-* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
-
+- [ignite relayer](#ignite-relayer) - Connect blockchains by using IBC protocol
 
 ## ignite relayer connect
 
@@ -1272,8 +1224,7 @@ ignite relayer connect [<path>,...] [flags]
 
 **SEE ALSO**
 
-* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
-
+- [ignite relayer](#ignite-relayer) - Connect blockchains by using IBC protocol
 
 ## ignite scaffold
 
@@ -1335,7 +1286,6 @@ scaffold IBC packets. An IBC packet represents the data sent from one blockchain
 to another. You can only scaffold IBC packets in IBC-enabled modules scaffolded
 with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
-
 **Options**
 
 ```
@@ -1344,20 +1294,19 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite scaffold band](#ignite-scaffold-band)	 - Scaffold an IBC BandChain query oracle to request real-time data
-* [ignite scaffold chain](#ignite-scaffold-chain)	 - Fully-featured Cosmos SDK blockchain
-* [ignite scaffold flutter](#ignite-scaffold-flutter)	 - A Flutter app for your chain
-* [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
-* [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
-* [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
-* [ignite scaffold module](#ignite-scaffold-module)	 - Scaffold a Cosmos SDK module
-* [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
-* [ignite scaffold query](#ignite-scaffold-query)	 - Query to get data from the blockchain
-* [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
-* [ignite scaffold type](#ignite-scaffold-type)	 - Scaffold only a type definition
-* [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite scaffold band](#ignite-scaffold-band) - Scaffold an IBC BandChain query oracle to request real-time data
+- [ignite scaffold chain](#ignite-scaffold-chain) - Fully-featured Cosmos SDK blockchain
+- [ignite scaffold flutter](#ignite-scaffold-flutter) - A Flutter app for your chain
+- [ignite scaffold list](#ignite-scaffold-list) - CRUD for data stored as an array
+- [ignite scaffold map](#ignite-scaffold-map) - CRUD for data stored as key-value pairs
+- [ignite scaffold message](#ignite-scaffold-message) - Message to perform state transition on the blockchain
+- [ignite scaffold module](#ignite-scaffold-module) - Scaffold a Cosmos SDK module
+- [ignite scaffold packet](#ignite-scaffold-packet) - Message for sending an IBC packet
+- [ignite scaffold query](#ignite-scaffold-query) - Query to get data from the blockchain
+- [ignite scaffold single](#ignite-scaffold-single) - CRUD for data stored in a single location
+- [ignite scaffold type](#ignite-scaffold-type) - Scaffold only a type definition
+- [ignite scaffold vue](#ignite-scaffold-vue) - Vue 3 web app template
 
 ## ignite scaffold band
 
@@ -1384,8 +1333,7 @@ ignite scaffold band [queryName] --module [moduleName] [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold chain
 
@@ -1398,16 +1346,15 @@ Create a new application-specific Cosmos SDK blockchain.
 For example, the following command will create a blockchain called "hello" in
 the "hello/" directory:
 
-  ignite scaffold chain hello
+ignite scaffold chain hello
 
 A project name can be a simple name or a URL. The name will be used as the Go
 module path for the project. Examples of project names:
 
-  ignite scaffold chain foo
-  ignite scaffold chain foo/bar
-  ignite scaffold chain example.org/foo
-  ignite scaffold chain github.com/username/foo
-		
+ignite scaffold chain foo
+ignite scaffold chain foo/bar
+ignite scaffold chain example.org/foo
+ignite scaffold chain github.com/username/foo
 A new directory with source code files will be created in the current directory.
 To use a different path use the "--path" flag.
 
@@ -1424,7 +1371,7 @@ example, the Cosmos Hub blockchain uses the default "cosmos" prefix, so that
 addresses look like this: "cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf". To
 use a custom address prefix use the "--address-prefix" flag. For example:
 
-  ignite scaffold chain foo --address-prefix bar
+ignite scaffold chain foo --address-prefix bar
 
 By default when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
@@ -1433,7 +1380,6 @@ flag.
 
 The blockchain is using the Cosmos SDK modular blockchain framework. Learn more
 about Cosmos SDK on https://docs.cosmos.network
-
 
 ```
 ignite scaffold chain [name] [flags]
@@ -1451,8 +1397,7 @@ ignite scaffold chain [name] [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold flutter
 
@@ -1472,8 +1417,7 @@ ignite scaffold flutter [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold list
 
@@ -1497,7 +1441,7 @@ Messages and queries are mounted in the "Msg" and "Query" services respectively.
 
 When messages are handled, the appropriate keeper methods are called. By
 convention, the methods are defined in
-"x/{moduleName}/keeper/msg_server_{name}.go". Helpful methods for getting,
+"x/{moduleName}/keeper/msg*server*{name}.go". Helpful methods for getting,
 setting, removing, and appending are defined in the same "keeper" package in
 "{name}.go".
 
@@ -1506,7 +1450,7 @@ provides the logic to create, read, update, and delete instances of the type.
 For example, let's review a command that generates the code to handle a list of
 posts and each post has "title" and "body" fields:
 
-  ignite scaffold list post title body
+ignite scaffold list post title body
 
 This provides you with a "Post" type, MsgCreatePost, MsgUpdatePost,
 MsgDeletePost and two queries: Post and PostAll. The compiled CLI, let's say the
@@ -1523,13 +1467,13 @@ different type, you can specify it after a colon ":". The following types are
 supported: string, bool, int, uint, coin, array.string, array.int, array.uint,
 array.coin. An example of using custom types:
 
-  ignite scaffold list pool amount:coin tags:array.string height:int
-  
+ignite scaffold list pool amount:coin tags:array.string height:int
+
 Ignite also supports custom types:
-  
-  ignite scaffold list product-details name description
-  
-  ignite scaffold list product price:coin details:ProductDetails
+
+ignite scaffold list product-details name description
+
+ignite scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field. Ignite doesn't support arrays of
@@ -1539,23 +1483,22 @@ By default the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
 different module:
 
-  ignite scaffold list post title body --module blog
+ignite scaffold list post title body --module blog
 
 By default, each message comes with a "creator" field that represents the
 address of the transaction signer. You can customize the name of this field with
 a flag:
 
-  ignite scaffold list post title body --signer author
+ignite scaffold list post title body --signer author
 
 It's possible to scaffold just the getter/setter logic without the CRUD
 messages. This is useful when you want the methods to handle a type, but would
 like to scaffold messages manually. Use a flag to skip message scaffolding:
 
-  ignite scaffold list post title body --no-message
+ignite scaffold list post title body --no-message
 
 The "creator" field is not generated if a list is scaffolded with the
 "--no-message" flag.
-
 
 ```
 ignite scaffold list NAME [field]... [flags]
@@ -1576,8 +1519,7 @@ ignite scaffold list NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold map
 
@@ -1596,26 +1538,26 @@ incrementing integer, whereas "list" values are indexed by a user-provided value
 
 Let's use the same blog post example:
 
-  ignite scaffold map post title body
+ignite scaffold map post title body
 
 This command scaffolds a "Post" type and CRUD functionality to create, read,
 updated, and delete posts. However, when creating a new post with your chain's
 binary (or by submitting a transaction through the chain's API) you will be
 required to provide an "index":
 
-  blogd tx blog create-post [index] [title] [body]
-	blogd tx blog create-post hello "My first post" "This is the body"
+blogd tx blog create-post [index] [title] [body]
+blogd tx blog create-post hello "My first post" "This is the body"
 
 This command will create a post and store it in the blockchain's state under the
 "hello" index. You will be able to fetch back the value of the post by querying
 for the "hello" key.
 
-  blogd q blog show-post hello
+blogd q blog show-post hello
 
 To customize the index, use the "--index" flag. Multiple indices can be
 provided, which simplifies querying values. For example:
 
-  ignite scaffold map product price desc --index category,guid
+ignite scaffold map product price desc --index category,guid
 
 With this command, you would get a "Product" value indexed by both a category
 and a GUID (globally unique ID). This will let you programmatically fetch
@@ -1624,7 +1566,6 @@ product values that have the same category but are using different GUIDs.
 Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
-
 
 ```
 ignite scaffold map NAME [field]... [flags]
@@ -1646,8 +1587,7 @@ ignite scaffold map NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold message
 
@@ -1672,7 +1612,7 @@ recipient's account.
 Ignite's message scaffolding lets you create new types of messages and add them
 to your chain. For example:
 
-  ignite scaffold message add-pool amount:coins denom active:bool --module dex
+ignite scaffold message add-pool amount:coins denom active:bool --module dex
 
 The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
@@ -1690,7 +1630,7 @@ Inside this function, you can implement message handling logic.
 When successfully processed a message can return data. Use the —response flag to
 specify response fields and their types. For example
 
-  ignite scaffold message create-post title body --response id:int,title
+ignite scaffold message create-post title body --response id:int,title
 
 The command above will scaffold MsgCreatePost which returns both an ID (an
 integer) and a title (a string).
@@ -1698,7 +1638,6 @@ integer) and a title (a string).
 Message scaffolding follows the rules as "ignite scaffold list/map/single" and
 supports fields with standard and custom types. See "ignite scaffold list —help"
 for details.
-
 
 ```
 ignite scaffold message [name] [field1] [field2] ... [flags]
@@ -1720,8 +1659,7 @@ ignite scaffold message [name] [field1] [field2] ... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold module
 
@@ -1738,10 +1676,10 @@ blockchain, scaffold a module and implement the logic of your application.
 
 This command does the following:
 
-* Creates a directory with module's protocol buffer files in "proto/"
-* Creates a directory with module's boilerplate Go code in "x/"
-* Imports the newly created module by modifying "app/app.go"
-* Creates a file in "testutil/keeper/" that contains logic to create a keeper
+- Creates a directory with module's protocol buffer files in "proto/"
+- Creates a directory with module's boilerplate Go code in "x/"
+- Imports the newly created module by modifying "app/app.go"
+- Creates a file in "testutil/keeper/" that contains logic to create a keeper
   for testing purposes
 
 This command will proceed with module scaffolding even if "app/app.go" doesn't
@@ -1762,7 +1700,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-  ignite scaffold module foo --dep bank
+ignite scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -1770,7 +1708,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-  ignite scaffold module bar --dep foo,mint,account
+ignite scaffold module bar --dep foo,mint,account
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -1783,11 +1721,10 @@ blockchain is running. An example of a param is "Inflation rate change" of the
 that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-  ignite scaffold module foo --params baz:uint,bar:bool
+ignite scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
-
 
 ```
 ignite scaffold module [name] [flags]
@@ -1809,8 +1746,7 @@ ignite scaffold module [name] [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold packet
 
@@ -1839,8 +1775,7 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold query
 
@@ -1865,8 +1800,7 @@ ignite scaffold query [name] [request_field1] [request_field2] ... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold single
 
@@ -1891,8 +1825,7 @@ ignite scaffold single NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold type
 
@@ -1917,8 +1850,7 @@ ignite scaffold type NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite scaffold vue
 
@@ -1938,8 +1870,7 @@ ignite scaffold vue [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
 
 ## ignite tools
 
@@ -1953,11 +1884,10 @@ Tools for advanced users
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite tools ibc-relayer](#ignite-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
-* [ignite tools ibc-setup](#ignite-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
-* [ignite tools protoc](#ignite-tools-protoc)	 - Execute the protoc command
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+- [ignite tools ibc-relayer](#ignite-tools-ibc-relayer) - Typescript implementation of an IBC relayer
+- [ignite tools ibc-setup](#ignite-tools-ibc-setup) - Collection of commands to quickly setup a relayer
+- [ignite tools protoc](#ignite-tools-protoc) - Execute the protoc command
 
 ## ignite tools ibc-relayer
 
@@ -1981,8 +1911,7 @@ ignite tools ibc-relayer -- -h
 
 **SEE ALSO**
 
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
-
+- [ignite tools](#ignite-tools) - Tools for advanced users
 
 ## ignite tools ibc-setup
 
@@ -2007,8 +1936,7 @@ ignite tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 
 **SEE ALSO**
 
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
-
+- [ignite tools](#ignite-tools) - Tools for advanced users
 
 ## ignite tools protoc
 
@@ -2036,8 +1964,7 @@ ignite tools protoc -- --version
 
 **SEE ALSO**
 
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
-
+- [ignite tools](#ignite-tools) - Tools for advanced users
 
 ## ignite version
 
@@ -2055,5 +1982,4 @@ ignite version [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
