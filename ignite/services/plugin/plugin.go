@@ -102,7 +102,7 @@ func newPlugin(pluginsDir string, cp chainconfig.Plugin) *Plugin {
 		p.Error = errors.Errorf(`missing plugin property "path"`)
 		return p
 	}
-	if pluginPath[0] == '/' {
+	if strings.HasPrefix(pluginPath, "/") {
 		// This is a local plugin, check if the file exists
 		st, err := os.Stat(pluginPath)
 		if err != nil {
