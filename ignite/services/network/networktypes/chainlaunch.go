@@ -4,8 +4,9 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+
+	yaml "github.com/goccy/go-yaml"
 )
 
 type (
@@ -26,6 +27,7 @@ type (
 		Network                NetworkType `json:"Network"`
 		Reward                 string      `json:"Reward,omitempty"`
 		AccountBalance         sdk.Coins   `json:"AccountBalance"`
+		Metadata               interface{} `json:"Metadata"`
 	}
 )
 
@@ -61,6 +63,11 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,
 		AccountBalance:         chain.AccountBalance,
+	}
+
+	err := yaml.Unmarshal(chain.Metadata, &launch.Metadata)
+	if err != nil {
+		launch.Metadata = nil
 	}
 
 	// check if custom genesis URL is provided.
