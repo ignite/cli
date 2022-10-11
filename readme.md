@@ -49,7 +49,7 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 ## Plugin system
 
-Starport commands can be extended using plugins. A plugin is a program that
+Ignite CLI commands can be extended using plugins. A plugin is a program that
 uses github.com/hashicorp/go-plugin to communicate with the ignite binary.
 
 #### Use a plugin
@@ -58,15 +58,14 @@ Plugins must be declared in the `config.yml` file, using the following syntax:
 
 ```yaml
 plugins:
-  - name: my-plugin
-    // path can be a repository or a local path
-    // the directory must contain go code under a main package.
-    // For repositories you can specify a suffix @branch or @tag to target a
-    // specific git reference.
-    path: github.com/org/repo/my-plugin
-    // Additional parameters can be passed to the plugin
-    with:
-      key: value
+  // path can be a repository or a local path
+  // the directory must contain go code under a main package.
+  // For repositories you can specify a suffix @branch or @tag to target a
+  // specific git reference.
+- path: github.com/org/repo/my-plugin
+  // Additional parameters can be passed to the plugin
+  with:
+    key: value
 ```
 
 Once declared, the next time the ignite binary will be executed under this
@@ -98,14 +97,14 @@ instance:
 
 ```yaml
 plugins:
-  - name: bar
-    path: /home/user/src/bar
+- path: /home/user/src/bar
 ```
 
 Then run `ignite`, the plugin will compile and should be listed among the
 ignite commands. Each time `ignite` is executed, the plugin is recompiled
-if the files have changed since the last compilation. This allows fast and easy plugin
-development, you only care about code and `ignite` handles the compilation.
+if the files have changed since the last compilation. This allows fast and easy
+plugin development, you only care about code and `ignite` handles the
+compilation.
 
 ## Contributing
 
