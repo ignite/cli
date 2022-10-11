@@ -20,9 +20,9 @@ import (
 // A global variable is used so the list is accessible to the plugin commands.
 var plugins []*plugin.Plugin
 
-// loadPlugins tries to load all the plugins found in configuration.
+// LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
-func loadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
+func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// NOTE(tb) Not sure if it's the right place to load this.
 	chain, err := NewChainWithHomeFlags(rootCmd)
 	if err != nil {
@@ -34,17 +34,16 @@ func loadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		return err
 	}
 	// Link plugins to related commands
-	var loadErrors bool
+	var loadErrors []string
 	for _, p := range plugins {
 		linkPluginCmds(rootCmd, p)
 		if p.Error != nil {
-			loadErrors = true
+			loadErrors = append(loadErrors, p.Name)
 		}
 	}
-	if loadErrors {
-		fmt.Println("Error(s) detected during plugin load:")
+	if len(loadErrors) > 0 {
 		printPlugins()
-		os.Exit(1)
+		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
 }

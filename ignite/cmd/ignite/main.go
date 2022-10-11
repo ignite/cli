@@ -14,7 +14,15 @@ import (
 func main() {
 	ctx := clictx.From(context.Background())
 
-	err := ignitecmd.New().ExecuteContext(ctx)
+	cmd := ignitecmd.New()
+
+	// Load plugins if any
+	if err := ignitecmd.LoadPlugins(context.Background(), cmd); err != nil {
+		fmt.Printf("Error while loading chain's plugins: %v\n", err)
+		os.Exit(1)
+	}
+
+	err := cmd.ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")

@@ -3,7 +3,6 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -78,11 +77,6 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
-
-	err := loadPlugins(context.Background(), c)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	return c
 }
