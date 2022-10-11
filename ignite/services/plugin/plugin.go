@@ -190,7 +190,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// Create an hclog.Logger
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   fmt.Sprintf("plugin %s", p.Name),
+		Name:   fmt.Sprintf("plugin %s", p.Path),
 		Output: os.Stderr,
 		Level:  hclog.Error,
 	})
@@ -267,7 +267,7 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	defer clispinner.New().SetText(fmt.Sprintf("Building plugin %q...", p.Name)).Stop()
+	defer clispinner.New().SetText(fmt.Sprintf("Building plugin %q...", p.Path)).Stop()
 
 	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")

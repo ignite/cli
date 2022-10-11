@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig/config"
-	"github.com/ignite/cli/ignite/chainconfig/v1"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
@@ -75,11 +75,9 @@ func TestConfigDecode(t *testing.T) {
 		}},
 		Plugins: []v1.Plugin{
 			{
-				Name: "plugin1",
 				Path: "/path/to/plugin1",
 			},
 			{
-				Name: "plugin2",
 				Path: "/path/to/plugin2",
 				With: map[string]string{"foo": "bar", "bar": "baz"},
 			},

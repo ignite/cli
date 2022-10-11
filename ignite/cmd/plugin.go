@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -38,7 +37,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	for _, p := range plugins {
 		linkPluginCmds(rootCmd, p)
 		if p.Error != nil {
-			loadErrors = append(loadErrors, p.Name)
+			loadErrors = append(loadErrors, p.Path)
 		}
 	}
 	if len(loadErrors) > 0 {
@@ -73,7 +72,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
-		p.Error = errors.Errorf("unable to find commandPath %q for plugin %q", cmdPath, p.Name)
+		p.Error = errors.Errorf("unable to find commandPath %q for plugin %q", cmdPath, p.Path)
 		return
 	}
 	if cmd.Runnable() {
@@ -157,7 +156,7 @@ func NewPluginList() *cobra.Command {
 
 func NewPluginUpdate() *cobra.Command {
 	return &cobra.Command{
-		Use:   "update [name]",
+		Use:   "update [path]",
 		Short: "Update plugins",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -172,12 +171,12 @@ func NewPluginUpdate() *cobra.Command {
 			}
 			// find the plugin to update
 			for _, p := range plugins {
-				if p.Name == args[0] {
+				if p.Path == args[0] {
 					err := plugin.Update(p)
 					if err != nil {
 						return err
 					}
-					fmt.Printf("Plugin %q updated.\n", p.Name)
+					fmt.Printf("Plugin %q updated.\n", p.Path)
 					return nil
 				}
 			}
@@ -197,14 +196,11 @@ func NewPluginScaffold() *cobra.Command {
 				return err
 			}
 			moduleName := args[0]
-			err = plugin.Scaffold(wd, moduleName)
+			path, err := plugin.Scaffold(wd, moduleName)
 			if err != nil {
 				return err
 			}
-			name := path.Base(moduleName)
-			fullpath := path.Join(wd, name)
-
-			if err := xgit.InitAndCommit(fullpath); err != nil {
+			if err := xgit.InitAndCommit(path); err != nil {
 				return err
 			}
 
@@ -214,15 +210,13 @@ func NewPluginScaffold() *cobra.Command {
 
 👉 test plugin integration by adding the following lines in a chain config.yaml:
 plugins:
-  - name: %[1]s
-    path: %[2]s
+- path: %[2]s
 
 👉 once the plugin is pushed to a repository, the config becomes:
 plugins:
-  - name: %[1]s
-    path: %[3]s
+- path: %[1]s
 `
-			fmt.Printf(message, name, fullpath, moduleName)
+			fmt.Printf(message, moduleName, path)
 			return nil
 		},
 	}
@@ -230,25 +224,16 @@ plugins:
 
 func printPlugins() {
 	if len(plugins) == 0 {
+		fmt.Println("No plugin found")
 		return
 	}
-	w := &tabwriter.Writer{}
-	w.Init(os.Stdout, 0, 8, 1, '\t', 0)
-
-	fmt.Fprintln(w, "name\tpath\tstatus")
-
+	var entries [][]string
 	for _, p := range plugins {
 		status := "✅ Loaded"
 		if p.Error != nil {
 			status = fmt.Sprintf("❌ Error: %v", p.Error)
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\n",
-			p.Name,
-			p.Path,
-			status,
-		)
+		entries = append(entries, []string{p.Path, status})
 	}
-
-	fmt.Fprintln(w)
-	w.Flush()
+	entrywriter.MustWrite(os.Stdout, []string{"path", "status"}, entries...)
 }

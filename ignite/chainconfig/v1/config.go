@@ -27,8 +27,6 @@ type Config struct {
 
 // Plugin keeps plugin name and location.
 type Plugin struct {
-	// Name can be anything
-	Name string `yaml:"name"`
 	// Path holds the location of the plugin.
 	// A path can be local, in that case it must start with a `/`.
 	// A remote path on the other hand, is an URL to a public remote git

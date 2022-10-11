@@ -149,8 +149,9 @@ func TestPluginLoad(t *testing.T) {
 	makeGitRepo := func(t *testing.T, name string) (string, *git.Repository) {
 		require := require.New(t)
 		repoDir := mkdirTmp(t, "plugin_repo")
-		err = Scaffold(repoDir, "github.com/ignite/"+name)
+		path, err := Scaffold(repoDir, "github.com/ignite/"+name)
 		require.NoError(err)
+		require.DirExists(path)
 		repo, err := git.PlainInit(repoDir, false)
 		require.NoError(err)
 		w, err := repo.Worktree()
@@ -196,10 +197,11 @@ func TestPluginLoad(t *testing.T) {
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
 				repoDir := mkdirTmp(t, "plugin_local")
-				err = Scaffold(repoDir, "github.com/foo/bar")
+				path, err := Scaffold(repoDir, "github.com/foo/bar")
 				require.NoError(t, err)
+				require.DirExists(t, path)
 				return Plugin{
-					srcPath:    path.Join(repoDir, "bar"),
+					srcPath:    path,
 					binaryName: "bar",
 				}
 			},

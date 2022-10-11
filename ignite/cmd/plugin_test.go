@@ -221,7 +221,7 @@ ignite
 			require := require.New(t)
 			assert := assert.New(t)
 			p := &plugin.Plugin{
-				Plugin:    chainconfig.Plugin{Name: "foo"},
+				Plugin:    chainconfig.Plugin{Path: "foo"},
 				Interface: tt.pluginInterface,
 			}
 			rootCmd := buildRootCmd()

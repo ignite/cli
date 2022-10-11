@@ -9,7 +9,8 @@ import (
 func TestScaffold(t *testing.T) {
 	tmp := t.TempDir()
 
-	err := Scaffold(tmp, "github.com/foo/bar")
+	path, err := Scaffold(tmp, "github.com/foo/bar")
 
 	require.NoError(t, err)
+	require.DirExists(t, path)
 }
