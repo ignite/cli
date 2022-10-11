@@ -136,7 +136,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, chainconfig.LatestVersion))
 		}
 
-		file, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0o755)
+		file, err := os.OpenFile(configPath, os.O_WRONLY|os.O_TRUNC, 0o755)
 		if err != nil {
 			return err
 		}
