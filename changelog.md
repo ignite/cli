@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
 - Improve genesis parser for `network` commands
 - Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
@@ -19,6 +20,7 @@
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
+- Fix config file migration to void leaving end of file content chunks
 
 ### Features
 

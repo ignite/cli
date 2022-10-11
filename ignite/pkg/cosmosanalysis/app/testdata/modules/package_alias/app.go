@@ -2,7 +2,7 @@ package app
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	cosmosmodule "github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -12,7 +12,7 @@ import (
 )
 
 // App modules are defined as NewBasicManager arguments
-var ModuleBasics = module.NewBasicManager(
+var ModuleBasics = cosmosmodule.NewBasicManager(
 	auth.AppModuleBasic{},
 	bank.AppModuleBasic{},
 	staking.AppModuleBasic{},
