@@ -205,6 +205,7 @@ func startWithTunnelingCommand(appCreator appCreator, defaultNodeHome string) *c
 	startCmd := server.StartCmd(appCreator.newApp, defaultNodeHome)
 	startCmd.Use = "start-with-tunneling"
 	startCmd.Short = "Run the full node with http tunneling"
+	// Backup existing PreRunE, since we'll override it.
 	startPreRunE := startCmd.PreRunE
 	startCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		var (
