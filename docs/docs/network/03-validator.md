@@ -24,7 +24,7 @@ Launch Id 	Chain Id 	Source                              Phase
 
 3 		example-1 	https://github.com/ignite/example   coordinating
 2 		spn-10 		https://github.com/tendermint/spn   launched
-1 	        example-20 	https://github.com/tendermint/spn   launching
+1 		example-20 	https://github.com/tendermint/spn   launching
 ```
 
 - `Launch ID` is the unique identifier of the chain on Ignite. This is the ID used to interact with the chain launch.
