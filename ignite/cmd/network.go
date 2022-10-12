@@ -58,6 +58,7 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
+		NewNetworkValidator(),
 		NewNetworkProfile(),
 	)
 

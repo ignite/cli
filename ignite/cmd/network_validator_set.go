@@ -1,0 +1,55 @@
+package ignitecmd
+
+import (
+	"errors"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/spf13/cobra"
+	profiletypes "github.com/tendermint/spn/x/profile/types"
+)
+
+// NewNetworkValidatorSet creates a command to set an information in a validator profile
+func NewNetworkValidatorSet() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "set details|identity|website [value]",
+		Short: "Set an information in a validator profile",
+		Long: `Validators on Ignite can set a profile containing a description for the validator.
+The validator set command allows to set information for the validator.
+The following information can be set:
+- details: general information about the validator.
+- identity: piece of information to verify identity of the validator with a system like Keybase of Veramo.
+- website: website of the validator.
+`,
+		RunE: networkValidatorSetHandler,
+		Args: cobra.ExactArgs(2),
+	}
+	return c
+}
+
+func networkValidatorSetHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.Cleanup()
+
+	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
+	if err != nil {
+		return err
+	}
+
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
+	var validator profiletypes.Validator
+	switch args[0] {
+	case "details":
+		validator.Description.Details = args[1]
+	case "identity":
+		validator.Description.Identity = args[1]
+	case "website":
+		validator.Description.Website = args[1]
+	default:
+		return errors.New("invalid attribute, must provide details, identity or website")
+	}
+
+	return n.SetValidatorDescription(cmd.Context(), validator)
+}
