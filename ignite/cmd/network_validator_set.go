@@ -22,6 +22,10 @@ The following information can be set:
 		RunE: networkValidatorSetHandler,
 		Args: cobra.ExactArgs(2),
 	}
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 

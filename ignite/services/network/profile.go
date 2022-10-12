@@ -75,7 +75,7 @@ func (n Network) SetValidatorDescription(ctx context.Context, validator profilet
 		return err
 	}
 
-	var requestRes profiletypes.MsgUpdateValidatorDescription
+	var requestRes profiletypes.MsgUpdateValidatorDescriptionResponse
 	return res.Decode(&requestRes)
 }
 
