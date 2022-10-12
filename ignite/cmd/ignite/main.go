@@ -12,6 +12,10 @@ import (
 )
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	ctx := clictx.From(context.Background())
 
 	cmd := ignitecmd.New()
@@ -19,7 +23,7 @@ func main() {
 	// Load plugins if any
 	if err := ignitecmd.LoadPlugins(ctx, cmd); err != nil {
 		fmt.Printf("Error while loading chain's plugins: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
 	defer ignitecmd.UnloadPlugins()
 
@@ -27,7 +31,7 @@ func main() {
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
-		return
+		return 0
 	}
 
 	if err != nil {
@@ -38,7 +42,7 @@ func main() {
 		} else {
 			fmt.Println(err)
 		}
-
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
