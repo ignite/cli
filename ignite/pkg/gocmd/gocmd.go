@@ -28,6 +28,9 @@ const (
 
 	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
+
+	// CommandFmt represents go "fmt" command.
+	CommandFmt = "fmt"
 )
 
 const (
@@ -49,6 +52,11 @@ func Name() string {
 		return custom
 	}
 	return "go"
+}
+
+// Fmt runs go fmt on path
+func Fmt(ctx context.Context, path string, options ...exec.Option) error {
+	return exec.Exec(ctx, []string{Name(), CommandFmt, "./..."}, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
 // ModTidy runs go mod tidy on path with options.

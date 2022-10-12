@@ -12,6 +12,8 @@ import (
 
 // InstallDependencies installs protoc dependencies needed by Cosmos ecosystem.
 func InstallDependencies(ctx context.Context, appPath string) error {
+	// NOTE(tb): those packages should be present in the import statement of
+	// tools.go.plush
 	plugins := []string{
 		// installs the gocosmos plugin.
 		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
@@ -32,7 +34,6 @@ func InstallDependencies(ctx context.Context, appPath string) error {
 			cmdrunner.DefaultWorkdir(appPath),
 		).
 		Run(ctx,
-			step.New(step.Exec("go", append([]string{"get"}, plugins...)...)),
 			step.New(step.Exec("go", append([]string{"install"}, plugins...)...)),
 		)
 	return errors.Wrap(err, errb.String())

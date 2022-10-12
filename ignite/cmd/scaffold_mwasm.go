@@ -39,7 +39,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.ImportModule(cacheStorage, placeholder.New(), "wasm")
+	sm, err := sc.ImportModule(cmd.Context(), cacheStorage, placeholder.New(), "wasm")
 	if err != nil {
 		return err
 	}

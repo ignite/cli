@@ -44,6 +44,7 @@ func OracleWithSigner(signer string) OracleOption {
 
 // AddOracle adds a new BandChain oracle envtest.
 func (s *Scaffolder) AddOracle(
+	ctx context.Context,
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName,
@@ -108,7 +109,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 func (s Scaffolder) installBandPacket() error {
