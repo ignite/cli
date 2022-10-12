@@ -1,11 +1,11 @@
 syntax = "proto3";
-package tendermint.planet.planet;
+package tendermint.planet.mars;
 import "google/api/annotations.proto";
-option go_package = "github.com/tendermint/planet/x/planet/types";
+option go_package = "github.com/tendermint/planet/x/mars/types";
 
 service Query {
   rpc MyQuery(QueryMyQueryRequest) returns (QueryMyQueryResponse) {
-    option (google.api.http).get = "/tendermint/planet/withoutmsg/my_query/{mytypefield}";
+    option (google.api.http).get = "/tendermint/mars/withoutmsg/my_query/{mytypefield}";
   }
 }
 

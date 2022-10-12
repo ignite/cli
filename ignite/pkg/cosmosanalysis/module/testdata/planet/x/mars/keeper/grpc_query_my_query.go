@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/tendermint/planet/x/planet/types"
+	"github.com/tendermint/planet/x/mars/types"
 )
 
 type Keeper struct{}

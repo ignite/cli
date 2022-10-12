@@ -41,7 +41,7 @@ The command above will create a new message MsgAddPool with three fields: amount
 to the "dex" module.
 
 By default, the message is defined as a proto message in the
-"proto/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
+"proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
 create and broadcast a transaction with MsgAddPool is created in the module's
 "cli" package. Additionally, Ignite scaffolds a message constructor and the code
 to satisfy the sdk.Msg interface and register the message in the module.
