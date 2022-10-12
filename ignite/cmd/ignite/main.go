@@ -17,10 +17,11 @@ func main() {
 	cmd := ignitecmd.New()
 
 	// Load plugins if any
-	if err := ignitecmd.LoadPlugins(context.Background(), cmd); err != nil {
+	if err := ignitecmd.LoadPlugins(ctx, cmd); err != nil {
 		fmt.Printf("Error while loading chain's plugins: %v\n", err)
 		os.Exit(1)
 	}
+	defer ignitecmd.UnloadPlugins()
 
 	err := cmd.ExecuteContext(ctx)
 

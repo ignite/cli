@@ -41,10 +41,20 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		}
 	}
 	if len(loadErrors) > 0 {
+		// unload any plugin that could have been loaded
+		UnloadPlugins()
 		printPlugins()
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
+}
+
+// UnloadPlugins releases any loaded plugins, which is basically killing the
+// plugin server instance.
+func UnloadPlugins() {
+	for _, p := range plugins {
+		p.KillClient()
+	}
 }
 
 // linkPluginCmds tries to add the plugin commands to the legacy ignite
@@ -94,7 +104,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			defer p.KillClient()
 			// Pass config parameters
 			pluginCmd.With = p.With
 			// Pass cobra cmd
