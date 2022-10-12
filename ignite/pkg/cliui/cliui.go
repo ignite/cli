@@ -178,11 +178,6 @@ func (s Session) Println(messages ...interface{}) error {
 	return err
 }
 
-// PrintSaidNo prints message informing negative was given in a confirmation prompt
-func (s Session) PrintSaidNo() error {
-	return s.Println("said no")
-}
-
 // Println prints arbitrary message
 func (s Session) Print(messages ...interface{}) error {
 	defer s.PauseSpinner()()

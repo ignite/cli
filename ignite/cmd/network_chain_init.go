@@ -1,8 +1,10 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
@@ -87,7 +89,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			chainHome,
 		)
 		if err := session.AskConfirm(question); err != nil {
-			return session.PrintSaidNo()
+			if errors.Is(err, promptui.ErrAbort) {
+				return nil
+			}
+
+			return err
 		}
 	}
 
