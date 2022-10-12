@@ -2,9 +2,11 @@ package ignitecmd
 
 import (
 	"errors"
-	"github.com/ignite/cli/ignite/pkg/cliui"
+
 	"github.com/spf13/cobra"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
+
+	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
 // NewNetworkValidatorSet creates a command to set an information in a validator profile
