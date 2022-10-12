@@ -31,11 +31,12 @@ type Chain struct {
 	path string
 	home string
 
-	url         string
-	hash        string
-	genesisURL  string
-	genesisHash string
-	launchTime  time.Time
+	url           string
+	hash          string
+	genesisURL    string
+	genesisHash   string
+	genesisConfig string
+	launchTime    time.Time
 
 	accountBalance sdk.Coins
 
@@ -121,6 +122,13 @@ func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 func WithGenesisFromURL(genesisURL string) Option {
 	return func(c *Chain) {
 		c.genesisURL = genesisURL
+	}
+}
+
+// WithGenesisFromConfig provides a config file for the initial genesis of the chain blockchain
+func WithGenesisFromConfig(genesisConfig string) Option {
+	return func(c *Chain) {
+		c.genesisConfig = genesisConfig
 	}
 }
 

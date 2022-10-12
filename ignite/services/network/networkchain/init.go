@@ -63,7 +63,8 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
-	if c.genesisURL != "" {
+	switch {
+	case c.genesisURL != "":
 		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from URL"))
 		genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
 		if err != nil {
@@ -102,7 +103,15 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
 			return err
 		}
-	} else {
+
+	case c.genesisConfig != "":
+		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from Config"))
+		//genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
+		//if err != nil {
+		//	return err
+		//}
+
+	default:
 		// default genesis is used, init CLI command is used to generate it
 		cmd, err := c.chain.Commands(ctx)
 		if err != nil {
