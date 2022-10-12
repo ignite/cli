@@ -38,7 +38,15 @@ func networkValidatorShowHandler(cmd *cobra.Command, args []string) error {
 
 	// convert the request object to YAML to be more readable
 	// and convert the byte array fields to string.
-	validatorYaml, err := yaml.Marshal(cmd.Context(), validator)
+	validatorYaml, err := yaml.Marshal(cmd.Context(), struct {
+		Identity string
+		Details  string
+		Website  string
+	}{
+		validator.Identity,
+		validator.Details,
+		validator.Website,
+	})
 	if err != nil {
 		return err
 	}
