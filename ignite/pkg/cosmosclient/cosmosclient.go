@@ -651,7 +651,7 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX) error {
 	defer close(tc)
 
-	status, err := c.Status(ctx)
+	latestHeight, err := c.LatestBlockHeight(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to fetch latest block height: %w", err)
 	}
@@ -660,7 +660,7 @@ func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX
 		fromHeight = 1
 	}
 
-	for height := fromHeight; height <= status.SyncInfo.LatestBlockHeight; height++ {
+	for height := fromHeight; height <= latestHeight; height++ {
 		txs, err := c.GetBlockTXs(ctx, height)
 		if err != nil {
 			return err
