@@ -10,14 +10,16 @@ import (
 	foomodule "github.com/username/test/x/foo"
 )
 
-// App modules are defined in a variable from a different
+// App modules are defined in a function from a different
 // file from where the variable is being referenced.
-var basicModules = []module.AppModuleBasic{
-	auth.AppModuleBasic{},
-	bank.AppModuleBasic{},
-	staking.AppModuleBasic{},
-	gov.NewAppModuleBasic([]govclient.ProposalHandler{
-		paramsclient.ProposalHandler,
-	}),
-	foomodule.AppModuleBasic{},
+func basicModules() {
+	return []module.AppModuleBasic{
+		auth.AppModuleBasic{},
+		bank.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		gov.NewAppModuleBasic([]govclient.ProposalHandler{
+			paramsclient.ProposalHandler,
+		}),
+		foomodule.AppModuleBasic{},
+	}
 }

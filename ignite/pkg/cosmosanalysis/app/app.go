@@ -2,7 +2,6 @@ package app
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -10,8 +9,11 @@ import (
 	"go/token"
 	"path/filepath"
 
+	"github.com/pkg/errors"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
 var appImplementation = []string{
@@ -81,75 +83,61 @@ func CheckKeeper(path, keeperName string) error {
 // 2. Looking for the call to module.NewBasicManager and finds the modules registered there
 // 3. Looking for the implementation of RegisterAPIRoutes and find the modules that call their RegisterGRPCGatewayRoutes
 func FindRegisteredModules(chainRoot string) (modules []string, err error) {
+	// Assumption: modules are registered in the app package
 	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
 	if err != nil {
 		return nil, err
 	}
-
-	fileSet := token.NewFileSet()
-	f, err := parser.ParseFile(fileSet, appFilePath, nil, 0)
-	if err != nil {
-		return []string{}, err
-	}
-
-	packages, err := goanalysis.FindImportedPackages(appFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	basicManagerModule, err := findBasicManagerModule(packages)
-	if err != nil {
-		return nil, err
-	}
-
 	// The directory where the app file is located.
 	// This is required to resolve references within the app package.
 	appDir := filepath.Dir(appFilePath)
 
-	ast.Inspect(f, func(n ast.Node) bool {
-		// Stop traversing the child nodes when there is an error
-		if err != nil {
-			return false
-		}
+	appPkg, _, err := xast.ParseDir(appDir)
+	if err != nil {
+		return nil, err
+	}
 
-		var pkgs []string
-
-		pkgs, err = findBasicManagerRegistrations(n, basicManagerModule, appDir, packages)
-		if err != nil {
-			return false
-		}
-
-		if pkgs != nil {
-			for _, p := range pkgs {
-				importModule := packages[p]
-				if importModule == "" {
-					// When the package is not defined in the same file use the package name as import
-					importModule = p
-				}
-
-				modules = append(modules, importModule)
+	// Loop on package's files
+	for _, f := range appPkg.Files {
+		fileImports := goanalysis.FormatImports(f)
+		err := xast.Inspect(f, func(n ast.Node) error {
+			// Find modules in module.NewBasicManager call
+			pkgs, err := findBasicManagerRegistrations(n, appDir, fileImports)
+			if err != nil {
+				return err
 			}
 
-			return false
-		}
-
-		if pkgs = findRegisterAPIRoutersRegistrations(n); pkgs != nil {
-			for _, p := range pkgs {
-				importModule := packages[p]
-				if importModule == "" {
-					continue
+			if pkgs != nil {
+				for _, p := range pkgs {
+					importModule := fileImports[p]
+					if importModule == "" {
+						// When the package is not defined in the same file use the package name as import
+						importModule = p
+					}
+					modules = append(modules, importModule)
 				}
-
-				modules = append(modules, importModule)
+				return xast.ErrStop
 			}
 
-			return false
+			// Find modules in RegisterAPIRoutes declaration
+			if pkgs := findRegisterAPIRoutesRegistrations(n); pkgs != nil {
+				for _, p := range pkgs {
+					importModule := fileImports[p]
+					if importModule == "" {
+						continue
+					}
+					modules = append(modules, importModule)
+				}
+				return xast.ErrStop
+			}
+
+			return nil
+		})
+		if err != nil {
+			return nil, err
 		}
-
-		return true
-	})
-
-	return modules, err
+	}
+	return modules, nil
 }
 
 func exprToString(n ast.Expr) (string, error) {
@@ -169,11 +157,14 @@ func newExprError(msg string, n ast.Expr) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-
 	return fmt.Errorf("%s: %s", msg, s)
 }
 
-func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string, pkgs map[string]string) (packages []string, err error) {
+func newUnexpectedTypeErr(n any) error {
+	return errors.Errorf("unexpected type %T", n)
+}
+
+func findBasicManagerRegistrations(n ast.Node, pkgDir string, fileImports map[string]string) (packages []string, err error) {
 	callExprType, ok := n.(*ast.CallExpr)
 	if !ok {
 		return
@@ -185,64 +176,70 @@ func findBasicManagerRegistrations(n ast.Node, basicManagerModule, pkgDir string
 	}
 
 	identExprType, ok := selectorExprType.X.(*ast.Ident)
-	if !ok || identExprType.Name != basicManagerModule || selectorExprType.Sel.Name != "NewBasicManager" {
+	if !ok {
+		return
+	}
+	basicModulePkgName := findBasicManagerPkgName(fileImports)
+	if basicModulePkgName == "" {
+		// cosmos-sdk/types/module is not imported in this file, skip
+		return
+	}
+	if identExprType.Name != basicModulePkgName || selectorExprType.Sel.Name != "NewBasicManager" {
 		return
 	}
 
 	// Node "n" defines the call to NewBasicManager, let's loop on its args to discover modules
 	for _, arg := range callExprType.Args {
 		switch v := arg.(type) {
+
 		case *ast.CompositeLit:
 			// The arg is an app module
-			p := parsePkgNameFromCompositeLit(v)
-			if p == "" {
-				return nil, newExprError("unexpected basic app module reference", arg)
+			ps, err := parsePkgNameFromCompositeLit(v, pkgDir)
+			if err != nil {
+				return nil, err
 			}
+			packages = append(packages, ps...)
 
-			packages = append(packages, p)
 		case *ast.CallExpr:
 			// The arg is a function call that returns the app module
-			p := parsePkgNameFromCall(v)
-			if p == "" {
-				return nil, newExprError("unexpected basic app module function format", arg)
+			ps, err := parsePkgNameFromCall(v, pkgDir)
+			if err != nil {
+				return nil, err
 			}
+			packages = append(packages, ps...)
 
-			packages = append(packages, p)
 		case *ast.Ident:
 			// The list of modules are defined in a local variable
-			p := parseAppModulesFromIdent(v, pkgDir)
-			if len(p) == 0 {
-				return nil, newExprError("unsupported basic app modules variable format", arg)
+			ps, err := parseAppModulesFromIdent(v, pkgDir)
+			if err != nil {
+				return nil, err
 			}
 
-			packages = append(packages, p...)
+			packages = append(packages, ps...)
 		case *ast.SelectorExpr:
 			// The list of modules is defined in a variable of a different package
-			p := parseAppModulesFromSelectorExpr(v, pkgDir, pkgs)
-			if len(p) == 0 {
-				return nil, newExprError("unsupported basic app modules variable reference", arg)
+			ps, err := parseAppModulesFromSelectorExpr(v, pkgDir, fileImports)
+			if err != nil {
+				return nil, err
 			}
-
-			packages = append(packages, p...)
+			packages = append(packages, ps...)
 		default:
 			return nil, newExprError("unsupported NewBasicManager() argument format", arg)
 		}
 	}
-
 	return packages, nil
 }
 
-func findBasicManagerModule(pkgs map[string]string) (string, error) {
+func findBasicManagerPkgName(pkgs map[string]string) string {
 	for mod, pkg := range pkgs {
 		if pkg == "github.com/cosmos/cosmos-sdk/types/module" {
-			return mod, nil
+			return mod
 		}
 	}
-
-	return "", errors.New("no module for BasicManager was found")
+	return ""
 }
 
-func findRegisterAPIRoutersRegistrations(n ast.Node) []string {
+func findRegisterAPIRoutesRegistrations(n ast.Node) []string {
 	funcLitType, ok := n.(*ast.FuncDecl)
 	if !ok {
 		return nil
