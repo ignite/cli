@@ -10,8 +10,6 @@ import (
 	"github.com/ignite/cli/ignite/chainconfig"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -70,21 +68,17 @@ func App(path string) (Scaffolder, error) {
 }
 
 func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
-	// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
-	// mod tidy requests the sumdb, until we understand why, we disable sumdb.
-	// related issue:  https://github.com/golang/go/issues/56174
-	opt := exec.StepOption(step.Env("GOSUMDB=off"))
-	if err := gocmd.ModTidy(ctx, path, opt); err != nil {
+	if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
 		return err
 	}
-	if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
+	if err := gocmd.ModTidy(ctx, path); err != nil {
 		return err
 	}
 	return gocmd.Fmt(ctx, path)
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
-	if err := cosmosgen.InstallDependencies(ctx, projectPath); err != nil {
+	if err := cosmosgen.InstallDepTools(ctx, projectPath); err != nil {
 		return err
 	}
 
