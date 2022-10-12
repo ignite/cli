@@ -3,7 +3,6 @@ package network
 import (
 	"context"
 	"errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
@@ -51,6 +50,33 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 		return networktypes.Coordinator{}, err
 	}
 	return networktypes.ToCoordinator(resCoord.Coordinator), nil
+}
+
+// SetValidatorDescription set a validator profile.
+func (n Network) SetValidatorDescription(ctx context.Context, validator profiletypes.Validator) error {
+	n.ev.Send(events.New(events.StatusOngoing, "Setting validator description"))
+
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	message := profiletypes.NewMsgUpdateValidatorDescription(
+		addr,
+		validator.Description.Identity,
+		validator.Description.Moniker,
+		validator.Description.Website,
+		validator.Description.SecurityContact,
+		validator.Description.Details,
+	)
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, message)
+	if err != nil {
+		return err
+	}
+
+	var requestRes profiletypes.MsgUpdateValidatorDescription
+	return res.Decode(&requestRes)
 }
 
 // Validator returns the Validator by address from SPN
