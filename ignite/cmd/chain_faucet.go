@@ -39,7 +39,8 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
-		chain.WithSession(session),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	c, err := newChainWithHomeFlags(cmd, chainOption...)

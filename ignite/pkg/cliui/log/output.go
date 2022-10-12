@@ -23,6 +23,15 @@ const (
 	VerbosityVerbose
 )
 
+// Outputer defines an interface for logging output creation.
+type Outputer interface {
+	// NewOutput returns a new logging output.
+	NewOutput(label string, color uint8) Output
+
+	// Verbosity returns the current verbosity level for the logging output.
+	Verbosity() Verbosity
+}
+
 // Output stores writers for standard output and error.
 type Output struct {
 	verbosity Verbosity

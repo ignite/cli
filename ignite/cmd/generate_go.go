@@ -26,7 +26,11 @@ func generateGoHandler(cmd *cobra.Command, args []string) error {
 
 	session.StartSpinner("Generating...")
 
-	c, err := newChainWithHomeFlags(cmd, chain.WithSession(session))
+	c, err := newChainWithHomeFlags(
+		cmd,
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+	)
 	if err != nil {
 		return err
 	}

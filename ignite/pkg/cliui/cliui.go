@@ -115,11 +115,11 @@ func (s Session) Verbosity() uilog.Verbosity {
 	return s.options.verbosity
 }
 
-// LogOutput returns a new log output bound to the session.
+// NewOutput returns a new logging output bound to the session.
 // The new output will use the session's verbosity, stderr and stdout.
 // Label and color arguments are used to prefix the output when the
 // session verbosity is verbose.
-func (s Session) LogOutput(label string, color uint8) uilog.Output {
+func (s Session) NewOutput(label string, color uint8) uilog.Output {
 	options := []uilog.Option{
 		uilog.WithStdout(s.options.stdout),
 		uilog.WithStderr(s.options.stderr),

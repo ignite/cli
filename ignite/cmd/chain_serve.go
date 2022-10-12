@@ -73,7 +73,8 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	chainOption := []chain.Option{
-		chain.WithSession(session),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	if flagGetProto3rdParty(cmd) {

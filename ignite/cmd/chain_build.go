@@ -108,7 +108,8 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
-		chain.WithSession(session),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	if flagGetProto3rdParty(cmd) {
