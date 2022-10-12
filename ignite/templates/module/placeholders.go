@@ -6,20 +6,22 @@ const (
 	Placeholder3 = "// this line is used by starport scaffolding # 3"
 
 	// Placeholders in Stargate app.go
-	PlaceholderSgAppModuleImport         = "// this line is used by starport scaffolding # stargate/app/moduleImport"
-	PlaceholderSgAppModuleBasic          = "// this line is used by starport scaffolding # stargate/app/moduleBasic"
-	PlaceholderSgAppKeeperDeclaration    = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
-	PlaceholderSgAppStoreKey             = "// this line is used by starport scaffolding # stargate/app/storeKey"
-	PlaceholderSgAppKeeperDefinition     = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
-	PlaceholderSgAppAppModule            = "// this line is used by starport scaffolding # stargate/app/appModule"
-	PlaceholderSgAppInitGenesis          = "// this line is used by starport scaffolding # stargate/app/initGenesis"
-	PlaceholderSgAppBeginBlockers        = "// this line is used by starport scaffolding # stargate/app/beginBlockers"
-	PlaceholderSgAppEndBlockers          = "// this line is used by starport scaffolding # stargate/app/endBlockers"
-	PlaceholderSgAppParamSubspace        = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
-	PlaceholderSgAppGovProposalHandlers  = "// this line is used by starport scaffolding # stargate/app/govProposalHandlers"
-	PlaceholderSgAppScopedKeeper         = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
-	PlaceholderSgAppBeforeInitReturn     = "// this line is used by starport scaffolding # stargate/app/beforeInitReturn"
-	PlaceholderSgAppMaccPerms            = "// this line is used by starport scaffolding # stargate/app/maccPerms"
+	PlaceholderSgAppModuleImport        = "// this line is used by starport scaffolding # stargate/app/moduleImport"
+	PlaceholderSgAppModuleBasic         = "// this line is used by starport scaffolding # stargate/app/moduleBasic"
+	PlaceholderSgAppKeeperDeclaration   = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
+	PlaceholderSgAppStoreKey            = "// this line is used by starport scaffolding # stargate/app/storeKey"
+	PlaceholderSgAppKeeperDefinition    = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
+	PlaceholderSgAppAppModule           = "// this line is used by starport scaffolding # stargate/app/appModule"
+	PlaceholderSgAppInitGenesis         = "// this line is used by starport scaffolding # stargate/app/initGenesis"
+	PlaceholderSgAppBeginBlockers       = "// this line is used by starport scaffolding # stargate/app/beginBlockers"
+	PlaceholderSgAppEndBlockers         = "// this line is used by starport scaffolding # stargate/app/endBlockers"
+	PlaceholderSgAppParamSubspace       = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
+	PlaceholderSgAppGovProposalHandlers = "// this line is used by starport scaffolding # stargate/app/govProposalHandlers"
+	PlaceholderSgAppScopedKeeper        = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
+	PlaceholderSgAppBeforeInitReturn    = "// this line is used by starport scaffolding # stargate/app/beforeInitReturn"
+	PlaceholderSgAppMaccPerms           = "// this line is used by starport scaffolding # stargate/app/maccPerms"
+
+	// Placeholders in Stargate app.go for wasm
 	PlaceholderSgWasmAppEnabledProposals = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
 
 	// Placeholders in cmd/appd/cmd/root.go
