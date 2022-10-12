@@ -18,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
@@ -441,15 +442,23 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	rpcAddr, _ := xurl.HTTP(servers.RPC.Address)
 	apiAddr, _ := xurl.HTTP(servers.API.Address)
 
-	c.session.StopSpinner()
-
-	// log the server addresses.
-	c.ev.Sendf("🌍 Tendermint node: %s", rpcAddr)
-	c.ev.Sendf("🌍 Blockchain API: %s", apiAddr)
+	c.ev.Send(
+		fmt.Sprintf("Tendermint node: %s", rpcAddr),
+		events.Icon(icons.Earth),
+		events.ProgressFinished(),
+	)
+	c.ev.Send(
+		fmt.Sprintf("Blockchain API: %s", apiAddr),
+		events.Icon(icons.Earth),
+	)
 
 	if isFaucetEnabled {
 		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
-		c.ev.Sendf("🌍 Token faucet: %s", faucetAddr)
+
+		c.ev.Send(
+			fmt.Sprintf("Token faucet: %s", faucetAddr),
+			events.Icon(icons.Earth),
+		)
 	}
 
 	return g.Wait()

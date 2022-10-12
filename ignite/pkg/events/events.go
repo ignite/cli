@@ -2,6 +2,8 @@
 // for others to consume and display to end users in meaningful ways.
 package events
 
+import "fmt"
+
 // ProgressIndication enumerates possible states of progress indication for an Event
 type ProgressIndication uint8
 
@@ -61,6 +63,14 @@ func New(message string, options ...Option) Event {
 	}
 
 	return ev
+}
+
+func (e Event) String() string {
+	if e.Icon != "" {
+		return fmt.Sprintf("%s %s", e.Icon, e.Message)
+	}
+
+	return e.Message
 }
 
 // InProgress returns true when the event is in progress.

@@ -10,7 +10,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
@@ -221,27 +220,16 @@ func (s Session) End() {
 func (s Session) handleEvents() {
 	stdout := s.out.Stdout()
 
-	for event := range s.ev.Events() {
-		switch event.ProgressIndication {
+	for e := range s.ev.Events() {
+		switch e.ProgressIndication {
 		case events.IndicationStart:
-			s.StartSpinner(event.Message)
+			s.StartSpinner(e.String())
 		case events.IndicationFinish:
-			icon := event.Icon
-			if icon == "" {
-				icon = icons.OK
-			}
-
 			s.StopSpinner()
-			fmt.Fprintf(stdout, "%s %s\n", icon, event.Message)
+			fmt.Fprintf(stdout, "%s\n", e)
 		case events.IndicationNone:
 			resume := s.PauseSpinner()
-
-			if event.Icon != "" {
-				fmt.Fprintf(stdout, "%s %s\n", event.Icon, event.Message)
-			} else {
-				fmt.Fprintf(stdout, "%s\n", event.Message)
-			}
-
+			fmt.Fprintf(stdout, "%s\n", e)
 			resume()
 		}
 	}
