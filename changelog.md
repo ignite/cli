@@ -13,6 +13,7 @@
 - Switched codegen client to use `axios` instead of `fetch`
 - nodetime built with `vercel/pkg@5.6.0`
 - Added `ignite network validator` command set
+- Move generated proto files to `proto/{appname}/{module}`
 
 ### Fixes
 

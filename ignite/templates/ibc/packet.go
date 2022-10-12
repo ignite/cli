@@ -87,6 +87,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
 
@@ -173,7 +174,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "packet.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -211,7 +212,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
 		for _, f := range customFields {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {
@@ -270,7 +271,7 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 
 func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -295,7 +296,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {
