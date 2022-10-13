@@ -271,7 +271,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 			for i, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
 					// Check if the service response message is using pagination and
-					// update the RPC function. THis is done here to avoid extra loops
+					// update the RPC function. This is done here to avoid extra loops
 					// just to update the pagination property.
 					s.RPCFuncs[i].Paginated = hasPagination(protomsg)
 
