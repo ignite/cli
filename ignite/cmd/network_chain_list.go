@@ -49,8 +49,9 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 		page, _     = cmd.Flags().GetUint64(flagPage)
 	)
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+
+	defer session.End()
 
 	if page == 0 {
 		return errors.New("invalid page value")
@@ -71,8 +72,6 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return renderLaunchSummaries(chainLaunches, session, advanced)
 }

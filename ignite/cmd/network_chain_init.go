@@ -1,8 +1,10 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
@@ -54,8 +56,8 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -87,7 +89,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			chainHome,
 		)
 		if err := session.AskConfirm(question); err != nil {
-			return session.PrintSaidNo()
+			if errors.Is(err, promptui.ErrAbort) {
+				return nil
+			}
+
+			return err
 		}
 	}
 
@@ -146,8 +152,6 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 }
