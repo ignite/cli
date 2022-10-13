@@ -36,7 +36,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 	)
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
@@ -56,7 +56,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 	)
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
@@ -76,7 +76,7 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 	)
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
@@ -105,7 +105,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	)
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
 
@@ -127,7 +127,7 @@ func TestServeStargateWithName(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 
 	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))

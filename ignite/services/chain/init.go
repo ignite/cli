@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
 )
 
@@ -66,9 +66,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	// overwrite configuration changes from Ignite CLI's config.yml to
-	// over app's sdk configs.
-
+	// ovewrite app config files with the values defined in Ignite's config file
 	if err := c.plugin.Configure(home, conf); err != nil {
 		return err
 	}
@@ -78,58 +76,22 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		conf.Genesis["chain_id"] = chainID
 	}
 
-	// Initilize app config
-	genesisPath, err := c.GenesisPath()
-	if err != nil {
+	// update genesis file with the genesis values defined in the config
+	if err := c.updateGenesisFile(conf.Genesis); err != nil {
 		return err
-	}
-	appTOMLPath, err := c.AppTOMLPath()
-	if err != nil {
-		return err
-	}
-	clientTOMLPath, err := c.ClientTOMLPath()
-	if err != nil {
-		return err
-	}
-	configTOMLPath, err := c.ConfigTOMLPath()
-	if err != nil {
-		return err
-	}
-
-	appconfigs := []struct {
-		ec      confile.EncodingCreator
-		path    string
-		changes map[string]interface{}
-	}{
-		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
-		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.Init.Client},
-		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
-	}
-
-	for _, ac := range appconfigs {
-		cf := confile.New(ac.ec, ac.path)
-		var conf map[string]interface{}
-		if err := cf.Load(&conf); err != nil {
-			return err
-		}
-		if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
-			return err
-		}
-		if err := cf.Save(conf); err != nil {
-			return err
-		}
 	}
 
 	return nil
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
 	}
+
+	var accounts accountview.Accounts
 
 	// add accounts from config into genesis
 	for _, account := range conf.Accounts {
@@ -151,27 +113,21 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		}
 
 		if account.Address == "" {
-			fmt.Fprintf(
-				c.stdLog().out,
-				"🙂 Created account %q with address %q with mnemonic: %q\n",
+			accounts = append(accounts, accountview.NewAccount(
 				generatedAccount.Name,
-				generatedAccount.Address,
-				generatedAccount.Mnemonic,
-			)
+				accountAddress,
+				accountview.WithMnemonic(generatedAccount.Mnemonic),
+			))
 		} else {
-			fmt.Fprintf(
-				c.stdLog().out,
-				"🙂 Imported an account %q with address: %q\n",
-				account.Name,
-				account.Address,
-			)
+			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
 
-	_, err = c.IssueGentx(ctx, Validator{
-		Name:          conf.Validator.Name,
-		StakingAmount: conf.Validator.Staked,
-	})
+	c.ev.Send("🗂  Initialize accounts...")
+	c.ev.SendView(accounts)
+
+	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+
 	return err
 }
 
@@ -212,6 +168,29 @@ func (c *Chain) IsInitialized() (bool, error) {
 	return true, nil
 }
 
+func (c Chain) updateGenesisFile(data map[string]interface{}) error {
+	path, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+
+	genesis := make(map[string]interface{})
+	cf := confile.New(confile.DefaultJSONEncodingCreator, path)
+	if err := cf.Load(&genesis); err != nil {
+		return err
+	}
+
+	if err := mergo.Merge(&genesis, data, mergo.WithOverride); err != nil {
+		return err
+	}
+
+	if err = cf.Save(genesis); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type Validator struct {
 	Name                    string
 	Moniker                 string
@@ -234,4 +213,48 @@ type Account struct {
 	Mnemonic string `json:"mnemonic"`
 	CoinType string
 	Coins    string
+}
+
+func createValidatorFromConfig(conf *chainconfig.Config) (validator Validator) {
+	// Currently, we support the config file with one valid validator.
+	validatorFromConfig := conf.Validators[0]
+	validator.Name = validatorFromConfig.Name
+	validator.StakingAmount = validatorFromConfig.Bonded
+
+	if validatorFromConfig.Gentx != nil {
+		if validatorFromConfig.Gentx.Amount != "" {
+			validator.StakingAmount = validatorFromConfig.Gentx.Amount
+		}
+		if validatorFromConfig.Gentx.Moniker != "" {
+			validator.Moniker = validatorFromConfig.Gentx.Moniker
+		}
+		if validatorFromConfig.Gentx.CommissionRate != "" {
+			validator.CommissionRate = validatorFromConfig.Gentx.CommissionRate
+		}
+		if validatorFromConfig.Gentx.CommissionMaxRate != "" {
+			validator.CommissionMaxRate = validatorFromConfig.Gentx.CommissionMaxRate
+		}
+		if validatorFromConfig.Gentx.CommissionMaxChangeRate != "" {
+			validator.CommissionMaxChangeRate = validatorFromConfig.Gentx.CommissionMaxChangeRate
+		}
+		if validatorFromConfig.Gentx.GasPrices != "" {
+			validator.GasPrices = validatorFromConfig.Gentx.GasPrices
+		}
+		if validatorFromConfig.Gentx.Details != "" {
+			validator.Details = validatorFromConfig.Gentx.Details
+		}
+		if validatorFromConfig.Gentx.Identity != "" {
+			validator.Identity = validatorFromConfig.Gentx.Identity
+		}
+		if validatorFromConfig.Gentx.Website != "" {
+			validator.Website = validatorFromConfig.Gentx.Website
+		}
+		if validatorFromConfig.Gentx.SecurityContact != "" {
+			validator.SecurityContact = validatorFromConfig.Gentx.SecurityContact
+		}
+		if validatorFromConfig.Gentx.MinSelfDelegation != "" {
+			validator.MinSelfDelegation = validatorFromConfig.Gentx.MinSelfDelegation
+		}
+	}
+	return validator
 }

@@ -3,13 +3,16 @@ package network
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
@@ -102,23 +105,26 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	var (
 		genesisHash string
-		genesisFile []byte
-		genesis     cosmosutil.ChainGenesis
+		genesis     *cosmosgenesis.Genesis
+		chainID     string
 	)
 
 	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash.
 	if o.genesisURL != "" {
-		genesisFile, genesisHash, err = cosmosutil.GenesisAndHashFromURL(ctx, o.genesisURL)
+		genesis, err = cosmosgenesis.FromURL(ctx, o.genesisURL, filepath.Join(os.TempDir(), "genesis.json"))
 		if err != nil {
 			return 0, 0, err
 		}
-		genesis, err = cosmosutil.ParseChainGenesis(genesisFile)
+		genesisHash, err = genesis.Hash()
+		if err != nil {
+			return 0, 0, err
+		}
+		chainID, err = genesis.ChainID()
 		if err != nil {
 			return 0, 0, err
 		}
 	}
 
-	chainID := genesis.ChainID
 	// use chain id flag always in the highest priority.
 	if o.chainID != "" {
 		chainID = o.chainID
@@ -137,7 +143,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 	campaignID = o.campaignID
 
-	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
+	n.ev.Send("Publishing the network", events.ProgressStarted())
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one
@@ -288,7 +294,8 @@ func (n Network) sendAccountRequest(
 		),
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
+
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
@@ -300,12 +307,12 @@ func (n Network) sendAccountRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+		n.ev.Send("Account added to the network by the coordinator!", events.ProgressStarted())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to add account to the network has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.Send(
+			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
+			events.ProgressStarted(),
+		)
 	}
 	return nil
 }

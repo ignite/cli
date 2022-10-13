@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -63,14 +64,17 @@ production, you may want to run "appd start" manually.
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
+	defer session.End()
+
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	if flagGetProto3rdParty(cmd) {

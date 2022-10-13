@@ -41,6 +41,7 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
 }

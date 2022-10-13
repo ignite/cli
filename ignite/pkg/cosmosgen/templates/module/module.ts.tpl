@@ -83,10 +83,18 @@ class SDKModule {
 
 	constructor(client: IgniteClient) {		
 	
-		this.query = queryClient({ addr: client.env.apiURL });
-		this.tx = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
-		client.on('signer-changed',(signer) => {
-			this.tx = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
+		this.query = queryClient({ addr: client.env.apiURL });		
+		const methods = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
+		this.tx=methods;
+		for (const method in methods) {
+			this.tx[method]=methods[method].bind(this.tx)
+		}
+		client.on('signer-changed',(signer) => {			
+			const methods = txClient({ signer: client.signer, addr: client.env.rpcURL, prefix: client.env.prefix ?? "cosmos" });
+			this.tx=methods;
+			for (const method in methods) {
+				this.tx[method]=methods[method].bind(this.tx)
+			}
 		})
 	}
 };

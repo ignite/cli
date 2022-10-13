@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
@@ -29,13 +29,13 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 		return err
 	}
 
-	c.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
+	c.ev.Send("Initializing the blockchain", events.ProgressStarted())
 
 	if err = c.chain.Init(ctx, false); err != nil {
 		return err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
+	c.ev.Send("Blockchain initialized", events.ProgressFinished())
 
 	// initialize and verify the genesis
 	if err = c.initGenesis(ctx); err != nil {
@@ -49,7 +49,7 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
 func (c *Chain) initGenesis(ctx context.Context) error {
-	c.ev.Send(events.New(events.StatusOngoing, "Computing the Genesis"))
+	c.ev.Send("Computing the Genesis", events.ProgressStarted())
 
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -64,7 +64,22 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
-		genesis, hash, err := cosmosutil.GenesisAndHashFromURL(ctx, c.genesisURL)
+		c.ev.Send("Fetching custom Genesis from URL", events.ProgressStarted())
+		genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
+		if err != nil {
+			return err
+		}
+
+		if genesis.TarballPath() != "" {
+			c.ev.Send(
+				fmt.Sprintf("Extracted custom Genesis from tarball at %s", genesis.TarballPath()),
+				events.ProgressFinished(),
+			)
+		} else {
+			c.ev.Send("Custom Genesis JSON from URL fetched", events.ProgressFinished())
+		}
+
+		hash, err := genesis.Hash()
 		if err != nil {
 			return err
 		}
@@ -77,8 +92,13 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return fmt.Errorf("genesis from URL %s is invalid. expected hash %s, actual hash %s", c.genesisURL, c.genesisHash, hash)
 		}
 
+		genBytes, err := genesis.Bytes()
+		if err != nil {
+			return err
+		}
+
 		// replace the default genesis with the fetched genesis
-		if err := os.WriteFile(genesisPath, genesis, 0o644); err != nil {
+		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
 			return err
 		}
 	} else {
@@ -100,7 +120,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		return err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+	c.ev.Send("Genesis initialized", events.ProgressFinished())
 	return nil
 }
 
@@ -117,15 +137,15 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	genesisFile, err := os.ReadFile(genesisPath)
+	chainGenesis, err := cosmosgenesis.FromPath(genesisPath)
 	if err != nil {
 		return err
 	}
-	chainGenesis, err := cosmosutil.ParseChainGenesis(genesisFile)
+	gentxCount, err := chainGenesis.GentxCount()
 	if err != nil {
 		return err
 	}
-	if chainGenesis.GenTxCount() > 0 {
+	if gentxCount > 0 {
 		return errors.New("the initial genesis for the chain should not contain gentx")
 	}
 

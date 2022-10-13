@@ -2,25 +2,40 @@
 
 ## Unreleased
 
+### Features
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+
 ### Changes
 
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
+- Improve genesis parser for `network` commands
+- Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
 - Switch to broadcast mode sync in `cosmosclient`
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
 - Switched codegen client to use `axios` instead of `fetch`
 - Added `useKeplr()` and `useSigner()` methods to TS client. Allowed query-only instantiation.
 - nodetime built with `vercel/pkg@5.6.0`
+- Change CLI to use an events bus to print to stdout.
+- Move generated proto files to `proto/{appname}/{module}`
 
 ### Fixes
 
+- Fix ICA controller wiring.
 - Change vuex generation to use a default TS client path.
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
+- Fix config file migration to void leaving end of file content chunks
 
 ### Features
 
 - Add generated TS client test support to integration tests.
+
+### Changes
+
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
@@ -33,6 +48,8 @@
 - Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
 - Add `node query tx` command to query a transaction in any chain.
 - Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to an other in any chain.
+- Add migration system for the config file to allow config versioning
 - Add `node tx bank send` command to send funds from one account to another in any chain.
 - Implement `network profile` command
 - Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
