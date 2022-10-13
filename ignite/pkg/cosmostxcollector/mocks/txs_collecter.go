@@ -43,9 +43,9 @@ type TXsCollecter_CollectTXs_Call struct {
 }
 
 // CollectTXs is a helper method to define mock.On call
-//  - ctx context.Context
-//  - fromHeight int64
-//  - tc chan<- []cosmosclient.TX
+//   - ctx context.Context
+//   - fromHeight int64
+//   - tc chan<- []cosmosclient.TX
 func (_e *TXsCollecter_Expecter) CollectTXs(ctx interface{}, fromHeight interface{}, tc interface{}) *TXsCollecter_CollectTXs_Call {
 	return &TXsCollecter_CollectTXs_Call{Call: _e.mock.On("CollectTXs", ctx, fromHeight, tc)}
 }
