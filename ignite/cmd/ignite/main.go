@@ -16,6 +16,10 @@ func main() {
 }
 
 func run() int {
+	const (
+		exitCodeOK    = 0
+		exitCodeError = 1
+	)
 	ctx := clictx.From(context.Background())
 
 	cmd := ignitecmd.New()
@@ -23,7 +27,7 @@ func run() int {
 	// Load plugins if any
 	if err := ignitecmd.LoadPlugins(ctx, cmd); err != nil {
 		fmt.Printf("Error while loading chain's plugins: %v\n", err)
-		return 1
+		return exitCodeError
 	}
 	defer ignitecmd.UnloadPlugins()
 
@@ -31,7 +35,7 @@ func run() int {
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
-		return 0
+		return exitCodeOK
 	}
 
 	if err != nil {
@@ -42,7 +46,7 @@ func run() int {
 		} else {
 			fmt.Println(err)
 		}
-		return 1
+		return exitCodeError
 	}
-	return 0
+	return exitCodeOK
 }
