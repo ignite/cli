@@ -1,11 +1,9 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -23,10 +21,17 @@ func NewGenerateDart() *cobra.Command {
 }
 
 func generateDartHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Generating...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
-	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
+	session.StartSpinner("Generating...")
+
+	c, err := newChainWithHomeFlags(
+		cmd,
+		chain.EnableThirdPartyModuleCodegen(),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+	)
 	if err != nil {
 		return err
 	}
@@ -40,8 +45,5 @@ func generateDartHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-	fmt.Println("⛏️  Generated Dart client.")
-
-	return nil
+	return session.Println("⛏️  Generated Dart client.")
 }

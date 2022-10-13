@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
 )
 
@@ -91,6 +91,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		return err
 	}
 
+	var accounts accountview.Accounts
+
 	// add accounts from config into genesis
 	for _, account := range conf.Accounts {
 		var generatedAccount chaincmdrunner.Account
@@ -111,22 +113,18 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 
 		if account.Address == "" {
-			fmt.Fprintf(
-				c.stdLog().out,
-				"🙂 Created account %q with address %q with mnemonic: %q\n",
+			accounts = append(accounts, accountview.NewAccount(
 				generatedAccount.Name,
-				generatedAccount.Address,
-				generatedAccount.Mnemonic,
-			)
+				accountAddress,
+				accountview.WithMnemonic(generatedAccount.Mnemonic),
+			))
 		} else {
-			fmt.Fprintf(
-				c.stdLog().out,
-				"🙂 Imported an account %q with address: %q\n",
-				account.Name,
-				account.Address,
-			)
+			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
+
+	c.ev.Send("🗂  Initialize accounts...")
+	c.ev.SendView(accounts)
 
 	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
 

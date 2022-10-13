@@ -143,7 +143,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 	campaignID = o.campaignID
 
-	n.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
+	n.ev.Send("Publishing the network", events.ProgressStarted())
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one
@@ -294,7 +294,8 @@ func (n Network) sendAccountRequest(
 		),
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
+
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
@@ -306,12 +307,12 @@ func (n Network) sendAccountRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+		n.ev.Send("Account added to the network by the coordinator!", events.ProgressStarted())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to add account to the network has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.Send(
+			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
+			events.ProgressStarted(),
+		)
 	}
 	return nil
 }
