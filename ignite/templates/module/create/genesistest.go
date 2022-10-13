@@ -26,6 +26,7 @@ func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", appName))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
 
 	if err := xgenny.Box(g, template); err != nil {

@@ -394,7 +394,7 @@ func NewApp(
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
 	// we prefer to be more strict in what arguments the modules expect.
-	var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
+	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	app.mm = module.NewManager(
 		append([]module.AppModule{
@@ -511,7 +511,8 @@ func NewApp(
 
 func (app *AkashApp) registerUpgradeHandlers(icaModule ica.AppModule) {
 	app.keeper.upgrade.SetUpgradeHandler("akash_v0.15.0_cosmos_v0.44.x", func(ctx sdk.Context,
-		plan upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
+		plan upgradetypes.Plan, _ module.VersionMap,
+	) (module.VersionMap, error) {
 		// set max expected block time parameter. Replace the default with your expected value
 		app.keeper.ibc.ConnectionKeeper.SetParams(ctx, ibcconnectiontypes.DefaultParams())
 
@@ -640,13 +641,15 @@ func (app *AkashApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 
 // BeginBlocker is a function in which application updates every begin block
 func (app *AkashApp) BeginBlocker(
-	ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	ctx sdk.Context, req abci.RequestBeginBlock,
+) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker is a function in which application updates every end block
 func (app *AkashApp) EndBlocker(
-	ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	ctx sdk.Context, req abci.RequestEndBlock,
+) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
@@ -753,7 +756,8 @@ func (app *AkashApp) LoadHeight(height int64) error {
 
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key,
-	tkey sdk.StoreKey) paramskeeper.Keeper {
+	tkey sdk.StoreKey,
+) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)

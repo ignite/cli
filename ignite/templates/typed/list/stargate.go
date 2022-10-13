@@ -81,16 +81,17 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 
 func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Import
-		templateImport := `import "%s/%s.proto";
+		templateImport := `import "%s/%s/%s.proto";
 %s`
 		replacementImport := fmt.Sprintf(templateImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 			typed.PlaceholderProtoTxImport,
@@ -121,7 +122,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {
@@ -171,16 +172,17 @@ message MsgDelete%[2]vResponse {}
 
 func protoQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Import
-		templateImport := `import "%s/%s.proto";
+		templateImport := `import "%s/%s/%s.proto";
 %s`
 		replacementImport := fmt.Sprintf(templateImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 			typed.Placeholder,
