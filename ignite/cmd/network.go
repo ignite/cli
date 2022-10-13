@@ -90,7 +90,7 @@ The output of this command will show a command that a validator would use to
 launch their node, for example “exampled --home ~/.example”. After enough
 validators launch their nodes, a blockchain will be live.
 `,
-		Args:   cobra.ExactArgs(1),
+		Args: cobra.ExactArgs(1),
 	}
 
 	// configure flags.
