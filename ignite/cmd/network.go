@@ -106,6 +106,7 @@ validators launch their nodes, a blockchain will be live.
 		NewNetworkRequest(),
 		NewNetworkReward(),
 		NewNetworkProfile(),
+		NewNetworkCoordinator(),
 	)
 
 	return c
