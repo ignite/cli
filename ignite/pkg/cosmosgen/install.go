@@ -23,5 +23,11 @@ func DepTools() []string {
 
 // InstallDepTools installs protoc dependencies needed by Cosmos ecosystem.
 func InstallDepTools(ctx context.Context, appPath string) error {
+	// NOTE(tb): go get is not required thanks to tools.go, but for retrocompat
+	// with older scaffolded chains that doesn't have this file, we need to run
+	// it anyway.
+	if err := gocmd.Get(ctx, appPath, DepTools()); err != nil {
+		return err
+	}
 	return gocmd.Install(ctx, appPath, DepTools())
 }

@@ -17,6 +17,9 @@ const (
 	// CommandInstall represents go "install" command.
 	CommandInstall = "install"
 
+	// CommandGet represents go "get" command.
+	CommandGet = "get"
+
 	// CommandBuild represents go "build" command.
 	CommandBuild = "build"
 
@@ -113,6 +116,16 @@ func Install(ctx context.Context, path string, pkgs []string, options ...exec.Op
 	command := []string{
 		Name(),
 		CommandInstall,
+	}
+	command = append(command, pkgs...)
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// Get runs go get pkgs on path with options.
+func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option) error {
+	command := []string{
+		Name(),
+		CommandGet,
 	}
 	command = append(command, pkgs...)
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
