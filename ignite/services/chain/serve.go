@@ -58,6 +58,7 @@ type serveOptions struct {
 	forceReset bool
 	resetOnce  bool
 	skipProto  bool
+	quitOnFail bool
 }
 
 func newServeOption() serveOptions {
@@ -81,6 +82,13 @@ func ServeForceReset() ServeOption {
 func ServeResetOnce() ServeOption {
 	return func(c *serveOptions) {
 		c.resetOnce = true
+	}
+}
+
+// QuitOnFail exits the serve immediately if an error occurs.
+func QuitOnFail() ServeOption {
+	return func(c *serveOptions) {
+		c.quitOnFail = true
 	}
 }
 
@@ -177,6 +185,10 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
 						fmt.Fprintln(c.stdLog().out, "see: https://github.com/ignite/cli#configure")
+					}
+
+					if serveOptions.quitOnFail {
+						return err
 					}
 
 					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))
