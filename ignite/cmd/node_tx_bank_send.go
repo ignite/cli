@@ -53,15 +53,15 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
 	if generateOnly {
 		json, err := tx.EncodeJSON()
 		if err != nil {
 			return err
 		}
 
-		session.StopSpinner()
 		return session.Println(string(json))
 	}
 
@@ -71,7 +71,6 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
 	session.Printf("Transaction broadcast successful! (hash = %s)\n", resp.TxHash)
 	session.Printf("%s sent from %s to %s\n", amount, fromAccountInput, toAccountInput)
 	return nil

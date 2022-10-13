@@ -2,14 +2,12 @@ package ignitecmd
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/scaffolder"
@@ -138,8 +136,10 @@ func scaffoldType(
 		}
 	}
 
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
+	session.StartSpinner("Scaffolding...")
 
 	sc, err := newApp(appPath)
 	if err != nil {
@@ -156,15 +156,13 @@ func scaffoldType(
 		return err
 	}
 
-	s.Stop()
-
 	modificationsStr, err := sourceModificationToString(sm)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(modificationsStr)
-	fmt.Printf("\n🎉 %s added. \n\n", typeName)
+	session.Println(modificationsStr)
+	session.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil
 }
@@ -178,7 +176,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 	session := cliui.New()
 
-	defer session.Cleanup()
+	defer session.End()
 
 	return confirmWhenUncommittedChanges(session, appPath)
 }

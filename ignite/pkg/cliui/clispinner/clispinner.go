@@ -39,14 +39,13 @@ func New(options ...Option) *Spinner {
 		apply(&o)
 	}
 
-	underlyingSpinnerOptions := []spinner.Option{}
+	underlyingSpinnerOptions := []spinner.Option{spinner.WithColor(spinnerColor)}
 	if o.writer != nil {
 		underlyingSpinnerOptions = append(underlyingSpinnerOptions, spinner.WithWriter(o.writer))
 	}
 
 	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
 
-	sp.Color(spinnerColor)
 	s := &Spinner{
 		sp: sp,
 	}

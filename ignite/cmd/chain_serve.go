@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -68,8 +69,12 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
+	defer session.End()
+
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	if flagGetProto3rdParty(cmd) {
