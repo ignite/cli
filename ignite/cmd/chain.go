@@ -95,7 +95,7 @@ chain.
 
 func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error) {
 	session := cliui.New()
-	defer session.Cleanup()
+	defer session.End()
 
 	appPath := flagGetPath(cmd)
 	configPath := getConfig(cmd)

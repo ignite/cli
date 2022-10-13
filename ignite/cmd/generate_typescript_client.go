@@ -22,12 +22,17 @@ func NewGenerateTSClient() *cobra.Command {
 }
 
 func generateTSClientHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	session.StartSpinner("Generating...")
 
-	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
+	c, err := newChainWithHomeFlags(
+		cmd,
+		chain.EnableThirdPartyModuleCodegen(),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+	)
 	if err != nil {
 		return err
 	}
@@ -47,8 +52,5 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-	session.Println("⛏️  Generated Typescript Client")
-
-	return nil
+	return session.Println("⛏️  Generated Typescript Client")
 }

@@ -61,9 +61,9 @@ type BankQueryClient_AllBalances_Call struct {
 }
 
 // AllBalances is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryAllBalancesRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryAllBalancesRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) AllBalances(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_AllBalances_Call {
 	return &BankQueryClient_AllBalances_Call{Call: _e.mock.On("AllBalances",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -123,9 +123,9 @@ type BankQueryClient_Balance_Call struct {
 }
 
 // Balance is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryBalanceRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryBalanceRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) Balance(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_Balance_Call {
 	return &BankQueryClient_Balance_Call{Call: _e.mock.On("Balance",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -185,9 +185,9 @@ type BankQueryClient_DenomMetadata_Call struct {
 }
 
 // DenomMetadata is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryDenomMetadataRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryDenomMetadataRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) DenomMetadata(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_DenomMetadata_Call {
 	return &BankQueryClient_DenomMetadata_Call{Call: _e.mock.On("DenomMetadata",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -247,9 +247,9 @@ type BankQueryClient_DenomOwners_Call struct {
 }
 
 // DenomOwners is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryDenomOwnersRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryDenomOwnersRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) DenomOwners(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_DenomOwners_Call {
 	return &BankQueryClient_DenomOwners_Call{Call: _e.mock.On("DenomOwners",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -309,9 +309,9 @@ type BankQueryClient_DenomsMetadata_Call struct {
 }
 
 // DenomsMetadata is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryDenomsMetadataRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryDenomsMetadataRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) DenomsMetadata(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_DenomsMetadata_Call {
 	return &BankQueryClient_DenomsMetadata_Call{Call: _e.mock.On("DenomsMetadata",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -371,9 +371,9 @@ type BankQueryClient_Params_Call struct {
 }
 
 // Params is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryParamsRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryParamsRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) Params(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_Params_Call {
 	return &BankQueryClient_Params_Call{Call: _e.mock.On("Params",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -433,9 +433,9 @@ type BankQueryClient_SpendableBalances_Call struct {
 }
 
 // SpendableBalances is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QuerySpendableBalancesRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QuerySpendableBalancesRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) SpendableBalances(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_SpendableBalances_Call {
 	return &BankQueryClient_SpendableBalances_Call{Call: _e.mock.On("SpendableBalances",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -495,9 +495,9 @@ type BankQueryClient_SupplyOf_Call struct {
 }
 
 // SupplyOf is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QuerySupplyOfRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QuerySupplyOfRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) SupplyOf(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_SupplyOf_Call {
 	return &BankQueryClient_SupplyOf_Call{Call: _e.mock.On("SupplyOf",
 		append([]interface{}{ctx, in}, opts...)...)}
@@ -557,9 +557,9 @@ type BankQueryClient_TotalSupply_Call struct {
 }
 
 // TotalSupply is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *types.QueryTotalSupplyRequest
-//   - opts ...grpc.CallOption
+//  - ctx context.Context
+//  - in *types.QueryTotalSupplyRequest
+//  - opts ...grpc.CallOption
 func (_e *BankQueryClient_Expecter) TotalSupply(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_TotalSupply_Call {
 	return &BankQueryClient_TotalSupply_Call{Call: _e.mock.On("TotalSupply",
 		append([]interface{}{ctx, in}, opts...)...)}

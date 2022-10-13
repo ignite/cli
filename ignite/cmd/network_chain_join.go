@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 
@@ -50,8 +51,8 @@ func NewNetworkChainJoin() *cobra.Command {
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	var (
 		joinOptions  []network.JoinOption
@@ -142,11 +143,15 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 					flagAmount,
 				)
 				if err := session.AskConfirm(question); err != nil {
-					return session.PrintSaidNo()
+					if errors.Is(err, promptui.ErrAbort) {
+						return nil
+					}
+
+					return err
 				}
 			}
 
-			_ = session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
+			session.Printf("%s %s\n", icons.Info, "Account request won't be submitted")
 		}
 	}
 

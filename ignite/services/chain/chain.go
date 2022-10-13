@@ -2,12 +2,10 @@ package chain
 
 import (
 	"context"
-	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/gookit/color"
 
 	"github.com/tendermint/spn/pkg/chainid"
 
@@ -15,37 +13,26 @@ import (
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
-var (
-	appBackendSourceWatchPaths = []string{
-		"app",
-		"cmd",
-		"x",
-		"proto",
-		"third_party",
-	}
-
-	errorColor = color.Red.Render
-	infoColor  = color.Yellow.Render
-)
+var appBackendSourceWatchPaths = []string{
+	"app",
+	"cmd",
+	"x",
+	"proto",
+	"third_party",
+}
 
 type version struct {
 	tag  string
 	hash string
 }
-
-type LogLvl int
-
-const (
-	LogSilent LogLvl = iota
-	LogRegular
-	LogVerbose
-)
 
 // Chain provides programatic access and tools for a Cosmos SDK blockchain.
 type Chain struct {
@@ -58,7 +45,6 @@ type Chain struct {
 
 	plugin         Plugin
 	sourceVersion  version
-	logLevel       LogLvl
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
@@ -66,7 +52,8 @@ type Chain struct {
 	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
 	protoBuiltAtLeastOnce bool
 
-	stdout, stderr io.Writer
+	ev          events.Bus
+	logOutputer uilog.Outputer
 }
 
 // chainOptions holds user given options that overwrites chain's defaults.
@@ -94,13 +81,6 @@ type chainOptions struct {
 
 // Option configures Chain.
 type Option func(*Chain)
-
-// LogLevel sets logging level.
-func LogLevel(level LogLvl) Option {
-	return func(c *Chain) {
-		c.logLevel = level
-	}
-}
 
 // ID replaces chain's id with given id.
 func ID(id string) Option {
@@ -138,6 +118,20 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
+// WithOutputer sets the CLI outputer for the chain.
+func WithOutputer(s uilog.Outputer) Option {
+	return func(c *Chain) {
+		c.logOutputer = s
+	}
+}
+
+// CollectEvents collects events from the chain.
+func CollectEvents(ev events.Bus) Option {
+	return func(c *Chain) {
+		c.ev = ev
+	}
+}
+
 // CheckDependencies checks that cached Go dependencies of the chain have not
 // been modified since they were downloaded. Dependencies are checked by
 // running `go mod verify`.
@@ -156,20 +150,12 @@ func New(path string, options ...Option) (*Chain, error) {
 
 	c := &Chain{
 		app:            app,
-		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		stdout:         io.Discard,
-		stderr:         io.Discard,
 	}
 
 	// Apply the options
 	for _, apply := range options {
 		apply(c)
-	}
-
-	if c.logLevel == LogVerbose {
-		c.stdout = os.Stdout
-		c.stderr = os.Stderr
 	}
 
 	c.sourceVersion, err = c.appVersion()
@@ -479,12 +465,15 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	ccrOptions := make([]chaincmdrunner.Option, 0)
-	if c.logLevel == LogVerbose {
-		ccrOptions = append(ccrOptions,
-			chaincmdrunner.Stdout(os.Stdout),
-			chaincmdrunner.Stderr(os.Stderr),
-			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
+	ccrOptions := []chaincmdrunner.Option{}
+
+	// Enable command output only when CLI verbosity is enabled
+	if c.logOutputer != nil && c.logOutputer.Verbosity() == uilog.VerbosityVerbose {
+		out := c.logOutputer.NewOutput(c.app.D(), 96)
+		ccrOptions = append(
+			ccrOptions,
+			chaincmdrunner.Stdout(out.Stdout()),
+			chaincmdrunner.Stderr(out.Stderr()),
 		)
 	}
 

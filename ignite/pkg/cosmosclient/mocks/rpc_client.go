@@ -59,7 +59,7 @@ type RPCClient_ABCIInfo_Call struct {
 }
 
 // ABCIInfo is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) ABCIInfo(_a0 interface{}) *RPCClient_ABCIInfo_Call {
 	return &RPCClient_ABCIInfo_Call{Call: _e.mock.On("ABCIInfo", _a0)}
 }
@@ -105,9 +105,9 @@ type RPCClient_ABCIQuery_Call struct {
 }
 
 // ABCIQuery is a helper method to define mock.On call
-//   - ctx context.Context
-//   - path string
-//   - data bytes.HexBytes
+//  - ctx context.Context
+//  - path string
+//  - data bytes.HexBytes
 func (_e *RPCClient_Expecter) ABCIQuery(ctx interface{}, path interface{}, data interface{}) *RPCClient_ABCIQuery_Call {
 	return &RPCClient_ABCIQuery_Call{Call: _e.mock.On("ABCIQuery", ctx, path, data)}
 }
@@ -153,10 +153,10 @@ type RPCClient_ABCIQueryWithOptions_Call struct {
 }
 
 // ABCIQueryWithOptions is a helper method to define mock.On call
-//   - ctx context.Context
-//   - path string
-//   - data bytes.HexBytes
-//   - opts client.ABCIQueryOptions
+//  - ctx context.Context
+//  - path string
+//  - data bytes.HexBytes
+//  - opts client.ABCIQueryOptions
 func (_e *RPCClient_Expecter) ABCIQueryWithOptions(ctx interface{}, path interface{}, data interface{}, opts interface{}) *RPCClient_ABCIQueryWithOptions_Call {
 	return &RPCClient_ABCIQueryWithOptions_Call{Call: _e.mock.On("ABCIQueryWithOptions", ctx, path, data, opts)}
 }
@@ -202,8 +202,8 @@ type RPCClient_Block_Call struct {
 }
 
 // Block is a helper method to define mock.On call
-//   - ctx context.Context
-//   - height *int64
+//  - ctx context.Context
+//  - height *int64
 func (_e *RPCClient_Expecter) Block(ctx interface{}, height interface{}) *RPCClient_Block_Call {
 	return &RPCClient_Block_Call{Call: _e.mock.On("Block", ctx, height)}
 }
@@ -249,8 +249,8 @@ type RPCClient_BlockByHash_Call struct {
 }
 
 // BlockByHash is a helper method to define mock.On call
-//   - ctx context.Context
-//   - hash []byte
+//  - ctx context.Context
+//  - hash []byte
 func (_e *RPCClient_Expecter) BlockByHash(ctx interface{}, hash interface{}) *RPCClient_BlockByHash_Call {
 	return &RPCClient_BlockByHash_Call{Call: _e.mock.On("BlockByHash", ctx, hash)}
 }
@@ -296,8 +296,8 @@ type RPCClient_BlockResults_Call struct {
 }
 
 // BlockResults is a helper method to define mock.On call
-//   - ctx context.Context
-//   - height *int64
+//  - ctx context.Context
+//  - height *int64
 func (_e *RPCClient_Expecter) BlockResults(ctx interface{}, height interface{}) *RPCClient_BlockResults_Call {
 	return &RPCClient_BlockResults_Call{Call: _e.mock.On("BlockResults", ctx, height)}
 }
@@ -343,11 +343,11 @@ type RPCClient_BlockSearch_Call struct {
 }
 
 // BlockSearch is a helper method to define mock.On call
-//   - ctx context.Context
-//   - query string
-//   - page *int
-//   - perPage *int
-//   - orderBy string
+//  - ctx context.Context
+//  - query string
+//  - page *int
+//  - perPage *int
+//  - orderBy string
 func (_e *RPCClient_Expecter) BlockSearch(ctx interface{}, query interface{}, page interface{}, perPage interface{}, orderBy interface{}) *RPCClient_BlockSearch_Call {
 	return &RPCClient_BlockSearch_Call{Call: _e.mock.On("BlockSearch", ctx, query, page, perPage, orderBy)}
 }
@@ -393,9 +393,9 @@ type RPCClient_BlockchainInfo_Call struct {
 }
 
 // BlockchainInfo is a helper method to define mock.On call
-//   - ctx context.Context
-//   - minHeight int64
-//   - maxHeight int64
+//  - ctx context.Context
+//  - minHeight int64
+//  - maxHeight int64
 func (_e *RPCClient_Expecter) BlockchainInfo(ctx interface{}, minHeight interface{}, maxHeight interface{}) *RPCClient_BlockchainInfo_Call {
 	return &RPCClient_BlockchainInfo_Call{Call: _e.mock.On("BlockchainInfo", ctx, minHeight, maxHeight)}
 }
@@ -441,8 +441,8 @@ type RPCClient_BroadcastEvidence_Call struct {
 }
 
 // BroadcastEvidence is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 types.Evidence
+//  - _a0 context.Context
+//  - _a1 types.Evidence
 func (_e *RPCClient_Expecter) BroadcastEvidence(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastEvidence_Call {
 	return &RPCClient_BroadcastEvidence_Call{Call: _e.mock.On("BroadcastEvidence", _a0, _a1)}
 }
@@ -488,8 +488,8 @@ type RPCClient_BroadcastTxAsync_Call struct {
 }
 
 // BroadcastTxAsync is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 types.Tx
+//  - _a0 context.Context
+//  - _a1 types.Tx
 func (_e *RPCClient_Expecter) BroadcastTxAsync(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastTxAsync_Call {
 	return &RPCClient_BroadcastTxAsync_Call{Call: _e.mock.On("BroadcastTxAsync", _a0, _a1)}
 }
@@ -535,8 +535,8 @@ type RPCClient_BroadcastTxCommit_Call struct {
 }
 
 // BroadcastTxCommit is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 types.Tx
+//  - _a0 context.Context
+//  - _a1 types.Tx
 func (_e *RPCClient_Expecter) BroadcastTxCommit(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastTxCommit_Call {
 	return &RPCClient_BroadcastTxCommit_Call{Call: _e.mock.On("BroadcastTxCommit", _a0, _a1)}
 }
@@ -582,8 +582,8 @@ type RPCClient_BroadcastTxSync_Call struct {
 }
 
 // BroadcastTxSync is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 types.Tx
+//  - _a0 context.Context
+//  - _a1 types.Tx
 func (_e *RPCClient_Expecter) BroadcastTxSync(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastTxSync_Call {
 	return &RPCClient_BroadcastTxSync_Call{Call: _e.mock.On("BroadcastTxSync", _a0, _a1)}
 }
@@ -629,8 +629,8 @@ type RPCClient_CheckTx_Call struct {
 }
 
 // CheckTx is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 types.Tx
+//  - _a0 context.Context
+//  - _a1 types.Tx
 func (_e *RPCClient_Expecter) CheckTx(_a0 interface{}, _a1 interface{}) *RPCClient_CheckTx_Call {
 	return &RPCClient_CheckTx_Call{Call: _e.mock.On("CheckTx", _a0, _a1)}
 }
@@ -676,8 +676,8 @@ type RPCClient_Commit_Call struct {
 }
 
 // Commit is a helper method to define mock.On call
-//   - ctx context.Context
-//   - height *int64
+//  - ctx context.Context
+//  - height *int64
 func (_e *RPCClient_Expecter) Commit(ctx interface{}, height interface{}) *RPCClient_Commit_Call {
 	return &RPCClient_Commit_Call{Call: _e.mock.On("Commit", ctx, height)}
 }
@@ -723,8 +723,8 @@ type RPCClient_ConsensusParams_Call struct {
 }
 
 // ConsensusParams is a helper method to define mock.On call
-//   - ctx context.Context
-//   - height *int64
+//  - ctx context.Context
+//  - height *int64
 func (_e *RPCClient_Expecter) ConsensusParams(ctx interface{}, height interface{}) *RPCClient_ConsensusParams_Call {
 	return &RPCClient_ConsensusParams_Call{Call: _e.mock.On("ConsensusParams", ctx, height)}
 }
@@ -770,7 +770,7 @@ type RPCClient_ConsensusState_Call struct {
 }
 
 // ConsensusState is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) ConsensusState(_a0 interface{}) *RPCClient_ConsensusState_Call {
 	return &RPCClient_ConsensusState_Call{Call: _e.mock.On("ConsensusState", _a0)}
 }
@@ -816,7 +816,7 @@ type RPCClient_DumpConsensusState_Call struct {
 }
 
 // DumpConsensusState is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) DumpConsensusState(_a0 interface{}) *RPCClient_DumpConsensusState_Call {
 	return &RPCClient_DumpConsensusState_Call{Call: _e.mock.On("DumpConsensusState", _a0)}
 }
@@ -862,7 +862,7 @@ type RPCClient_Genesis_Call struct {
 }
 
 // Genesis is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) Genesis(_a0 interface{}) *RPCClient_Genesis_Call {
 	return &RPCClient_Genesis_Call{Call: _e.mock.On("Genesis", _a0)}
 }
@@ -908,8 +908,8 @@ type RPCClient_GenesisChunked_Call struct {
 }
 
 // GenesisChunked is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 uint
+//  - _a0 context.Context
+//  - _a1 uint
 func (_e *RPCClient_Expecter) GenesisChunked(_a0 interface{}, _a1 interface{}) *RPCClient_GenesisChunked_Call {
 	return &RPCClient_GenesisChunked_Call{Call: _e.mock.On("GenesisChunked", _a0, _a1)}
 }
@@ -955,7 +955,7 @@ type RPCClient_Health_Call struct {
 }
 
 // Health is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) Health(_a0 interface{}) *RPCClient_Health_Call {
 	return &RPCClient_Health_Call{Call: _e.mock.On("Health", _a0)}
 }
@@ -1037,7 +1037,7 @@ type RPCClient_NetInfo_Call struct {
 }
 
 // NetInfo is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) NetInfo(_a0 interface{}) *RPCClient_NetInfo_Call {
 	return &RPCClient_NetInfo_Call{Call: _e.mock.On("NetInfo", _a0)}
 }
@@ -1083,7 +1083,7 @@ type RPCClient_NumUnconfirmedTxs_Call struct {
 }
 
 // NumUnconfirmedTxs is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) NumUnconfirmedTxs(_a0 interface{}) *RPCClient_NumUnconfirmedTxs_Call {
 	return &RPCClient_NumUnconfirmedTxs_Call{Call: _e.mock.On("NumUnconfirmedTxs", _a0)}
 }
@@ -1284,7 +1284,7 @@ type RPCClient_SetLogger_Call struct {
 }
 
 // SetLogger is a helper method to define mock.On call
-//   - _a0 log.Logger
+//  - _a0 log.Logger
 func (_e *RPCClient_Expecter) SetLogger(_a0 interface{}) *RPCClient_SetLogger_Call {
 	return &RPCClient_SetLogger_Call{Call: _e.mock.On("SetLogger", _a0)}
 }
@@ -1366,7 +1366,7 @@ type RPCClient_Status_Call struct {
 }
 
 // Status is a helper method to define mock.On call
-//   - _a0 context.Context
+//  - _a0 context.Context
 func (_e *RPCClient_Expecter) Status(_a0 interface{}) *RPCClient_Status_Call {
 	return &RPCClient_Status_Call{Call: _e.mock.On("Status", _a0)}
 }
@@ -1491,10 +1491,10 @@ type RPCClient_Subscribe_Call struct {
 }
 
 // Subscribe is a helper method to define mock.On call
-//   - ctx context.Context
-//   - subscriber string
-//   - query string
-//   - outCapacity ...int
+//  - ctx context.Context
+//  - subscriber string
+//  - query string
+//  - outCapacity ...int
 func (_e *RPCClient_Expecter) Subscribe(ctx interface{}, subscriber interface{}, query interface{}, outCapacity ...interface{}) *RPCClient_Subscribe_Call {
 	return &RPCClient_Subscribe_Call{Call: _e.mock.On("Subscribe",
 		append([]interface{}{ctx, subscriber, query}, outCapacity...)...)}
@@ -1547,9 +1547,9 @@ type RPCClient_Tx_Call struct {
 }
 
 // Tx is a helper method to define mock.On call
-//   - ctx context.Context
-//   - hash []byte
-//   - prove bool
+//  - ctx context.Context
+//  - hash []byte
+//  - prove bool
 func (_e *RPCClient_Expecter) Tx(ctx interface{}, hash interface{}, prove interface{}) *RPCClient_Tx_Call {
 	return &RPCClient_Tx_Call{Call: _e.mock.On("Tx", ctx, hash, prove)}
 }
@@ -1595,12 +1595,12 @@ type RPCClient_TxSearch_Call struct {
 }
 
 // TxSearch is a helper method to define mock.On call
-//   - ctx context.Context
-//   - query string
-//   - prove bool
-//   - page *int
-//   - perPage *int
-//   - orderBy string
+//  - ctx context.Context
+//  - query string
+//  - prove bool
+//  - page *int
+//  - perPage *int
+//  - orderBy string
 func (_e *RPCClient_Expecter) TxSearch(ctx interface{}, query interface{}, prove interface{}, page interface{}, perPage interface{}, orderBy interface{}) *RPCClient_TxSearch_Call {
 	return &RPCClient_TxSearch_Call{Call: _e.mock.On("TxSearch", ctx, query, prove, page, perPage, orderBy)}
 }
@@ -1646,8 +1646,8 @@ type RPCClient_UnconfirmedTxs_Call struct {
 }
 
 // UnconfirmedTxs is a helper method to define mock.On call
-//   - ctx context.Context
-//   - limit *int
+//  - ctx context.Context
+//  - limit *int
 func (_e *RPCClient_Expecter) UnconfirmedTxs(ctx interface{}, limit interface{}) *RPCClient_UnconfirmedTxs_Call {
 	return &RPCClient_UnconfirmedTxs_Call{Call: _e.mock.On("UnconfirmedTxs", ctx, limit)}
 }
@@ -1684,9 +1684,9 @@ type RPCClient_Unsubscribe_Call struct {
 }
 
 // Unsubscribe is a helper method to define mock.On call
-//   - ctx context.Context
-//   - subscriber string
-//   - query string
+//  - ctx context.Context
+//  - subscriber string
+//  - query string
 func (_e *RPCClient_Expecter) Unsubscribe(ctx interface{}, subscriber interface{}, query interface{}) *RPCClient_Unsubscribe_Call {
 	return &RPCClient_Unsubscribe_Call{Call: _e.mock.On("Unsubscribe", ctx, subscriber, query)}
 }
@@ -1723,8 +1723,8 @@ type RPCClient_UnsubscribeAll_Call struct {
 }
 
 // UnsubscribeAll is a helper method to define mock.On call
-//   - ctx context.Context
-//   - subscriber string
+//  - ctx context.Context
+//  - subscriber string
 func (_e *RPCClient_Expecter) UnsubscribeAll(ctx interface{}, subscriber interface{}) *RPCClient_UnsubscribeAll_Call {
 	return &RPCClient_UnsubscribeAll_Call{Call: _e.mock.On("UnsubscribeAll", ctx, subscriber)}
 }
@@ -1770,10 +1770,10 @@ type RPCClient_Validators_Call struct {
 }
 
 // Validators is a helper method to define mock.On call
-//   - ctx context.Context
-//   - height *int64
-//   - page *int
-//   - perPage *int
+//  - ctx context.Context
+//  - height *int64
+//  - page *int
+//  - perPage *int
 func (_e *RPCClient_Expecter) Validators(ctx interface{}, height interface{}, page interface{}, perPage interface{}) *RPCClient_Validators_Call {
 	return &RPCClient_Validators_Call{Call: _e.mock.On("Validators", ctx, height, page, perPage)}
 }

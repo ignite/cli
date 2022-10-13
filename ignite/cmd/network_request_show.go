@@ -24,8 +24,8 @@ func NewNetworkRequestShow() *cobra.Command {
 }
 
 func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -63,8 +63,6 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Println(requestYaml)
 }
