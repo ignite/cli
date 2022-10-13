@@ -13,27 +13,27 @@ import (
 
 func newModule(relChainPath, goImportPath string) module.Module {
 	return module.Module{
-		Name:         "planet",
+		Name:         "mars",
 		GoModulePath: goImportPath,
 		Pkg: protoanalysis.Package{
-			Name: "tendermint.planet.planet",
-			Path: filepath.Join(relChainPath, "proto/planet"),
+			Name: "tendermint.planet.mars",
+			Path: filepath.Join(relChainPath, "proto/planet/mars"),
 			Files: protoanalysis.Files{
 				protoanalysis.File{
-					Path:         filepath.Join(relChainPath, "proto/planet/planet.proto"),
+					Path:         filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					Dependencies: []string{"google/api/annotations.proto"},
 				},
 			},
-			GoImportName: "github.com/tendermint/planet/x/planet/types",
+			GoImportName: "github.com/tendermint/planet/x/mars/types",
 			Messages: []protoanalysis.Message{
 				{
 					Name:               "QueryMyQueryRequest",
-					Path:               filepath.Join(relChainPath, "proto/planet/planet.proto"),
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 1,
 				},
 				{
 					Name:               "QueryMyQueryResponse",
-					Path:               filepath.Join(relChainPath, "proto/planet/planet.proto"),
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 0,
 				},
 			},

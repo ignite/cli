@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+### Features
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+
 ### Changes
 
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
 - Improve genesis parser for `network` commands
 - Integration tests build their own ignite binary.
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
@@ -12,6 +16,8 @@
 - Switched codegen client to use `axios` instead of `fetch`
 - Added `useKeplr()` and `useSigner()` methods to TS client. Allowed query-only instantiation.
 - nodetime built with `vercel/pkg@5.6.0`
+- Change CLI to use an events bus to print to stdout.
+- Move generated proto files to `proto/{appname}/{module}`
 
 ### Fixes
 
@@ -20,6 +26,7 @@
 - Fix cli action org in templates.
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
+- Fix config file migration to void leaving end of file content chunks
 
 ### Features
 
