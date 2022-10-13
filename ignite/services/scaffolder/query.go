@@ -55,7 +55,7 @@ func (s Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
