@@ -70,7 +70,7 @@ func (n Network) SetCoordinatorDescription(ctx context.Context, description prof
 		if err != nil {
 			return err
 		}
-		var requestRes profiletypes.MsgUpdateCoordinatorDescription
+		var requestRes profiletypes.MsgUpdateCoordinatorDescriptionResponse
 		return res.Decode(&requestRes)
 	}
 	return err
