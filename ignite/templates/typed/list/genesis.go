@@ -21,17 +21,18 @@ func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		templateProtoImport := `import "%[2]v/%[3]v.proto";
+		templateProtoImport := `import "%[2]v/%[3]v/%[4]v.proto";
 %[1]v`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,
 			typed.PlaceholderGenesisProtoImport,
+			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 		)

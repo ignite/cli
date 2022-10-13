@@ -91,7 +91,6 @@ launch their node, for example “exampled --home ~/.example”. After enough
 validators launch their nodes, a blockchain will be live.
 `,
 		Args:   cobra.ExactArgs(1),
-		Hidden: true,
 	}
 
 	// configure flags.
