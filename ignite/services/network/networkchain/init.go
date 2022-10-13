@@ -114,6 +114,9 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		}
 
 		// write it into the path
+		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
+			return err
+		}
 
 	default:
 		// default genesis is used, init CLI command is used to generate it
