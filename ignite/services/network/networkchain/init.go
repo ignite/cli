@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ignite/cli/ignite/chainconfig"
 	"os"
 	"path/filepath"
 
@@ -108,13 +109,22 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		c.ev.Send("Fetching custom Genesis from Config", events.ProgressStarted())
 
 		// find config in downloaded source
-		config := filepath.Join(c.path, c.genesisConfig)
-		if _, err := os.Stat(config); err != nil {
+		path := filepath.Join(c.path, c.genesisConfig)
+		if _, err := os.Stat(path); err != nil {
 			return err
 		}
 
-		// write it into the path
-		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
+		config, err := chainconfig.ParseFile(path)
+		if err != nil {
+			return err
+		}
+
+		if config.Genesis == nil {
+			return fmt.Errorf("no genesis found in custom config")
+		}
+
+		err = c.chain.UpdateGenesisFile(config.Genesis)
+		if err != nil {
 			return err
 		}
 

@@ -185,6 +185,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 
 	chainOption = append(chainOption, chain.KeyringBackend(c.keyringBackend))
 
+	//if c.genesisConfig != "" {
+	//	chainOption = append(chainOption, chain.ConfigFile(filepath.Join(c.path, c.genesisConfig)))
+	//}
+
 	chain, err := chain.New(c.path, chainOption...)
 	if err != nil {
 		return nil, err
