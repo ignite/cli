@@ -4,7 +4,7 @@
 
 ### Features
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
-
+- Add `ignite network coordinator` command set
 ### Changes
 
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
