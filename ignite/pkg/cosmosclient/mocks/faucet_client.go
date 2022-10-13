@@ -50,8 +50,8 @@ type FaucetClient_Transfer_Call struct {
 }
 
 // Transfer is a helper method to define mock.On call
-//  - _a0 context.Context
-//  - _a1 cosmosfaucet.TransferRequest
+//   - _a0 context.Context
+//   - _a1 cosmosfaucet.TransferRequest
 func (_e *FaucetClient_Expecter) Transfer(_a0 interface{}, _a1 interface{}) *FaucetClient_Transfer_Call {
 	return &FaucetClient_Transfer_Call{Call: _e.mock.On("Transfer", _a0, _a1)}
 }

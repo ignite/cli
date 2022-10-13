@@ -42,8 +42,8 @@ type AccountRetriever_EnsureExists_Call struct {
 }
 
 // EnsureExists is a helper method to define mock.On call
-//  - clientCtx client.Context
-//  - addr types.AccAddress
+//   - clientCtx client.Context
+//   - addr types.AccAddress
 func (_e *AccountRetriever_Expecter) EnsureExists(clientCtx interface{}, addr interface{}) *AccountRetriever_EnsureExists_Call {
 	return &AccountRetriever_EnsureExists_Call{Call: _e.mock.On("EnsureExists", clientCtx, addr)}
 }
@@ -89,8 +89,8 @@ type AccountRetriever_GetAccount_Call struct {
 }
 
 // GetAccount is a helper method to define mock.On call
-//  - clientCtx client.Context
-//  - addr types.AccAddress
+//   - clientCtx client.Context
+//   - addr types.AccAddress
 func (_e *AccountRetriever_Expecter) GetAccount(clientCtx interface{}, addr interface{}) *AccountRetriever_GetAccount_Call {
 	return &AccountRetriever_GetAccount_Call{Call: _e.mock.On("GetAccount", clientCtx, addr)}
 }
@@ -141,8 +141,8 @@ type AccountRetriever_GetAccountNumberSequence_Call struct {
 }
 
 // GetAccountNumberSequence is a helper method to define mock.On call
-//  - clientCtx client.Context
-//  - addr types.AccAddress
+//   - clientCtx client.Context
+//   - addr types.AccAddress
 func (_e *AccountRetriever_Expecter) GetAccountNumberSequence(clientCtx interface{}, addr interface{}) *AccountRetriever_GetAccountNumberSequence_Call {
 	return &AccountRetriever_GetAccountNumberSequence_Call{Call: _e.mock.On("GetAccountNumberSequence", clientCtx, addr)}
 }
@@ -195,8 +195,8 @@ type AccountRetriever_GetAccountWithHeight_Call struct {
 }
 
 // GetAccountWithHeight is a helper method to define mock.On call
-//  - clientCtx client.Context
-//  - addr types.AccAddress
+//   - clientCtx client.Context
+//   - addr types.AccAddress
 func (_e *AccountRetriever_Expecter) GetAccountWithHeight(clientCtx interface{}, addr interface{}) *AccountRetriever_GetAccountWithHeight_Call {
 	return &AccountRetriever_GetAccountWithHeight_Call{Call: _e.mock.On("GetAccountWithHeight", clientCtx, addr)}
 }
