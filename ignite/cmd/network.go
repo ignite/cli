@@ -44,7 +44,7 @@ func NewNetwork() *cobra.Command {
 		Aliases: []string{"n"},
 		Short:   "Launch a blockchain in production",
 		Long: `
-Ignite Network commands are for launching sovereign Cosmos blockchains.
+Ignite Network commands allow to coordinate the launch of sovereign Cosmos blockchains.
 
 To launch a Cosmos blockchain you need someone to be a coordinator and others to
 be validators. These are just roles, anyone can be a coordinator or a validator.
