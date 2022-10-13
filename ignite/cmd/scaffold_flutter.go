@@ -1,11 +1,9 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
@@ -26,16 +24,15 @@ func NewScaffoldFlutter() *cobra.Command {
 }
 
 func scaffoldFlutterHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
+	session.StartSpinner("Scaffolding...")
 
 	path := flagGetPath(cmd)
 	if err := scaffolder.Flutter(path); err != nil {
 		return err
 	}
 
-	s.Stop()
-	fmt.Printf("\n🎉 Scaffold a Flutter app.\n\n")
-
-	return nil
+	return session.Printf("\n🎉 Scaffold a Flutter app.\n\n")
 }

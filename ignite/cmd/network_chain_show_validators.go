@@ -25,8 +25,8 @@ func newNetworkChainShowValidators() *cobra.Command {
 }
 
 func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	addressPrefix := getAddressPrefix(cmd)
 
@@ -64,8 +64,6 @@ func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error 
 	if len(validatorEntries) == 0 {
 		return session.Printf("%s %s\n", icons.Info, "no account found")
 	}
-
-	session.StopSpinner()
 
 	return session.PrintTable(chainGenesisValSummaryHeader, validatorEntries...)
 }

@@ -3,9 +3,10 @@ package ignitecmd
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
 func NewNodeQueryTx() *cobra.Command {
@@ -19,6 +20,11 @@ func NewNodeQueryTx() *cobra.Command {
 }
 
 func nodeQueryTxHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
+	session.StartSpinner("Querying...")
+
 	bz, err := hex.DecodeString(args[0])
 	if err != nil {
 		return err
@@ -36,6 +42,6 @@ func nodeQueryTxHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bz))
-	return nil
+
+	return session.Println(string(bz))
 }
