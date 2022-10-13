@@ -30,11 +30,13 @@ func newModule(relChainPath, goImportPath string) module.Module {
 					Name:               "QueryMyQueryRequest",
 					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 1,
+					Fields:             map[string]string{"mytypefield": "string"},
 				},
 				{
 					Name:               "QueryMyQueryResponse",
 					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 0,
+					Fields:             map[string]string{},
 				},
 			},
 			Services: []protoanalysis.Service{
