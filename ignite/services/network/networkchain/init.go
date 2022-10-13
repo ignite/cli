@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
@@ -106,10 +107,14 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 
 	case c.genesisConfig != "":
 		c.ev.Send(events.New(events.StatusOngoing, "Fetching custom Genesis from Config"))
-		//genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
-		//if err != nil {
-		//	return err
-		//}
+
+		// find config in downloaded source
+		config := filepath.Join(c.path, c.genesisConfig)
+		if _, err := os.Stat(config); err != nil {
+			return err
+		}
+
+		// write it into the path
 
 	default:
 		// default genesis is used, init CLI command is used to generate it
