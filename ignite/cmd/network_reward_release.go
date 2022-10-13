@@ -63,8 +63,8 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	session.StartSpinner("Setting up chains...")
 
@@ -173,7 +173,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	session.StopSpinner()
 	if err := printSection(session, "Paths"); err != nil {
 		return err
 	}
@@ -184,8 +183,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)

@@ -27,8 +27,8 @@ func newNetworkChainShowGenesis() *cobra.Command {
 }
 
 func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	out, _ := cmd.Flags().GetString(flagOut)
 
@@ -89,8 +89,6 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 	if err := xos.Rename(genesisPath, out); err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Printf("%s Genesis generated: %s\n", icons.Bullet, out)
 }
