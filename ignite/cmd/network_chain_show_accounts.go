@@ -29,8 +29,8 @@ func newNetworkChainShowAccounts() *cobra.Command {
 }
 
 func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	addressPrefix := getAddressPrefix(cmd)
 
@@ -52,7 +52,6 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if len(genesisAccs)+len(vestingAccs) == 0 {
-		session.StopSpinner()
 		return session.Printf("%s %s\n", icons.Info, "empty chain account list")
 	}
 
@@ -80,7 +79,6 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 		})
 	}
 
-	session.StopSpinner()
 	if len(genesisAccEntries) > 0 {
 		if err = session.PrintTable(chainGenesisAccSummaryHeader, genesisAccEntries...); err != nil {
 			return err

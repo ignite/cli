@@ -43,10 +43,10 @@ type Signer_Sign_Call struct {
 }
 
 // Sign is a helper method to define mock.On call
-//   - txf tx.Factory
-//   - name string
-//   - txBuilder client.TxBuilder
-//   - overwriteSig bool
+//  - txf tx.Factory
+//  - name string
+//  - txBuilder client.TxBuilder
+//  - overwriteSig bool
 func (_e *Signer_Expecter) Sign(txf interface{}, name interface{}, txBuilder interface{}, overwriteSig interface{}) *Signer_Sign_Call {
 	return &Signer_Sign_Call{Call: _e.mock.On("Sign", txf, name, txBuilder, overwriteSig)}
 }

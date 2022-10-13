@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+
 ### Changes
 
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
@@ -13,6 +16,7 @@
 - Switched codegen client to use `axios` instead of `fetch`
 - nodetime built with `vercel/pkg@5.6.0`
 - Added `ignite network validator` command set
+- Change CLI to use an events bus to print to stdout.
 - Move generated proto files to `proto/{appname}/{module}`
 
 ### Fixes
