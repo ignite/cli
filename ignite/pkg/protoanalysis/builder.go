@@ -45,16 +45,22 @@ func (b builder) buildFiles() (files []File) {
 func (b builder) buildMessages() (messages []Message) {
 	for _, f := range b.p.files {
 		for _, message := range f.messages {
+			// Keep track of the message fields and types
+			fields := make(map[string]string)
 
 			// Find the highest field number
 			var highestFieldNumber int
 			for _, elem := range message.Elements {
 				field, ok := elem.(*proto.NormalField)
-				if ok {
-					if field.Sequence > highestFieldNumber {
-						highestFieldNumber = field.Sequence
-					}
+				if !ok {
+					continue
 				}
+
+				if field.Sequence > highestFieldNumber {
+					highestFieldNumber = field.Sequence
+				}
+
+				fields[field.Name] = field.Type
 			}
 
 			// some proto messages might be defined inside another proto messages.
@@ -82,6 +88,7 @@ func (b builder) buildMessages() (messages []Message) {
 				Name:               name,
 				Path:               f.path,
 				HighestFieldNumber: highestFieldNumber,
+				Fields:             fields,
 			})
 		}
 	}
