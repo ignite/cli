@@ -13,6 +13,7 @@
 - Switched codegen client to use `axios` instead of `fetch`
 - nodetime built with `vercel/pkg@5.6.0`
 - Move generated proto files to `proto/{appname}/{module}`
+- Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
 
 ### Fixes
 
