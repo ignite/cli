@@ -69,9 +69,9 @@ type Gasometer_CalculateGas_Call struct {
 }
 
 // CalculateGas is a helper method to define mock.On call
-//  - clientCtx grpc.ClientConn
-//  - txf tx.Factory
-//  - msgs ...types.Msg
+//   - clientCtx grpc.ClientConn
+//   - txf tx.Factory
+//   - msgs ...types.Msg
 func (_e *Gasometer_Expecter) CalculateGas(clientCtx interface{}, txf interface{}, msgs ...interface{}) *Gasometer_CalculateGas_Call {
 	return &Gasometer_CalculateGas_Call{Call: _e.mock.On("CalculateGas",
 		append([]interface{}{clientCtx, txf}, msgs...)...)}
