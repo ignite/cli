@@ -20,7 +20,7 @@ func NewNetworkValidatorShow() *cobra.Command {
 
 func networkValidatorShowHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -43,16 +43,16 @@ func networkValidatorShowHandler(cmd *cobra.Command, args []string) error {
 		Identity string
 		Details  string
 		Website  string
+		Security string
 	}{
 		validator.Identity,
 		validator.Details,
 		validator.Website,
+		validator.SecurityContact,
 	})
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
-
+	
 	return session.Println(validatorYaml)
 }

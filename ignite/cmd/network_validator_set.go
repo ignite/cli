@@ -12,7 +12,7 @@ import (
 // NewNetworkValidatorSet creates a command to set an information in a validator profile
 func NewNetworkValidatorSet() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "set details|identity|website [value]",
+		Use:   "set details|identity|website|security [value]",
 		Short: "Set an information in a validator profile",
 		Long: `Validators on Ignite can set a profile containing a description for the validator.
 The validator set command allows to set information for the validator.
@@ -20,6 +20,7 @@ The following information can be set:
 - details: general information about the validator.
 - identity: piece of information to verify identity of the validator with a system like Keybase of Veramo.
 - website: website of the validator.
+- security: security contact for the validator.
 `,
 		RunE: networkValidatorSetHandler,
 		Args: cobra.ExactArgs(2),
@@ -33,7 +34,7 @@ The following information can be set:
 
 func networkValidatorSetHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
-	defer session.Cleanup()
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -53,8 +54,10 @@ func networkValidatorSetHandler(cmd *cobra.Command, args []string) error {
 		validator.Description.Identity = args[1]
 	case "website":
 		validator.Description.Website = args[1]
+	case "security":
+		validator.Description.SecurityContact = args[1]
 	default:
-		return errors.New("invalid attribute, must provide details, identity or website")
+		return errors.New("invalid attribute, must provide details, identity, website or security")
 	}
 
 	return n.SetValidatorDescription(cmd.Context(), validator)

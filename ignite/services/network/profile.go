@@ -55,7 +55,7 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 
 // SetValidatorDescription set a validator profile.
 func (n Network) SetValidatorDescription(ctx context.Context, validator profiletypes.Validator) error {
-	n.ev.Send(events.New(events.StatusOngoing, "Setting validator description"))
+	n.ev.Send("Setting validator description", events.ProgressStarted())
 
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -82,7 +82,7 @@ func (n Network) SetValidatorDescription(ctx context.Context, validator profilet
 
 // Validator returns the Validator by address from SPN
 func (n Network) Validator(ctx context.Context, address string) (networktypes.Validator, error) {
-	n.ev.Send("Fetching validator details", events.ProgressStarted())
+	n.ev.Send("Fetching validator description", events.ProgressStarted())
 	res, err := n.profileQuery.
 		Validator(ctx,
 			&profiletypes.QueryGetValidatorRequest{
