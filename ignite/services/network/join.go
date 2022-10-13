@@ -120,7 +120,7 @@ func (n Network) sendValidatorRequest(
 		),
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
+	n.ev.Send("Broadcasting validator transaction", events.ProgressStarted())
 
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
@@ -133,12 +133,12 @@ func (n Network) sendValidatorRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
+		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinished())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to join the network as a validator has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.Send(
+			fmt.Sprintf("Request %d to join the network as a validator has been submitted!", requestRes.RequestID),
+			events.ProgressFinished(),
+		)
 	}
 	return nil
 }
