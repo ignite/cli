@@ -18,7 +18,7 @@ func NewNetworkCoordinatorSet() *cobra.Command {
 The coordinator set command allows to set information for the coordinator.
 The following information can be set:
 - details: general information about the coordinator.
-- identity: piece of information to verify identity of the coordinator with a system like Keybase of Veramo.
+- identity: a piece of information to verify the identity of the coordinator with a system like Keybase or Veramo.
 - website: website of the coordinator.
 `,
 		RunE: networkCoordinatorSetHandler,
