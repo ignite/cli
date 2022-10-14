@@ -32,6 +32,50 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 	return resCoordByAddr.CoordinatorByAddress.CoordinatorID, nil
 }
 
+// SetCoordinatorDescription set the description of a coordindator
+// or creates the coordinator if it doesn't exist yet for the sender address
+func (n Network) SetCoordinatorDescription(ctx context.Context, description profiletypes.CoordinatorDescription) error {
+	n.ev.Send("Setting coordinator description", events.ProgressStarted())
+
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	// check if coordinator exists
+	_, err = n.CoordinatorIDByAddress(ctx, addr)
+	if err == ErrObjectNotFound {
+		// create a new coordinator
+		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
+			addr,
+			description.Identity,
+			description.Website,
+			description.Details,
+		)
+		res, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateCoordinator)
+		if err != nil {
+			return err
+		}
+		var requestRes profiletypes.MsgCreateCoordinatorResponse
+		return res.Decode(&requestRes)
+	} else if err == nil {
+		// update the description for the coordinator
+		msgUpdateCoordinatorDescription := profiletypes.NewMsgUpdateCoordinatorDescription(
+			addr,
+			description.Identity,
+			description.Website,
+			description.Details,
+		)
+		res, err := n.cosmos.BroadcastTx(ctx, n.account, msgUpdateCoordinatorDescription)
+		if err != nil {
+			return err
+		}
+		var requestRes profiletypes.MsgUpdateCoordinatorDescriptionResponse
+		return res.Decode(&requestRes)
+	}
+	return err
+}
+
 // Coordinator returns the Coordinator by address from SPN
 func (n Network) Coordinator(ctx context.Context, address string) (networktypes.Coordinator, error) {
 	n.ev.Send("Fetching coordinator details", events.ProgressStarted())
