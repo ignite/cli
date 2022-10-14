@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+
 ### Changes
 
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
