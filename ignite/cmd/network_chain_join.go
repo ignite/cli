@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,9 +21,10 @@ import (
 )
 
 const (
-	flagGentx     = "gentx"
-	flagAmount    = "amount"
-	flagNoAccount = "no-account"
+	flagGentx       = "gentx"
+	flagAmount      = "amount"
+	flagNoAccount   = "no-account"
+	flagPeerAddress = "peer-address"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
@@ -39,6 +39,7 @@ func NewNetworkChainJoin() *cobra.Command {
 
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
+	c.Flags().String(flagPeerAddress, "", "Peer's address")
 	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -75,7 +76,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	// if there is no custom gentx, we need to detect the public address.
 	if gentxPath == "" {
 		// get the peer public address for the validator.
-		publicAddr, err := askPublicAddress(cmd.Context(), session)
+		publicAddr, err := askPublicAddress(cmd, session)
 		if err != nil {
 			return err
 		}
@@ -161,10 +162,9 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress string, err error) {
-	options := []cliquiz.Option{
-		cliquiz.Required(),
-	}
+func askPublicAddress(cmd *cobra.Command, session cliui.Session) (publicAddress string, err error) {
+	ctx := cmd.Context()
+
 	if gitpod.IsOnGitpod() {
 		publicAddress, err = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
 		if err != nil {
@@ -175,9 +175,25 @@ func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress
 
 	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
 	// just in case if GetIp fails user should enter his address manually
-	ip, err := ipify.GetIp()
-	if err == nil {
-		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	peerAddress, _ := cmd.Flags().GetString(flagPeerAddress)
+	if peerAddress == "" {
+		if ip, err := ipify.GetIp(); err == nil {
+			peerAddress = fmt.Sprintf("%s:26656", ip)
+		}
+	}
+
+	// Use the current peer address when "--yes" flag is present
+	if getYes(cmd) {
+		if peerAddress == "" {
+			return "", errors.New("a peer address is required")
+		}
+
+		return peerAddress, nil
+	}
+
+	options := []cliquiz.Option{cliquiz.Required()}
+	if peerAddress != "" {
+		options = append(options, cliquiz.DefaultAnswer(peerAddress))
 	}
 
 	questions := []cliquiz.Question{cliquiz.NewQuestion(
