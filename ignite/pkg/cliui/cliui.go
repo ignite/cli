@@ -4,134 +4,201 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sync"
 
 	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
+type sessionOptions struct {
+	stdin  io.ReadCloser
+	stdout io.WriteCloser
+	stderr io.WriteCloser
+
+	startSpinner bool
+	verbosity    uilog.Verbosity
+}
+
 // Session controls command line interaction with users.
 type Session struct {
-	ev       events.Bus
-	eventsWg *sync.WaitGroup
-
+	options sessionOptions
+	ev      events.Bus
 	spinner *clispinner.Spinner
-
-	in          io.Reader
-	out         io.Writer
-	printLoopWg *sync.WaitGroup
+	out     uilog.Output
 }
 
+// Option configures session options.
 type Option func(s *Session)
 
-// WithOutput sets output stream for a session.
-func WithOutput(output io.Writer) Option {
+// WithStdout sets the starndard output for the session.
+func WithStdout(stdout io.WriteCloser) Option {
 	return func(s *Session) {
-		s.out = output
+		s.options.stdout = stdout
 	}
 }
 
-// WithInput sets input stream for a session.
-func WithInput(input io.Reader) Option {
+// WithStderr sets base stderr for a Session
+func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
-		s.in = input
+		s.options.stderr = stderr
 	}
 }
 
-// New creates new Session.
+// WithStdout sets the starndard input for the session.
+func WithStdin(stdin io.ReadCloser) Option {
+	return func(s *Session) {
+		s.options.stdin = stdin
+	}
+}
+
+// WithVerbosity sets a verbosity level for the Session.
+func WithVerbosity(v uilog.Verbosity) Option {
+	return func(s *Session) {
+		s.options.verbosity = v
+	}
+}
+
+// StartSpinner forces spinner to be spinning right after creation.
+func StartSpinner() Option {
+	return func(s *Session) {
+		s.options.startSpinner = true
+	}
+}
+
+// New creates a new Session.
 func New(options ...Option) Session {
-	wg := &sync.WaitGroup{}
 	session := Session{
-		ev:          events.NewBus(events.WithWaitGroup(wg)),
-		in:          os.Stdin,
-		out:         os.Stdout,
-		eventsWg:    wg,
-		printLoopWg: &sync.WaitGroup{},
+		ev: events.NewBus(),
+		options: sessionOptions{
+			stdin:  os.Stdin,
+			stdout: os.Stdout,
+			stderr: os.Stderr,
+		},
 	}
+
 	for _, apply := range options {
 		apply(&session)
 	}
-	session.spinner = clispinner.New(clispinner.WithWriter(session.out))
-	session.printLoopWg.Add(1)
-	go session.printLoop()
+
+	logOptions := []uilog.Option{
+		uilog.WithStdout(session.options.stdout),
+		uilog.WithStderr(session.options.stderr),
+	}
+
+	if session.options.verbosity == uilog.VerbosityVerbose {
+		logOptions = append(logOptions, uilog.Verbose())
+	}
+
+	session.out = uilog.NewOutput(logOptions...)
+
+	if session.options.startSpinner {
+		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
+	}
+
+	go session.handleEvents()
+
 	return session
 }
 
-// StopSpinner returns session's event bus.
+// EventBus returns the event bus of the session.
 func (s Session) EventBus() events.Bus {
 	return s.ev
 }
 
-// StartSpinner starts spinner.
+// Verbosity returns the verbosity level for the session output.
+func (s Session) Verbosity() uilog.Verbosity {
+	return s.options.verbosity
+}
+
+// NewOutput returns a new logging output bound to the session.
+// The new output will use the session's verbosity, stderr and stdout.
+// Label and color arguments are used to prefix the output when the
+// session verbosity is verbose.
+func (s Session) NewOutput(label string, color uint8) uilog.Output {
+	options := []uilog.Option{
+		uilog.WithStdout(s.options.stdout),
+		uilog.WithStderr(s.options.stderr),
+	}
+
+	if s.options.verbosity == uilog.VerbosityVerbose {
+		options = append(options, uilog.CustomVerbose(label, color))
+	}
+
+	return uilog.NewOutput(options...)
+}
+
+// StartSpinner starts the spinner.
 func (s Session) StartSpinner(text string) {
+	if s.spinner == nil {
+		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
+	}
+
 	s.spinner.SetText(text).Start()
 }
 
-// StopSpinner stops spinner.
+// StopSpinner stops the spinner.
 func (s Session) StopSpinner() {
+	if s.spinner == nil {
+		return
+	}
+
 	s.spinner.Stop()
 }
 
-// PauseSpinner pauses spinner, returns resume function to start paused spinner again.
-func (s Session) PauseSpinner() (mightResume func()) {
-	isActive := s.spinner.IsActive()
-	f := func() {
+// PauseSpinner pauses spinner and returns a function to restart the spinner.
+func (s Session) PauseSpinner() (restart func()) {
+	isActive := s.spinner != nil && s.spinner.IsActive()
+	if isActive {
+		s.spinner.Stop()
+	}
+
+	return func() {
 		if isActive {
 			s.spinner.Start()
 		}
 	}
-	s.spinner.Stop()
-	return f
 }
 
 // Printf prints formatted arbitrary message.
 func (s Session) Printf(format string, a ...interface{}) error {
-	s.Wait()
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprintf(s.out, format, a...)
+	_, err := fmt.Fprintf(s.out.Stdout(), format, a...)
 	return err
 }
 
 // Println prints arbitrary message with line break.
 func (s Session) Println(messages ...interface{}) error {
-	s.Wait()
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprintln(s.out, messages...)
+	_, err := fmt.Fprintln(s.out.Stdout(), messages...)
 	return err
-}
-
-// PrintSaidNo prints message informing negative was given in a confirmation prompt
-func (s Session) PrintSaidNo() error {
-	return s.Println("said no")
 }
 
 // Println prints arbitrary message
 func (s Session) Print(messages ...interface{}) error {
-	s.Wait()
 	defer s.PauseSpinner()()
-	_, err := fmt.Fprint(s.out, messages...)
+	_, err := fmt.Fprint(s.out.Stdout(), messages...)
 	return err
 }
 
 // Ask asks questions in the terminal and collect answers.
 func (s Session) Ask(questions ...cliquiz.Question) error {
-	s.Wait()
 	defer s.PauseSpinner()()
+	// TODO provide writer from the session
 	return cliquiz.Ask(questions...)
 }
 
 // AskConfirm asks yes/no question in the terminal.
 func (s Session) AskConfirm(message string) error {
-	s.Wait()
 	defer s.PauseSpinner()()
 	prompt := promptui.Prompt{
 		Label:     message,
 		IsConfirm: true,
+		Stdout:    s.out.Stdout(),
+		Stdin:     s.options.stdin,
 	}
 	_, err := prompt.Run()
 	return err
@@ -139,44 +206,31 @@ func (s Session) AskConfirm(message string) error {
 
 // PrintTable prints table data.
 func (s Session) PrintTable(header []string, entries ...[]string) error {
-	s.Wait()
 	defer s.PauseSpinner()()
-	return entrywriter.MustWrite(s.out, header, entries...)
+	return entrywriter.MustWrite(s.out.Stdout(), header, entries...)
 }
 
-// Wait blocks until all queued events are handled.
-func (s Session) Wait() {
-	s.eventsWg.Wait()
-}
-
-// Cleanup ensure spinner is stopped and printLoop exited correctly.
-func (s Session) Cleanup() {
+// End finishes the session by stopping the spinner and the event bus.
+// Once the session is ended it should not be used anymore.
+func (s Session) End() {
 	s.StopSpinner()
-	s.ev.Shutdown()
-	s.printLoopWg.Wait()
+	s.ev.Stop()
 }
 
-// printLoop handles events.
-func (s Session) printLoop() {
-	for event := range s.ev.Events() {
-		switch event.Status {
-		case events.StatusOngoing:
-			s.StartSpinner(event.Text())
+func (s Session) handleEvents() {
+	stdout := s.out.Stdout()
 
-		case events.StatusDone:
-			if event.Icon == "" {
-				event.Icon = icons.OK
-			}
+	for e := range s.ev.Events() {
+		switch e.ProgressIndication {
+		case events.IndicationStart:
+			s.StartSpinner(e.String())
+		case events.IndicationFinish:
 			s.StopSpinner()
-			fmt.Fprintf(s.out, "%s %s\n", event.Icon, event.Text())
-
-		case events.StatusNeutral:
+			fmt.Fprintf(stdout, "%s\n", e)
+		case events.IndicationNone:
 			resume := s.PauseSpinner()
-			fmt.Fprint(s.out, event.Text())
+			fmt.Fprintf(stdout, "%s\n", e)
 			resume()
 		}
-
-		s.eventsWg.Done()
 	}
-	s.printLoopWg.Done()
 }

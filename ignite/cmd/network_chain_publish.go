@@ -67,8 +67,8 @@ func NewNetworkChainPublish() *cobra.Command {
 }
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	var (
 		tag, _                    = cmd.Flags().GetString(flagTag)
@@ -273,7 +273,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
 	if isMainnet {
 		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)

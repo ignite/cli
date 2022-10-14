@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+- Add `ignite network coordinator` command set
+- Add `ignite network validator` command set
+
 ### Changes
 
 - Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
@@ -11,8 +16,11 @@
 - Switch to broadcast mode sync in `cosmosclient`
 - Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
 - Switched codegen client to use `axios` instead of `fetch`
+- Added `useKeplr()` and `useSigner()` methods to TS client. Allowed query-only instantiation.
 - nodetime built with `vercel/pkg@5.6.0`
+- Change CLI to use an events bus to print to stdout.
 - Move generated proto files to `proto/{appname}/{module}`
+- Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
 
 ### Fixes
 
@@ -22,6 +30,7 @@
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
 - Fix config file migration to void leaving end of file content chunks
+- Handle "No records were found in keyring" message when checking keys.
 
 ### Features
 
