@@ -66,6 +66,7 @@ func WithComposablesGeneration(includeThirdPartyModules bool, out ModulePathFunc
 		o.composablesRootPath = composablesRootPath
 	}
 }
+
 func WithDartGeneration(includeThirdPartyModules bool, out ModulePathFunc, rootPath string) Option {
 	return func(o *generateOptions) {
 		o.dartOut = out
@@ -190,6 +191,7 @@ func TypescriptModulePath(rootPath string) ModulePathFunc {
 		return filepath.Join(rootPath, m.Pkg.Name)
 	}
 }
+
 func ComposableModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		replacer := strings.NewReplacer("-", "_", ".", "_")
