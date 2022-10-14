@@ -3,6 +3,8 @@ package icons
 import "github.com/fatih/color"
 
 var (
+	Earth = "🌍"
+
 	// OK is an OK mark.
 	OK = color.New(color.FgGreen).SprintFunc()("✔")
 	// NotOK is a red cross mark

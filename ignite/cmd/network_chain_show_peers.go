@@ -28,8 +28,8 @@ func newNetworkChainShowPeers() *cobra.Command {
 }
 
 func networkChainShowPeersHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	out, _ := cmd.Flags().GetString(flagOut)
 
@@ -72,8 +72,6 @@ func networkChainShowPeersHandler(cmd *cobra.Command, args []string) error {
 	if err := os.WriteFile(out, b.Bytes(), 0o644); err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Printf("%s Peer list generated: %s\n", icons.Bullet, out)
 }

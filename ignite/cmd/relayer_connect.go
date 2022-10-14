@@ -33,8 +33,8 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -77,9 +77,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if len(use) == 0 {
-		session.StopSpinner()
-		session.Println("No chains found to connect.")
-		return nil
+		return session.Println("No chains found to connect.")
 	}
 
 	session.StartSpinner("Creating links between chains...")

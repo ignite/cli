@@ -1,11 +1,10 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -89,9 +88,17 @@ commands manually to ensure a production-level node initialization.
 }
 
 func chainInitHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(
+		cliui.WithVerbosity(getVerbosity(cmd)),
+		cliui.StartSpinner(),
+	)
+
+	defer session.End()
+
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	if flagGetCheckDependencies(cmd) {
@@ -121,7 +128,5 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
-
-	return nil
+	return session.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 }

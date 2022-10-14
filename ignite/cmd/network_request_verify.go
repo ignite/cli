@@ -33,8 +33,8 @@ func NewNetworkRequestVerify() *cobra.Command {
 }
 
 func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -59,6 +59,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// verify the requests
+
 	if err := verifyRequest(cmd.Context(), cacheStorage, nb, launchID, ids...); err != nil {
 		session.Printf("%s Request(s) %s not valid\n", icons.NotOK, numbers.List(ids, "#"))
 		return err
