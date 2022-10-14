@@ -29,6 +29,7 @@
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
 - Fix config file migration to void leaving end of file content chunks
+- Handle "No records were found in keyring" message when checking keys.
 
 ### Features
 
