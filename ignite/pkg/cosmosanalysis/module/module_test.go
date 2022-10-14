@@ -20,8 +20,11 @@ func newModule(relChainPath, goImportPath string) module.Module {
 			Path: filepath.Join(relChainPath, "proto/planet/mars"),
 			Files: protoanalysis.Files{
 				protoanalysis.File{
-					Path:         filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
-					Dependencies: []string{"google/api/annotations.proto"},
+					Path: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					Dependencies: []string{
+						"cosmos/base/query/v1beta1/pagination.proto",
+						"google/api/annotations.proto",
+					},
 				},
 			},
 			GoImportName: "github.com/tendermint/planet/x/mars/types",
@@ -29,12 +32,29 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				{
 					Name:               "QueryMyQueryRequest",
 					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
-					HighestFieldNumber: 1,
+					HighestFieldNumber: 2,
+					Fields: map[string]string{
+						"mytypefield": "string",
+						"pagination":  "cosmos.base.query.v1beta1.PageRequest",
+					},
 				},
 				{
 					Name:               "QueryMyQueryResponse",
 					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields:             map[string]string{"pagination": "cosmos.base.query.v1beta1.PageResponse"},
+				},
+				{
+					Name:               "QueryFooRequest",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 0,
+					Fields:             map[string]string{},
+				},
+				{
+					Name:               "QueryFooResponse",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields:             map[string]string{"bar": "string"},
 				},
 			},
 			Services: []protoanalysis.Service{
@@ -48,6 +68,18 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
 									Params:   []string{"mytypefield"},
+									HasQuery: true,
+									HasBody:  false,
+								},
+							},
+							Paginated: true,
+						},
+						{
+							Name:        "Foo",
+							RequestType: "QueryFooRequest",
+							ReturnsType: "QueryFooResponse",
+							HTTPRules: []protoanalysis.HTTPRule{
+								{
 									HasQuery: false,
 									HasBody:  false,
 								},
@@ -65,6 +97,17 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				Rules: []protoanalysis.HTTPRule{
 					{
 						Params:   []string{"mytypefield"},
+						HasQuery: true,
+						HasBody:  false,
+					},
+				},
+				Paginated: true,
+			},
+			{
+				Name:     "Foo",
+				FullName: "QueryFoo",
+				Rules: []protoanalysis.HTTPRule{
+					{
 						HasQuery: false,
 						HasBody:  false,
 					},
