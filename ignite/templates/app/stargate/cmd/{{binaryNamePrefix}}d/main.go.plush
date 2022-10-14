@@ -3,11 +3,11 @@ package main
 import (
 	"os"
 
-	"<%= ModulePath %>/app"
-	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
-
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+
+	"<%= ModulePath %>/app"
+	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
 )
 
 func main() {
