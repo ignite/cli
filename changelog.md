@@ -4,6 +4,7 @@
 
 ### Features
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+- Add `ignite network validator` command set
 
 ### Changes
 
