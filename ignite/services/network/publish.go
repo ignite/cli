@@ -307,11 +307,11 @@ func (n Network) sendAccountRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send("Account added to the network by the coordinator!", events.ProgressStarted())
+		n.ev.Send("Account added to the network by the coordinator!", events.ProgressFinished())
 	} else {
 		n.ev.Send(
 			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
-			events.ProgressStarted(),
+			events.ProgressFinished(),
 		)
 	}
 	return nil
