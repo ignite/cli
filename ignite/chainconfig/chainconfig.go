@@ -87,3 +87,23 @@ func LocateDefault(root string) (path string, err error) {
 
 	return "", ErrConfigNotFound
 }
+
+// CheckVersion checks that the config version is the latest
+// and if not a VersionError is returned.
+func CheckVersion(configPath string) error {
+	file, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+
+	version, err := ReadConfigVersion(file)
+	if err != nil {
+		return err
+	}
+
+	if version != LatestVersion {
+		return VersionError{version}
+	}
+
+	return nil
+}
