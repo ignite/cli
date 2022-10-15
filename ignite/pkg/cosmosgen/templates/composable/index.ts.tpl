@@ -54,7 +54,7 @@ export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
             {{- end -}}
             ).then( res => ({...res.data,pageParam}) );
     }, {...options,
-      getNextPageParam: (lastPage, allPages) => { if (lastPage.pagination?.total ?? 0 >(lastPage.pageParam ?? 0*perPage)) {return lastPage.pageParam+1 } else {return undefined}},
+      getNextPageParam: (lastPage, allPages) => { if ((lastPage.pagination?.total ?? 0) >((lastPage.pageParam ?? 0) * perPage)) {return lastPage.pageParam+1 } else {return undefined}},
       getPreviousPageParam: (firstPage, allPages) => { if (firstPage.pageParam==1) { return undefined } else { return firstPage.pageParam-1}}
     }
     );
