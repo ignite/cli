@@ -120,6 +120,10 @@ func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 		return err
 	}
 
+	if strings.TrimSpace(b.String()) == "No records were found in keyring" { // sdk no longer respects to --output when there is no record
+		return nil
+	}
+
 	data, err := b.JSONEnsuredBytes()
 	if err != nil {
 		return err
