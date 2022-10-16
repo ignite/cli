@@ -1,5 +1,11 @@
 # Changelog
 
+## [`v0.24.1`](https://github.com/ignite/cli/releases/tag/v0.24.1)
+
+### Features
+
+- Upgraded Cosmos SDK to `v0.46.2`.
+
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
 ### Features
