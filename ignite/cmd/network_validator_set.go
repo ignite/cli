@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"errors"
+
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 
 	"github.com/spf13/cobra"
