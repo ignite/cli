@@ -22,7 +22,6 @@ require (
 	github.com/gobuffalo/logger v1.0.3
 	github.com/gobuffalo/packd v0.3.0
 	github.com/gobuffalo/plush/v4 v4.1.16
-	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.9.4
 	github.com/gogo/protobuf v1.3.3
 	github.com/google/go-github/v37 v37.0.0
@@ -121,7 +120,6 @@ require (
 	github.com/gobuffalo/flect v0.3.0 // indirect
 	github.com/gobuffalo/github_flavored_markdown v1.1.3 // indirect
 	github.com/gobuffalo/helpers v0.6.7 // indirect
-	github.com/gobuffalo/plush v3.8.3+incompatible // indirect
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
 	github.com/gobuffalo/validate/v3 v3.3.3 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
@@ -242,6 +240,7 @@ require (
 )
 
 replace (
+	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
