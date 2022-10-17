@@ -1,5 +1,15 @@
 # Changelog
 
+## [`v0.23.1`](https://github.com/ignite/cli/releases/tag/v0.23.1)
+
+NOTE: This release deprecates `v0.23.0` due to a security fix.  If you are using `v0.23.x` of `ignite/cli` please upgrade
+to this version or to a newer version with the security fix.
+
+### Fixes
+
+- Update `cosmos-sdk` to `v0.45.9` for a security fix
+- Update `cosmoscmd` baseapp options for a security fix
+
 ## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
 
 ### Features
