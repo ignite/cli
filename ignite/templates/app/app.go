@@ -5,7 +5,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush/v4"
-	"github.com/gobuffalo/plushgen"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
@@ -34,7 +33,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	ctx.Set("DepTools", cosmosgen.DepTools())
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
 
