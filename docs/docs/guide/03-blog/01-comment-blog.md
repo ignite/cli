@@ -15,7 +15,9 @@ By completing this tutorial, you will learn about:
 * Deleting comments from a blog post
 * Implementing logic for writing comments to the blockchain
 
-**Note:** For this tutorial, adding comments is available only to blog posts that are no older than 100 blocks. The 100 block value has been hard coded for rapid testing. You can increase the block count to a larger number to achieve a longer time period before commenting is disabled.
+**Note:** For this tutorial, adding comments is available only to blog posts that are no older than 100 blocks. 
+The 100 block value has been hard coded for rapid testing. You can increase the block count to a larger number to achieve 
+a longer time period before commenting is disabled.
 
 ## Prerequisites
 
@@ -27,7 +29,8 @@ This tutorial relies on the `blog` blockchain that you built in the `Build a Blo
 
 ## Fetch functions using list command
 
-To get the useful functions for this tutorial, you use the `ignite scaffold list NAME [field]... [flags]` command. Make sure to familiarize yourself with the command.
+To get the useful functions for this tutorial, you use the `ignite scaffold list NAME [field]... [flags]` command. 
+Make sure to familiarize yourself with the command.
 
 1. Navigate to the `blog` directory that you created in the [Build a blog](index.md) tutorial.
 
@@ -42,10 +45,9 @@ The `--no-message` flag disables CRUD interaction messages scaffolding because y
 The command output shows the files that were created and modified:
 
 ```
-create proto/blog/comment.proto
-modify proto/blog/genesis.proto
-modify proto/blog/query.proto
-modify vue/src/views/Types.vue
+create proto/blog/blog/comment.proto
+modify proto/blog/blog/genesis.proto
+modify proto/blog/blog/query.proto
 modify x/blog/client/cli/query.go
 create x/blog/client/cli/query_comment.go
 create x/blog/client/cli/query_comment_test.go
@@ -55,7 +57,6 @@ create x/blog/keeper/comment.go
 create x/blog/keeper/comment_test.go
 create x/blog/keeper/grpc_query_comment.go
 create x/blog/keeper/grpc_query_comment_test.go
-modify x/blog/module.go
 modify x/blog/types/genesis.go
 modify x/blog/types/genesis_test.go
 modify x/blog/types/keys.go
@@ -63,7 +64,7 @@ modify x/blog/types/keys.go
 🎉 comment added.
 ```
 
-Make a small modification in `proto/blog/comment.proto` to change `createdAt` to int64:
+Make a small modification in `proto/blog/blog/comment.proto` to change `createdAt` to int64:
 
 ```protobuf
 message Comment {
@@ -91,7 +92,7 @@ Here, `postID` is the reference to previously created blog post.
 The `message` command has created and modified several files:
 
 ```
-modify proto/blog/tx.proto
+modify proto/blog/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_comment.go
 create x/blog/keeper/msg_server_create_comment.go
@@ -106,7 +107,7 @@ create x/blog/types/message_create_comment_test.go
 
 As always, start your development with a proto file. 
 
-In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
+In the `proto/blog/blog/tx.proto` file, edit `MsgCreateComment` to:
 
 * Add `id`
 * Define the `id` for `message MsgCreateCommentResponse`:
@@ -125,7 +126,7 @@ message MsgCreateCommentResponse {
 }
 ```
 
- You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+ You see in the `proto/blog/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
 ```protobuf
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
@@ -230,13 +231,13 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 When you define the `Comment` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
 
-Inside the `proto/blog/comment.proto` file, you can observe, Ignite CLI has already added the required fields inside the `Comment` message.
+Inside the `proto/blog/blog/comment.proto` file, you can observe, Ignite CLI has already added the required fields inside the `Comment` message.
 
 The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Comment`. 
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Ignite CLI, the `Comment` type is available.
 
-Also, make a small modification in `proto/blog/post.proto` to add `createdAt`:
+Also, make a small modification in `proto/blog/blog/post.proto` to add `createdAt`:
 
 ```protobuf
 // ...
@@ -313,7 +314,7 @@ Here, `commentID` and `postID` are the references to previously created comment 
 The `message` command has created and modified several files:
 
 ```
-modify proto/blog/tx.proto
+modify proto/blogb/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_delete_comment.go
 create x/blog/keeper/msg_server_delete_comment.go
@@ -396,10 +397,10 @@ Implement logic to query existing posts:
 ignite scaffold query comments id:uint --response title,body
 ```
 
-Also in `proto/blog/query.proto`, make these updates:
+Also in `proto/blog/blog/query.proto`, make these updates:
 
 ```protobuf
-import "blog/post.proto";
+import "blog/blog/post.proto";
 
 message QueryCommentsRequest {
   uint64 id = 1;
