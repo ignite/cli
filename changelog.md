@@ -35,6 +35,7 @@
 
 ### Features
 
+- Move cosmoscmd in chain's templates.
 - Add generated TS client test support to integration tests.
 
 ### Changes

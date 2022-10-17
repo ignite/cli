@@ -62,6 +62,7 @@ type serveOptions struct {
 	forceReset bool
 	resetOnce  bool
 	skipProto  bool
+	quitOnFail bool
 }
 
 func newServeOption() serveOptions {
@@ -85,6 +86,13 @@ func ServeForceReset() ServeOption {
 func ServeResetOnce() ServeOption {
 	return func(c *serveOptions) {
 		c.resetOnce = true
+	}
+}
+
+// QuitOnFail exits the serve immediately if an error occurs.
+func QuitOnFail() ServeOption {
+	return func(c *serveOptions) {
+		c.quitOnFail = true
 	}
 }
 
@@ -179,11 +187,17 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						c.ev.Sendf("💿 Genesis state saved in %s", genesisPath)
 					}
 				case errors.As(err, &validationErr):
+					if serveOptions.quitOnFail {
+						return err
+					}
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
 					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
 				case errors.As(err, &buildErr):
+					if serveOptions.quitOnFail {
+						return err
+					}
 					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
 				case errors.As(err, &startErr):
 					// Parse returned error logs

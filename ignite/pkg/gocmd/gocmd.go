@@ -17,6 +17,9 @@ const (
 	// CommandInstall represents go "install" command.
 	CommandInstall = "install"
 
+	// CommandGet represents go "get" command.
+	CommandGet = "get"
+
 	// CommandBuild represents go "build" command.
 	CommandBuild = "build"
 
@@ -28,6 +31,9 @@ const (
 
 	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
+
+	// CommandFmt represents go "fmt" command.
+	CommandFmt = "fmt"
 )
 
 const (
@@ -49,6 +55,11 @@ func Name() string {
 		return custom
 	}
 	return "go"
+}
+
+// Fmt runs go fmt on path
+func Fmt(ctx context.Context, path string, options ...exec.Option) error {
+	return exec.Exec(ctx, []string{Name(), CommandFmt, "./..."}, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
 // ModTidy runs go mod tidy on path with options.
@@ -97,6 +108,26 @@ func InstallAll(ctx context.Context, path string, flags []string, options ...exe
 	}
 	command = append(command, flags...)
 	command = append(command, "./...")
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// Install runs go install pkgs on path with options.
+func Install(ctx context.Context, path string, pkgs []string, options ...exec.Option) error {
+	command := []string{
+		Name(),
+		CommandInstall,
+	}
+	command = append(command, pkgs...)
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// Get runs go get pkgs on path with options.
+func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option) error {
+	command := []string{
+		Name(),
+		CommandGet,
+	}
+	command = append(command, pkgs...)
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 

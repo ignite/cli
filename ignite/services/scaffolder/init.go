@@ -14,6 +14,9 @@ import (
 	"github.com/tendermint/flutter/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/localfs"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -31,7 +34,7 @@ var (
 )
 
 // Init initializes a new app with name and given options.
-func Init(cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
+func Init(ctx context.Context, cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
 	if root, err = filepath.Abs(root); err != nil {
 		return "", err
 	}
@@ -44,11 +47,11 @@ func Init(cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, ad
 	path = filepath.Join(root, pathInfo.Root)
 
 	// create the project
-	if err := generate(tracer, pathInfo, addressPrefix, path, noDefaultModule); err != nil {
+	if err := generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule); err != nil {
 		return "", err
 	}
 
-	if err := finish(cacheStorage, path, pathInfo.RawPath); err != nil {
+	if err := finish(ctx, cacheStorage, path, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 
@@ -62,6 +65,7 @@ func Init(cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, ad
 
 //nolint:interfacer
 func generate(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
@@ -92,7 +96,7 @@ func generate(
 		runner.Root = absRoot
 		return runner.Run()
 	}
-	if err := run(genny.WetRunner(context.Background()), g); err != nil {
+	if err := run(genny.WetRunner(ctx), g); err != nil {
 		return err
 	}
 
@@ -117,6 +121,14 @@ func generate(
 			return err
 		}
 
+	}
+
+	// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
+	// mod tidy requests the sumdb, until we understand why, we disable sumdb.
+	// related issue:  https://github.com/golang/go/issues/56174
+	opt := exec.StepOption(step.Env("GOSUMDB=off"))
+	if err := gocmd.ModTidy(ctx, absRoot, opt); err != nil {
+		return err
 	}
 
 	// generate the vue app.

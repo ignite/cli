@@ -115,7 +115,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	if err := cosmosgen.InstallDependencies(ctx, c.app.Path); err != nil {
+	if err := cosmosgen.InstallDepTools(ctx, c.app.Path); err != nil {
 		return err
 	}
 
