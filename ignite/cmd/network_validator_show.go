@@ -20,7 +20,7 @@ func NewNetworkValidatorShow() *cobra.Command {
 }
 
 func networkValidatorShowHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))

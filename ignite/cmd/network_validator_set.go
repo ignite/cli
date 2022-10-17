@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"errors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 
 	"github.com/spf13/cobra"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -33,7 +34,7 @@ The following information can be set:
 }
 
 func networkValidatorSetHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -60,5 +61,9 @@ func networkValidatorSetHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("invalid attribute, must provide details, identity, website or security")
 	}
 
-	return n.SetValidatorDescription(cmd.Context(), validator)
+	if err := n.SetValidatorDescription(cmd.Context(), validator); err != nil {
+		return err
+	}
+
+	return session.Printf("%s Validator updated \n", icons.OK)
 }
