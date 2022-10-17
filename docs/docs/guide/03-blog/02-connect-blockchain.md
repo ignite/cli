@@ -15,7 +15,8 @@ Navigate to a separate directory right next to the `blog` blockchain you built i
 
 ## Creating a blockchain client
 
-Create a new directory called `blogclient` on the same level as `blog` directory. As the name suggests, `blogclient` will contain a standalone Go program that acts as a client to your `blog` blockchain.
+Create a new directory called `blogclient` on the same level as `blog` directory. As the name suggests, `blogclient` 
+will contain a standalone Go program that acts as a client to your `blog` blockchain.
 
 The command:
 
@@ -48,7 +49,7 @@ go 1.18
 
 require (
 	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.23.0
+	github.com/ignite/cli v0.25.0
 )
 
 replace blog => ../blog
