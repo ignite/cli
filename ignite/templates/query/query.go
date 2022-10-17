@@ -3,10 +3,11 @@ package query
 import (
 	"embed"
 
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
@@ -31,7 +32,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("Paginated", opts.Paginated)
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
 	return nil

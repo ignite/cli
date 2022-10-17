@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
