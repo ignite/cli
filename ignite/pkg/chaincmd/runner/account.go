@@ -127,7 +127,7 @@ func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 	// finishes with exit code 0 and a plain text message.
 	// This behavior was added to Cosmos SDK v0.46.2. See the link
 	// https://github.com/cosmos/cosmos-sdk/blob/d01aa5b4a8/client/keys/list.go#L37
-	if strings.TrimRight(b.String(), "\n") == msgEmptyKeyring {
+	if strings.TrimSpace(b.String()) == msgEmptyKeyring {
 		return nil
 	}
 
