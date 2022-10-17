@@ -4,6 +4,7 @@
 
 ### Features
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+- Add `ignite network coordinator` command set
 - Add `ignite network validator` command set
 
 ### Changes
@@ -30,6 +31,7 @@
 - Seal the capability keeper in the `app.go` template
 - Change faucet to allow C.O.R.S. preflight requests.
 - Fix config file migration to void leaving end of file content chunks
+- Change session print loop to block until all events are handled.
 - Handle "No records were found in keyring" message when checking keys.
 
 ### Features
