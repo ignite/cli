@@ -4,17 +4,25 @@ sidebar_position: 5
 
 # Types
 
-Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate on the state.
+Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate
+on the state.
 
-A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, update, and delete are defined as keeper methods. In the scavenge blockchain, you need to define the `scavenge` and `commit` types along with create and update methods.
+A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, update, and 
+delete are defined as keeper methods. In the scavenge blockchain, you need to define the `scavenge` and `commit` types 
+along with create and update methods.
 
-Several Ignite CLI commands are available to scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs), and a single element in the state. In this example, both `scavenge` and `commit` are stored in a map-like data structure.
+Several Ignite CLI commands are available to scaffold the code for CRUD functionality for a list-like data structure, 
+a map (key-value pairs), and a single element in the state. In this example, both `scavenge` and `commit` are stored in 
+a map-like data structure.
 
 ## Scavenge
 
-Use the `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, and deleting (CRUD) scavenges.
+Use the `ignite scaffold map` command to scaffold the `scavenge` type and the code for creating, reading, updating, 
+and deleting (CRUD) scavenges.
 
-The first argument is the name of the type to create (`scavenge`), the rest is a list of fields. By default, generic CRUD messages are scaffolded. However, since you already created messages specifically for this scavenge blockchain, use the `--no-message` flag to skip message creation.
+The first argument is the name of the type to create (`scavenge`), the rest is a list of fields. By default, generic 
+CRUD messages are scaffolded. However, since you already created messages specifically for this scavenge blockchain, 
+use the `--no-message` flag to skip message creation.
 
 ```bash
 ignite scaffold map scavenge solutionHash solution description reward scavenger --no-message
@@ -23,9 +31,9 @@ ignite scaffold map scavenge solutionHash solution description reward scavenger 
 The `ignite scaffold map` command creates and modifies several files:
 
 ```
-modify proto/scavenge/genesis.proto
-modify proto/scavenge/query.proto
-create proto/scavenge/scavenge.proto
+modify proto/scavenge/scavenge/genesis.proto
+modify proto/scavenge/scavenge/query.proto
+create proto/scavenge/scavenge/scavenge.proto
 modify x/scavenge/client/cli/query.go
 create x/scavenge/client/cli/query_scavenge.go
 create x/scavenge/client/cli/query_scavenge_test.go
@@ -45,15 +53,15 @@ create x/scavenge/types/key_scavenge.go
 
 The `scaffold map` command does all of these code updates for you:
 
-* `proto/scavenge/scavenge.proto`
+* `proto/scavenge/scavenge/scavenge.proto`
 
   * Defines the `Scavenge` type as a proto message
 
-* `proto/scavenge/query.proto`
+* `proto/scavenge/scavenge/query.proto`
 
   * Defines queries to get data from the blockchain as proto messages and registers the queries in the `Query` service
 
-* `proto/scavenge/genesis.proto`
+* `proto/scavenge/scavenge/genesis.proto`
 
   * Creates type for exporting the state of the blockchain (for example, during software upgrades)
 
@@ -101,7 +109,8 @@ The `scaffold map` command does all of these code updates for you:
 
   * Registers the gRPC gateway routes
 
-Review the `x/scavenge/keeper/scavenge.go` file to see the `SetScavenge` updates that were made in the `keeper` package, like the `store.Set` method that writes a Scavenge into the store:
+Review the `x/scavenge/keeper/scavenge.go` file to see the `SetScavenge` updates that were made in the `keeper` 
+package, like the `store.Set` method that writes a Scavenge into the store:
 
 ```go
 // SetScavenge set a specific scavenge in the store from its index
@@ -114,7 +123,8 @@ func (k Keeper) SetScavenge(ctx sdk.Context, scavenge types.Scavenge) {
 }
 ```
 
-Review the update for `GetScavenge` that selects a store using the scavenge prefix and uses `store.Get` to fetch a scavenge with a particular index.
+Review the update for `GetScavenge` that selects a store using the scavenge prefix and uses `store.Get` to fetch a 
+scavenge with a particular index.
 
 ## Commit
 
