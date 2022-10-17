@@ -162,7 +162,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 
-		// Update Vue app dependeciens when Vuex stores are generated.
+		// Update Vue app dependencies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateComposableDependencies(); err != nil {
