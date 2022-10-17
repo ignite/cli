@@ -173,22 +173,22 @@ func askPublicAddress(cmd *cobra.Command, session cliui.Session) (publicAddress 
 		return publicAddress, nil
 	}
 
-	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
-	// just in case if GetIp fails user should enter his address manually
 	peerAddress, _ := cmd.Flags().GetString(flagPeerAddress)
-	if peerAddress == "" {
-		if ip, err := ipify.GetIp(); err == nil {
-			peerAddress = fmt.Sprintf("%s:26656", ip)
-		}
+
+	// The `--peer-address` flag is required when "--yes" is present
+	if getYes(cmd) && peerAddress == "" {
+		return "", errors.New("a peer address is required")
 	}
 
-	// Use the current peer address when "--yes" flag is present
-	if getYes(cmd) {
-		if peerAddress == "" {
-			return "", errors.New("a peer address is required")
-		}
-
+	// Don't prompt for an address when it is available as a flag value
+	if peerAddress != "" {
 		return peerAddress, nil
+	}
+
+	// Try to guess the current peer address. This address is used
+	// as default when prompting user for the right peer address.
+	if ip, err := ipify.GetIp(); err == nil {
+		peerAddress = fmt.Sprintf("%s:26656", ip)
 	}
 
 	options := []cliquiz.Option{cliquiz.Required()}
