@@ -201,7 +201,7 @@ func txCommand() *cobra.Command {
 // enabled.
 func startWithTunnelingCommand(appCreator appCreator, defaultNodeHome string) *cobra.Command {
 	startCmd := server.StartCmd(appCreator.newApp, defaultNodeHome)
-	startCmd.Use = "start-with-tunneling"
+	startCmd.Use = "start-with-http-tunneling"
 	startCmd.Short = "Run the full node with http tunneling"
 	// Backup existing PreRunE, since we'll override it.
 	startPreRunE := startCmd.PreRunE

@@ -114,7 +114,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	session.Println("\nYou can start your node by running the following command:")
 	startCmd := "start"
 	if gitpod.IsOnGitpod() {
-		startCmd = "start-with-tunneling"
+		startCmd = "start-with-http-tunneling"
 	}
 	commandStr := fmt.Sprintf("%s %s --home %s", binaryName, startCmd, chainHome)
 	session.Printf("\t%s/%s\n", binaryDir, colors.Info(commandStr))
