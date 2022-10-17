@@ -10,6 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
@@ -111,7 +112,11 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 
 	session.Printf("%s Chain is prepared for launch\n", icons.OK)
 	session.Println("\nYou can start your node by running the following command:")
-	commandStr := fmt.Sprintf("%s start --home %s", binaryName, chainHome)
+	startCmd := "start"
+	if gitpod.IsOnGitpod() {
+		startCmd = "start-with-http-tunneling"
+	}
+	commandStr := fmt.Sprintf("%s %s --home %s", binaryName, startCmd, chainHome)
 	session.Printf("\t%s/%s\n", binaryDir, colors.Info(commandStr))
 
 	return nil
