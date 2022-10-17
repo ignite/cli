@@ -5,9 +5,12 @@ description: Add messages to define actions for the nameservice module.
 
 # Messages for the Nameservice Module
 
-Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a name that belongs to them.
+Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app 
+can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a 
+name that belongs to them.
 
-With this design in mind for the `nameservice` module, it's time to create these messages to define the actions. End users can send these messages to interact with the application state:
+With this design in mind for the `nameservice` module, it's time to create these messages to define the actions. 
+End users can send these messages to interact with the application state:
 
 - `BuyName`
 - `SetName`
@@ -15,7 +18,9 @@ With this design in mind for the `nameservice` module, it's time to create these
 
 ## Message Type
 
-Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the network. Because the Cosmos SDK wraps and unwraps messages from transactions, as an app developer, you only have to define messages.
+Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the 
+network. Because the Cosmos SDK wraps and unwraps messages from transactions, as an app developer, you only have to 
+define messages.
 
 Messages must satisfy the following interface:
 
@@ -39,23 +44,27 @@ type Msg interface {
 }
 ```
 
-The `Msg` type extends `proto.Message` and contains these methods along with the legacy methods (`Type`, `Route`, and `GetSignBytes`):
+The `Msg` type extends `proto.Message` and contains these methods along with the legacy methods (`Type`, `Route`, and 
+`GetSignBytes`):
 
 - `ValidateBasic`
 
   - Called early in the processing of the message to discard obviously invalid messages.
-	- Includes only checks that do not require access to the state. For example, check that the `amount` of tokens is a positive value.
+	- Includes only checks that do not require access to the state. For example, check that the `amount` of tokens is a 
+    positive value.
 
 - `GetSigners`
 
   - Returns the list of signers.
-  - The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that is returned by this method.
+  - The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that 
+  is returned by this method.
 
 ## Handlers
 
 Handlers define the action that needs to be taken. Each message has an associated handler.
 
-For example, handlers define which stores to update, how to update the stores, and under what conditions to act when a given message is received.
+For example, handlers define which stores to update, how to update the stores, and under what conditions to act when a
+given message is received.
 
 ## Scaffolding Messages
 
@@ -70,7 +79,8 @@ Now, you are ready to implement these Cosmos SDK messages to achieve the desired
 
 Use the `ignite scaffold message` command to scaffold new messages for your module.
 
-- The [`ignite scaffold message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
+- The [`ignite scaffold message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts the message name as 
+the first argument and a list of fields for the message. 
 - By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`.
 
 ### Add the MsgBuyName Message
@@ -90,7 +100,7 @@ where:
 The `ignite scaffold message buy-name name bid` command creates and modifies several files:
 
 ```
-modify proto/nameservice/tx.proto
+modify proto/nameservice/nameservice/tx.proto
 modify x/nameservice/client/cli/tx.go
 create x/nameservice/client/cli/tx_buy_name.go
 create x/nameservice/keeper/msg_server_buy_name.go
@@ -100,7 +110,7 @@ create x/nameservice/types/message_buy_name.go
 
 These are the changes for each one of these files:
 
-- `proto/nameservice/tx.proto`
+- `proto/nameservice/nameservice/tx.proto`
     - Adds `MsgBuyName` and `MsgBuyNameResponse` proto messages.
     - Registers `BuyName` rpc in the `Msg` service.
 
@@ -142,7 +152,9 @@ These are the changes for each one of these files:
 
 - `x/nameservice/keeper/msg_server_buy_name.go`
 
-    Defines the `BuyName` keeper method. You can notice that the message follows the `Msg` interface. The message `struct` contains all the  information required when buying a name: `Name`, `Bid`, and `Creator`. This struct was added automatically.
+    Defines the `BuyName` keeper method. You can notice that the message follows the `Msg` interface. The message 
+`struct` contains all the  information required when buying a name: `Name`, `Bid`, and `Creator`. This struct was added 
+automatically.
 
 - `x/nameservice/client/cli/tx_buy_name.go`
 
@@ -186,4 +198,5 @@ where:
 
 ## Results
 
-Congratulations, you've defined messages that trigger state transitions. Now it's time to implement types and methods that operate on the state.
+Congratulations, you've defined messages that trigger state transitions. Now it's time to implement types and methods 
+that operate on the state.
