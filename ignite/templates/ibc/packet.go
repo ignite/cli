@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
+	"github.com/gobuffalo/plush/v4"
 	"github.com/gobuffalo/plushgen"
 
 	"github.com/ignite/cli/ignite/pkg/multiformatname"

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
+	"github.com/gobuffalo/plush/v4"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/xgenny"
