@@ -5,9 +5,11 @@ description: Implement types and methods that operate on the state.
 
 # Implement Types
 
-Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate on the state.
+Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate 
+on the state.
 
-> The Cosmos SDK relies on keepers. A keeper is an abstraction that lets your blockchain app interact with the state. Functions like create, read, update, and delete (CRUD) are defined as keeper methods.
+> The Cosmos SDK relies on keepers. A keeper is an abstraction that lets your blockchain app interact with the state. 
+> Functions like create, read, update, and delete (CRUD) are defined as keeper methods.
 
 For the nameservice blockchain, define a `whois` type and the create and delete methods.
 
@@ -19,7 +21,8 @@ Because Ignite CLI does the heavy lifting for you, choose from several [ignite s
 
 ## Add the whois Type
 
-Use the `ignite scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality to create, read, update, and delete information about names.
+Use the `ignite scaffold map` command to scaffold the `whois` type and create the code that implements CRUD functionality 
+to create, read, update, and delete information about names.
 
 In this example, the `whois` type is stored in a map-like data structure:
 
@@ -35,21 +38,22 @@ where:
 - price is the bid
 - `--no-message` flag skips message creation
 
-    By default, generic CRUD messages are scaffolded. However, you've already created messages specifically for this blockchain, so you can skip message creation with the `--no-message` flag.
+By default, generic CRUD messages are scaffolded. However, you've already created messages specifically for this 
+blockchain, so you can skip message creation with the `--no-message` flag.
 
 The `ignite scaffold map whois name value price --no-message` command created and modified several files:
 
-* `proto/nameservice/whois.proto`
+* `proto/nameservice/nameservice/whois.proto`
 
     Defines the `Whois` type as a proto message.
 
-* `proto/nameservice/query.proto`
+* `proto/nameservice/nameservice/query.proto`
 
     * Queries to get data from the blockchain.
     * Define queries as proto messages.
     * Register the messages in the `Query` service.
 
-* `proto/nameservice/genesis.proto`
+* `proto/nameservice/nameservice/genesis.proto`
 
     A type for exporting the state of the blockchain, for example, during software upgrades.
 
@@ -101,11 +105,13 @@ The `ignite scaffold map whois name value price --no-message` command created an
 
 In the `x/nameservice/keeper/whois.go` file, take at a look at the keeper package.
 
-- `SetWhois` uses a key-value store with a prefix for the `Whois` type and uses a `store.Set` method to write a `Whois` into the store.
+- `SetWhois` uses a key-value store with a prefix for the `Whois` type and uses a `store.Set` method to write a `Whois` 
+into the store.
 
 <!-- where is this? teach me please
 `Whois-value-` encodes the `Whois` type that is generated from a protocol buffer definition-->
 
-- `GetWhois` selects a store using the `Whois` prefix and uses a `store.Get` method to fetch a `Whois` with a particular index.
+- `GetWhois` selects a store using the `Whois` prefix and uses a `store.Get` method to fetch a `Whois` with a 
+particular index.
 
 The keeper package also includes `RemoveWhois` and `GetAllWhois`.
