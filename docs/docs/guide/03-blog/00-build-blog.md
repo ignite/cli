@@ -25,7 +25,7 @@ By completing this tutorial, you will learn about:
 This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.22.2 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.22.2! | bash
+curl https://get.ignite.com/cli@v0.25.0! | bash
 ```
 
 ## Create your blog chain
@@ -69,7 +69,7 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 The `message` command has created and modified several files:
 
 ```
-modify proto/blog/tx.proto
+modify proto/blog/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_post.go
 create x/blog/keeper/msg_server_create_post.go
@@ -82,7 +82,8 @@ create x/blog/types/message_create_post_test.go
 🎉 Created a message `createPost`.
 ```
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
+As always, start with a proto file. Inside the `proto/blog/blog/tx.proto` file, the `MsgCreatePost` message has been created. 
+Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
 ```protobuf
 message MsgCreatePost {
@@ -98,7 +99,8 @@ message MsgCreatePostResponse {
 
 ## Review the message code
 
-Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title, and body. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
+Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title, and body. 
+Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
 
 ```protobuf
 service Msg {
@@ -108,7 +110,8 @@ service Msg {
 
 ## Define messages logic
 
-In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post.
+In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. 
+Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post.
 
 You need to do two things:
 
@@ -141,7 +144,7 @@ Define the `Post` type and the `AppendPost` keeper method.
 
 When you define the `Post` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
 
-Create the `proto/blog/post.proto` file and define the `Post` message:
+Create the `proto/blog/blog/post.proto` file and define the `Post` message:
 
 ```protobuf
 syntax = "proto3";
@@ -170,11 +173,14 @@ Continue developing your blog chain.
 
 The next step is to define the `AppendPost` keeper method. 
 
-Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function and what you want to call the prefixes. The file will be empty for now.
+Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function and what you want to call the prefixes. 
+The file will be empty for now.
 
-- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product/` or `post/`.
+- To implement `AppendPost` you must first understand how the key store works. You can think of a store as a key-value 
+database where keys are lexicographically ordered. You can loop through keys and use `Get` and `Set` to retrieve and set values based on keys. To distinguish between different types of data that a module can keep in its store, you can use prefixes like `product/` or `post/`.
 
-- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post/value/` and `Post/count/`. 
+- To keep a list of posts in what is essentially a key-value store, you need to keep track of the index of the posts you insert. 
+Since both post values and post count (index) values are kept in the store, you can use different prefixes: `Post/value/` and `Post/count/`. 
 
 Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and add a comment that describes the keys:
 
@@ -261,7 +267,8 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 }
 ```
 
-Now that you have implemented functions for getting the number of posts and setting the post count, at the top of the same `x/blog/keeper/post.go` file, implement the logic behind the `AppendPost` function:
+Now that you have implemented functions for getting the number of posts and setting the post count, at the top of the same `x/blog/keeper/post.go` 
+file, implement the logic behind the `AppendPost` function:
 
 ```go
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
@@ -310,14 +317,15 @@ Two components are responsible for querying data:
 - An rpc inside `service Query` in a proto file that defines data types and specifies the HTTP API endpoint
 - A keeper method that performs the querying from the key-value store
 
-First, review the services and messages in `proto/blog/query.proto`. The `Posts` rpc accepts an empty request and returns an object with two fields: title and body. Now you can make changes so it can return a list of posts. The list of posts can be long, so add pagination. When pagination is added, the request and response include a page number so you can request a particular page when you know what page has been returned.
+First, review the services and messages in `proto/blog/query.proto`. The `Posts` rpc accepts an empty request and returns 
+an object with two fields: title and body. Now you can make changes so it can return a list of posts. The list of posts can be long, so add pagination. When pagination is added, the request and response include a page number so you can request a particular page when you know what page has been returned.
 
 To define the types in proto files, make the following updates in `proto/blog/query.proto`:
 
 1. Add the `import`:
 
 ```protobuf
-import "blog/post.proto";
+import "blog/blog/post.proto";
 ```
 
 2. Add pagination to the post request:
@@ -425,7 +433,8 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 ## Use the CLI to create a post
 
-Now that you have implemented logic for creating and querying posts, you can interact with your blog chain using the command line. The blog chain binary is `blogd`.
+Now that you have implemented logic for creating and querying posts, you can interact with your blog chain using the command line. 
+The blog chain binary is `blogd`.
 
 First, start the chain on your development machine by running the following command in the `blog` directory:
 
