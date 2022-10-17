@@ -4,8 +4,10 @@
 
 ### Features
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
-- Add `ignite network coordinator` command set
-- Add `ignite network validator` command set
+- Add `ignite network coordinator` command set.
+- Add `ignite network validator` command set.
+- Move cosmoscmd in chain's templates.
+- Add generated TS client test support to integration tests.
 
 ### Changes
 
@@ -21,6 +23,9 @@
 - Change CLI to use an events bus to print to stdout.
 - Move generated proto files to `proto/{appname}/{module}`
 - Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
+- Add `--peer-address` flag to `network chain join` command.
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
 
 ### Fixes
 
@@ -33,14 +38,11 @@
 - Change session print loop to block until all events are handled.
 - Handle "No records were found in keyring" message when checking keys.
 
+## [`v0.24.1`](https://github.com/ignite/cli/releases/tag/v0.24.1)
+
 ### Features
 
-- Add generated TS client test support to integration tests.
-
-### Changes
-
-- Change nightly tag format
-- Add cosmos-sdk version in `version` command
+- Upgraded Cosmos SDK to `v0.46.2`.
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
