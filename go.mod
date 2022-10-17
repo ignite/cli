@@ -25,7 +25,6 @@ require (
 	github.com/gobuffalo/logger v1.0.6
 	github.com/gobuffalo/packd v1.0.1
 	github.com/gobuffalo/plush/v4 v4.1.16
-	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.9.4
 	github.com/gogo/protobuf v1.3.3
 	github.com/golangci/golangci-lint v1.49.0
@@ -173,7 +172,6 @@ require (
 	github.com/gobuffalo/flect v0.3.0 // indirect
 	github.com/gobuffalo/github_flavored_markdown v1.1.3 // indirect
 	github.com/gobuffalo/helpers v0.6.7 // indirect
-	github.com/gobuffalo/plush v3.8.3+incompatible // indirect
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
 	github.com/gobuffalo/validate/v3 v3.3.3 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
