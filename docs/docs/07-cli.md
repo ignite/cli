@@ -51,7 +51,7 @@ keypair stored in a keyring. Currently Ignite accounts are used when interacting
 with Ignite relayer commands.
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
-you chain's binary to manage accounts from "config.yml". For example, if your
+your chain's binary to manage accounts from "config.yml". For example, if your
 blockchain is called "mychain", use "mychaind keys" to manage keys for the
 chain.
 
@@ -237,7 +237,7 @@ Build, initialize and start a blockchain node or perform other actions on the bl
 
 **Synopsis**
 
-Commands in this namespace let you to build, initialize, and start your
+Commands in this namespace let you build, initialize, and start your
 blockchain node locally for development purposes.
 
 To run these commands you should be inside the project's directory so that
@@ -329,7 +329,7 @@ ignite chain build --check-dependencies
 
 Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
-scaffolded project and "d" stands for daemon. If your your project contains more
+scaffolded project and "d" stands for daemon. If your project contains more
 than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 
@@ -1696,7 +1696,7 @@ A module can depend on one or more other modules and import their keeper
 methods. To scaffold a module with a dependency use the "--dep" flag
 
 For example, your new custom module "foo" might have functionality that requires
-sending tokens between accounts. The method for sending tokens is a defined in
+sending tokens between accounts. The method for sending tokens is defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
