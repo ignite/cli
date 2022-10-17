@@ -187,6 +187,9 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						c.ev.Sendf("💿 Genesis state saved in %s", genesisPath)
 					}
 				case errors.As(err, &validationErr):
+					if serveOptions.quitOnFail {
+						return err
+					}
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
