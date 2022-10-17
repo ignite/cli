@@ -65,10 +65,62 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin) {
 	}
 	for _, pluginCmd := range p.Interface.Commands() {
 		linkPluginCmd(rootCmd, p, pluginCmd)
+		linkPluginHooks(rootCmd, p)
 		if p.Error != nil {
 			return
 		}
 	}
+}
+
+func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin) {
+	if p.Error != nil {
+		return
+	}
+
+	for _, hook := range p.Interface.Hooks() {
+		linkPluginHook(rootCmd, p, hook)
+	}
+}
+
+func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
+	cmdPath := hook.Place
+
+	if !strings.HasPrefix(cmdPath, "ignite") {
+		// cmdPath must start with `ignite ` before comparison with
+		// cmd.CommandPath()
+		cmdPath = "ignite " + cmdPath
+	}
+
+	cmdPath = strings.TrimSpace(cmdPath)
+
+	cmd := findCommandByPath(rootCmd, cmdPath)
+
+	if cmd == nil {
+		p.Error = errors.Errorf("unable to find commandPath %q for hook %q", cmdPath, hook.Name)
+		return
+	}
+
+	if !cmd.Runnable() {
+		p.Error = errors.Errorf("can't attach plugin command %s to non runnable command %s", hook.Name, hook.Place)
+		return
+	}
+
+	cmdImpl := cmd.RunE
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		p.Interface.ExecuteHookPre(hook.Name, args)
+		// execute the original implementation of the cmd
+		err := cmdImpl(cmd, args)
+
+		err = p.Interface.ExecuteHookPost(hook.Name, args)
+
+		p.Interface.ExecuteHookCleanUp(hook.Name, args)
+
+		time.Sleep(100 * time.Millisecond)
+
+		return err
+	}
+
 }
 
 func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {

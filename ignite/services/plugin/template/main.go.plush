@@ -34,6 +34,17 @@ func (p) Commands() []plugin.Command {
 	}
 }
 
+func (p) Hooks() []plugin.Hook {
+	return []plugin.Hook{
+		Name: "foo",
+		Place: "ignite.chian.init",
+		PreRun: func(args []string) error {},
+		PostRun: func(args []string) error {},
+		CleanUp func(args []string) {},
+	}
+}
+
+
 func (p) Execute(cmd plugin.Command, args []string) error {
 	// TODO: write command execution here
 	fmt.Printf("Hello I'm the <%= Name %> plugin!\nargs=%v, with=%v\n", args, cmd.With)
@@ -55,6 +66,27 @@ func (p) Execute(cmd plugin.Command, args []string) error {
 		fmt.Println("Deleting stuff...")
 	}
 	return nil
+}
+
+func (p) ExecuteHookPre(name string, args []string) error {
+	switch name {
+		default:
+			return fmt.Error("hook not defined")
+	}
+}
+
+func (p) ExecuteHookPost(name string, args []string) error {
+	switch name {
+		default:
+			return fmt.Error("hook not defined")
+	}
+}
+
+func (p) ExecuteHookCleanUp(name string, args []string) error {
+	switch name {
+		default:
+			return fmt.Error("hook not defined")
+	}
 }
 
 func main() {
