@@ -22,13 +22,16 @@ For all subsequent commands, you use a terminal window that is different from th
 
 Follow the instructions and submit a new scavenge. 
 
-The first parameter is the `solution`, but you should also know what the actual question is that your solution solves (the `description`).
+The first parameter is the `solution`, but you should also know what the actual question is that your solution solves 
+(the `description`).
 
-You can make the challenge question something family-friendly like `What's brown and sticky?`. Of course, the only solution to this question is `A stick`.
+You can make the challenge question something family-friendly like `What's brown and sticky?`. Of course, the only 
+solution to this question is `A stick`.
 
 Next, you must specify the `reward`. Give away `100token` as a reward for solving the scavenge.
 
-Now you have all the pieces needed to create your message. Piece them all together in the command and add the flag `--from` so the CLI knows who is sending it:
+Now you have all the pieces needed to create your message. Piece them all together in the command and add the flag 
+`--from` so the CLI knows who is sending it:
 
 ```bash
 scavenged tx scavenge submit-scavenge "A stick" "What's brown and sticky?" 100token --from alice
