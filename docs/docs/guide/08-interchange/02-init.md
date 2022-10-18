@@ -7,7 +7,9 @@ description: Create the blockchain for the interchain exchange app.
 
 ## Initialize the Blockchain
 
-In this chapter, you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets, and messages. In later chapters, you integrate more code into each of the transaction handlers.
+In this chapter, you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, 
+the module, the transaction, the IBC packets, and messages. In later chapters, you integrate more code into each of the 
+transaction handlers.
 
 ## Create the Blockchain
 
@@ -75,7 +77,9 @@ ignite scaffold packet sell-order amountDenom amount:int priceDenom price:int --
 ignite scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module dex
 ```
 
-The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. The value of the `--ack` flag is a comma-separated list of names (no spaces). Append optional types after a colon (`:`).
+The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been 
+received by the target chain. The value of the `--ack` flag is a comma-separated list of names (no spaces). Append 
+optional types after a colon (`:`).
 
 ## Cancel messages
 
@@ -95,9 +99,11 @@ Use the optional `--desc` flag to define a description of the CLI command that i
 The token denoms must have the same behavior as described in the `ibc-transfer` module:
 
 - An external token received from a chain has a unique `denom`, reffered to as `voucher`.
-- When a token is sent to a blockchain and then sent back and received, the chain can resolve the voucher and convert it back to the original token denomination.
+- When a token is sent to a blockchain and then sent back and received, the chain can resolve the voucher and convert 
+it back to the original token denomination.
 
-`Voucher` tokens are represented as hashes, therefore you must store which original denomination is related to a voucher. You can do this with an indexed type.
+`Voucher` tokens are represented as hashes, therefore you must store which original denomination is related to a voucher.
+You can do this with an indexed type.
 
 For a `voucher` you store, define the source port ID, source channel ID, and the original denom:
 
@@ -163,7 +169,9 @@ init:
   home: "$HOME/.venus"
 ```
 
-In the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later so you can run two blockchains in parallel and prevent conflicts when the chains are using the same ports.
+In the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various 
+running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later, so you can 
+run two blockchains in parallel and prevent conflicts when the chains are using the same ports.
 
 You can also use the `host` parameter to use specific ports for any of the services.
 
