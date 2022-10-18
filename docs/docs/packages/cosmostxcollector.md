@@ -107,6 +107,8 @@ Queries support sorting, paging and filtering by using different options during 
 The cursor based ones also supports the selection of specific fields or properties and also
 passing arguments in cases where the query is a function.
 
+By default no sorting, filtering nor paging is applied to the queries.
+
 ### Event queries
 
 The event queries return events and their attributes as `[]cosmostxcollector.query.Event`.
