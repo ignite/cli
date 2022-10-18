@@ -5,14 +5,15 @@ description: Implement the buy order logic.
 
 # Creating Buy Orders
 
-In this chapter, you implement the creation of buy orders. The logic is very similar to the sell order logic you implemented in the previous chapter.
+In this chapter, you implement the creation of buy orders. The logic is very similar to the sell order logic you 
+implemented in the previous chapter.
 
 ## Modify the Proto Definition
 
 Add the buyer to the proto file definition:
 
 ```protobuf
-// proto/dex/packet.proto
+// proto/interchange/dex/packet.proto
 
 message BuyOrderPacketData {
   // ...
@@ -20,7 +21,8 @@ message BuyOrderPacketData {
 }
 ```
 
-Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
+Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous 
+chapters. 
 
 ```bash
 ignite generate proto-go --yes
@@ -192,7 +194,8 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (
 
 ### Implement The LiquidateFromSellOrder Function
 
-The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is found, return false for match:
+The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is 
+found, return false for match:
 
 ```go
 // x/dex/types/buy_order_book.go
