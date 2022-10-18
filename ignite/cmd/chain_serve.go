@@ -11,6 +11,7 @@ const (
 	flagForceReset = "force-reset"
 	flagResetOnce  = "reset-once"
 	flagConfig     = "config"
+	flagQuitOnFail = "quit-on-fail"
 )
 
 // NewChainServe creates a new serve command to serve a blockchain.
@@ -64,6 +65,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
+	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
 }
@@ -120,6 +122,13 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	}
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
+	}
+	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
+	if err != nil {
+		return err
+	}
+	if quitOnFail {
+		serveOptions = append(serveOptions, chain.QuitOnFail())
 	}
 
 	if flagGetSkipProto(cmd) {
