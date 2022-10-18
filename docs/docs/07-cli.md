@@ -30,7 +30,8 @@ ignite scaffold chain github.com/username/mars
 **SEE ALSO**
 
 - [ignite account](#ignite-account) - Commands for managing Ignite accounts
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
+  blockchain
 - [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
 - [ignite docs](#ignite-docs) - Show Ignite CLI docs
 - [ignite generate](#ignite-generate) - Generate clients, API docs from source code
@@ -47,7 +48,7 @@ Commands for managing Ignite accounts
 **Synopsis**
 
 Commands for managing Ignite accounts. An Ignite account is a private/public
-keypair stored in a keyring. Currently Ignite accounts are used when interacting
+keypair stored in a keyring. Currently, Ignite accounts are used when interacting
 with Ignite relayer commands.
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
@@ -237,14 +238,14 @@ Build, initialize and start a blockchain node or perform other actions on the bl
 
 **Synopsis**
 
-Commands in this namespace let you to build, initialize, and start your
+Commands in this namespace let you build, initialize, and start your
 blockchain node locally for development purposes.
 
 To run these commands you should be inside the project's directory so that
 Ignite can find the source code. To ensure that you are, run "ls", you should
 see the following files in the output: "go.mod", "x", "proto", "app", etc.
 
-By default the "build" command will identify the "main" package of the project,
+By default, the "build" command will identify the "main" package of the project,
 install dependencies if necessary, set build flags, compile the project into a
 binary and install the binary. The "build" command is useful if you just want
 the compiled binary, for example, to initialize and start the chain manually. It
@@ -252,7 +253,7 @@ can also be used to release your chain's binaries automatically as part of
 continuous integration workflow.
 
 The "init" command will build the chain's binary and use it to initialize a
-local validator node. By default the validator node will be initialized in your
+local validator node. By default, the validator node will be initialized in your
 $HOME directory in a hidden directory that matches the name of your project.
 This directory is called a data directory and contains a chain's genesis file
 and a validator key. This command is useful if you want to quickly build and
@@ -320,24 +321,24 @@ Ignite to skip the proto compilation step:
 
 ignite chain build --skip-proto
 
-Afterwards, Ignite install dependencies specified in the go.mod file. By default
+Afterwards, Ignite install dependencies specified in the `go.mod` file. By default,
 Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
 ignite chain build --check-dependencies
 
-Next, Ignite identifies the "main" package of the project. By default the "main"
+Next, Ignite identifies the "main" package of the project. By default, the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
-scaffolded project and "d" stands for daemon. If your your project contains more
+scaffolded project and "d" stands for daemon. If your project contains more
 than one "main" package, specify the path to the one that Ignite should compile
-in config.yml:
+in `config.yml`:
 
 build:
 main: custom/path/to/main
 
-By default the binary name will match the top-level module name (specified in
-go.mod) with a suffix "d". This can be customized in config.yml:
+By default, the binary name will match the top-level module name (specified in
+`go.mod`) with a suffix "d". This can be customized in `config.yml`:
 
 build:
 binary: mychaind
@@ -377,7 +378,8 @@ ignite chain build [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
+  blockchain
 
 ## ignite chain faucet
 
@@ -398,7 +400,8 @@ ignite chain faucet [address] [coin<,...>] [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
+  blockchain
 
 ## ignite chain init
 
@@ -484,7 +487,8 @@ ignite chain init [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
+  blockchain
 
 ## ignite chain serve
 
@@ -547,7 +551,8 @@ ignite chain serve [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
+  blockchain
 
 ## ignite chain simulate
 
@@ -555,7 +560,8 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node
+and checks if invariants break
 
 ```
 ignite chain simulate [flags]
@@ -585,7 +591,8 @@ ignite chain simulate [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the blockchain
+- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
+  blockchain
 
 ## ignite completion
 
@@ -785,7 +792,8 @@ Generate clients, API docs from source code
 
 Generate clients, API docs from source code.
 
-Such as compiling protocol buffer files into Go or implement particular functionality, for example, generating an OpenAPI spec.
+Such as compiling protocol buffer files into Go or implement particular functionality, for example, generating an
+OpenAPI spec.
 
 Produced source code can be regenerated by running a command again and is not meant to be edited by hand.
 
@@ -801,10 +809,12 @@ Produced source code can be regenerated by running a command again and is not me
 
 - [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 - [ignite generate dart](#ignite-generate-dart) - Generate a Dart client
-- [ignite generate openapi](#ignite-generate-openapi) - Generate generates an OpenAPI spec for your chain from your config.yml
+- [ignite generate openapi](#ignite-generate-openapi) - Generate generates an OpenAPI spec for your chain from your
+  config.yml
 - [ignite generate proto-go](#ignite-generate-proto-go) - Generate proto based Go code needed for the app's source code
 - [ignite generate ts-client](#ignite-generate-ts-client) - Generate Typescript client for your chain's frontend
-- [ignite generate vuex](#ignite-generate-vuex) - Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file
+- [ignite generate vuex](#ignite-generate-vuex) - Generate Typescript client and Vuex stores for your chain's frontend
+  from your `config.yml` file
 
 ## ignite generate dart
 
@@ -996,7 +1006,8 @@ Querying commands for the bank module
 **SEE ALSO**
 
 - [ignite node query](#ignite-node-query) - Querying subcommands
-- [ignite node query bank balances](#ignite-node-query-bank-balances) - Query for account balances by account name or address
+- [ignite node query bank balances](#ignite-node-query-bank-balances) - Query for account balances by account name or
+  address
 
 ## ignite node query bank balances
 
@@ -1163,7 +1174,8 @@ Connect blockchains by using IBC protocol
 
 - [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 - [ignite relayer configure](#ignite-relayer-configure) - Configure source and target chains for relaying
-- [ignite relayer connect](#ignite-relayer-connect) - Link chains associated with paths and start relaying tx packets in between
+- [ignite relayer connect](#ignite-relayer-connect) - Link chains associated with paths and start relaying tx packets in
+  between
 
 ## ignite relayer configure
 
@@ -1314,7 +1326,8 @@ Scaffold an IBC BandChain query oracle to request real-time data
 
 **Synopsis**
 
-Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module
+Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos
+SDK module
 
 ```
 ignite scaffold band [queryName] --module [moduleName] [flags]
@@ -1373,13 +1386,13 @@ use a custom address prefix use the "--address-prefix" flag. For example:
 
 ignite scaffold chain foo --address-prefix bar
 
-By default when compiling a blockchain's source code Ignite creates a cache to
+By default, when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
 the "--clear-cache" flag. It is very unlikely you will ever need to use this
 flag.
 
 The blockchain is using the Cosmos SDK modular blockchain framework. Learn more
-about Cosmos SDK on https://docs.cosmos.network
+about Cosmos SDK on <https://docs.cosmos.network>
 
 ```
 ignite scaffold chain [name] [flags]
@@ -1479,7 +1492,7 @@ In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field. Ignite doesn't support arrays of
 custom types yet.
 
-By default the code will be scaffolded in the module that matches your project's
+By default, the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
 different module:
 
@@ -1670,7 +1683,7 @@ Scaffold a Cosmos SDK module
 Scaffold a new Cosmos SDK module.
 
 Cosmos SDK is a modular framework and each independent piece of functionality is
-implemented in a separate module. By default your blockchain imports a set of
+implemented in a separate module. By default, your blockchain imports a set of
 standard Cosmos SDK modules. To implement custom functionality of your
 blockchain, scaffold a module and implement the logic of your application.
 
@@ -1700,7 +1713,9 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
+```
 ignite scaffold module foo --dep bank
+```
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -1708,7 +1723,9 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
+```
 ignite scaffold module bar --dep foo,mint,account
+```
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -1718,10 +1735,12 @@ A Cosmos SDK module can have parameters (or "params"). Params are values that
 can be set at the genesis of the blockchain and can be modified while the
 blockchain is running. An example of a param is "Inflation rate change" of the
 "mint" module. A module can be scaffolded with params using the "--params" flag
-that accepts a list of param names. By default params are of type "string", but
+that accepts a list of param names. By default, params are of type "string", but
 you can specify a type for each param. For example:
 
+```
 ignite scaffold module foo --params baz:uint,bar:bool
+```
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
@@ -1886,7 +1905,7 @@ Tools for advanced users
 
 - [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 - [ignite tools ibc-relayer](#ignite-tools-ibc-relayer) - Typescript implementation of an IBC relayer
-- [ignite tools ibc-setup](#ignite-tools-ibc-setup) - Collection of commands to quickly setup a relayer
+- [ignite tools ibc-setup](#ignite-tools-ibc-setup) - Collection of commands to quickly set up a relayer
 - [ignite tools protoc](#ignite-tools-protoc) - Execute the protoc command
 
 ## ignite tools ibc-relayer
@@ -1915,7 +1934,7 @@ ignite tools ibc-relayer -- -h
 
 ## ignite tools ibc-setup
 
-Collection of commands to quickly setup a relayer
+Collection of commands to quickly set up a relayer
 
 ```
 ignite tools ibc-setup [--] [...] [flags]
@@ -1944,7 +1963,7 @@ Execute the protoc command
 
 **Synopsis**
 
-The protoc command. You don't need to setup the global protoc include folder with -I, it's automatically handled
+The `protoc` command. You don't need to set up the global `protoc` include folder with -I, it's automatically handled
 
 ```
 ignite tools protoc [--] [...] [flags]
@@ -1964,7 +1983,7 @@ ignite tools protoc -- --version
 
 **SEE ALSO**
 
-- [ignite tools](#ignite-tools) - Tools for advanced users
+- [Ignite Tools](#ignite-tools) - Tools for advanced users
 
 ## ignite version
 

@@ -5,7 +5,8 @@ description: IBC oracle integration with BandChain
 
 # BandChain oracle
 
-The BandChain oracle communication module has built-in compliance using IBC protocol that can query data points of various types from BandChain.
+The BandChain oracle communication module has built-in compliance using IBC protocol that can query data points of
+various types from BandChain.
 
 Other chains can query this oracle module for real-time information.
 
@@ -13,7 +14,8 @@ BandChain has multiple scripts deployed into the network. You can request any da
 
 ## High-level overview
 
-Steps to scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module.
+Steps to scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific
+IBC-enabled Cosmos SDK module.
 
 ## IBC module packet scaffold
 
@@ -40,10 +42,10 @@ The BandChain oracle returns the ack messages with the request id. The last requ
 When you scaffold a BandChain oracle module, the following files and directories are created and modified:
 
 - `proto`: oracle request and response data.
-- `x/module_name/keeper`: IBC hooks, gRPC message server.
-- `x/module_name/types`: message types, IBC events.
-- `x/module_name/client/cli`: CLI command to broadcast a transaction containing a message with a packet.
-- `x/module_name/oracle.go`: BandChain oracle packet handlers.
+- `x/app_name/module_name/keeper`: IBC hooks, gRPC message server.
+- `x/app_name/module_name/types`: message types, IBC events.
+- `x/app_name/module_name/client/cli`: CLI command to broadcast a transaction containing a message with a packet.
+- `x/app_name/module_name/oracle.go`: BandChain oracle packet handlers.
 
 ## Scaffold a BandChain oracle chain
 
@@ -78,16 +80,21 @@ Now it's time to change the data.
 
 The output of the `ignite scaffold band coinRates --module consuming` command prompts you to update the `keys.go` file.
 
-In the `x/consuming/types/keys.go` file, update the `Version` variable in the `const` block to the required version that the IBC module supports:
+In the `x/consuming/types/keys.go` file, update the `Version` variable in the `const` block to the required version that
+the IBC module supports:
 
 ```go
+package types
+
+// ...
+
 const (
-    // ...
+	// ...
 
-    // Version defines the current version the IBC module supports
-    Version = "bandchain-1"
+	// Version defines the current version the IBC module supports
+	Version = "bandchain-1"
 
-    // ...
+	// ...
 )
 ```
 
@@ -103,7 +110,8 @@ Keep this terminal window open.
 
 ## Configure and connect the Ignite CLI relayer
 
-If you previously used the Ignite CLI relayer, it is a good idea to remove existing relayer and Ignite CLI configurations:
+If you previously used the Ignite CLI relayer, it is a good idea to remove existing relayer and Ignite CLI
+configurations:
 
 1. Stop your blockchains.
 2. Delete previous configuration files:
@@ -161,7 +169,8 @@ Connect the relayer:
 ignite relayer connect
 ```
 
-You can see the paths of the `oracle` port on the testnet and the `consuming` port on your local oracle module in the relayer connection status that is output to the terminal:
+You can see the paths of the `oracle` port on the testnet and the `consuming` port on your local oracle module in the
+relayer connection status that is output to the terminal:
 
 ```
 ------
@@ -177,11 +186,13 @@ Listening and relaying packets between chains...
 ------
 ```
 
-Leave this terminal tab open so you can monitor the relayer.
+Leave this terminal tab open, so you can monitor the relayer.
 
 ## Make a request transaction
 
-In another terminal tab, use the `oracled` binary to make a request transaction. Because BandChain has multiple scripts already deployed into the network, you can request any data using the BandChain script id. In this case, use script 37 for Coin Rates:
+In another terminal tab, use the `oracled` binary to make a request transaction. Because BandChain has multiple scripts
+already deployed into the network, you can request any data using the BandChain script id. In this case, use script 37
+for Coin Rates:
 
 ```bash
 # Coin Rates (script 37 into the testnet)
@@ -203,7 +214,8 @@ oracled query consuming coin-rates-result 101276
 
 ### Multiple oracles
 
-You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters in the proto file `moduleName.proto` and then adapt the request in the  `cli/client/tx_module_name.go` file.
+You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters in
+the proto file `moduleName.proto` and then adapt the request in the  `cli/client/tx_module_name.go` file.
 
 To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
 

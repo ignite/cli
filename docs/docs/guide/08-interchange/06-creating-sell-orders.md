@@ -19,7 +19,7 @@ message SellOrderPacketData {
 ```
 
 Now, use Ignite CLI to build the proto files for the `send-sell-order` command. You used this command in a previous
-chapter. 
+chapter.
 
 ```bash
 ignite generate proto-go --yes
@@ -27,15 +27,15 @@ ignite generate proto-go --yes
 
 ## Message Handling in SendSellOrder
 
-Sell orders are created using the `send-sell-order` command. This command creates a transaction with a `SendSellOrder` 
+Sell orders are created using the `send-sell-order` command. This command creates a transaction with a `SendSellOrder`
 message that triggers the `SendSellOrder` keeper method.
 
 The `SendSellOrder` command:
 
 * Checks that an order book for a specified denom pair exists.
 * Safely burns or locks token.
-  * If the token is an IBC token, burn the token.
-  * If the token is a native token, lock the token.
+    * If the token is an IBC token, burn the token.
+    * If the token is a native token, lock the token.
 * Saves the voucher that is received on the target chain to later resolve a denom.
 * Transmits an IBC packet to the target chain.
 
@@ -106,6 +106,10 @@ When a "sell order" packet is received on the target chain, you want the module 
 ```go
 // x/dex/keeper/sell_order.go
 
+package keeper
+
+// ...
+
 func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) (packetAck types.SellOrderPacketAck, err error) {
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
@@ -162,6 +166,10 @@ The `FillBuyOrder` function tries to fill the sell order with the order book and
 ```go
 // x/dex/types/sell_order_book.go
 
+package types
+
+// ...
+
 func (s *SellOrderBook) FillBuyOrder(order Order) (
 	remainingBuyOrder Order,
 	liquidated []Order,
@@ -200,11 +208,15 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (
 
 ### Implement a LiquidateFromBuyOrder Function
 
-The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is 
+The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is
 found, return false for match:
 
 ```go
 // x/dex/types/sell_order_book.go
+
+package types
+
+// ...
 
 func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
 	remainingBuyOrder Order,
@@ -257,18 +269,22 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
 
 ### Implement the OnAcknowledgement Function for Sell Order Packets
 
-After an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed 
-by the `OnAcknowledgementSellOrderPacket` function. 
+After an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed
+by the `OnAcknowledgementSellOrderPacket` function.
 
 The dex module on the source chain:
 
-- Stores the remaining sell order in the sell order book.
-- Distributes sold tokens to the buyers.
-- Distributes the price of the amount sold to the seller. 
-- On error, mints the burned tokens.
+* Stores the remaining sell order in the sell order book.
+* Distributes sold tokens to the buyers.
+* Distributes the price of the amount sold to the seller.
+* On error, mints the burned tokens.
 
 ```go
 // x/dex/keeper/sell_order.go
+
+package keeper
+
+// ...
 
 func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
@@ -339,6 +355,10 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 ```go
 // x/dex/types/sell_order_book.go
 
+package types
+
+// ...
+
 func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
 	return s.Book.appendOrder(creator, amount, price, Decreasing)
 }
@@ -350,6 +370,10 @@ If a timeout occurs, mint back the native token:
 
 ```go
 // x/dex/keeper/sell_order.go
+
+package keeper
+
+// ...
 
 func (k Keeper) OnTimeoutSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) error {
 	// In case of error we mint back the native token

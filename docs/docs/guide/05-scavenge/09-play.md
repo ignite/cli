@@ -14,23 +14,23 @@ To start your blockchain in development, run the following command:
 ignite chain serve
 ```
 
-The `serve` command builds the chain binary file, initializes a data directory, and starts a node in development. 
+The `serve` command builds the chain binary file, initializes a data directory, and starts a node in development.
 
 For all subsequent commands, you use a terminal window that is different from the window you started the chain in.
 
 ## Create a scavenge
 
-Follow the instructions and submit a new scavenge. 
+Follow the instructions and submit a new scavenge.
 
-The first parameter is the `solution`, but you should also know what the actual question is that your solution solves 
+The first parameter is the `solution`, but you should also know what the actual question is that your solution solves
 (the `description`).
 
-You can make the challenge question something family-friendly like `What's brown and sticky?`. Of course, the only 
+You can make the challenge question something family-friendly like `What's brown and sticky?`. Of course, the only
 solution to this question is `A stick`.
 
 Next, you must specify the `reward`. Give away `100token` as a reward for solving the scavenge.
 
-Now you have all the pieces needed to create your message. Piece them all together in the command and add the flag 
+Now you have all the pieces needed to create your message. Piece them all together in the command and add the flag
 `--from` so the CLI knows who is sending it:
 
 ```bash
@@ -58,7 +58,12 @@ The results:
   },
   "auth_info": {
     "signer_infos": [],
-    "fee": { "amount": [], "gas_limit": "200000", "payer": "", "granter": "" }
+    "fee": {
+      "amount": [],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
   },
   "signatures": []
 }
@@ -80,7 +85,10 @@ The results:
         {
           "type": "message",
           "attributes": [
-            { "key": "action", "value": "SubmitScavenge" },
+            {
+              "key": "action",
+              "value": "SubmitScavenge"
+            },
             {
               "key": "sender",
               "value": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh"
@@ -98,7 +106,10 @@ The results:
               "key": "sender",
               "value": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh"
             },
-            { "key": "amount", "value": "100token" }
+            {
+              "key": "amount",
+              "value": "100token"
+            }
           ]
         }
       ]
@@ -136,7 +147,10 @@ The results:
         {
           "type": "message",
           "attributes": [
-            { "key": "action", "value": "SubmitScavenge" },
+            {
+              "key": "action",
+              "value": "SubmitScavenge"
+            },
             {
               "key": "sender",
               "value": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh"
@@ -154,7 +168,10 @@ The results:
               "key": "sender",
               "value": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh"
             },
-            { "key": "amount", "value": "100token" }
+            {
+              "key": "amount",
+              "value": "100token"
+            }
           ]
         }
       ]
@@ -187,11 +204,20 @@ The results:
             "@type": "/cosmos.crypto.secp256k1.PubKey",
             "key": "ApRuim5kLByq9AqJJ9dEF5rFCkAbhIehEcPzSouM92p6"
           },
-          "mode_info": { "single": { "mode": "SIGN_MODE_DIRECT" } },
+          "mode_info": {
+            "single": {
+              "mode": "SIGN_MODE_DIRECT"
+            }
+          },
           "sequence": "1"
         }
       ],
-      "fee": { "amount": [], "gas_limit": "200000", "payer": "", "granter": "" }
+      "fee": {
+        "amount": [],
+        "gas_limit": "200000",
+        "payer": "",
+        "granter": ""
+      }
     },
     "signatures": [
       "8W5MkgV8oWpB6UWRGVKuimfPyb1OutG8KPXTIneM6WIvy4YHToG3GUXFpUrh+CxPXmlDh5gIfeR4+nFfUuQXng=="
@@ -222,7 +248,10 @@ The results:
       "scavenger": ""
     }
   ],
-  "pagination": { "next_key": null, "total": "0" }
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
 }
 ```
 
@@ -254,7 +283,12 @@ The results:
   },
   "auth_info": {
     "signer_infos": [],
-    "fee": { "amount": [], "gas_limit": "200000", "payer": "", "granter": "" }
+    "fee": {
+      "amount": [],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
   },
   "signatures": []
 }
@@ -278,7 +312,10 @@ The results:
       "solutionScavengerHash": "461d54ec0bbb1d696a79af80d7f63e4c6df262d76309423da37189453eaec127"
     }
   ],
-  "pagination": { "next_key": null, "total": "0" }
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
 }
 ```
 
@@ -311,7 +348,12 @@ The results:
   },
   "auth_info": {
     "signer_infos": [],
-    "fee": { "amount": [], "gas_limit": "200000", "payer": "", "granter": "" }
+    "fee": {
+      "amount": [],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
   },
   "signatures": []
 }
@@ -338,7 +380,10 @@ The results:
       "scavenger": "cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p"
     }
   ],
-  "pagination": { "next_key": null, "total": "0" }
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
 }
 ```
 

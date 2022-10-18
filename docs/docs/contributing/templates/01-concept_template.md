@@ -22,7 +22,6 @@ We admire and respect these resources:
 <!-- We like the way Digital Ocean explains things, you can learn about the title, introduction, and Goals sections at 
 https://do.co/style#title-introduction-and-goals -->
 
-
 ### Introduction
 
 <!-- Our articles have a consistent structure that includes an introduction, a conclusion, and any prerequisites necessary 
@@ -31,7 +30,7 @@ explain a concept. Conceptual articles can include, but do not require a prerequ
 might not follow the step convention.
 -->
 
-Introductory paragraph about the topic that explains what this topic is about and why the reader should care; what 
+Introductory paragraph about the topic that explains what this topic is about and why the reader should care; what
 problem does it solve?
 
 <!-- For example:
@@ -64,6 +63,7 @@ Common requirements for tutorials include:
 
 Local software needed, such as Go and Ignite CLI. For example:
 -->
+
 - [Install Ignite CLI](../../guide/01-install.md) <!--specific if version applies)-->
 
 ## Describe
@@ -92,7 +92,6 @@ In this article you [explored/learned] [something]. Now you can....
 
 <!-- Speak  to reader benefits of this technique or procedure and optionally provide places for further exploration. -->
 
-
 <!------------ Formatting ------------------------->
 
 <!-- Some examples of how to mark up various things
@@ -115,7 +114,7 @@ Here's output from a command:
 /usr/local/go/bin/go
 ```
 
-Write key presses in ALLCAPS with in-line code formatting: `ENTER`.
+Write key presses in ALL-CAPS with in-line code formatting: `ENTER`.
 
 Use a plus symbol (+) if keys need to be pressed simultaneously: `CTRL+C`.
 
