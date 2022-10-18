@@ -6,11 +6,14 @@ title: "Advanced Module: DeFi Loan"
 
 # DeFi loan module
 
-As a rapidly growing industry in the blockchain ecosystem, (decentralized finance) DeFi is spurring innovation and revolution in spending, sending, locking, and loaning cryptocurrency tokens.
+As a rapidly growing industry in the blockchain ecosystem, (decentralized finance) DeFi is spurring innovation and 
+revolution in spending, sending, locking, and loaning cryptocurrency tokens.
 
-One of the many goals of blockchain is to make financial instruments available to everyone. A loan in blockchain DeFi can be used in combination with lending, borrowing, spot trading, margin trading, and flash loans.
+One of the many goals of blockchain is to make financial instruments available to everyone. A loan in blockchain DeFi 
+can be used in combination with lending, borrowing, spot trading, margin trading, and flash loans.
 
-With DeFi, end users can quickly and easily access loans without having to submit their passports or background checks like in the traditional banking system.
+With DeFi, end users can quickly and easily access loans without having to submit their passports or background checks 
+like in the traditional banking system.
 
 In this tutorial, you learn about a basic loan system as you use Ignite CLI to build a loan module.
 
@@ -29,7 +32,8 @@ In this tutorial, you learn about a basic loan system as you use Ignite CLI to b
   * Liquidate loan
   * Cancel loan
 
-**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
+**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for 
+educational purposes. This tutorial code is not intended to be used in production.
 
 ## Module design
 
@@ -90,7 +94,8 @@ cd loan
 
 ## Scaffold the module
 
-Scaffold the module to create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded inside the `x` directory:
+Scaffold the module to create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded 
+inside the `x` directory:
 
 ```bash
 ignite scaffold module loan --dep bank
@@ -100,7 +105,8 @@ Use the `--dep` flag to specify that this module depends on and is going to inte
 
 ## Scaffold a list
 
-Use the [scaffold list](https://docs.ignite.com/cli/#ignite-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
+Use the [scaffold list](https://docs.ignite.com/cli/#ignite-scaffold-list) command to scaffold code necessary to store 
+loans in an array-like data structure:
 
 ```bash
 ignite scaffold list loan amount fee collateral deadline state borrower lender --no-message
@@ -108,7 +114,8 @@ ignite scaffold list loan amount fee collateral deadline state borrower lender -
 
 Use the `--no-message` flag to disable CRUD messages in the scaffold.
 
-The data you store in an array-like data structure are the loans, with these parameters that are defined in the `Loan` message in `proto/loan/loan.proto`:
+The data you store in an array-like data structure are the loans, with these parameters that are defined in the `Loan` 
+message in `proto/loan/loan/loan.proto`:
 
 ```protobuf
 message Loan {
@@ -125,7 +132,8 @@ message Loan {
 
 Later, you define the messages to interact with the loan list.
 
-Now it is time to use messages to interact with the loan module. But first, make sure to store your current state in a git commit:
+Now it is time to use messages to interact with the loan module. But first, make sure to store your current state in a
+git commit:
 
 ```bash
 git add .
@@ -152,7 +160,8 @@ Create the messages one at a time with the according application logic.
 
 For a loan, the initial message handles the transaction when a username requests a loan.
 
-The username wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks the time when the loan has to be repaid.
+The username wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks 
+the time when the loan has to be repaid.
 
 The first message is the `request-loan` message that  requires these input parameters:
 
@@ -167,7 +176,8 @@ ignite scaffold message request-loan amount fee collateral deadline
 
 For the sake of simplicity, define every parameter as a string.
 
-The `request-loan` message creates a new loan object and locks the tokens to be spent as fee and collateral into an escrow account. Describe these conditions in the module keeper `x/loan/keeper/msg_server_request_loan.go`:
+The `request-loan` message creates a new loan object and locks the tokens to be spent as fee and collateral into an 
+escrow account. Describe these conditions in the module keeper `x/loan/keeper/msg_server_request_loan.go`:
 
 ```go
 package keeper
@@ -221,7 +231,8 @@ func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan)
 }
 ```
 
-Since this function is using the `bankKeeper` with the function `SendCoinsFromAccountToModule`, you must add the `SendCoinsFromAccountToModule` function to `x/loan/types/expected_keepers.go` like this:
+Since this function is using the `bankKeeper` with the function `SendCoinsFromAccountToModule`, you must add the 
+`SendCoinsFromAccountToModule` function to `x/loan/types/expected_keepers.go` like this:
 
 ```go
 package types
@@ -235,7 +246,8 @@ type BankKeeper interface {
 
 ### Validate the input
 
-When a loan is created, a certain message input validation is required. You want to throw error messages in case the end user tries impossible inputs.
+When a loan is created, a certain message input validation is required. You want to throw error messages in case the 
+end user tries impossible inputs.
 
 You can describe message validation errors in the modules `types` directory.
 
@@ -382,7 +394,8 @@ func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan)
 }
 ```
 
-This module uses the `SendCoins` function of `bankKeeper`. Add this `SendCoins` function to the `x/loan/types/expected_keepers.go` file:
+This module uses the `SendCoins` function of `bankKeeper`. Add this `SendCoins` function to the 
+`x/loan/types/expected_keepers.go` file:
 
 ```go
 package types
@@ -552,7 +565,8 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 
 After the coins have been successfully exchanged, the state of the loan is set to `repayed`.
 
-To release tokens with the `SendCoinsFromModuleToAccount` function of `bankKeepers`, you need to add the `SendCoinsFromModuleToAccount` function to the `x/loan/types/expected_keepers.go`:
+To release tokens with the `SendCoinsFromModuleToAccount` function of `bankKeepers`, you need to add the 
+`SendCoinsFromModuleToAccount` function to the `x/loan/types/expected_keepers.go`:
 
 ```go
 package types
@@ -638,7 +652,8 @@ git commit -m "Add repay-loan message"
 
 ### Liquidate Loan Message
 
-After the deadline is passed, a lender can liquidate a loan when the borrower does not repay the tokens. The message to `liquidate-loan` refers to the loan `id`:
+After the deadline is passed, a lender can liquidate a loan when the borrower does not repay the tokens. The message 
+to `liquidate-loan` refers to the loan `id`:
 
 ```bash
 ignite scaffold message liquidate-loan id:uint
@@ -895,7 +910,8 @@ Now the collateral coins can be released from escrow and the status set to `canc
   state: cancelled
 ```
 
-Consider again updating your local repository with a git commit. After you test and use your loan module, consider publishing your code to a public repository for others to see your accomplishments.
+Consider again updating your local repository with a git commit. After you test and use your loan module, consider 
+publishing your code to a public repository for others to see your accomplishments.
 
 ```bash
 git add .
