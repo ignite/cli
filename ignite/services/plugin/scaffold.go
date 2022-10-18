@@ -8,8 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
@@ -43,7 +42,7 @@ func Scaffold(dir, moduleName string) (string, error) {
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", moduleName)
 	ctx.Set("Name", name)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	r := genny.WetRunner(ctx)
 	err := r.With(g)
 	if err != nil {
