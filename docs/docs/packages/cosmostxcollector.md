@@ -73,7 +73,7 @@ func collect(ctx context.Context, db postgres.Adapter) error {
 	}
 
 	// Collect transactions and events starting from a block height.
-	// The collector stop at the latest height available at the time of the call.
+	// The collector stops at the latest height available at the time of the call.
 	collector := cosmostxcollector.New(db, client)
 	if err := collector.Collect(ctx, latestHeight-50); err != nil {
 		return err
@@ -104,7 +104,7 @@ Collected data can be queried through the data backend adapters using event quer
 cursor based queries.
 
 Queries support sorting, paging and filtering by using different options during creation.
-The cursor based ones also support the selection of specific fields or properties and also
+The cursor based ones also supports the selection of specific fields or properties and also
 passing arguments in cases where the query is a function.
 
 ### Event queries
@@ -122,7 +122,7 @@ import (
 )
 
 func queryEvents(ctx context.Context, db postgres.Adapter) ([]query.Event, error) {
-	// Create an events query that returns events of type "transfer"
+	// Create an event query that returns events of type "transfer"
 	qry := query.NewEventQuery(
 		query.WithFilters(
 			postgres.FilterByEventType("transfer"),
@@ -158,7 +158,7 @@ import (
 )
 
 func queryEventIDs(ctx context.Context, db postgres.Adapter) (ids []int64, err error) {
-	// Create a query that returns event the IDs for events of type "transfer"
+	// Create a query that returns the IDs for events of type "transfer"
 	qry := query.New(
 		"event",
 		query.Fields("id"),
