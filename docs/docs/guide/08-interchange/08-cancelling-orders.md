@@ -9,7 +9,8 @@ You have implemented order books, buy and sell orders.  In this chapter, you ena
 
 ## Cancel a Sell Order
 
-To cancel a sell order, you have to get the ID of the specific sell order. Then you can use the function `RemoveOrderFromID` to remove the specific order from the order book and update the keeper accordingly.
+To cancel a sell order, you have to get the ID of the specific sell order. Then you can use the function 
+`RemoveOrderFromID` to remove the specific order from the order book and update the keeper accordingly.
 
 Move to the keeper directory and edit the `x/dex/keeper/msg_server_cancel_sell_order.go` file:
 
@@ -109,7 +110,8 @@ func (book *OrderBook) RemoveOrderFromID(id int32) error {
 
 ## Cancel a Buy Order
 
-To cancel a buy order, you have to get the ID of the specific buy order. Then you can use the function `RemoveOrderFromID` to remove the specific order from the order book and update the keeper accordingly:
+To cancel a buy order, you have to get the ID of the specific buy order. Then you can use the function 
+`RemoveOrderFromID` to remove the specific order from the order book and update the keeper accordingly:
 
 ```go
 // x/dex/keeper/msg_server_cancel_buy_order.go
@@ -175,7 +177,8 @@ func (k msgServer) CancelBuyOrder(goCtx context.Context, msg *types.MsgCancelBuy
 
 ## Summary
 
-You have completed implementing the functions that are required for the `dex` module. In this chapter,  you have implemented the design for cancelling specific buy or sell orders.
+You have completed implementing the functions that are required for the `dex` module. In this chapter,  you have 
+implemented the design for cancelling specific buy or sell orders.
 
 To test if your Ignite CLI blockchain builds correctly, use the `chain build` command:
 
