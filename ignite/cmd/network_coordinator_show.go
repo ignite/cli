@@ -5,7 +5,6 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/yaml"
-	"github.com/ignite/cli/ignite/services/network"
 )
 
 // NewNetworkCoordinatorShow creates a command to show coordinator information
@@ -28,7 +27,7 @@ func networkCoordinatorShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	n, err := nb.Network(network.CollectEvents(session.EventBus()))
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}

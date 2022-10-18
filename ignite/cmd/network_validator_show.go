@@ -5,7 +5,6 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/yaml"
-	"github.com/ignite/cli/ignite/services/network"
 )
 
 // NewNetworkValidatorShow creates a command to show validator information
@@ -28,7 +27,7 @@ func networkValidatorShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	n, err := nb.Network(network.CollectEvents(session.EventBus()))
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
