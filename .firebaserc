@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "ignite-hq"
+    "default": "ignitesrvc"
   },
   "targets": {
     "ignite-hq": {
