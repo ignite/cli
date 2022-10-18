@@ -287,7 +287,14 @@ func (c Chain) CheckConfigVersion() error {
 		return chainconfig.ErrConfigNotFound
 	}
 
-	return chainconfig.CheckVersion(configPath)
+	file, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return chainconfig.CheckVersion(file)
 }
 
 // Build builds chain sources, also checks if source was already built
