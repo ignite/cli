@@ -24,8 +24,10 @@
 - Change CLI to use an events bus to print to stdout.
 - Move generated proto files to `proto/{appname}/{module}`
 - Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
+- Add `--peer-address` flag to `network chain join` command.
 - Change nightly tag format
 - Add cosmos-sdk version in `version` command
+- [#29350](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
 
 ### Fixes
 
@@ -37,6 +39,7 @@
 - Fix config file migration to void leaving end of file content chunks
 - Change session print loop to block until all events are handled.
 - Handle "No records were found in keyring" message when checking keys.
+- [#2922](https://github.com/ignite/cli/pull/2922) Network commands check for latest config version before building the chain binary.
 
 ## [`v0.24.1`](https://github.com/ignite/cli/releases/tag/v0.24.1)
 
