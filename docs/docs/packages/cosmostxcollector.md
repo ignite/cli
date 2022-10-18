@@ -101,10 +101,10 @@ func main() {
 ## Queries
 
 Collected data can be queried through the data backend adapters using event queries or
-cursor based queries.
+cursor-based queries.
 
 Queries support sorting, paging and filtering by using different options during creation.
-The cursor based ones also supports the selection of specific fields or properties and also
+The cursor-based ones also support the selection of specific fields or properties and also
 passing arguments in cases where the query is a function.
 
 By default no sorting, filtering nor paging is applied to the queries.
@@ -138,15 +138,15 @@ func queryEvents(ctx context.Context, db postgres.Adapter) ([]query.Event, error
 }
 ```
 
-### Cursor based queries
+### Cursor-based queries
 
-This type of queries are meant to be used in contexts where the Event queries are not
+This type of queries is meant to be used in contexts where the Event queries are not
 useful.
 
-Cursor based queries can query a single "entity" which can be a table, view or function
+Cursor-based queries can query a single "entity" which can be a table, view or function
 in relational databases or a collection or function in non relational data backends.
 
-The result of these type of queries is a cursor that implements the `cosmostxcollector.query.Cursor`
+The result of these types of queries is a cursor that implements the `cosmostxcollector.query.Cursor`
 interface.
 
 ### Example: Query events using cursors
