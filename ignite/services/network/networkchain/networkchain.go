@@ -11,6 +11,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
@@ -279,8 +280,30 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 	return nodeID, nil
 }
 
+// CheckConfigVersion checks that the config version is the latest.
+func (c Chain) CheckConfigVersion() error {
+	configPath := c.chain.ConfigPath()
+	if configPath == "" {
+		return chainconfig.ErrConfigNotFound
+	}
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return chainconfig.CheckVersion(file)
+}
+
 // Build builds chain sources, also checks if source was already built
 func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
+	// Check that the config version is the latest before building the binary
+	if err = c.CheckConfigVersion(); err != nil {
+		return
+	}
+
 	// if chain was already published and has launch id check binary cache
 	if c.launchID != 0 {
 		if binaryName, err = c.chain.Binary(); err != nil {
