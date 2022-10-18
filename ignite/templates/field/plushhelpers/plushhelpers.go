@@ -1,7 +1,7 @@
 package plushhelpers
 
 import (
-	"github.com/gobuffalo/plush"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 	"github.com/ignite/cli/ignite/templates/field"
