@@ -124,8 +124,12 @@ func TestNetworkPublish(t *testing.T) {
 				step.Exec(
 					envtest.IgniteApp,
 					"network", "chain", "publish",
-					"https://github.com/lubtd/planet",
+					"https://github.com/ignite/example",
 					"--local",
+					// The hash is used to be sure the test uses the right config
+					// version. Hash value must be updated to the latest when the
+					// config version in the repository is updated to a new version.
+					"--hash", "b8b2cc2876c982dd4a049ed16b9a6099eca000aa",
 				),
 				step.Stdout(&b),
 			)),
