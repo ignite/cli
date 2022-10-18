@@ -18,7 +18,8 @@ message SellOrderPacketData {
 }
 ```
 
-Now, use Ignite CLI to build the proto files for the `send-sell-order` command. You used this command in a previous chapter. 
+Now, use Ignite CLI to build the proto files for the `send-sell-order` command. You used this command in a previous
+chapter. 
 
 ```bash
 ignite generate proto-go --yes
@@ -26,7 +27,8 @@ ignite generate proto-go --yes
 
 ## Message Handling in SendSellOrder
 
-Sell orders are created using the `send-sell-order` command. This command creates a transaction with a `SendSellOrder` message that triggers the `SendSellOrder` keeper method.
+Sell orders are created using the `send-sell-order` command. This command creates a transaction with a `SendSellOrder` 
+message that triggers the `SendSellOrder` keeper method.
 
 The `SendSellOrder` command:
 
@@ -198,7 +200,8 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (
 
 ### Implement a LiquidateFromBuyOrder Function
 
-The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is found, return false for match:
+The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is 
+found, return false for match:
 
 ```go
 // x/dex/types/sell_order_book.go
@@ -254,7 +257,8 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
 
 ### Implement the OnAcknowledgement Function for Sell Order Packets
 
-After an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed by the `OnAcknowledgementSellOrderPacket` function. 
+After an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed 
+by the `OnAcknowledgementSellOrderPacket` function. 
 
 The dex module on the source chain:
 
