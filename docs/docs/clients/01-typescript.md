@@ -23,7 +23,8 @@ A TS client is generated in the `ts-client` directory.
 
 ## Client code regeneration
 
-By default, the filesystem is watched and the clients are regenerated automatically. Clients for standard Cosmos SDK modules are generated after you scaffold a blockchain.
+By default, the filesystem is watched and the clients are regenerated automatically. Clients for standard Cosmos SDK 
+modules are generated after you scaffold a blockchain.
 
 To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
 
@@ -37,10 +38,12 @@ To prevent regenerating the client, remove the `client:typescript` property from
 
 ## Setup
 
-The best way to get started building with the TypeScript client is by using a [Vite](https://vitejs.dev/) boilerplate. Vite provides boilerplates for vanilla TS projects as well as react, vue, lit, svelte and preact frameworks.
+The best way to get started building with the TypeScript client is by using a [Vite](https://vitejs.dev/) boilerplate. 
+Vite provides boilerplates for vanilla TS projects as well as react, vue, lit, svelte and preact frameworks.
 You can find additional information at the [Vite Getting Started guide](https://vitejs.dev/guide/).
 
-You will also need to polyfill the client's dependencies. The following is an example of setting up a vanilla TS project with the necessary polyfills.
+You will also need to polyfill the client's dependencies. The following is an example of setting up a vanilla TS 
+project with the necessary polyfills.
 
 ```bash
 npm create vite@latest my-frontend-app -- --template vanilla-ts
@@ -64,17 +67,22 @@ export default defineConfig({
 })
 ```
 
-You are then ready to use the generated client code inside this project directly or by publishing the client and installing it as any other npm package.
+You are then ready to use the generated client code inside this project directly or by publishing the client and 
+installing it as any other npm package.
 
 ## Usage
 
-The code generated in `ts-client` comes with a `package.json` file ready to publish which you can modify to suit your needs.
+The code generated in `ts-client` comes with a `package.json` file ready to publish which you can modify to suit your 
+needs.
 
-The client is based on a modular architecture where you can configure a client class to support the modules you need and instantiate it.
+The client is based on a modular architecture where you can configure a client class to support the modules you need 
+and instantiate it.
 
-By default, the generated client exports a client class that includes all the Cosmos SDK, custom and 3rd party modules in use in your project.
+By default, the generated client exports a client class that includes all the Cosmos SDK, custom and 3rd party modules 
+in use in your project.
 
-To instantiate the client you need to provide environment information (endpoints and chain prefix) and an optional wallet (implementing the CosmJS OfflineSigner interface).
+To instantiate the client you need to provide environment information (endpoints and chain prefix) and an optional 
+wallet (implementing the CosmJS OfflineSigner interface).
 
 For example, to connect to a local chain instance running under the Ignite CLI defaults, using Keplr as a wallet:
 
@@ -90,7 +98,8 @@ const client = new Client({
 );
 ```
 
-The resulting client instance contains namespaces for each module, each with a `query` and `tx` namespace containing the module's relevant querying and transacting methods with full type and auto-completion support. 
+The resulting client instance contains namespaces for each module, each with a `query` and `tx` namespace containing 
+the module's relevant querying and transacting methods with full type and auto-completion support. 
 
 e.g.
 
@@ -119,7 +128,8 @@ const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend(
 );
 ```
 
-If you prefer, you can construct a lighter client using only the modules you are interested in by importing the generic client class and expanding it with the modules you need:
+If you prefer, you can construct a lighter client using only the modules you are interested in by importing the 
+generic client class and expanding it with the modules you need:
 
 ```typescript
 import { IgniteClient } from '<path-to-ts-client>/client';
@@ -171,7 +181,8 @@ const msg2 = await client.CosmosBankV1Beta1.tx.msgSend(
 const tx_result = await client.signAndBroadcast([msg1,msg2], fee, memo);
 ```
 
-Finally, for additional ease-of-use, apart from the modular client mentioned above, each generated module is usable on its own in a stripped-down way by exposing a separate txClient and queryClient.
+Finally, for additional ease-of-use, apart from the modular client mentioned above, each generated module is usable on 
+its own in a stripped-down way by exposing a separate txClient and queryClient.
 
 e.g.
 

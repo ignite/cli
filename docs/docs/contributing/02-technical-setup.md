@@ -3,7 +3,8 @@ sidebar_position: 1
 ---
 # Technical setup
 
-To ensure you have a successful experience working with our Developer Tutorials content, Ignite recommends this technical setup.
+To ensure you have a successful experience working with our Developer Tutorials content, Ignite recommends this 
+technical setup.
 
 ## Setting up Visual Studio Code
 
@@ -35,19 +36,22 @@ Master your terminal to be happy.
 
 ### iTerm2 terminal emulator
 
-On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 as a replacement for Terminal provides an updated version of the Bash shell that supports useful features like programmable completion.
+On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. 
+Installing iTerm2 as a replacement for Terminal provides an updated version of the Bash shell that supports useful 
+features like programmable completion.
 
 ### Using ZSH as your default shell
 
 The Z shell, also known as zsh, is a UNIX shell that is built on top of the macOS default Bourne shell.
 
-1. If you want to set your default shell to zsh, install and set up [zsh](https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH) as the default shell.
+1. If you want to set your default shell to zsh, install and set up [zsh](https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH) 
+as the default shell.
 
-1. Install these plugins:
+2. Install these plugins:
     - [zsh-auto-suggestions](https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md#oh-my-zsh)
     - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md#oh-my-zsh)
 
-1. Edit your `~/.zshrc` file to add the plugins to load on startup:
+3. Edit your `~/.zshrc` file to add the plugins to load on startup:
 
     ```
     plugins=(
@@ -57,7 +61,7 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
     )
     ```
 
-1. Log out and log back in to the terminal to use your new default zsh shell.
+4. Log out and log back in to the terminal to use your new default zsh shell.
 
 ## Install Go
 
