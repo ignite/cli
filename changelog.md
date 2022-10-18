@@ -24,6 +24,7 @@
 - Change CLI to use an events bus to print to stdout.
 - Move generated proto files to `proto/{appname}/{module}`
 - Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
+- Add `--peer-address` flag to `network chain join` command.
 - Change nightly tag format
 - Add cosmos-sdk version in `version` command
 - [#29350](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
