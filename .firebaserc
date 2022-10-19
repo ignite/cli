@@ -6,7 +6,7 @@
     "ignitesrvc": {
       "hosting": {
         "docs.ignite.com": [
-          "ignitesrvc-docs"
+          "ignitesrvc-d"
         ]
       }
     }
