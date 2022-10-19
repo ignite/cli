@@ -62,7 +62,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 // renderRequestSummaries writes into the provided out, the list of summarized requests
 func renderRequestSummaries(
 	requests []networktypes.Request,
-	session cliui.Session,
+	session *cliui.Session,
 	addressPrefix string,
 ) error {
 	requestEntries := make([][]string, 0)
