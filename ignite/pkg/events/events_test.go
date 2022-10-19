@@ -24,7 +24,7 @@ func TestNew(t *testing.T) {
 			name:       "in progress event",
 			message:    msg,
 			inProgress: true,
-			options:    []events.Option{events.ProgressStarted()},
+			options:    []events.Option{events.ProgressStart()},
 			event: events.Event{
 				ProgressIndication: events.IndicationStart,
 				Message:            msg,
@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 		{
 			name:    "finished event",
 			message: msg,
-			options: []events.Option{events.ProgressFinished()},
+			options: []events.Option{events.ProgressFinish()},
 			event: events.Event{
 				ProgressIndication: events.IndicationFinish,
 				Message:            msg,

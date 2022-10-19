@@ -193,12 +193,12 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
 				case errors.As(err, &buildErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -459,7 +459,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.ev.Send(
 		fmt.Sprintf("Tendermint node: %s", rpcAddr),
 		events.Icon(icons.Earth),
-		events.ProgressFinished(),
+		events.ProgressFinish(),
 	)
 	c.ev.Send(
 		fmt.Sprintf("Blockchain API: %s", apiAddr),

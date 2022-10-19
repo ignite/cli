@@ -27,22 +27,22 @@ type (
 	Option func(*Event)
 )
 
-// ProgressStarted sets ProgressIndication as started.
-func ProgressStarted() Option {
+// ProgressStarted indicates that the event starts the progress indicator.
+func ProgressStart() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationStart
 	}
 }
 
-// ProgressUpdate sets ProgressIndication as updated.
+// ProgressUpdate indicates that the event updates the current progress.
 func ProgressUpdate() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationUpdate
 	}
 }
 
-// ProgressFinished sets ProgressIndication as finished.
-func ProgressFinished() Option {
+// ProgressFinish indicates that the event finish the current progress.
+func ProgressFinish() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationFinish
 	}

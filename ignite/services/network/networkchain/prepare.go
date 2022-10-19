@@ -95,7 +95,7 @@ func (c Chain) buildGenesis(
 	lastBlockHeight,
 	consumerUnbondingTime int64,
 ) error {
-	c.ev.Send("Building the genesis", events.ProgressStarted())
+	c.ev.Send("Building the genesis", events.ProgressStart())
 
 	addressPrefix, err := c.detectPrefix(ctx)
 	if err != nil {
@@ -146,7 +146,7 @@ func (c Chain) buildGenesis(
 		}
 	}
 
-	c.ev.Send("Genesis built", events.ProgressFinished())
+	c.ev.Send("Genesis built", events.ProgressFinish())
 
 	return nil
 }

@@ -74,7 +74,7 @@ func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs
 
 // SubmitRequest submits reviewals for proposals in batch for chain.
 func (n Network) SubmitRequest(ctx context.Context, launchID uint64, reviewal ...Reviewal) error {
-	n.ev.Send("Submitting requests...", events.ProgressStarted())
+	n.ev.Send("Submitting requests...", events.ProgressStart())
 
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
