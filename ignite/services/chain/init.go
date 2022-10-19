@@ -25,7 +25,7 @@ func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 		return &CannotBuildAppError{err}
 	}
 
-	if err := c.InitChain(ctx); err != nil {
+	if err := c.InitChain(ctx, conf); err != nil {
 		return err
 	}
 
@@ -36,13 +36,8 @@ func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 }
 
 // InitChain initializes the chain.
-func (c *Chain) InitChain(ctx context.Context) error {
+func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config) error {
 	chainID, err := c.ID()
-	if err != nil {
-		return err
-	}
-
-	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
@@ -126,7 +121,9 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 	c.ev.Send("🗂  Initialize accounts...")
 	c.ev.SendView(accounts)
 
-	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	if conf.Validators != nil {
+		_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	}
 
 	return err
 }

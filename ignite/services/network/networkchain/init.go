@@ -126,7 +126,12 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		// ensure that there are no validators
 		config.Validators = nil
 
-		err = c.chain.UpdateGenesisFile(config.Genesis)
+		err = c.chain.InitChain(ctx, config)
+		if err != nil {
+			return err
+		}
+
+		err = c.chain.InitAccounts(ctx, config)
 		if err != nil {
 			return err
 		}
@@ -167,6 +172,7 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	chainGenesis, err := cosmosgenesis.FromPath(genesisPath)
 	if err != nil {
 		return err
