@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ignite/cli/ignite/chainconfig"
 	"os"
 	"path/filepath"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -122,6 +122,9 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if config.Genesis == nil {
 			return fmt.Errorf("no genesis found in custom config")
 		}
+
+		// ensure that there are no validators
+		config.Validators = nil
 
 		err = c.chain.UpdateGenesisFile(config.Genesis)
 		if err != nil {
