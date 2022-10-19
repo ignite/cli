@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
@@ -56,7 +55,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
