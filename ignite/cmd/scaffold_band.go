@@ -49,10 +49,8 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		signer  = flagGetSigner(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinner(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {

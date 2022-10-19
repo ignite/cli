@@ -20,8 +20,10 @@ type sessionOptions struct {
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
-	startSpinner bool
-	verbosity    uilog.Verbosity
+	spinnerStart bool
+	spinnerText  string
+
+	verbosity uilog.Verbosity
 }
 
 // Session controls command line interaction with users.
@@ -65,9 +67,14 @@ func WithVerbosity(v uilog.Verbosity) Option {
 }
 
 // StartSpinner forces spinner to be spinning right after creation.
-func StartSpinner() Option {
+// When the optional text is present it is used instead of the default one.
+func StartSpinner(text ...string) Option {
 	return func(s *Session) {
-		s.options.startSpinner = true
+		s.options.spinnerStart = true
+
+		if text != nil {
+			s.options.spinnerText = text[0]
+		}
 	}
 }
 
@@ -98,8 +105,12 @@ func New(options ...Option) Session {
 
 	session.out = uilog.NewOutput(logOptions...)
 
-	if session.options.startSpinner {
+	if session.options.spinnerStart {
 		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
+
+		if session.options.spinnerText != "" {
+			session.spinner.SetText(session.options.spinnerText)
+		}
 	}
 
 	// The main loop that prints the events uses a wait group to block

@@ -24,10 +24,8 @@ func NewScaffoldFlutter() *cobra.Command {
 }
 
 func scaffoldFlutterHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinner(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	path := flagGetPath(cmd)
 	if err := scaffolder.Flutter(path); err != nil {

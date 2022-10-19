@@ -7,6 +7,8 @@ import (
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
+const statusGenerating = "Generating..."
+
 func NewGenerateGo() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "proto-go",
@@ -21,10 +23,8 @@ func NewGenerateGo() *cobra.Command {
 }
 
 func generateGoHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinner(statusGenerating))
 	defer session.End()
-
-	session.StartSpinner("Generating...")
 
 	c, err := newChainWithHomeFlags(
 		cmd,

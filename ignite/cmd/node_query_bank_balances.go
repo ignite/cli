@@ -6,6 +6,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
+const statusQuerying = "Querying..."
+
 func NewNodeQueryBankBalances() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "balances [from_account_or_address]",
@@ -42,9 +44,8 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinner(statusQuerying))
 	defer session.End()
-	session.StartSpinner("Querying...")
 
 	balances, err := client.BankBalances(cmd.Context(), address, pagination)
 	if err != nil {
