@@ -36,8 +36,40 @@ func NewNetworkChainPublish() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "publish [source-url]",
 		Short: "Publish a new chain to start a new network",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainPublishHandler,
+		Long: `To begin the process of launching a blockchain with Ignite, a coordinator needs
+to publish the information about a blockchain. The only required bit of
+information is URL of the source code of the blockchain.
+
+The following command publishes the information about an example blockchain:
+
+  ignite network chain publish github.com/ignite/example
+
+This command fetches the source code of the blockchain, compiles the binary,
+verifies that a blockchain can be started with the binary and publishes the
+information about the blockchain to Ignite. The command returns a integer number
+that acts as an identifier of the chain on Ignite.
+
+By publishing a blockchain on Ignite you become the "coordinator" of this
+blockchain. A coordinator is an account that has the authority to approve and
+reject validator requests, set parameters of the blockchain and trigger the
+launch of the chain.
+
+Ignite considers every chain launch as part of a "project". A project is a
+sequence of testnets that may result in a launch of a mainnet. By default
+"ignite network chain publish" creates a new chain, creates a new project and
+adds the chain to the project.
+
+To publish a chain in an existing project use the "--campaign" flag (make sure
+that the campaign with a given ID exists):
+
+  ignite network chain publish github.com/ignite/example --campaign 42
+
+By default a chain is published as a tesnet. Use the "--mainnet" flag to publish
+a mainnet. Note that a project can only have one mainnet and it's the last chain
+in the project.
+`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainPublishHandler,
 	}
 
 	flagSetClearCache(c)
