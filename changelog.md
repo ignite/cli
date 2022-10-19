@@ -9,6 +9,8 @@
 - Add `ignite network validator` command set.
 - Move cosmoscmd in chain's templates.
 - Add generated TS client test support to integration tests.
+- [#2950](https://github.com/ignite/cli/pull/2950) Add `--genesis-config` flag option to `ignite network chain publish` 
+command
 
 ### Changes
 
