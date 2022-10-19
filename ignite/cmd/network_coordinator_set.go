@@ -7,6 +7,7 @@ import (
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
 // NewNetworkCoordinatorSet creates a command to set an information in a coordinator profile
@@ -32,7 +33,7 @@ The following information can be set:
 }
 
 func networkCoordinatorSetHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
@@ -57,5 +58,9 @@ func networkCoordinatorSetHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("invalid attribute, must provide details, identity, website or security")
 	}
 
-	return n.SetCoordinatorDescription(cmd.Context(), description)
+	if err := n.SetCoordinatorDescription(cmd.Context(), description); err != nil {
+		return err
+	}
+
+	return session.Printf("%s Coordinator updated \n", icons.OK)
 }

@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -86,7 +85,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ackFields", opts.AckFields)
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
