@@ -10,6 +10,7 @@ type ProgressIndication uint8
 const (
 	IndicationNone ProgressIndication = iota
 	IndicationStart
+	IndicationUpdate
 	IndicationFinish
 )
 
@@ -22,25 +23,32 @@ type (
 		Verbose            bool
 	}
 
-	// Option event options
+	// Option event options.
 	Option func(*Event)
 )
 
-// ProgressStarted sets ProgressIndication as started
+// ProgressStarted sets ProgressIndication as started.
 func ProgressStarted() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationStart
 	}
 }
 
-// ProgressFinished sets ProgressIndication as finished
+// ProgressUpdate sets ProgressIndication as updated.
+func ProgressUpdate() Option {
+	return func(e *Event) {
+		e.ProgressIndication = IndicationUpdate
+	}
+}
+
+// ProgressFinished sets ProgressIndication as finished.
 func ProgressFinished() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationFinish
 	}
 }
 
-// Verbose sets high verbosity for the Event
+// Verbose sets high verbosity for the Event.
 func Verbose() Option {
 	return func(e *Event) {
 		e.Verbose = true

@@ -244,10 +244,13 @@ func (s Session) handleEvents(wg *sync.WaitGroup) {
 		switch e.ProgressIndication {
 		case events.IndicationStart:
 			s.StartSpinner(e.String())
+		case events.IndicationUpdate:
+			s.spinner.SetText(e.String())
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 		default:
+			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 			resume()
