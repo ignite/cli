@@ -6,7 +6,7 @@
     "ignite-hq": {
       "hosting": {
         "docs.ignite.com": [
-          "ignite-go-docs"
+          "ignitesrvc-docs"
         ]
       }
     }
