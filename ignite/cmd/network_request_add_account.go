@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +18,7 @@ func NewNetworkRequestAddAccount() *cobra.Command {
 		Use:   "add-account [launch-id] [address] [coins]",
 		Short: "Send request to add account",
 		RunE:  networkRequestAddAccountHandler,
-		Args:  cobra.MaximumNArgs(3),
+		Args:  cobra.RangeArgs(2, 3),
 	}
 
 	flagSetClearCache(c)
@@ -76,6 +77,9 @@ func networkRequestAddAccountHandler(cmd *cobra.Command, args []string) error {
 			)
 		}
 	} else {
+		if len(args) < 3 {
+			return errors.New("account balance expected")
+		}
 		balanceStr := args[2]
 		balance, err = sdk.ParseCoinsNormalized(balanceStr)
 		if err != nil {
