@@ -72,7 +72,7 @@ func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config) error {
 	}
 
 	// update genesis file with the genesis values defined in the config
-	if err := c.UpdateGenesisFile(conf.Genesis); err != nil {
+	if err := c.updateGenesisFile(conf.Genesis); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func (c *Chain) IsInitialized() (bool, error) {
 	return true, nil
 }
 
-func (c Chain) UpdateGenesisFile(data map[string]interface{}) error {
+func (c Chain) updateGenesisFile(data map[string]interface{}) error {
 	path, err := c.GenesisPath()
 	if err != nil {
 		return err
