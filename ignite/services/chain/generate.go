@@ -9,6 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 const (
@@ -119,7 +120,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	c.ev.Send("🛠  Building proto...")
+	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
