@@ -115,19 +115,23 @@ The event queries return events and their attributes as `[]cosmostxcollector.que
 
 ### Example: Query events
 
+The example reads transfer events from Cosmos' bank module and paginates the results.
+
 ```go
 import (
 	"context"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 )
 
-func queryEvents(ctx context.Context, db postgres.Adapter) ([]query.Event, error) {
+func queryBankTransferEvents(ctx context.Context, db postgres.Adapter) ([]query.Event, error) {
 	// Create an event query that returns events of type "transfer"
 	qry := query.NewEventQuery(
 		query.WithFilters(
-			postgres.FilterByEventType("transfer"),
+			// Filter transfer events from Cosmos' bank module
+			postgres.FilterByEventType(banktypes.EventTypeTransfer),
 		),
 		query.WithPageSize(10),
 		query.AtPage(1),
@@ -155,17 +159,19 @@ interface.
 import (
 	"context"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 )
 
-func queryEventIDs(ctx context.Context, db postgres.Adapter) (ids []int64, err error) {
+func queryBankTransferEventIDs(ctx context.Context, db postgres.Adapter) (ids []int64, err error) {
 	// Create a query that returns the IDs for events of type "transfer"
 	qry := query.New(
 		"event",
 		query.Fields("id"),
 		query.WithFilters(
-			postgres.NewFilter("type", "transfer"),
+			// Filter transfer events from Cosmos' bank module
+			postgres.NewFilter("type", banktypes.EventTypeTransfer),
 		),
 		query.WithPageSize(10),
 		query.AtPage(1),
