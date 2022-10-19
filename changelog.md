@@ -39,6 +39,7 @@
 - Fix config file migration to void leaving end of file content chunks
 - Change session print loop to block until all events are handled.
 - Handle "No records were found in keyring" message when checking keys.
+- [#2941](https://github.com/ignite/cli/issues/2941) Fix session to use the same spinner referece.
 
 ## [`v0.24.1`](https://github.com/ignite/cli/releases/tag/v0.24.1)
 
