@@ -124,6 +124,7 @@ func (a App) Serve(msg string, options ...ExecOption) (ok bool) {
 		"chain",
 		"serve",
 		"-v",
+		"--quit-on-fail",
 	}
 
 	if a.homePath != "" {

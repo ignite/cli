@@ -77,7 +77,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddOracle(cacheStorage, placeholder.New(), module, oracle, options...)
+	sm, err := sc.AddOracle(cmd.Context(), cacheStorage, placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err
 	}

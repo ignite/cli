@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -44,6 +45,9 @@ var (
 	// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
 	FaucetTransferEnsureDuration = time.Second * 40
 
+	// ErrInvalidBlockHeight is returned when a block height value is not valid.
+	ErrInvalidBlockHeight = errors.New("block height must be greater than 0")
+
 	errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
 )
 
@@ -51,25 +55,35 @@ const (
 	defaultNodeAddress   = "http://localhost:26657"
 	defaultGasAdjustment = 1.0
 	defaultGasLimit      = 300000
-)
 
-const (
 	defaultFaucetAddress   = "http://localhost:4500"
 	defaultFaucetDenom     = "token"
 	defaultFaucetMinAmount = 100
+
+	defaultTXsPerPage = 30
+
+	searchHeight = "tx.height"
+
+	orderAsc = "asc"
 )
 
 // FaucetClient allows to mock the cosmosfaucet.Client.
+//
+//go:generate mockery --srcpkg . --name FaucetClient --structname FaucetClient --filename faucet_client.go --with-expecter
 type FaucetClient interface {
 	Transfer(context.Context, cosmosfaucet.TransferRequest) (cosmosfaucet.TransferResponse, error)
 }
 
 // Gasometer allows to mock the tx.CalculateGas func.
+//
+//go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
 type Gasometer interface {
 	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
 }
 
 // Signer allows to mock the tx.Sign func.
+//
+//go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
 type Signer interface {
 	Sign(txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
 }
@@ -582,6 +596,93 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 	}, nil
 }
 
+// GetBlockTXs returns the transactions in a block.
+// The list of transactions can be empty if there are no transactions in the block
+// at the moment this method is called.
+// Tendermint might index a limited number of block so trying to fetch transactions
+// from a block that is not indexed would return an error.
+func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err error) {
+	if height == 0 {
+		return nil, ErrInvalidBlockHeight
+	}
+
+	r, err := c.RPC.Block(ctx, &height)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
+	}
+
+	query := createTxSearchByHeightQuery(height)
+
+	// TODO: improve to fetch pages in parallel (requires fetching page 1 to calculate n. of pages)
+	page := 1
+	perPage := defaultTXsPerPage
+	blockTime := r.Block.Time
+	for {
+		res, err := c.RPC.TxSearch(ctx, query, false, &page, &perPage, orderAsc)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, tx := range res.Txs {
+			txs = append(txs, TX{
+				BlockTime: blockTime,
+				Raw:       tx,
+			})
+		}
+
+		// Stop when the last page is fetched
+		if res.TotalCount <= (page * perPage) {
+			break
+		}
+
+		page++
+	}
+
+	return txs, nil
+}
+
+// CollectTXs collects transactions from multiple consecutive blocks.
+// Transactions from a single block are send to the channel only if all transactions
+// from that block are collected successfully.
+// Blocks are traversed sequentially starting from a height until the latest block height
+// available at the moment this method is called.
+// The channel might contain the transactions collected successfully up until that point
+// when an error is returned.
+func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX) error {
+	defer close(tc)
+
+	latestHeight, err := c.LatestBlockHeight(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to fetch latest block height: %w", err)
+	}
+
+	if fromHeight == 0 {
+		fromHeight = 1
+	}
+
+	for height := fromHeight; height <= latestHeight; height++ {
+		txs, err := c.GetBlockTXs(ctx, height)
+		if err != nil {
+			return err
+		}
+
+		// Ignore blocks without transactions
+		if txs == nil {
+			continue
+		}
+
+		// Make sure that collection finishes if the context
+		// is done when the transactions channel is full
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case tc <- txs:
+		}
+	}
+
+	return nil
+}
+
 // makeSureAccountHasTokens makes sure the address has a positive balance
 // it requests funds from the faucet if the address has an empty balance
 func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
@@ -708,4 +809,10 @@ func newFactory(clientCtx client.Context) tx.Factory {
 		WithSignMode(signing.SignMode_SIGN_MODE_UNSPECIFIED).
 		WithAccountRetriever(clientCtx.AccountRetriever).
 		WithTxConfig(clientCtx.TxConfig)
+}
+
+func createTxSearchByHeightQuery(height int64) string {
+	params := url.Values{}
+	params.Set(searchHeight, strconv.FormatInt(height, 10))
+	return params.Encode()
 }

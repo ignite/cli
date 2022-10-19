@@ -191,7 +191,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.CreateModule(cacheStorage, placeholder.New(), name, options...)
+	sm, err := sc.CreateModule(cmd.Context(), cacheStorage, placeholder.New(), name, options...)
 	if err != nil {
 		var validationErr validation.Error
 		if !requireRegistration && errors.As(err, &validationErr) {
