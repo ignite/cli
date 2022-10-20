@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `ignite network request add-account` command.
+
 ## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
 ### Features
@@ -9,7 +15,6 @@
 - Add `ignite network validator` command set.
 - Deprecate `cosmoscmd` pkg and add cmd templates for scaffolding.
 - Add generated TS client test support to integration tests.
-- Add `ignite network request add-account` command.
 
 ### Changes
 
