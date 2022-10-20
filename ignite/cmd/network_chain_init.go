@@ -43,8 +43,8 @@ code of the chain is cloned in a temporary directory, and the node's binary is
 compiled from the source. The binary is then used to initialize the node. By
 default, Ignite uses "~/spn/[launch-id]/" as the home directory for the blockchain.
 
-An important part of initializing a validator node is generation and signing of
-the genesis validator transaction (a transaction containing a "create validator"
+An important part of initializing a validator node is the generation and signature of
+the genesis validator creation transaction (a transaction containing a "create validator"
 message", often referred to as "gentx").
 
 The "init" command will prompt for values like self-delegation and commission.
