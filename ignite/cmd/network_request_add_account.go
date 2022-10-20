@@ -56,9 +56,7 @@ func networkRequestAddAccountHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var networkOptions []networkchain.Option
-
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
 	}
