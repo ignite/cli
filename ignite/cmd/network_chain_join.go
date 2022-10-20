@@ -162,7 +162,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(cmd *cobra.Command, session cliui.Session) (publicAddress string, err error) {
+func askPublicAddress(cmd *cobra.Command, session *cliui.Session) (publicAddress string, err error) {
 	ctx := cmd.Context()
 
 	if gitpod.IsOnGitpod() {

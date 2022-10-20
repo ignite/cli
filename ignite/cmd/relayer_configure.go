@@ -459,7 +459,7 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 func initChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
-	session cliui.Session,
+	session *cliui.Session,
 	name,
 	accountName,
 	rpcAddr,

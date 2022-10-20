@@ -51,7 +51,7 @@ func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 }
 
 // renderCampaignSummaries writes into the provided out, the list of summarized campaigns
-func renderCampaignSummaries(campaigns []networktypes.Campaign, session cliui.Session) error {
+func renderCampaignSummaries(campaigns []networktypes.Campaign, session *cliui.Session) error {
 	var campaignEntries [][]string
 
 	for _, c := range campaigns {
