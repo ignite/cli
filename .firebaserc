@@ -3,10 +3,10 @@
     "default": "ignitesrvc"
   },
   "targets": {
-    "ignite-hq": {
+    "ignitesrvc": {
       "hosting": {
         "docs.ignite.com": [
-          "ignite-go-docs"
+          "ignitesrvc-d"
         ]
       }
     }

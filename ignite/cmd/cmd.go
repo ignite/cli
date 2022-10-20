@@ -303,7 +303,7 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(session cliui.Session, title string) error {
+func printSection(session *cliui.Session, title string) error {
 	return session.Printf("------\n%s\n------\n\n", title)
 }
 
