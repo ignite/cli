@@ -66,15 +66,19 @@ func WithVerbosity(v uilog.Verbosity) Option {
 	}
 }
 
-// StartSpinner forces spinner to be spinning right after creation.
-// When the optional text is present it is used instead of the default one.
-func StartSpinner(text ...string) Option {
+// StartDefaultSpinner forces spinner to be spinning right after creation.
+func StartSpinner() Option {
 	return func(s *Session) {
 		s.options.spinnerStart = true
+	}
+}
 
-		if text != nil {
-			s.options.spinnerText = text[0]
-		}
+// StartSpinnerWithText forces spinner to be spinning right after creation
+// with a custom status text.
+func StartSpinnerWithText(text string) Option {
+	return func(s *Session) {
+		s.options.spinnerStart = true
+		s.options.spinnerText = text
 	}
 }
 

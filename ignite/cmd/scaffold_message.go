@@ -87,7 +87,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		withoutSimulation = flagGetNoSimulation(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner(statusScaffolding))
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
 	cacheStorage, err := newCache(cmd)

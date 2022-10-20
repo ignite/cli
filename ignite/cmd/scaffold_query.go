@@ -38,7 +38,7 @@ func NewScaffoldQuery() *cobra.Command {
 func queryHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 
-	session := cliui.New(cliui.StartSpinner(statusScaffolding))
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
 	// Get the module to add the type into

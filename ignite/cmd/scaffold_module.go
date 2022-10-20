@@ -119,7 +119,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		appPath = flagGetPath(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner(statusScaffolding))
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)

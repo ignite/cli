@@ -63,7 +63,7 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New(cliui.StartSpinner("Setting up chains..."))
+	session := cliui.New(cliui.StartSpinnerWithText("Setting up chains..."))
 	defer session.End()
 
 	launchID, err := network.ParseID(args[0])

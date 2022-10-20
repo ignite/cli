@@ -20,7 +20,7 @@ func NewNodeQueryTx() *cobra.Command {
 }
 
 func nodeQueryTxHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner(statusQuerying))
+	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
 	defer session.End()
 
 	bz, err := hex.DecodeString(args[0])

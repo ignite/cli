@@ -44,7 +44,7 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New(cliui.StartSpinner(statusQuerying))
+	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
 	defer session.End()
 
 	balances, err := client.BankBalances(cmd.Context(), address, pagination)

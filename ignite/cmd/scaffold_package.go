@@ -45,7 +45,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		appPath      = flagGetPath(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner(statusScaffolding))
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
 	module, err := cmd.Flags().GetString(flagModule)

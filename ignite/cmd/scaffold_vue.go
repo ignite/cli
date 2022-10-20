@@ -24,7 +24,7 @@ func NewScaffoldVue() *cobra.Command {
 }
 
 func scaffoldVueHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner(statusScaffolding))
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
 	path := flagGetPath(cmd)
