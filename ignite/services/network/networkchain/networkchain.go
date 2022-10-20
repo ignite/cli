@@ -99,6 +99,7 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 		c.hash = launch.SourceHash
 		c.genesisURL = launch.GenesisURL
 		c.genesisHash = launch.GenesisHash
+		c.genesisConfig = launch.GenesisConfig
 		c.home = ChainHome(launch.ID)
 		c.launchTime = launch.LaunchTime
 		c.accountBalance = launch.AccountBalance

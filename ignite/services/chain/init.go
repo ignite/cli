@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -73,7 +72,6 @@ func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config) error {
 	}
 
 	// update genesis file with the genesis values defined in the config
-	fmt.Println(conf.Genesis)
 	if err := c.updateGenesisFile(conf.Genesis); err != nil {
 		return err
 	}

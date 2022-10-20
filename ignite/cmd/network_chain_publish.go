@@ -203,8 +203,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// prepare publish options
 	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
-	if genesisURL != "" {
-		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
+	switch {
+	case genesisURL != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisURL(genesisURL))
+	case genesisConfig != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisConfig(genesisConfig))
+
 	}
 
 	if campaign != 0 {

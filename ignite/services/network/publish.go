@@ -20,6 +20,7 @@ import (
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
 	genesisURL       string
+	genesisConfig    string
 	chainID          string
 	campaignID       uint64
 	noCheck          bool
@@ -54,10 +55,17 @@ func WithNoCheck() PublishOption {
 	}
 }
 
-// WithCustomGenesis enables using a custom genesis during publish.
-func WithCustomGenesis(url string) PublishOption {
+// WithCustomGenesisURL enables using a custom genesis during publish.
+func WithCustomGenesisURL(url string) PublishOption {
 	return func(o *publishOptions) {
 		o.genesisURL = url
+	}
+}
+
+// WithCustomGenesisConfig enables using a custom genesis during publish.
+func WithCustomGenesisConfig(configFile string) PublishOption {
+	return func(o *publishOptions) {
+		o.genesisConfig = configFile
 	}
 }
 
@@ -228,10 +236,15 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 		// get initial genesis
 		initialGenesis := launchtypes.NewDefaultInitialGenesis()
-		if o.genesisURL != "" {
+		switch {
+		case o.genesisURL != "":
 			initialGenesis = launchtypes.NewGenesisURL(
 				o.genesisURL,
 				genesisHash,
+			)
+		case o.genesisConfig != "":
+			initialGenesis = launchtypes.NewConfigGenesis(
+				o.genesisConfig,
 			)
 		}
 

@@ -126,7 +126,6 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		// ensure that there are no validators
 		config.Validators = nil
 
-		fmt.Println("heres")
 		err = c.chain.InitChain(ctx, config)
 		if err != nil {
 			return err
@@ -178,8 +177,6 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(chainGenesis)
 
 	gentxCount, err := chainGenesis.GentxCount()
 	if err != nil {
