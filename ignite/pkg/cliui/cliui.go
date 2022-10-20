@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	"github.com/manifoldco/promptui"
 
@@ -29,6 +30,7 @@ type Session struct {
 	ev      events.Bus
 	spinner *clispinner.Spinner
 	out     uilog.Output
+	wg      *sync.WaitGroup
 }
 
 // Option configures session options.
@@ -70,9 +72,10 @@ func StartSpinner() Option {
 }
 
 // New creates a new Session.
-func New(options ...Option) Session {
+func New(options ...Option) *Session {
 	session := Session{
 		ev: events.NewBus(),
+		wg: &sync.WaitGroup{},
 		options: sessionOptions{
 			stdin:  os.Stdin,
 			stdout: os.Stdout,
@@ -99,9 +102,12 @@ func New(options ...Option) Session {
 		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
 	}
 
+	// The main loop that prints the events uses a wait group to block
+	// the session end until all the events are printed.
+	session.wg.Add(1)
 	go session.handleEvents()
 
-	return session
+	return &session
 }
 
 // EventBus returns the event bus of the session.
@@ -132,7 +138,7 @@ func (s Session) NewOutput(label string, color uint8) uilog.Output {
 }
 
 // StartSpinner starts the spinner.
-func (s Session) StartSpinner(text string) {
+func (s *Session) StartSpinner(text string) {
 	if s.spinner == nil {
 		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
 	}
@@ -215,9 +221,12 @@ func (s Session) PrintTable(header []string, entries ...[]string) error {
 func (s Session) End() {
 	s.StopSpinner()
 	s.ev.Stop()
+	s.wg.Wait()
 }
 
-func (s Session) handleEvents() {
+func (s *Session) handleEvents() {
+	defer s.wg.Done()
+
 	stdout := s.out.Stdout()
 
 	for e := range s.ev.Events() {
@@ -227,7 +236,7 @@ func (s Session) handleEvents() {
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
-		case events.IndicationNone:
+		default:
 			resume := s.PauseSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 			resume()

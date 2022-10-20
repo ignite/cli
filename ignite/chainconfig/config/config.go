@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/imdario/mergo"
@@ -10,6 +11,10 @@ import (
 
 // Version defines the type for the config version number.
 type Version uint
+
+func (v Version) String() string {
+	return fmt.Sprintf("v%d", v)
+}
 
 // Converter defines the interface required to migrate configurations to newer versions.
 type Converter interface {
