@@ -15,7 +15,7 @@ import (
 // NewNetworkRequestAddAccount creates a new command to send add account request
 func NewNetworkRequestAddAccount() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "add-account [launch-id] [address] [coins]",
+		Use:   "add-account launch-id address [coins]",
 		Short: "Send request to add account",
 		RunE:  networkRequestAddAccountHandler,
 		Args:  cobra.RangeArgs(2, 3),
