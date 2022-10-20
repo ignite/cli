@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -10,6 +11,7 @@ const (
 	flagForceReset = "force-reset"
 	flagResetOnce  = "reset-once"
 	flagConfig     = "config"
+	flagQuitOnFail = "quit-on-fail"
 )
 
 // NewChainServe creates a new serve command to serve a blockchain.
@@ -63,14 +65,18 @@ production, you may want to run "appd start" manually.
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
+	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
+	defer session.End()
+
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
 	if flagGetProto3rdParty(cmd) {
@@ -116,6 +122,13 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	}
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
+	}
+	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
+	if err != nil {
+		return err
+	}
+	if quitOnFail {
+		serveOptions = append(serveOptions, chain.QuitOnFail())
 	}
 
 	if flagGetSkipProto(cmd) {

@@ -1,11 +1,18 @@
 package cosmosclient_test
 
 import (
+	"bufio"
 	"context"
+	"encoding/hex"
+	"fmt"
+	"io"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -13,18 +20,19 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/p2p"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient/mocks"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient/testutil"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 )
 
-//go:generate mockery --srcpkg github.com/tendermint/tendermint/rpc/client/ --name Client --structname RPCClient --filename rpclient.go --with-expecter
-//go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/client --name AccountRetriever --filename account_retriever.go --with-expecter
-//go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/x/bank/types --name QueryClient --structname BankQueryClient --filename bank_query_client.go --with-expecter
-//go:generate mockery --srcpkg . --name FaucetClient --structname FaucetClient --filename faucet_client.go --with-expecter
-//go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
+const (
+	defaultFaucetDenom     = "token"
+	defaultFaucetMinAmount = 100
+)
 
 type suite struct {
 	rpcClient        *mocks.RPCClient
@@ -32,6 +40,7 @@ type suite struct {
 	bankQueryClient  *mocks.BankQueryClient
 	gasometer        *mocks.Gasometer
 	faucetClient     *mocks.FaucetClient
+	signer           *mocks.Signer
 }
 
 func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cosmosclient.Client {
@@ -41,6 +50,7 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 		bankQueryClient:  mocks.NewBankQueryClient(t),
 		gasometer:        mocks.NewGasometer(t),
 		faucetClient:     mocks.NewFaucetClient(t),
+		signer:           mocks.NewSigner(t),
 	}
 	// Because rpcClient is passed as argument inside clientContext of mocked
 	// methods, we must EXPECT a call to String (because testify/mock is calling
@@ -61,66 +71,78 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 		cosmosclient.WithBankQueryClient(s.bankQueryClient),
 		cosmosclient.WithGasometer(s.gasometer),
 		cosmosclient.WithFaucetClient(s.faucetClient),
+		cosmosclient.WithSigner(s.signer),
 	}...)
 	c, err := cosmosclient.New(context.Background(), opts...)
 	require.NoError(t, err)
 	return c
 }
 
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	c := newClient(t, nil)
+
+	ctx := c.Context()
+	assert.Equal("mychain", ctx.ChainID)
+	assert.NotNil(ctx.InterfaceRegistry)
+	assert.NotNil(ctx.Codec)
+	assert.NotNil(ctx.TxConfig)
+	assert.NotNil(ctx.LegacyAmino)
+	assert.Equal(bufio.NewReader(os.Stdin), ctx.Input)
+	assert.Equal(io.Discard, ctx.Output)
+	assert.NotNil(ctx.AccountRetriever)
+	assert.Equal(flags.BroadcastSync, ctx.BroadcastMode)
+	home, err := os.UserHomeDir()
+	require.NoError(t, err)
+	assert.Equal(home+"/.mychain", ctx.HomeDir)
+	assert.NotNil(ctx.Client)
+	assert.True(ctx.SkipConfirm)
+	assert.Equal(c.AccountRegistry.Keyring, ctx.Keyring)
+	assert.False(ctx.GenerateOnly)
+	txf := c.TxFactory
+	assert.Equal("mychain", txf.ChainID())
+	assert.Equal(c.AccountRegistry.Keyring, txf.Keybase())
+	assert.EqualValues(300000, txf.Gas())
+	assert.Equal(1.0, txf.GasAdjustment())
+	assert.Equal(signing.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
+	assert.NotNil(txf.AccountRetriever())
+}
+
 func TestClientWaitForBlockHeight(t *testing.T) {
-	var (
-		ctx                 = context.Background()
-		canceledCtx, cancel = context.WithTimeout(ctx, 0)
-		targetBlockHeight   = int64(42)
-	)
-	cancel()
+	targetBlockHeight := int64(42)
 	tests := []struct {
-		name              string
-		ctx               context.Context
-		waitBlockDuration time.Duration
-		expectedError     string
-		setup             func(suite)
+		name          string
+		timeout       time.Duration
+		expectedError string
+		setup         func(suite)
 	}{
 		{
 			name: "ok: no wait",
-			ctx:  ctx,
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
 				}, nil)
 			},
 		},
 		{
-			name:              "ok: wait 1 time",
-			ctx:               ctx,
-			waitBlockDuration: time.Second * 2, // must exceed the wait loop duration
+			name:    "ok: wait 1 time",
+			timeout: time.Second * 2, // must exceed the wait loop duration
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
 				}, nil).Once()
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight},
 				}, nil).Once()
 			},
 		},
 		{
-			name:              "fail: wait expired",
-			ctx:               ctx,
-			waitBlockDuration: time.Millisecond,
-			expectedError:     "timeout exceeded waiting for block",
+			name:          "fail: wait expired",
+			timeout:       time.Millisecond,
+			expectedError: "timeout exceeded waiting for block: context deadline exceeded",
 			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
-					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
-				}, nil)
-			},
-		},
-		{
-			name:              "fail: canceled context",
-			ctx:               canceledCtx,
-			waitBlockDuration: time.Millisecond,
-			expectedError:     canceledCtx.Err().Error(),
-			setup: func(s suite) {
-				s.rpcClient.EXPECT().Status(canceledCtx).Return(&ctypes.ResultStatus{
+				s.rpcClient.EXPECT().Status(mock.Anything).Return(&ctypes.ResultStatus{
 					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: targetBlockHeight - 1},
 				}, nil)
 			},
@@ -130,14 +152,90 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			c := newClient(t, tt.setup)
+			ctx, cancel := context.WithTimeout(context.Background(), tt.timeout)
+			defer cancel()
 
-			err := c.WaitForBlockHeight(tt.ctx, targetBlockHeight, tt.waitBlockDuration)
+			err := c.WaitForBlockHeight(ctx, targetBlockHeight)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
 				return
 			}
 			require.NoError(err)
+		})
+	}
+}
+
+func TestClientWaitForTx(t *testing.T) {
+	var (
+		ctx          = context.Background()
+		hash         = "abcd"
+		hashBytes, _ = hex.DecodeString(hash)
+		result       = &ctypes.ResultTx{
+			Hash: hashBytes,
+		}
+	)
+	tests := []struct {
+		name           string
+		hash           string
+		expectedError  string
+		expectedResult *ctypes.ResultTx
+		setup          func(suite)
+	}{
+		{
+			name:          "fail: hash not in hex format",
+			hash:          "zzz",
+			expectedError: "unable to decode tx hash 'zzz': encoding/hex: invalid byte: U+007A 'z'",
+		},
+		{
+			name:           "ok: tx found immediately",
+			hash:           hash,
+			expectedResult: result,
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(result, nil)
+			},
+		},
+		{
+			name:          "fail: tx returns an unexpected error",
+			hash:          hash,
+			expectedError: "fetching tx 'abcd': error while requesting node 'http://localhost:26657': oups",
+			setup: func(s suite) {
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(nil, errors.New("oups"))
+			},
+		},
+		{
+			name:           "ok: tx found after 1 block",
+			hash:           hash,
+			expectedResult: result,
+			setup: func(s suite) {
+				// tx is not found
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(nil, errors.New("tx abcd not found")).Once()
+				// wait for next block
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 1},
+				}, nil).Once()
+				s.rpcClient.EXPECT().Status(ctx).Return(&ctypes.ResultStatus{
+					SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 2},
+				}, nil).Once()
+				// next block reached, check tx again, this time it's found.
+				s.rpcClient.EXPECT().Tx(ctx, hashBytes, false).Return(result, nil).Once()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
+			c := newClient(t, tt.setup)
+
+			res, err := c.WaitForTx(ctx, tt.hash)
+
+			if tt.expectedError != "" {
+				require.EqualError(err, tt.expectedError)
+				return
+			}
+			require.NoError(err)
+			assert.Equal(tt.expectedResult, res)
 		})
 	}
 }
@@ -309,11 +407,8 @@ func TestClientStatus(t *testing.T) {
 }
 
 func TestClientCreateTx(t *testing.T) {
-	const (
-		defaultFaucetDenom     = "token"
-		defaultFaucetMinAmount = 100
-	)
 	var (
+		ctx         = context.Background()
 		accountName = "bob"
 		passphrase  = "passphrase"
 	)
@@ -354,12 +449,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -376,26 +466,9 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				balance := sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(defaultFaucetMinAmount))
-				s.bankQueryClient.EXPECT().Balance(
-					context.Background(),
-					&banktypes.QueryBalanceRequest{
-						Address: sdkaddress.String(),
-						Denom:   defaultFaucetDenom,
-					},
-				).Return(
-					&banktypes.QueryBalanceResponse{
-						Balance: &balance,
-					},
-					nil,
-				)
+				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
 
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -412,46 +485,8 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				balance := sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(defaultFaucetMinAmount-1))
-				s.bankQueryClient.EXPECT().Balance(
-					context.Background(),
-					&banktypes.QueryBalanceRequest{
-						Address: sdkaddress.String(),
-						Denom:   defaultFaucetDenom,
-					},
-				).Return(
-					&banktypes.QueryBalanceResponse{
-						Balance: &balance,
-					},
-					nil,
-				).Once()
-
-				s.faucetClient.EXPECT().Transfer(context.Background(),
-					cosmosfaucet.TransferRequest{AccountAddress: sdkaddress.String()},
-				).Return(
-					cosmosfaucet.TransferResponse{}, nil,
-				)
-
-				newBalance := sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(defaultFaucetMinAmount))
-				s.bankQueryClient.EXPECT().Balance(
-					mock.Anything,
-					&banktypes.QueryBalanceRequest{
-						Address: sdkaddress.String(),
-						Denom:   defaultFaucetDenom,
-					},
-				).Return(
-					&banktypes.QueryBalanceResponse{
-						Balance: &newBalance,
-					},
-					nil,
-				).Once()
-
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount-1)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -468,12 +503,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"10"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -491,12 +521,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"900000"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -514,12 +539,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedError: "cannot provide both fees and gas prices",
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 			},
 		},
 		{
@@ -536,12 +556,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 				s.gasometer.EXPECT().
 					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, 42, nil)
@@ -561,12 +576,7 @@ func TestClientCreateTx(t *testing.T) {
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).
-					Return(nil)
-				s.accountRetriever.EXPECT().
-					GetAccountNumberSequence(mock.Anything, sdkaddress).
-					Return(1, 2, nil)
+				s.expectPrepareFactory(sdkaddress)
 				s.gasometer.EXPECT().
 					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, 42, nil)
@@ -584,7 +594,7 @@ func TestClientCreateTx(t *testing.T) {
 			account, err := c.AccountRegistry.Import(accountName, key, passphrase)
 			require.NoError(err)
 
-			txs, err := c.CreateTx(account, tt.msg)
+			txs, err := c.CreateTx(ctx, account, tt.msg)
 
 			if tt.expectedError != "" {
 				require.EqualError(err, tt.expectedError)
@@ -596,5 +606,410 @@ func TestClientCreateTx(t *testing.T) {
 			require.NoError(err)
 			assert.JSONEq(tt.expectedJSONTx, string(bz))
 		})
+	}
+}
+
+func TestGetBlockTXs(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+	ctx := context.Background()
+
+	// Mock the Block RPC endpoint
+	block := createTestBlock(1)
+
+	m.On("Block", ctx, &block.Height).Return(&ctypes.ResultBlock{Block: &block}, nil)
+
+	// Mock the TxSearch RPC endpoint
+	searchQry := fmt.Sprintf("tx.height=%d", block.Height)
+	page := 1
+	perPage := 30
+	rtx := ctypes.ResultTx{}
+	resSearch := ctypes.ResultTxSearch{
+		Txs:        []*ctypes.ResultTx{&rtx},
+		TotalCount: 1,
+	}
+
+	m.On("TxSearch", ctx, searchQry, false, &page, &perPage, "asc").Return(&resSearch, nil)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	txs, err := client.GetBlockTXs(ctx, block.Height)
+
+	// Assert
+	require.NoError(t, err)
+	require.Equal(t, txs, []cosmosclient.TX{
+		{
+			BlockTime: block.Time,
+			Raw:       &rtx,
+		},
+	})
+
+	m.AssertNumberOfCalls(t, "Block", 1)
+	m.AssertNumberOfCalls(t, "TxSearch", 1)
+}
+
+func TestGetBlockTXsWithBlockError(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+
+	wantErr := errors.New("expected error")
+
+	// Mock the Block RPC endpoint to return an error
+	m.OnBlock().Return(nil, wantErr)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	txs, err := client.GetBlockTXs(context.Background(), 1)
+
+	// Assert
+	require.ErrorIs(t, err, wantErr)
+	require.Nil(t, txs)
+
+	m.AssertNumberOfCalls(t, "Block", 1)
+	m.AssertNumberOfCalls(t, "TxSearch", 0)
+}
+
+func TestGetBlockTXsPagination(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+
+	// Mock the Block RPC endpoint
+	block := createTestBlock(1)
+
+	m.OnBlock().Return(&ctypes.ResultBlock{Block: &block}, nil)
+
+	// Mock the TxSearch RPC endpoint and fake the number of
+	// transactions so it is called twice to fetch two pages
+	ctx := context.Background()
+	searchQry := fmt.Sprintf("tx.height=%d", block.Height)
+	perPage := 30
+	fakeCount := perPage + 1
+	first := 1
+	second := 2
+	firstPage := ctypes.ResultTxSearch{
+		Txs:        []*ctypes.ResultTx{{}},
+		TotalCount: fakeCount,
+	}
+	secondPage := ctypes.ResultTxSearch{
+		Txs:        []*ctypes.ResultTx{{}},
+		TotalCount: fakeCount,
+	}
+
+	m.On("TxSearch", ctx, searchQry, false, &first, &perPage, "asc").Return(&firstPage, nil)
+	m.On("TxSearch", ctx, searchQry, false, &second, &perPage, "asc").Return(&secondPage, nil)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	txs, err := client.GetBlockTXs(ctx, block.Height)
+
+	// Assert
+	require.NoError(t, err)
+	require.Equal(t, txs, []cosmosclient.TX{
+		{
+			BlockTime: block.Time,
+			Raw:       firstPage.Txs[0],
+		},
+		{
+			BlockTime: block.Time,
+			Raw:       secondPage.Txs[0],
+		},
+	})
+
+	m.AssertNumberOfCalls(t, "Block", 1)
+	m.AssertNumberOfCalls(t, "TxSearch", 2)
+}
+
+func TestGetBlockTXsWithSearchError(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+
+	wantErr := errors.New("expected error")
+
+	// Mock the Block RPC endpoint
+	block := createTestBlock(1)
+
+	m.OnBlock().Return(&ctypes.ResultBlock{Block: &block}, nil)
+
+	// Mock the TxSearch RPC endpoint to return an error
+	m.OnTxSearch().Return(nil, wantErr)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	txs, err := client.GetBlockTXs(context.Background(), block.Height)
+
+	// Assert
+	require.ErrorIs(t, err, wantErr)
+	require.Nil(t, txs)
+
+	m.AssertNumberOfCalls(t, "Block", 1)
+	m.AssertNumberOfCalls(t, "TxSearch", 1)
+}
+
+func TestCollectTXs(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+	ctx := context.Background()
+
+	// Mock the Status RPC endpoint to report that only two blocks exists
+	status := ctypes.ResultStatus{
+		SyncInfo: ctypes.SyncInfo{
+			LatestBlockHeight: 2,
+		},
+	}
+
+	m.On("Status", ctx).Return(&status, nil)
+
+	// Mock the Block RPC endpoint to return two blocks
+	b1 := createTestBlock(1)
+	b2 := createTestBlock(2)
+
+	m.On("Block", ctx, &b1.Height).Return(&ctypes.ResultBlock{Block: &b1}, nil)
+	m.On("Block", ctx, &b2.Height).Return(&ctypes.ResultBlock{Block: &b2}, nil)
+
+	// Mock the TxSearch RPC endpoint to return each of the two block.
+	// Transactions are empty because only the pointer address is required to assert.
+	page := 1
+	perPage := 30
+	q1 := "tx.height=1"
+	r1 := ctypes.ResultTxSearch{
+		Txs:        []*ctypes.ResultTx{{}},
+		TotalCount: 1,
+	}
+	q2 := "tx.height=2"
+	r2 := ctypes.ResultTxSearch{
+		Txs:        []*ctypes.ResultTx{{}, {}},
+		TotalCount: 2,
+	}
+
+	m.On("TxSearch", ctx, q1, false, &page, &perPage, "asc").Return(&r1, nil)
+	m.On("TxSearch", ctx, q2, false, &page, &perPage, "asc").Return(&r2, nil)
+
+	// Prepare expected values
+	wantTXs := []cosmosclient.TX{
+		{
+			BlockTime: b1.Time,
+			Raw:       r1.Txs[0],
+		},
+		{
+			BlockTime: b2.Time,
+			Raw:       r2.Txs[0],
+		},
+		{
+			BlockTime: b2.Time,
+			Raw:       r2.Txs[1],
+		},
+	}
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	// Create a channel to receive the transactions from the two blocks.
+	// The channel must be closed after the call to collect.
+	tc := make(chan []cosmosclient.TX)
+
+	// Collect all transactions
+	var (
+		txs  []cosmosclient.TX
+		open bool
+	)
+
+	finished := make(chan struct{})
+	go func() {
+		defer close(finished)
+
+		for t := range tc {
+			txs = append(txs, t...)
+		}
+	}()
+
+	err := client.CollectTXs(ctx, 1, tc)
+
+	select {
+	case <-time.After(time.Second):
+		t.Fatal("expected CollectTXs to finish sooner")
+	case <-finished:
+	}
+
+	select {
+	case _, open = <-tc:
+	default:
+	}
+
+	// Assert
+	require.NoError(t, err)
+	require.Equal(t, wantTXs, txs)
+	require.False(t, open, "expected transaction channel to be closed")
+}
+
+func TestCollectTXsWithStatusError(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+
+	wantErr := errors.New("expected error")
+
+	// Mock the Status RPC endpoint to return an error
+	m.OnStatus().Return(nil, wantErr)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	// Create a channel to receive the transactions from the two blocks.
+	// The channel must be closed after the call to collect.
+	tc := make(chan []cosmosclient.TX)
+
+	open := false
+	ctx := context.Background()
+	err := client.CollectTXs(ctx, 1, tc)
+
+	select {
+	case _, open = <-tc:
+	default:
+	}
+
+	// Assert
+	require.ErrorIs(t, err, wantErr)
+	require.False(t, open, "expected transaction channel to be closed")
+}
+
+func TestCollectTXsWithBlockError(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+
+	wantErr := errors.New("expected error")
+
+	// Mock the Status RPC endpoint
+	status := ctypes.ResultStatus{
+		SyncInfo: ctypes.SyncInfo{
+			LatestBlockHeight: 1,
+		},
+	}
+
+	m.OnStatus().Return(&status, nil)
+
+	// Mock the Block RPC endpoint to return an error
+	m.OnBlock().Return(nil, wantErr)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	// Create a channel to receive the transactions from the two blocks.
+	// The channel must be closed after the call to collect.
+	tc := make(chan []cosmosclient.TX)
+
+	open := false
+	ctx := context.Background()
+	err := client.CollectTXs(ctx, 1, tc)
+
+	select {
+	case _, open = <-tc:
+	default:
+	}
+
+	// Assert
+	require.ErrorIs(t, err, wantErr)
+	require.False(t, open, "expected transaction channel to be closed")
+}
+
+func TestCollectTXsWithContextDone(t *testing.T) {
+	m := testutil.NewTendermintClientMock(t)
+
+	// Mock the Status RPC endpoint
+	status := ctypes.ResultStatus{
+		SyncInfo: ctypes.SyncInfo{
+			LatestBlockHeight: 1,
+		},
+	}
+
+	m.OnStatus().Return(&status, nil)
+
+	// Mock the Block RPC endpoint
+	block := createTestBlock(1)
+
+	m.OnBlock().Return(&ctypes.ResultBlock{Block: &block}, nil)
+
+	// Mock the TxSearch RPC endpoint
+	rs := ctypes.ResultTxSearch{
+		Txs:        []*ctypes.ResultTx{{}},
+		TotalCount: 1,
+	}
+
+	m.OnTxSearch().Return(&rs, nil)
+
+	// Create a cosmos client that uses the RPC mock
+	client := cosmosclient.Client{RPC: m}
+
+	// Create a channel to receive the transactions from the two blocks.
+	// The channel must be closed after the call to collect.
+	tc := make(chan []cosmosclient.TX)
+
+	// Create a context and cancel it so the collect call finishes because the context is done
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	open := false
+	err := client.CollectTXs(ctx, 1, tc)
+
+	select {
+	case _, open = <-tc:
+	default:
+	}
+
+	// Assert
+	require.ErrorIs(t, err, ctx.Err())
+	require.False(t, open, "expected transaction channel to be closed")
+}
+
+func (s suite) expectMakeSureAccountHasToken(address string, balance int64) {
+	currentBalance := sdktypes.NewInt64Coin(defaultFaucetDenom, balance)
+	s.bankQueryClient.EXPECT().Balance(
+		context.Background(),
+		&banktypes.QueryBalanceRequest{
+			Address: address,
+			Denom:   defaultFaucetDenom,
+		},
+	).Return(
+		&banktypes.QueryBalanceResponse{
+			Balance: &currentBalance,
+		},
+		nil,
+	).Once()
+	if balance >= defaultFaucetMinAmount {
+		// balance is high enought, faucet won't be called
+		return
+	}
+
+	s.faucetClient.EXPECT().Transfer(context.Background(),
+		cosmosfaucet.TransferRequest{AccountAddress: address},
+	).Return(
+		cosmosfaucet.TransferResponse{}, nil,
+	)
+
+	newBalance := sdktypes.NewInt64Coin(defaultFaucetDenom, defaultFaucetMinAmount)
+	s.bankQueryClient.EXPECT().Balance(
+		mock.Anything,
+		&banktypes.QueryBalanceRequest{
+			Address: address,
+			Denom:   defaultFaucetDenom,
+		},
+	).Return(
+		&banktypes.QueryBalanceResponse{
+			Balance: &newBalance,
+		},
+		nil,
+	).Once()
+}
+
+func (s suite) expectPrepareFactory(sdkaddress sdktypes.Address) {
+	s.accountRetriever.EXPECT().
+		EnsureExists(mock.Anything, sdkaddress).
+		Return(nil)
+	s.accountRetriever.EXPECT().
+		GetAccountNumberSequence(mock.Anything, sdkaddress).
+		Return(1, 2, nil)
+}
+
+func createTestBlock(height int64) tmtypes.Block {
+	return tmtypes.Block{
+		Header: tmtypes.Header{
+			Height: height,
+			Time:   time.Now(),
+		},
 	}
 }

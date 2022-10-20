@@ -14,8 +14,7 @@ linters:
     # - errcheck
     - goconst
     - gocritic
-    - gofmt
-    - goimports
+    - gofumpt
     - revive
     # - gosec
     - gosimple

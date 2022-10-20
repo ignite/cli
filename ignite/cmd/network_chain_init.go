@@ -1,15 +1,17 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
@@ -54,8 +56,8 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -87,7 +89,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			chainHome,
 		)
 		if err := session.AskConfirm(question); err != nil {
-			return session.PrintSaidNo()
+			if errors.Is(err, promptui.ErrAbort) {
+				return nil
+			}
+
+			return err
 		}
 	}
 
@@ -126,13 +132,17 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.ParseGenesisFromPath(genesisPath)
+	genesis, err := cosmosgenesis.FromPath(genesisPath)
+	if err != nil {
+		return err
+	}
+	stakeDenom, err := genesis.StakeDenom()
 	if err != nil {
 		return err
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, session, genesis.StakeDenom)
+	v, err := askValidatorInfo(cmd, session, stakeDenom)
 	if err != nil {
 		return err
 	}
@@ -143,13 +153,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(cmd *cobra.Command, session cliui.Session, stakeDenom string) (chain.Validator, error) {
+func askValidatorInfo(cmd *cobra.Command, session *cliui.Session, stakeDenom string) (chain.Validator, error) {
 	var (
 		account, _         = cmd.Flags().GetString(flagValidatorAccount)
 		website, _         = cmd.Flags().GetString(flagValidatorWebsite)

@@ -85,16 +85,17 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.sendAccountRequest(launchID, accountAddress, o.accountAmount); err != nil {
+		if err := n.sendAccountRequest(ctx, launchID, accountAddress, o.accountAmount); err != nil {
 			return err
 		}
 	}
 
-	return n.sendValidatorRequest(launchID, peer, accountAddress, gentx, gentxInfo)
+	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
 func (n Network) sendValidatorRequest(
+	ctx context.Context,
 	launchID uint64,
 	peer launchtypes.Peer,
 	valAddress string,
@@ -119,9 +120,9 @@ func (n Network) sendValidatorRequest(
 		),
 	)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
+	n.ev.Send("Broadcasting validator transaction", events.ProgressStarted())
 
-	res, err := n.cosmos.BroadcastTx(n.account, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
 	}
@@ -132,12 +133,12 @@ func (n Network) sendValidatorRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
+		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinished())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to join the network as a validator has been submitted!",
-				requestRes.RequestID),
-		))
+		n.ev.Send(
+			fmt.Sprintf("Request %d to join the network as a validator has been submitted!", requestRes.RequestID),
+			events.ProgressFinished(),
+		)
 	}
 	return nil
 }

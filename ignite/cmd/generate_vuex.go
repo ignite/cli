@@ -1,29 +1,38 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "vuex",
-		Short: "Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
-		RunE:  generateVuexHandler,
+		Use:     "vuex",
+		Short:   "Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateVuexHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().AddFlagSet(flagSetYes())
+
 	return c
 }
 
 func generateVuexHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Generating...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
-	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
+	session.StartSpinner("Generating...")
+
+	c, err := newChainWithHomeFlags(
+		cmd,
+		chain.EnableThirdPartyModuleCodegen(),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+	)
 	if err != nil {
 		return err
 	}
@@ -37,8 +46,5 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-	fmt.Println("⛏️  Generated Typescript Client and Vuex stores")
-
-	return nil
+	return session.Println("⛏️  Generated Typescript Client and Vuex stores")
 }

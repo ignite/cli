@@ -11,6 +11,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
@@ -150,20 +151,19 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		apply(c)
 	}
 
-	c.ev.Send(events.New(events.StatusOngoing, "Fetching the source code"))
+	c.ev.Send("Fetching the source code", events.ProgressStarted())
 
 	var err error
 	if c.path, c.hash, err = fetchSource(ctx, c.url, c.ref, c.hash); err != nil {
 		return nil, err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Source code fetched"))
-	c.ev.Send(events.New(events.StatusOngoing, "Setting up the blockchain"))
+	c.ev.Send("Source code fetched", events.ProgressFinished())
+	c.ev.Send("Setting up the blockchain", events.ProgressStarted())
 
 	chainOption := []chain.Option{
 		chain.ID(c.id),
 		chain.HomePath(c.home),
-		chain.LogLevel(chain.LogSilent),
 	}
 
 	if c.checkDependencies {
@@ -188,7 +188,7 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	}
 
 	c.chain = chain
-	c.ev.Send(events.New(events.StatusDone, "Blockchain set up"))
+	c.ev.Send("Blockchain set up", events.ProgressFinished())
 
 	return c, nil
 }
@@ -280,8 +280,30 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 	return nodeID, nil
 }
 
+// CheckConfigVersion checks that the config version is the latest.
+func (c Chain) CheckConfigVersion() error {
+	configPath := c.chain.ConfigPath()
+	if configPath == "" {
+		return chainconfig.ErrConfigNotFound
+	}
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return chainconfig.CheckVersion(file)
+}
+
 // Build builds chain sources, also checks if source was already built
 func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
+	// Check that the config version is the latest before building the binary
+	if err = c.CheckConfigVersion(); err != nil {
+		return
+	}
+
 	// if chain was already published and has launch id check binary cache
 	if c.launchID != 0 {
 		if binaryName, err = c.chain.Binary(); err != nil {
@@ -300,14 +322,14 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 		}
 	}
 
-	c.ev.Send(events.New(events.StatusOngoing, "Building the chain's binary"))
+	c.ev.Send("Building the chain's binary", events.ProgressStarted())
 
 	// build binary
 	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
 		return "", err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Chain's binary built"))
+	c.ev.Send("Chain's binary built", events.ProgressFinished())
 
 	// cache built binary for launch id
 	if c.launchID != 0 {

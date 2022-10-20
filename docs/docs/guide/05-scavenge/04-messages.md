@@ -100,6 +100,7 @@ func NewMsgSubmitScavenge(creator string, solutionHash string, description strin
 		Description:  description,
 		Reward:       reward,
 	}
+}
 ```
 
 The `Msg` interface requires some other methods be set, like validating the content of the `struct` and confirming the message was signed and submitted by the creator.

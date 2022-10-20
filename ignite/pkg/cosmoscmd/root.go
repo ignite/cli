@@ -200,7 +200,6 @@ func initRootCmd(
 	buildApp AppBuilder,
 	options rootOptions,
 ) {
-
 	a := appCreator{
 		encodingConfig,
 		buildApp,

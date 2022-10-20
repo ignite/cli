@@ -30,8 +30,8 @@ func NewNetworkRequestList() *cobra.Command {
 }
 
 func networkRequestListHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -56,15 +56,13 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return renderRequestSummaries(requests, session, addressPrefix)
 }
 
 // renderRequestSummaries writes into the provided out, the list of summarized requests
 func renderRequestSummaries(
 	requests []networktypes.Request,
-	session cliui.Session,
+	session *cliui.Session,
 	addressPrefix string,
 ) error {
 	requestEntries := make([][]string, 0)

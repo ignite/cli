@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - chore/fix-nightly-builds
 
 jobs:
   consecutiveness:
@@ -25,41 +26,43 @@ jobs:
       - name: Delete the nightly release
         uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
-          tag_name: v0.0.0-nightly
+          tag_name: nightly
           delete_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Bump version and push tag
+      - name: Push new nightly tag
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: v0.0.0-nightly
+          custom_tag: nightly
           tag_prefix: ""
 
-      - name: Upsert the nightly release
+      - name: Create the new nightly release
         uses: ncipollo/release-action@v1
         with:
-          tag: v0.0.0-nightly
+          tag: nightly
           name: nightly
-          body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@v0.0.0-nightly! | bash`"
+          body: "Install and move the CLI to your bin directory: `curl https://get.ignite.com/cli@nightly! | bash`"
           prerelease: true
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
+  releases-binaries:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.31
         with:
-          go-version: 1.18
-
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          path: ${{ env.working-directory }}
-          fetch-depth: 0
-
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          workdir: ${{ env.working-directory }}
-          args: release --rm-dist --skip-validate -f .goreleaser.nightly.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          project_path: "./ignite/cmd/ignite"
+          binary_name: "ignite"
+          asset_name: ignite-nightly-${{ matrix.goos }}-${{ matrix.goarch }}
+          release_name: "nightly"
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version=nightly
+          goversion: "1.19"

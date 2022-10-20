@@ -35,6 +35,37 @@ ignite generate ts-client
 
 To prevent regenerating the client, remove the `client:typescript` property from `config.yml`.	
 
+## Setup
+
+The best way to get started building with the TypeScript client is by using a [Vite](https://vitejs.dev/) boilerplate. Vite provides boilerplates for vanilla TS projects as well as react, vue, lit, svelte and preact frameworks.
+You can find additional information at the [Vite Getting Started guide](https://vitejs.dev/guide/).
+
+You will also need to polyfill the client's dependencies. The following is an example of setting up a vanilla TS project with the necessary polyfills.
+
+```bash
+npm create vite@latest my-frontend-app -- --template vanilla-ts
+npm install --save-dev buffer @rollup/plugin-node-resolve
+```
+
+You must then create the necessary `vite.config.ts` file.
+
+```typescript
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import { Buffer } from 'buffer'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  define: {
+    global: {
+      Buffer: Buffer
+    }
+  },
+  plugins: [nodeResolve()],
+})
+```
+
+You are then ready to use the generated client code inside this project directly or by publishing the client and installing it as any other npm package.
+
 ## Usage
 
 The code generated in `ts-client` comes with a `package.json` file ready to publish which you can modify to suit your needs.

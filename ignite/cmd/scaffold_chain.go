@@ -1,17 +1,25 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 const (
 	flagNoDefaultModule = "no-module"
+
+	tplScaffoldChainSuccess = `
+⭐️ Successfully created a new blockchain '%[1]v'.
+👉 Get started with the following commands:
+
+ %% cd %[1]v
+ %% ignite chain serve
+
+Documentation: https://docs.ignite.com
+`
 )
 
 // NewScaffoldChain creates new command to scaffold a Comos-SDK based blockchain.
@@ -73,8 +81,10 @@ about Cosmos SDK on https://docs.cosmos.network
 }
 
 func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
+	session.StartSpinner("Scaffolding...")
 
 	var (
 		name               = args[0]
@@ -88,28 +98,18 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appdir, err := scaffolder.Init(cacheStorage, placeholder.New(), appPath, name, addressPrefix, noDefaultModule)
+	appdir, err := scaffolder.Init(
+		cmd.Context(), cacheStorage, placeholder.New(), appPath, name,
+		addressPrefix, noDefaultModule,
+	)
 	if err != nil {
 		return err
 	}
-
-	s.Stop()
 
 	path, err := relativePath(appdir)
 	if err != nil {
 		return err
 	}
 
-	message := `
-⭐️ Successfully created a new blockchain '%[1]v'.
-👉 Get started with the following commands:
-
- %% cd %[1]v
- %% ignite chain serve
-
-Documentation: https://docs.ignite.com
-`
-	fmt.Printf(message, path)
-
-	return nil
+	return session.Printf(tplScaffoldChainSuccess, path)
 }

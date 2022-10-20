@@ -16,7 +16,7 @@ import (
 
 // CoordinatorIDByAddress returns the CoordinatorByAddress from SPN
 func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (uint64, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching coordinator by address"))
+	n.ev.Send("Fetching coordinator by address", events.ProgressStarted())
 	resCoordByAddr, err := n.profileQuery.
 		CoordinatorByAddress(ctx,
 			&profiletypes.QueryGetCoordinatorByAddressRequest{
@@ -32,9 +32,53 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 	return resCoordByAddr.CoordinatorByAddress.CoordinatorID, nil
 }
 
+// SetCoordinatorDescription set the description of a coordindator
+// or creates the coordinator if it doesn't exist yet for the sender address
+func (n Network) SetCoordinatorDescription(ctx context.Context, description profiletypes.CoordinatorDescription) error {
+	n.ev.Send("Setting coordinator description", events.ProgressStarted())
+
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	// check if coordinator exists
+	_, err = n.CoordinatorIDByAddress(ctx, addr)
+	if err == ErrObjectNotFound {
+		// create a new coordinator
+		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
+			addr,
+			description.Identity,
+			description.Website,
+			description.Details,
+		)
+		res, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateCoordinator)
+		if err != nil {
+			return err
+		}
+		var requestRes profiletypes.MsgCreateCoordinatorResponse
+		return res.Decode(&requestRes)
+	} else if err == nil {
+		// update the description for the coordinator
+		msgUpdateCoordinatorDescription := profiletypes.NewMsgUpdateCoordinatorDescription(
+			addr,
+			description.Identity,
+			description.Website,
+			description.Details,
+		)
+		res, err := n.cosmos.BroadcastTx(ctx, n.account, msgUpdateCoordinatorDescription)
+		if err != nil {
+			return err
+		}
+		var requestRes profiletypes.MsgUpdateCoordinatorDescriptionResponse
+		return res.Decode(&requestRes)
+	}
+	return err
+}
+
 // Coordinator returns the Coordinator by address from SPN
 func (n Network) Coordinator(ctx context.Context, address string) (networktypes.Coordinator, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching coordinator details"))
+	n.ev.Send("Fetching coordinator details", events.ProgressStarted())
 	coordinatorID, err := n.CoordinatorIDByAddress(ctx, address)
 	if err != nil {
 		return networktypes.Coordinator{}, err
@@ -53,9 +97,36 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 	return networktypes.ToCoordinator(resCoord.Coordinator), nil
 }
 
+// SetValidatorDescription set a validator profile.
+func (n Network) SetValidatorDescription(ctx context.Context, validator profiletypes.Validator) error {
+	n.ev.Send("Setting validator description", events.ProgressStarted())
+
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	message := profiletypes.NewMsgUpdateValidatorDescription(
+		addr,
+		validator.Description.Identity,
+		validator.Description.Moniker,
+		validator.Description.Website,
+		validator.Description.SecurityContact,
+		validator.Description.Details,
+	)
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, message)
+	if err != nil {
+		return err
+	}
+
+	var requestRes profiletypes.MsgUpdateValidatorDescriptionResponse
+	return res.Decode(&requestRes)
+}
+
 // Validator returns the Validator by address from SPN
 func (n Network) Validator(ctx context.Context, address string) (networktypes.Validator, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching validator details"))
+	n.ev.Send("Fetching validator description", events.ProgressStarted())
 	res, err := n.profileQuery.
 		Validator(ctx,
 			&profiletypes.QueryGetValidatorRequest{
@@ -72,7 +143,7 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 
 // Balances returns the all balances by address from SPN
 func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching address balances"))
+	n.ev.Send("Fetching address balances", events.ProgressStarted())
 	res, err := banktypes.NewQueryClient(n.cosmos.Context()).AllBalances(ctx,
 		&banktypes.QueryAllBalancesRequest{
 			Address: address,

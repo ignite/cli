@@ -152,7 +152,7 @@ func (s Scaffolder) AddType(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
 		return sm, err
 	}
 	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, signer)
@@ -245,7 +245,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name

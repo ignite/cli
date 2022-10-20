@@ -9,21 +9,30 @@ import (
 
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "ts-client",
-		Short: "Generate Typescript client for your chain's frontend",
-		RunE:  generateTSClientHandler,
+		Use:     "ts-client",
+		Short:   "Generate Typescript client for your chain's frontend",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateTSClientHandler,
 	}
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+
+	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
+
 	return c
 }
 
 func generateTSClientHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	session.StartSpinner("Generating...")
 
-	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
+	c, err := newChainWithHomeFlags(
+		cmd,
+		chain.EnableThirdPartyModuleCodegen(),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+	)
 	if err != nil {
 		return err
 	}
@@ -33,12 +42,15 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
 		return err
 	}
 
-	session.StopSpinner()
-	session.Println("⛏️  Generated Typescript Client")
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output))
+	if err != nil {
+		return err
+	}
 
-	return nil
+	return session.Println("⛏️  Generated Typescript Client")
 }

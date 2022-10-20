@@ -2,49 +2,37 @@ package chain
 
 import (
 	"context"
-	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/gookit/color"
+
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
-var (
-	appBackendSourceWatchPaths = []string{
-		"app",
-		"cmd",
-		"x",
-		"proto",
-		"third_party",
-	}
-
-	errorColor = color.Red.Render
-	infoColor  = color.Yellow.Render
-)
+var appBackendSourceWatchPaths = []string{
+	"app",
+	"cmd",
+	"x",
+	"proto",
+	"third_party",
+}
 
 type version struct {
 	tag  string
 	hash string
 }
-
-type LogLvl int
-
-const (
-	LogSilent LogLvl = iota
-	LogRegular
-	LogVerbose
-)
 
 // Chain provides programatic access and tools for a Cosmos SDK blockchain.
 type Chain struct {
@@ -57,7 +45,6 @@ type Chain struct {
 
 	plugin         Plugin
 	sourceVersion  version
-	logLevel       LogLvl
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
@@ -65,7 +52,8 @@ type Chain struct {
 	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
 	protoBuiltAtLeastOnce bool
 
-	stdout, stderr io.Writer
+	ev          events.Bus
+	logOutputer uilog.Outputer
 }
 
 // chainOptions holds user given options that overwrites chain's defaults.
@@ -93,13 +81,6 @@ type chainOptions struct {
 
 // Option configures Chain.
 type Option func(*Chain)
-
-// LogLevel sets logging level.
-func LogLevel(level LogLvl) Option {
-	return func(c *Chain) {
-		c.logLevel = level
-	}
-}
 
 // ID replaces chain's id with given id.
 func ID(id string) Option {
@@ -137,6 +118,20 @@ func EnableThirdPartyModuleCodegen() Option {
 	}
 }
 
+// WithOutputer sets the CLI outputer for the chain.
+func WithOutputer(s uilog.Outputer) Option {
+	return func(c *Chain) {
+		c.logOutputer = s
+	}
+}
+
+// CollectEvents collects events from the chain.
+func CollectEvents(ev events.Bus) Option {
+	return func(c *Chain) {
+		c.ev = ev
+	}
+}
+
 // CheckDependencies checks that cached Go dependencies of the chain have not
 // been modified since they were downloaded. Dependencies are checked by
 // running `go mod verify`.
@@ -155,20 +150,12 @@ func New(path string, options ...Option) (*Chain, error) {
 
 	c := &Chain{
 		app:            app,
-		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		stdout:         io.Discard,
-		stderr:         io.Discard,
 	}
 
 	// Apply the options
 	for _, apply := range options {
 		apply(c)
-	}
-
-	if c.logLevel == LogVerbose {
-		c.stdout = os.Stdout
-		c.stderr = os.Stderr
 	}
 
 	c.sourceVersion, err = c.appVersion()
@@ -212,7 +199,12 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		rpcAddress = conf.Host.RPC
+		validator := conf.Validators[0]
+		servers, err := validator.GetServers()
+		if err != nil {
+			return "", err
+		}
+		rpcAddress = servers.RPC.Address
 	}
 	return rpcAddress, nil
 }
@@ -231,10 +223,10 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (chainconfig.Config, error) {
+func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConf, nil
+		return chainconfig.DefaultConfig(), nil
 	}
 	return chainconfig.ParseFile(configPath)
 }
@@ -316,8 +308,9 @@ func (c *Chain) DefaultHome() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if config.Init.Home != "" {
-		return config.Init.Home, nil
+	validator := config.Validators[0]
+	if validator.Home != "" {
+		return validator.Home, nil
 	}
 
 	return c.plugin.Home(), nil
@@ -390,13 +383,14 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 2nd.
-	if config.Init.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+	validator := config.Validators[0]
+	if validator.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
 	}
 
 	// 3rd.
-	if config.Init.Client != nil {
-		if backend, ok := config.Init.Client["keyring-backend"]; ok {
+	if validator.Client != nil {
+		if backend, ok := validator.Client["keyring-backend"]; ok {
 			if backendStr, ok := backend.(string); ok {
 				return chaincmd.KeyringBackendFromString(backendStr)
 			}
@@ -450,7 +444,13 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	nodeAddr, err := xurl.TCP(config.Host.RPC)
+	validator := config.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	nodeAddr, err := xurl.TCP(servers.RPC.Address)
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
@@ -465,12 +465,15 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	ccrOptions := make([]chaincmdrunner.Option, 0)
-	if c.logLevel == LogVerbose {
-		ccrOptions = append(ccrOptions,
-			chaincmdrunner.Stdout(os.Stdout),
-			chaincmdrunner.Stderr(os.Stderr),
-			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
+	ccrOptions := []chaincmdrunner.Option{}
+
+	// Enable command output only when CLI verbosity is enabled
+	if c.logOutputer != nil && c.logOutputer.Verbosity() == uilog.VerbosityVerbose {
+		out := c.logOutputer.NewOutput(c.app.D(), 96)
+		ccrOptions = append(
+			ccrOptions,
+			chaincmdrunner.Stdout(out.Stdout()),
+			chaincmdrunner.Stderr(out.Stderr()),
 		)
 	}
 

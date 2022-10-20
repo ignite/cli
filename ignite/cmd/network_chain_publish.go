@@ -67,8 +67,8 @@ func NewNetworkChainPublish() *cobra.Command {
 }
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	var (
 		tag, _                    = cmd.Flags().GetString(flagTag)
@@ -262,18 +262,17 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !rewardCoins.IsZero() && rewardDuration > 0 {
-		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
+		if err := n.SetReward(cmd.Context(), launchID, rewardDuration, rewardCoins); err != nil {
 			return err
 		}
 	}
 
 	if !amountCoins.IsZero() {
-		if err := n.SendAccountRequestForCoordinator(launchID, amountCoins); err != nil {
+		if err := n.SendAccountRequestForCoordinator(cmd.Context(), launchID, amountCoins); err != nil {
 			return err
 		}
 	}
 
-	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
 	if isMainnet {
 		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)

@@ -92,7 +92,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, fields); err != nil {
 		return sm, err
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
@@ -101,7 +101,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
@@ -167,7 +167,7 @@ func (s Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
