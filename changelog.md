@@ -1,3 +1,9 @@
+## Unreleased
+
+### Features
+
+- [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
 ### Changes
@@ -10,7 +16,6 @@
 
 ### Features
 
-- [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
 - Add `ignite network coordinator` command set.
 - Add `ignite network validator` command set.
