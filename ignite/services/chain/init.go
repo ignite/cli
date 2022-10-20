@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -72,6 +73,7 @@ func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config) error {
 	}
 
 	// update genesis file with the genesis values defined in the config
+	fmt.Println(conf.Genesis)
 	if err := c.updateGenesisFile(conf.Genesis); err != nil {
 		return err
 	}
@@ -121,6 +123,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 	c.ev.Send("🗂  Initialize accounts...")
 	c.ev.SendView(accounts)
 
+	// In the case where there are no validators, assume we are just building a genesis with no gentx.
+	// Gentx can be added later in the case of using ignite network.
 	if conf.Validators != nil {
 		_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
 	}
