@@ -36,7 +36,7 @@ Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosm
 
 | Ignite CLI  | Cosmos SDK    | IBC                     | Notes                                         |
 |-------------|---------------|-------------------------|-----------------------------------------------|
-| v0.25.0     | v0.46.2       | v5.0.0                  |                                               |
+| v0.25.1     | v0.46.3       | v5.0.0                  | Includes  Dragonberry security fix            |
 | v0.24.0     | v0.46.0       | v5.0.0                  |                                               |
 | v0.23.0     | v0.45.5       | v3.0.1                  |                                               |
 | v0.21.1     | v0.45.4       | v2.0.3                  | Supports Cosmos SDK v0.46.0-alpha1 and above  |
