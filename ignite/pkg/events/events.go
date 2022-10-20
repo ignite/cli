@@ -83,5 +83,5 @@ func (e Event) String() string {
 
 // InProgress returns true when the event is in progress.
 func (e Event) InProgress() bool {
-	return e.ProgressIndication == IndicationStart
+	return e.ProgressIndication == IndicationStart || e.ProgressIndication == IndicationUpdate
 }
