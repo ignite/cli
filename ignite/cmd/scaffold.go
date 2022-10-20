@@ -181,7 +181,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
 	return confirmWhenUncommittedChanges(session, appPath)
 }
 
-func confirmWhenUncommittedChanges(session cliui.Session, appPath string) error {
+func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error {
 	cleanState, err := xgit.AreChangesCommitted(appPath)
 	if err != nil {
 		return err

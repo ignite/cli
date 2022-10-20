@@ -77,7 +77,7 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 }
 
 // renderLaunchSummaries writes into the provided out, the list of summarized launches
-func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session cliui.Session, advanced bool) error {
+func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session *cliui.Session, advanced bool) error {
 	header := LaunchSummaryHeader
 	if advanced {
 		// advanced information show the campaign ID, type of network and rewards for incentivized testnet

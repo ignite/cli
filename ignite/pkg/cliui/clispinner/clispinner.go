@@ -55,17 +55,17 @@ func New(options ...Option) *Spinner {
 		text = DefaultText
 	}
 
-	underlyingSpinnerOptions := []spinner.Option{
+	spOptions := []spinner.Option{
 		spinner.WithColor(spinnerColor),
 		spinner.WithSuffix(" " + text),
 	}
 
 	if o.writer != nil {
-		underlyingSpinnerOptions = append(underlyingSpinnerOptions, spinner.WithWriter(o.writer))
+		spOptions = append(spOptions, spinner.WithWriter(o.writer))
 	}
 
 	return &Spinner{
-		sp: spinner.New(charset, refreshRate, underlyingSpinnerOptions...),
+		sp: spinner.New(charset, refreshRate, spOptions...),
 	}
 }
 

@@ -79,7 +79,7 @@ func StartSpinner(text ...string) Option {
 }
 
 // New creates a new Session.
-func New(options ...Option) Session {
+func New(options ...Option) *Session {
 	session := Session{
 		ev: events.NewBus(),
 		wg: &sync.WaitGroup{},
@@ -116,9 +116,9 @@ func New(options ...Option) Session {
 	// The main loop that prints the events uses a wait group to block
 	// the session end until all the events are printed.
 	session.wg.Add(1)
-	go session.handleEvents(session.wg)
+	go session.handleEvents()
 
-	return session
+	return &session
 }
 
 // EventBus returns the event bus of the session.
@@ -149,7 +149,7 @@ func (s Session) NewOutput(label string, color uint8) uilog.Output {
 }
 
 // StartSpinner starts the spinner.
-func (s Session) StartSpinner(text string) {
+func (s *Session) StartSpinner(text string) {
 	if s.spinner == nil {
 		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
 	}
@@ -235,8 +235,8 @@ func (s Session) End() {
 	s.wg.Wait()
 }
 
-func (s Session) handleEvents(wg *sync.WaitGroup) {
-	defer wg.Done()
+func (s *Session) handleEvents() {
+	defer s.wg.Done()
 
 	stdout := s.out.Stdout()
 
