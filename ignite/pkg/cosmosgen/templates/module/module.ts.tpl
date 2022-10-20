@@ -32,8 +32,8 @@ type Field = {
 	type: unknown;
 }
 function getStructure(template) {
-	let structure: {fields: Field[]} = { fields: [] }
-	for (const [key, value] of Object.entries(template)) {
+	const structure: {fields: Field[]} = { fields: [] }
+	for (let [key, value] of Object.entries(template)) {
 		let field = { name: key, type: typeof value }
 		structure.fields.push(field)
 	}
