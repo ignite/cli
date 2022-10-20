@@ -9,6 +9,7 @@
 - Add `ignite network validator` command set.
 - Move cosmoscmd in chain's templates.
 - Add generated TS client test support to integration tests.
+- Add `ignite network request add-account` command.
 
 ### Changes
 
