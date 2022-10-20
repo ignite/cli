@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `ignite network request add-account` command.
+- [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 
 ## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
