@@ -177,7 +177,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	// cannot use both genesisURL and genesisConfig
 	if genesisURL != "" && genesisConfig != "" {
-		return errors.New("cannot use both genesisURL and genesisConfig for initial genesis." +
+		return errors.New("cannot use both genesis-url and genesis-config for initial genesis." +
 			"Please use only one of the options.")
 	}
 
