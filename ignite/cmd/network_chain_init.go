@@ -47,7 +47,7 @@ An important part of initializing a validator node is generation and signing of
 the genesis validator transaction (a transaction containing a "create validator"
 message", often referred to as "gentx").
 
-The "init" command will prompt for values like self delegation and comission.
+The "init" command will prompt for values like self-delegation and commission.
 These values will be used in the validator's gentx. You can use flags to provide
 the values in non-interactive mode.
 
