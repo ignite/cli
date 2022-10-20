@@ -1,13 +1,13 @@
 # Changelog
 
-## Unreleased
+## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
 ### Features
 
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
 - Add `ignite network coordinator` command set.
 - Add `ignite network validator` command set.
-- Move cosmoscmd in chain's templates.
+- Deprecate `cosmoscmd` pkg and add cmd templates for scaffolding.
 - Add generated TS client test support to integration tests.
 
 ### Changes
@@ -34,9 +34,9 @@
 - Fix ICA controller wiring.
 - Change vuex generation to use a default TS client path.
 - Fix cli action org in templates.
-- Seal the capability keeper in the `app.go` template
-- Change faucet to allow C.O.R.S. preflight requests.
-- Fix config file migration to void leaving end of file content chunks
+- Seal the capability keeper in the `app.go` template.
+- Change faucet to allow CORS preflight requests.
+- Fix config file migration to void leaving end of file content chunks.
 - Change session print loop to block until all events are handled.
 - Handle "No records were found in keyring" message when checking keys.
 - [#2941](https://github.com/ignite/cli/issues/2941) Fix session to use the same spinner referece.
