@@ -1,3 +1,9 @@
+## Unreleased
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
+
 # Changelog
 
 ## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
