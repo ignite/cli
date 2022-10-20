@@ -1,4 +1,4 @@
-## Unreleased
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
 ### Changes
 
