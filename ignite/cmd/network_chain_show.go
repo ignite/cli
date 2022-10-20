@@ -26,7 +26,7 @@ func NewNetworkChainShow() *cobra.Command {
 	return c
 }
 
-func networkChainLaunch(cmd *cobra.Command, args []string, session cliui.Session) (NetworkBuilder, uint64, error) {
+func networkChainLaunch(cmd *cobra.Command, args []string, session *cliui.Session) (NetworkBuilder, uint64, error) {
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return nb, 0, err
