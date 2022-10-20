@@ -36,8 +36,8 @@ func NewNetworkChainJoin() *cobra.Command {
 		Long: `The "join" command is used by validators to send a request to join a blockchain.
 The required argument is a launch ID of a blockchain. The "join" command expects
 that the validator has already setup a home directory for the blockchain and has
-a gentx either by running "ignite network chain init" (recommended) or
-initializing the data directory manually with the chain's binary.
+a gentx either by running "ignite network chain init" or initializing the data
+directory manually with the chain's binary.
 
 By default the "join" command just sends the request to join as a validator.
 However, often a validator also needs to request an genesis account with a token
