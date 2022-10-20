@@ -39,9 +39,9 @@ validator node for a blockchain from the information stored on the Ignite chain.
   ignite network chain init 42
 
 This command fetches the information about a chain with launch ID 42. The source
-code of the chain is cloned in a temporary directory, the node's binary is
+code of the chain is cloned in a temporary directory, and the node's binary is
 compiled from the source. The binary is then used to initialize the node. By
-default Ignite uses "~/spn/[launch-id]/" as the home directory for the blockchain.
+default, Ignite uses "~/spn/[launch-id]/" as the home directory for the blockchain.
 
 An important part of initializing a validator node is generation and signing of
 the genesis validator transaction (a transaction containing a "create validator"
