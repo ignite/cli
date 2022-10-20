@@ -180,7 +180,7 @@ func (c *Chain) Generate(
 			dartPath = defaultDartPath
 		}
 
-		dartPath := filepath.Join(c.app.Path, dartPath, "generated")
+		dartPath = filepath.Join(c.app.Path, dartPath, "generated")
 		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
