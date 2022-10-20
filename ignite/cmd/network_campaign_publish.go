@@ -29,8 +29,8 @@ func NewNetworkCampaignPublish() *cobra.Command {
 }
 
 func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -52,8 +52,6 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
 }

@@ -49,8 +49,9 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 		page, _     = cmd.Flags().GetUint64(flagPage)
 	)
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+
+	defer session.End()
 
 	if page == 0 {
 		return errors.New("invalid page value")
@@ -72,13 +73,11 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return renderLaunchSummaries(chainLaunches, session, advanced)
 }
 
 // renderLaunchSummaries writes into the provided out, the list of summarized launches
-func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session cliui.Session, advanced bool) error {
+func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session *cliui.Session, advanced bool) error {
 	header := LaunchSummaryHeader
 	if advanced {
 		// advanced information show the campaign ID, type of network and rewards for incentivized testnet

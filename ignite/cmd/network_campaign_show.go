@@ -20,8 +20,8 @@ func NewNetworkCampaignShow() *cobra.Command {
 }
 
 func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	// parse campaign ID
 	campaignID, err := network.ParseID(args[0])
@@ -48,8 +48,6 @@ func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Println(info)
 }

@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
@@ -22,6 +23,16 @@ import (
 const ServeTimeout = time.Minute * 15
 
 const defaultConfigFileName = "config.yml"
+
+// Hosts contains the "hostname:port" addresses for different service hosts.
+type Hosts struct {
+	RPC     string
+	P2P     string
+	Prof    string
+	GRPC    string
+	GRPCWeb string
+	API     string
+}
 
 type App struct {
 	path       string
@@ -113,6 +124,7 @@ func (a App) Serve(msg string, options ...ExecOption) (ok bool) {
 		"chain",
 		"serve",
 		"-v",
+		"--quit-on-fail",
 	}
 
 	if a.homePath != "" {
@@ -175,10 +187,10 @@ func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 	port, err := availableport.Find(1)
 	require.NoError(a.env.t, err)
 
-	a.EditConfig(func(conf *chainconfig.Config) {
-		conf.Faucet.Port = port[0]
-		conf.Faucet.Coins = coins
-		conf.Faucet.CoinsMax = coinsMax
+	a.EditConfig(func(c *chainconfig.Config) {
+		c.Faucet.Port = port[0]
+		c.Faucet.Coins = coins
+		c.Faucet.CoinsMax = coinsMax
 	})
 
 	addr, err := xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
@@ -189,8 +201,8 @@ func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (a App) RandomizeServerPorts() chainconfig.Host {
-	// generate random server ports and servers list.
+func (a App) RandomizeServerPorts() Hosts {
+	// generate random server ports
 	ports, err := availableport.Find(6)
 	require.NoError(a.env.t, err)
 
@@ -198,7 +210,7 @@ func (a App) RandomizeServerPorts() chainconfig.Host {
 		return fmt.Sprintf("localhost:%d", port)
 	}
 
-	servers := chainconfig.Host{
+	hosts := Hosts{
 		RPC:     genAddr(ports[0]),
 		P2P:     genAddr(ports[1]),
 		Prof:    genAddr(ports[2]),
@@ -207,11 +219,21 @@ func (a App) RandomizeServerPorts() chainconfig.Host {
 		API:     genAddr(ports[5]),
 	}
 
-	a.EditConfig(func(conf *chainconfig.Config) {
-		conf.Host = servers
+	a.EditConfig(func(c *chainconfig.Config) {
+		v := &c.Validators[0]
+
+		s := v1.Servers{}
+		s.GRPC.Address = hosts.GRPC
+		s.GRPCWeb.Address = hosts.GRPCWeb
+		s.API.Address = hosts.API
+		s.P2P.Address = hosts.P2P
+		s.RPC.Address = hosts.RPC
+		s.RPC.PProfAddress = hosts.Prof
+
+		require.NoError(a.env.t, v.SetServers(s))
 	})
 
-	return servers
+	return hosts
 }
 
 // UseRandomHomeDir sets in the blockchain config files generated temporary directories for home directories
@@ -219,8 +241,8 @@ func (a App) RandomizeServerPorts() chainconfig.Host {
 func (a App) UseRandomHomeDir() (homeDirPath string) {
 	dir := a.env.TmpDir()
 
-	a.EditConfig(func(conf *chainconfig.Config) {
-		conf.Init.Home = dir
+	a.EditConfig(func(c *chainconfig.Config) {
+		c.Validators[0].Home = dir
 	})
 
 	return dir
@@ -244,4 +266,14 @@ func (a App) EditConfig(apply func(*chainconfig.Config)) {
 	require.NoError(a.env.t, err)
 	err = os.WriteFile(a.configPath, bz, 0o644)
 	require.NoError(a.env.t, err)
+}
+
+// GenerateTSClient runs the command to generate the Typescript client code.
+func (a App) GenerateTSClient() bool {
+	return a.env.Exec("generate typescript client", step.NewSteps(
+		step.New(
+			step.Exec(IgniteApp, "g", "ts-client", "--yes", "--clear-cache"),
+			step.Workdir(a.path),
+		),
+	))
 }

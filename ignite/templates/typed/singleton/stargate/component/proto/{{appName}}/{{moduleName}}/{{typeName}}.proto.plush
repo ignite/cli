@@ -1,0 +1,11 @@
+syntax = "proto3";
+package <%= protoPkgName %>;
+
+option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";<%= for (importName) in mergeCustomImports(Fields) { %>
+import "<%= appName %>/<%= moduleName %>/<%= importName %>.proto"; <% } %><%= for (importName) in mergeProtoImports(Fields) { %>
+import "<%= importName %>"; <% } %>
+
+message <%= TypeName.UpperCamel %> {<%= for (i, field) in Fields { %>
+  <%= field.ProtoType(i+1) %>; <% } %>
+  <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+1 %>;<% } %>
+}

@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/mod/semver"
+
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"golang.org/x/mod/semver"
 )
 
 // Msgs is a module import path-sdk msgs pair.
@@ -60,6 +61,9 @@ type HTTPQuery struct {
 
 	// HTTPAnnotations keeps info about http annotations of query.
 	Rules []protoanalysis.HTTPRule
+
+	// Paginated indicates that the query is using pagination.
+	Paginated bool
 }
 
 // Type is a proto type that might be used by module.
@@ -264,8 +268,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 		// do not use if used as a request/return type type of an RPC.
 		for _, s := range pkg.Services {
-			for _, q := range s.RPCFuncs {
+			for i, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
+					// Check if the service response message is using pagination and
+					// update the RPC function. This is done here to avoid extra loops
+					// just to update the pagination property.
+					s.RPCFuncs[i].Paginated = hasPagination(protomsg)
+
 					return false
 				}
 			}
@@ -292,10 +301,12 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 			if len(q.HTTPRules) == 0 {
 				continue
 			}
+
 			m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
-				Name:     q.Name,
-				FullName: s.Name + q.Name,
-				Rules:    q.HTTPRules,
+				Name:      q.Name,
+				FullName:  s.Name + q.Name,
+				Rules:     q.HTTPRules,
+				Paginated: q.Paginated,
 			})
 		}
 	}
@@ -395,4 +406,17 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 	}
 
 	return false, nil
+}
+
+func hasPagination(msg protoanalysis.Message) bool {
+	for _, fieldType := range msg.Fields {
+		// Message field type suffix check to match common pagination types:
+		//    cosmos.base.query.v1beta1.PageRequest
+		//    cosmos.base.query.v1beta1.PageResponse
+		if strings.HasSuffix(fieldType, "PageRequest") || strings.HasSuffix(fieldType, "PageResponse") {
+			return true
+		}
+	}
+
+	return false
 }

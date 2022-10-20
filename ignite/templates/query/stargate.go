@@ -31,7 +31,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 
 func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -86,7 +86,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
 		for _, f := range customFields {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {

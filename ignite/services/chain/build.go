@@ -204,7 +204,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 
-	fmt.Fprintln(c.stdLog().out, "📦 Installing dependencies...")
+	c.ev.Send("📦 Installing dependencies...")
 
 	// We do mod tidy before checking for checksum changes, because go.mod gets modified often
 	// and the mod verify command is the expensive one anyway
@@ -232,7 +232,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		}
 	}
 
-	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")
+	c.ev.Send("🛠  Building the blockchain...")
 
 	return buildFlags, nil
 }

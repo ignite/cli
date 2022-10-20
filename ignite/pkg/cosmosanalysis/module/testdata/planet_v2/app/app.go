@@ -3,14 +3,15 @@ package app
 import (
 	"github.com/cosmos/cosmos-sdk/api/tendermint/abci"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	planet "github.com/tendermint/planet/x/planet"
+
+	"github.com/tendermint/planet/x/mars"
 )
 
 type Foo struct {
 	FooKeeper foo.keeper
 }
 
-var ModuleBasics = module.NewBasicManager(planet.AppModuleBasic{})
+var ModuleBasics = module.NewBasicManager(mars.AppModuleBasic{})
 
 func (f Foo) Name() string { return app.BaseApp.Name() }
 func (f Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {

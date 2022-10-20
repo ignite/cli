@@ -1,11 +1,9 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
@@ -41,7 +39,7 @@ The command above will create a new message MsgAddPool with three fields: amount
 to the "dex" module.
 
 By default, the message is defined as a proto message in the
-"proto/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
+"proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
 create and broadcast a transaction with MsgAddPool is created in the module's
 "cli" package. Additionally, Ignite scaffolds a message constructor and the code
 to satisfy the sdk.Msg interface and register the message in the module.
@@ -61,12 +59,15 @@ Message scaffolding follows the rules as "ignite scaffold list/map/single" and
 supports fields with standard and custom types. See "ignite scaffold list —help"
 for details.
 `,
-		Args: cobra.MinimumNArgs(1),
-		RunE: messageHandler,
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    messageHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
@@ -86,8 +87,10 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		withoutSimulation = flagGetNoSimulation(cmd)
 	)
 
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
+
+	session.StartSpinner("Scaffolding...")
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
@@ -121,15 +124,13 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
 	modificationsStr, err := sourceModificationToString(sm)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(modificationsStr)
-	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
+	session.Println(modificationsStr)
+	session.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
 
 	return nil
 }

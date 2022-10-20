@@ -90,13 +90,13 @@ func NewRelayerConfigure() *cobra.Command {
 	return c
 }
 
-func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
+func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	defer func() {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -452,17 +452,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	session.StopSpinner()
-	session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
-
-	return nil
+	return session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 }
 
 // initChain initializes chain information for the relayer connection
 func initChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
-	session cliui.Session,
+	session *cliui.Session,
 	name,
 	accountName,
 	rpcAddr,

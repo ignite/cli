@@ -2,8 +2,7 @@ package modulecreate
 
 import (
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
@@ -25,7 +24,8 @@ func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool)
 	ctx.Set("title", xstrings.Title)
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", appName))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
 
 	if err := xgenny.Box(g, template); err != nil {

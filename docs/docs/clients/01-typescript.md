@@ -307,5 +307,4 @@ await client.useKeplr();
 client.useSigner(wallet);
 
 //transact using CosmJS wallet
-
 ```
