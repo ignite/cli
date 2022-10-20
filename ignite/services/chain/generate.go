@@ -131,12 +131,17 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Typescript Client code as well if it is enabled.
+	var dartPath, openAPIPath, tsClientPath, vuexPath string
+
 	if targetOptions.isTSClientEnabled {
-		tsClientPath := targetOptions.tsClientPath
+		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
-			tsClientPath = filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
+			tsClientPath = chainconfig.TSClientPath(conf)
+		}
+
+		// Non absolute TS client output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(tsClientPath) {
+			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
 		}
 
 		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
@@ -152,33 +157,45 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
-		vuexPath := conf.Client.Vuex.Path
+		vuexPath = conf.Client.Vuex.Path
 		if vuexPath == "" {
 			vuexPath = defaultVuexPath
 		}
 
-		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0o766); err != nil {
+		if filepath.IsAbs(vuexPath) {
+			// TODO: Should we always generate Vuex code inside a "generated" directory?
+			vuexPath = filepath.Join(vuexPath, "generated")
+		} else {
+			vuexPath = filepath.Join(c.app.Path, vuexPath, "generated")
+		}
+
+		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				cosmosgen.TypescriptModulePath(storeRootPath),
-				storeRootPath,
+				cosmosgen.TypescriptModulePath(vuexPath),
+				vuexPath,
 			),
 		)
 	}
 
 	if targetOptions.isDartEnabled {
-		dartPath := conf.Client.Dart.Path
+		dartPath = conf.Client.Dart.Path
 		if dartPath == "" {
 			dartPath = defaultDartPath
 		}
 
-		rootPath := filepath.Join(c.app.Path, dartPath, "generated")
-		if err := os.MkdirAll(rootPath, 0o766); err != nil {
+		if filepath.IsAbs(dartPath) {
+			// TODO: Should we always generate Dart code inside a "generated" directory?
+			dartPath = filepath.Join(dartPath, "generated")
+		} else {
+			dartPath = filepath.Join(c.app.Path, dartPath, "generated")
+		}
+
+		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
 
@@ -186,18 +203,22 @@ func (c *Chain) Generate(
 			cosmosgen.WithDartGeneration(
 				enableThirdPartyModuleCodegen,
 				func(m module.Module) string {
-					return filepath.Join(rootPath, m.Pkg.Name, "module")
+					return filepath.Join(dartPath, m.Pkg.Name, "module")
 				},
-				rootPath,
+				dartPath,
 			),
 		)
 	}
 
 	if targetOptions.isOpenAPIEnabled {
-		openAPIPath := conf.Client.OpenAPI.Path
-
+		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
 			openAPIPath = defaultOpenAPIPath
+		}
+
+		// Non absolute OpenAPI paths must be treated as relative to the app directory
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
 		}
 
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
