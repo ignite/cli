@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -85,16 +86,75 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.sendAccountRequest(ctx, launchID, accountAddress, o.accountAmount); err != nil {
+		if err := n.SendAccountRequest(ctx, launchID, accountAddress, o.accountAmount); err != nil {
 			return err
 		}
 	}
 
-	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
+	return n.SendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
-// sendValidatorRequest creates the RequestAddValidator message into the SPN
-func (n Network) sendValidatorRequest(
+func (n Network) SendAccountRequestForCoordinator(ctx context.Context, launchID uint64, amount sdk.Coins) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	return n.SendAccountRequest(ctx, launchID, addr, amount)
+}
+
+// SendAccountRequest creates an add AddAccount request message.
+func (n Network) SendAccountRequest(
+	ctx context.Context,
+	launchID uint64,
+	address string,
+	amount sdk.Coins,
+) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewGenesisAccount(
+			launchID,
+			address,
+			amount,
+		),
+	)
+
+	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send(
+			"Account added to the network by the coordinator!",
+			events.Icon(icons.Bullet),
+			events.ProgressFinished(),
+		)
+	} else {
+		n.ev.Send(
+			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
+			events.Icon(icons.Bullet),
+			events.ProgressFinished(),
+		)
+	}
+	return nil
+}
+
+// SendValidatorRequest creates the RequestAddValidator message into the SPN
+func (n Network) SendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
 	peer launchtypes.Peer,

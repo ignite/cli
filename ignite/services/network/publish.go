@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -261,58 +260,4 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	return launchID, campaignID, nil
-}
-
-func (n Network) SendAccountRequestForCoordinator(ctx context.Context, launchID uint64, amount sdk.Coins) error {
-	addr, err := n.account.Address(networktypes.SPN)
-	if err != nil {
-		return err
-	}
-
-	return n.sendAccountRequest(ctx, launchID, addr, amount)
-}
-
-// SendAccountRequest creates an add AddAccount request message.
-func (n Network) sendAccountRequest(
-	ctx context.Context,
-	launchID uint64,
-	address string,
-	amount sdk.Coins,
-) error {
-	addr, err := n.account.Address(networktypes.SPN)
-	if err != nil {
-		return err
-	}
-
-	msg := launchtypes.NewMsgSendRequest(
-		addr,
-		launchID,
-		launchtypes.NewGenesisAccount(
-			launchID,
-			address,
-			amount,
-		),
-	)
-
-	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
-
-	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
-	if err != nil {
-		return err
-	}
-
-	var requestRes launchtypes.MsgSendRequestResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-
-	if requestRes.AutoApproved {
-		n.ev.Send("Account added to the network by the coordinator!", events.ProgressFinished())
-	} else {
-		n.ev.Send(
-			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
-			events.ProgressFinished(),
-		)
-	}
-	return nil
 }
