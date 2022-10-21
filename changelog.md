@@ -1,15 +1,3 @@
-## Unreleased
-
-### Features
-
-- [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
-
-## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
-
-### Changes
-
-- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
-
 # Changelog
 
 ## Unreleased
@@ -17,6 +5,13 @@
 ### Features
 
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
+- [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
 
 ## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
