@@ -46,7 +46,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesisURL, "", "URL to a custom Genesis")
-	c.Flags().String(flagGenesisConfig, "", "Name of Ignite config file in repo for custom Genesis")
+	c.Flags().String(flagGenesisConfig, "", "Name of an Ignite config file in the repo for custom Genesis")
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
