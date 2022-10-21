@@ -35,7 +35,10 @@ initializing and launching the chain locally. If the chain starts successfully,
 requests are considered to be "verified" and are approved. If one or more
 requested changes stop the chain from launching locally, the verification
 process fails and the approval of all requests is canceled. To skip the
-verification process use the "--no-verification" flag.`,
+verification process use the "--no-verification" flag.
+
+Note that Ignite will try to approve requests in the same order as request IDs
+are submitted to the "approve" command.`,
 		RunE: networkRequestApproveHandler,
 		Args: cobra.ExactArgs(2),
 	}
