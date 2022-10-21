@@ -1,9 +1,3 @@
-## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
-
-### Changes
-
-- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
-
 # Changelog
 
 ## Unreleased
@@ -11,6 +5,14 @@
 ### Features
 
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
+- [#2950](https://github.com/ignite/cli/pull/2950) Add `--genesis-config` flag option to `ignite network chain publish`
+
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
+
 
 ## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
@@ -21,7 +23,6 @@
 - Add `ignite network validator` command set.
 - Deprecate `cosmoscmd` pkg and add cmd templates for scaffolding.
 - Add generated TS client test support to integration tests.
-- [#2950](https://github.com/ignite/cli/pull/2950) Add `--genesis-config` flag option to `ignite network chain publish` 
 command
 
 ### Changes
