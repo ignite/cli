@@ -25,7 +25,7 @@ func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 		return &CannotBuildAppError{err}
 	}
 
-	if err := c.InitChain(ctx, conf); err != nil {
+	if err := c.InitChain(ctx, conf, true); err != nil {
 		return err
 	}
 
@@ -36,7 +36,7 @@ func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 }
 
 // InitChain initializes the chain.
-func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config) error {
+func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config, updatePlugin bool) error {
 	chainID, err := c.ID()
 	if err != nil {
 		return err
@@ -62,8 +62,10 @@ func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config) error {
 	}
 
 	// ovewrite app config files with the values defined in Ignite's config file
-	if err := c.plugin.Configure(home, conf); err != nil {
-		return err
+	if updatePlugin {
+		if err := c.plugin.Configure(home, conf); err != nil {
+			return err
+		}
 	}
 
 	// make sure that chain id given during chain.New() has the most priority.

@@ -49,6 +49,10 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 }
 
 func (p *stargatePlugin) Configure(homePath string, cfg *chainconfig.Config) error {
+	if cfg.Validators == nil {
+		return fmt.Errorf("cannot update configuration files with no valiators")
+	}
+
 	if err := p.appTOML(homePath, cfg); err != nil {
 		return err
 	}
@@ -66,31 +70,29 @@ func (p *stargatePlugin) appTOML(homePath string, cfg *chainconfig.Config) error
 		return err
 	}
 
-	if cfg.Validators != nil {
-		validator := cfg.Validators[0]
-		servers, err := validator.GetServers()
-		if err != nil {
-			return err
-		}
-
-		apiAddr, err := xurl.TCP(servers.API.Address)
-		if err != nil {
-			return fmt.Errorf("invalid api address format %s: %w", servers.API.Address, err)
-		}
-
-		// Update config values with the validator's Cosmos SDK app config
-		updateTomlTreeValues(config, validator.App)
-
-		// Make sure the API address have the protocol prefix
-		config.Set("api.address", apiAddr)
-
-		staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
-		if err != nil {
-			return err
-		}
-		gas := sdktypes.NewInt64Coin(staked.Denom, 0)
-		config.Set("minimum-gas-prices", gas.String())
+	validator := cfg.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
+		return err
 	}
+
+	apiAddr, err := xurl.TCP(servers.API.Address)
+	if err != nil {
+		return fmt.Errorf("invalid api address format %s: %w", servers.API.Address, err)
+	}
+
+	// Update config values with the validator's Cosmos SDK app config
+	updateTomlTreeValues(config, validator.App)
+
+	// Make sure the API address have the protocol prefix
+	config.Set("api.address", apiAddr)
+
+	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
+	if err != nil {
+		return err
+	}
+	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
+	config.Set("minimum-gas-prices", gas.String())
 
 	// Set default config values
 	config.Set("api.enable", true)
@@ -115,31 +117,28 @@ func (p *stargatePlugin) configTOML(homePath string, cfg *chainconfig.Config) er
 		return err
 	}
 
-	if cfg.Validators != nil {
-		validator := cfg.Validators[0]
-		servers, err := validator.GetServers()
-		if err != nil {
-			return err
-		}
-
-		rpcAddr, err := xurl.TCP(servers.RPC.Address)
-		if err != nil {
-			return fmt.Errorf("invalid rpc address format %s: %w", servers.RPC.Address, err)
-		}
-
-		p2pAddr, err := xurl.TCP(servers.P2P.Address)
-		if err != nil {
-			return fmt.Errorf("invalid p2p address format %s: %w", servers.P2P.Address, err)
-		}
-
-		// Make sure the addresses have the protocol prefix
-		config.Set("rpc.laddr", rpcAddr)
-		config.Set("p2p.laddr", p2pAddr)
-
-		// Update config values with the validator's Tendermint config
-		updateTomlTreeValues(config, validator.Config)
-
+	validator := cfg.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
+		return err
 	}
+
+	rpcAddr, err := xurl.TCP(servers.RPC.Address)
+	if err != nil {
+		return fmt.Errorf("invalid rpc address format %s: %w", servers.RPC.Address, err)
+	}
+
+	p2pAddr, err := xurl.TCP(servers.P2P.Address)
+	if err != nil {
+		return fmt.Errorf("invalid p2p address format %s: %w", servers.P2P.Address, err)
+	}
+
+	// Make sure the addresses have the protocol prefix
+	config.Set("rpc.laddr", rpcAddr)
+	config.Set("p2p.laddr", p2pAddr)
+
+	// Update config values with the validator's Tendermint config
+	updateTomlTreeValues(config, validator.Config)
 
 	// Set default config values
 	config.Set("mode", "validator")
@@ -172,10 +171,8 @@ func (p *stargatePlugin) clientTOML(homePath string, cfg *chainconfig.Config) er
 	config.Set("keyring-backend", "test")
 	config.Set("broadcast-mode", "block")
 
-	if cfg.Validators != nil {
-		// Update config values with the validator's client config
-		updateTomlTreeValues(config, cfg.Validators[0].Client)
-	}
+	// Update config values with the validator's client config
+	updateTomlTreeValues(config, cfg.Validators[0].Client)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {

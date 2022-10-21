@@ -126,7 +126,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		// ensure that there are no validators
 		config.Validators = nil
 
-		err = c.chain.InitChain(ctx, config)
+		err = c.chain.InitChain(ctx, config, false)
 		if err != nil {
 			return err
 		}
