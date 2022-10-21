@@ -192,7 +192,7 @@ func (p *Plugin) load(ctx context.Context) {
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   fmt.Sprintf("plugin %s", p.Path),
 		Output: os.Stderr,
-		Level:  hclog.Error,
+		Level:  hclog.Trace,
 	})
 	// We're a host! Start by launching the plugin process.
 	p.client = hplugin.NewClient(&hplugin.ClientConfig{

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -102,27 +101,18 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		Short: pluginCmd.Short,
 		Long:  pluginCmd.Long,
 	}
-	for _, flag := range pluginCmd.Flags {
-		switch flag.Type {
-		case plugin.FlagTypeBool:
-			defVal, _ := strconv.ParseBool(flag.DefValue)
-			newCmd.Flags().BoolP(flag.Name, flag.Shorthand, defVal, flag.Usage)
-		case plugin.FlagTypeInt:
-			defVal, _ := strconv.Atoi(flag.DefValue)
-			newCmd.Flags().IntP(flag.Name, flag.Shorthand, defVal, flag.Usage)
-		case plugin.FlagTypeString:
-			newCmd.Flags().StringP(flag.Name, flag.Shorthand, flag.DefValue, flag.Usage)
-		}
-	}
+	spew.Dump("LOAD RECEIVED", pluginCmd.Flags)
+	newCmd.Flags().AddFlagSet(&pluginCmd.Flags.FlagSet)
 	cmd.AddCommand(newCmd)
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			spew.Dump(cmd.Flags())
 			// Pass config parameters
 			pluginCmd.With = p.With
 			// Pass cobra cmd
 			pluginCmd.CobraCmd = cmd
+			spew.Dump("RUN", cmd.Flags())
+			pluginCmd.Flags.FlagSet = *cmd.Flags()
 			// Call the plugin Execute
 			err := p.Interface.Execute(pluginCmd, args)
 			// NOTE(tb): This pause gives enough time for go-plugin to sync the
