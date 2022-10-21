@@ -8,8 +8,9 @@ import (
 // subcommands related to launching a network for a campaign.
 func NewNetworkCampaign() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "campaign",
-		Short: "Handle campaigns",
+		Use:    "campaign",
+		Short:  "Handle campaigns",
+		Hidden: true,
 	}
 	c.AddCommand(
 		NewNetworkCampaignPublish(),
