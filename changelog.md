@@ -1,9 +1,3 @@
-## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
-
-### Changes
-
-- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
-
 # Changelog
 
 ## Unreleased
@@ -11,6 +5,16 @@
 ### Features
 
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
+
+### Changes
+
+- [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
+
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
 
 ## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
@@ -40,7 +44,6 @@
 - Change nightly tag format
 - Add cosmos-sdk version in `version` command
 - [#2935](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
-- [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
 
 ### Fixes
 
