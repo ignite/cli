@@ -34,7 +34,8 @@ type Command struct {
 	// Same as cobra.Command.Short
 	Short string
 	// Same as cobra.Command.Long
-	Long string
+	Long  string
+	Flags []Flag
 	// PlaceCommandUnder indicates where the command should be placed.
 	// For instance `ignite scaffold` will place the command at the
 	// `scaffold` command.
@@ -49,6 +50,22 @@ type Command struct {
 	// chainconfig.Plugin.With field.
 	With map[string]string
 }
+
+type Flag struct {
+	Name      string // name as it appears on command line
+	Shorthand string // one-letter abbreviated flag
+	Usage     string // help message
+	DefValue  string // default value (as text); for usage message
+	Type      FlagType
+}
+
+type FlagType int
+
+const (
+	FlagTypeString FlagType = iota
+	FlagTypeInt
+	FlagTypeBool
+)
 
 // handshakeConfigs are used to just do a basic handshake between
 // a plugin and host. If the handshake fails, a user friendly error is shown.

@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -100,10 +102,23 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		Short: pluginCmd.Short,
 		Long:  pluginCmd.Long,
 	}
+	for _, flag := range pluginCmd.Flags {
+		switch flag.Type {
+		case plugin.FlagTypeBool:
+			defVal, _ := strconv.ParseBool(flag.DefValue)
+			newCmd.Flags().BoolP(flag.Name, flag.Shorthand, defVal, flag.Usage)
+		case plugin.FlagTypeInt:
+			defVal, _ := strconv.Atoi(flag.DefValue)
+			newCmd.Flags().IntP(flag.Name, flag.Shorthand, defVal, flag.Usage)
+		case plugin.FlagTypeString:
+			newCmd.Flags().StringP(flag.Name, flag.Shorthand, flag.DefValue, flag.Usage)
+		}
+	}
 	cmd.AddCommand(newCmd)
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
+			spew.Dump(cmd.Flags())
 			// Pass config parameters
 			pluginCmd.With = p.With
 			// Pass cobra cmd
