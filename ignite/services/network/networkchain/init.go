@@ -111,7 +111,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		// find config in downloaded source
 		path := filepath.Join(c.path, c.genesisConfig)
 		if _, err := os.Stat(path); err != nil {
-			return err
+			return fmt.Errorf("the config for genesis doesn't exist: %w", err)
 		}
 
 		config, err := chainconfig.ParseFile(path)
