@@ -2,13 +2,15 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 const (
@@ -119,7 +121,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	c.ev.Send("🛠  Building proto...")
+	c.ev.Send("Building proto...", events.ProgressStarted())
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
@@ -202,9 +204,7 @@ func (c *Chain) Generate(
 		options = append(options,
 			cosmosgen.WithDartGeneration(
 				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					return filepath.Join(dartPath, m.Pkg.Name, "module")
-				},
+				cosmosgen.DartModulePath(dartPath),
 				dartPath,
 			),
 		)
@@ -229,6 +229,40 @@ func (c *Chain) Generate(
 	}
 
 	c.protoBuiltAtLeastOnce = true
+
+	if c.options.printGeneratedPaths {
+		if targetOptions.isTSClientEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Typescript client path: %s", tsClientPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+
+		if targetOptions.isVuexEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Vuex stores path: %s", vuexPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+
+		if targetOptions.isDartEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Dart path: %s", dartPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+
+		if targetOptions.isOpenAPIEnabled {
+			c.ev.Send(
+				fmt.Sprintf("OpenAPI path: %s", openAPIPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+	}
 
 	return nil
 }
