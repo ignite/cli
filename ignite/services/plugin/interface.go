@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
@@ -48,8 +47,6 @@ type Command struct {
 	// List of sub commands
 	Commands []Command
 
-	// The following fields are populated at runtime
-	CobraCmd *cobra.Command
 	// Optionnal parameters populated by config at runtime via
 	// chainconfig.Plugin.With field.
 	With map[string]string

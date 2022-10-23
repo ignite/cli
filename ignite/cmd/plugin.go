@@ -107,8 +107,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			// Pass config parameters
 			pluginCmd.With = p.With
-			// Pass cobra cmd
-			pluginCmd.CobraCmd = cmd
+			// Pass flags
 			pluginCmd.SetFlags(cmd.Flags())
 			// Call the plugin Execute
 			err := p.Interface.Execute(pluginCmd, args)
