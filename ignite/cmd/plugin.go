@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -101,7 +100,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		Short: pluginCmd.Short,
 		Long:  pluginCmd.Long,
 	}
-	spew.Dump("LOAD RECEIVED", pluginCmd.Flags)
 	newCmd.Flags().AddFlagSet(&pluginCmd.Flags.FlagSet)
 	cmd.AddCommand(newCmd)
 	if len(pluginCmd.Commands) == 0 {
@@ -111,7 +109,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 			pluginCmd.With = p.With
 			// Pass cobra cmd
 			pluginCmd.CobraCmd = cmd
-			spew.Dump("RUN", cmd.Flags())
 			pluginCmd.Flags.FlagSet = *cmd.Flags()
 			// Call the plugin Execute
 			err := p.Interface.Execute(pluginCmd, args)

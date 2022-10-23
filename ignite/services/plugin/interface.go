@@ -8,7 +8,6 @@ import (
 	"net/rpc"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/go-plugin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -61,54 +60,12 @@ type FlagSet struct {
 	pflag.FlagSet
 }
 
-func (fs FlagSet) GobEncode() ([]byte, error) {
-	fmt.Println("encode")
-	var ff []flag
-	fs.VisitAll(func(pf *pflag.Flag) {
-		ff = append(ff, flag{
-			Name:      pf.Name,
-			Shorthand: pf.Shorthand,
-			Usage:     pf.Usage,
-			DefValue:  pf.DefValue,
-			Type:      FlagType(pf.Value.Type()),
-		})
-	})
-	var b bytes.Buffer
-	spew.Dump(fs, ff)
-	err := gob.NewEncoder(&b).Encode(ff)
-	return b.Bytes(), err
-}
-
-func (fs FlagSet) GobDecode(bz []byte) error {
-	fmt.Println("decode")
-	var ff []flag
-	err := gob.NewDecoder(bytes.NewReader(bz)).Decode(&ff)
-	if err != nil {
-		return err
-	}
-	for _, f := range ff {
-		switch f.Type {
-		case FlagTypeBool:
-			defVal, _ := strconv.ParseBool(f.DefValue)
-			fs.BoolP(f.Name, f.Shorthand, defVal, f.Usage)
-		case FlagTypeInt:
-			defVal, _ := strconv.Atoi(f.DefValue)
-			fs.IntP(f.Name, f.Shorthand, defVal, f.Usage)
-		case FlagTypeString:
-			fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
-		default:
-			panic(fmt.Sprintf("flagset unmarshal: unhandled flag type %#v", f))
-		}
-	}
-	spew.Dump(ff, fs)
-	return nil
-}
-
 type flag struct {
 	Name      string // name as it appears on command line
 	Shorthand string // one-letter abbreviated flag
 	Usage     string // help message
 	DefValue  string // default value (as text); for usage message
+	Value     string
 	Type      FlagType
 }
 
@@ -119,6 +76,49 @@ const (
 	FlagTypeInt    FlagType = "int"
 	FlagTypeBool   FlagType = "bool"
 )
+
+func (fs FlagSet) GobEncode() ([]byte, error) {
+	var ff []flag
+	fs.VisitAll(func(pf *pflag.Flag) {
+		ff = append(ff, flag{
+			Name:      pf.Name,
+			Shorthand: pf.Shorthand,
+			Usage:     pf.Usage,
+			DefValue:  pf.DefValue,
+			Value:     pf.Value.String(),
+			Type:      FlagType(pf.Value.Type()),
+		})
+	})
+	var b bytes.Buffer
+	err := gob.NewEncoder(&b).Encode(ff)
+	return b.Bytes(), err
+}
+
+func (fs *FlagSet) GobDecode(bz []byte) error {
+	var ff []flag
+	err := gob.NewDecoder(bytes.NewReader(bz)).Decode(&ff)
+	if err != nil {
+		return err
+	}
+	for _, f := range ff {
+		switch f.Type {
+		case FlagTypeBool:
+			defVal, _ := strconv.ParseBool(f.DefValue)
+			fs.BoolP(f.Name, f.Shorthand, defVal, f.Usage)
+			fs.Set(f.Name, f.Value)
+		case FlagTypeInt:
+			defVal, _ := strconv.Atoi(f.DefValue)
+			fs.IntP(f.Name, f.Shorthand, defVal, f.Usage)
+			fs.Set(f.Name, f.Value)
+		case FlagTypeString:
+			fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
+			fs.Set(f.Name, f.Value)
+		default:
+			panic(fmt.Sprintf("flagset unmarshal: unhandled flag type %#v", f))
+		}
+	}
+	return nil
+}
 
 // handshakeConfigs are used to just do a basic handshake between
 // a plugin and host. If the handshake fails, a user friendly error is shown.
