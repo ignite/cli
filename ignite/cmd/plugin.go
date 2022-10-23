@@ -100,7 +100,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		Short: pluginCmd.Short,
 		Long:  pluginCmd.Long,
 	}
-	newCmd.Flags().AddFlagSet(&pluginCmd.Flags.FlagSet)
+	newCmd.Flags().AddFlagSet(pluginCmd.Flags())
 	cmd.AddCommand(newCmd)
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
@@ -109,7 +109,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 			pluginCmd.With = p.With
 			// Pass cobra cmd
 			pluginCmd.CobraCmd = cmd
-			pluginCmd.Flags.FlagSet = *cmd.Flags()
+			pluginCmd.SetFlags(cmd.Flags())
 			// Call the plugin Execute
 			err := p.Interface.Execute(pluginCmd, args)
 			// NOTE(tb): This pause gives enough time for go-plugin to sync the

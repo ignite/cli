@@ -39,8 +39,7 @@ type Command struct {
 	// Same as cobra.Command.Short
 	Short string
 	// Same as cobra.Command.Long
-	Long  string
-	Flags FlagSet
+	Long string
 	// PlaceCommandUnder indicates where the command should be placed.
 	// For instance `ignite scaffold` will place the command at the
 	// `scaffold` command.
@@ -54,11 +53,32 @@ type Command struct {
 	// Optionnal parameters populated by config at runtime via
 	// chainconfig.Plugin.With field.
 	With map[string]string
+
+	flags *pflag.FlagSet
 }
 
-type FlagSet struct {
-	pflag.FlagSet
+func (c *Command) Flags() *pflag.FlagSet {
+	if c.flags == nil {
+		c.flags = pflag.NewFlagSet(c.Use, pflag.ContinueOnError)
+	}
+	return c.flags
 }
+
+func (c *Command) SetFlags(fs *pflag.FlagSet) {
+	c.flags = fs
+}
+
+// gobCommandFlags is used to gob encode/decode Command.
+// Command can't be encoded because :
+// - flags is unexported (because we want to expose it via the Flags() method,
+// like a regular cobra.Command)
+// - flags type is *pflag.FlagSet which is also full of unexported fields.
+type gobCommandFlags struct {
+	Command gobCommand
+	Flags   []flag
+}
+
+type gobCommand Command
 
 type flag struct {
 	Name      string // name as it appears on command line
@@ -66,53 +86,59 @@ type flag struct {
 	Usage     string // help message
 	DefValue  string // default value (as text); for usage message
 	Value     string
-	Type      FlagType
+	Type      flagType
 }
 
-type FlagType string
+type flagType string
 
 const (
-	FlagTypeString FlagType = "string"
-	FlagTypeInt    FlagType = "int"
-	FlagTypeBool   FlagType = "bool"
+	flagTypeString flagType = "string"
+	flagTypeInt    flagType = "int"
+	flagTypeBool   flagType = "bool"
 )
 
-func (fs FlagSet) GobEncode() ([]byte, error) {
+func (c Command) GobEncode() ([]byte, error) {
 	var ff []flag
-	fs.VisitAll(func(pf *pflag.Flag) {
-		ff = append(ff, flag{
-			Name:      pf.Name,
-			Shorthand: pf.Shorthand,
-			Usage:     pf.Usage,
-			DefValue:  pf.DefValue,
-			Value:     pf.Value.String(),
-			Type:      FlagType(pf.Value.Type()),
+	if c.flags != nil {
+		c.flags.VisitAll(func(pf *pflag.Flag) {
+			ff = append(ff, flag{
+				Name:      pf.Name,
+				Shorthand: pf.Shorthand,
+				Usage:     pf.Usage,
+				DefValue:  pf.DefValue,
+				Value:     pf.Value.String(),
+				Type:      flagType(pf.Value.Type()),
+			})
 		})
-	})
+	}
 	var b bytes.Buffer
-	err := gob.NewEncoder(&b).Encode(ff)
+	err := gob.NewEncoder(&b).Encode(gobCommandFlags{
+		Command: gobCommand(c),
+		Flags:   ff,
+	})
 	return b.Bytes(), err
 }
 
-func (fs *FlagSet) GobDecode(bz []byte) error {
-	var ff []flag
-	err := gob.NewDecoder(bytes.NewReader(bz)).Decode(&ff)
+func (c *Command) GobDecode(bz []byte) error {
+	var gb gobCommandFlags
+	err := gob.NewDecoder(bytes.NewReader(bz)).Decode(&gb)
 	if err != nil {
 		return err
 	}
-	for _, f := range ff {
+	*c = Command(gb.Command)
+	for _, f := range gb.Flags {
 		switch f.Type {
-		case FlagTypeBool:
+		case flagTypeBool:
 			defVal, _ := strconv.ParseBool(f.DefValue)
-			fs.BoolP(f.Name, f.Shorthand, defVal, f.Usage)
-			fs.Set(f.Name, f.Value)
-		case FlagTypeInt:
+			c.Flags().BoolP(f.Name, f.Shorthand, defVal, f.Usage)
+			c.Flags().Set(f.Name, f.Value)
+		case flagTypeInt:
 			defVal, _ := strconv.Atoi(f.DefValue)
-			fs.IntP(f.Name, f.Shorthand, defVal, f.Usage)
-			fs.Set(f.Name, f.Value)
-		case FlagTypeString:
-			fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
-			fs.Set(f.Name, f.Value)
+			c.Flags().IntP(f.Name, f.Shorthand, defVal, f.Usage)
+			c.Flags().Set(f.Name, f.Value)
+		case flagTypeString:
+			c.Flags().StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
+			c.Flags().Set(f.Name, f.Value)
 		default:
 			panic(fmt.Sprintf("flagset unmarshal: unhandled flag type %#v", f))
 		}
