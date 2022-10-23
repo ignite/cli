@@ -18,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
+	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
@@ -440,6 +441,11 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	}
 
 	binary, err := c.Binary()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	binary, err = xexec.ResolveAbsPath(binary)
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
