@@ -2,13 +2,15 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 const (
@@ -119,7 +121,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	c.ev.Send("🛠  Building proto...")
+	c.ev.Send("Building proto...", events.ProgressStarted())
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
@@ -131,9 +133,10 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Typescript Client code as well if it is enabled.
+	var dartPath, openAPIPath, tsClientPath, vuexPath string
+
 	if targetOptions.isTSClientEnabled {
-		tsClientPath := targetOptions.tsClientPath
+		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
 			// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
 			tsClientPath = filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
@@ -152,50 +155,47 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
-		vuexPath := conf.Client.Vuex.Path
+		vuexPath = conf.Client.Vuex.Path
 		if vuexPath == "" {
 			vuexPath = defaultVuexPath
 		}
 
-		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0o766); err != nil {
+		vuexPath = filepath.Join(c.app.Path, vuexPath, "generated")
+		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
-				cosmosgen.TypescriptModulePath(storeRootPath),
-				storeRootPath,
+				cosmosgen.TypescriptModulePath(vuexPath),
+				vuexPath,
 			),
 		)
 	}
 
 	if targetOptions.isDartEnabled {
-		dartPath := conf.Client.Dart.Path
+		dartPath = conf.Client.Dart.Path
 		if dartPath == "" {
 			dartPath = defaultDartPath
 		}
 
-		rootPath := filepath.Join(c.app.Path, dartPath, "generated")
-		if err := os.MkdirAll(rootPath, 0o766); err != nil {
+		dartPath = filepath.Join(c.app.Path, dartPath, "generated")
+		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithDartGeneration(
 				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					return filepath.Join(rootPath, m.Pkg.Name, "module")
-				},
-				rootPath,
+				cosmosgen.DartModulePath(dartPath),
+				dartPath,
 			),
 		)
 	}
 
 	if targetOptions.isOpenAPIEnabled {
-		openAPIPath := conf.Client.OpenAPI.Path
-
+		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
 			openAPIPath = defaultOpenAPIPath
 		}
@@ -208,6 +208,40 @@ func (c *Chain) Generate(
 	}
 
 	c.protoBuiltAtLeastOnce = true
+
+	if c.options.printGeneratedPaths {
+		if targetOptions.isTSClientEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Typescript client path: %s", tsClientPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+
+		if targetOptions.isVuexEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Vuex stores path: %s", vuexPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+
+		if targetOptions.isDartEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Dart path: %s", dartPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+
+		if targetOptions.isOpenAPIEnabled {
+			c.ev.Send(
+				fmt.Sprintf("OpenAPI path: %s", openAPIPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinished(),
+			)
+		}
+	}
 
 	return nil
 }

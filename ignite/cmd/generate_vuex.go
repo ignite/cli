@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -32,6 +33,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+		chain.PrintGeneratedPaths(),
 	)
 	if err != nil {
 		return err
@@ -46,5 +48,5 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return session.Println("⛏️  Generated Typescript Client and Vuex stores")
+	return session.Println(icons.OK, "Generated Typescript Client and Vuex stores")
 }
