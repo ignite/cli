@@ -75,6 +75,9 @@ type chainOptions struct {
 	// been modified since they were downloaded.
 	checkDependencies bool
 
+	// printGeneratedPaths prints the output paths of the generated code
+	printGeneratedPaths bool
+
 	// path of a custom config file
 	ConfigFile string
 }
@@ -138,6 +141,13 @@ func CollectEvents(ev events.Bus) Option {
 func CheckDependencies() Option {
 	return func(c *Chain) {
 		c.options.checkDependencies = true
+	}
+}
+
+// PrintGeneratedPaths prints the output paths of the generated code.
+func PrintGeneratedPaths() Option {
+	return func(c *Chain) {
+		c.options.printGeneratedPaths = true
 	}
 }
 
