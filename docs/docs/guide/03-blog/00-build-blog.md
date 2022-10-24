@@ -22,10 +22,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.22.2 use the following command:
+This series of blog tutorials is based on a specific version of Ignite CLI, so to install Ignite CLI v0.25.1 use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.22.2! | bash
+curl https://get.ignite.com/cli@v0.25.1! | bash
 ```
 
 ## Create your blog chain
