@@ -24,7 +24,7 @@ The Inter-Blockchain Communication protocol (IBC) allows blockchains to talk to 
 across different sovereign blockchains. This end-to-end, connection-oriented, stateful protocol provides reliable,
 ordered, and authenticated communication between heterogeneous blockchains.
 
-The [IBC protocol in the Cosmos SDK](https://docs.cosmos.network/master/ibc/overview.html) is the standard for the
+The [IBC protocol in the Cosmos SDK](https://ibc.cosmos.network/main/ibc/overview.html) is the standard for the
 interaction between two blockchains. The IBCmodule interface defines how packets and messages are constructed to be
 interpreted by the sending and the receiving blockchain.
 
@@ -251,7 +251,7 @@ to the source chain through acknowledgment.
 Append the type instance as `PostID` on receiving the packet:
 
 - The context `ctx` is
-  an [immutable data structure](https://docs.cosmos.network/master/core/context.html#go-context-package)
+  an [immutable data structure](https://docs.cosmos.network/main/core/context.html#go-context-package)
   that has header data from the transaction.
   See [how the context is initiated](https://github.com/cosmos/cosmos-sdk/blob/master/types/context.go#L71)
 - The identifier format that you defined earlier
@@ -448,9 +448,9 @@ If you previously used the relayer, follow these steps to remove exiting relayer
 
 - Stop your blockchains and delete previous configuration files:
 
-    ```bash
-    rm -rf ~/.ignite/relayer
-    ```
+  ```bash
+  rm -rf ~/.ignite/relayer
+  ```
 
 If existing relayer configurations do not exist, the command returns `no matches found` and no action is taken.
 

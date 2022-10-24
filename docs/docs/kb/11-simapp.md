@@ -1,7 +1,6 @@
 ---
 sidebar_position: 11
 description: Test different scenarios for your chain.
-
 ---
 
 # Chain simulation
@@ -13,7 +12,7 @@ perform simulation testing in each module along with a boilerplate simulation me
 ## Module simulation
 
 Every new module that is scaffolded with Ignite CLI implements the Cosmos
-SDK [Module Simulation](https://docs.cosmos.network/master/building-modules/simulator.html).
+SDK [Module Simulation](https://docs.cosmos.network/main/building-modules/simulator.html).
 
 - Each new message creates a file with the simulation methods required for the tests.
 - Scaffolding a `CRUD` type like a `list` or `map` creates a simulation file with `create`, `update`, and `delete`
@@ -92,11 +91,11 @@ the `RandomizedParams` method. The simulation will change the params randomly ac
 
 ## Invariants
 
-Simulating a chain can help you
-prevent [chain invariants errors](https://docs.cosmos.network/master/building-modules/invariants.html). An invariant is
-a function called by the chain to check if something broke, invalidating the chain data.
-To create a new invariant and check the chain integrity, you must create a method to validate the invariants and
-register all invariants.
+Simulating a chain can help you prevent 
+[chain invariants errors](https://docs.cosmos.network/main/building-modules/invariants.html). An invariant is a function 
+called by the chain to check if something broke, invalidating the chain data. To create a new invariant and check the 
+chain integrity, you must create a method to validate the invariants and register all invariants.
+
 
 For example, in `x/earth/keeper/invariants.go`:
 
