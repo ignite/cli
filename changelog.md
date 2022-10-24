@@ -43,7 +43,6 @@
 - Add `--peer-address` flag to `network chain join` command.
 - Change nightly tag format
 - Add cosmos-sdk version in `version` command
-- [#29350](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
 - Add a new event "update" status option to `pkg/cliui`.
 - [#2935](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
 

@@ -92,7 +92,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		return err
 	}
 
-	c.ev.Send("Initialize accounts...", events.ProgressUpdate())
+	c.ev.Send("Initializing accounts...", events.ProgressUpdate())
 
 	var accounts accountview.Accounts
 

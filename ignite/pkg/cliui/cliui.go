@@ -66,7 +66,7 @@ func WithVerbosity(v uilog.Verbosity) Option {
 	}
 }
 
-// StartDefaultSpinner forces spinner to be spinning right after creation.
+// StartSpinner forces spinner to be spinning right after creation.
 func StartSpinner() Option {
 	return func(s *Session) {
 		s.options.spinnerStart = true

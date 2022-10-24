@@ -6,8 +6,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
-const statusQuerying = "Querying..."
-
 func NewNodeQueryBankBalances() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "balances [from_account_or_address]",

@@ -8,8 +8,6 @@ import (
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
-const statusGenerating = "Generating..."
-
 func NewGenerateGo() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "proto-go",
