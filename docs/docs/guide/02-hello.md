@@ -1,9 +1,9 @@
 ---
 sidebar_position: 2
-description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module. 
+description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module.
 ---
 
-# Hello, Ignite CLI 
+# Hello, Ignite CLI
 
 This tutorial is a great place to start your journey into the Cosmos ecosystem. Instead of wondering how to build a blockchain, follow these steps to build your first blockchain and your first Cosmos SDK module.
 
@@ -19,9 +19,9 @@ curl https://get.ignite.com/cli@v0.25.1! | bash
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
 
-First, use Ignite CLI to build the foundation of a fresh Cosmos SDK blockchain. With Ignite CLI, you don't have to write the blockchain code yourself. 
+First, use Ignite CLI to build the foundation of a fresh Cosmos SDK blockchain. With Ignite CLI, you don't have to write the blockchain code yourself.
 
-Are you ready? Open a terminal window and navigate to a directory where you have permissions to create files. 
+Are you ready? Open a terminal window and navigate to a directory where you have permissions to create files.
 
 To create your blockchain with the default directory structure, run this command:
 
@@ -33,12 +33,12 @@ This command creates a Cosmos SDK blockchain called hello in a `hello` directory
 
 This new blockchain imports standard Cosmos SDK modules, including:
 
-- [`staking`](https://docs.cosmos.network/master/modules/staking/) for delegated Proof-of-Stake (PoS) consensus mechanism
-- [`bank`](https://docs.cosmos.network/master/modules/bank/) for fungible token transfers between accounts
-- [`gov`](https://docs.cosmos.network/master/modules/gov/) for on-chain governance
-- And other Cosmos SDK [modules](https://docs.cosmos.network/master/modules/) that provide the benefits of the extensive Cosmos SDK framework 
+- [`staking`](https://docs.cosmos.network/main/modules/staking/) for delegated Proof-of-Stake (PoS) consensus mechanism
+- [`bank`](https://docs.cosmos.network/main/modules/bank/) for fungible token transfers between accounts
+- [`gov`](https://docs.cosmos.network/main/modules/gov/) for on-chain governance
+- And other Cosmos SDK [modules](https://docs.cosmos.network/main/modules/) that provide the benefits of the extensive Cosmos SDK framework
 
-You can get help on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
+You can get help on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.
 
 To learn about the command you just used, run:
 
@@ -109,18 +109,18 @@ To get your blockchain to say `Hello! Ignite CLI`, you need to make these change
 
 Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. The rpc calls are also responsible for exposing an HTTP API.
 
-For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/master/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
+For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/main/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
 
 A typical blockchain developer workflow looks something like this:
 
-- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/master/building-modules/msg-services.html)
-- Define and register [queries](https://docs.cosmos.network/master/building-modules/query-services.html)
+- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/main/building-modules/msg-services.html)
+- Define and register [queries](https://docs.cosmos.network/main/building-modules/query-services.html)
 - Define message handler logic
 - Finally, implement the logic of these queries and message handlers in keeper functions
 
 ## Create a query
 
-For all subsequent commands, use a terminal window that is different from the window you started the chain in. 
+For all subsequent commands, use a terminal window that is different from the window you started the chain in.
 
 In a different terminal window, run the commands in your `hello` directory.
 
@@ -210,9 +210,9 @@ Right now the response is empty.
 
 ### Update keeper function
 
-In the `query.proto` file, the response accepts `text`. 
+In the `query.proto` file, the response accepts `text`.
 
-- Use a text editor to modify the `x/hello/keeper/grpc_query_hello.go` file that contains the keeper function. 
+- Use a text editor to modify the `x/hello/keeper/grpc_query_hello.go` file that contains the keeper function.
 - On the last line of the keeper function, change the line to return "Hello, Ignite CLI!":
 
 ```go
@@ -226,7 +226,7 @@ func (k Keeper) Hello(c context.Context, req *types.QueryHelloRequest) (*types.Q
 }
 ```
 
-- Save the file to restart your chain. 
+- Save the file to restart your chain.
 - In a web browser, visit the `hello` endpoint [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello).
 
   Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
@@ -237,35 +237,35 @@ Make the required changes to the `x/hello/module.go` file.
 
 1. Add `"context"` to the list of packages in the import statement.
 
-    ```go
-	import (
-		// ...
+   ```go
+     import (
+        // ...
 
-		"context"
+        "context"
 
-		// ...
-	)
-    ```
+        // ...
+     )
+   ```
 
-    Do not save the file yet, you need to continue with these modifications.
+   Do not save the file yet, you need to continue with these modifications.
 
 1. Search for `RegisterGRPCGatewayRoutes`.
 
 1. Register the query handlers:
 
-    ```go
-	func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-		types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-	}
-    ```
+   ```go
+     func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+        types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+     }
+   ```
 
-2. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
+1. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
 
-    ```json
-    {
-      "text": "Hello, Ignite CLI!",
-    }
-    ```
+   ```json
+   {
+     "text": "Hello, Ignite CLI!"
+   }
+   ```
 
 The `query` command has also scaffolded `x/hello/client/cli/query_hello.go` that implements a CLI equivalent of the hello query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
