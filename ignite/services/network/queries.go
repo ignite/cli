@@ -52,7 +52,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.
 		return nil, err
 	}
 
-	n.ev.Send("Fetching reward information", events.ProgressStart())
+	n.ev.Send("Fetching reward information", events.ProgressUpdate())
 	var chainLaunches []networktypes.ChainLaunch
 	var mu sync.Mutex
 
