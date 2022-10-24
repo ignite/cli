@@ -445,10 +445,10 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	binary, err = xexec.ResolveAbsPath(binary)
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
-	}
+	// Try to make the binary path absolute. This will also
+	// find the binary path when the Go bin path is not part
+	// of the PATH environment variable.
+	binary = xexec.TryResolveAbsPath(binary)
 
 	backend, err := c.KeyringBackend()
 	if err != nil {
