@@ -238,13 +238,13 @@ Make the required changes to the `x/hello/module.go` file.
 1. Add `"context"` to the list of packages in the import statement.
 
    ```go
-   import (
-   	// ...
+     import (
+        // ...
 
-   	"context"
+        "context"
 
-   	// ...
-   )
+        // ...
+     )
    ```
 
    Do not save the file yet, you need to continue with these modifications.
@@ -254,9 +254,9 @@ Make the required changes to the `x/hello/module.go` file.
 1. Register the query handlers:
 
    ```go
-   func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-   	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-   }
+     func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+        types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+     }
    ```
 
 1. After the chain has been started, visit [http://localhost:1317/hello/hello/hello](http://localhost:1317/hello/hello/hello) and see your text displayed:
