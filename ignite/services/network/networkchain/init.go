@@ -15,7 +15,7 @@ import (
 
 // Init initializes blockchain by building the binaries and running the init command and
 // create the initial genesis of the chain, and set up a validator key
-func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
+func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage, initAccounts bool) error {
 	chainHome, err := c.chain.Home()
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 	c.ev.Send("Blockchain initialized", events.ProgressFinished())
 
 	// initialize and verify the genesis
-	if err = c.initGenesis(ctx); err != nil {
+	if err = c.initGenesis(ctx, initAccounts); err != nil {
 		return err
 	}
 
@@ -50,7 +50,7 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
-func (c *Chain) initGenesis(ctx context.Context) error {
+func (c *Chain) initGenesis(ctx context.Context, initAccounts bool) error {
 	c.ev.Send("Computing the Genesis", events.ProgressStarted())
 
 	genesisPath, err := c.chain.GenesisPath()
@@ -127,7 +127,11 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 
-		err = c.chain.InitAccounts(ctx, config)
+		if !initAccounts {
+			err = c.chain.CheckConfigAccounts(ctx, config)
+		} else {
+			err = c.chain.InitAccounts(ctx, config)
+		}
 		if err != nil {
 			return err
 		}

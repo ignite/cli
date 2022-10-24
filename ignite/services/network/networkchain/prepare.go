@@ -41,7 +41,7 @@ func (c Chain) Prepare(
 	switch {
 	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
-		if err = c.Init(ctx, cacheStorage); err != nil {
+		if err = c.Init(ctx, cacheStorage, true); err != nil {
 			return err
 		}
 	case err != nil:
@@ -52,7 +52,7 @@ func (c Chain) Prepare(
 			return err
 		}
 
-		if err := c.initGenesis(ctx); err != nil {
+		if err := c.initGenesis(ctx, true); err != nil {
 			return err
 		}
 	}

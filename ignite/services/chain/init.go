@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,7 +62,7 @@ func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config, updateN
 		return err
 	}
 
-	// ovewrite app config files with the values defined in Ignite's config file
+	// overwrite app config files with the values defined in Ignite's config file
 	if updateNodeConfig {
 		if err := c.plugin.Configure(home, conf); err != nil {
 			return err
@@ -130,6 +131,23 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 	}
 
 	return err
+}
+
+// CheckConfigAccounts verifies that the config is set up in the proper manner to be used for an initial genesis
+// and adds to genesis
+func (c *Chain) CheckConfigAccounts(ctx context.Context, conf *chainconfig.Config) error {
+	for _, account := range conf.Accounts {
+		if account.Mnemonic != "" {
+			return fmt.Errorf("account %s must not have mnemonic displayed.  Do not distribute private account "+
+				"mnemonics", account.Name)
+		}
+
+		if account.Address == "" {
+			return fmt.Errorf("account %s must have address field populated", account.Name)
+		}
+	}
+
+	return nil
 }
 
 // IssueGentx generates a gentx from the validator information in chain config and import it in the chain genesis
