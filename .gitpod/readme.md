@@ -45,7 +45,7 @@ where:
 ## Install Ignite CLI locally
 
 ```
-curl https://get.ignite.com/cli! | bash
+curl https://get.ignite.com/cli | bash
 ```
 
 The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/guide/install.html).

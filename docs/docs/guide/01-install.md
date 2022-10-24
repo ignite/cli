@@ -75,7 +75,7 @@ Error: mv failed
 In this case, use sudo before `curl` and before `bash`:
 
 ```bash
-sudo curl https://get.ignite.com/cli@v0.25.0! | sudo bash
+sudo curl https://get.ignite.com/cli | sudo bash
 ```
 
 ## Upgrading your Ignite CLI installation

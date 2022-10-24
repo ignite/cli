@@ -39,7 +39,9 @@ Before you install a new version of Ignite CLI, remove all existing installation
 
 2. Repeat this step until all Ignite CLI installations are removed from your system.
 
-`curl https://get.ignite.com/cli@v0.25.0! | bash`
+```bash
+curl https://get.ignite.com! | bash`
+```
 
 See [Install Ignite CLI](docs/docs/guide/01-install.md).
 
