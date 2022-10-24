@@ -49,10 +49,6 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 }
 
 func (p *stargatePlugin) Configure(homePath string, cfg *chainconfig.Config) error {
-	if cfg.Validators == nil {
-		return fmt.Errorf("cannot update configuration files with no valiators")
-	}
-
 	if err := p.appTOML(homePath, cfg); err != nil {
 		return err
 	}
@@ -81,6 +77,11 @@ func (p *stargatePlugin) appTOML(homePath string, cfg *chainconfig.Config) error
 		return fmt.Errorf("invalid api address format %s: %w", servers.API.Address, err)
 	}
 
+	// Set default config values
+	config.Set("api.enable", true)
+	config.Set("api.enabled-unsafe-cors", true)
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
+
 	// Update config values with the validator's Cosmos SDK app config
 	updateTomlTreeValues(config, validator.App)
 
@@ -93,11 +94,6 @@ func (p *stargatePlugin) appTOML(homePath string, cfg *chainconfig.Config) error
 	}
 	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
 	config.Set("minimum-gas-prices", gas.String())
-
-	// Set default config values
-	config.Set("api.enable", true)
-	config.Set("api.enabled-unsafe-cors", true)
-	config.Set("rpc.cors_allowed_origins", []string{"*"})
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -133,18 +129,18 @@ func (p *stargatePlugin) configTOML(homePath string, cfg *chainconfig.Config) er
 		return fmt.Errorf("invalid p2p address format %s: %w", servers.P2P.Address, err)
 	}
 
+	// Set default config values
+	config.Set("mode", "validator")
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("consensus.timeout_commit", "1s")
+	config.Set("consensus.timeout_propose", "1s")
+
 	// Make sure the addresses have the protocol prefix
 	config.Set("rpc.laddr", rpcAddr)
 	config.Set("p2p.laddr", p2pAddr)
 
 	// Update config values with the validator's Tendermint config
 	updateTomlTreeValues(config, validator.Config)
-
-	// Set default config values
-	config.Set("mode", "validator")
-	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("consensus.timeout_commit", "1s")
-	config.Set("consensus.timeout_propose", "1s")
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
