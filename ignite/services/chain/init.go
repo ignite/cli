@@ -36,7 +36,7 @@ func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 }
 
 // InitChain initializes the chain.
-func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config, updatePlugin bool) error {
+func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config, updateNodeConfig bool) error {
 	chainID, err := c.ID()
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (c *Chain) InitChain(ctx context.Context, conf *chainconfig.Config, updateP
 	}
 
 	// ovewrite app config files with the values defined in Ignite's config file
-	if updatePlugin {
+	if updateNodeConfig {
 		if err := c.plugin.Configure(home, conf); err != nil {
 			return err
 		}
