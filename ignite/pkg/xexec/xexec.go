@@ -49,6 +49,18 @@ func ResolveAbsPath(filePath string) (path string, err error) {
 	return "", err
 }
 
+// TryResolveAbsPath searches for an executable file in the current
+// working directory, the directories defined by the PATH environment
+// variable and in the Go binary path. Once found returns the absolute
+// path to the file or otherwise it returns the file path unmodified.
+func TryResolveAbsPath(filePath string) string {
+	if path, err := ResolveAbsPath(filePath); err == nil {
+		return path
+	}
+
+	return filePath
+}
+
 // IsCommandAvailable checks if command is available on user's path.
 func IsCommandAvailable(name string) bool {
 	_, err := ResolveAbsPath(name)

@@ -92,6 +92,38 @@ func TestResolveAbsPathError(t *testing.T) {
 	require.Errorf(t, err, `exec: "%s": executable file not found in $PATH`, fileName)
 }
 
+func TestTryResolveAbsPath(t *testing.T) {
+	// Get the absolute path to the testdata directory
+	testdata, err := filepath.Abs("testdata")
+	require.NoError(t, err)
+
+	cases := []struct {
+		name, path, want string
+		env              []string
+	}{
+		{
+			name: "valid file",
+			path: "testdata/bin.sh",
+			want: filepath.Join(testdata, "bin.sh"),
+		},
+		{
+			name: "invalid file",
+			path: "invalid-file.ko",
+			want: "invalid-file.ko",
+		},
+	}
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			// Act
+			path := xexec.TryResolveAbsPath(tt.path)
+
+			// Assert
+			require.NoError(t, err)
+			require.Equal(t, tt.want, path)
+		})
+	}
+}
+
 func TestIsCommandAvailable(t *testing.T) {
 	cases := []struct {
 		name, path string
