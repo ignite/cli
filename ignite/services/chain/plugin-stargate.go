@@ -135,12 +135,12 @@ func (p *stargatePlugin) configTOML(homePath string, cfg *chainconfig.Config) er
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")
 
+	// Update config values with the validator's Tendermint config
+	updateTomlTreeValues(config, validator.Config)
+
 	// Make sure the addresses have the protocol prefix
 	config.Set("rpc.laddr", rpcAddr)
 	config.Set("p2p.laddr", p2pAddr)
-
-	// Update config values with the validator's Tendermint config
-	updateTomlTreeValues(config, validator.Config)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
