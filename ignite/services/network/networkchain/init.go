@@ -119,10 +119,6 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 
-		if config.Genesis == nil {
-			return fmt.Errorf("no genesis found in custom config")
-		}
-
 		// ensure that there are no validators
 		config.Validators = nil
 
