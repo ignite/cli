@@ -13,11 +13,11 @@ blockchain, follow these steps to build your first blockchain and your first Cos
 In the previous chapter you've learned how to install [Ignite CLI](https://github.com/ignite/cli), the tool that offers
 everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Ignite CLI, so be sure to install the correct version. For
-example, to install Ignite CLI v0.22.2 use the following command:
+This series of tutorials is based on the latest version of Ignite CLI, so be sure to install the correct version. 
+Use the following command:
 
 ```bash
-curl https://get.ignite.com/cli@v0.25.0! | bash
+curl https://get.ignite.com | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating

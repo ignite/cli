@@ -19,7 +19,7 @@ func NewNetworkCoordinatorShow() *cobra.Command {
 }
 
 func networkCoordinatorShowHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
