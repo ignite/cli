@@ -1,0 +1,12 @@
+syntax = "proto3";
+package masterclass.masterclass;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "masterclass/x/masterclass/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+}

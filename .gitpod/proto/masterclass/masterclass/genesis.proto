@@ -1,0 +1,14 @@
+syntax = "proto3";
+package masterclass.masterclass;
+
+import "gogoproto/gogo.proto";
+import "masterclass/masterclass/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "masterclass/x/masterclass/types";
+
+// GenesisState defines the masterclass module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  // this line is used by starport scaffolding # genesis/proto/state
+}
