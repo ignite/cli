@@ -23,7 +23,6 @@ type generateOptions struct {
 	isGoEnabled       bool
 	isTSClientEnabled bool
 	isVuexEnabled     bool
-	isDartEnabled     bool
 	isOpenAPIEnabled  bool
 	tsClientPath      string
 }
@@ -48,18 +47,11 @@ func GenerateTSClient(path string) GenerateTarget {
 	}
 }
 
-// GenerateTSClient enables generating proto based Typescript Client.
+// GenerateVuex enables generating proto based Typescript Client.
 func GenerateVuex() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
-	}
-}
-
-// GenerateDart enables generating Dart client.
-func GenerateDart() GenerateTarget {
-	return func(o *generateOptions) {
-		o.isDartEnabled = true
 	}
 }
 
@@ -86,10 +78,6 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
-	}
-
-	if conf.Client.Dart.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateDart())
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
@@ -133,7 +121,7 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	var dartPath, openAPIPath, tsClientPath, vuexPath string
+	var openAPIPath, tsClientPath, vuexPath string
 
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
@@ -174,26 +162,6 @@ func (c *Chain) Generate(
 		)
 	}
 
-	if targetOptions.isDartEnabled {
-		dartPath = conf.Client.Dart.Path
-		if dartPath == "" {
-			dartPath = defaultDartPath
-		}
-
-		dartPath = filepath.Join(c.app.Path, dartPath, "generated")
-		if err := os.MkdirAll(dartPath, 0o766); err != nil {
-			return err
-		}
-
-		options = append(options,
-			cosmosgen.WithDartGeneration(
-				enableThirdPartyModuleCodegen,
-				cosmosgen.DartModulePath(dartPath),
-				dartPath,
-			),
-		)
-	}
-
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
@@ -221,14 +189,6 @@ func (c *Chain) Generate(
 		if targetOptions.isVuexEnabled {
 			c.ev.Send(
 				fmt.Sprintf("Vuex stores path: %s", vuexPath),
-				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
-			)
-		}
-
-		if targetOptions.isDartEnabled {
-			c.ev.Send(
-				fmt.Sprintf("Dart path: %s", dartPath),
 				events.Icon(icons.Bullet),
 				events.ProgressFinished(),
 			)
