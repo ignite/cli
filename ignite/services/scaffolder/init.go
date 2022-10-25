@@ -141,6 +141,8 @@ func Vue(path string) error {
 }
 
 // Flutter scaffolds a Flutter app for a chain.
+//
+// Deprecated: This function is no longer maintained
 func Flutter(path string) error {
 	return localfs.Save(flutter.Boilerplate(), path)
 }
