@@ -159,10 +159,18 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	return nil
 }
 
-// TypescriptModulePath generates module paths for Cosmos SDK modules.
+// TypescriptModulePath generates TS module paths for Cosmos SDK modules.
 // The root path is used as prefix for the generated paths.
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		return filepath.Join(rootPath, m.Pkg.Name)
+	}
+}
+
+// DartModulePath generates Dart module paths for Cosmos SDK modules.
+// The root path is used as prefix for the generated paths.
+func DartModulePath(rootPath string) ModulePathFunc {
+	return func(m module.Module) string {
+		return filepath.Join(rootPath, m.Pkg.Name, "module")
 	}
 }

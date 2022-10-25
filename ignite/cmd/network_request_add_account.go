@@ -8,8 +8,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // NewNetworkRequestAddAccount creates a new command to send add account request
@@ -44,7 +46,11 @@ func networkRequestAddAccountHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	address := args[1]
+	// get the address for the account and change the prefix for Ignite Chain
+	address, err := cosmosutil.ChangeAddressPrefix(args[1], networktypes.SPN)
+	if err != nil {
+		return err
+	}
 
 	n, err := nb.Network()
 	if err != nil {

@@ -329,7 +329,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	if err != nil {
 		return err
 	}
-	binaryPath, err := exec.LookPath(binaryName)
+	binaryPath, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		if !errors.Is(err, exec.ErrNotFound) {
 			return err
@@ -397,7 +397,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
 		return err
 	}
-	binaryPath, err = exec.LookPath(binaryName)
+	binaryPath, err = xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return err
 	}

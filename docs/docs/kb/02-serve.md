@@ -33,7 +33,7 @@ The `ignite chain serve` command performs the following tasks:
 - Installs dependencies
 - Imports state, if possible
 - Builds protocol buffer files
-- Optionally generates TypeScript clients and Vuex stores 
+- Optionally generates TypeScript clients and Vuex stores
 - Builds a compiled blockchain binary
 - Creates accounts
 - Initializes a blockchain node
@@ -68,7 +68,7 @@ Enter verbose detailed mode with extensive logging.
 
 `--home`
 
-Specify a custom home directory. 
+Specify a custom home directory.
 
 ## Start a blockchain node in production
 
@@ -85,7 +85,7 @@ Or also add custom `ldflags` into your app binary:
 
 ```yaml
 build:
-  ldflags: [ "-X main.Env=prod", "-X main.Version=1.0.1" ]
+  ldflags: ["-X main.Env=prod", "-X main.Version=1.0.1"]
 ```
 
-Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/master/run-node/run-node.html).
+Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/main/run-node/run-node.html).
