@@ -198,6 +198,14 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
         additionalLanguages: ["protobuf", "go-module"],  // https://prismjs.com/#supported-languages
+        magicComments: [
+          // Remember to extend the default highlight class name as well!
+          {
+            className: 'theme-code-block-highlighted-line',
+            line: 'highlight-next-line',
+            block: {start: 'highlight-start', end: 'highlight-end'},
+          },
+        ],
       },
       algolia: {
         appId: "VVETP7QCVE",
