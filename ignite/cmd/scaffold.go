@@ -94,6 +94,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	c.AddCommand(NewScaffoldMessage())
 	c.AddCommand(NewScaffoldQuery())
 	c.AddCommand(NewScaffoldPacket())
+	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
 	c.AddCommand(NewScaffoldFlutter())
 	// c.AddCommand(NewScaffoldWasm())
