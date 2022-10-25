@@ -118,7 +118,6 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	if conf.Client.Vuex.Path != "" {
 		vuexPath := conf.Client.Vuex.Path
 		if filepath.IsAbs(vuexPath) {
-			// TODO: Should we always generate Vuex code inside a "generated" directory?
 			vuexPath = filepath.Join(vuexPath, "generated")
 		} else {
 			vuexPath = filepath.Join(projectPath, vuexPath, "generated")

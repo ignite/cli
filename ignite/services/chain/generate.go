@@ -164,13 +164,7 @@ func (c *Chain) Generate(
 			vuexPath = defaultVuexPath
 		}
 
-		if filepath.IsAbs(vuexPath) {
-			// TODO: Should we always generate Vuex code inside a "generated" directory?
-			vuexPath = filepath.Join(vuexPath, "generated")
-		} else {
-			vuexPath = filepath.Join(c.app.Path, vuexPath, "generated")
-		}
-
+		vuexPath = c.joinGeneratedPath(vuexPath)
 		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
 			return err
 		}
@@ -190,13 +184,7 @@ func (c *Chain) Generate(
 			dartPath = defaultDartPath
 		}
 
-		if filepath.IsAbs(dartPath) {
-			// TODO: Should we always generate Dart code inside a "generated" directory?
-			dartPath = filepath.Join(dartPath, "generated")
-		} else {
-			dartPath = filepath.Join(c.app.Path, dartPath, "generated")
-		}
-
+		dartPath = c.joinGeneratedPath(dartPath)
 		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
@@ -265,4 +253,12 @@ func (c *Chain) Generate(
 	}
 
 	return nil
+}
+
+func (c Chain) joinGeneratedPath(rootPath string) string {
+	if filepath.IsAbs(rootPath) {
+		return filepath.Join(rootPath, "generated")
+	}
+
+	return filepath.Join(c.app.Path, rootPath, "generated")
 }
