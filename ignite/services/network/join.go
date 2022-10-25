@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 

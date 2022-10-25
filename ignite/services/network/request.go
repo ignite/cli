@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 
