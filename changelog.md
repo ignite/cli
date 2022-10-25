@@ -10,6 +10,7 @@
 
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
+- [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and deprecate functionality.
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
