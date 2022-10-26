@@ -18,7 +18,6 @@ require (
 	github.com/cosmos/ibc-go/v5 v5.0.0
 	github.com/emicklei/proto v1.11.0
 	github.com/fatih/color v1.13.0
-	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/logger v1.0.7

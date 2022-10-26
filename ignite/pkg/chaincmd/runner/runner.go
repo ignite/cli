@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/ghodss/yaml"
+	"github.com/goccy/go-yaml"
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
