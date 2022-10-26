@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	flagForceReset = "force-reset"
-	flagResetOnce  = "reset-once"
-	flagConfig     = "config"
-	flagQuitOnFail = "quit-on-fail"
+	flagConfig          = "config"
+	flagForceReset      = "force-reset"
+	flagGenerateClients = "generate-clients"
+	flagQuitOnFail      = "quit-on-fail"
+	flagResetOnce       = "reset-once"
 )
 
 // NewChainServe creates a new serve command to serve a blockchain.
@@ -64,6 +65,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
+	c.Flags().Bool(flagGenerateClients, false, "Generate code for the configured clients")
 	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
@@ -102,28 +104,42 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// serve the chain
 	var serveOptions []chain.ServeOption
+
 	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
 	if err != nil {
 		return err
 	}
+
 	if forceUpdate {
 		serveOptions = append(serveOptions, chain.ServeForceReset())
 	}
+
 	resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
 	if err != nil {
 		return err
 	}
+
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
+
 	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
 	if err != nil {
 		return err
 	}
+
 	if quitOnFail {
 		serveOptions = append(serveOptions, chain.QuitOnFail())
+	}
+
+	generateClients, err := cmd.Flags().GetBool(flagGenerateClients)
+	if err != nil {
+		return err
+	}
+
+	if generateClients {
+		serveOptions = append(serveOptions, chain.GenerateClients())
 	}
 
 	if flagGetSkipProto(cmd) {

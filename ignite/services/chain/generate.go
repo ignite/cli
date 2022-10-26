@@ -71,32 +71,35 @@ func GenerateOpenAPI() GenerateTarget {
 }
 
 // generateFromConfig makes code generation from proto files from the given config
-func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage) error {
-	conf, err := c.Config()
-	if err != nil {
-		return err
+func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
+	var targets []GenerateTarget
+
+	if generateClients {
+		conf, err := c.Config()
+		if err != nil {
+			return err
+		}
+
+		// Add additional code generation targets
+		if p := conf.Client.Typescript.Path; p != "" {
+			targets = append(targets, GenerateTSClient(p))
+		}
+
+		if conf.Client.Vuex.Path != "" {
+			targets = append(targets, GenerateVuex())
+		}
+
+		if conf.Client.Dart.Path != "" {
+			targets = append(targets, GenerateDart())
+		}
+
+		if conf.Client.OpenAPI.Path != "" {
+			targets = append(targets, GenerateOpenAPI())
+		}
 	}
 
-	var additionalTargets []GenerateTarget
-
-	// parse config for additional target
-	if p := conf.Client.Typescript.Path; p != "" {
-		additionalTargets = append(additionalTargets, GenerateTSClient(p))
-	}
-
-	if conf.Client.Vuex.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex())
-	}
-
-	if conf.Client.Dart.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateDart())
-	}
-
-	if conf.Client.OpenAPI.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateOpenAPI())
-	}
-
-	return c.Generate(ctx, cacheStorage, GenerateGo(), additionalTargets...)
+	// Generate proto based code for Go and optionally for any optional targets
+	return c.Generate(ctx, cacheStorage, GenerateGo(), targets...)
 }
 
 // Generate makes code generation from proto files for given target and additionalTargets.
