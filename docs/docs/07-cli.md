@@ -2665,7 +2665,6 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite scaffold chain](#ignite-scaffold-chain)	 - Fully-featured Cosmos SDK blockchain
-* [ignite scaffold flutter](#ignite-scaffold-flutter)	 - A Flutter app for your chain
 * [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
 * [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
 * [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
@@ -2741,28 +2740,6 @@ ignite scaffold chain [name] [flags]
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
-
-## ignite scaffold flutter
-
-A Flutter app for your chain
-
-```
-ignite scaffold flutter [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for flutter
-  -p, --path string   path to scaffold content of the Flutter app (default "./flutter")
-  -y, --yes           answers interactive yes/no questions with yes
-```
-
-**SEE ALSO**
-
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
 
 ## ignite scaffold list
 
