@@ -12,13 +12,10 @@ import (
 
 const tplScaffoldBandSuccess = `
 🎉 Created a Band oracle query "%[1]v".
-
 Note: BandChain module uses version "bandchain-1".
 Make sure to update the keys.go file accordingly.
-
 // x/%[2]v/types/keys.go
 const Version = "bandchain-1"
-
 `
 
 // NewScaffoldBandchain creates a new BandChain oracle in the module
@@ -30,6 +27,7 @@ func NewScaffoldBandchain() *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    createBandchainHandler,
+		Hidden:  true,
 	}
 
 	flagSetPath(c)
@@ -69,7 +67,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	var options []scaffolder.OracleOption
 	if signer != "" {
-		options = append(options, scaffolder.OracleWithSigner(signer))
+		options = append(options, scaffolder.OracleWithSigner(signer)) // nolint: staticcheck
 	}
 
 	sc, err := newApp(appPath)
@@ -77,6 +75,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// nolint: staticcheck
 	sm, err := sc.AddOracle(cmd.Context(), cacheStorage, placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err
