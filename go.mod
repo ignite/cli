@@ -5,7 +5,7 @@ go 1.18
 require (
 	cosmossdk.io/math v1.0.0-beta.3
 	github.com/99designs/keyring v1.2.1
-	github.com/AlecAivazis/survey/v2 v2.1.1
+	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/aws/smithy-go v1.13.4
 	github.com/blang/semver/v4 v4.0.0
@@ -50,7 +50,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
-	github.com/takuoki/gocase v1.0.0
+	github.com/takuoki/gocase v1.1.1
 	github.com/tendermint/flutter/v2 v2.0.4
 	github.com/tendermint/spn v0.2.1-0.20220921200247-8bafad876bdd
 	github.com/tendermint/tendermint v0.34.22
