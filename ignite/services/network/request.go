@@ -247,3 +247,47 @@ func (n Network) SendValidatorRemoveRequest(
 	}
 	return nil
 }
+
+// SendAccountRemoveRequest creates the RequestRemoveAccount message to SPN
+func (n Network) SendAccountRemoveRequest(
+	ctx context.Context,
+	launchID uint64,
+	address string,
+) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewAccountRemoval(
+			address,
+		),
+	)
+
+	n.ev.Send("Broadcasting transaction", events.ProgressStarted())
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send("Account removed from network by the coordinator!", events.ProgressFinished())
+	} else {
+		n.ev.Send(
+			fmt.Sprintf(
+				"Request %d to remove account from the network has been submitted!", requestRes.RequestID,
+			),
+			events.ProgressFinished(),
+		)
+	}
+	return nil
+}
