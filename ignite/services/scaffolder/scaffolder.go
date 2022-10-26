@@ -117,12 +117,12 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
-				false,
 				cosmosgen.TypescriptModulePath(storeRootPath),
 				storeRootPath,
 			),
 		)
 	}
+
 	if conf.Client.OpenAPI.Path != "" {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}

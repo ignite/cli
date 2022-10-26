@@ -29,7 +29,6 @@ func generateDartHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := newChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths(),

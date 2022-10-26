@@ -16,7 +16,6 @@ func NewGenerateVuex() *cobra.Command {
 		RunE:    generateVuexHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetYes())
 
 	return c
@@ -30,7 +29,6 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := newChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths(),

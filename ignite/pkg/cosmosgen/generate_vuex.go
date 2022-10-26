@@ -102,10 +102,8 @@ func (g *generator) generateVuex() error {
 		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
-	if g.o.jsIncludeThirdParty {
-		for _, modules := range g.thirdModules {
-			data.Modules = append(data.Modules, modules...)
-		}
+	for _, modules := range g.thirdModules {
+		data.Modules = append(data.Modules, modules...)
 	}
 
 	vsg := newVuexGenerator(g)

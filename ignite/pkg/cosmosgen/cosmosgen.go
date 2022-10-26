@@ -15,18 +15,16 @@ type generateOptions struct {
 	includeDirs []string
 	gomodPath   string
 
-	jsOut               func(module.Module) string
-	jsIncludeThirdParty bool
-	tsClientRootPath    string
+	jsOut            func(module.Module) string
+	tsClientRootPath string
 
 	vuexOut      func(module.Module) string
 	vuexRootPath string
 
 	specOut string
 
-	dartOut               func(module.Module) string
-	dartIncludeThirdParty bool
-	dartRootPath          string
+	dartOut      func(module.Module) string
+	dartRootPath string
 }
 
 // TODO add WithInstall.
@@ -46,18 +44,16 @@ func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option 
 	}
 }
 
-func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, vuexRootPath string) Option {
+func WithVuexGeneration(out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
 		o.vuexOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.vuexRootPath = vuexRootPath
 	}
 }
 
-func WithDartGeneration(includeThirdPartyModules bool, out ModulePathFunc, rootPath string) Option {
+func WithDartGeneration(out ModulePathFunc, rootPath string) Option {
 	return func(o *generateOptions) {
 		o.dartOut = out
-		o.dartIncludeThirdParty = includeThirdPartyModules
 		o.dartRootPath = rootPath
 	}
 }

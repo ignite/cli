@@ -131,8 +131,6 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithGoGeneration(c.app.ImportPath))
 	}
 
-	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
-
 	var dartPath, openAPIPath, tsClientPath, vuexPath string
 
 	if targetOptions.isTSClientEnabled {
@@ -167,7 +165,6 @@ func (c *Chain) Generate(
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
-				enableThirdPartyModuleCodegen,
 				cosmosgen.TypescriptModulePath(vuexPath),
 				vuexPath,
 			),
@@ -187,7 +184,6 @@ func (c *Chain) Generate(
 
 		options = append(options,
 			cosmosgen.WithDartGeneration(
-				enableThirdPartyModuleCodegen,
 				cosmosgen.DartModulePath(dartPath),
 				dartPath,
 			),
@@ -206,8 +202,6 @@ func (c *Chain) Generate(
 	if err := cosmosgen.Generate(ctx, cacheStorage, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
 	}
-
-	c.protoBuiltAtLeastOnce = true
 
 	if c.options.printGeneratedPaths {
 		if targetOptions.isTSClientEnabled {

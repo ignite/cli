@@ -57,10 +57,8 @@ func (g *dartGenerator) generateModules() error {
 
 	add(g.g.appPath, g.g.appModules)
 
-	if g.g.o.dartIncludeThirdParty {
-		for sourcePath, modules := range g.g.thirdModules {
-			add(sourcePath, modules)
-		}
+	for sourcePath, modules := range g.g.thirdModules {
+		add(sourcePath, modules)
 	}
 
 	return gg.Wait()

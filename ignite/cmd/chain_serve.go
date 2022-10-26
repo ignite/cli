@@ -59,7 +59,6 @@ production, you may want to run "appd start" manually.
 	flagSetPath(c)
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
@@ -77,10 +76,6 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	chainOption := []chain.Option{
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
-	}
-
-	if flagGetProto3rdParty(cmd) {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
 	if flagGetCheckDependencies(cmd) {
