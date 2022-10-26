@@ -15,7 +15,6 @@ import (
 
 const (
 	defaultVuexPath    = "vue/src/store"
-	defaultDartPath    = "flutter/lib"
 	defaultOpenAPIPath = "docs/static/openapi.yml"
 )
 

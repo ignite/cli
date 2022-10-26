@@ -72,9 +72,6 @@ type Client struct {
 	// Vuex configures code generation for Vuex stores.
 	Vuex Typescript `yaml:"vuex,omitempty"`
 
-	// Dart configures client code generation for Dart.
-	Dart Dart `yaml:"dart,omitempty"`
-
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
 }
@@ -88,12 +85,6 @@ type Typescript struct {
 // Vuex configures code generation for Vuex stores.
 type Vuex struct {
 	// Path configures out location for generated Vuex stores code.
-	Path string `yaml:"path"`
-}
-
-// Dart configures client code generation for Dart.
-type Dart struct {
-	// Path configures out location for generated Dart code.
 	Path string `yaml:"path"`
 }
 
