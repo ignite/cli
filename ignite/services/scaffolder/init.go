@@ -11,7 +11,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny/v2"
 	vue "github.com/ignite/web"
-	"github.com/tendermint/flutter/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
@@ -138,11 +137,6 @@ func generate(
 // Vue scaffolds a Vue.js app for a chain.
 func Vue(path string) error {
 	return localfs.Save(vue.Boilerplate(), path)
-}
-
-// Flutter scaffolds a Flutter app for a chain.
-func Flutter(path string) error {
-	return localfs.Save(flutter.Boilerplate(), path)
 }
 
 func initGit(path string) error {
