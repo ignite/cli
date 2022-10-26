@@ -5,12 +5,14 @@
 ### Features
 
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
+- [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 
 ### Changes
 
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
 - [#2958](https://github.com/ignite/cli/pull/2958) Support absolute paths for client code generation config paths.
+- [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
