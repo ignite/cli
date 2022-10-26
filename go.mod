@@ -7,8 +7,8 @@ require (
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/aws/smithy-go v1.8.0
-	github.com/blang/semver v3.5.1+incompatible
+	github.com/aws/smithy-go v1.13.4
+	github.com/blang/semver/v4 v4.0.0
 	github.com/briandowns/spinner v1.19.0
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
