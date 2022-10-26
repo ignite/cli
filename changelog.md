@@ -8,7 +8,6 @@
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
 
-
 ### Changes
 
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
