@@ -72,15 +72,15 @@ func GenerateOpenAPI() GenerateTarget {
 
 // generateFromConfig makes code generation from proto files from the given config
 func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
+	conf, err := c.Config()
+	if err != nil {
+		return err
+	}
+
+	// Additional code generation targets
 	var targets []GenerateTarget
 
 	if generateClients {
-		conf, err := c.Config()
-		if err != nil {
-			return err
-		}
-
-		// Add additional code generation targets
 		if p := conf.Client.Typescript.Path; p != "" {
 			targets = append(targets, GenerateTSClient(p))
 		}
@@ -92,10 +92,10 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 		if conf.Client.Dart.Path != "" {
 			targets = append(targets, GenerateDart())
 		}
+	}
 
-		if conf.Client.OpenAPI.Path != "" {
-			targets = append(targets, GenerateOpenAPI())
-		}
+	if conf.Client.OpenAPI.Path != "" {
+		targets = append(targets, GenerateOpenAPI())
 	}
 
 	// Generate proto based code for Go and optionally for any optional targets
