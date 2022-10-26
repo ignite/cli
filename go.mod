@@ -12,7 +12,7 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/charmbracelet/glow v1.4.0
+	github.com/charmbracelet/glow v1.4.1
 	github.com/cosmos/cosmos-sdk v0.46.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.0.0
@@ -113,9 +113,9 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/charithe/durationcheck v0.0.9 // indirect
 	github.com/charmbracelet/bubbles v0.7.6 // indirect
-	github.com/charmbracelet/bubbletea v0.13.1 // indirect
+	github.com/charmbracelet/bubbletea v0.13.2 // indirect
 	github.com/charmbracelet/charm v0.8.6 // indirect
-	github.com/charmbracelet/glamour v0.2.1-0.20210311152407-2b8307dcb400 // indirect
+	github.com/charmbracelet/glamour v0.2.1-0.20210402234443-abe9cda419ba // indirect
 	github.com/chavacava/garif v0.0.0-20220630083739-93517212f375 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
@@ -253,7 +253,7 @@ require (
 	github.com/matoous/godox v0.0.0-20210227103229-6504466cf951 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/mattn/go-runewidth v0.0.10 // indirect
+	github.com/mattn/go-runewidth v0.0.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mbilski/exhaustivestruct v1.2.0 // indirect
 	github.com/meowgorithm/babyenv v1.3.1 // indirect
@@ -272,7 +272,7 @@ require (
 	github.com/muesli/go-app-paths v0.2.1 // indirect
 	github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68 // indirect
 	github.com/muesli/sasquatch v0.0.0-20200811221207-66979d92330a // indirect
-	github.com/muesli/termenv v0.8.0 // indirect
+	github.com/muesli/termenv v0.8.1 // indirect
 	github.com/nakabonne/nestif v0.3.1 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354 // indirect
 	github.com/nishanths/exhaustive v0.8.3 // indirect
