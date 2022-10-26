@@ -138,8 +138,12 @@ func (c *Chain) Generate(
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
-			tsClientPath = filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
+			tsClientPath = chainconfig.TSClientPath(conf)
+		}
+
+		// Non absolute TS client output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(tsClientPath) {
+			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
 		}
 
 		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
@@ -160,7 +164,7 @@ func (c *Chain) Generate(
 			vuexPath = defaultVuexPath
 		}
 
-		vuexPath = filepath.Join(c.app.Path, vuexPath, "generated")
+		vuexPath = c.joinGeneratedPath(vuexPath)
 		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
 			return err
 		}
@@ -180,7 +184,7 @@ func (c *Chain) Generate(
 			dartPath = defaultDartPath
 		}
 
-		dartPath = filepath.Join(c.app.Path, dartPath, "generated")
+		dartPath = c.joinGeneratedPath(dartPath)
 		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
@@ -198,6 +202,11 @@ func (c *Chain) Generate(
 		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
 			openAPIPath = defaultOpenAPIPath
+		}
+
+		// Non absolute OpenAPI paths must be treated as relative to the app directory
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
 		}
 
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
@@ -244,4 +253,12 @@ func (c *Chain) Generate(
 	}
 
 	return nil
+}
+
+func (c Chain) joinGeneratedPath(rootPath string) string {
+	if filepath.IsAbs(rootPath) {
+		return filepath.Join(rootPath, "generated")
+	}
+
+	return filepath.Join(c.app.Path, rootPath, "generated")
 }
