@@ -22,8 +22,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gobuffalo/genny v0.6.0
-	github.com/gobuffalo/logger v1.0.6
-	github.com/gobuffalo/packd v1.0.1
+	github.com/gobuffalo/logger v1.0.7
+	github.com/gobuffalo/packd v1.0.2
 	github.com/gobuffalo/plush/v4 v4.1.16
 	github.com/goccy/go-yaml v1.9.6
 	github.com/gogo/protobuf v1.3.3
