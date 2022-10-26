@@ -28,8 +28,8 @@ func NewNetworkRewardSet() *cobra.Command {
 }
 
 func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -58,5 +58,5 @@ func networkChainRewardSetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.SetReward(launchID, lastRewardHeight, coins)
+	return n.SetReward(cmd.Context(), launchID, lastRewardHeight, coins)
 }

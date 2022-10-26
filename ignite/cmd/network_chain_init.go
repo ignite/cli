@@ -1,15 +1,17 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/network"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
@@ -31,8 +33,32 @@ func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init [launch-id]",
 		Short: "Initialize a chain from a published chain ID",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainInitHandler,
+		Long: `Ignite network chain init is a command used by validators to initialize a
+validator node for a blockchain from the information stored on the Ignite chain.
+
+  ignite network chain init 42
+
+This command fetches the information about a chain with launch ID 42. The source
+code of the chain is cloned in a temporary directory, and the node's binary is
+compiled from the source. The binary is then used to initialize the node. By
+default, Ignite uses "~/spn/[launch-id]/" as the home directory for the blockchain.
+
+An important part of initializing a validator node is creation of the gentx (a
+transaction that adds a validator at the genesis of the chain).
+
+The "init" command will prompt for values like self-delegation and commission.
+These values will be used in the validator's gentx. You can use flags to provide
+the values in non-interactive mode.
+
+Use the "--home" flag to choose a different path for the home directory of the
+blockchain:
+
+  ignite network chain init 42 --home ~/mychain
+
+The end result of the "init" command is a validator home directory with a
+genesis validator transaction (gentx) file.`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainInitHandler,
 	}
 
 	flagSetClearCache(c)
@@ -54,8 +80,8 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -87,7 +113,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			chainHome,
 		)
 		if err := session.AskConfirm(question); err != nil {
-			return session.PrintSaidNo()
+			if errors.Is(err, promptui.ErrAbort) {
+				return nil
+			}
+
+			return err
 		}
 	}
 
@@ -126,13 +156,17 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	genesis, err := cosmosutil.ParseGenesisFromPath(genesisPath)
+	genesis, err := cosmosgenesis.FromPath(genesisPath)
+	if err != nil {
+		return err
+	}
+	stakeDenom, err := genesis.StakeDenom()
 	if err != nil {
 		return err
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, session, genesis.StakeDenom)
+	v, err := askValidatorInfo(cmd, session, stakeDenom)
 	if err != nil {
 		return err
 	}
@@ -143,13 +177,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session.StopSpinner()
-
 	return session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(cmd *cobra.Command, session cliui.Session, stakeDenom string) (chain.Validator, error) {
+func askValidatorInfo(cmd *cobra.Command, session *cliui.Session, stakeDenom string) (chain.Validator, error) {
 	var (
 		account, _         = cmd.Flags().GetString(flagValidatorAccount)
 		website, _         = cmd.Flags().GetString(flagValidatorWebsite)

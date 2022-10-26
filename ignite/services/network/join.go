@@ -2,13 +2,11 @@ package network
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	"github.com/ignite/cli/ignite/services/network/networkchain"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
@@ -85,59 +83,19 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.sendAccountRequest(launchID, accountAddress, o.accountAmount); err != nil {
+		if err := n.SendAccountRequest(ctx, launchID, accountAddress, o.accountAmount); err != nil {
 			return err
 		}
 	}
 
-	return n.sendValidatorRequest(launchID, peer, accountAddress, gentx, gentxInfo)
+	return n.SendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
-// sendValidatorRequest creates the RequestAddValidator message into the SPN
-func (n Network) sendValidatorRequest(
-	launchID uint64,
-	peer launchtypes.Peer,
-	valAddress string,
-	gentx []byte,
-	gentxInfo cosmosutil.GentxInfo,
-) error {
+func (n Network) SendAccountRequestForCoordinator(ctx context.Context, launchID uint64, amount sdk.Coins) error {
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return err
 	}
 
-	msg := launchtypes.NewMsgSendRequest(
-		addr,
-		launchID,
-		launchtypes.NewGenesisValidator(
-			launchID,
-			valAddress,
-			gentx,
-			gentxInfo.PubKey,
-			gentxInfo.SelfDelegation,
-			peer,
-		),
-	)
-
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
-
-	res, err := n.cosmos.BroadcastTx(n.account, msg)
-	if err != nil {
-		return err
-	}
-
-	var requestRes launchtypes.MsgSendRequestResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-
-	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
-	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to join the network as a validator has been submitted!",
-				requestRes.RequestID),
-		))
-	}
-	return nil
+	return n.SendAccountRequest(ctx, launchID, addr, amount)
 }

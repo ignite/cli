@@ -10,8 +10,6 @@ import (
 	"github.com/ignite/cli/ignite/chainconfig"
 	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -69,18 +67,18 @@ func App(path string) (Scaffolder, error) {
 	return s, nil
 }
 
-func finish(cacheStorage cache.Storage, path, gomodPath string) error {
-	if err := protoc(cacheStorage, path, gomodPath); err != nil {
+func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
+	if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
 		return err
 	}
-	if err := tidy(path); err != nil {
+	if err := gocmd.ModTidy(ctx, path); err != nil {
 		return err
 	}
-	return fmtProject(path)
+	return gocmd.Fmt(ctx, path)
 }
 
-func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
-	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
+func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
+	if err := cosmosgen.InstallDepTools(ctx, projectPath); err != nil {
 		return err
 	}
 
@@ -98,66 +96,50 @@ func protoc(cacheStorage cache.Storage, projectPath, gomodPath string) error {
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
-	// generate Typescript Client code as well if it is enabled.
-	if conf.Client.Typescript.Path != "" {
-		tsClientRootPath := filepath.Join(projectPath, conf.Client.Typescript.Path)
-		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
+	// Generate Typescript client code if it's enabled or when Vuex stores are generated
+	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" {
+		tsClientPath := chainconfig.TSClientPath(conf)
+		if !filepath.IsAbs(tsClientPath) {
+			tsClientPath = filepath.Join(projectPath, tsClientPath)
+		}
+
+		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
-				cosmosgen.TypescriptModulePath(tsClientRootPath),
-				tsClientRootPath,
+				cosmosgen.TypescriptModulePath(tsClientPath),
+				tsClientPath,
 			),
 		)
 	}
 
-	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+		vuexPath := conf.Client.Vuex.Path
+		if filepath.IsAbs(vuexPath) {
+			vuexPath = filepath.Join(vuexPath, "generated")
+		} else {
+			vuexPath = filepath.Join(projectPath, vuexPath, "generated")
+		}
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				cosmosgen.TypescriptModulePath(storeRootPath),
-				storeRootPath,
+				cosmosgen.TypescriptModulePath(vuexPath),
+				vuexPath,
 			),
 		)
 	}
+
 	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+		openAPIPath := conf.Client.OpenAPI.Path
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(projectPath, openAPIPath)
+		}
+
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	return cosmosgen.Generate(context.Background(), cacheStorage, projectPath, conf.Build.Proto.Path, options...)
-}
-
-func tidy(path string) error {
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(os.Stderr),
-			cmdrunner.DefaultWorkdir(path),
-		).
-		Run(context.Background(),
-			step.New(
-				step.Exec(gocmd.Name(), "mod", "tidy"),
-			),
-		)
-}
-
-func fmtProject(path string) error {
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(os.Stderr),
-			cmdrunner.DefaultWorkdir(path),
-		).
-		Run(context.Background(),
-			step.New(
-				step.Exec(
-					gocmd.Name(),
-					"fmt",
-					"./...",
-				),
-			),
-		)
+	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, options...)
 }

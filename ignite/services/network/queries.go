@@ -6,6 +6,8 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/cosmos/cosmos-sdk/types/query"
+
 	"github.com/pkg/errors"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -22,7 +24,7 @@ var ErrObjectNotFound = errors.New("query object not found")
 
 // ChainLaunch fetches the chain launch from Network by launch id.
 func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.ChainLaunch, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching chain information"))
+	n.ev.Send("Fetching chain information", events.ProgressStarted())
 
 	res, err := n.launchQuery.
 		Chain(ctx,
@@ -38,17 +40,19 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 }
 
 // ChainLaunchesWithReward fetches the chain launches with rewards from Network
-func (n Network) ChainLaunchesWithReward(ctx context.Context) ([]networktypes.ChainLaunch, error) {
+func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.PageRequest) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching chains information"))
+	n.ev.Send("Fetching chains information", events.ProgressStarted())
 	res, err := n.launchQuery.
-		ChainAll(ctx, &launchtypes.QueryAllChainRequest{})
+		ChainAll(ctx, &launchtypes.QueryAllChainRequest{
+			Pagination: pagination,
+		})
 	if err != nil {
 		return nil, err
 	}
 
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching reward information"))
+	n.ev.Send("Fetching reward information", events.ProgressStarted())
 	var chainLaunches []networktypes.ChainLaunch
 	var mu sync.Mutex
 
@@ -100,7 +104,7 @@ func (n Network) GenesisInformation(ctx context.Context, launchID uint64) (gi ne
 
 // GenesisAccounts returns the list of approved genesis accounts for a launch from SPN
 func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs []networktypes.GenesisAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis accounts"))
+	n.ev.Send("Fetching genesis accounts", events.ProgressStarted())
 	res, err := n.launchQuery.
 		GenesisAccountAll(ctx,
 			&launchtypes.QueryAllGenesisAccountRequest{
@@ -120,7 +124,7 @@ func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs 
 
 // VestingAccounts returns the list of approved genesis vesting accounts for a launch from SPN
 func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingAccs []networktypes.VestingAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis vesting accounts"))
+	n.ev.Send("Fetching genesis vesting accounts", events.ProgressStarted())
 	res, err := n.launchQuery.
 		VestingAccountAll(ctx,
 			&launchtypes.QueryAllVestingAccountRequest{
@@ -145,7 +149,7 @@ func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingA
 
 // GenesisValidators returns the list of approved genesis validators for a launch from SPN
 func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVals []networktypes.GenesisValidator, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis validators"))
+	n.ev.Send("Fetching genesis validators", events.ProgressStarted())
 	res, err := n.launchQuery.
 		GenesisValidatorAll(ctx,
 			&launchtypes.QueryAllGenesisValidatorRequest{
@@ -169,8 +173,9 @@ func (n Network) MainnetAccount(
 	campaignID uint64,
 	address string,
 ) (acc networktypes.MainnetAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing,
-		fmt.Sprintf("Fetching campaign %d mainnet account %s", campaignID, address)),
+	n.ev.Send(
+		fmt.Sprintf("Fetching campaign %d mainnet account %s", campaignID, address),
+		events.ProgressStarted(),
 	)
 	res, err := n.campaignQuery.
 		MainnetAccount(ctx,
@@ -190,7 +195,7 @@ func (n Network) MainnetAccount(
 
 // MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN
 func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetAccount, err error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign mainnet accounts"))
+	n.ev.Send("Fetching campaign mainnet accounts", events.ProgressStarted())
 	res, err := n.campaignQuery.
 		MainnetAccountAll(ctx,
 			&campaigntypes.QueryAllMainnetAccountRequest{
@@ -209,7 +214,7 @@ func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAcc
 }
 
 func (n Network) GenesisAccount(ctx context.Context, launchID uint64, address string) (networktypes.GenesisAccount, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis accounts"))
+	n.ev.Send("Fetching genesis accounts", events.ProgressStarted())
 	res, err := n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
@@ -223,7 +228,7 @@ func (n Network) GenesisAccount(ctx context.Context, launchID uint64, address st
 }
 
 func (n Network) VestingAccount(ctx context.Context, launchID uint64, address string) (networktypes.VestingAccount, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching vesting accounts"))
+	n.ev.Send("Fetching vesting accounts", events.ProgressStarted())
 	res, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
@@ -237,7 +242,7 @@ func (n Network) VestingAccount(ctx context.Context, launchID uint64, address st
 }
 
 func (n Network) GenesisValidator(ctx context.Context, launchID uint64, address string) (networktypes.GenesisValidator, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis validator"))
+	n.ev.Send("Fetching genesis validator", events.ProgressStarted())
 	res, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
 		LaunchID: launchID,
 		Address:  address,

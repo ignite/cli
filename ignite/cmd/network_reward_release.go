@@ -63,8 +63,8 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	session.StartSpinner("Setting up chains...")
 
@@ -173,7 +173,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	session.StopSpinner()
 	if err := printSection(session, "Paths"); err != nil {
 		return err
 	}
@@ -184,8 +183,6 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
@@ -206,7 +203,7 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 func createClient(
 	cmd *cobra.Command,
 	n network.Network,
-	session cliui.Session,
+	session *cliui.Session,
 	launchID uint64,
 	nodeAPI,
 	spnChainID string,
@@ -229,7 +226,7 @@ func createClient(
 
 	spnRelayer, err := n.RewardIBCInfo(cmd.Context(), launchID)
 	if errors.Is(err, network.ErrObjectNotFound) {
-		spnRelayer.ClientID, err = n.CreateClient(launchID, unboundingTime, rewardsInfo)
+		spnRelayer.ClientID, err = n.CreateClient(cmd.Context(), launchID, unboundingTime, rewardsInfo)
 	}
 	if err != nil {
 		return networktypes.RewardIBCInfo{}, networktypes.RewardIBCInfo{}, err
@@ -257,7 +254,7 @@ func createClient(
 	return chainRelayer, spnRelayer, err
 }
 
-func printRelayerOptions(session cliui.Session, obj, chainID, option string) {
+func printRelayerOptions(session *cliui.Session, obj, chainID, option string) {
 	if obj != "" {
 		session.Printf("%s The chain %s already have a %s: %s\n",
 			icons.Bullet,

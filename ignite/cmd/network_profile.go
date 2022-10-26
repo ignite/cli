@@ -11,10 +11,11 @@ import (
 // NewNetworkProfile returns a new command to show the address profile info on Starport Network.
 func NewNetworkProfile() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "profile [campaign-id]",
-		Short: "Show the address profile info",
-		Args:  cobra.RangeArgs(0, 1),
-		RunE:  networkProfileHandler,
+		Use:    "profile [campaign-id]",
+		Short:  "Show the address profile info",
+		Args:   cobra.RangeArgs(0, 1),
+		RunE:   networkProfileHandler,
+		Hidden: true,
 	}
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -23,8 +24,8 @@ func NewNetworkProfile() *cobra.Command {
 }
 
 func networkProfileHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {

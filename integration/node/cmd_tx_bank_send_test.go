@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -18,6 +20,12 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
 )
+
+func waitForNextBlock(env envtest.Env, client cosmosclient.Client) {
+	ctx, cancel := context.WithTimeout(env.Ctx(), time.Second*10)
+	defer cancel()
+	require.NoError(env.T(), client.WaitForNextBlock(ctx))
+}
 
 func TestNodeTxBankSend(t *testing.T) {
 	var (
@@ -48,8 +56,8 @@ func TestNodeTxBankSend(t *testing.T) {
 	bobAccount, bobMnemonic, err := ca.Create(bob)
 	require.NoError(t, err)
 
-	app.EditConfig(func(conf *chainconfig.Config) {
-		conf.Accounts = []chainconfig.Account{
+	app.EditConfig(func(c *chainconfig.Config) {
+		c.Accounts = []config.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
@@ -61,8 +69,8 @@ func TestNodeTxBankSend(t *testing.T) {
 				Coins:    []string{"10000token", "100000000stake"},
 			},
 		}
-		conf.Faucet = chainconfig.Faucet{}
-		conf.Init.KeyringBackend = keyring.BackendTest
+		c.Faucet = config.Faucet{}
+		c.Validators[0].KeyringBackend = keyring.BackendTest
 	})
 	env.Must(env.Exec("import alice",
 		step.NewSteps(step.New(
@@ -100,7 +108,7 @@ func TestNodeTxBankSend(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+		if isBackendAliveErr = env.IsAppServed(ctx, servers.API); isBackendAliveErr != nil {
 			return
 		}
 		client, err := cosmosclient.New(context.Background(),
@@ -108,7 +116,7 @@ func TestNodeTxBankSend(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock(context.Background()))
+		waitForNextBlock(env, client)
 
 		env.Exec("send 100token from alice to bob",
 			step.NewSteps(step.New(

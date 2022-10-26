@@ -97,7 +97,12 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		// copy s to a new variable to allocate a new address
 		// so we can safely use it inside goroutines spawned in this loop.
 		if r.debug {
-			fmt.Printf("Step %d: %s %s\n", i, step.Exec.Command,
+			var cd string
+			if step.Workdir != "" {
+				cd = fmt.Sprintf("cd %s;", step.Workdir)
+			}
+			fmt.Printf("Step %d: %s%s %s %s\n", i, cd, strings.Join(step.Env, " "),
+				step.Exec.Command,
 				strings.Join(step.Exec.Args, " "))
 		}
 		step := step

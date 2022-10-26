@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -28,6 +29,7 @@ func TestSetReward(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&rewardtypes.MsgSetRewards{
 					Provider:         addr,
@@ -44,7 +46,7 @@ func TestSetReward(t *testing.T) {
 			}), nil).
 			Once()
 
-		setRewardError := network.SetReward(testutil.LaunchID, lastRewarHeight, coins)
+		setRewardError := network.SetReward(context.Background(), testutil.LaunchID, lastRewarHeight, coins)
 		require.NoError(t, setRewardError)
 		suite.AssertAllMocks(t)
 	})
@@ -63,6 +65,7 @@ func TestSetReward(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				&rewardtypes.MsgSetRewards{
 					Provider:         addr,
@@ -73,7 +76,7 @@ func TestSetReward(t *testing.T) {
 			).
 			Return(testutil.NewResponse(&rewardtypes.MsgSetRewardsResponse{}), expectedErr).
 			Once()
-		setRewardError := network.SetReward(testutil.LaunchID, lastRewarHeight, coins)
+		setRewardError := network.SetReward(context.Background(), testutil.LaunchID, lastRewarHeight, coins)
 		require.Error(t, setRewardError)
 		require.Equal(t, expectedErr, setRewardError)
 		suite.AssertAllMocks(t)

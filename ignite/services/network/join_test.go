@@ -43,6 +43,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -54,8 +55,8 @@ func TestJoin(t *testing.T) {
 						[]byte{},
 						sdk.NewCoin(TestDenom, sdkmath.NewInt(TestAmountInt)),
 						launchtypes.Peer{
-							testutil.NodeID,
-							&launchtypes.Peer_TcpAddress{
+							Id: testutil.NodeID,
+							Connection: &launchtypes.Peer_TcpAddress{
 								TcpAddress: testutil.TCPAddress,
 							},
 						}),
@@ -96,6 +97,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -146,6 +148,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -202,6 +205,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,
@@ -229,6 +233,7 @@ func TestJoin(t *testing.T) {
 		suite.CosmosClientMock.
 			On(
 				"BroadcastTx",
+				context.Background(),
 				account,
 				launchtypes.NewMsgSendRequest(
 					addr,

@@ -40,7 +40,7 @@ func TestNodeQueryTx(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+		if isBackendAliveErr = env.IsAppServed(ctx, servers.API); isBackendAliveErr != nil {
 			return
 		}
 		client, err := cosmosclient.New(context.Background(),
@@ -48,7 +48,7 @@ func TestNodeQueryTx(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock(context.Background()))
+		waitForNextBlock(env, client)
 
 		b := &bytes.Buffer{}
 		env.Exec("send 100token from alice to bob",
@@ -64,7 +64,6 @@ func TestNodeQueryTx(t *testing.T) {
 					"100token",
 					"--node", node,
 					"--keyring-dir", home,
-					"--broadcast-mode", "sync",
 				),
 				step.Stdout(b),
 			)),
@@ -75,7 +74,7 @@ func TestNodeQueryTx(t *testing.T) {
 		res := regexp.MustCompile(`\(hash = (\w+)\)`).FindAllStringSubmatch(b.String(), -1)
 		require.Len(t, res[0], 2, "can't extract hash from command output")
 		hash := res[0][1]
-		require.NoError(t, client.WaitForNextBlock(context.Background()))
+		waitForNextBlock(env, client)
 
 		env.Must(env.Exec("query tx",
 			step.NewSteps(step.New(

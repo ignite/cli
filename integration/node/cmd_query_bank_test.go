@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
@@ -64,16 +65,16 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(conf *chainconfig.Config) {
-		conf.Accounts = []chainconfig.Account{
+	app.EditConfig(func(c *chainconfig.Config) {
+		c.Accounts = []config.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
 				Coins:    []string{"5600atoken", "1200btoken", "100000000stake"},
 			},
 		}
-		conf.Faucet = chainconfig.Faucet{}
-		conf.Init.KeyringBackend = keyring.BackendTest
+		c.Faucet = config.Faucet{}
+		c.Validators[0].KeyringBackend = keyring.BackendTest
 	})
 
 	env.Must(env.Exec("import alice",
@@ -99,7 +100,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+		if isBackendAliveErr = env.IsAppServed(ctx, servers.API); isBackendAliveErr != nil {
 			return
 		}
 
@@ -108,7 +109,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock(context.Background()))
+		waitForNextBlock(env, client)
 
 		b := &bytes.Buffer{}
 

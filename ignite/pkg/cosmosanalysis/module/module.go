@@ -3,8 +3,11 @@ package module
 import (
 	"context"
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/mod/semver"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
@@ -58,6 +61,9 @@ type HTTPQuery struct {
 
 	// HTTPAnnotations keeps info about http annotations of query.
 	Rules []protoanalysis.HTTPRule
+
+	// Paginated indicates that the query is using pagination.
+	Paginated bool
 }
 
 // Type is a proto type that might be used by module.
@@ -79,9 +85,9 @@ type moduleDiscoverer struct {
 // chainRoot is the root path of the chain
 // sourcePath is the root path of the go module which the proto dir is from
 //
-// discovery algorithm make use of registered modules and proto definitions to find relevant registered modules
-// It does so by:
-// 1. Getting all the registered go modules from the app
+// Discovery algorithm make use of registered modules and proto definitions to find relevant
+// registered modules. It does so by:
+// 1. Getting all the registered Go modules from the app
 // 2. Parsing the proto files to find services and messages
 // 3. Check if the proto services are implemented in any of the registered modules
 func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
@@ -94,21 +100,26 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		return nil, err
 	}
 
+	// Find all the modules registered by the app
 	registeredModules, err := app.FindRegisteredModules(chainRoot)
 	if err != nil {
 		return nil, err
 	}
 
+	// Go import path of the app module
 	basegopath := gm.Module.Mod.Path
+	rootgopath := RootGoImportPath(basegopath)
 
-	// Just filter out the registered modules that are not possibly relevant here
-	potentialModules := make([]string, 0)
+	// Keep the custom app's modules and filter out the third
+	// party ones that are not defined within the app.
+	appModules := make([]string, 0)
 	for _, m := range registeredModules {
-		if strings.HasPrefix(m, basegopath) {
-			potentialModules = append(potentialModules, m)
+		if strings.HasPrefix(m, rootgopath) {
+			appModules = append(appModules, m)
 		}
 	}
-	if len(potentialModules) == 0 {
+
+	if len(appModules) == 0 {
 		return []Module{}, nil
 	}
 
@@ -116,14 +127,15 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		protoPath:         filepath.Join(sourcePath, protoDir),
 		sourcePath:        sourcePath,
 		basegopath:        basegopath,
-		registeredModules: potentialModules,
+		registeredModules: appModules,
 	}
 
-	// find proto packages that belong to modules under x/.
+	// Find proto packages that belong to modules under x/.
 	pkgs, err := md.findModuleProtoPkgs(ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	if len(pkgs) == 0 {
 		return []Module{}, nil
 	}
@@ -136,26 +148,78 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 			return nil, err
 		}
 
+		if m.Name == "" {
+			continue
+		}
+
 		modules = append(modules, m)
 	}
 
 	return modules, nil
 }
 
+// IsRootPath checks if a Go import path is a custom app module.
+// Custom app modules are defined inside the "x" directory.
+func IsRootPath(path string) bool {
+	return filepath.Base(filepath.Dir(path)) == "x"
+}
+
+// RootPath returns the Go import path of a custom app module.
+// An empty string is returned when the path doesn't belong to a custom module.
+func RootPath(path string) string {
+	for !IsRootPath(path) {
+		if path = filepath.Dir(path); path == "." {
+			return ""
+		}
+	}
+
+	return path
+}
+
+// RootGoImportPath returns a Go import path with the version suffix removed.
+func RootGoImportPath(importPath string) string {
+	if p, v := path.Split(importPath); semver.IsValid(v) {
+		return strings.TrimRight(p, "/")
+	}
+
+	return importPath
+}
+
+func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
+	// Remove the import prefix to get the relative path
+	if strings.HasPrefix(pkgGoImportPath, baseGoPath) {
+		return strings.TrimPrefix(pkgGoImportPath, baseGoPath), nil
+	}
+
+	// When the import path prefix defined by the proto package
+	// doesn't match the base Go import path it means that the
+	// latter might have a version suffix and the former doesn't.
+	if p, v := path.Split(baseGoPath); semver.IsValid(v) {
+		// Use the import path without the version as prefix
+		p = strings.TrimRight(p, "/")
+
+		return strings.TrimPrefix(pkgGoImportPath, p), nil
+	}
+
+	return "", fmt.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
+}
+
 // discover discovers and sdk module by a proto pkg.
 func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
-	pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
-	pkgpath := filepath.Join(d.sourcePath, pkgrelpath)
+	// Check if the proto package services are implemented
+	// by any of the modules registered by the app.
+	if ok, err := d.isPkgFromRegisteredModule(pkg); err != nil || !ok {
+		return Module{}, err
+	}
 
-	found, err := d.pkgIsFromRegisteredModule(pkg)
+	pkgRelPath, err := extractRelPath(pkg.GoImportPath(), d.basegopath)
 	if err != nil {
 		return Module{}, err
 	}
-	if !found {
-		return Module{}, nil
-	}
 
-	msgs, err := cosmosanalysis.FindImplementation(pkgpath, messageImplementation)
+	// Find the `sdk.Msg` interface implementation
+	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
+	msgs, err := cosmosanalysis.FindImplementation(pkgPath, messageImplementation)
 	if err != nil {
 		return Module{}, err
 	}
@@ -204,8 +268,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 		// do not use if used as a request/return type type of an RPC.
 		for _, s := range pkg.Services {
-			for _, q := range s.RPCFuncs {
+			for i, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
+					// Check if the service response message is using pagination and
+					// update the RPC function. This is done here to avoid extra loops
+					// just to update the pagination property.
+					s.RPCFuncs[i].Paginated = hasPagination(protomsg)
+
 					return false
 				}
 			}
@@ -232,10 +301,12 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 			if len(q.HTTPRules) == 0 {
 				continue
 			}
+
 			m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
-				Name:     q.Name,
-				FullName: s.Name + q.Name,
-				Rules:    q.HTTPRules,
+				Name:      q.Name,
+				FullName:  s.Name + q.Name,
+				Rules:     q.HTTPRules,
+				Paginated: q.Paginated,
 			})
 		}
 	}
@@ -250,10 +321,15 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 		return nil, err
 	}
 
+	// Remove version suffix from the Go import path if it exists.
+	// Proto files might omit the version in the Go import path even
+	// when the app module is using versioning.
+	basegopath := RootGoImportPath(d.basegopath)
+
 	// filter out proto packages that do not represent x/ modules of blockchain.
 	var xprotopkgs []protoanalysis.Package
 	for _, pkg := range allprotopkgs {
-		if !strings.HasPrefix(pkg.GoImportName, d.basegopath) {
+		if !strings.HasPrefix(pkg.GoImportPath(), basegopath) {
 			continue
 		}
 
@@ -263,27 +339,60 @@ func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanal
 	return xprotopkgs, nil
 }
 
-// Checks if the pkg is implemented in any of the registered modules
-func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
-	for _, rm := range d.registeredModules {
-		implRelPath := strings.TrimPrefix(rm, d.basegopath)
+// Checks if the proto package is implemented by any of the modules registered by the app.
+func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (bool, error) {
+	// Get the Go module import defined by the proto package
+	goModuleImport := pkg.GoImportPath()
+
+	// Try to get the Go import path of the custom app module that should implement
+	// the package RPC services. When the import path doesn't import a package
+	// from the standard "x" folder use the path defined by the proto package.
+	// Using the custom app module root path guarantees that if the RPC services
+	// implementation exists in the module it will always be found.
+	if p := RootPath(goModuleImport); p != "" {
+		goModuleImport = p
+	}
+
+	// Get a Go import path with the version suffix removed
+	rootGoPath := RootGoImportPath(d.basegopath)
+
+	for _, m := range d.registeredModules {
+		// Extract the relative module path from the Go import path
+		implRelPath := strings.TrimPrefix(m, d.basegopath)
+
+		// Handle the case where the Go module has a version
+		// suffix and the registered module doesn't.
+		if implRelPath == m {
+			implRelPath = strings.TrimPrefix(m, rootGoPath)
+		}
+
+		// Absolute path to the app module
 		implPath := filepath.Join(d.sourcePath, implRelPath)
 
 		for _, s := range pkg.Services {
+			// List of the RPC service method names defined by the current proto's service
 			methods := make([]string, len(s.RPCFuncs))
 			for i, rpcFunc := range s.RPCFuncs {
 				methods[i] = rpcFunc.Name
 			}
+
+			// Find the Go implementation of the service defined in the proto package
 			found, err := cosmosanalysis.DeepFindImplementation(implPath, methods)
 			if err != nil {
 				return false, err
 			}
 
-			// In some cases, the module registration is in another level of sub dir in the module.
-			// TODO: find the closest sub dir among proto packages.
-			if len(found) == 0 && strings.HasPrefix(rm, pkg.GoImportName) {
-				altImplRelPath := strings.TrimPrefix(pkg.GoImportName, d.basegopath)
+			// Some times the registered module definition is located in a different
+			// directory branch from where the RPC implementation is defined. In this
+			// case search the RPC implementation in all of the custom app module files.
+			if len(found) == 0 && strings.HasPrefix(m, goModuleImport) {
+				altImplRelPath := strings.TrimPrefix(goModuleImport, d.basegopath)
+				if altImplRelPath == goModuleImport {
+					altImplRelPath = strings.TrimPrefix(goModuleImport, rootGoPath)
+				}
+
 				altImplPath := filepath.Join(d.sourcePath, altImplRelPath)
+
 				found, err = cosmosanalysis.DeepFindImplementation(altImplPath, methods)
 				if err != nil {
 					return false, err
@@ -294,8 +403,20 @@ func (d *moduleDiscoverer) pkgIsFromRegisteredModule(pkg protoanalysis.Package) 
 				return true, nil
 			}
 		}
-
 	}
 
 	return false, nil
+}
+
+func hasPagination(msg protoanalysis.Message) bool {
+	for _, fieldType := range msg.Fields {
+		// Message field type suffix check to match common pagination types:
+		//    cosmos.base.query.v1beta1.PageRequest
+		//    cosmos.base.query.v1beta1.PageResponse
+		if strings.HasSuffix(fieldType, "PageRequest") || strings.HasSuffix(fieldType, "PageResponse") {
+			return true
+		}
+	}
+
+	return false
 }
