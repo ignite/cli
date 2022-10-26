@@ -252,7 +252,7 @@ func (n Network) SendValidatorRemoveRequest(
 func (n Network) SendAccountRemoveRequest(
 	ctx context.Context,
 	launchID uint64,
-	valAddress string,
+	address string,
 ) error {
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -263,7 +263,7 @@ func (n Network) SendAccountRemoveRequest(
 		addr,
 		launchID,
 		launchtypes.NewAccountRemoval(
-			valAddress,
+			address,
 		),
 	)
 
