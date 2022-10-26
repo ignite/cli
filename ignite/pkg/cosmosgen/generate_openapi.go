@@ -22,8 +22,6 @@ var openAPIOut = []string{
 const specCacheNamespace = "generate.openapi.spec"
 
 func generateOpenAPISpec(g *generator) error {
-	out := filepath.Join(g.appPath, g.o.specOut)
-
 	var (
 		specDirs []string
 		conf     = swaggercombine.Config{
@@ -124,6 +122,8 @@ func generateOpenAPISpec(g *generator) error {
 			return err
 		}
 	}
+
+	out := g.o.specOut
 
 	if !hasAnySpecChanged {
 		// In case the generated output has been changed
