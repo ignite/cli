@@ -18,6 +18,7 @@ func NewNetworkRequest() *cobra.Command {
 		NewNetworkRequestVerify(),
 		NewNetworkRequestAddAccount(),
 		NewNetworkRequestRemoveValidator(),
+		NewNetworkRequestRemoveAccount(),
 	)
 
 	return c
