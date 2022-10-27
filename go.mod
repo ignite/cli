@@ -21,7 +21,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.4.2
-	github.com/gobuffalo/genny v0.6.0
+	github.com/gobuffalo/genny/v2 v2.1.0
 	github.com/gobuffalo/logger v1.0.6
 	github.com/gobuffalo/packd v1.0.1
 	github.com/gobuffalo/plush/v4 v4.1.16
