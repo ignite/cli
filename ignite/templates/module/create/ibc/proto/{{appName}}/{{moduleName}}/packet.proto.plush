@@ -1,0 +1,18 @@
+syntax = "proto3";
+package <%= protoPkgName %>;
+
+// this line is used by starport scaffolding # proto/packet/import
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+message <%= title(moduleName) %>PacketData {
+    oneof packet {
+        NoData noData = 1;
+        // this line is used by starport scaffolding # ibc/packet/proto/field
+    }
+}
+
+message NoData {
+}
+
+// this line is used by starport scaffolding # ibc/packet/proto/message

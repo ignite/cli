@@ -1,0 +1,5 @@
+name: cli 
+description: Ignite CLI 
+runs:
+  using: docker
+  image: Dockerfile

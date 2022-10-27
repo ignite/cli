@@ -1,0 +1,18 @@
+package types
+
+// ValidateBasic is used for validating the packet
+func (p <%= packetName.UpperCamel %>PacketData) ValidateBasic() error {
+
+	// TODO: Validate the packet data
+
+	return nil
+}
+
+// GetBytes is a helper for serialising
+func (p <%= packetName.UpperCamel %>PacketData) GetBytes() ([]byte, error) {
+	var modulePacket <%= title(moduleName) %>PacketData
+
+	modulePacket.Packet = &<%= title(moduleName) %>PacketData_<%= packetName.UpperCamel %>Packet{&p}
+
+	return modulePacket.Marshal()
+}

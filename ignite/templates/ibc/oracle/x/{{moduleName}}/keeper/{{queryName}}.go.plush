@@ -1,0 +1,42 @@
+package keeper
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	gogotypes "github.com/gogo/protobuf/types"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
+)
+
+// Set<%= queryName.UpperCamel %>Result saves the <%= queryName.UpperCamel %> result
+func (k Keeper) Set<%= queryName.UpperCamel %>Result(ctx sdk.Context, requestID types.OracleRequestID, result types.<%= queryName.UpperCamel %>Result) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.<%= queryName.UpperCamel %>ResultStoreKey(requestID), k.cdc.MustMarshal(&result))
+}
+
+// Get<%= queryName.UpperCamel %>Result returns the <%= queryName.UpperCamel %> by requestId
+func (k Keeper) Get<%= queryName.UpperCamel %>Result(ctx sdk.Context, id types.OracleRequestID) (types.<%= queryName.UpperCamel %>Result, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.<%= queryName.UpperCamel %>ResultStoreKey(id))
+	if bz == nil {
+		return types.<%= queryName.UpperCamel %>Result{}, sdkerrors.Wrapf(types.ErrSample,
+			"GetResult: Result for request ID %d is not available.", id,
+		)
+	}
+	var result types.<%= queryName.UpperCamel %>Result
+	k.cdc.MustUnmarshal(bz, &result)
+	return result, nil
+}
+
+// GetLast<%= queryName.UpperCamel %>ID return the id from the last <%= queryName.UpperCamel %> request
+func (k Keeper) GetLast<%= queryName.UpperCamel %>ID(ctx sdk.Context) int64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.KeyPrefix(types.Last<%= queryName.UpperCamel %>IDKey))
+	intV := gogotypes.Int64Value{}
+	k.cdc.MustUnmarshalLengthPrefixed(bz, &intV)
+	return intV.GetValue()
+}
+
+// SetLast<%= queryName.UpperCamel %>ID saves the id from the last <%= queryName.UpperCamel %> request
+func (k Keeper) SetLast<%= queryName.UpperCamel %>ID(ctx sdk.Context, id types.OracleRequestID) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.KeyPrefix(types.Last<%= queryName.UpperCamel %>IDKey),
+		k.cdc.MustMarshalLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
+}

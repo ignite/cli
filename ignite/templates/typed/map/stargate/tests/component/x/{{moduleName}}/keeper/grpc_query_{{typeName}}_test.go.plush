@@ -1,0 +1,129 @@
+package keeper_test
+
+import (
+    "strconv"
+	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/testutil/nullify"
+	keepertest "<%= ModulePath %>/testutil/keeper"
+)
+
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
+func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 2)
+	for _, tc := range []struct {
+		desc     string
+		request  *types.QueryGet<%= TypeName.UpperCamel %>Request
+		response *types.QueryGet<%= TypeName.UpperCamel %>Response
+		err      error
+	}{
+		{
+			desc:     "First",
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[0].<%= index.Name.UpperCamel %>,
+                <% } %>
+			},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[0]},
+		},
+		{
+			desc:     "Second",
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[1].<%= index.Name.UpperCamel %>,
+                <% } %>
+			},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[1]},
+		},
+		{
+			desc:    "KeyNotFound",
+			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= index.ValueInvalidIndex() %>,
+                <% } %>
+			},
+			err:     status.Error(codes.NotFound, "not found"),
+		},
+		{
+			desc: "InvalidRequest",
+			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+	} {
+		t.Run(tc.desc, func(t *testing.T) {
+			response, err := keeper.<%= TypeName.UpperCamel %>(wctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t,
+					nullify.Fill(tc.response),
+					nullify.Fill(response),
+				)
+			}
+		})
+	}
+}
+
+func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	wctx := sdk.WrapSDKContext(ctx)
+	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 5)
+
+	request := func(next []byte, offset, limit uint64, total bool) *types.QueryAll<%= TypeName.UpperCamel %>Request {
+		return &types.QueryAll<%= TypeName.UpperCamel %>Request{
+			Pagination: &query.PageRequest{
+				Key:        next,
+				Offset:     offset,
+				Limit:      limit,
+				CountTotal: total,
+			},
+		}
+	}
+	t.Run("ByOffset", func(t *testing.T) {
+		step := 2
+		for i := 0; i < len(msgs); i += step {
+			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, uint64(i), uint64(step), false))
+			require.NoError(t, err)
+			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
+			require.Subset(t,
+            	nullify.Fill(msgs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+            )
+		}
+	})
+	t.Run("ByKey", func(t *testing.T) {
+		step := 2
+		var next []byte
+		for i := 0; i < len(msgs); i += step {
+			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(next, 0, uint64(step), false))
+			require.NoError(t, err)
+			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
+			require.Subset(t,
+            	nullify.Fill(msgs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+            )
+			next = resp.Pagination.NextKey
+		}
+	})
+	t.Run("Total", func(t *testing.T) {
+		resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, 0, 0, true))
+		require.NoError(t, err)
+		require.Equal(t, len(msgs), int(resp.Pagination.Total))
+		require.ElementsMatch(t,
+			nullify.Fill(msgs),
+			nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+		)
+	})
+	t.Run("InvalidRequest", func(t *testing.T) {
+		_, err := keeper.<%= TypeName.UpperCamel %>All(wctx, nil)
+		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
+	})
+}

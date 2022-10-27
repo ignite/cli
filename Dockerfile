@@ -3,7 +3,7 @@
 
 ## prep the base image.
 #
-FROM golang:1.16.2-buster as base
+FROM golang:1.18.0-bullseye as base
 
 RUN apt update && \
     apt-get install -y \
@@ -18,7 +18,7 @@ ENV GOPROXY https://proxy.golang.org
 #
 FROM base as builder
 
-WORKDIR /starport
+WORKDIR /ignite
 
 # cache dependencies.
 COPY ./go.mod . 
@@ -33,19 +33,19 @@ RUN --mount=type=cache,target=/root/.cache/go-build go install -v ./...
 #
 FROM base
 
-COPY --from=builder /go/bin/starport /usr/bin
-
 RUN useradd -ms /bin/bash tendermint
 USER tendermint
+
+COPY --from=builder /go/bin/ignite /usr/bin
 
 WORKDIR /apps
 
 # see docs for exposed ports:
-#   https://docs.starport.network/configure/reference.html#host 
+#   https://docs.ignite.com/kb/config.html#host
 EXPOSE 26657
 EXPOSE 26656
 EXPOSE 6060 
 EXPOSE 9090 
 EXPOSE 1317 
 
-ENTRYPOINT ["starport"]
+ENTRYPOINT ["ignite"]

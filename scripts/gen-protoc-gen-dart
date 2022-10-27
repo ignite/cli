@@ -1,0 +1,73 @@
+#!/bin/bash
+
+## Check dependencie(s)
+
+[[ $(command -v dart) ]] || { echo "'dart' not found!" ; dep_check="false" ;}
+[[ $(command -v wget) ]] || { echo "'wget' not found!" ; dep_check="false" ;}
+[[ $(command -v tar) ]] || { echo "'gzip' not found!" ; dep_check="false" ;}
+
+[[ ${dep_check} = "false" ]] && { echo "Some dependencie(s) isn't installed yet. Please install that dependencie(s)" ; exit 1 ;}
+
+## Variables
+protobuf_src="https://github.com/google/protobuf.dart/archive/refs/tags/protoc_plugin-v20.0.0.tar.gz"
+setdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)" # this line powered by stackoverflow
+kernelname="$(uname -s | tr '[:upper:]' '[:lower:]' || { echo 'kernel name can not definied' ; exit 1 ;})"
+machinetype=$(uname -m)
+
+case $machinetype in
+  "x86_64") arch="amd64"
+    ;;
+  "aarch64") arch="arm64"
+    ;;
+  "arm64") arch="arm64"
+    ;;
+  *) echo "$machinetype is not supported"; exit 1;
+    ;;
+esac
+
+# Defaults
+setfile="protoc_plugin/bin/protoc_plugin.dart"
+save_file="protoc-gen-dart_${kernelname}_${arch}"
+
+# Check dir else create save dir
+if [[ $(basename ${setdir}) = "scripts" ]] ; then
+    if [[ $(basename $(dirname "${setdir}")) = "cli" ]] ; then
+        [[ -d $(dirname "${setdir}/pkg/protoc-gen-dart/data") ]] || mkdir -p "$(dirname "${setdir}")/ignite/pkg/protoc-gen-dart/data"
+    else
+        echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/ignite/cli"
+        exit 1
+    fi
+else
+    echo "$setdir"
+    echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/ignite/cli"
+    exit 1
+fi
+
+## Check argument
+
+if ! [[ -z "${1}" ]] && [[ -d "${1}" ]]; then
+    save_dir="${1}"
+fi
+
+## Main
+# Check and Create Temp Directory
+[[ -d "/tmp/${0}" ]] && rm -rf "/tmp/${0}"
+mkdir -p "/tmp/${0}" && cd "/tmp/${0}"
+
+# Get Gzip(tar.gz) file
+echo -n "getting $(basename ${protobuf_src}).."
+wget -q "${protobuf_src}" && echo "[OK]"
+
+# Extract the file
+echo -n "extracting $(basename ${protobuf_src}).."
+tar -xf ./$(basename "${protobuf_src}") && echo "[OK]"
+rm ./$(basename "${protobuf_src}")
+cd "$(ls -d */ | grep 'protobuf')" || exit
+cd protoc_plugin && dart pub get
+cd - &> /dev/null || exit
+
+# Compile the file
+
+dart compile exe "${setfile}" --output "${save_file}"
+[[ -f "${save_file}" ]] && mv "${save_file}" "$(dirname ${setdir})/ignite/pkg/protoc-gen-dart/data" || { echo "cannot create the binary file!" ; exit 1; }
+echo "the binary moved to '$(dirname "${setdir}")/ignite/pkg/protoc-gen-dart/data/${save_file}'"

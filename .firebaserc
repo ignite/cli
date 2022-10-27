@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "ignitesrvc"
+  },
+  "targets": {
+    "ignitesrvc": {
+      "hosting": {
+        "docs.ignite.com": [
+          "ignitesrvc-d"
+        ]
+      }
+    }
+  }
+}

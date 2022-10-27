@@ -1,0 +1,64 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+const TypeMsgSend<%= packetName.UpperCamel %> = "send_<%= packetName.Snake %>"
+
+var _ sdk.Msg = &MsgSend<%= packetName.UpperCamel %>{}
+
+func NewMsgSend<%= packetName.UpperCamel %>(
+    <%= MsgSigner.LowerCamel %> string,
+    port string,
+    channelID string,
+    timeoutTimestamp uint64,<%= for (field) in fields { %>
+    <%= field.Name.LowerCamel %> <%= field.DataType() %>,<% } %>
+) *MsgSend<%= packetName.UpperCamel %> {
+    return &MsgSend<%= packetName.UpperCamel %>{
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+		Port: port,
+		ChannelID: channelID,
+		TimeoutTimestamp: timeoutTimestamp,<%= for (field) in fields { %>
+        <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
+	}
+}
+
+func (msg *MsgSend<%= packetName.UpperCamel %>) Route() string {
+    return RouterKey
+}
+
+func (msg *MsgSend<%= packetName.UpperCamel %>) Type() string {
+    return TypeMsgSend<%= packetName.UpperCamel %>
+}
+
+func (msg *MsgSend<%= packetName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+    <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+    if err != nil {
+        panic(err)
+    }
+    return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
+}
+
+func (msg *MsgSend<%= packetName.UpperCamel %>) GetSignBytes() []byte {
+    bz := ModuleCdc.MustMarshalJSON(msg)
+    return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
+    _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+    if err != nil {
+        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+    }
+	if msg.Port == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
+	if msg.ChannelID == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
+	if msg.TimeoutTimestamp == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
+    return nil
+}

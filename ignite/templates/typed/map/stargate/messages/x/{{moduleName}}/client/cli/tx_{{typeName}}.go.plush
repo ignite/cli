@@ -1,0 +1,108 @@
+package cli
+
+import (
+	<%= for (goImport) in mergeGoImports(Indexes, Fields) { %>
+	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
+    "github.com/spf13/cobra"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
+    cmd := &cobra.Command{
+		Use:   "create-<%= TypeName.Kebab %><%= Indexes.String() %><%= Fields.String() %>",
+		Short: "Create a new <%= TypeName.Original %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+            // Get indexes
+        <%= for (i, field) in Indexes { %> <%= field.CLIArgs("index", i) %>
+        <% } %>
+            // Get value arguments
+		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i+len(Indexes)) %>
+		<% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(
+			    clientCtx.GetFromAddress().String(),
+			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
+                <% } %><%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,
+			    <% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}
+
+func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-<%= TypeName.Kebab %><%= Indexes.String() %><%= Fields.String() %>",
+		Short: "Update a <%= TypeName.Original %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+            // Get indexes
+        <%= for (i, field) in Indexes { %> <%= field.CLIArgs("index", i) %>
+        <% } %>
+            // Get value arguments
+		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i+len(Indexes)) %>
+		<% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(
+			    clientCtx.GetFromAddress().String(),
+			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
+                <% } %><%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,
+                <% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}
+
+func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete-<%= TypeName.Kebab %><%= Indexes.String() %>",
+		Short: "Delete a <%= TypeName.Original %>",
+		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("index", i) %>
+            <% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDelete<%= TypeName.UpperCamel %>(
+			    clientCtx.GetFromAddress().String(),
+			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
+                <% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}

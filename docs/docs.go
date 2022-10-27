@@ -2,6 +2,7 @@ package docs
 
 import "embed"
 
-// Docs are Starport docs.
-//go:embed *.md */*.md
+// Docs are Ignite CLI docs.
+//
+//go:embed docs
 var Docs embed.FS

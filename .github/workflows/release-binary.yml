@@ -1,26 +1,20 @@
-name: goreleaser
+name: Release Binaries
 
 on:
-  push:
-    tags:
-      - "*"
+  release:
+    types: [ published ]
 
 jobs:
-  goreleaser:
+  binary:
     runs-on: ubuntu-latest
     env:
-      working-directory: go/src/github.com/tendermint/starport 
+      working-directory: go/src/github.com/ignite/cli
     
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.16
-
-      - name: Set up Node
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: 14
+          go-version: 1.19
 
       - name: Checkout
         uses: actions/checkout@v2

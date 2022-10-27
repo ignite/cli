@@ -1,0 +1,26 @@
+package keeper
+
+import (
+	"<%= modulePath %>/x/<%= moduleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// GetParams get all parameters as types.Params
+func (k Keeper) GetParams(ctx sdk.Context) types.Params {
+	return types.NewParams(<%= for (param) in params { %>
+		k.<%= param.Name.UpperCamel %>(ctx),<% } %>
+	)
+}
+
+// SetParams set the params
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	k.paramstore.SetParamSet(ctx, &params)
+}
+
+<%= for (param) in params { %>
+// <%= param.Name.UpperCamel %> returns the <%= param.Name.UpperCamel %> param
+func (k Keeper) <%= param.Name.UpperCamel %>(ctx sdk.Context) (res <%= param.DataType() %>) {
+	k.paramstore.Get(ctx, types.Key<%= param.Name.UpperCamel %>, &res)
+	return
+}
+<% } %>

@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Downloads latest protoc source, builds it and puts them in the right place
+
+set -e
+
+[[ $(command -v curl) ]] || { echo "'curl' not found!" ; dep_check="false" ;}
+[[ $(command -v wget) ]] || { echo "'wget' not found!" ; dep_check="false" ;}
+[[ $(command -v unzip) ]] || { echo "'unzip' not found!" ; dep_check="false" ;}
+
+# Build tools
+[[ $(command -v make) ]] || { echo "'make' not found!" ; dep_check="false" ;}
+[[ $(command -v automake) ]] || { echo "'automake' not found!" ; dep_check="false" ;}
+
+[[ ${dep_check} = "false" ]] && { echo "Some dependencie(s) isn't installed yet. Please install that dependencie(s)" ; exit 1 ;}
+
+gh_protoc_release_url="https://api.github.com/repos/protocolbuffers/protobuf/releases/latest"
+setdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)" # this line powered by stackoverflow
+kernelname="$(uname -s | tr '[:upper:]' '[:lower:]' || { echo 'kernel name can not defined' ; exit 1 ;})"
+machinetype=$(uname -m)
+case $machinetype in
+  "x86_64") arch="amd64"
+    ;;
+  "aarch64") arch="arm64"
+    ;;
+  "arm64") arch="arm64"
+    ;;
+  *) echo "$machinetype is not supported"; exit 1;
+    ;;
+esac
+fname=protoc-$kernelname-$arch
+
+# Check dir else create save dir
+if [[ $(basename "${setdir}") = "scripts" ]] ; then
+    if [[ $(basename "$(dirname "${setdir}")") = "cli" ]] ; then
+        [[ -d $(dirname "${setdir}/pkg/protoc/data") ]] || mkdir -p "$(dirname "${setdir}")/ignite/pkg/protoc/data"
+    else
+        echo "Attention: you are running the script out of the starport project please run it this script in: https://github.com/tendermint/starport"
+        exit 1
+    fi
+else
+    echo "$setdir"
+    echo "Attention: you are running the script out of the starport project please run it this script in: https://github.com/tendermint/starport"
+    exit 1
+fi
+
+# Check if we have the newest version already
+version_file=$(dirname "${setdir}")/scripts/data/gen-protoc/version-"$kernelname"-"$arch"
+newest_version="v3.20.0"
+download_url="https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-all-3.20.0.tar.gz"
+current_version=$(cat "$version_file")
+
+if [[ "$newest_version" == "$current_version" ]] ; then
+    echo "Newest version already built, exiting early, all good"
+    exit 0
+fi
+
+# Check and Create Temp Directory
+tmpdir=$(mktemp -d)
+cd "$tmpdir"
+
+outputdir="$tmpdir/protocout"
+mkdir "$outputdir"
+mkdir protobuf # Where we will build
+
+# Fetch releases, go through assets (release artifacts) and find the relevant one
+wget -c "$download_url" -O - | tar xzC protobuf --strip-components=1 #skipping first folder
+
+# Ok, let's build!
+# Build instructions taken from: https://github.com/protocolbuffers/protobuf/blob/master/src/README.md
+cd protobuf
+./configure CXXFLAGS="-DNDEBUG" --prefix="$outputdir" --disable-shared # Static linked libraries so it works on all machines
+make clean
+make -j$(nproc)
+make install
+
+cp "$outputdir"/bin/protoc "$(dirname "${setdir}")/ignite/pkg/protoc/data/${fname}"
+echo "$newest_version" > "$version_file" #Update version file so we don't have to rebuild this
+
+rm -rf "$tmpdir"

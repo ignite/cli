@@ -1,0 +1,13 @@
+{
+  "emulators": {
+    "hosting": {
+      "host": "localhost",
+      "port": "3000"
+    }
+  },
+  "hosting": {
+    "target": "docs.ignite.com",
+    "public": "docs/build",
+    "cleanUrls": true
+  }
+}

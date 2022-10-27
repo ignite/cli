@@ -1,0 +1,33 @@
+package keeper
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+)
+
+// Set<%= TypeName.UpperCamel %> set <%= TypeName.LowerCamel %> in the store
+func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	b := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
+	store.Set([]byte{0}, b)
+}
+
+// Get<%= TypeName.UpperCamel %> returns <%= TypeName.LowerCamel %>
+func (k Keeper) Get<%= TypeName.UpperCamel %>(ctx sdk.Context) (val types.<%= TypeName.UpperCamel %>, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+
+	b := store.Get([]byte{0})
+    if b == nil {
+        return val, false
+    }
+
+	k.cdc.MustUnmarshal(b, &val)
+	return val, true
+}
+
+// Remove<%= TypeName.UpperCamel %> removes <%= TypeName.LowerCamel %> from the store
+func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	store.Delete([]byte{0})
+}

@@ -1,0 +1,47 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+const TypeMsg<%= MsgName.UpperCamel %> = "<%= MsgName.Snake %>"
+
+var _ sdk.Msg = &Msg<%= MsgName.UpperCamel %>{}
+
+func NewMsg<%= MsgName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *Msg<%= MsgName.UpperCamel %> {
+  return &Msg<%= MsgName.UpperCamel %>{
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
+    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
+	}
+}
+
+func (msg *Msg<%= MsgName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *Msg<%= MsgName.UpperCamel %>) Type() string {
+  return TypeMsg<%= MsgName.UpperCamel %>
+}
+
+func (msg *Msg<%= MsgName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
+}
+
+func (msg *Msg<%= MsgName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *Msg<%= MsgName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  	if err != nil {
+  		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+  	}
+  return nil
+}
+
