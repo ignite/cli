@@ -2,6 +2,7 @@ package chainconfig
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -89,4 +90,19 @@ func LocateDefault(root string) (path string, err error) {
 	}
 
 	return "", ErrConfigNotFound
+}
+
+// CheckVersion checks that the config version is the latest
+// and if not a VersionError is returned.
+func CheckVersion(configFile io.Reader) error {
+	version, err := ReadConfigVersion(configFile)
+	if err != nil {
+		return err
+	}
+
+	if version != LatestVersion {
+		return VersionError{version}
+	}
+
+	return nil
 }

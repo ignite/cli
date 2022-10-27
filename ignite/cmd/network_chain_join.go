@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,9 +21,10 @@ import (
 )
 
 const (
-	flagGentx     = "gentx"
-	flagAmount    = "amount"
-	flagNoAccount = "no-account"
+	flagGentx       = "gentx"
+	flagAmount      = "amount"
+	flagNoAccount   = "no-account"
+	flagPeerAddress = "peer-address"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
@@ -33,12 +33,37 @@ func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "join [launch-id]",
 		Short: "Request to join a network as a validator",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainJoinHandler,
+		Long: `The "join" command is used by validators to send a request to join a blockchain.
+The required argument is a launch ID of a blockchain. The "join" command expects
+that the validator has already setup a home directory for the blockchain and has
+a gentx either by running "ignite network chain init" or initializing the data
+directory manually with the chain's binary.
+
+By default the "join" command just sends the request to join as a validator.
+However, often a validator also needs to request an genesis account with a token
+balance to afford self-delegation.
+
+The following command will send a request to join blockchain with launch ID 42
+as a validator and request to be added as an account with a token balance of
+95000000 STAKE.
+
+  ignite network chain join 42 --amount 95000000stake
+
+A request to join as a validator contains a gentx file. Ignite looks for gentx
+in a home directory used by "ignite network chain init" by default. To use a
+different directory, use the "--home" flag or pass a gentx file directly with
+the  "--gentx" flag.
+
+Since "join" broadcasts a transaction to the Ignite blockchain, you will need an
+account on the Ignite blockchain. During the testnet phase, however, Ignite
+automatically requests tokens from a faucet.`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainJoinHandler,
 	}
 
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
+	c.Flags().String(flagPeerAddress, "", "Peer's address")
 	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -75,7 +100,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	// if there is no custom gentx, we need to detect the public address.
 	if gentxPath == "" {
 		// get the peer public address for the validator.
-		publicAddr, err := askPublicAddress(cmd.Context(), session)
+		publicAddr, err := askPublicAddress(cmd, session)
 		if err != nil {
 			return err
 		}
@@ -161,10 +186,9 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress
 // when peer isn't provided and not running through chisel proxy.
-func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress string, err error) {
-	options := []cliquiz.Option{
-		cliquiz.Required(),
-	}
+func askPublicAddress(cmd *cobra.Command, session *cliui.Session) (publicAddress string, err error) {
+	ctx := cmd.Context()
+
 	if gitpod.IsOnGitpod() {
 		publicAddress, err = gitpod.URLForPort(ctx, xchisel.DefaultServerPort)
 		if err != nil {
@@ -173,11 +197,27 @@ func askPublicAddress(ctx context.Context, session cliui.Session) (publicAddress
 		return publicAddress, nil
 	}
 
-	// even if GetIp fails we won't handle the error because we don't want to interrupt a join process.
-	// just in case if GetIp fails user should enter his address manually
-	ip, err := ipify.GetIp()
-	if err == nil {
-		options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+	peerAddress, _ := cmd.Flags().GetString(flagPeerAddress)
+
+	// The `--peer-address` flag is required when "--yes" is present
+	if getYes(cmd) && peerAddress == "" {
+		return "", errors.New("a peer address is required")
+	}
+
+	// Don't prompt for an address when it is available as a flag value
+	if peerAddress != "" {
+		return peerAddress, nil
+	}
+
+	// Try to guess the current peer address. This address is used
+	// as default when prompting user for the right peer address.
+	if ip, err := ipify.GetIp(); err == nil {
+		peerAddress = fmt.Sprintf("%s:26656", ip)
+	}
+
+	options := []cliquiz.Option{cliquiz.Required()}
+	if peerAddress != "" {
+		options = append(options, cliquiz.DefaultAnswer(peerAddress))
 	}
 
 	questions := []cliquiz.Question{cliquiz.NewQuestion(

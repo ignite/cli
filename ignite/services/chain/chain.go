@@ -18,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
+	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
@@ -74,6 +75,9 @@ type chainOptions struct {
 	// checkDependencies checks that cached Go dependencies of the chain have not
 	// been modified since they were downloaded.
 	checkDependencies bool
+
+	// printGeneratedPaths prints the output paths of the generated code
+	printGeneratedPaths bool
 
 	// path of a custom config file
 	ConfigFile string
@@ -138,6 +142,13 @@ func CollectEvents(ev events.Bus) Option {
 func CheckDependencies() Option {
 	return func(c *Chain) {
 		c.options.checkDependencies = true
+	}
+}
+
+// PrintGeneratedPaths prints the output paths of the generated code.
+func PrintGeneratedPaths() Option {
+	return func(c *Chain) {
+		c.options.printGeneratedPaths = true
 	}
 }
 
@@ -433,6 +444,11 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
+
+	// Try to make the binary path absolute. This will also
+	// find the binary path when the Go bin path is not part
+	// of the PATH environment variable.
+	binary = xexec.TryResolveAbsPath(binary)
 
 	backend, err := c.KeyringBackend()
 	if err != nil {

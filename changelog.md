@@ -4,12 +4,35 @@
 
 ### Features
 
-- Plugin system
+- [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
+- [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
+
+### Changes
+
+- [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
+- [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
+
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
+
+## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
 
 ### Features
+
 - Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
-- Add `ignite network coordinator` command set
-- Add `ignite network validator` command set
+- Add `ignite network coordinator` command set.
+- Add `ignite network validator` command set.
+- Deprecate `cosmoscmd` pkg and add cmd templates for scaffolding.
+- Add generated TS client test support to integration tests.
 
 ### Changes
 
@@ -25,26 +48,29 @@
 - Change CLI to use an events bus to print to stdout.
 - Move generated proto files to `proto/{appname}/{module}`
 - Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
+- Add `--peer-address` flag to `network chain join` command.
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
+- [#2935](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
 
 ### Fixes
 
 - Fix ICA controller wiring.
 - Change vuex generation to use a default TS client path.
 - Fix cli action org in templates.
-- Seal the capability keeper in the `app.go` template
-- Change faucet to allow C.O.R.S. preflight requests.
-- Fix config file migration to void leaving end of file content chunks
+- Seal the capability keeper in the `app.go` template.
+- Change faucet to allow CORS preflight requests.
+- Fix config file migration to void leaving end of file content chunks.
 - Change session print loop to block until all events are handled.
 - Handle "No records were found in keyring" message when checking keys.
+- [#2941](https://github.com/ignite/cli/issues/2941) Fix session to use the same spinner referece.
+- [#2922](https://github.com/ignite/cli/pull/2922) Network commands check for latest config version before building the chain binary.
+
+## [`v0.24.1`](https://github.com/ignite/cli/releases/tag/v0.24.1)
 
 ### Features
 
-- Add generated TS client test support to integration tests.
-
-### Changes
-
-- Change nightly tag format
-- Add cosmos-sdk version in `version` command
+- Upgraded Cosmos SDK to `v0.46.2`.
 
 ## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
 
