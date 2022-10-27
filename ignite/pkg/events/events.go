@@ -10,6 +10,7 @@ type ProgressIndication uint8
 const (
 	IndicationNone ProgressIndication = iota
 	IndicationStart
+	IndicationUpdate
 	IndicationFinish
 )
 
@@ -30,6 +31,13 @@ type (
 func ProgressStarted() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationStart
+	}
+}
+
+// ProgressUpdate indicates that the event updates the current progress.
+func ProgressUpdate() Option {
+	return func(e *Event) {
+		e.ProgressIndication = IndicationUpdate
 	}
 }
 
@@ -75,5 +83,5 @@ func (e Event) String() string {
 
 // InProgress returns true when the event is in progress.
 func (e Event) InProgress() bool {
-	return e.ProgressIndication == IndicationStart
+	return e.ProgressIndication == IndicationStart || e.ProgressIndication == IndicationUpdate
 }
