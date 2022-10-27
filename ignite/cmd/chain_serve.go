@@ -1,10 +1,10 @@
 package ignitecmd
 
 import (
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
@@ -53,7 +53,19 @@ hood, it runs "appd start", where "appd" is the name of your chain's binary. For
 production, you may want to run "appd start" manually.
 `,
 		Args: cobra.NoArgs,
-		RunE: chainServeHandler,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)))
+			defer session.End()
+
+			// TODO: How to deal with verbose mode?
+			// TODO: Should all commands use bubbletea pattern?
+			m := initialChainServeModel(cmd, session)
+			if err := tea.NewProgram(m).Start(); err != nil {
+				return err
+			}
+
+			return nil
+		},
 	}
 
 	flagSetPath(c)
@@ -68,72 +80,4 @@ production, you may want to run "appd start" manually.
 	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
-}
-
-func chainServeHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
-	defer session.End()
-
-	chainOption := []chain.Option{
-		chain.WithOutputer(session),
-		chain.CollectEvents(session.EventBus()),
-	}
-
-	if flagGetProto3rdParty(cmd) {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
-	}
-
-	if flagGetCheckDependencies(cmd) {
-		chainOption = append(chainOption, chain.CheckDependencies())
-	}
-
-	// check if custom config is defined
-	config, err := cmd.Flags().GetString(flagConfig)
-	if err != nil {
-		return err
-	}
-	if config != "" {
-		chainOption = append(chainOption, chain.ConfigFile(config))
-	}
-
-	// create the chain
-	c, err := newChainWithHomeFlags(cmd, chainOption...)
-	if err != nil {
-		return err
-	}
-
-	cacheStorage, err := newCache(cmd)
-	if err != nil {
-		return err
-	}
-
-	// serve the chain
-	var serveOptions []chain.ServeOption
-	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
-	if err != nil {
-		return err
-	}
-	if forceUpdate {
-		serveOptions = append(serveOptions, chain.ServeForceReset())
-	}
-	resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
-	if err != nil {
-		return err
-	}
-	if resetOnce {
-		serveOptions = append(serveOptions, chain.ServeResetOnce())
-	}
-	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
-	if err != nil {
-		return err
-	}
-	if quitOnFail {
-		serveOptions = append(serveOptions, chain.QuitOnFail())
-	}
-
-	if flagGetSkipProto(cmd) {
-		serveOptions = append(serveOptions, chain.ServeSkipProto())
-	}
-
-	return c.Serve(cmd.Context(), cacheStorage, serveOptions...)
 }
