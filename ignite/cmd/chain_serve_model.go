@@ -23,19 +23,22 @@ const (
 var msgStopServe = style.Faint.Render("Press the 'q' key to stop serve")
 
 func initialChainServeModel(cmd *cobra.Command, session *cliui.Session) chainServeModel {
+	bus := session.EventBus()
+
 	return chainServeModel{
-		starting: true,
-		status:   model.NewStatusEvents(session.EventBus(), maxStatusEvents),
-		cmd:      cmd,
-		session:  session,
+		status:  model.NewStatusEvents(bus, maxStatusEvents),
+		events:  model.NewEvents(bus),
+		cmd:     cmd,
+		session: session,
 	}
 }
 
 type chainServeModel struct {
-	starting bool
+	running  bool
 	quitting bool
 	error    error
 	status   model.StatusEvents
+	events   model.Events
 	cmd      *cobra.Command
 	// TODO: Make session a value instead of a reference
 	session *cliui.Session
@@ -59,10 +62,18 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = tea.Quit
 	case model.EventMsg:
 		if msg.ProgressIndication == events.IndicationFinish {
-			// TODO: Listen to events in another model for the second view
-			m.starting = false
-		} else {
+			// Replace the starting view by the running one
+			m.running = true
+			// Start waiting for events to display in the running view
+			m.events, cmd = m.events.Update(msg)
+
+			return m, cmd
+		}
+
+		if !m.running {
 			m.status, cmd = m.status.Update(msg)
+		} else {
+			m.events, cmd = m.events.Update(msg)
 		}
 	default:
 		// This is required to allow event spinner updates
@@ -73,8 +84,9 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m chainServeModel) View() string {
+	// TODO: Generalize the error and quit behaviour
 	if m.error != nil {
-		return m.error.Error()
+		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(m.error.Error()))
 	}
 
 	if m.quitting {
@@ -82,7 +94,7 @@ func (m chainServeModel) View() string {
 		return fmt.Sprintf("%s %s\n", icons.Info, colors.Info("Stopped"))
 	}
 
-	if m.starting {
+	if !m.running {
 		return m.renderStartingView()
 	}
 
@@ -99,7 +111,13 @@ func (m chainServeModel) renderStartingView() string {
 }
 
 func (m chainServeModel) renderRunningView() string {
-	return ""
+	var view strings.Builder
+
+	view.WriteString("Chain is running\n\n")
+	view.WriteString(m.events.View())
+	fmt.Fprintf(&view, "\n%s\n", msgStopServe)
+
+	return view.String()
 }
 
 func chainServeStartCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {

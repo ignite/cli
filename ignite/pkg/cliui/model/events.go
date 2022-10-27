@@ -147,3 +147,45 @@ func (m StatusEvents) View() string {
 
 	return view.String()
 }
+
+// NewEvents returns a new events model.
+func NewEvents(bus events.Bus) Events {
+	return Events{bus: bus}
+}
+
+// Events defines a model for events.
+// The model renders a view that prints all received events one after the other.
+type Events struct {
+	events []events.Event
+	bus    events.Bus
+}
+
+func (m Events) WaitEvent() tea.Msg {
+	return EventMsg{Event: <-m.bus.Events()}
+}
+
+func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
+	if e, ok := msg.(EventMsg); ok {
+		// Append the new event to the list
+		m.events = append(m.events, e.Event)
+
+		// Return a command to wait for the next event
+		return m, m.WaitEvent
+	}
+
+	return m, nil
+}
+
+func (m Events) View() string {
+	var view strings.Builder
+
+	for _, evt := range m.events {
+		view.WriteString(evt.String())
+
+		if !strings.HasSuffix(evt.Message, "\n") {
+			view.WriteRune(EOL)
+		}
+	}
+
+	return view.String()
+}
