@@ -10,7 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
-func init() {
+func init() {d
 	gob.Register(plugin.Command{})
 }
 
@@ -35,13 +35,7 @@ func (p) Commands() []plugin.Command {
 }
 
 func (p) Hooks() []plugin.Hook {
-	return []plugin.Hook{
-		Name: "foo",
-		Place: "ignite.chian.init",
-		PreRun: func(args []string) error {},
-		PostRun: func(args []string) error {},
-		CleanUp func(args []string) {},
-	}
+	return []plugin.Hook{}
 }
 
 
