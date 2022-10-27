@@ -22,8 +22,8 @@ type EventMsg struct {
 	duration time.Duration
 }
 
-// NewEvents returns a new events model.
-func NewEvents(bus events.Bus, max int) Events {
+// NewStatusEvents returns a new events model.
+func NewStatusEvents(bus events.Bus, maxHistory int) StatusEvents {
 	// TODO: Using latest github.com/charmbracelet/bubbles is not possible because
 	//       of https://github.com/charmbracelet/glow/issues/268, we have dependency
 	//       conflicts with markdownviewer module.
@@ -31,33 +31,33 @@ func NewEvents(bus events.Bus, max int) Events {
 	s.Spinner = spinner.Dot
 	s.ForegroundColor = ColorSpinner
 
-	return Events{
-		events:  list.New(),
-		spinner: s,
-		max:     max,
-		bus:     bus,
+	return StatusEvents{
+		events:     list.New(),
+		spinner:    s,
+		maxHistory: maxHistory,
+		bus:        bus,
 	}
 }
 
-// Events defines a model for events.
+// StatusEvents defines a model for status events.
 // The model renders a view that can be divided in three sections.
 // The first one displays the "static" events which are the ones
 // that are not status events. The second section displays a spinner
 // with the status event that is in progress, and the third one
 // displays a list with the past status events.
-type Events struct {
-	static  []events.Event
-	events  *list.List
-	spinner spinner.Model
-	max     int
-	bus     events.Bus
+type StatusEvents struct {
+	static     []events.Event
+	events     *list.List
+	spinner    spinner.Model
+	maxHistory int
+	bus        events.Bus
 }
 
-func (m Events) Wait() tea.Cmd {
+func (m StatusEvents) Wait() tea.Cmd {
 	return tea.Batch(spinner.Tick, m.WaitEvent)
 }
 
-func (m Events) WaitEvent() tea.Msg {
+func (m StatusEvents) WaitEvent() tea.Msg {
 	e := <-m.bus.Events()
 
 	return EventMsg{
@@ -66,7 +66,7 @@ func (m Events) WaitEvent() tea.Msg {
 	}
 }
 
-func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
+func (m StatusEvents) Update(msg tea.Msg) (StatusEvents, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -83,7 +83,7 @@ func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
 			m.events.PushFront(msg)
 
 			// Only show a reduced history of events
-			if m.events.Len() > m.max {
+			if m.events.Len() > m.maxHistory {
 				m.events.Remove(m.events.Back())
 			}
 		} else {
@@ -103,7 +103,7 @@ func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Events) View() string {
+func (m StatusEvents) View() string {
 	var view strings.Builder
 
 	// Show static events

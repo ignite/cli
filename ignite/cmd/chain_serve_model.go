@@ -16,12 +16,16 @@ import (
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
-const maxStatusEvents = 7
+const (
+	maxStatusEvents = 7
+)
+
+var msgStopServe = style.Faint.Render("Press the 'q' key to stop serve")
 
 func initialChainServeModel(cmd *cobra.Command, session *cliui.Session) chainServeModel {
 	return chainServeModel{
 		starting: true,
-		events:   model.NewEvents(session.EventBus(), maxStatusEvents),
+		status:   model.NewStatusEvents(session.EventBus(), maxStatusEvents),
 		cmd:      cmd,
 		session:  session,
 	}
@@ -31,14 +35,14 @@ type chainServeModel struct {
 	starting bool
 	quitting bool
 	error    error
-	events   model.Events
+	status   model.StatusEvents
 	cmd      *cobra.Command
 	// TODO: Make session a value instead of a reference
 	session *cliui.Session
 }
 
 func (m chainServeModel) Init() tea.Cmd {
-	return tea.Batch(m.events.WaitEvent, chainServeStartCmd(m.cmd, m.session))
+	return tea.Batch(m.status.WaitEvent, chainServeStartCmd(m.cmd, m.session))
 }
 
 func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -58,11 +62,11 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// TODO: Listen to events in another model for the second view
 			m.starting = false
 		} else {
-			m.events, cmd = m.events.Update(msg)
+			m.status, cmd = m.status.Update(msg)
 		}
 	default:
 		// This is required to allow event spinner updates
-		m.events, cmd = m.events.Update(msg)
+		m.status, cmd = m.status.Update(msg)
 	}
 
 	return m, cmd
@@ -79,19 +83,23 @@ func (m chainServeModel) View() string {
 	}
 
 	if m.starting {
-		return m.renderStartView()
+		return m.renderStartingView()
 	}
 
-	return ""
+	return m.renderRunningView()
 }
 
-func (m chainServeModel) renderStartView() string {
+func (m chainServeModel) renderStartingView() string {
 	var view strings.Builder
 
-	view.WriteString(m.events.View())
-	fmt.Fprintf(&view, "%s\n", style.Faint.Render("Press the 'q' key to stop serve"))
+	view.WriteString(m.status.View())
+	fmt.Fprintf(&view, "%s\n", msgStopServe)
 
 	return view.String()
+}
+
+func (m chainServeModel) renderRunningView() string {
+	return ""
 }
 
 func chainServeStartCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
