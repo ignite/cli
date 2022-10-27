@@ -28,7 +28,7 @@ require (
 	github.com/goccy/go-yaml v1.9.4
 	github.com/gogo/protobuf v1.3.3
 	github.com/golangci/golangci-lint v1.49.0
-	github.com/google/go-github/v37 v37.0.0
+	github.com/google/go-github/v48 v48.0.0
 	github.com/gookit/color v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
