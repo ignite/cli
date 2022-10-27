@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -27,6 +29,7 @@ func initialChainServeModel(cmd *cobra.Command, session *cliui.Session) chainSer
 
 type chainServeModel struct {
 	starting bool
+	quitting bool
 	error    error
 	events   model.Events
 	cmd      *cobra.Command
@@ -44,6 +47,7 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if msg.String() == "q" || msg.Type == tea.KeyCtrlC {
+			m.quitting = true
 			cmd = tea.Quit
 		}
 	case model.ErrorMsg:
@@ -67,6 +71,11 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m chainServeModel) View() string {
 	if m.error != nil {
 		return m.error.Error()
+	}
+
+	if m.quitting {
+		// TODO: Replace colors by lipgloss styles?
+		return fmt.Sprintf("%s %s\n", icons.Info, colors.Info("Stopped"))
 	}
 
 	if m.starting {
