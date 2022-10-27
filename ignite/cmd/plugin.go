@@ -35,6 +35,10 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// Link plugins to related commands
 	var loadErrors []string
 	for _, p := range plugins {
+		linkPluginHooks(rootCmd, p)
+		if p.Error != nil {
+			loadErrors = append(loadErrors, p.Path)
+		}
 		linkPluginCmds(rootCmd, p)
 		if p.Error != nil {
 			loadErrors = append(loadErrors, p.Path)
@@ -65,7 +69,6 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin) {
 	}
 	for _, pluginCmd := range p.Interface.Commands() {
 		linkPluginCmd(rootCmd, p, pluginCmd)
-		linkPluginHooks(rootCmd, p)
 		if p.Error != nil {
 			return
 		}
@@ -83,7 +86,7 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin) {
 }
 
 func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
-	cmdPath := hook.Place
+	cmdPath := hook.PlaceHookOn
 
 	if !strings.HasPrefix(cmdPath, "ignite") {
 		// cmdPath must start with `ignite ` before comparison with
@@ -96,29 +99,64 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	cmd := findCommandByPath(rootCmd, cmdPath)
 
 	if cmd == nil {
-		p.Error = errors.Errorf("unable to find commandPath %q for hook %q", cmdPath, hook.Name)
+		p.Error = errors.Errorf("unable to find commandPath %q for plugin hook %q", cmdPath, hook.Name)
 		return
 	}
 
 	if !cmd.Runnable() {
-		p.Error = errors.Errorf("can't attach plugin command %s to non runnable command %s", hook.Name, hook.Place)
+		p.Error = errors.Errorf("can't attach plugin hook %q to non executable command %s", hook.Name, hook.PlaceHookOn)
 		return
 	}
 
-	cmdImpl := cmd.RunE
+	preRun := cmd.PreRunE
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		errors := make([]string, 0)
+		err := preRun(cmd, args)
+		if err != nil {
+			// dont return the error, log it and let execution continue to `Run`
+			errors = append(errors, err.Error())
+		}
+		err = p.Interface.ExecuteHookPre(hook.Name, args)
+		if err != nil {
+			// dont return the error, log it and let execution continue to `Run`
+			errors = append(errors, err.Error())
+		}
 
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		p.Interface.ExecuteHookPre(hook.Name, args)
-		// execute the original implementation of the cmd
-		err := cmdImpl(cmd, args)
+		time.Sleep(100 * time.Millisecond)
+		if len(errors) > 0 {
+			return fmt.Errorf("error while executing pre run hooks: %s", strings.Join(errors, ","))
+		}
+
+		return nil
+	}
+
+	postCmd := cmd.PostRunE
+	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
+		errors := make([]string, 0)
+		err := postCmd(cmd, args)
+		if err != nil {
+			errors = append(errors, err.Error())
+		}
 
 		err = p.Interface.ExecuteHookPost(hook.Name, args)
 
-		p.Interface.ExecuteHookCleanUp(hook.Name, args)
+		time.Sleep(100 * time.Millisecond)
+		if err != nil {
+			errors = append(errors, err.Error())
+		}
+		err = p.Interface.ExecuteHookCleanUp(hook.Name, args)
+
+		if err != nil {
+			errors = append(errors, err.Error())
+		}
 
 		time.Sleep(100 * time.Millisecond)
 
-		return err
+		if len(errors) > 0 {
+			return fmt.Errorf("error while executing post run hooks: %s", strings.Join(errors, ","))
+		}
+
+		return nil
 	}
 
 }
