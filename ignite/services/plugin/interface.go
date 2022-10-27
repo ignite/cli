@@ -74,18 +74,7 @@ type Hook struct {
 	Name string
 
 	// commands to register the hooks for
-	Place string
-
-	// runs before the command specified
-	PreRun func(args []string)
-
-	// runs after the command have executed
-	// if the command implementation returns an error, this will not execute
-	PostRun func(args []string)
-
-	// runs immediately before the command leaves scope
-	// no matter the status of PreRun or PostRun result
-	CleanUp func(args []string)
+	PlaceHookOn string
 }
 
 // handshakeConfigs are used to just do a basic handshake between
