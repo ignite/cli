@@ -15,6 +15,7 @@
 - [#2958](https://github.com/ignite/cli/pull/2958) Support absolute paths for client code generation config paths.
 - [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
+- [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
@@ -49,7 +50,6 @@
 - Add `--peer-address` flag to `network chain join` command.
 - Change nightly tag format
 - Add cosmos-sdk version in `version` command
-- Add a new event "update" status option to `pkg/cliui`.
 - [#2935](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
 
 ### Fixes
