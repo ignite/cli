@@ -65,21 +65,21 @@ func (p) Execute(cmd plugin.Command, args []string) error {
 func (p) ExecuteHookPre(name string, args []string) error {
 	switch name {
 		default:
-			return fmt.Error("hook not defined")
+			return fmt.Errorf("hook not defined")
 	}
 }
 
 func (p) ExecuteHookPost(name string, args []string) error {
 	switch name {
 		default:
-			return fmt.Error("hook not defined")
+			return fmt.Errorf("hook not defined")
 	}
 }
 
 func (p) ExecuteHookCleanUp(name string, args []string) error {
 	switch name {
 		default:
-			return fmt.Error("hook not defined")
+			return fmt.Errorf("hook not defined")
 	}
 }
 
