@@ -19,6 +19,7 @@ import (
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
@@ -456,6 +457,19 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 		return err
 	}
 
+	appHome, _ := c.Home()
+	appBin, _ := c.AbsBinaryPath()
+
+	c.ev.Send(
+		fmt.Sprintf("Data directory: %s", style.Faint.Render(appHome)),
+		events.Icon(icons.Bullet),
+		events.ProgressFinished(),
+	)
+	c.ev.Send(
+		fmt.Sprintf("App binary: %s\n\n", style.Faint.Render(appBin)),
+		events.Icon(icons.Bullet),
+	)
+
 	// note: address format errors are handled by the
 	// error group, so they can be safely ignored here
 
@@ -465,7 +479,6 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.ev.Send(
 		fmt.Sprintf("Tendermint node: %s", rpcAddr),
 		events.Icon(icons.Earth),
-		events.ProgressFinished(),
 	)
 	c.ev.Send(
 		fmt.Sprintf("Blockchain API: %s", apiAddr),
