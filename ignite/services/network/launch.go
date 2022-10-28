@@ -28,7 +28,7 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 
 // TriggerLaunch launches a chain as a coordinator
 func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime time.Time) error {
-	n.ev.Send(fmt.Sprintf("Launching chain %d", launchID), events.ProgressStarted())
+	n.ev.Send(fmt.Sprintf("Launching chain %d", launchID), events.ProgressStart())
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime 
 	}
 
 	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, launchTime)
-	n.ev.Send("Setting launch time", events.ProgressStarted())
+	n.ev.Send("Setting launch time", events.ProgressUpdate())
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
@@ -70,14 +70,14 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime 
 
 	n.ev.Send(
 		fmt.Sprintf("Chain %d will be launched on %s", launchID, launchTime),
-		events.ProgressFinished(),
+		events.ProgressFinish(),
 	)
 	return nil
 }
 
 // RevertLaunch reverts a launched chain as a coordinator
 func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain) error {
-	n.ev.Send(fmt.Sprintf("Reverting launched chain %d", launchID), events.ProgressStarted())
+	n.ev.Send(fmt.Sprintf("Reverting launched chain %d", launchID), events.ProgressStart())
 
 	address, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -92,9 +92,9 @@ func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain)
 
 	n.ev.Send(
 		fmt.Sprintf("Chain %d launch was reverted", launchID),
-		events.ProgressFinished(),
+		events.ProgressFinish(),
 	)
 
-	n.ev.Send("Genesis time was reset", events.ProgressFinished())
+	n.ev.Send("Genesis time was reset", events.ProgressFinish())
 	return nil
 }
