@@ -23,32 +23,32 @@ type (
 		Verbose            bool
 	}
 
-	// Option event options
+	// Option event options.
 	Option func(*Event)
 )
 
-// ProgressStarted sets ProgressIndication as started
-func ProgressStarted() Option {
+// ProgressStart indicates that a status event starts the progress indicator.
+func ProgressStart() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationStart
 	}
 }
 
-// ProgressUpdate indicates that the event updates the current progress.
+// ProgressUpdate indicates that a status event updated the current progress.
 func ProgressUpdate() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationUpdate
 	}
 }
 
-// ProgressFinished sets ProgressIndication as finished
-func ProgressFinished() Option {
+// ProgressFinish indicates that a status event finished the ongoing task.
+func ProgressFinish() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationFinish
 	}
 }
 
-// Verbose sets high verbosity for the Event
+// Verbose sets high verbosity for the Event.
 func Verbose() Option {
 	return func(e *Event) {
 		e.Verbose = true

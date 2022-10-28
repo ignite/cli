@@ -81,10 +81,8 @@ about Cosmos SDK on https://docs.cosmos.network
 }
 
 func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	var (
 		name               = args[0]

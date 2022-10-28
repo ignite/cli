@@ -126,7 +126,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 	}
 
-	c.ev.SendView(accounts, events.ProgressFinished())
+	c.ev.SendView(accounts, events.ProgressFinish())
 
 	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
 

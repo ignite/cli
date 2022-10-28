@@ -172,11 +172,11 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if c.served {
 						c.served = false
 
-						c.ev.Send("Saving genesis state...", events.ProgressStarted())
+						c.ev.Send("Saving genesis state...", events.ProgressStart())
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							c.ev.SendError(err, events.ProgressFinished())
+							c.ev.SendError(err, events.ProgressFinish())
 							return err
 						}
 
@@ -188,7 +188,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						c.ev.Send(
 							fmt.Sprintf("Genesis state saved in %s", genesisPath),
 							events.Icon(icons.CD),
-							events.ProgressFinished(),
+							events.ProgressFinish(),
 						)
 					}
 				case errors.As(err, &validationErr):
@@ -199,13 +199,13 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
 				case errors.As(err, &buildErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -461,7 +461,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.ev.Send(
 		fmt.Sprintf("Data directory: %s", style.Faint.Render(appHome)),
 		events.Icon(icons.Bullet),
-		events.ProgressFinished(),
+		events.ProgressFinish(),
 	)
 	c.ev.Send(
 		fmt.Sprintf("App binary: %s\n\n", style.Faint.Render(appBin)),
