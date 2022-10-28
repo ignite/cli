@@ -54,11 +54,12 @@ production, you may want to run "appd start" manually.
 `,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)))
+			// TODO: How to deal with verbose mode?
+			// session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.IgnoreEvents())
+			session := cliui.New(cliui.IgnoreEvents())
 			defer session.End()
 
-			// TODO: How to deal with verbose mode?
-			// TODO: Should all commands use bubbletea pattern?
+			// TODO: Should all commands use bubbletea models?
 			m := initialChainServeModel(cmd, session)
 			if err := tea.NewProgram(m).Start(); err != nil {
 				return err

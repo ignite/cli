@@ -20,6 +20,7 @@ type sessionOptions struct {
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
+	ignoreEvents bool
 	startSpinner bool
 	verbosity    uilog.Verbosity
 }
@@ -64,6 +65,16 @@ func WithVerbosity(v uilog.Verbosity) Option {
 	}
 }
 
+// IgnoreEvents configures the session to avoid displaying events.
+// This is a compatibility option to be able to use the session and
+// the events bus when models are used to manage CLI UI. The session
+// won't handle the events when this option is present.
+func IgnoreEvents() Option {
+	return func(s *Session) {
+		s.options.ignoreEvents = true
+	}
+}
+
 // StartSpinner forces spinner to be spinning right after creation.
 func StartSpinner() Option {
 	return func(s *Session) {
@@ -104,8 +115,10 @@ func New(options ...Option) *Session {
 
 	// The main loop that prints the events uses a wait group to block
 	// the session end until all the events are printed.
-	session.wg.Add(1)
-	go session.handleEvents()
+	if !session.options.ignoreEvents {
+		session.wg.Add(1)
+		go session.handleEvents()
+	}
 
 	return &session
 }
@@ -139,6 +152,10 @@ func (s Session) NewOutput(label string, color uint8) uilog.Output {
 
 // StartSpinner starts the spinner.
 func (s *Session) StartSpinner(text string) {
+	if s.options.ignoreEvents {
+		return
+	}
+
 	if s.spinner == nil {
 		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
 	}
