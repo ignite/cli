@@ -185,7 +185,8 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						}
 
 						c.ev.Send(
-							fmt.Sprintf("%s Genesis state saved in %s", icons.CD, genesisPath),
+							fmt.Sprintf("Genesis state saved in %s", genesisPath),
+							events.Icon(icons.CD),
 							events.ProgressFinished(),
 						)
 					}

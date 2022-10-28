@@ -98,7 +98,7 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m chainServeModel) View() string {
-	// TODO: Generalize the error and quit behaviour
+	// TODO: Generalize error and quit behaviours
 	if m.error != nil {
 		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(m.error.Error()))
 	}
@@ -125,7 +125,7 @@ func (m chainServeModel) renderRunningView() string {
 	if m.quitting {
 		// TODO: Add spinner to the models.Events for ongoing events
 		view.WriteString(m.events.View())
-		// TODO: Replace colors by lipgloss styles?
+		// TODO: Replace colors by lipgloss styles
 		fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
 	} else {
 		view.WriteString("Chain is running\n\n")

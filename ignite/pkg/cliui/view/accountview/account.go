@@ -3,6 +3,9 @@ package accountview
 import (
 	"fmt"
 	"strings"
+
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
 type Option func(*Account)
@@ -34,10 +37,12 @@ func NewAccount(name, address string, options ...Option) Account {
 
 func (a Account) String() string {
 	b := strings.Builder{}
-	b.WriteString(fmt.Sprintf("🙂 Added account %s with address %s", a.Name, a.Address))
+	msg := fmt.Sprintf("%s Added account %s with address %s", icons.OK, colors.Name(a.Name), a.Address)
+
+	b.WriteString(msg)
 
 	if a.Mnemonic != "" {
-		b.WriteString(fmt.Sprintf(" and mnemonic: %s", a.Mnemonic))
+		b.WriteString(fmt.Sprintf("\n  Mnemonic: %s\n", colors.Mnemonic(a.Mnemonic)))
 	}
 
 	return b.String()
@@ -55,6 +60,8 @@ func (a Accounts) String() string {
 
 		b.WriteString(account.String())
 	}
+
+	b.WriteRune('\n')
 
 	return b.String()
 }
