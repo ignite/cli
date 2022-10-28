@@ -187,5 +187,9 @@ func (m Events) View() string {
 		}
 	}
 
+	if m.events != nil {
+		view.WriteRune(EOL)
+	}
+
 	return view.String()
 }

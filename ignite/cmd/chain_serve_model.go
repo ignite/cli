@@ -107,7 +107,7 @@ func (m chainServeModel) renderStartingView() string {
 	view.WriteString(m.status.View())
 	fmt.Fprintf(&view, "%s\n", msgStopServe)
 
-	return view.String()
+	return model.FormatView(view.String())
 }
 
 func (m chainServeModel) renderRunningView() string {
@@ -115,9 +115,9 @@ func (m chainServeModel) renderRunningView() string {
 
 	view.WriteString("Chain is running\n\n")
 	view.WriteString(m.events.View())
-	fmt.Fprintf(&view, "\n%s\n", msgStopServe)
+	fmt.Fprintf(&view, "%s\n", msgStopServe)
 
-	return view.String()
+	return model.FormatView(view.String())
 }
 
 func chainServeStartCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
