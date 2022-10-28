@@ -2,6 +2,10 @@ package network
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -74,7 +78,7 @@ func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs
 
 // SubmitRequest submits reviewals for proposals in batch for chain.
 func (n Network) SubmitRequest(ctx context.Context, launchID uint64, reviewal ...Reviewal) error {
-	n.ev.Send("Submitting requests...", events.ProgressStarted())
+	n.ev.Send("Submitting requests...", events.ProgressStart())
 
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -98,4 +102,192 @@ func (n Network) SubmitRequest(ctx context.Context, launchID uint64, reviewal ..
 
 	var requestRes launchtypes.MsgSettleRequestResponse
 	return res.Decode(&requestRes)
+}
+
+// SendAccountRequest creates an add AddAccount request message.
+func (n Network) SendAccountRequest(
+	ctx context.Context,
+	launchID uint64,
+	address string,
+	amount sdk.Coins,
+) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewGenesisAccount(
+			launchID,
+			address,
+			amount,
+		),
+	)
+
+	n.ev.Send("Broadcasting account transactions", events.ProgressStart())
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send(
+			"Account added to the network by the coordinator!",
+			events.Icon(icons.Bullet),
+			events.ProgressFinish(),
+		)
+	} else {
+		n.ev.Send(
+			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
+			events.Icon(icons.Bullet),
+			events.ProgressFinish(),
+		)
+	}
+	return nil
+}
+
+// SendValidatorRequest creates the RequestAddValidator message into the SPN
+func (n Network) SendValidatorRequest(
+	ctx context.Context,
+	launchID uint64,
+	peer launchtypes.Peer,
+	valAddress string,
+	gentx []byte,
+	gentxInfo cosmosutil.GentxInfo,
+) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewGenesisValidator(
+			launchID,
+			valAddress,
+			gentx,
+			gentxInfo.PubKey,
+			gentxInfo.SelfDelegation,
+			peer,
+		),
+	)
+
+	n.ev.Send("Broadcasting validator transaction", events.ProgressStart())
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinish())
+	} else {
+		n.ev.Send(
+			fmt.Sprintf("Request %d to join the network as a validator has been submitted!", requestRes.RequestID),
+			events.ProgressFinish(),
+		)
+	}
+	return nil
+}
+
+// SendValidatorRemoveRequest creates the RequestRemoveValidator message to SPN
+func (n Network) SendValidatorRemoveRequest(
+	ctx context.Context,
+	launchID uint64,
+	valAddress string,
+) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewValidatorRemoval(
+			valAddress,
+		),
+	)
+
+	n.ev.Send("Broadcasting transaction", events.ProgressStart())
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send("Validator removed from network by the coordinator!", events.ProgressFinish())
+	} else {
+		n.ev.Send(
+			fmt.Sprintf(
+				"Request %d to remove validator from the network has been submitted!", requestRes.RequestID,
+			),
+			events.ProgressFinish(),
+		)
+	}
+	return nil
+}
+
+// SendAccountRemoveRequest creates the RequestRemoveAccount message to SPN
+func (n Network) SendAccountRemoveRequest(
+	ctx context.Context,
+	launchID uint64,
+	address string,
+) error {
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
+	msg := launchtypes.NewMsgSendRequest(
+		addr,
+		launchID,
+		launchtypes.NewAccountRemoval(
+			address,
+		),
+	)
+
+	n.ev.Send("Broadcasting transaction", events.ProgressStart())
+
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgSendRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send("Account removed from network by the coordinator!", events.ProgressFinish())
+	} else {
+		n.ev.Send(
+			fmt.Sprintf(
+				"Request %d to remove account from the network has been submitted!", requestRes.RequestID,
+			),
+			events.ProgressFinish(),
+		)
+	}
+	return nil
 }

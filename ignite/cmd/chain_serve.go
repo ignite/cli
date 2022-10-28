@@ -71,7 +71,10 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
+	session := cliui.New(
+		cliui.WithVerbosity(getVerbosity(cmd)),
+		cliui.StartSpinner(),
+	)
 	defer session.End()
 
 	chainOption := []chain.Option{

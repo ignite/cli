@@ -142,7 +142,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 	campaignID = o.campaignID
 
-	n.ev.Send("Publishing the network", events.ProgressStarted())
+	n.ev.Send("Publishing the network", events.ProgressStart())
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one

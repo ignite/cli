@@ -8,7 +8,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	vue "github.com/ignite/web"
-	"github.com/tendermint/flutter/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
@@ -127,9 +126,4 @@ func generate(
 // Vue scaffolds a Vue.js app for a chain.
 func Vue(path string) error {
 	return localfs.Save(vue.Boilerplate(), path)
-}
-
-// Flutter scaffolds a Flutter app for a chain.
-func Flutter(path string) error {
-	return localfs.Save(flutter.Boilerplate(), path)
 }

@@ -20,8 +20,10 @@ type sessionOptions struct {
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
-	startSpinner bool
-	verbosity    uilog.Verbosity
+	spinnerStart bool
+	spinnerText  string
+
+	verbosity uilog.Verbosity
 }
 
 // Session controls command line interaction with users.
@@ -67,7 +69,16 @@ func WithVerbosity(v uilog.Verbosity) Option {
 // StartSpinner forces spinner to be spinning right after creation.
 func StartSpinner() Option {
 	return func(s *Session) {
-		s.options.startSpinner = true
+		s.options.spinnerStart = true
+	}
+}
+
+// StartSpinnerWithText forces spinner to be spinning right after creation
+// with a custom status text.
+func StartSpinnerWithText(text string) Option {
+	return func(s *Session) {
+		s.options.spinnerStart = true
+		s.options.spinnerText = text
 	}
 }
 
@@ -98,8 +109,12 @@ func New(options ...Option) *Session {
 
 	session.out = uilog.NewOutput(logOptions...)
 
-	if session.options.startSpinner {
+	if session.options.spinnerStart {
 		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
+
+		if session.options.spinnerText != "" {
+			session.spinner.SetText(session.options.spinnerText)
+		}
 	}
 
 	// The main loop that prints the events uses a wait group to block
@@ -233,10 +248,13 @@ func (s *Session) handleEvents() {
 		switch e.ProgressIndication {
 		case events.IndicationStart:
 			s.StartSpinner(e.String())
+		case events.IndicationUpdate:
+			s.spinner.SetText(e.String())
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 		default:
+			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 			resume()
