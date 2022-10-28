@@ -59,7 +59,6 @@ production, you may want to run "appd start" manually.
 			session := cliui.New(cliui.IgnoreEvents())
 			defer session.End()
 
-			// TODO: Should all commands use bubbletea models?
 			m := initialChainServeModel(cmd, session)
 			if err := tea.NewProgram(m).Start(); err != nil {
 				return err

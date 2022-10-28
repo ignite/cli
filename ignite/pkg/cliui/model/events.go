@@ -160,6 +160,11 @@ type Events struct {
 	bus    events.Bus
 }
 
+// Clear removes all elvents.
+func (m *Events) Clear() {
+	m.events = nil
+}
+
 func (m Events) WaitEvent() tea.Msg {
 	return EventMsg{Event: <-m.bus.Events()}
 }

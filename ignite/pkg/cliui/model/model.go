@@ -19,8 +19,13 @@ const (
 )
 
 type (
-	// ErrorMsg defines a message for error.
-	ErrorMsg struct{ error }
+	// ErrorMsg defines a message for errors.
+	ErrorMsg struct {
+		Error error
+	}
+
+	// QuitMsg defines a message for stopping the command.
+	QuitMsg struct{}
 )
 
 // FormatView formats a model view padding and indentation.

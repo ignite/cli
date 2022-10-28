@@ -171,11 +171,11 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if c.served {
 						c.served = false
 
-						c.ev.Send("Saving genesis state...", events.ProgressUpdate())
+						c.ev.Send("Saving genesis state...", events.ProgressStarted())
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							c.ev.SendError(err)
+							c.ev.SendError(err, events.ProgressFinished())
 							return err
 						}
 
@@ -184,12 +184,16 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 							return err
 						}
 
-						c.ev.Sendf("💿 Genesis state saved in %s", genesisPath)
+						c.ev.Send(
+							fmt.Sprintf("%s Genesis state saved in %s", icons.CD, genesisPath),
+							events.ProgressFinished(),
+						)
 					}
 				case errors.As(err, &validationErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
+
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
@@ -198,6 +202,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if serveOptions.quitOnFail {
 						return err
 					}
+
 					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
 				case errors.As(err, &startErr):
 					// Parse returned error logs
