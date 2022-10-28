@@ -50,6 +50,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		printPlugins()
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
+
 	return nil
 }
 
@@ -82,6 +83,9 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin) {
 
 	for _, hook := range p.Interface.Hooks() {
 		linkPluginHook(rootCmd, p, hook)
+		if p.Error != nil {
+			return
+		}
 	}
 }
 
@@ -111,11 +115,15 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	preRun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		errors := make([]string, 0)
-		err := preRun(cmd, args)
-		if err != nil {
-			// dont return the error, log it and let execution continue to `Run`
-			errors = append(errors, err.Error())
+		var err error
+		if preRun != nil {
+			err = preRun(cmd, args)
+			if err != nil {
+				// dont return the error, log it and let execution continue to `Run`
+				errors = append(errors, err.Error())
+			}
 		}
+
 		err = p.Interface.ExecuteHookPre(hook.Name, args)
 		if err != nil {
 			// dont return the error, log it and let execution continue to `Run`
@@ -133,7 +141,16 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
 		errors := make([]string, 0)
-		err := postCmd(cmd, args)
+
+		var err error
+		if preRun != nil {
+			err = postCmd(cmd, args)
+			if err != nil {
+				// dont return the error, log it and let execution continue to `Run`
+				errors = append(errors, err.Error())
+			}
+		}
+
 		if err != nil {
 			errors = append(errors, err.Error())
 		}

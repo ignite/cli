@@ -11,6 +11,7 @@ import (
 
 func init() {
 	gob.Register(Command{})
+	gob.Register(Hook{})
 }
 
 // An ignite plugin must implements the Plugin interface.
@@ -106,6 +107,18 @@ func (g *InterfaceRPC) Commands() []Command {
 	return resp
 }
 
+// Commands implements Interface.Commands
+func (g *InterfaceRPC) Hooks() []Hook {
+	var resp []Hook
+	err := g.client.Call("Plugin.Hooks", new(interface{}), &resp)
+	if err != nil {
+		// You usually want your interfaces to return errors. If they don't,
+		// there isn't much other choice here.
+		log.Fatalf("error while calling plugin %v", err)
+	}
+	return resp
+}
+
 // Execute implements Interface.Commands
 func (g *InterfaceRPC) Execute(c Command, args []string) error {
 	var resp interface{}
@@ -148,6 +161,11 @@ type InterfaceRPCServer struct {
 
 func (s *InterfaceRPCServer) Commands(args interface{}, resp *[]Command) error {
 	*resp = s.Impl.Commands()
+	return nil
+}
+
+func (s *InterfaceRPCServer) Hooks(args interface{}, resp *[]Hook) error {
+	*resp = s.Impl.Hooks()
 	return nil
 }
 

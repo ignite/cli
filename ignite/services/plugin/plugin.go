@@ -79,6 +79,7 @@ func Load(ctx context.Context, c *chain.Chain) ([]*Plugin, error) {
 		p.load(ctx)
 		plugins = append(plugins, p)
 	}
+
 	return plugins, nil
 }
 
@@ -184,6 +185,7 @@ func (p *Plugin) load(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
+	fmt.Println("Creating plugin map")
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
 		p.binaryName: &InterfacePlugin{},
@@ -192,8 +194,9 @@ func (p *Plugin) load(ctx context.Context) {
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   fmt.Sprintf("plugin %s", p.Path),
 		Output: os.Stderr,
-		Level:  hclog.Error,
+		Level:  hclog.Trace,
 	})
+	fmt.Println("Created Logger")
 	// We're a host! Start by launching the plugin process.
 	p.client = hplugin.NewClient(&hplugin.ClientConfig{
 		HandshakeConfig: handshakeConfig,
@@ -203,7 +206,8 @@ func (p *Plugin) load(ctx context.Context) {
 		SyncStderr:      os.Stderr,
 		SyncStdout:      os.Stdout,
 	})
-
+	fmt.Println("Created rpc client")
+	fmt.Println("Connecting rpc client")
 	// Connect via RPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
@@ -211,13 +215,14 @@ func (p *Plugin) load(ctx context.Context) {
 		return
 	}
 
+	fmt.Println("Dispensing plugin")
 	// Request the plugin
 	raw, err := rpcClient.Dispense(p.binaryName)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "dispensing")
 		return
 	}
-
+	fmt.Println("Done dispensing plugin definition")
 	// We should have an Interface now! This feels like a normal interface
 	// implementation but is in fact over an RPC connection.
 	p.Interface = raw.(Interface)
