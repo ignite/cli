@@ -401,13 +401,11 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 			return err
 		}
 	}
+
 	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
 		return err
 	}
-	binaryPath, err = xexec.ResolveAbsPath(binaryName)
-	if err != nil {
-		return err
-	}
+
 	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
 		return err
 	}
