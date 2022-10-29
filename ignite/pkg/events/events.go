@@ -21,6 +21,7 @@ type (
 		Icon               string
 		Message            string
 		Verbose            bool
+		Group              string
 	}
 
 	// Option event options.
@@ -59,6 +60,13 @@ func Verbose() Option {
 func Icon(icon string) Option {
 	return func(e *Event) {
 		e.Icon = icon
+	}
+}
+
+// Group sets a group name for the event.
+func Group(name string) Option {
+	return func(e *Event) {
+		e.Group = name
 	}
 }
 
