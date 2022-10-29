@@ -46,6 +46,9 @@ const (
 
 	// serveDirchangeCacheNamespace is the name of the cache namespace for detecting changes in directories
 	serveDirchangeCacheNamespace = "serve.dirchange"
+
+	// evtGroupPath is the name of the group to use for path related events
+	evtGroupPath = "path"
 )
 
 var (
@@ -455,19 +458,6 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 		return err
 	}
 
-	appHome, _ := c.Home()
-	appBin, _ := c.AbsBinaryPath()
-
-	c.ev.Send(
-		fmt.Sprintf("Data directory: %s", style.Faint.Render(appHome)),
-		events.Icon(icons.Bullet),
-		events.ProgressFinish(),
-	)
-	c.ev.Send(
-		fmt.Sprintf("App binary: %s\n\n", style.Faint.Render(appBin)),
-		events.Icon(icons.Bullet),
-	)
-
 	// note: address format errors are handled by the
 	// error group, so they can be safely ignored here
 
@@ -477,6 +467,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.ev.Send(
 		fmt.Sprintf("Tendermint node: %s", rpcAddr),
 		events.Icon(icons.Earth),
+		events.ProgressFinish(),
 	)
 	c.ev.Send(
 		fmt.Sprintf("Blockchain API: %s", apiAddr),
@@ -491,6 +482,20 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 			events.Icon(icons.Earth),
 		)
 	}
+
+	appHome, _ := c.Home()
+	appBin, _ := c.AbsBinaryPath()
+
+	c.ev.Send(
+		fmt.Sprintf("Data directory: %s", style.Faint.Render(appHome)),
+		events.Icon(icons.Bullet),
+		events.Group(evtGroupPath),
+	)
+	c.ev.Send(
+		fmt.Sprintf("App binary: %s", style.Faint.Render(appBin)),
+		events.Icon(icons.Bullet),
+		events.Group(evtGroupPath),
+	)
 
 	return g.Wait()
 }

@@ -53,6 +53,7 @@ type chainServeModel struct {
 }
 
 func (m chainServeModel) Init() tea.Cmd {
+	// On initialization wait for status events and start serving the blockchain
 	return tea.Batch(m.status.WaitEvent, chainServeStartCmd(m.cmd, m.session))
 }
 
@@ -64,6 +65,7 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "q" || msg.Type == tea.KeyCtrlC {
 			m.quitting = true
 			m.quit()
+
 			// Remove the list of events received until now
 			m.events.Clear()
 		}
@@ -73,7 +75,6 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.error = msg.Error
 		cmd = tea.Quit
 	case model.EventMsg:
-		// TODO: See how this works with the running view
 		// TODO: How to deal with non static events like the temporary serve restart error ones
 		if msg.ProgressIndication == events.IndicationFinish {
 			// Replace the starting view by the running one
@@ -84,14 +85,11 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 
-		if m.starting {
-			m.status, cmd = m.status.Update(msg)
-		} else {
-			m.events, cmd = m.events.Update(msg)
-		}
+		// Update the model that is being displayed
+		return m.updateCurrentModel(msg)
 	default:
-		// This is required to allow event spinner updates
-		m.status, cmd = m.status.Update(msg)
+		// Update the spinner of the model being displayed
+		return m.updateCurrentModel(msg)
 	}
 
 	return m, cmd
@@ -110,11 +108,24 @@ func (m chainServeModel) View() string {
 	return m.renderRunningView()
 }
 
+func (m chainServeModel) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	// Update the model that is being displayed
+	if m.starting {
+		m.status, cmd = m.status.Update(msg)
+	} else {
+		m.events, cmd = m.events.Update(msg)
+	}
+
+	return m, cmd
+}
+
 func (m chainServeModel) renderStartingView() string {
 	var view strings.Builder
 
 	view.WriteString(m.status.View())
-	fmt.Fprintf(&view, "%s\n", msgStopServe)
+	fmt.Fprintf(&view, "\n%s\n", msgStopServe)
 
 	return model.FormatView(view.String())
 }
@@ -123,14 +134,17 @@ func (m chainServeModel) renderRunningView() string {
 	var view strings.Builder
 
 	if m.quitting {
-		// TODO: Add spinner to the models.Events for ongoing events
-		view.WriteString(m.events.View())
+		if s := m.events.View(); s != "" {
+			view.WriteString(s)
+			view.WriteRune(model.EOL)
+		}
+
 		// TODO: Replace colors by lipgloss styles
 		fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
 	} else {
 		view.WriteString("Chain is running\n\n")
 		view.WriteString(m.events.View())
-		fmt.Fprintf(&view, "%s\n", msgStopServe)
+		fmt.Fprintf(&view, "\n%s\n", msgStopServe)
 	}
 
 	return model.FormatView(view.String())

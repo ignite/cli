@@ -106,7 +106,7 @@ func (m StatusEvents) Update(msg tea.Msg) (StatusEvents, tea.Cmd) {
 func (m StatusEvents) View() string {
 	var view strings.Builder
 
-	// Show static events
+	// Display static events first
 	for _, evt := range m.static {
 		view.WriteString(evt.String())
 
@@ -115,11 +115,12 @@ func (m StatusEvents) View() string {
 		}
 	}
 
-	if m.static != nil {
+	// Make sure there is a line between the static and status events
+	if m.static != nil && m.events.Len() > 0 {
 		view.WriteRune(EOL)
 	}
 
-	// Show status events
+	// Display status events
 	if m.events.Len() > 0 {
 		for e := m.events.Front(); e != nil; e = e.Next() {
 			evt := e.Value.(EventMsg)
@@ -141,8 +142,6 @@ func (m StatusEvents) View() string {
 
 			fmt.Fprintf(&view, "%s %s %s\n", icons.OK, s, style.Faint.Render(d.String()))
 		}
-
-		view.WriteRune(EOL)
 	}
 
 	return view.String()
@@ -150,50 +149,110 @@ func (m StatusEvents) View() string {
 
 // NewEvents returns a new events model.
 func NewEvents(bus events.Bus) Events {
-	return Events{bus: bus}
+	s := spinner.NewModel()
+	s.Spinner = spinner.Dot
+	s.ForegroundColor = ColorSpinner
+
+	return Events{
+		events:  list.New(),
+		bus:     bus,
+		spinner: s,
+	}
 }
 
 // Events defines a model for events.
-// The model renders a view that prints all received events one after the other.
+// The model renders a view that prints all received events one after
+// the other. Status events are displayed with a spinner and removed
+// from the list once they finish.
 type Events struct {
-	events []events.Event
-	bus    events.Bus
+	events  *list.List
+	bus     events.Bus
+	spinner spinner.Model
 }
 
 // Clear removes all elvents.
 func (m *Events) Clear() {
-	m.events = nil
+	m.events.Init()
 }
 
-func (m Events) WaitEvent() tea.Msg {
-	return EventMsg{Event: <-m.bus.Events()}
-}
-
-func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
-	if e, ok := msg.(EventMsg); ok {
-		// Append the new event to the list
-		m.events = append(m.events, e.Event)
-
-		// Return a command to wait for the next event
-		return m, m.WaitEvent
-	}
-
-	return m, nil
-}
-
-func (m Events) View() string {
-	var view strings.Builder
-
-	for _, evt := range m.events {
-		view.WriteString(evt.String())
-
-		if !strings.HasSuffix(evt.Message, "\n") {
-			view.WriteRune(EOL)
+func (m Events) Wait() tea.Cmd {
+	// Check if the last added event is a status event
+	// and if so make sure that the spinner is updated.
+	if e := m.events.Back(); e != nil {
+		if evt := e.Value.(events.Event); evt.InProgress() {
+			return tea.Batch(spinner.Tick, m.WaitEvent)
 		}
 	}
 
-	if m.events != nil {
-		view.WriteRune(EOL)
+	// By default just wait until the next event is received
+	return m.WaitEvent
+}
+
+func (m Events) WaitEvent() tea.Msg {
+	e := <-m.bus.Events()
+
+	return EventMsg{Event: e}
+}
+
+func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case EventMsg:
+		// Remove the last event if is a status one.
+		// Status events must always be the last event in the list so the
+		// spinner is displayed at the bottom and not in between events.
+		// They are removed when another status event is received.
+		if e := m.events.Back(); e != nil {
+			if evt := e.Value.(events.Event); evt.InProgress() {
+				m.events.Remove(e)
+			}
+		}
+
+		// Append event at the end of the list
+		m.events.PushBack(msg.Event)
+
+		// Return a command to wait for the next event
+		cmd = m.Wait()
+	default:
+		// Update the spinner state and get a new tick command
+		m.spinner, cmd = m.spinner.Update(msg)
+	}
+
+	return m, cmd
+}
+
+func (m Events) View() string {
+	var (
+		view  strings.Builder
+		group string
+	)
+
+	// Display the list of events
+	for e := m.events.Front(); e != nil; e = e.Next() {
+		evt := e.Value.(events.Event)
+
+		// Add an empty line when the event group changes but omit it
+		// for the first event to avoid adding an initial empty line.
+		if group != evt.Group && e.Prev() != nil {
+			// Update the group being displayed
+			group = evt.Group
+
+			view.WriteRune(EOL)
+		}
+
+		if e.Next() == nil && evt.InProgress() {
+			// When the event is the last one and is a status event display a spinner...
+			fmt.Fprint(&view, m.spinner.View(), evt)
+		} else {
+			// Otherwise display the event without the spinner
+			view.WriteString(evt.String())
+		}
+
+		// Make sure that events have an EOL so they are displayed right below each other
+		if !strings.HasSuffix(evt.Message, "\n") {
+			view.WriteRune(EOL)
+		}
 	}
 
 	return view.String()
