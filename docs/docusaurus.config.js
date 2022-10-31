@@ -205,6 +205,10 @@ const config = {
             line: 'highlight-next-line',
             block: {start: 'highlight-start', end: 'highlight-end'},
           },
+          {
+            className: 'code-block-removed-line',
+            line: 'remove-next-line',
+          },
         ],
       },
       algolia: {
