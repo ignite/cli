@@ -16,7 +16,7 @@ import (
 
 // CoordinatorIDByAddress returns the CoordinatorByAddress from SPN
 func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (uint64, error) {
-	n.ev.Send("Fetching coordinator by address", events.ProgressStarted())
+	n.ev.Send("Fetching coordinator by address", events.ProgressStart())
 	resCoordByAddr, err := n.profileQuery.
 		CoordinatorByAddress(ctx,
 			&profiletypes.QueryGetCoordinatorByAddressRequest{
@@ -35,7 +35,7 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 // SetCoordinatorDescription set the description of a coordindator
 // or creates the coordinator if it doesn't exist yet for the sender address
 func (n Network) SetCoordinatorDescription(ctx context.Context, description profiletypes.CoordinatorDescription) error {
-	n.ev.Send("Setting coordinator description", events.ProgressStarted())
+	n.ev.Send("Setting coordinator description", events.ProgressStart())
 
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -78,7 +78,7 @@ func (n Network) SetCoordinatorDescription(ctx context.Context, description prof
 
 // Coordinator returns the Coordinator by address from SPN
 func (n Network) Coordinator(ctx context.Context, address string) (networktypes.Coordinator, error) {
-	n.ev.Send("Fetching coordinator details", events.ProgressStarted())
+	n.ev.Send("Fetching coordinator details", events.ProgressStart())
 	coordinatorID, err := n.CoordinatorIDByAddress(ctx, address)
 	if err != nil {
 		return networktypes.Coordinator{}, err
@@ -99,7 +99,7 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 
 // SetValidatorDescription set a validator profile.
 func (n Network) SetValidatorDescription(ctx context.Context, validator profiletypes.Validator) error {
-	n.ev.Send("Setting validator description", events.ProgressStarted())
+	n.ev.Send("Setting validator description", events.ProgressStart())
 
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -126,7 +126,7 @@ func (n Network) SetValidatorDescription(ctx context.Context, validator profilet
 
 // Validator returns the Validator by address from SPN
 func (n Network) Validator(ctx context.Context, address string) (networktypes.Validator, error) {
-	n.ev.Send("Fetching validator description", events.ProgressStarted())
+	n.ev.Send("Fetching validator description", events.ProgressStart())
 	res, err := n.profileQuery.
 		Validator(ctx,
 			&profiletypes.QueryGetValidatorRequest{
@@ -143,7 +143,7 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 
 // Balances returns the all balances by address from SPN
 func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error) {
-	n.ev.Send("Fetching address balances", events.ProgressStarted())
+	n.ev.Send("Fetching address balances", events.ProgressStart())
 	res, err := banktypes.NewQueryClient(n.cosmos.Context()).AllBalances(ctx,
 		&banktypes.QueryAllBalancesRequest{
 			Address: address,

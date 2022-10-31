@@ -29,13 +29,13 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 		return err
 	}
 
-	c.ev.Send("Initializing the blockchain", events.ProgressStarted())
+	c.ev.Send("Initializing the blockchain", events.ProgressStart())
 
 	if err = c.chain.Init(ctx, false); err != nil {
 		return err
 	}
 
-	c.ev.Send("Blockchain initialized", events.ProgressFinished())
+	c.ev.Send("Blockchain initialized", events.ProgressFinish())
 
 	// initialize and verify the genesis
 	if err = c.initGenesis(ctx); err != nil {
@@ -49,7 +49,7 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
 func (c *Chain) initGenesis(ctx context.Context) error {
-	c.ev.Send("Computing the Genesis", events.ProgressStarted())
+	c.ev.Send("Computing the Genesis", events.ProgressStart())
 
 	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
@@ -64,7 +64,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
-		c.ev.Send("Fetching custom Genesis from URL", events.ProgressStarted())
+		c.ev.Send("Fetching custom Genesis from URL", events.ProgressUpdate())
 		genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
 		if err != nil {
 			return err
@@ -73,10 +73,10 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if genesis.TarballPath() != "" {
 			c.ev.Send(
 				fmt.Sprintf("Extracted custom Genesis from tarball at %s", genesis.TarballPath()),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		} else {
-			c.ev.Send("Custom Genesis JSON from URL fetched", events.ProgressFinished())
+			c.ev.Send("Custom Genesis JSON from URL fetched", events.ProgressFinish())
 		}
 
 		hash, err := genesis.Hash()
@@ -120,7 +120,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		return err
 	}
 
-	c.ev.Send("Genesis initialized", events.ProgressFinished())
+	c.ev.Send("Genesis initialized", events.ProgressFinish())
 	return nil
 }
 
