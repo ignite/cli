@@ -36,6 +36,9 @@ const (
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
+
+	statusGenerating = "Generating..."
+	statusQuerying   = "Querying..."
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -75,6 +78,7 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewTools())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
+	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
 
 	return c
@@ -156,7 +160,7 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))

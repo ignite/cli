@@ -20,6 +20,8 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+
+	statusScaffolding = "Scaffolding..."
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
@@ -135,10 +137,8 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	sc, err := newApp(appPath)
 	if err != nil {

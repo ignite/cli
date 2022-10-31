@@ -12,6 +12,7 @@ import (
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 const (
@@ -91,6 +92,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		return err
 	}
 
+	c.ev.Send("Initializing accounts...", events.ProgressUpdate())
+
 	var accounts accountview.Accounts
 
 	// add accounts from config into genesis
@@ -123,7 +126,6 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 	}
 
-	c.ev.Send("🗂  Initialize accounts...")
 	c.ev.SendView(accounts)
 
 	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))

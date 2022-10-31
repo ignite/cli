@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
@@ -204,7 +205,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 
-	c.ev.Send("📦 Installing dependencies...")
+	c.ev.Send("Installing dependencies...", events.ProgressUpdate())
 
 	// We do mod tidy before checking for checksum changes, because go.mod gets modified often
 	// and the mod verify command is the expensive one anyway
@@ -232,7 +233,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		}
 	}
 
-	c.ev.Send("🛠  Building the blockchain...")
+	c.ev.Send("Building the blockchain...", events.ProgressUpdate())
 
 	return buildFlags, nil
 }

@@ -124,7 +124,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	c.ev.Send("Building proto...", events.ProgressStarted())
+	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
@@ -220,7 +220,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("Typescript client path: %s", tsClientPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 
@@ -228,7 +228,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("Vuex stores path: %s", vuexPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 
@@ -236,7 +236,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("Dart path: %s", dartPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 
@@ -244,7 +244,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("OpenAPI path: %s", openAPIPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 	}

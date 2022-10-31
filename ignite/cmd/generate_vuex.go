@@ -22,12 +22,10 @@ func NewGenerateVuex() *cobra.Command {
 }
 
 func generateVuexHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	session.StartSpinner("Generating...")
-
-	c, err := newChainWithHomeFlags(
+	c, err := NewChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
