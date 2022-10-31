@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	//go:embed stargate/* stargate/**/*
+	//go:embed files/* files/**/*
 	fsStargate embed.FS
 
 	//go:embed ibc/* ibc/**/*

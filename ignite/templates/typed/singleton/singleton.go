@@ -20,7 +20,7 @@ var (
 	//go:embed files/component/* files/component/**/*
 	fsStargateComponent embed.FS
 
-	//go:embed stargate/messages/* files/messages/**/*
+	//go:embed files/messages/* files/messages/**/*
 	fsStargateMessages embed.FS
 
 	//go:embed files/simapp/* files/simapp/**/*
