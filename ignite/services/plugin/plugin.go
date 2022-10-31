@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/services/chain"
@@ -231,7 +231,7 @@ func (p *Plugin) fetch() {
 	if p.Error != nil {
 		return
 	}
-	defer clispinner.New().SetText(fmt.Sprintf("Fetching plugin %q...", p.cloneURL)).Stop()
+	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Fetching plugin %q...", p.cloneURL))).End()
 
 	var err error
 	if p.reference == "" {
@@ -267,7 +267,7 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	defer clispinner.New().SetText(fmt.Sprintf("Building plugin %q...", p.Path)).Stop()
+	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Building plugin %q...", p.Path))).End()
 
 	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
