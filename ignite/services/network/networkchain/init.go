@@ -136,6 +136,12 @@ func (c *Chain) initGenesis(ctx context.Context, initAccounts bool) error {
 			return err
 		}
 
+		// reapply since overwritten with genesis config
+		err = c.reapplyPluginConfig()
+		if err != nil {
+			return err
+		}
+
 	default:
 		// default genesis is used, init CLI command is used to generate it
 		cmd, err := c.chain.Commands(ctx)
@@ -191,4 +197,24 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	// TODO: static analysis of the genesis with validate-genesis doesn't check the full validity of the genesis
 	// example: gentxs formats are not checked
 	// to perform a full validity check of the genesis we must try to start the chain with sample accounts
+}
+
+// Re-apply node config if overwritten
+func (c *Chain) reapplyPluginConfig() error {
+	// get actual chain config
+	conf, err := c.chain.Config()
+	if err != nil {
+		return err
+	}
+
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+
+	if err := c.chain.Plugin.Configure(home, conf); err != nil {
+		return err
+	}
+
+	return nil
 }

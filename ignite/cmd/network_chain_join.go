@@ -142,7 +142,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		// if a custom gentx is provided, we initialize the chain home in order to check accounts
-		if err := c.Init(cmd.Context(), cacheStorage, true); err != nil {
+		if err := c.Init(cmd.Context(), cacheStorage, false); err != nil {
 			return err
 		}
 	}
