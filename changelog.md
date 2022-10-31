@@ -6,6 +6,7 @@
 
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
+- [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
 
 ### Changes
 
@@ -15,6 +16,7 @@
 - [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
 - [#2998](https://github.com/ignite/cli/pull/2998) Hide `ignite generate dart` command and remove functionality.
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
+- [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 

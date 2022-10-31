@@ -10,6 +10,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	vue "github.com/ignite/web"
+
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -19,7 +21,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/templates/app"
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-	vue "github.com/ignite/web"
 )
 
 var (
