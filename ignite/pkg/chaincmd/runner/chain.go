@@ -140,9 +140,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
-		if strings.Contains(err.Error(), "key not found") || // stargate
-			strings.Contains(err.Error(), "unknown address") || // launchpad
-			strings.Contains(b.String(), "item could not be found") { // launchpad
+		if strings.Contains(err.Error(), "key not found") {
 			return "", errors.New("account doesn't have any balances")
 		}
 
