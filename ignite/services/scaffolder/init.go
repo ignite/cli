@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
 	vue "github.com/ignite/web"
 
@@ -19,17 +16,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/localfs"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/templates/app"
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-)
-
-var (
-	commitMessage = "Initialized with Ignite CLI"
-	devXAuthor    = &object.Signature{
-		Name:  "Developer Experience team at Tendermint",
-		Email: "hello@tendermint.com",
-		When:  time.Now(),
-	}
 )
 
 // Init initializes a new app with name and given options.
@@ -55,7 +44,7 @@ func Init(ctx context.Context, cacheStorage cache.Storage, tracer *placeholder.T
 	}
 
 	// initialize git repository and perform the first commit
-	if err := initGit(path); err != nil {
+	if err := xgit.InitAndCommit(path); err != nil {
 		return "", err
 	}
 
@@ -137,23 +126,4 @@ func generate(
 // Vue scaffolds a Vue.js app for a chain.
 func Vue(path string) error {
 	return localfs.Save(vue.Boilerplate(), path)
-}
-
-func initGit(path string) error {
-	repo, err := git.PlainInit(path, false)
-	if err != nil {
-		return err
-	}
-	wt, err := repo.Worktree()
-	if err != nil {
-		return err
-	}
-	if _, err := wt.Add("."); err != nil {
-		return err
-	}
-	_, err = wt.Commit(commitMessage, &git.CommitOptions{
-		All:    true,
-		Author: devXAuthor,
-	})
-	return err
 }
