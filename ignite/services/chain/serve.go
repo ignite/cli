@@ -171,7 +171,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if c.served {
 						c.served = false
 
-						c.ev.Send("💿 Saving genesis state...")
+						c.ev.Send("Saving genesis state...", events.ProgressUpdate())
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
@@ -193,12 +193,12 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
 				case errors.As(err, &buildErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinished())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -311,7 +311,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 
 		if forceReset || configModified {
 			// if forceReset is set, we consider the app as being not initialized
-			c.ev.Send("🔄 Resetting the app state...")
+			c.ev.Send("Resetting the app state...", events.ProgressUpdate())
 			isInit = false
 		}
 	}
@@ -367,7 +367,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	// init phase
 	// nolint:gocritic
 	if !isInit || (appModified && !exportGenesisExists) {
-		c.ev.Send("💿 Initializing the app...")
+		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
 		if err := c.Init(ctx, true); err != nil {
 			return err
@@ -375,7 +375,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
-		c.ev.Send("💿 Existent genesis detected, restoring the database...")
+		c.ev.Send("Existent genesis detected, restoring the database...", events.ProgressUpdate())
 
 		if err := commands.UnsafeReset(ctx); err != nil {
 			return err
@@ -385,7 +385,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 			return err
 		}
 	} else {
-		c.ev.Send("▶  Restarting existing app...")
+		c.ev.Send("Restarting existing app...", events.ProgressUpdate())
 	}
 
 	// save checksums
@@ -459,7 +459,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.ev.Send(
 		fmt.Sprintf("Tendermint node: %s", rpcAddr),
 		events.Icon(icons.Earth),
-		events.ProgressFinished(),
+		events.ProgressFinish(),
 	)
 	c.ev.Send(
 		fmt.Sprintf("Blockchain API: %s", apiAddr),
