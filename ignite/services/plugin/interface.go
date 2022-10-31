@@ -94,6 +94,8 @@ const (
 	flagTypeBool   flagType = "bool"
 )
 
+// GobEncode implements gob.Encoder.
+// It actually encodes a gobCommand struct built from c.
 func (c Command) GobEncode() ([]byte, error) {
 	var ff []flag
 	if c.flags != nil {
@@ -116,6 +118,8 @@ func (c Command) GobEncode() ([]byte, error) {
 	return b.Bytes(), err
 }
 
+// GobDecode implements gob.Decoder.
+// It actually decodes a gobCommand struct and fills c with it.
 func (c *Command) GobDecode(bz []byte) error {
 	var gb gobCommandFlags
 	err := gob.NewDecoder(bytes.NewReader(bz)).Decode(&gb)
