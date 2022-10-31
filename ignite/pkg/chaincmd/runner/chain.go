@@ -16,7 +16,6 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
 )
 
 // Start starts the blockchain.
@@ -25,15 +24,6 @@ func (r Runner) Start(ctx context.Context, args ...string) error {
 		ctx,
 		runOptions{wrappedStdErrMaxLen: 50000},
 		r.chainCmd.StartCommand(args...),
-	)
-}
-
-// LaunchpadStartRestServer start launchpad rest server.
-func (r Runner) LaunchpadStartRestServer(ctx context.Context, apiAddress, rpcAddress string) error {
-	return r.run(
-		ctx,
-		runOptions{wrappedStdErrMaxLen: 50000},
-		r.chainCmd.LaunchpadRestServerCommand(apiAddress, rpcAddress),
 	)
 }
 
@@ -51,20 +41,6 @@ type KV struct {
 // NewKV returns a new key, value pair.
 func NewKV(key, value string) KV {
 	return KV{key, value}
-}
-
-// LaunchpadSetConfigs updates configurations for a launchpad app.
-func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
-	for _, kv := range kvs {
-		if err := r.run(
-			ctx,
-			runOptions{},
-			r.chainCmd.LaunchpadSetConfigCommand(kv.key, kv.value),
-		); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
@@ -132,34 +108,17 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 		return NodeStatus{}, err
 	}
 
-	version := r.chainCmd.SDKVersion()
-	switch {
-	case version.GTE(cosmosver.StargateFortyVersion):
-		out := struct {
-			NodeInfo struct {
-				Network string `json:"network"`
-			} `json:"NodeInfo"`
-		}{}
+	out := struct {
+		NodeInfo struct {
+			Network string `json:"network"`
+		} `json:"NodeInfo"`
+	}{}
 
-		if err := json.Unmarshal(data, &out); err != nil {
-			return NodeStatus{}, err
-		}
-
-		chainID = out.NodeInfo.Network
-	default:
-		out := struct {
-			NodeInfo struct {
-				Network string `json:"network"`
-			} `json:"node_info"`
-		}{}
-
-		if err := json.Unmarshal(data, &out); err != nil {
-			return NodeStatus{}, err
-		}
-
-		chainID = out.NodeInfo.Network
+	if err := json.Unmarshal(data, &out); err != nil {
+		return NodeStatus{}, err
 	}
 
+	chainID = out.NodeInfo.Network
 	return NodeStatus{
 		ChainID: chainID,
 	}, nil

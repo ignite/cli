@@ -16,7 +16,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -364,17 +363,12 @@ func isWasmImported(appPath string) (bool, error) {
 }
 
 func (s Scaffolder) installWasm() error {
-	switch {
-	case s.Version.GTE(cosmosver.StargateFortyVersion):
-		return cmdrunner.
-			New().
-			Run(context.Background(),
-				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(wasmImport, wasmVersion))),
-				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(extrasImport, extrasVersion))),
-			)
-	default:
-		return errors.New("version not supported")
-	}
+	return cmdrunner.
+		New().
+		Run(context.Background(),
+			step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(wasmImport, wasmVersion))),
+			step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(extrasImport, extrasVersion))),
+		)
 }
 
 // checkDependencies perform checks on the dependencies
