@@ -12,13 +12,30 @@ import (
 )
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
+	const (
+		exitCodeOK    = 0
+		exitCodeError = 1
+	)
 	ctx := clictx.From(context.Background())
 
-	err := ignitecmd.New().ExecuteContext(ctx)
+	cmd := ignitecmd.New()
+
+	// Load plugins if any
+	if err := ignitecmd.LoadPlugins(ctx, cmd); err != nil {
+		fmt.Printf("Error while loading chain's plugins: %v\n", err)
+		return exitCodeError
+	}
+	defer ignitecmd.UnloadPlugins()
+
+	err := cmd.ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
-		return
+		return exitCodeOK
 	}
 
 	if err != nil {
@@ -29,7 +46,7 @@ func main() {
 		} else {
 			fmt.Println(err)
 		}
-
-		os.Exit(1)
+		return exitCodeError
 	}
+	return exitCodeOK
 }

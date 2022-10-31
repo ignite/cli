@@ -37,6 +37,9 @@ var (
 // Config defines the latest config.
 type Config = v1.Config
 
+// Plugin defines the latest plugin config
+type Plugin = v1.Plugin
+
 // DefaultConfig returns a config for the latest version initialized with default values.
 func DefaultConfig() *Config {
 	return v1.DefaultConfig()
