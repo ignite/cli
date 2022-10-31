@@ -17,7 +17,7 @@ import (
 func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
 	n.ev.Send(
 		fmt.Sprintf("Setting reward %s to the chain %d at height %d", coins, launchID, lastRewardHeight),
-		events.ProgressStarted(),
+		events.ProgressStart(),
 	)
 
 	addr, err := n.account.Address(networktypes.SPN)
@@ -42,17 +42,17 @@ func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeigh
 	}
 
 	if setRewardRes.PreviousCoins.Empty() {
-		n.ev.Send("The reward pool was empty", events.Icon(icons.Info), events.ProgressFinished())
+		n.ev.Send("The reward pool was empty", events.Icon(icons.Info), events.ProgressFinish())
 	} else {
 		n.ev.Send(
 			fmt.Sprintf("Previous reward pool %s at height %d is overwritten", coins, lastRewardHeight),
 			events.Icon(icons.Info),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	}
 
 	if setRewardRes.NewCoins.Empty() {
-		n.ev.Send("The reward pool is removed", events.ProgressFinished())
+		n.ev.Send("The reward pool is removed", events.ProgressFinish())
 	} else {
 		n.ev.Send(
 			fmt.Sprintf(
@@ -61,7 +61,7 @@ func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeigh
 				lastRewardHeight,
 				launchID,
 			),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	}
 	return nil
