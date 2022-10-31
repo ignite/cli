@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pelletier/go-toml"
+
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/xurl"
-	"github.com/pelletier/go-toml"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
