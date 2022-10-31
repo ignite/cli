@@ -16,14 +16,14 @@ import (
 )
 
 var (
-	//go:embed files/component/* files/component/**/*
-	fsStargateComponent embed.FS
-
 	//go:embed files/messages/* files/messages/**/*
-	fsStargateMessages embed.FS
+	fsMessages embed.FS
+
+	//go:embed files/component/* files/component/**/*
+	fsComponent embed.FS
 
 	//go:embed files/simapp/* files/simapp/**/*
-	fsStargateSimapp embed.FS
+	fsSimapp embed.FS
 )
 
 // NewGenerator returns the generator to scaffold a new type in a module
@@ -32,17 +32,17 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		g = genny.New()
 
 		messagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateMessages,
+			fsMessages,
 			"files/messages/",
 			opts.AppPath,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
-			fsStargateComponent,
+			fsComponent,
 			"files/component/",
 			opts.AppPath,
 		)
 		simappTemplate = xgenny.NewEmbedWalker(
-			fsStargateSimapp,
+			fsSimapp,
 			"files/simapp/",
 			opts.AppPath,
 		)

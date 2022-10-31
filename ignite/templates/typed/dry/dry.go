@@ -10,14 +10,14 @@ import (
 )
 
 //go:embed files/component/* files/component/**/*
-var fsStargateComponent embed.FS
+var fsComponent embed.FS
 
 // NewGenerator returns the generator to scaffold a basic type in a module.
 func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
-			fsStargateComponent,
+			fsComponent,
 			"files/component/",
 			opts.AppPath,
 		)

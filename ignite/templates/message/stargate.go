@@ -12,8 +12,8 @@ import (
 	"github.com/ignite/cli/ignite/templates/typed"
 )
 
-// NewStargate returns the generator to scaffold a empty message in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a empty message in  module
+func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(protoTxRPCModify(replacer, opts))
@@ -22,16 +22,16 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(clientCliTxModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
-		fsStargateMessage,
-		"stargate/message",
+		fsMessage,
+		"files/message",
 		opts.AppPath,
 	)
 
 	if !opts.NoSimulation {
 		g.RunFn(moduleSimulationModify(replacer, opts))
 		simappTemplate := xgenny.NewEmbedWalker(
-			fsStargateSimapp,
-			"stargate/simapp",
+			fsSimapp,
+			"files/simapp",
 			opts.AppPath,
 		)
 		if err := Box(simappTemplate, opts, g); err != nil {

@@ -158,7 +158,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Scaffold
-	g, err = message.NewStargate(tracer, opts)
+	g, err = message.NewGenerator(tracer, opts)
 	if err != nil {
 		return sm, err
 	}

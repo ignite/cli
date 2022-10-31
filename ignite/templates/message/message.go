@@ -14,10 +14,10 @@ import (
 
 var (
 	//go:embed files/message/* files/message/**/*
-	fsStargateMessage embed.FS
+	fsMessage embed.FS
 
 	//go:embed files/simapp/* files/simapp/**/*
-	fsStargateSimapp embed.FS
+	fsSimapp embed.FS
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {

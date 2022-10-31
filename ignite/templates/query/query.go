@@ -12,7 +12,7 @@ import (
 )
 
 //go:embed files/* files/**/*
-var fsStargate embed.FS
+var fs embed.FS
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {

@@ -130,24 +130,10 @@ func WithChainID(chainID string) Option {
 	}
 }
 
-// WithAutoChainIDDetection finds out the chain id by communicating with the node running.
-func WithAutoChainIDDetection() Option {
-	return func(c *ChainCmd) {
-		c.isAutoChainIDDetectionEnabled = true
-	}
-}
-
 // WithKeyringBackend provides a specific keyring backend for the commands that accept this option
 func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
-	}
-}
-
-// WithKeyringPassword provides a password to unlock keyring
-func WithKeyringPassword(password string) Option {
-	return func(c *ChainCmd) {
-		c.keyringPassword = password
 	}
 }
 
@@ -156,30 +142,6 @@ func WithKeyringPassword(password string) Option {
 func WithNodeAddress(addr string) Option {
 	return func(c *ChainCmd) {
 		c.nodeAddress = addr
-	}
-}
-
-// WithLaunchpadCLI provides the CLI application name for the blockchain
-// this is necessary for Launchpad applications since it has two different binaries but
-// not needed by Stargate applications
-func WithLaunchpadCLI(cliCmd string) Option {
-	return func(c *ChainCmd) {
-		c.cliCmd = cliCmd
-	}
-}
-
-// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
-func WithLaunchpadCLIHome(cliHome string) Option {
-	return func(c *ChainCmd) {
-		c.cliHome = cliHome
-	}
-}
-
-// WithLegacySendCommand will make the command use the legacy tx send syntax from launchpad
-// on stargate chains. e.g.: CosmWasm
-func WithLegacySendCommand() Option {
-	return func(c *ChainCmd) {
-		c.legacySend = true
 	}
 }
 

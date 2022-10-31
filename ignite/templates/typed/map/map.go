@@ -17,20 +17,20 @@ import (
 )
 
 var (
-	//go:embed files/component/* files/component/**/*
-	fsStargateComponent embed.FS
-
 	//go:embed files/messages/* files/messages/**/*
-	fsStargateMessages embed.FS
-
-	//go:embed files/tests/component/* files/tests/component/**/*
-	fsStargateTestsComponent embed.FS
+	fsMessages embed.FS
 
 	//go:embed files/tests/messages/* files/tests/messages/**/*
-	fsStargateTestsMessages embed.FS
+	fsTestsMessages embed.FS
+
+	//go:embed files/component/* files/component/**/*
+	fsComponent embed.FS
+
+	//go:embed files/tests/component/* files/tests/component/**/*
+	fsTestsComponent embed.FS
 
 	//go:embed files/simapp/* files/simapp/**/*
-	fsStargateSimapp embed.FS
+	fsSimapp embed.FS
 )
 
 // NewGenerator returns the generator to scaffold a new map type in a module
@@ -48,27 +48,27 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		g = genny.New()
 
 		messagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateMessages,
+			fsMessages,
 			"files/messages/",
 			opts.AppPath,
 		)
 		testsMessagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateTestsMessages,
+			fsTestsMessages,
 			"files/tests/messages/",
 			opts.AppPath,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
-			fsStargateComponent,
+			fsComponent,
 			"files/component/",
 			opts.AppPath,
 		)
 		testsComponentTemplate = xgenny.NewEmbedWalker(
-			fsStargateTestsComponent,
+			fsTestsComponent,
 			"files/tests/component/",
 			opts.AppPath,
 		)
 		simappTemplate = xgenny.NewEmbedWalker(
-			fsStargateSimapp,
+			fsSimapp,
 			"files/simapp/",
 			opts.AppPath,
 		)

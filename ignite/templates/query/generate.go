@@ -17,7 +17,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
-			fsStargate,
+			fs,
 			"files/",
 			opts.AppPath,
 		)
