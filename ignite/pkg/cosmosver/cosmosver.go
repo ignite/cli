@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/blang/semver"
+	"github.com/blang/semver/v4"
 )
 
 // Family represents the family(named versions) of Cosmos-SDK.
