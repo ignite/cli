@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	//go:embed stargate/message/* stargate/message/**/*
+	//go:embed files/message/* files/message/**/*
 	fsStargateMessage embed.FS
 
-	//go:embed stargate/simapp/* stargate/simapp/**/*
+	//go:embed files/simapp/* files/simapp/**/*
 	fsStargateSimapp embed.FS
 )
 
