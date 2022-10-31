@@ -21,23 +21,24 @@ func TestNew(t *testing.T) {
 			event: events.Event{},
 		},
 		{
-			name:       "in progress event",
+			name:       "event start",
 			message:    msg,
 			inProgress: true,
-			options:    []events.Option{events.ProgressStarted()},
-			event: events.Event{
-				ProgressIndication: events.IndicationStart,
-				Message:            msg,
-			},
+			options:    []events.Option{events.ProgressStart()},
+			event:      events.New(msg, events.ProgressStart()),
 		},
 		{
-			name:    "finished event",
+			name:       "event update",
+			message:    msg,
+			inProgress: true,
+			options:    []events.Option{events.ProgressUpdate()},
+			event:      events.New(msg, events.ProgressUpdate()),
+		},
+		{
+			name:    "event finish",
 			message: msg,
-			options: []events.Option{events.ProgressFinished()},
-			event: events.Event{
-				ProgressIndication: events.IndicationFinish,
-				Message:            msg,
-			},
+			options: []events.Option{events.ProgressFinish()},
+			event:   events.New(msg, events.ProgressFinish()),
 		},
 	}
 	for _, tt := range cases {

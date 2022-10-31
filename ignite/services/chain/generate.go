@@ -121,7 +121,7 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	c.ev.Send("Building proto...", events.ProgressStarted())
+	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
@@ -138,8 +138,12 @@ func (c *Chain) Generate(
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			// TODO: Change to allow full paths in case TS client dir is not inside the app's dir?
-			tsClientPath = filepath.Join(c.app.Path, chainconfig.TSClientPath(conf))
+			tsClientPath = chainconfig.TSClientPath(conf)
+		}
+
+		// Non absolute TS client output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(tsClientPath) {
+			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
 		}
 
 		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
@@ -160,7 +164,7 @@ func (c *Chain) Generate(
 			vuexPath = defaultVuexPath
 		}
 
-		vuexPath = filepath.Join(c.app.Path, vuexPath, "generated")
+		vuexPath = c.joinGeneratedPath(vuexPath)
 		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
 			return err
 		}
@@ -180,7 +184,7 @@ func (c *Chain) Generate(
 			dartPath = defaultDartPath
 		}
 
-		dartPath = filepath.Join(c.app.Path, dartPath, "generated")
+		dartPath = c.joinGeneratedPath(dartPath)
 		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
@@ -200,6 +204,11 @@ func (c *Chain) Generate(
 			openAPIPath = defaultOpenAPIPath
 		}
 
+		// Non absolute OpenAPI paths must be treated as relative to the app directory
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
+		}
+
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
@@ -214,7 +223,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("Typescript client path: %s", tsClientPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 
@@ -222,7 +231,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("Vuex stores path: %s", vuexPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 
@@ -230,7 +239,7 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("Dart path: %s", dartPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 
@@ -238,10 +247,18 @@ func (c *Chain) Generate(
 			c.ev.Send(
 				fmt.Sprintf("OpenAPI path: %s", openAPIPath),
 				events.Icon(icons.Bullet),
-				events.ProgressFinished(),
+				events.ProgressFinish(),
 			)
 		}
 	}
 
 	return nil
+}
+
+func (c Chain) joinGeneratedPath(rootPath string) string {
+	if filepath.IsAbs(rootPath) {
+		return filepath.Join(rootPath, "generated")
+	}
+
+	return filepath.Join(c.app.Path, rootPath, "generated")
 }

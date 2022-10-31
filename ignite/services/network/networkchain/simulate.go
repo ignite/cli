@@ -19,10 +19,15 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-const (
-	ListeningTimeout            = time.Minute * 1
-	ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
-)
+// listeningTimeout is the maximum time to wait for the chain start
+const listeningTimeout = time.Minute * 1
+
+// validatorSetNilErrorMessages contains variation for SDK validator set empty error message/
+// to detect if the chain fails to start because the validator set is nil
+var validatorSetNilErrorMessages = []string{
+	"validator set is nil in genesis and still empty after InitChain",
+	"validator set is empty after InitGenesis",
+}
 
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
 func (c Chain) SimulateRequests(
@@ -31,7 +36,7 @@ func (c Chain) SimulateRequests(
 	gi networktypes.GenesisInformation,
 	reqs []networktypes.Request,
 ) (err error) {
-	c.ev.Send("Verifying requests format", events.ProgressStarted())
+	c.ev.Send("Verifying requests format", events.ProgressStart())
 	for _, req := range reqs {
 		// static verification of the request
 		if err := networktypes.VerifyRequest(req); err != nil {
@@ -44,7 +49,7 @@ func (c Chain) SimulateRequests(
 			return err
 		}
 	}
-	c.ev.Send("Requests format verified", events.ProgressFinished())
+	c.ev.Send("Requests format verified", events.ProgressFinish())
 
 	// prepare the chain with the requests
 	if err := c.Prepare(
@@ -59,11 +64,11 @@ func (c Chain) SimulateRequests(
 		return err
 	}
 
-	c.ev.Send("Trying starting the network with the requests", events.ProgressStarted())
+	c.ev.Send("Trying starting the network with the requests", events.ProgressStart())
 	if err := c.simulateChainStart(ctx); err != nil {
 		return err
 	}
-	c.ev.Send("The network can be started", events.ProgressFinished())
+	c.ev.Send("The network can be started", events.ProgressFinish())
 
 	return nil
 }
@@ -83,7 +88,7 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 	}
 
 	// verify that the chain can be started with a valid genesis
-	ctx, cancel := context.WithTimeout(ctx, ListeningTimeout)
+	ctx, cancel := context.WithTimeout(ctx, listeningTimeout)
 	exit := make(chan error)
 
 	// routine to check the app is listening
@@ -92,13 +97,26 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 		exit <- isChainListening(ctx, rpcAddr)
 	}()
 
+	// check an error is realted to validator set empty
+	checkValidatorSetEmptyError := func(err error) bool {
+		if err != nil {
+			for _, errStr := range validatorSetNilErrorMessages {
+				if strings.Contains(err.Error(), errStr) {
+					return true
+				}
+			}
+		}
+
+		return false
+	}
+
 	// routine chain start
 	go func() {
 		// if the error is validator set is nil, it means the genesis didn't get broken after an applied request
 		// the genesis was correctly generated but there is no gentxs so far
 		// so we don't consider it as an error making requests to verify as invalid
 		err := cmd.Start(ctx)
-		if err != nil && strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
+		if checkValidatorSetEmptyError(err) {
 			err = nil
 		}
 		exit <- errors.Wrap(err, "the chain failed to start")

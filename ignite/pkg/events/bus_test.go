@@ -24,7 +24,7 @@ func TestBusSend(t *testing.T) {
 		{
 			name:     "with options",
 			message:  "test",
-			options:  []events.Option{events.ProgressStarted()},
+			options:  []events.Option{events.ProgressStart()},
 			progress: events.IndicationStart,
 		},
 	}
@@ -82,7 +82,7 @@ func TestBusSendInfo(t *testing.T) {
 		{
 			name:     "with options",
 			message:  "test",
-			options:  []events.Option{events.ProgressStarted()},
+			options:  []events.Option{events.ProgressStart()},
 			progress: events.IndicationStart,
 		},
 	}
@@ -121,7 +121,7 @@ func TestBusSendError(t *testing.T) {
 		{
 			name:     "with options",
 			message:  "test",
-			options:  []events.Option{events.ProgressStarted()},
+			options:  []events.Option{events.ProgressStart()},
 			progress: events.IndicationStart,
 		},
 	}
@@ -170,7 +170,7 @@ func TestBusSendView(t *testing.T) {
 		{
 			name:     "with options",
 			message:  "test",
-			options:  []events.Option{events.ProgressStarted()},
+			options:  []events.Option{events.ProgressStart()},
 			progress: events.IndicationStart,
 		},
 	}

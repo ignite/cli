@@ -37,6 +37,9 @@ const (
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
+
+	statusGenerating = "Generating..."
+	statusQuerying   = "Querying..."
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
