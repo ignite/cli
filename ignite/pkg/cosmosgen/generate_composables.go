@@ -17,17 +17,18 @@ import (
 )
 
 type composablesGenerator struct {
-	g *generator
+	g            *generator
+	FrontendType string
 }
 
-func newComposablesGenerator(g *generator) *composablesGenerator {
-	return &composablesGenerator{g}
+func newComposablesGenerator(g *generator, frontendType string) *composablesGenerator {
+	return &composablesGenerator{g, frontendType}
 }
 
-func (g *generator) updateComposableDependencies() error {
-	// Init the path to the "vue" folder inside the app
-	vuePath := filepath.Join(g.appPath, "vue")
-	packagesPath := filepath.Join(vuePath, "package.json")
+func (g *generator) updateComposableDependencies(frontendType string) error {
+	// Init the path to the appropriate frontend folder inside the app
+	frontendPath := filepath.Join(g.appPath, frontendType)
+	packagesPath := filepath.Join(frontendPath, "package.json")
 	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
@@ -59,7 +60,7 @@ func (g *generator) updateComposableDependencies() error {
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
 	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
-	tsClientRelPath, err := filepath.Rel(vuePath, tsClientPath)
+	tsClientRelPath, err := filepath.Rel(frontendPath, tsClientPath)
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func (g *generator) updateComposableDependencies() error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("failed to link ts-client dependency in the Vue app: %w", err)
+		return fmt.Errorf("failed to link ts-client dependency in the frontend app: %w", err)
 	}
 
 	// Save the modified package.json with the new dependencies
@@ -90,7 +91,7 @@ func (g *generator) updateComposableDependencies() error {
 	return nil
 }
 
-func (g *generator) generateComposables() error {
+func (g *generator) generateComposables(frontendType string) error {
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
@@ -108,7 +109,7 @@ func (g *generator) generateComposables() error {
 		}
 	}
 
-	vsg := newComposablesGenerator(g)
+	vsg := newComposablesGenerator(g, frontendType)
 	if err := vsg.generateComposableTemplates(data); err != nil {
 		return err
 	}
@@ -131,22 +132,34 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 }
 
 func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
-	outDir := g.g.o.composablesOut(m)
+	var outDir string
+	if g.FrontendType == "vue" {
+		outDir = g.g.o.composablesOut(m)
+	} else {
+		outDir = g.g.o.hooksOut(m)
+	}
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
 
 	return templateTSClientComposable.Write(outDir, "", struct {
-		Module    module.Module
-		PackageNS string
+		Module       module.Module
+		PackageNS    string
+		FrontendType string
 	}{
-		Module:    m,
-		PackageNS: p.PackageNS,
+		Module:       m,
+		PackageNS:    p.PackageNS,
+		FrontendType: g.FrontendType,
 	})
 }
 
 func (g *composablesGenerator) generateRootTemplates(p generatePayload) error {
-	outDir := g.g.o.composablesRootPath
+	var outDir string
+	if g.FrontendType == "vue" {
+		outDir = g.g.o.composablesRootPath
+	} else {
+		outDir = g.g.o.hooksRootPath
+	}
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
