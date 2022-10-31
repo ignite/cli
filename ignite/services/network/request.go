@@ -78,7 +78,7 @@ func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs
 
 // SubmitRequest submits reviewals for proposals in batch for chain.
 func (n Network) SubmitRequest(ctx context.Context, launchID uint64, reviewal ...Reviewal) error {
-	n.ev.Send("Submitting requests...", events.ProgressStarted())
+	n.ev.Send("Submitting requests...", events.ProgressStart())
 
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -126,7 +126,7 @@ func (n Network) SendAccountRequest(
 		),
 	)
 
-	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
+	n.ev.Send("Broadcasting account transactions", events.ProgressStart())
 
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
@@ -142,13 +142,13 @@ func (n Network) SendAccountRequest(
 		n.ev.Send(
 			"Account added to the network by the coordinator!",
 			events.Icon(icons.Bullet),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	} else {
 		n.ev.Send(
 			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
 			events.Icon(icons.Bullet),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	}
 	return nil
@@ -181,7 +181,7 @@ func (n Network) SendValidatorRequest(
 		),
 	)
 
-	n.ev.Send("Broadcasting validator transaction", events.ProgressStarted())
+	n.ev.Send("Broadcasting validator transaction", events.ProgressStart())
 
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
@@ -194,11 +194,11 @@ func (n Network) SendValidatorRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinished())
+		n.ev.Send("Validator added to the network by the coordinator!", events.ProgressFinish())
 	} else {
 		n.ev.Send(
 			fmt.Sprintf("Request %d to join the network as a validator has been submitted!", requestRes.RequestID),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	}
 	return nil
@@ -223,7 +223,7 @@ func (n Network) SendValidatorRemoveRequest(
 		),
 	)
 
-	n.ev.Send("Broadcasting transaction", events.ProgressStarted())
+	n.ev.Send("Broadcasting transaction", events.ProgressStart())
 
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
@@ -236,13 +236,13 @@ func (n Network) SendValidatorRemoveRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send("Validator removed from network by the coordinator!", events.ProgressFinished())
+		n.ev.Send("Validator removed from network by the coordinator!", events.ProgressFinish())
 	} else {
 		n.ev.Send(
 			fmt.Sprintf(
 				"Request %d to remove validator from the network has been submitted!", requestRes.RequestID,
 			),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	}
 	return nil
@@ -267,7 +267,7 @@ func (n Network) SendAccountRemoveRequest(
 		),
 	)
 
-	n.ev.Send("Broadcasting transaction", events.ProgressStarted())
+	n.ev.Send("Broadcasting transaction", events.ProgressStart())
 
 	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
@@ -280,13 +280,13 @@ func (n Network) SendAccountRemoveRequest(
 	}
 
 	if requestRes.AutoApproved {
-		n.ev.Send("Account removed from network by the coordinator!", events.ProgressFinished())
+		n.ev.Send("Account removed from network by the coordinator!", events.ProgressFinish())
 	} else {
 		n.ev.Send(
 			fmt.Sprintf(
 				"Request %d to remove account from the network has been submitted!", requestRes.RequestID,
 			),
-			events.ProgressFinished(),
+			events.ProgressFinish(),
 		)
 	}
 	return nil
