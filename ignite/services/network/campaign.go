@@ -47,7 +47,7 @@ func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
 
 // Campaign fetches the campaign from Network
 func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
-	n.ev.Send("Fetching campaign information", events.ProgressStarted())
+	n.ev.Send("Fetching campaign information", events.ProgressStart())
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: campaignID,
 	})
@@ -63,7 +63,7 @@ func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.
 func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
 	var campaigns []networktypes.Campaign
 
-	n.ev.Send("Fetching campaigns information", events.ProgressStarted())
+	n.ev.Send("Fetching campaigns information", events.ProgressStart())
 	res, err := n.campaignQuery.CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
 		return campaigns, err
@@ -79,7 +79,7 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 
 // CreateCampaign creates a campaign in Network
 func (n Network) CreateCampaign(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
-	n.ev.Send(fmt.Sprintf("Creating campaign %s", name), events.ProgressStarted())
+	n.ev.Send(fmt.Sprintf("Creating campaign %s", name), events.ProgressStart())
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return 0, err
@@ -112,7 +112,7 @@ func (n Network) InitializeMainnet(
 	sourceHash string,
 	mainnetChainID string,
 ) (uint64, error) {
-	n.ev.Send("Initializing the mainnet campaign", events.ProgressStarted())
+	n.ev.Send("Initializing the mainnet campaign", events.ProgressStart())
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return 0, err
@@ -136,7 +136,7 @@ func (n Network) InitializeMainnet(
 		return 0, err
 	}
 
-	n.ev.Send(fmt.Sprintf("Campaign %d initialized on mainnet", campaignID), events.ProgressFinished())
+	n.ev.Send(fmt.Sprintf("Campaign %d initialized on mainnet", campaignID), events.ProgressFinish())
 
 	return initMainnetRes.MainnetID, nil
 }
@@ -153,7 +153,7 @@ func (n Network) UpdateCampaign(
 		apply(&p)
 	}
 
-	n.ev.Send(fmt.Sprintf("Updating the campaign %d", id), events.ProgressStarted())
+	n.ev.Send(fmt.Sprintf("Updating the campaign %d", id), events.ProgressStart())
 	account, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return err
@@ -179,6 +179,6 @@ func (n Network) UpdateCampaign(
 	if _, err := n.cosmos.BroadcastTx(ctx, n.account, msgs...); err != nil {
 		return err
 	}
-	n.ev.Send(fmt.Sprintf("Campaign %d updated", id), events.ProgressFinished())
+	n.ev.Send(fmt.Sprintf("Campaign %d updated", id), events.ProgressFinish())
 	return nil
 }

@@ -25,13 +25,21 @@ type (
 
 	Options struct {
 		writer io.Writer
+		text   string
 	}
 )
 
-// WithWriter configures an output for a spinner
+// WithWriter configures an output for a spinner.
 func WithWriter(w io.Writer) Option {
 	return func(options *Options) {
 		options.writer = w
+	}
+}
+
+// WithText configures the spinner text.
+func WithText(text string) Option {
+	return func(options *Options) {
+		options.text = text
 	}
 }
 
@@ -42,9 +50,14 @@ func New(options ...Option) *Spinner {
 		apply(&o)
 	}
 
+	text := o.text
+	if text == "" {
+		text = DefaultText
+	}
+
 	spOptions := []spinner.Option{
 		spinner.WithColor(spinnerColor),
-		spinner.WithSuffix(" " + DefaultText),
+		spinner.WithSuffix(" " + text),
 	}
 
 	if o.writer != nil {
