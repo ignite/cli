@@ -215,12 +215,8 @@ func (p *appPlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg
 }
 
 func (p *appPlugin) Home() string {
-	return stargateHome(p.app)
-}
-
-func stargateHome(app App) string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+app.Name)
+	return filepath.Join(home, "."+p.app.Name)
 }
 
 func (p *appPlugin) SupportsIBC() bool { return true }

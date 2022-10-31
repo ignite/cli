@@ -11,6 +11,7 @@
 
 ### Changes
 
+- [#3026](https://github.com/ignite/cli/pull/3026) Deprecate scaffolding for pre-stargate chains.
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
 - [#2958](https://github.com/ignite/cli/pull/2958) Support absolute paths for client code generation config paths.

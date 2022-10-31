@@ -83,7 +83,7 @@ func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Gen
 	return g
 }
 
-// app.go modification on Stargate when creating a module
+// app.go modification  when creating a module
 func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, module.PathAppGo)

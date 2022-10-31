@@ -552,7 +552,7 @@ func (c ChainCmd) daemonCommand(command []string) step.Option {
 }
 
 // cliCommand returns the cli command from the provided command
-// cli is the daemon for Stargate
+// cli is the daemon
 func (c ChainCmd) cliCommand(command []string) step.Option {
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }

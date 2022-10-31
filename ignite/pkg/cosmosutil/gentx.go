@@ -23,7 +23,7 @@ type (
 		Memo             string
 	}
 
-	// Gentx represents the stargate gentx file
+	// Gentx represents the gentx JSON file
 	Gentx struct {
 		Body struct {
 			Messages []struct {
@@ -67,7 +67,6 @@ func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 		return info, gentx, errors.New("the gentx cannot be parsed")
 	}
 
-	// This is a stargate gentx
 	if len(jsonGentx.Body.Messages) != 1 {
 		return info, gentx, errors.New("add validator gentx must contain 1 message")
 	}
