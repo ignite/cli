@@ -15,11 +15,5 @@ type Error struct {
 }
 
 func (e Error) String() string {
-	b := strings.Builder{}
-
-	b.WriteString(colors.Error(e.Err.Error()))
-	b.WriteRune('\n')
-	b.WriteString(colors.Info("Waiting for a fix before retrying...\n"))
-
-	return b.String()
+	return colors.Error(strings.TrimSpace(e.Err.Error()))
 }

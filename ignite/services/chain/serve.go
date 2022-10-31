@@ -32,6 +32,11 @@ import (
 )
 
 const (
+	// EvtGroupPath is the group to use for path related events.
+	EvtGroupPath = "path"
+)
+
+const (
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
@@ -46,9 +51,6 @@ const (
 
 	// serveDirchangeCacheNamespace is the name of the cache namespace for detecting changes in directories
 	serveDirchangeCacheNamespace = "serve.dirchange"
-
-	// evtGroupPath is the name of the group to use for path related events
-	evtGroupPath = "path"
 )
 
 var (
@@ -202,13 +204,13 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &buildErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -489,12 +491,12 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.ev.Send(
 		fmt.Sprintf("Data directory: %s", style.Faint.Render(appHome)),
 		events.Icon(icons.Bullet),
-		events.Group(evtGroupPath),
+		events.Group(EvtGroupPath),
 	)
 	c.ev.Send(
 		fmt.Sprintf("App binary: %s", style.Faint.Render(appBin)),
 		events.Icon(icons.Bullet),
-		events.Group(evtGroupPath),
+		events.Group(EvtGroupPath),
 	)
 
 	return g.Wait()
@@ -573,7 +575,12 @@ type CannotBuildAppError struct {
 }
 
 func (e *CannotBuildAppError) Error() string {
-	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
+	// TODO: Find at which point the error is wrapped twice
+	if err, ok := e.Err.(*CannotBuildAppError); ok {
+		return err.Error()
+	}
+
+	return fmt.Sprintf("cannot build app:\n\n  %s", e.Err)
 }
 
 func (e *CannotBuildAppError) Unwrap() error {

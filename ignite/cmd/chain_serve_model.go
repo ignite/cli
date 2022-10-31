@@ -44,12 +44,15 @@ func initialChainServeModel(cmd *cobra.Command, session *cliui.Session) chainSer
 type chainServeModel struct {
 	starting bool
 	quitting bool
+	broken   bool
 	error    error
-	status   model.StatusEvents
-	events   model.Events
 	cmd      *cobra.Command
 	session  *cliui.Session
 	quit     context.CancelFunc
+
+	// Model definitions for the views
+	status model.StatusEvents
+	events model.Events
 }
 
 func (m chainServeModel) Init() tea.Cmd {
@@ -75,14 +78,34 @@ func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.error = msg.Error
 		cmd = tea.Quit
 	case model.EventMsg:
-		// TODO: How to deal with non static events like the temporary serve restart error ones
-		if msg.ProgressIndication == events.IndicationFinish {
+		// TODO: See how to deal with code refresh when no errors
+
+		// The first "starting" view displays status events one after the other
+		// until the finish event is received, which signals that the second
+		// "running" view must be displayed.
+		if m.starting && msg.ProgressIndication == events.IndicationFinish {
 			// Replace the starting view by the running one
 			m.starting = false
 			// Start waiting for events to display in the running view
 			m.events, cmd = m.events.Update(msg)
 
 			return m, cmd
+		}
+
+		if m.isRunning() {
+			// Serve will keep running when there is an error after
+			// a successful initialization until the code is fixed.
+			if msg.Group == events.GroupError {
+				m.broken = true
+
+				// Clear the current events to only display the error
+				m.events.Clear()
+			} else if m.broken {
+				m.broken = false
+
+				// Clear the error event once the problem is fixed
+				m.events.Clear()
+			}
 		}
 
 		// Update the model that is being displayed
@@ -106,6 +129,10 @@ func (m chainServeModel) View() string {
 	}
 
 	return m.renderRunningView()
+}
+
+func (m chainServeModel) isRunning() bool {
+	return !(m.starting || m.quitting)
 }
 
 func (m chainServeModel) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -142,8 +169,16 @@ func (m chainServeModel) renderRunningView() string {
 		// TODO: Replace colors by lipgloss styles
 		fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
 	} else {
-		view.WriteString("Chain is running\n\n")
+		if !m.broken {
+			view.WriteString("Chain is running\n\n")
+		}
+
 		view.WriteString(m.events.View())
+
+		if m.broken {
+			view.WriteString(colors.Info("\nWaiting for a fix before retrying...\n"))
+		}
+
 		fmt.Fprintf(&view, "\n%s\n", msgStopServe)
 	}
 

@@ -8,6 +8,8 @@ import "fmt"
 type ProgressIndication uint8
 
 const (
+	GroupError = "error"
+
 	IndicationNone ProgressIndication = iota
 	IndicationStart
 	IndicationUpdate

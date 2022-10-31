@@ -243,7 +243,7 @@ func (m Events) View() string {
 
 		if e.Next() == nil && evt.InProgress() {
 			// When the event is the last one and is a status event display a spinner...
-			fmt.Fprint(&view, m.spinner.View(), evt)
+			fmt.Fprintf(&view, "\n%s%s", m.spinner.View(), evt)
 		} else {
 			// Otherwise display the event without the spinner
 			view.WriteString(evt.String())
