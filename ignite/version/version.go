@@ -11,7 +11,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/blang/semver/v4"
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v48/github"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
