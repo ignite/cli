@@ -7,7 +7,7 @@ import (
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
-// TODO omit -cli log messages for Stargate.
+// TODO omit -cli log messages.
 
 type Plugin interface {
 	// Name of a Cosmos version.
