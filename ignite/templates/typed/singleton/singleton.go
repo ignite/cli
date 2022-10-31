@@ -17,34 +17,34 @@ import (
 )
 
 var (
-	//go:embed stargate/component/* stargate/component/**/*
+	//go:embed files/component/* files/component/**/*
 	fsStargateComponent embed.FS
 
-	//go:embed stargate/messages/* stargate/messages/**/*
+	//go:embed stargate/messages/* files/messages/**/*
 	fsStargateMessages embed.FS
 
-	//go:embed stargate/simapp/* stargate/simapp/**/*
+	//go:embed files/simapp/* files/simapp/**/*
 	fsStargateSimapp embed.FS
 )
 
-// NewStargate returns the generator to scaffold a new indexed type in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a new indexed type in a module
+func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g = genny.New()
 
 		messagesTemplate = xgenny.NewEmbedWalker(
 			fsStargateMessages,
-			"stargate/messages/",
+			"files/messages/",
 			opts.AppPath,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsStargateComponent,
-			"stargate/component/",
+			"files/component/",
 			opts.AppPath,
 		)
 		simappTemplate = xgenny.NewEmbedWalker(
 			fsStargateSimapp,
-			"stargate/simapp/",
+			"files/simapp/",
 			opts.AppPath,
 		)
 	)

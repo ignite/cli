@@ -9,16 +9,16 @@ import (
 	"github.com/ignite/cli/ignite/templates/typed"
 )
 
-//go:embed stargate/component/* stargate/component/**/*
+//go:embed files/component/* files/component/**/*
 var fsStargateComponent embed.FS
 
-// NewStargate returns the generator to scaffold a basic type in a Stargate module.
-func NewStargate(opts *typed.Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a basic type in a module.
+func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
 			fsStargateComponent,
-			"stargate/component/",
+			"files/component/",
 			opts.AppPath,
 		)
 	)

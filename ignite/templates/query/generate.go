@@ -12,13 +12,13 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
 
-// NewStargate returns the generator to scaffold a empty query in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a empty query in a module
+func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
 			fsStargate,
-			"stargate/",
+			"files/",
 			opts.AppPath,
 		)
 	)
