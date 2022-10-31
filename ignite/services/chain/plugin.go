@@ -27,5 +27,5 @@ type Plugin interface {
 }
 
 func (c *Chain) pickPlugin() Plugin {
-	return newStargatePlugin(c.app)
+	return newPlugin(c.app)
 }

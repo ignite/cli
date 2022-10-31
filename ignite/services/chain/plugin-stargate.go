@@ -19,7 +19,7 @@ type stargatePlugin struct {
 	app App
 }
 
-func newStargatePlugin(app App) *stargatePlugin {
+func newPlugin(app App) *stargatePlugin {
 	return &stargatePlugin{
 		app: app,
 	}
