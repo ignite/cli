@@ -7,24 +7,10 @@ import (
 	"github.com/blang/semver/v4"
 )
 
-// Family represents the family(named versions) of Cosmos-SDK.
-type Family string
-
-const (
-	// Launchpad represents the launchpad family of Cosmos-SDK.
-	Launchpad Family = "launchpad"
-
-	// Stargate represents the stargate family of Cosmos-SDK.
-	Stargate Family = "stargate"
-)
-
 const prefix = "v"
 
 // Version represents a range of Cosmos SDK versions.
 type Version struct {
-	// Family of the version
-	Family Family
-
 	// Version is the exact sdk version string.
 	Version string
 
@@ -33,10 +19,10 @@ type Version struct {
 }
 
 var (
-	MaxLaunchpadVersion           = newVersion("0.39.99", Launchpad)
-	StargateFortyVersion          = newVersion("0.40.0", Stargate)
-	StargateFortyFourVersion      = newVersion("0.44.0-alpha", Stargate)
-	StargateFortyFiveThreeVersion = newVersion("0.45.3", Stargate)
+	MaxLaunchpadVersion           = newVersion("0.39.99")
+	StargateFortyVersion          = newVersion("0.40.0")
+	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
+	StargateFortyFiveThreeVersion = newVersion("0.45.3")
 )
 
 var (
@@ -51,9 +37,8 @@ var (
 	Latest = Versions[len(Versions)-1]
 )
 
-func newVersion(version string, family Family) Version {
+func newVersion(version string) Version {
 	return Version{
-		Family:   family,
 		Version:  "v" + version,
 		Semantic: semver.MustParse(version),
 	}
