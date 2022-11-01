@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"golang.org/x/sync/errgroup"
-
 	"github.com/imdario/mergo"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
