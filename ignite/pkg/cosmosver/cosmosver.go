@@ -19,7 +19,6 @@ type Version struct {
 }
 
 var (
-	MaxLaunchpadVersion           = newVersion("0.39.99")
 	StargateFortyVersion          = newVersion("0.40.0")
 	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
 	StargateFortyFiveThreeVersion = newVersion("0.45.3")
@@ -28,7 +27,6 @@ var (
 var (
 	// Versions is a list of known, sorted Cosmos-SDK versions.
 	Versions = []Version{
-		MaxLaunchpadVersion,
 		StargateFortyVersion,
 		StargateFortyFourVersion,
 	}
