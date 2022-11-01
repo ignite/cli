@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	gomodmodule "golang.org/x/mod/module"
-
 	"github.com/iancoleman/strcase"
+	
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 )
