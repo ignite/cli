@@ -52,11 +52,6 @@ func Parse(version string) (v Version, err error) {
 		return v, err
 	}
 
-	v.Family = Stargate
-	if v.LTE(MaxLaunchpadVersion) {
-		v.Family = Launchpad
-	}
-
 	return
 }
 
@@ -81,9 +76,5 @@ func (v Version) Is(version Version) bool {
 }
 
 func (v Version) String() string {
-	return fmt.Sprintf("%s - %s", v.Family, v.Version)
-}
-
-func (v Version) IsFamily(family Family) bool {
-	return v.Family == family
+	return fmt.Sprintf("%s", v.Version)
 }
