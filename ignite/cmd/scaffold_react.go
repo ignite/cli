@@ -11,7 +11,7 @@ import (
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "react",
-		Short:   "React web app template",
+		Short:   "Generate ReactJS web app template",
 		Args:    cobra.NoArgs,
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    scaffoldReactHandler,
@@ -24,15 +24,13 @@ func NewScaffoldReact() *cobra.Command {
 }
 
 func scaffoldReactHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	path := flagGetPath(cmd)
 	if err := scaffolder.React(path); err != nil {
 		return err
 	}
 
-	return session.Printf("\n🎉 Scaffold a ReactJS app.\n\n")
+	return session.Printf("\n🎉 Scaffolded a ReactJS app.\n\n")
 }

@@ -11,7 +11,7 @@ import (
 func NewGenerateHooks() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "hooks",
-		Short: "Generate Typescript client and React composables for your chain's frontend from your `config.yml` file",
+		Short: "Generate Typescript client and React hooks for your chain's frontend from your `config.yml` file",
 		RunE:  generateHooksHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))

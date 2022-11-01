@@ -11,7 +11,7 @@ import (
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "vue",
-		Short:   "Vue 3 web app template",
+		Short:   "Generate Vue 3 web app template",
 		Args:    cobra.NoArgs,
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    scaffoldVueHandler,
@@ -32,5 +32,5 @@ func scaffoldVueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return session.Printf("\n🎉 Scaffold a Vue.js app.\n\n")
+	return session.Printf("\n🎉 Scaffolded a Vue.js app.\n\n")
 }
