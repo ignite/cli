@@ -33,7 +33,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.2.0
-	github.com/ignite/web v0.4.1
+	github.com/ignite/web v0.4.2
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.7.7
 	github.com/lib/pq v1.10.6
