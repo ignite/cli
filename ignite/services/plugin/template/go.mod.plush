@@ -7,4 +7,7 @@ require (
 	github.com/ignite/cli v0.25.2-0.20221031170327-2d623a4e00ae
 )
 
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+replace (
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/ignite/cli => github.com/joshLong145/cli v0.25.2-0.20221028151152-3c4960fb80e1
+)

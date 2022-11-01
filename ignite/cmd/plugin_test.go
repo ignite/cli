@@ -17,13 +17,33 @@ import (
 // pluginInterface implements plugin.Interface for testing purpose.
 type pluginInterface struct {
 	commands []plugin.Command
+	hooks    []plugin.Hook
 }
 
 func (p pluginInterface) Commands() []plugin.Command {
 	return p.commands
 }
 
+func (p pluginInterface) Hooks() []plugin.Hook {
+	return p.hooks
+}
+
 func (pluginInterface) Execute(plugin.Command, []string) error {
+	return nil
+}
+
+func (pluginInterface) ExecuteHookPre(name string, args []string) error {
+	fmt.Printf("Executing pre run behavior for %s\n", name)
+	return nil
+}
+
+func (pluginInterface) ExecuteHookPost(name string, args []string) error {
+	fmt.Printf("Executing post run behavior for %s\n", name)
+	return nil
+}
+
+func (pluginInterface) ExecuteHookCleanUp(name string, args []string) error {
+	fmt.Printf("Executing cleanup behavior for %s\n", name)
 	return nil
 }
 
@@ -254,4 +274,142 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 	for _, cc := range c.Commands() {
 		dumpCmd(cc, w, ntabs)
 	}
+}
+
+func TestLinkPluginHooks(t *testing.T) {
+	buildRootCmd := func() *cobra.Command {
+		var (
+			rootCmd = &cobra.Command{
+				Use: "ignite",
+				RunE: func(*cobra.Command, []string) error {
+					return nil
+				},
+			}
+			scaffoldCmd = &cobra.Command{
+				Use: "scaffold",
+				RunE: func(*cobra.Command, []string) error {
+					return nil
+				},
+			}
+			scaffoldChainCmd = &cobra.Command{
+				Use: "chain",
+				RunE: func(*cobra.Command, []string) error {
+					return nil
+				},
+			}
+		)
+		scaffoldCmd.AddCommand(scaffoldChainCmd)
+		rootCmd.AddCommand(scaffoldCmd)
+		return rootCmd
+	}
+	tests := []struct {
+		name            string
+		pluginInterface pluginInterface
+		shouldError     bool
+	}{
+		{
+			name: "error: invalid command path",
+			pluginInterface: pluginInterface{
+				commands: []plugin.Command{
+					{
+						Use: "foo",
+					},
+				},
+				hooks: []plugin.Hook{
+					{
+						Name:        "test-hook-1",
+						PlaceHookOn: "ignite scaffold",
+					},
+				},
+			},
+			shouldError: false,
+		},
+		{
+			name: "ok: link foo at subcommand",
+			pluginInterface: pluginInterface{
+				commands: []plugin.Command{
+					{
+						Use: "foo",
+					},
+				},
+				hooks: []plugin.Hook{
+					{
+						Name:        "test-hook-2",
+						PlaceHookOn: "ignite chain",
+					},
+				},
+			},
+			shouldError: true,
+		},
+		{
+			name: "ok: should prepend root command",
+			pluginInterface: pluginInterface{
+				commands: []plugin.Command{
+					{
+						Use: "foo",
+					},
+				},
+				hooks: []plugin.Hook{
+					{
+						Name:        "test-hook-3",
+						PlaceHookOn: "scaffold chain",
+					},
+				},
+			},
+			shouldError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
+			p := &plugin.Plugin{
+				Plugin:    chainconfig.Plugin{Path: "foo"},
+				Interface: tt.pluginInterface,
+			}
+			rootCmd := buildRootCmd()
+
+			linkPluginHooks(rootCmd, p)
+			if tt.shouldError {
+				require.Error(p.Error)
+			} else {
+				require.NoError(p.Error)
+			}
+
+			for _, hook := range p.Interface.Hooks() {
+				areHooksDefined := checkCmd(rootCmd, hook.PlaceHookOn)
+				if tt.shouldError {
+					assert.False(areHooksDefined, "hooks should have pre and post runs undefined")
+				} else {
+					assert.True(areHooksDefined, "hooks should have pre and post runs defined")
+				}
+			}
+		})
+	}
+}
+
+func checkCmd(c *cobra.Command, path string) bool {
+	// bring helper for path prefix from plugin.go
+	if !strings.HasPrefix(path, "ignite") {
+		// cmdPath must start with `ignite ` before comparison with
+		// cmd.CommandPath()
+		path = "ignite " + path
+	}
+
+	isDefined := false
+	command := findCommandByPath(c, path)
+	if command == nil {
+		return false
+	}
+
+	isDefined = command.PreRunE != nil
+
+	if !isDefined {
+		return isDefined
+	}
+
+	isDefined = command.PostRunE != nil
+
+	return isDefined
 }
