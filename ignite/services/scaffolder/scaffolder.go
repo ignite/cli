@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
@@ -101,10 +100,6 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		tsClientPath := chainconfig.TSClientPath(conf)
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(projectPath, tsClientPath)
-		}
-
-		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
-			return err
 		}
 
 		options = append(options,
