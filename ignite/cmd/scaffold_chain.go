@@ -97,8 +97,13 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	appdir, err := scaffolder.Init(
-		cmd.Context(), cacheStorage, placeholder.New(), appPath, name,
-		addressPrefix, noDefaultModule,
+		cmd.Context(),
+		cacheStorage,
+		placeholder.New(),
+		appPath,
+		name,
+		addressPrefix,
+		noDefaultModule,
 	)
 	if err != nil {
 		return err

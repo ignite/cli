@@ -147,10 +147,6 @@ func (c *Chain) Generate(
 			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
 		}
 
-		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
-			return err
-		}
-
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
 				cosmosgen.TypescriptModulePath(tsClientPath),
@@ -166,10 +162,6 @@ func (c *Chain) Generate(
 		}
 
 		vuexPath = c.joinGeneratedPath(vuexPath)
-		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
-			return err
-		}
-
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				cosmosgen.TypescriptModulePath(vuexPath),

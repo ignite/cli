@@ -115,12 +115,8 @@ func generate(
 	// mod tidy requests the sumdb, until we understand why, we disable sumdb.
 	// related issue:  https://github.com/golang/go/issues/56174
 	opt := exec.StepOption(step.Env("GOSUMDB=off"))
-	if err := gocmd.ModTidy(ctx, absRoot, opt); err != nil {
-		return err
-	}
 
-	// generate the vue app.
-	return Vue(filepath.Join(absRoot, "vue"))
+	return gocmd.ModTidy(ctx, absRoot, opt)
 }
 
 // Vue scaffolds a Vue.js app for a chain.
