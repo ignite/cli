@@ -69,7 +69,9 @@ type Client struct {
 	// TSClient configures code generation for Typescript Client.
 	Typescript Typescript `yaml:"typescript,omitempty"`
 
-	// Vuex configures code generation for Vuex stores. DEPRECATED and will be removed eventually.
+	// Vuex configures code generation for Vuex stores.
+	// 
+	// Deprecated: Will be removed eventually.
 	Vuex Vuex `yaml:"vuex,omitempty"`
 
 	// Composables configures code generation for Vue 3 composables.
