@@ -344,7 +344,7 @@ func New(
 		app.BlockedModuleAccountAddrs(),
 	)
 
-	stakingKeeper := stakingkeeper.NewKeeper(
+	app.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
 		keys[stakingtypes.StoreKey],
 		app.AccountKeeper,
@@ -356,7 +356,7 @@ func New(
 		appCodec,
 		keys[minttypes.StoreKey],
 		app.GetSubspace(minttypes.ModuleName),
-		&stakingKeeper,
+		&app.StakingKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
@@ -368,14 +368,14 @@ func New(
 		app.GetSubspace(distrtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		&stakingKeeper,
+		&app.StakingKeeper,
 		authtypes.FeeCollectorName,
 	)
 
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
 		keys[slashingtypes.StoreKey],
-		&stakingKeeper,
+		&app.StakingKeeper,
 		app.GetSubspace(slashingtypes.ModuleName),
 	)
 
@@ -484,23 +484,13 @@ func New(
 		app.GetSubspace(govtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		&stakingKeeper,
+		&app.StakingKeeper,
 		govRouter,
 		app.MsgServiceRouter(),
 		govConfig,
 	)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-
-	/**** Module Hooks ****/
-
-	// register hooks after all modules have been initialized
-
-	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	app.StakingKeeper = *stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
-	)
 
     /**** IBC Routing ****/
 
@@ -513,6 +503,24 @@ func New(
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
+
+	/**** Module Hooks ****/
+
+    // register hooks after all modules have been initialized
+
+    app.StakingKeeper.SetHooks(
+    	stakingtypes.NewMultiStakingHooks(
+    		// insert staking hooks receivers here
+    		app.DistrKeeper.Hooks(),
+    		app.SlashingKeeper.Hooks(),
+    	    ),
+    )
+
+    app.GovKeeper.SetHooks(
+        govtypes.NewMultiGovHooks(
+        	// insert governance hooks receivers here
+        ),
+    )
 
 	/**** Module Options ****/
 
