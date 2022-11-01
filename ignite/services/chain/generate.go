@@ -104,6 +104,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 		additionalTargets = append(additionalTargets, GenerateTSClient(p))
 	}
 
+	//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
 	}
@@ -187,6 +188,7 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
+		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		vuexPath = conf.Client.Vuex.Path
 		if vuexPath == "" {
 			vuexPath = defaultVuexPath

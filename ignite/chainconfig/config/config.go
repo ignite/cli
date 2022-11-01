@@ -70,7 +70,7 @@ type Client struct {
 	Typescript Typescript `yaml:"typescript,omitempty"`
 
 	// Vuex configures code generation for Vuex stores.
-	// 
+	//
 	// Deprecated: Will be removed eventually.
 	Vuex Vuex `yaml:"vuex,omitempty"`
 
