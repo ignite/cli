@@ -17,6 +17,7 @@ func NewGenerateDart() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().StringP(flagOutput, "o", "", "Dart client output path")
 
 	return c
 }
@@ -41,7 +42,12 @@ func generateDartHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateDart()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateDart(output)); err != nil {
 		return err
 	}
 

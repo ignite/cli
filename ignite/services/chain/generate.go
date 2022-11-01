@@ -13,14 +13,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-const (
-	defaultVuexPath        = "vue/src/store"
-	defaultComposablesPath = "vue/src/composables"
-	defaultHooksPath       = "react/src/hooks"
-	defaultDartPath        = "flutter/lib"
-	defaultOpenAPIPath     = "docs/static/openapi.yml"
-)
-
 type generateOptions struct {
 	isGoEnabled          bool
 	isTSClientEnabled    bool
@@ -30,6 +22,10 @@ type generateOptions struct {
 	isDartEnabled        bool
 	isOpenAPIEnabled     bool
 	tsClientPath         string
+	vuexPath             string
+	composablesPath      string
+	hooksPath            string
+	dartPath             string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -53,33 +49,37 @@ func GenerateTSClient(path string) GenerateTarget {
 }
 
 // GenerateVuex enables generating proto based Typescript Client and Vuex Stores.
-func GenerateVuex() GenerateTarget {
+func GenerateVuex(path string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
+		o.vuexPath = path
 	}
 }
 
 // GenerateComposables enables generating proto based Typescript Client and Vue 3 composables.
-func GenerateComposables() GenerateTarget {
+func GenerateComposables(path string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.isComposablesEnabled = true
+		o.composablesPath = path
 	}
 }
 
 // GenerateHooks enables generating proto based Typescript Client and React composables.
-func GenerateHooks() GenerateTarget {
+func GenerateHooks(path string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.isHooksEnabled = true
+		o.hooksPath = path
 	}
 }
 
 // GenerateDart enables generating Dart client.
-func GenerateDart() GenerateTarget {
+func GenerateDart(path string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isDartEnabled = true
+		o.dartPath = path
 	}
 }
 
@@ -105,20 +105,20 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	}
 
 	//nolint:staticcheck //ignore SA1019 until vuex config option is removed
-	if conf.Client.Vuex.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex())
+	if p := conf.Client.Vuex.Path; p != "" {
+		additionalTargets = append(additionalTargets, GenerateVuex(p))
 	}
 
-	if conf.Client.Composables.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateComposables())
+	if p := conf.Client.Composables.Path; p != "" {
+		additionalTargets = append(additionalTargets, GenerateComposables(p))
 	}
 
-	if conf.Client.Hooks.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateHooks())
+	if p := conf.Client.Hooks.Path; p != "" {
+		additionalTargets = append(additionalTargets, GenerateHooks(p))
 	}
 
-	if conf.Client.Dart.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateDart())
+	if p := conf.Client.Dart.Path; p != "" {
+		additionalTargets = append(additionalTargets, GenerateDart(p))
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
@@ -189,9 +189,14 @@ func (c *Chain) Generate(
 
 	if targetOptions.isVuexEnabled {
 		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
-		vuexPath = conf.Client.Vuex.Path
+		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
-			vuexPath = defaultVuexPath
+			vuexPath = chainconfig.VuexPath(conf)
+		}
+
+		// Non absolute Vuex output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(vuexPath) {
+			vuexPath = filepath.Join(c.app.Path, vuexPath)
 		}
 
 		vuexPath = c.joinGeneratedPath(vuexPath)
@@ -209,9 +214,15 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isComposablesEnabled {
-		composablesPath = conf.Client.Composables.Path
+		composablesPath = targetOptions.composablesPath
+
 		if composablesPath == "" {
-			composablesPath = defaultComposablesPath
+			composablesPath = chainconfig.ComposablesPath(conf)
+		}
+
+		// Non absolute Composables output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(composablesPath) {
+			composablesPath = filepath.Join(c.app.Path, composablesPath)
 		}
 
 		if err := os.MkdirAll(composablesPath, 0o766); err != nil {
@@ -228,9 +239,14 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isHooksEnabled {
-		hooksPath = conf.Client.Hooks.Path
+		hooksPath = targetOptions.hooksPath
 		if hooksPath == "" {
-			hooksPath = defaultHooksPath
+			hooksPath = chainconfig.HooksPath(conf)
+		}
+
+		// Non absolute Hooks output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(hooksPath) {
+			hooksPath = filepath.Join(c.app.Path, hooksPath)
 		}
 
 		if err := os.MkdirAll(hooksPath, 0o766); err != nil {
@@ -246,12 +262,16 @@ func (c *Chain) Generate(
 		)
 	}
 	if targetOptions.isDartEnabled {
-		dartPath = conf.Client.Dart.Path
+		dartPath = targetOptions.dartPath
 		if dartPath == "" {
-			dartPath = defaultDartPath
+			dartPath = chainconfig.DartPath(conf)
 		}
 
-		dartPath = c.joinGeneratedPath(dartPath)
+		// Non absolute Dart output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(dartPath) {
+			dartPath = filepath.Join(c.app.Path, dartPath)
+		}
+
 		if err := os.MkdirAll(dartPath, 0o766); err != nil {
 			return err
 		}
@@ -268,7 +288,7 @@ func (c *Chain) Generate(
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
-			openAPIPath = defaultOpenAPIPath
+			openAPIPath = chainconfig.DefaultOpenAPIPath
 		}
 
 		// Non absolute OpenAPI paths must be treated as relative to the app directory

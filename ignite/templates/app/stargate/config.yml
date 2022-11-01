@@ -10,14 +10,6 @@ validators:
 client:
   openapi:
     path: "docs/static/openapi.yml"
-  typescript:
-    path: "ts-client"
-  composables:
-    path: "vue/src/composables"
-  hooks:
-    path: "react/src/hooks"
-  vuex:
-    path: "vue/src/store"
 faucet:
   name: bob
   coins: ["5token", "100000stake"]

@@ -15,6 +15,7 @@ func NewGenerateHooks() *cobra.Command {
 		RunE:  generateHooksHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().StringP(flagOutput, "o", "", "React hooks output path")
 	return c
 }
 
@@ -22,7 +23,9 @@ func generateHooksHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen(),
+	c, err := NewChainWithHomeFlags(
+		cmd,
+		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths())
@@ -35,7 +38,12 @@ func generateHooksHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateHooks()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateHooks(output)); err != nil {
 		return err
 	}
 

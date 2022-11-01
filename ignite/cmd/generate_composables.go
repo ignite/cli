@@ -15,6 +15,7 @@ func NewGenerateComposables() *cobra.Command {
 		RunE:  generateComposablesHandler,
 	}
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+	c.Flags().StringP(flagOutput, "o", "", "Vue 3 composables output path")
 	return c
 }
 
@@ -22,7 +23,9 @@ func generateComposablesHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen(),
+	c, err := NewChainWithHomeFlags(
+		cmd,
+		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths())
@@ -35,7 +38,12 @@ func generateComposablesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables(output)); err != nil {
 		return err
 	}
 

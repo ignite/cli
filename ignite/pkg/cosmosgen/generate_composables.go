@@ -17,7 +17,7 @@ import (
 
 type composablesGenerator struct {
 	g            *generator
-	FrontendType string
+	frontendType string
 }
 
 func newComposablesGenerator(g *generator, frontendType string) *composablesGenerator {
@@ -132,7 +132,7 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 
 func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
 	var outDir string
-	if g.FrontendType == "vue" {
+	if g.frontendType == "vue" {
 		outDir = g.g.o.composablesOut(m)
 	} else {
 		outDir = g.g.o.hooksOut(m)
@@ -148,13 +148,13 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 	}{
 		Module:       m,
 		PackageNS:    p.PackageNS,
-		FrontendType: g.FrontendType,
+		FrontendType: g.frontendType,
 	})
 }
 
 func (g *composablesGenerator) generateRootTemplates(p generatePayload) error {
 	var outDir string
-	if g.FrontendType == "vue" {
+	if g.frontendType == "vue" {
 		outDir = g.g.o.composablesRootPath
 	} else {
 		outDir = g.g.o.hooksRootPath
