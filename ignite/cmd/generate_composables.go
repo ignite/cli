@@ -1,11 +1,10 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -20,10 +19,13 @@ func NewGenerateComposables() *cobra.Command {
 }
 
 func generateComposablesHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Generating...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
+	defer session.End()
 
-	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
+	c, err := NewChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen(),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+		chain.PrintGeneratedPaths())
 	if err != nil {
 		return err
 	}
@@ -37,8 +39,5 @@ func generateComposablesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-	fmt.Println("⛏️  Generated Typescript Client and Vue 3 composables")
-
-	return nil
+	return session.Println(icons.OK, "Generated Typescript Client and Vue 3 composables")
 }

@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	gomodmodule "golang.org/x/mod/module"
 	"github.com/iancoleman/strcase"
-	
+	gomodmodule "golang.org/x/mod/module"
+
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 )
@@ -222,7 +222,7 @@ func ComposableModulePath(rootPath string) ModulePathFunc {
 		replacer := strings.NewReplacer("-", "_", ".", "_")
 		modPath := strcase.ToCamel(replacer.Replace(m.Pkg.Name))
 		return filepath.Join(rootPath, "use"+modPath)
-  }
+	}
 }
 
 // DartModulePath generates Dart module paths for Cosmos SDK modules.

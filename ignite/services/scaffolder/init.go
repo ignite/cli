@@ -8,7 +8,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	webtemplates "github.com/ignite/web"
-	"github.com/tendermint/flutter/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"

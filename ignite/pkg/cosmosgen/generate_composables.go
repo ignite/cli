@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
 	"github.com/imdario/mergo"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
