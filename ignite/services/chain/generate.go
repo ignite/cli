@@ -161,7 +161,7 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	var dartPath, openAPIPath, tsClientPath, vuexPath string
+	var dartPath, openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
 
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
@@ -207,7 +207,7 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isComposablesEnabled {
-		composablesPath := conf.Client.Composables.Path
+		composablesPath = conf.Client.Composables.Path
 		if composablesPath == "" {
 			composablesPath = defaultComposablesPath
 		}
@@ -226,7 +226,7 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isHooksEnabled {
-		hooksPath := conf.Client.Hooks.Path
+		hooksPath = conf.Client.Hooks.Path
 		if hooksPath == "" {
 			hooksPath = defaultHooksPath
 		}
@@ -287,6 +287,22 @@ func (c *Chain) Generate(
 		if targetOptions.isTSClientEnabled {
 			c.ev.Send(
 				fmt.Sprintf("Typescript client path: %s", tsClientPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinish(),
+			)
+		}
+
+		if targetOptions.isComposablesEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Vue composables path: %s", composablesPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinish(),
+			)
+		}
+
+		if targetOptions.isHooksEnabled {
+			c.ev.Send(
+				fmt.Sprintf("React hooks path: %s", hooksPath),
 				events.Icon(icons.Bullet),
 				events.ProgressFinish(),
 			)
