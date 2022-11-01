@@ -91,7 +91,9 @@ type Typescript struct {
 	Path string `yaml:"path"`
 }
 
-// Vuex configures code generation for Vuex stores. DEPRECATED and will be removed eventually.
+// Vuex configures code generation for Vuex stores.
+//
+// Deprecated: Will be removed eventually.
 type Vuex struct {
 	// Path configures out location for generated Vuex stores code.
 	Path string `yaml:"path"`
