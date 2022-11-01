@@ -151,15 +151,15 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		apply(c)
 	}
 
-	c.ev.Send("Fetching the source code", events.ProgressStarted())
+	c.ev.Send("Fetching the source code", events.ProgressStart())
 
 	var err error
 	if c.path, c.hash, err = fetchSource(ctx, c.url, c.ref, c.hash); err != nil {
 		return nil, err
 	}
 
-	c.ev.Send("Source code fetched", events.ProgressFinished())
-	c.ev.Send("Setting up the blockchain", events.ProgressStarted())
+	c.ev.Send("Source code fetched", events.ProgressFinish())
+	c.ev.Send("Setting up the blockchain", events.ProgressStart())
 
 	chainOption := []chain.Option{
 		chain.ID(c.id),
@@ -188,7 +188,7 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	}
 
 	c.chain = chain
-	c.ev.Send("Blockchain set up", events.ProgressFinished())
+	c.ev.Send("Blockchain set up", events.ProgressFinish())
 
 	return c, nil
 }
@@ -322,14 +322,14 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 		}
 	}
 
-	c.ev.Send("Building the chain's binary", events.ProgressStarted())
+	c.ev.Send("Building the chain's binary", events.ProgressStart())
 
 	// build binary
 	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
 		return "", err
 	}
 
-	c.ev.Send("Chain's binary built", events.ProgressFinished())
+	c.ev.Send("Chain's binary built", events.ProgressFinish())
 
 	// cache built binary for launch id
 	if c.launchID != 0 {

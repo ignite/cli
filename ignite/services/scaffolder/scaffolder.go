@@ -96,35 +96,49 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
-	// generate Typescript Client code as well if it is enabled or when the vuex store is being generated
+	// Generate Typescript client code if it's enabled or when Vuex stores are generated
 	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" {
-		tsClientRootPath := filepath.Join(projectPath, chainconfig.TSClientPath(conf))
-		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
+		tsClientPath := chainconfig.TSClientPath(conf)
+		if !filepath.IsAbs(tsClientPath) {
+			tsClientPath = filepath.Join(projectPath, tsClientPath)
+		}
+
+		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
 			return err
 		}
 
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
-				cosmosgen.TypescriptModulePath(tsClientRootPath),
-				tsClientRootPath,
+				cosmosgen.TypescriptModulePath(tsClientPath),
+				tsClientPath,
 			),
 		)
 	}
 
-	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+		vuexPath := conf.Client.Vuex.Path
+		if filepath.IsAbs(vuexPath) {
+			vuexPath = filepath.Join(vuexPath, "generated")
+		} else {
+			vuexPath = filepath.Join(projectPath, vuexPath, "generated")
+		}
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
-				cosmosgen.TypescriptModulePath(storeRootPath),
-				storeRootPath,
+				cosmosgen.TypescriptModulePath(vuexPath),
+				vuexPath,
 			),
 		)
 	}
+
 	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+		openAPIPath := conf.Client.OpenAPI.Path
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(projectPath, openAPIPath)
+		}
+
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
 	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, options...)
