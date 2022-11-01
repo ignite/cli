@@ -16,7 +16,6 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.0.0
-	github.com/docker/docker v20.10.17+incompatible
 	github.com/emicklei/proto v1.11.0
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
@@ -42,6 +41,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/moby/moby v20.10.21+incompatible
 	github.com/otiai10/copy v1.7.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
@@ -144,6 +144,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
+	github.com/docker/docker v20.10.17+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
