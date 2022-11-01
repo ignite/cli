@@ -10,7 +10,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
-	vue "github.com/ignite/web"
+	webtemplates "github.com/ignite/web"
 	"github.com/tendermint/flutter/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -137,7 +137,12 @@ func generate(
 
 // Vue scaffolds a Vue.js app for a chain.
 func Vue(path string) error {
-	return localfs.Save(vue.Boilerplate(), path)
+	return localfs.Save(webtemplates.VueBoilerplate(), path)
+}
+
+// React scaffolds a ReactJS app for a chain.
+func React(path string) error {
+	return localfs.Save(webtemplates.ReactBoilerplate(), path)
 }
 
 // Flutter scaffolds a Flutter app for a chain.

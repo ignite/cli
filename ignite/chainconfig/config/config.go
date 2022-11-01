@@ -75,6 +75,9 @@ type Client struct {
 	// Composables configures code generation for Vue 3 composables.
 	Composables Composables `yaml:"composables"`
 
+	// Hooks configures code generation for React hooks.
+	Hooks Hooks `yaml:"hooks"`
+
 	// Dart configures client code generation for Dart.
 	Dart Dart `yaml:"dart,omitempty"`
 
@@ -96,6 +99,12 @@ type Vuex struct {
 
 // Composables configures code generation for vue-query hooks.
 type Composables struct {
+	// Path configures out location for generated vue-query hooks.
+	Path string `yaml:"path"`
+}
+
+// Hooks configures code generation for react-query hooks.
+type Hooks struct {
 	// Path configures out location for generated vue-query hooks.
 	Path string `yaml:"path"`
 }

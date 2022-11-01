@@ -27,6 +27,9 @@ type generateOptions struct {
 	composablesOut      func(module.Module) string
 	composablesRootPath string
 
+	hooksOut      func(module.Module) string
+	hooksRootPath string
+
 	specOut string
 
 	dartOut               func(module.Module) string
@@ -64,6 +67,14 @@ func WithComposablesGeneration(includeThirdPartyModules bool, out ModulePathFunc
 		o.composablesOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.composablesRootPath = composablesRootPath
+	}
+}
+
+func WithHooksGeneration(includeThirdPartyModules bool, out ModulePathFunc, hooksRootPath string) Option {
+	return func(o *generateOptions) {
+		o.hooksOut = out
+		o.jsIncludeThirdParty = includeThirdPartyModules
+		o.hooksRootPath = hooksRootPath
 	}
 }
 
@@ -158,14 +169,26 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	if g.o.composablesRootPath != "" {
-		if err := g.generateComposables(); err != nil {
+		if err := g.generateComposables("vue"); err != nil {
 			return err
 		}
 
 		// Update Vue app dependencies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
-		if err := g.updateComposableDependencies(); err != nil {
+		if err := g.updateComposableDependencies("vue"); err != nil {
+			return err
+		}
+	}
+	if g.o.hooksRootPath != "" {
+		if err := g.generateComposables("react"); err != nil {
+			return err
+		}
+
+		// Update React app dependencies when Vuex stores are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateComposableDependencies("react"); err != nil {
 			return err
 		}
 	}

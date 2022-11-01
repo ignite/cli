@@ -14,6 +14,7 @@ import (
 const (
 	defaultVuexPath        = "vue/src/store"
 	defaultComposablesPath = "vue/src/composables"
+	defaultHooksPath       = "react/src/hooks"
 	defaultDartPath        = "flutter/lib"
 	defaultOpenAPIPath     = "docs/static/openapi.yml"
 )
@@ -22,6 +23,7 @@ type generateOptions struct {
 	isGoEnabled          bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
+	isHooksEnabled       bool
 	isVuexEnabled        bool
 	isDartEnabled        bool
 	isOpenAPIEnabled     bool
@@ -64,6 +66,14 @@ func GenerateComposables() GenerateTarget {
 	}
 }
 
+// GenerateHooks enables generating proto based Typescript Client and React composables.
+func GenerateHooks() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+		o.isHooksEnabled = true
+	}
+}
+
 // GenerateDart enables generating Dart client.
 func GenerateDart() GenerateTarget {
 	return func(o *generateOptions) {
@@ -98,6 +108,10 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if conf.Client.Composables.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateComposables())
+	}
+
+	if conf.Client.Hooks.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateHooks())
 	}
 
 	if conf.Client.Dart.Path != "" {
@@ -204,6 +218,24 @@ func (c *Chain) Generate(
 		)
 	}
 
+	if targetOptions.isHooksEnabled {
+		hooksPath := conf.Client.Hooks.Path
+		if hooksPath == "" {
+			hooksPath = defaultHooksPath
+		}
+
+		if err := os.MkdirAll(hooksPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithHooksGeneration(
+				enableThirdPartyModuleCodegen,
+				cosmosgen.ComposableModulePath(hooksPath),
+				hooksPath,
+			),
+		)
+	}
 	if targetOptions.isDartEnabled {
 		dartPath := conf.Client.Dart.Path
 		if dartPath == "" {
