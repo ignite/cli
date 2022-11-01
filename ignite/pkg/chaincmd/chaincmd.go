@@ -71,10 +71,7 @@ type ChainCmd struct {
 	homeDir         string
 	keyringBackend  KeyringBackend
 	keyringPassword string
-	cliCmd          string
-	cliHome         string
 	nodeAddress     string
-	legacySend      bool
 
 	isAutoChainIDDetectionEnabled bool
 

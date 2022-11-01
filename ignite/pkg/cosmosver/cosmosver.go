@@ -1,7 +1,6 @@
 package cosmosver
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/blang/semver/v4"
@@ -74,5 +73,5 @@ func (v Version) Is(version Version) bool {
 }
 
 func (v Version) String() string {
-	return fmt.Sprintf("%s", v.Version)
+	return v.Version
 }
