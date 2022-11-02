@@ -28,7 +28,7 @@ where:
 
 🧑‍🏫 **[Developer Guide](https://docs.ignite.com/guide/)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
 
-📕 **Ignite CLI Documentation](https://docs.ignite.com)**: Explore the features of Ignite CLI.
+📕 **Ignite CLI Documentation](<https://docs.ignite.com>)**: Explore the features of Ignite CLI.
 
 📚 [Cosmos SDK Documentation](https://docs.cosmos.network): Learn about the framework for building application-specific blockchains.
 
@@ -45,7 +45,7 @@ where:
 ## Install Ignite CLI locally
 
 ```
-curl https://get.ignite.com/cli! | bash
+curl https://get.ignite.com/cli | bash
 ```
 
 The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/guide/install.html).

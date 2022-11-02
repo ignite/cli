@@ -5,7 +5,7 @@ description: Write a query that returns a blog post by ID with associated commen
 
 # Add associated comments to a blog post
 
-In this tutorial, you create a new message to add comments to a blog post.  
+In this tutorial, you create a new message to add comments to a blog post.
 
 By completing this tutorial, you will learn about:
 
@@ -15,23 +15,28 @@ By completing this tutorial, you will learn about:
 * Deleting comments from a blog post
 * Implementing logic for writing comments to the blockchain
 
-**Note:** For this tutorial, adding comments is available only to blog posts that are no older than 100 blocks. The 100 block value has been hard coded for rapid testing. You can increase the block count to a larger number to achieve a longer time period before commenting is disabled.
+**Note:** For this tutorial, adding comments is available only to blog posts that are no older than 100 blocks.
+The 100 block value has been hard coded for rapid testing. You can increase the block count to a larger number to
+achieve
+a longer time period before commenting is disabled.
 
 ## Prerequisites
 
-This tutorial is an extension of and requires completion of the [Module Basics: Build a Blog](index.md) tutorial. 
+This tutorial is an extension of and requires completion of the [Module Basics: Build a Blog](00-build-blog.md) tutorial.
 
-## Core concepts 
+## Core concepts
 
 This tutorial relies on the `blog` blockchain that you built in the `Build a Blog Tutorial.`
 
 ## Fetch functions using list command
 
-To get the useful functions for this tutorial, you use the `ignite scaffold list NAME [field]... [flags]` command. Make sure to familiarize yourself with the command.
+To get the useful functions for this tutorial, you use the `ignite scaffold list NAME [field]... [flags]` command.
+Make sure to familiarize yourself with the command.
 
-1. Navigate to the `blog` directory that you created in the [Build a blog](index.md) tutorial.
+1. Navigate to the `blog` directory that you created in the [Build a blog](00-build-blog.md) tutorial.
 
-2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an array, run:
+2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an
+   array, run:
 
 ```bash
 ignite scaffold list comment --no-message creator:string title:string body:string postID:uint createdAt:int 
@@ -42,10 +47,9 @@ The `--no-message` flag disables CRUD interaction messages scaffolding because y
 The command output shows the files that were created and modified:
 
 ```
-create proto/blog/comment.proto
-modify proto/blog/genesis.proto
-modify proto/blog/query.proto
-modify vue/src/views/Types.vue
+create proto/blog/blog/comment.proto
+modify proto/blog/blog/genesis.proto
+modify proto/blog/blog/query.proto
 modify x/blog/client/cli/query.go
 create x/blog/client/cli/query_comment.go
 create x/blog/client/cli/query_comment_test.go
@@ -55,7 +59,6 @@ create x/blog/keeper/comment.go
 create x/blog/keeper/comment_test.go
 create x/blog/keeper/grpc_query_comment.go
 create x/blog/keeper/grpc_query_comment_test.go
-modify x/blog/module.go
 modify x/blog/types/genesis.go
 modify x/blog/types/genesis_test.go
 modify x/blog/types/keys.go
@@ -63,16 +66,16 @@ modify x/blog/types/keys.go
 🎉 comment added.
 ```
 
-Make a small modification in `proto/blog/comment.proto` to change `createdAt` to int64:
+Make a small modification in `proto/blog/blog/comment.proto` to change `createdAt` to int64:
 
 ```protobuf
 message Comment {
   uint64 id = 1;
-  string creator = 2; 
-  string title = 3; 
-  string body = 4; 
-  uint64 postID = 5; 
-  int64 createdAt = 6;  
+  string creator = 2;
+  string title = 3;
+  string body = 4;
+  uint64 postID = 5;
+  int64 createdAt = 6;
 }
 ```
 
@@ -84,14 +87,15 @@ To create a new message that adds a comment to the existing post, run:
 ignite scaffold message create-comment postID:uint title body
 ```
 
-The `ignite scaffold message` command accepts `postID` and a list of fields as arguments. The fields are `title` and `body`.
+The `ignite scaffold message` command accepts `postID` and a list of fields as arguments. The fields are `title`
+and `body`.
 
 Here, `postID` is the reference to previously created blog post.
 
 The `message` command has created and modified several files:
 
 ```
-modify proto/blog/tx.proto
+modify proto/blog/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_comment.go
 create x/blog/keeper/msg_server_create_comment.go
@@ -104,9 +108,9 @@ create x/blog/types/message_create_comment_test.go
 🎉 Created a message `create-comment`.
 ```
 
-As always, start your development with a proto file. 
+As always, start your development with a proto file.
 
-In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
+In the `proto/blog/blog/tx.proto` file, edit `MsgCreateComment` to:
 
 * Add `id`
 * Define the `id` for `message MsgCreateCommentResponse`:
@@ -125,13 +129,16 @@ message MsgCreateCommentResponse {
 }
 ```
 
- You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+You see in the `proto/blog/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body,
+postID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only
+thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg`
+service:
 
 ```protobuf
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
 
-Now, add the `id` field to `MsgCreatePost`: 
+Now, add the `id` field to `MsgCreatePost`:
 
 ```protobuf
 message MsgCreatePost {
@@ -144,15 +151,19 @@ message MsgCreatePost {
 
 ## Process messages
 
-In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function (marked with `//TODO`). Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
+In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of
+the `CreateComment` function (marked with `//TODO`). Right now it does nothing and returns an empty response. For your
+blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
 
 You need to do the following things:
 
 * Create a variable of type `Comment` with title and body from the message
-* Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks
+* Check if the comment posted for the respective blog id exists and comment is not older than 100 blocks
 * Append this `Comment` to the store
 
 ```go
+package keeper
+
 import (
 	// ...
 
@@ -190,9 +201,12 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 }
 ```
 
-When the Comment validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by navigating to `x/blog/types/errors.go` and replacing the current values in 'var' with:
+When the Comment validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error
+messages by navigating to `x/blog/types/errors.go` and replacing the current values in 'var' with:
 
 ```go
+package types
+
 // ...
 
 var (
@@ -201,10 +215,13 @@ var (
 )
 ```
 
-
 In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make a modification to add `createdAt`
 
 ```go
+package keeper
+
+// ...
+
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
 	// Get the context
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -228,15 +245,20 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 ## Write data to the store
 
-When you define the `Comment` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the required Go files.
+When you define the `Comment` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the
+required Go files.
 
-Inside the `proto/blog/comment.proto` file, you can observe, Ignite CLI has already added the required fields inside the `Comment` message.
+Inside the `proto/blog/blog/comment.proto` file, you can observe, Ignite CLI has already added the required fields
+inside the `Comment` message.
 
-The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Comment`. 
+The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package
+name that is used to identify messages, among other things, specifies the Go package where new files are generated, and
+finally defines `message Comment`.
 
-Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Ignite CLI, the `Comment` type is available.
+Each file save triggers an automatic rebuild. Now, after you build and start your chain with Ignite CLI, the `Comment`
+type is available.
 
-Also, make a small modification in `proto/blog/post.proto` to add `createdAt`:
+Also, make a small modification in `proto/blog/blog/post.proto` to add `createdAt`:
 
 ```protobuf
 // ...
@@ -249,7 +271,7 @@ message Post {
 
 ### Define keeper methods
 
-The function `ignite scaffold list comment --no-message` has fetched all of the required functions for keeper. 
+The function `ignite scaffold list comment --no-message` has fetched all the required functions for keeper.
 
 Inside `x/blog/types/keys.go` file, you can see that the `Comment/value/` and `Comment/count/` keys are added.
 
@@ -258,6 +280,8 @@ Inside `x/blog/types/keys.go` file, you can see that the `Comment/value/` and `C
 In `x/blog/keeper/post.go`, add a new function to get the post:
 
 ```go
+package keeper
+
 import (
 	"encoding/binary"
 
@@ -285,18 +309,22 @@ func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool)
 }
 ```
 
-You have manually added the functions to `x/blog/keeper/post.go`. 
+You have manually added the functions to `x/blog/keeper/post.go`.
 
-When you ran the `ignite scaffold list comment --no-message` command, these functions are automatically implemented in `x/blog/keeper/comment.go`:
+When you ran the `ignite scaffold list comment --no-message` command, these functions are automatically implemented
+in `x/blog/keeper/comment.go`:
 
-- `GetCommentCount`
-- `SetCommentCount`
-- `AppendCommentCount`
+* `GetCommentCount`
+* `SetCommentCount`
+* `AppendCommentCount`
 
-By following these steps, you have implemented all of the code required to create comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog module.
+By following these steps, you have implemented all the code required to create comments and store them on-chain. Now,
+when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog
+module.
 
-- `k.CreateComment` calls `AppendComment`.
-- `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
+* `k.CreateComment` calls `AppendComment`.
+* `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the
+  count, and returns the ID.
 
 ## Create the delete-comment message
 
@@ -313,7 +341,7 @@ Here, `commentID` and `postID` are the references to previously created comment 
 The `message` command has created and modified several files:
 
 ```
-modify proto/blog/tx.proto
+modify proto/blogb/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_delete_comment.go
 create x/blog/keeper/msg_server_delete_comment.go
@@ -324,7 +352,7 @@ create x/blog/types/message_delete_comment.go
 create x/blog/types/message_delete_comment_test.go
 ```
 
-As always, start your development with a proto file. 
+As always, start your development with a proto file.
 
 In the `proto/blog/tx.proto` file, edit `MsgDeleteComment` to:
 
@@ -346,12 +374,13 @@ message MsgDeleteCommentResponse {
 
 ## Process messages
 
-In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of the `DeleteComment` function. Right now it does nothing and returns an empty response. 
+In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of
+the `DeleteComment` function. Right now it does nothing and returns an empty response.
 
 For your blog chain, you want to delete the contents of the comment. Add the code to:
 
-- Check if the post Id exists to see which comment was deleted.
-- Delete the comment from the store.
+* Check if the post ID exists to see which comment was deleted.
+* Delete the comment from the store.
 
 ```go
 package keeper
@@ -396,10 +425,10 @@ Implement logic to query existing posts:
 ignite scaffold query comments id:uint --response title,body
 ```
 
-Also in `proto/blog/query.proto`, make these updates:
+Also in `proto/blog/blog/query.proto`, make these updates:
 
 ```protobuf
-import "blog/post.proto";
+import "blog/blog/post.proto";
 
 message QueryCommentsRequest {
   uint64 id = 1;
@@ -421,7 +450,8 @@ message QueryCommentsResponse {
 }
 ```
 
-After the types are defined in proto files, you can implement post querying logic in `x/blog/keeper/grpc_query_comments.go` by registering the `Comments` function:
+After the types are defined in proto files, you can implement post querying logic
+in `x/blog/keeper/grpc_query_comments.go` by registering the `Comments` function:
 
 ```go
 package keeper
@@ -490,7 +520,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 
 ## Create post and comment
 
-Try it out! 
+Try it out!
 
 If the chain is yet not started, run `ignite chain serve -r`.
 
@@ -503,7 +533,33 @@ blogd tx blog create-post Uno "This is the first post" --from alice
 As before, you are prompted to confirm the transaction:
 
 ```json
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","title":"Uno","body":"This is the first post","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{
+  "body": {
+    "messages": [
+      {
+        "@type": "/blog.blog.MsgCreatePost",
+        "creator": "blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac",
+        "title": "Uno",
+        "body": "This is the first post",
+        "id": "0"
+      }
+    ],
+    "memo": "",
+    "timeout_height": "0",
+    "extension_options": [],
+    "non_critical_extension_options": []
+  },
+  "auth_info": {
+    "signer_infos": [],
+    "fee": {
+      "amount": [],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
+  },
+  "signatures": []
+}
 ```
 
 Create a comment:
@@ -513,7 +569,34 @@ blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```
 
 ```json
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreateComment","creator":"blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac","postID":"0","title":"Uno","body":"This is the first comment","id":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{
+  "body": {
+    "messages": [
+      {
+        "@type": "/blog.blog.MsgCreateComment",
+        "creator": "blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac",
+        "postID": "0",
+        "title": "Uno",
+        "body": "This is the first comment",
+        "id": "0"
+      }
+    ],
+    "memo": "",
+    "timeout_height": "0",
+    "extension_options": [],
+    "non_critical_extension_options": []
+  },
+  "auth_info": {
+    "signer_infos": [],
+    "fee": {
+      "amount": [],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
+  },
+  "signatures": []
+}
 ```
 
 When prompted, press Enter to confirm the transaction:
@@ -532,12 +615,12 @@ The results are output:
 
 ```yaml
 Comment:
-- body: This is the first comment
-  createdAt: "58"
-  creator: blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
-  id: "0"
-  postID: "0"
-  title: Uno
+  - body: This is the first comment
+    createdAt: "58"
+    creator: blog1uamq9d6zj5p7lvzyhjugg8drkrcqckxtvj99ac
+    id: "0"
+    postID: "0"
+    title: Uno
 Post:
   body: This is the first post
   createdAt: "51"
@@ -564,7 +647,7 @@ blogd q blog comments 0
 The results are output:
 
 ```yaml
-Comment: []
+Comment: [ ]
 Post:
   body: This is the first post
   createdAt: "12"
@@ -591,26 +674,26 @@ code: 22
 codespace: sdk
 data: ""
 events:
-- attributes:
-  - index: false
-    key: ZmVl
-    value: ""
-  type: tx
-- attributes:
-  - index: false
-    key: YWNjX3NlcQ==
-    value: Y29zbW9zMXVhbXE5ZDZ6ajVwN2x2enloanVnZzhkcmtyY3Fja3h0dmo5OWFjLzQ=
-  type: tx
-- attributes:
-  - index: false
-    key: c2lnbmF0dXJl
-    value: NEdGejY1WGFjc0cvR1BEOVgxSDh4NmU5NTZEM1hxZ0txdnlWcmVVZ2JSRThTbkRHNjdmN29rNm9uWDhhVjgzb3NFcDh2eWg3RnNIRE1CaU9VL3QwMlE9PQ==
-  type: tx
+  - attributes:
+      - index: false
+        key: ZmVl
+        value: ""
+    type: tx
+  - attributes:
+      - index: false
+        key: YWNjX3NlcQ==
+        value: Y29zbW9zMXVhbXE5ZDZ6ajVwN2x2enloanVnZzhkcmtyY3Fja3h0dmo5OWFjLzQ=
+    type: tx
+  - attributes:
+      - index: false
+        key: c2lnbmF0dXJl
+        value: NEdGejY1WGFjc0cvR1BEOVgxSDh4NmU5NTZEM1hxZ0txdnlWcmVVZ2JSRThTbkRHNjdmN29rNm9uWDhhVjgzb3NFcDh2eWg3RnNIRE1CaU9VL3QwMlE9PQ==
+    type: tx
 gas_used: "41385"
 gas_wanted: "200000"
 height: "90"
 info: ""
-logs: []
+logs: [ ]
 raw_log: 'failed to execute message; message index: 0: key 0 doesn''t exist: key not
   found'
 timestamp: ""
@@ -630,26 +713,26 @@ code: 1300
 codespace: blog
 data: ""
 events:
-- attributes:
-  - index: false
-    key: ZmVl
-    value: ""
-  type: tx
-- attributes:
-  - index: false
-    key: YWNjX3NlcQ==
-    value: Y29zbW9zMXVhbXE5ZDZ6ajVwN2x2enloanVnZzhkcmtyY3Fja3h0dmo5OWFjLzEy
-  type: tx
-- attributes:
-  - index: false
-    key: c2lnbmF0dXJl
-    value: TFR3OXFQbm9KYUVmZ2EyZWlrWWZ5SmFiM0VvZDUwVlU0L3hJUExpbCtUWXN5NFNvQzhKaWJTeW5Eb2RkOExqU3NPaXhsVjlUZmtvNmJMbHArcVZZTWc9PQ==
-  type: tx
+  - attributes:
+      - index: false
+        key: ZmVl
+        value: ""
+    type: tx
+  - attributes:
+      - index: false
+        key: YWNjX3NlcQ==
+        value: Y29zbW9zMXVhbXE5ZDZ6ajVwN2x2enloanVnZzhkcmtyY3Fja3h0dmo5OWFjLzEy
+    type: tx
+  - attributes:
+      - index: false
+        key: c2lnbmF0dXJl
+        value: TFR3OXFQbm9KYUVmZ2EyZWlrWWZ5SmFiM0VvZDUwVlU0L3hJUExpbCtUWXN5NFNvQzhKaWJTeW5Eb2RkOExqU3NPaXhsVjlUZmtvNmJMbHArcVZZTWc9PQ==
+    type: tx
 gas_used: "41569"
 gas_wanted: "200000"
 height: "154"
 info: ""
-logs: []
+logs: [ ]
 raw_log: 'failed to execute message; message index: 0: Comment created at 154 is older
   than post created at 51: '
 timestamp: ""
@@ -659,7 +742,7 @@ txhash: 5BFBEE017952376851D7989E7AF5B60A29B98AD2F7812EC271C154575F386AD6
 
 ## Conclusion
 
-Congratulations. You have added comments to your blog blockchain! 
+Congratulations. You have added comments to your blog blockchain!
 
 You have successfully completed these steps:
 
