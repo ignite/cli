@@ -20,6 +20,11 @@
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
 
+### Fixes
+
+- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` 
+template.
+
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
 ### Changes
