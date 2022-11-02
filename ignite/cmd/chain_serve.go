@@ -65,7 +65,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().Bool(flagGenerateClients, false, "Generate code for the configured clients")
+	c.Flags().Bool(flagGenerateClients, false, "Generate code for the configured clients on reset or source code change")
 	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
