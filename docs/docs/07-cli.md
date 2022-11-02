@@ -28,17 +28,19 @@ ignite scaffold chain github.com/username/mars
 
 **SEE ALSO**
 
-- [ignite account](#ignite-account) - Commands for managing Ignite accounts
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
-  blockchain
-- [ignite completion](#ignite-completion) - Generate the autocompletion script for the specified shell
-- [ignite docs](#ignite-docs) - Show Ignite CLI docs
-- [ignite generate](#ignite-generate) - Generate clients, API docs from source code
-- [ignite node](#ignite-node) - Make calls to a live blockchain node
-- [ignite relayer](#ignite-relayer) - Connect blockchains by using IBC protocol
-- [ignite scaffold](#ignite-scaffold) - Scaffold a new blockchain, module, message, query, and more
-- [ignite tools](#ignite-tools) - Tools for advanced users
-- [ignite version](#ignite-version) - Print the current build information
+* [ignite account](#ignite-account)	 - Commands for managing Ignite accounts
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
+* [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite network](#ignite-network)	 - Launch a blockchain in production
+* [ignite node](#ignite-node)	 - Make calls to a live blockchain node
+* [ignite plugin](#ignite-plugin)	 - Handle plugins
+* [ignite relayer](#ignite-relayer)	 - Connect blockchains by using IBC protocol
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
+* [ignite version](#ignite-version)	 - Print the current build information
+
 
 ## ignite account
 
@@ -47,7 +49,7 @@ Commands for managing Ignite accounts
 **Synopsis**
 
 Commands for managing Ignite accounts. An Ignite account is a private/public
-keypair stored in a keyring. Currently, Ignite accounts are used when interacting
+keypair stored in a keyring. Currently Ignite accounts are used when interacting
 with Ignite relayer commands.
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
@@ -61,7 +63,7 @@ chain.
 ```
   -h, --help                     help for account
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -93,7 +95,7 @@ ignite account create [name] [flags]
 
 ```
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -119,7 +121,7 @@ ignite account delete [name] [flags]
 
 ```
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -148,7 +150,7 @@ ignite account export [name] [flags]
 
 ```
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -177,7 +179,7 @@ ignite account import [name] [flags]
 
 ```
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -204,7 +206,7 @@ ignite account list [flags]
 
 ```
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -231,7 +233,7 @@ ignite account show [name] [flags]
 
 ```
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -252,7 +254,7 @@ To run these commands you should be inside the project's directory so that
 Ignite can find the source code. To ensure that you are, run "ls", you should
 see the following files in the output: "go.mod", "x", "proto", "app", etc.
 
-By default, the "build" command will identify the "main" package of the project,
+By default the "build" command will identify the "main" package of the project,
 install dependencies if necessary, set build flags, compile the project into a
 binary and install the binary. The "build" command is useful if you just want
 the compiled binary, for example, to initialize and start the chain manually. It
@@ -260,7 +262,7 @@ can also be used to release your chain's binaries automatically as part of
 continuous integration workflow.
 
 The "init" command will build the chain's binary and use it to initialize a
-local validator node. By default, the validator node will be initialized in your
+local validator node. By default the validator node will be initialized in your
 $HOME directory in a hidden directory that matches the name of your project.
 This directory is called a data directory and contains a chain's genesis file
 and a validator key. This command is useful if you want to quickly build and
@@ -333,24 +335,24 @@ Ignite to skip the proto compilation step:
 
   ignite chain build --skip-proto
 
-Afterwards, Ignite install dependencies specified in the `go.mod` file. By default,
+Afterwards, Ignite install dependencies specified in the go.mod file. By default
 Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
   ignite chain build --check-dependencies
 
-Next, Ignite identifies the "main" package of the project. By default, the "main"
+Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
 scaffolded project and "d" stands for daemon. If your your project contains more
 than one "main" package, specify the path to the one that Ignite should compile
-in `config.yml`:
+in config.yml:
 
 build:
   main: custom/path/to/main
 
-By default, the binary name will match the top-level module name (specified in
-`go.mod`) with a suffix "d". This can be customized in `config.yml`:
+By default the binary name will match the top-level module name (specified in
+go.mod) with a suffix "d". This can be customized in config.yml:
 
 build:
   binary: mychaind
@@ -400,8 +402,8 @@ ignite chain build [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
-  blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+
 
 ## ignite chain faucet
 
@@ -429,8 +431,8 @@ ignite chain faucet [address] [coin<,...>] [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
-  blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+
 
 ## ignite chain init
 
@@ -524,8 +526,8 @@ ignite chain init [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
-  blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+
 
 ## ignite chain serve
 
@@ -596,8 +598,8 @@ ignite chain serve [flags]
 
 **SEE ALSO**
 
-- [ignite chain](#ignite-chain) - Build, initialize and start a blockchain node or perform other actions on the
-  blockchain
+* [ignite chain](#ignite-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+
 
 ## ignite chain simulate
 
@@ -605,8 +607,7 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node
-and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
 
 ```
 ignite chain simulate [flags]
@@ -1081,218 +1082,10 @@ validators launch their nodes, a blockchain will be live.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite network campaign](#ignite-network-campaign)	 - Handle campaigns
 * [ignite network chain](#ignite-network-chain)	 - Build networks
 * [ignite network coordinator](#ignite-network-coordinator)	 - Interact with coordinator profiles
-* [ignite network profile](#ignite-network-profile)	 - Show the address profile info
 * [ignite network request](#ignite-network-request)	 - Handle requests
-* [ignite network reward](#ignite-network-reward)	 - Manage network rewards
 * [ignite network validator](#ignite-network-validator)	 - Interact with validator profiles
-
-
-## ignite network campaign
-
-Handle campaigns
-
-**Options**
-
-```
-  -h, --help   help for campaign
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network](#ignite-network)	 - Launch a blockchain in production
-* [ignite network campaign account](#ignite-network-campaign-account)	 - Handle campaign accounts
-* [ignite network campaign create](#ignite-network-campaign-create)	 - Create a campaign
-* [ignite network campaign list](#ignite-network-campaign-list)	 - List published campaigns
-* [ignite network campaign show](#ignite-network-campaign-show)	 - Show published campaign
-* [ignite network campaign update](#ignite-network-campaign-update)	 - Update details fo the campaign of the campaign
-
-
-## ignite network campaign account
-
-Handle campaign accounts
-
-**Options**
-
-```
-  -h, --help   help for account
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network campaign](#ignite-network-campaign)	 - Handle campaigns
-* [ignite network campaign account list](#ignite-network-campaign-account-list)	 - Show all mainnet and mainnet vesting of the campaign
-
-
-## ignite network campaign account list
-
-Show all mainnet and mainnet vesting of the campaign
-
-```
-ignite network campaign account list [campaign-id] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for list
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network campaign account](#ignite-network-campaign-account)	 - Handle campaign accounts
-
-
-## ignite network campaign create
-
-Create a campaign
-
-```
-ignite network campaign create [name] [total-supply] [flags]
-```
-
-**Options**
-
-```
-      --from string              account name to use for sending transactions to SPN (default "default")
-  -h, --help                     help for create
-      --home string              home directory used for blockchains
-      --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --metadata string          Add a metada to the chain
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network campaign](#ignite-network-campaign)	 - Handle campaigns
-
-
-## ignite network campaign list
-
-List published campaigns
-
-```
-ignite network campaign list [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for list
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network campaign](#ignite-network-campaign)	 - Handle campaigns
-
-
-## ignite network campaign show
-
-Show published campaign
-
-```
-ignite network campaign show [campaign-id] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for show
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network campaign](#ignite-network-campaign)	 - Handle campaigns
-
-
-## ignite network campaign update
-
-Update details fo the campaign of the campaign
-
-```
-ignite network campaign update [campaign-id] [flags]
-```
-
-**Options**
-
-```
-      --from string              account name to use for sending transactions to SPN (default "default")
-  -h, --help                     help for update
-      --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --metadata string          Update the campaign metadata
-      --name string              Update the campaign name
-      --total-supply string      Update the total of the mainnet of a campaign
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network campaign](#ignite-network-campaign)	 - Handle campaigns
 
 
 ## ignite network chain
@@ -1332,6 +1125,33 @@ Build networks
 
 Initialize a chain from a published chain ID
 
+**Synopsis**
+
+Ignite network chain init is a command used by validators to initialize a
+validator node for a blockchain from the information stored on the Ignite chain.
+
+  ignite network chain init 42
+
+This command fetches the information about a chain with launch ID 42. The source
+code of the chain is cloned in a temporary directory, and the node's binary is
+compiled from the source. The binary is then used to initialize the node. By
+default, Ignite uses "~/spn/[launch-id]/" as the home directory for the blockchain.
+
+An important part of initializing a validator node is creation of the gentx (a
+transaction that adds a validator at the genesis of the chain).
+
+The "init" command will prompt for values like self-delegation and commission.
+These values will be used in the validator's gentx. You can use flags to provide
+the values in non-interactive mode.
+
+Use the "--home" flag to choose a different path for the home directory of the
+blockchain:
+
+  ignite network chain init 42 --home ~/mychain
+
+The end result of the "init" command is a validator home directory with a
+genesis validator transaction (gentx) file.
+
 ```
 ignite network chain init [launch-id] [flags]
 ```
@@ -1345,7 +1165,7 @@ ignite network chain init [launch-id] [flags]
   -h, --help                                help for init
       --home string                         home directory used for blockchains
       --keyring-backend string              Keyring backend to store your account keys (default "test")
-      --keyring-dir string                  The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string                  The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --validator-account string            Account for the chain validator (default "default")
       --validator-details string            Details about the validator
       --validator-gas-price string          Validator gas price
@@ -1406,6 +1226,33 @@ ignite network chain install [launch-id] [flags]
 
 Request to join a network as a validator
 
+**Synopsis**
+
+The "join" command is used by validators to send a request to join a blockchain.
+The required argument is a launch ID of a blockchain. The "join" command expects
+that the validator has already setup a home directory for the blockchain and has
+a gentx either by running "ignite network chain init" or initializing the data
+directory manually with the chain's binary.
+
+By default the "join" command just sends the request to join as a validator.
+However, often a validator also needs to request an genesis account with a token
+balance to afford self-delegation.
+
+The following command will send a request to join blockchain with launch ID 42
+as a validator and request to be added as an account with a token balance of
+95000000 STAKE.
+
+  ignite network chain join 42 --amount 95000000stake
+
+A request to join as a validator contains a gentx file. Ignite looks for gentx
+in a home directory used by "ignite network chain init" by default. To use a
+different directory, use the "--home" flag or pass a gentx file directly with
+the  "--gentx" flag.
+
+Since "join" broadcasts a transaction to the Ignite blockchain, you will need an
+account on the Ignite blockchain. During the testnet phase, however, Ignite
+automatically requests tokens from a faucet.
+
 ```
 ignite network chain join [launch-id] [flags]
 ```
@@ -1420,7 +1267,7 @@ ignite network chain join [launch-id] [flags]
   -h, --help                     help for join
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --no-account               Prevent sending a request for a genesis account
       --peer-address string      Peer's address
   -y, --yes                      answers interactive yes/no questions with yes
@@ -1454,7 +1301,7 @@ ignite network chain launch [launch-id] [flags]
       --from string              account name to use for sending transactions to SPN (default "default")
   -h, --help                     help for launch
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --launch-time string       Timestamp the chain is effectively launched (example "2022-01-01T00:00:00Z")
 ```
 
@@ -1521,7 +1368,7 @@ ignite network chain prepare [launch-id] [flags]
   -h, --help                     help for prepare
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -1562,7 +1409,7 @@ ignite network chain publish [source-url] [flags]
   -h, --help                     help for publish
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --mainnet                  Initialize a mainnet campaign
       --metadata string          Add a campaign metadata
       --no-check                 Skip verifying chain's integrity
@@ -1602,7 +1449,7 @@ ignite network chain revert-launch [launch-id] [flags]
       --from string              account name to use for sending transactions to SPN (default "default")
   -h, --help                     help for revert-launch
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -1818,6 +1665,7 @@ Interact with coordinator profiles
 * [ignite network coordinator set](#ignite-network-coordinator-set)	 - Set an information in a coordinator profile
 * [ignite network coordinator show](#ignite-network-coordinator-show)	 - Show a coordinator profile
 
+
 ## ignite network coordinator set
 
 Set an information in a coordinator profile
@@ -1843,7 +1691,7 @@ ignite network coordinator set details|identity|website [value] [flags]
   -h, --help                     help for set
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -1888,37 +1736,6 @@ ignite network coordinator show [address] [flags]
 * [ignite network coordinator](#ignite-network-coordinator)	 - Interact with coordinator profiles
 
 
-## ignite network profile
-
-Show the address profile info
-
-```
-ignite network profile [campaign-id] [flags]
-```
-
-**Options**
-
-```
-      --from string              account name to use for sending transactions to SPN (default "default")
-  -h, --help                     help for profile
-      --home string              home directory used for blockchains
-      --keyring-backend string   Keyring backend to store your account keys (default "test")
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network](#ignite-network)	 - Launch a blockchain in production
-
-
 ## ignite network request
 
 Handle requests
@@ -1941,16 +1758,73 @@ Handle requests
 **SEE ALSO**
 
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
+* [ignite network request add-account](#ignite-network-request-add-account)	 - Send request to add account
 * [ignite network request approve](#ignite-network-request-approve)	 - Approve requests
 * [ignite network request list](#ignite-network-request-list)	 - List all pending requests
 * [ignite network request reject](#ignite-network-request-reject)	 - Reject requests
+* [ignite network request remove-account](#ignite-network-request-remove-account)	 - Send request to remove account
+* [ignite network request remove-validator](#ignite-network-request-remove-validator)	 - Send request to remove validator
 * [ignite network request show](#ignite-network-request-show)	 - Show pending requests details
 * [ignite network request verify](#ignite-network-request-verify)	 - Verify the request and simulate the chain genesis from them
+
+
+## ignite network request add-account
+
+Send request to add account
+
+```
+ignite network request add-account [launch-id] [address] [coins] [flags]
+```
+
+**Options**
+
+```
+      --clear-cache              clear the build cache (advanced)
+      --from string              account name to use for sending transactions to SPN (default "default")
+  -h, --help                     help for add-account
+      --home string              home directory used for blockchains
+      --keyring-backend string   Keyring backend to store your account keys (default "test")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
+```
+
+**Options inherited from parent commands**
+
+```
+      --local                       Use local SPN network
+      --nightly                     Use nightly SPN network
+      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
+      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
+```
+
+**SEE ALSO**
+
+* [ignite network request](#ignite-network-request)	 - Handle requests
 
 
 ## ignite network request approve
 
 Approve requests
+
+**Synopsis**
+
+The "approve" command is used by a chain's coordinator to approve requests.
+Multiple requests can be approved using a comma-separated list and/or using a
+dash syntax.
+
+  ignite network request approve 42 1,2,3-6,7,8
+
+The command above approves requests with IDs from 1 to 8 included on a chain
+with a launch ID 42.
+
+When requests are approved Ignite applies the requested changes and simulates
+initializing and launching the chain locally. If the chain starts successfully,
+requests are considered to be "verified" and are approved. If one or more
+requested changes stop the chain from launching locally, the verification
+process fails and the approval of all requests is canceled. To skip the
+verification process use the "--no-verification" flag.
+
+Note that Ignite will try to approve requests in the same order as request IDs
+are submitted to the "approve" command.
 
 ```
 ignite network request approve [launch-id] [number<,...>] [flags]
@@ -1964,7 +1838,7 @@ ignite network request approve [launch-id] [number<,...>] [flags]
   -h, --help                     help for approve
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --no-verification          approve the requests without verifying them
 ```
 
@@ -2026,7 +1900,73 @@ ignite network request reject [launch-id] [number<,...>] [flags]
   -h, --help                     help for reject
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
+```
+
+**Options inherited from parent commands**
+
+```
+      --local                       Use local SPN network
+      --nightly                     Use nightly SPN network
+      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
+      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
+```
+
+**SEE ALSO**
+
+* [ignite network request](#ignite-network-request)	 - Handle requests
+
+
+## ignite network request remove-account
+
+Send request to remove account
+
+```
+ignite network request remove-account [launch-id] [address] [flags]
+```
+
+**Options**
+
+```
+      --clear-cache              clear the build cache (advanced)
+      --from string              account name to use for sending transactions to SPN (default "default")
+  -h, --help                     help for remove-account
+      --home string              home directory used for blockchains
+      --keyring-backend string   Keyring backend to store your account keys (default "test")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
+```
+
+**Options inherited from parent commands**
+
+```
+      --local                       Use local SPN network
+      --nightly                     Use nightly SPN network
+      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
+      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
+```
+
+**SEE ALSO**
+
+* [ignite network request](#ignite-network-request)	 - Handle requests
+
+
+## ignite network request remove-validator
+
+Send request to remove validator
+
+```
+ignite network request remove-validator [launch-id] [address] [flags]
+```
+
+**Options**
+
+```
+      --clear-cache              clear the build cache (advanced)
+      --from string              account name to use for sending transactions to SPN (default "default")
+  -h, --help                     help for remove-validator
+      --home string              home directory used for blockchains
+      --keyring-backend string   Keyring backend to store your account keys (default "test")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2087,7 +2027,7 @@ ignite network request verify [launch-id] [number<,...>] [flags]
   -h, --help                     help for verify
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2102,100 +2042,6 @@ ignite network request verify [launch-id] [number<,...>] [flags]
 **SEE ALSO**
 
 * [ignite network request](#ignite-network-request)	 - Handle requests
-
-## ignite network reward
-
-Manage network rewards
-
-**Options**
-
-```
-  -h, --help   help for reward
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network](#ignite-network)	 - Launch a blockchain in production
-* [ignite network reward release](#ignite-network-reward-release)	 - Connect the monitoring modules of launched chains with SPN
-* [ignite network reward set](#ignite-network-reward-set)	 - set a network chain reward
-
-## ignite network reward release
-
-Connect the monitoring modules of launched chains with SPN
-
-```
-ignite network reward release [launch-id] [chain-rpc] [flags]
-```
-
-**Options**
-
-```
-      --create-client-only        Only create the network client id
-      --from string               account name to use for sending transactions to SPN (default "default")
-  -h, --help                      help for release
-      --keyring-backend string    Keyring backend to store your account keys (default "test")
-      --spn-gaslimit int          Gas limit used for transactions on SPN (default 400000)
-      --spn-gasprice string       Gas price used for transactions on SPN (default "0.0000025uspn")
-      --testnet-account string    testnet chain Account (default "default")
-      --testnet-faucet string     Faucet address of the testnet chain
-      --testnet-gaslimit int      Gas limit used for transactions on testnet chain (default 400000)
-      --testnet-gasprice string   Gas price used for transactions on testnet chain (default "0.0000025stake")
-      --testnet-prefix string     Address prefix of the testnet chain (default "cosmos")
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network reward](#ignite-network-reward)	 - Manage network rewards
-
-
-## ignite network reward set
-
-set a network chain reward
-
-```
-ignite network reward set [launch-id] [last-reward-height] [coins] [flags]
-```
-
-**Options**
-
-```
-      --from string              account name to use for sending transactions to SPN (default "default")
-  -h, --help                     help for set
-      --home string              home directory used for blockchains
-      --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
-```
-
-**Options inherited from parent commands**
-
-```
-      --local                       Use local SPN network
-      --nightly                     Use nightly SPN network
-      --spn-faucet-address string   SPN faucet address (default "http://178.128.251.28:4500")
-      --spn-node-address string     SPN node address (default "http://178.128.251.28:26657")
-```
-
-**SEE ALSO**
-
-* [ignite network reward](#ignite-network-reward)	 - Manage network rewards
 
 
 ## ignite network validator
@@ -2250,7 +2096,7 @@ ignite network validator set details|identity|website|security [value] [flags]
   -h, --help                     help for set
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2354,9 +2200,9 @@ Querying commands for the bank module
 
 **SEE ALSO**
 
-- [ignite node query](#ignite-node-query) - Querying subcommands
-- [ignite node query bank balances](#ignite-node-query-bank-balances) - Query for account balances by account name or
-  address
+* [ignite node query](#ignite-node-query)	 - Querying subcommands
+* [ignite node query bank balances](#ignite-node-query-bank-balances)	 - Query for account balances by account name or address
+
 
 ## ignite node query bank balances
 
@@ -2374,7 +2220,7 @@ ignite node query bank balances [from_account_or_address] [flags]
   -h, --help                     help for balances
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --limit uint               pagination limit of all balances to query for (default 100)
       --offset uint              pagination offset of all balances to query for
       --page uint                pagination page of all balances to query for. This sets offset to a multiple of limit (default 1)
@@ -2433,7 +2279,7 @@ Transactions subcommands
   -h, --help                     help for tx
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2468,7 +2314,7 @@ Bank transaction subcommands
       --generate-only            Build an unsigned transaction and write it to STDOUT
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
 ```
 
@@ -2502,13 +2348,88 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
       --generate-only            Build an unsigned transaction and write it to STDOUT
       --home string              home directory used for blockchains
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
 ```
 
 **SEE ALSO**
 
 * [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
+
+
+## ignite plugin
+
+Handle plugins
+
+**Options**
+
+```
+  -h, --help   help for plugin
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite plugin list](#ignite-plugin-list)	 - List declared plugins and status
+* [ignite plugin scaffold](#ignite-plugin-scaffold)	 - Scaffold a new plugin
+* [ignite plugin update](#ignite-plugin-update)	 - Update plugins
+
+
+## ignite plugin list
+
+List declared plugins and status
+
+```
+ignite plugin list [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for list
+```
+
+**SEE ALSO**
+
+* [ignite plugin](#ignite-plugin)	 - Handle plugins
+
+
+## ignite plugin scaffold
+
+Scaffold a new plugin
+
+```
+ignite plugin scaffold [github.com/org/repo] [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for scaffold
+```
+
+**SEE ALSO**
+
+* [ignite plugin](#ignite-plugin)	 - Handle plugins
+
+
+## ignite plugin update
+
+Update plugins
+
+```
+ignite plugin update [path] [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for update
+```
+
+**SEE ALSO**
+
+* [ignite plugin](#ignite-plugin)	 - Handle plugins
 
 
 ## ignite relayer
@@ -2523,10 +2444,10 @@ Connect blockchains by using IBC protocol
 
 **SEE ALSO**
 
-- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-- [ignite relayer configure](#ignite-relayer-configure) - Configure source and target chains for relaying
-- [ignite relayer connect](#ignite-relayer-connect) - Link chains associated with paths and start relaying tx packets in
-  between
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite relayer configure](#ignite-relayer-configure)	 - Configure source and target chains for relaying
+* [ignite relayer connect](#ignite-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
+
 
 ## ignite relayer configure
 
@@ -2542,7 +2463,7 @@ ignite relayer configure [flags]
   -a, --advanced                  Advanced configuration options for custom IBC modules
   -h, --help                      help for configure
       --keyring-backend string    Keyring backend to store your account keys (default "test")
-      --keyring-dir string        The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string        The accounts keyring directory (default "/home/cozart/.ignite/accounts")
       --ordered                   Set the channel as ordered
   -r, --reset                     Reset the relayer config
       --source-account string     Source Account
@@ -2583,7 +2504,7 @@ ignite relayer connect [<path>,...] [flags]
 ```
   -h, --help                     help for connect
       --keyring-backend string   Keyring backend to store your account keys (default "test")
-      --keyring-dir string       The accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       The accounts keyring directory (default "/home/cozart/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -2672,6 +2593,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold type](#ignite-scaffold-type)	 - Scaffold only a type definition
 * [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
+
 ## ignite scaffold chain
 
 Fully-featured Cosmos SDK blockchain
@@ -2711,13 +2633,13 @@ use a custom address prefix use the "--address-prefix" flag. For example:
 
   ignite scaffold chain foo --address-prefix bar
 
-By default, when compiling a blockchain's source code Ignite creates a cache to
+By default when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
 the "--clear-cache" flag. It is very unlikely you will ever need to use this
 flag.
 
 The blockchain is using the Cosmos SDK modular blockchain framework. Learn more
-about Cosmos SDK on <https://docs.cosmos.network>
+about Cosmos SDK on https://docs.cosmos.network
 
 
 ```
@@ -2737,6 +2659,7 @@ ignite scaffold chain [name] [flags]
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
 
 ## ignite scaffold list
 
@@ -2798,7 +2721,7 @@ In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field. Ignite doesn't support arrays of
 custom types yet.
 
-By default, the code will be scaffolded in the module that matches your project's
+By default the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
 different module:
 
@@ -2995,7 +2918,7 @@ Scaffold a Cosmos SDK module
 Scaffold a new Cosmos SDK module.
 
 Cosmos SDK is a modular framework and each independent piece of functionality is
-implemented in a separate module. By default, your blockchain imports a set of
+implemented in a separate module. By default your blockchain imports a set of
 standard Cosmos SDK modules. To implement custom functionality of your
 blockchain, scaffold a module and implement the logic of your application.
 
@@ -3025,9 +2948,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-```
-ignite scaffold module foo --dep bank
-```
+  ignite scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -3035,9 +2956,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-```
-ignite scaffold module bar --dep foo,mint,account
-```
+  ignite scaffold module bar --dep foo,mint,account
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -3047,12 +2966,10 @@ A Cosmos SDK module can have parameters (or "params"). Params are values that
 can be set at the genesis of the blockchain and can be modified while the
 blockchain is running. An example of a param is "Inflation rate change" of the
 "mint" module. A module can be scaffolded with params using the "--params" flag
-that accepts a list of param names. By default, params are of type "string", but
+that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-```
-ignite scaffold module foo --params baz:uint,bar:bool
-```
+  ignite scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
@@ -3222,10 +3139,11 @@ Tools for advanced users
 
 **SEE ALSO**
 
-- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-- [ignite tools ibc-relayer](#ignite-tools-ibc-relayer) - Typescript implementation of an IBC relayer
-- [ignite tools ibc-setup](#ignite-tools-ibc-setup) - Collection of commands to quickly set up a relayer
-- [ignite tools protoc](#ignite-tools-protoc) - Execute the protoc command
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite tools ibc-relayer](#ignite-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
+* [ignite tools ibc-setup](#ignite-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
+* [ignite tools protoc](#ignite-tools-protoc)	 - Execute the protoc command
+
 
 ## ignite tools ibc-relayer
 
@@ -3254,7 +3172,7 @@ ignite tools ibc-relayer -- -h
 
 ## ignite tools ibc-setup
 
-Collection of commands to quickly set up a relayer
+Collection of commands to quickly setup a relayer
 
 ```
 ignite tools ibc-setup [--] [...] [flags]
@@ -3284,7 +3202,7 @@ Execute the protoc command
 
 **Synopsis**
 
-The `protoc` command. You don't need to set up the global `protoc` include folder with -I, it's automatically handled
+The protoc command. You don't need to setup the global protoc include folder with -I, it's automatically handled
 
 ```
 ignite tools protoc [--] [...] [flags]
@@ -3304,7 +3222,8 @@ ignite tools protoc -- --version
 
 **SEE ALSO**
 
-- [Ignite Tools](#ignite-tools) - Tools for advanced users
+* [ignite tools](#ignite-tools)	 - Tools for advanced users
+
 
 ## ignite version
 
@@ -3323,4 +3242,3 @@ ignite version [flags]
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-
