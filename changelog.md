@@ -15,6 +15,7 @@
 
 - [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
 - [#2892](https://github.com/ignite/cli/pull/2982/) `removeSigner()` method added to generated `ts-client` 
+- [#3035](https://github.com/ignite/cli/pull/3035) Bump Cosmos SDK to `v0.46.4`.
 - [#3037](https://github.com/ignite/cli/pull/3037) Bump `ibc-go` to `v5.0.1`.
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
