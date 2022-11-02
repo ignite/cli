@@ -19,6 +19,10 @@ import (
 // A global variable is used so the list is accessible to the plugin commands.
 var plugins []*plugin.Plugin
 
+const (
+	igniteCmdPrefix = "ignite "
+)
+
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
@@ -77,7 +81,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	if !strings.HasPrefix(cmdPath, "ignite") {
 		// cmdPath must start with `ignite ` before comparison with
 		// cmd.CommandPath()
-		cmdPath = "ignite " + cmdPath
+		cmdPath = igniteCmdPrefix + cmdPath
 	}
 
 	cmdPath = strings.TrimSpace(cmdPath)
@@ -171,7 +175,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if !strings.HasPrefix(cmdPath, "ignite") {
 		// cmdPath must start with `ignite ` before comparison with
 		// cmd.CommandPath()
-		cmdPath = "ignite " + cmdPath
+		cmdPath = igniteCmdPrefix + cmdPath
 	}
 	cmdPath = strings.TrimSpace(cmdPath)
 
