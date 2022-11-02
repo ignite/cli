@@ -20,27 +20,29 @@ ignite n chain list
 **Output**
 
 ```
-Launch Id 	Chain Id 	Source                              Phase
+Launch Id  Chain Id  Source                              Phase
 
-3 		example-1 	https://github.com/ignite/example   coordinating
-2 		spn-10 		https://github.com/tendermint/spn   launched
-1 		example-20 	https://github.com/tendermint/spn   launching
+3   example-1  https://github.com/ignite/example   coordinating
+2   spn-10   https://github.com/tendermint/spn   launched
+1   example-20  https://github.com/tendermint/spn   launching
 ```
 
 - `Launch ID` is the unique identifier of the chain on Ignite. This is the ID used to interact with the chain launch.
-- `Chain ID` represents the identifer of the chain network once it will be launched. It should be a unique identifier in practice but doesn't need to be unique on Ignite.
+- `Chain ID` represents the identifer of the chain network once it will be launched. It should be a unique identifier in
+  practice but doesn't need to be unique on Ignite.
 - `Source` is the repository URL of the project.
 - `Phase` is the current phase of the chain launch. A chain can have 3 different phases:
-  - `coordinating`: means the chain is open to receive requests from validators
-  - `launching`: means the chain no longer receives requests but it hasn't been launched yet
-  - `launched`: means the chain network has been launched
+    - `coordinating`: means the chain is open to receive requests from validators
+    - `launching`: means the chain no longer receives requests but it hasn't been launched yet
+    - `launched`: means the chain network has been launched
 
 ---
 
 ## Request network participation
 
 When the chain is in the coordination phase, validators can request to be a genesis validator for the chain.
-Ignite CLI supports an automatic workflow that can setup a node for the validator and a workflow for advanced users with a specific setup for their node.
+Ignite CLI supports an automatic workflow that can setup a node for the validator and a workflow for advanced users with
+a specific setup for their node.
 
 ### Simple Flow
 
