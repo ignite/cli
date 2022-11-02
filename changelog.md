@@ -11,6 +11,7 @@
 
 ### Changes
 
+- [#3035](https://github.com/ignite/cli/pull/3035) Bump Cosmos SDK to `v0.46.4`.
 - [#3037](https://github.com/ignite/cli/pull/3037) Bump `ibc-go` to `v5.0.1`.
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
@@ -18,6 +19,11 @@
 - [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
+
+### Fixes
+
+- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` 
+template.
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
