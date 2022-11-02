@@ -26,9 +26,9 @@ After you scaffold and start a chain in your Docker container, all Ignite CLI co
 commands after `docker run -ti ignite/cli`. For example:
 
 ```bash
-docker run -ti ignite/cli -h
-docker run -ti ignite/cli scaffold chain github.com/test/planet
-docker run -ti ignite/cli chain serve
+docker run -ti ignitehq/cli -h
+docker run -ti ignitehq/cli scaffold chain planet
+docker run -ti ignitehq/cli chain serve
 ```
 
 ## Scaffolding a chain
@@ -37,10 +37,14 @@ When Docker is installed, you can build a blockchain with a single command.
 
 Ignite CLI, and the chains you serve with Ignite CLI, persist some files.
 When using the CLI binary directly, those files are located in `$HOME/.ignite`
+<<<<<<< HEAD
 and `$HOME/.cache`, but in the context of Docker it's better to use a directory different from `$HOME`, so we
 use `$HOME/sdh`. This folder should be created
 manually prior to the docker commands below, or else Docker creates it with the
 root user.
+=======
+and `$HOME/.cache`, but in the context of Docker it's better to use a directory different than `$HOME`, so we use `$HOME/sdh`. This folder should be created manually prior to the docker commands below, or else Docker creates it with the root user.
+>>>>>>> develop
 
 ```bash
 mkdir $HOME/sdh
@@ -49,12 +53,12 @@ mkdir $HOME/sdh
 To scaffold a blockchain `planet` in the `/apps` directory in the container, run this command in a terminal window:
 
 ```bash
-docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps ignite/cli:0.25.0 scaffold chain github.com/hello/planet
+docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps ignitehq/cli:0.25.1 scaffold chain planet
 ```
 
 Be patient, this command takes a minute or two to run because it does everything for you:
 
-- Creates a container that runs from the `ignite/cli:0.25.0` image.
+- Creates a container that runs from the `ignitehq/cli:0.25.1` image.
 - Executes the Ignite CLI binary inside the image.
 - `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home
   directory `/home/tendermint` inside the container.
@@ -73,7 +77,7 @@ Be patient, this command takes a minute or two to run because it does everything
 To start the blockchain node in the Docker container you just created, run this command:
 
 ```bash
-docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 ignitehq/cli:0.16.0 chain serve -p planet
+docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 ignitehq/cli:0.25.1 chain serve -p planet
 ```
 
 This command does the following:
@@ -98,8 +102,8 @@ You can specify which version of Ignite CLI to install and run in your Docker co
 - By default, `ignite/cli` resolves to `ignite/cli:latest`.
 - The `latest` image tag is always the latest stable [Ignite CLI release](https://github.com/ignite/cli/releases).
 
-For example, if latest release is [v0.25.0](https://github.com/ignite/cli/releases/tag/v0.25.0), the `latest` tag points
-to the `0.25.0` tag.
+For example, if latest release is [v0.25.1](https://github.com/ignite/cli/releases/tag/v0.25.1), the `latest` tag points
+to the `0.25.1` tag.
 
 ### Specific version
 
@@ -108,11 +112,12 @@ the [ignite/cli image](https://hub.docker.com/r/ignite/cli/tags?page=1&ordering=
 
 For example:
 
-- Use `ignite/cli:0.25.0` (without the `v` prefix) to use version 0.25.0.
-- Use `ignite/cli:develop` to use the `develop` branch, so you can experiment with the next version.
+- Use `ignitehq/cli:0.25.1` (without the `v` prefix) to use version `0.25.1`.
+- Use `ignitehq/cli` to use the latest version.
+- Use `ignitehq/cli:develop` to use the `develop` branch so you can experiment with the upcoming version.
 
 To get the latest image, run `docker pull`.
 
 ```bash
-docker pull ignite/cli:develop
+docker pull ignitehq/cli:develop
 ```

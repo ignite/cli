@@ -53,7 +53,7 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New()
 	defer session.End()
 
 	if generateOnly {

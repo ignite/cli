@@ -1,5 +1,5 @@
 ---
-sidebar_position: 12
+sidebar_position: 11
 description: Scaffold module parameters to be accessible to the module.
 ---
 

@@ -2661,9 +2661,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite scaffold band](#ignite-scaffold-band)	 - Scaffold an IBC BandChain query oracle to request real-time data
 * [ignite scaffold chain](#ignite-scaffold-chain)	 - Fully-featured Cosmos SDK blockchain
-* [ignite scaffold flutter](#ignite-scaffold-flutter)	 - A Flutter app for your chain
 * [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
 * [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
 * [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
@@ -2673,36 +2671,6 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
 * [ignite scaffold type](#ignite-scaffold-type)	 - Scaffold only a type definition
 * [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
-
-
-## ignite scaffold band
-
-Scaffold an IBC BandChain query oracle to request real-time data
-
-**Synopsis**
-
-Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos
-SDK module
-
-```
-ignite scaffold band [queryName] --module [moduleName] [flags]
-```
-
-**Options**
-
-```
-      --clear-cache     clear the build cache (advanced)
-  -h, --help            help for band
-      --module string   IBC Module to add the packet into
-  -p, --path string     path of the app (default ".")
-      --signer string   Label for the message signer (default: creator)
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**SEE ALSO**
-
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
 
 ## ignite scaffold chain
 
@@ -2769,28 +2737,6 @@ ignite scaffold chain [name] [flags]
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
-
-## ignite scaffold flutter
-
-A Flutter app for your chain
-
-```
-ignite scaffold flutter [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for flutter
-  -p, --path string   path to scaffold content of the Flutter app (default "./flutter")
-  -y, --yes           answers interactive yes/no questions with yes
-```
-
-**SEE ALSO**
-
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
-
 
 ## ignite scaffold list
 
