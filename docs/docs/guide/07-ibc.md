@@ -1,7 +1,6 @@
 ---
 sidebar_position: 7
-description: Build an understanding of how to create and send packets across blockchains and navigate between
-blockchains.
+description: Build an understanding of how to create and send packets across blockchains and navigate between blockchains.
 title: "Inter-Blockchain Communication: Basics"
 ---
 
