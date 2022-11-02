@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/hashicorp/go-plugin v1.4.4
-	github.com/ignite/cli v0.25.2-0.20221031170327-2d623a4e00ae
+	github.com/ignite/cli v0.25.2-0.20221101190607-03fa04134366
 )
 
 replace (
