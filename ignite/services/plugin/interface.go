@@ -26,18 +26,18 @@ type Interface interface {
 	// cmd is the executed command (one of the those returned by Commands method)
 	// args is the command line arguments passed behing the command.
 	Execute(cmd Command, args []string) error
-	// Defines custom hooks registered with a given plugin
+	// Hooks defines custom hooks registered with a given plugin
 	Hooks() []Hook
-	// invoked by Ignite when a command specified by the hook path is invoked
+	// ExecuteHookPre is invoked by Ignite when a command specified by the hook path is invoked
 	// is global for all hooks registered to a plugin
 	// context on the hook being invoked is given by the `name` parameter
 	// name is the same for both pre and post
 	ExecuteHookPre(name string, args []string) error
-	// invoked by Ignite when a command specified by the hook path is invoked
+	// ExecuteHookPost is invoked by Ignite when a command specified by the hook path is invoked
 	// is global for all hooks registered to a plugin
 	// context on the hook being invoked is given by the `name` parameter
 	ExecuteHookPost(name string, args []string) error
-	// invoked right before the command is done executing
+	// ExecuteHookCleanUp is invoked right before the command is done executing
 	// will be called regardless of execution status of the command and hooks
 	ExecuteHookCleanUp(name string, args []string) error
 }
