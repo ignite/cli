@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -134,12 +135,23 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithGoGeneration(c.app.ImportPath))
 	}
 
-	var dartPath, openAPIPath, tsClientPath, vuexPath string
+	var (
+		dartPath, openAPIPath, tsClientPath, vuexPath string
+		updateConfig                                  bool
+	)
 
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			tsClientPath = chainconfig.TSClientPath(conf)
+			tsClientPath = chainconfig.TSClientPath(*conf)
+
+			// When TS client si generated make sure the config is updated
+			// with the output path when the client path option is empty.
+			if conf.Client.Typescript.Path == "" {
+				conf.Client.Typescript.Path = tsClientPath
+				updateConfig = true
+			}
+
 		}
 
 		// Non absolute TS client output paths must be treated as relative to the app directory
@@ -159,6 +171,11 @@ func (c *Chain) Generate(
 		vuexPath = conf.Client.Vuex.Path
 		if vuexPath == "" {
 			vuexPath = defaultVuexPath
+
+			// When Vuex stores are generated make sure the config is updated
+			// with the output path when the client path option is empty.
+			conf.Client.Vuex.Path = vuexPath
+			updateConfig = true
 		}
 
 		vuexPath = c.joinGeneratedPath(vuexPath)
@@ -207,6 +224,13 @@ func (c *Chain) Generate(
 		return &CannotBuildAppError{err}
 	}
 
+	// Check if the client config options have to be updated with the paths of the generated code
+	if updateConfig {
+		if err := c.saveClientConfig(conf.Client); err != nil {
+			return fmt.Errorf("error adding generated paths to config file: %w", err)
+		}
+	}
+
 	if c.options.printGeneratedPaths {
 		if targetOptions.isTSClientEnabled {
 			c.ev.Send(
@@ -250,4 +274,27 @@ func (c Chain) joinGeneratedPath(rootPath string) string {
 	}
 
 	return filepath.Join(c.app.Path, rootPath, "generated")
+}
+
+func (c Chain) saveClientConfig(client config.Client) error {
+	path := c.ConfigPath()
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	// Initialize the config to the file values ignoring empty
+	// values that otherwise would be initialized to defaults.
+	// Defaults must be ignored to avoid writing them to the
+	// YAML config file when they are not present.
+	var cfg chainconfig.Config
+	if err := cfg.Decode(file); err != nil {
+		return err
+	}
+
+	cfg.Client = client
+
+	return chainconfig.Save(cfg, path)
 }
