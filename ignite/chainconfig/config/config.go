@@ -154,7 +154,7 @@ type Host struct {
 // BaseConfig defines a struct with the fields that are common to all config versions.
 type BaseConfig struct {
 	Version  Version   `yaml:"version"`
-	Build    Build     `yaml:"build"`
+	Build    Build     `yaml:"build,omitempty"`
 	Accounts []Account `yaml:"accounts"`
 	Faucet   Faucet    `yaml:"faucet,omitempty"`
 	Client   Client    `yaml:"client,omitempty"`
