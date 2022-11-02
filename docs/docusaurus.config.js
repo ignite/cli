@@ -208,6 +208,7 @@ const config = {
           {
             className: 'code-block-removed-line',
             line: 'remove-next-line',
+            block: {start: 'remove-start', end: 'remove-end'},
           },
         ],
       },
