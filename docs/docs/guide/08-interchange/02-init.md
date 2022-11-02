@@ -7,7 +7,9 @@ description: Create the blockchain for the interchain exchange app.
 
 ## Initialize the Blockchain
 
-In this chapter, you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets, and messages. In later chapters, you integrate more code into each of the transaction handlers.
+In this chapter, you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain,
+the module, the transaction, the IBC packets, and messages. In later chapters, you integrate more code into each of the
+transaction handlers.
 
 ## Create the Blockchain
 
@@ -17,7 +19,7 @@ Scaffold a new blockchain called `interchange`:
 ignite scaffold chain interchange --no-module
 ```
 
-A new directory named `interchange` is created. 
+A new directory named `interchange` is created.
 
 Change into this directory where you can scaffold modules, types, and maps:
 
@@ -35,7 +37,8 @@ Next, create a new IBC module.
 
 Scaffold a module inside your blockchain named `dex` with IBC capabilities.
 
-The dex module contains the logic to create and maintain order books and route them through IBC to the second blockchain.
+The dex module contains the logic to create and maintain order books and route them through IBC to the second
+blockchain.
 
 ```bash
 ignite scaffold module dex --ibc --ordering unordered --dep bank
@@ -43,7 +46,7 @@ ignite scaffold module dex --ibc --ordering unordered --dep bank
 
 ## Create CRUD logic for Buy and Sell Order Books
 
-Scaffold two types with create, read, update, and delete (CRUD) actions. 
+Scaffold two types with create, read, update, and delete (CRUD) actions.
 
 Run the following Ignite CLI `type` commands to create `sellOrderBook` and `buyOrderBook` types:
 
@@ -75,7 +78,9 @@ ignite scaffold packet sell-order amountDenom amount:int priceDenom price:int --
 ignite scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module dex
 ```
 
-The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. The value of the `--ack` flag is a comma-separated list of names (no spaces). Append optional types after a colon (`:`).
+The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been
+received by the target chain. The value of the `--ack` flag is a comma-separated list of names (no spaces). Append
+optional types after a colon (`:`).
 
 ## Cancel messages
 
@@ -88,16 +93,20 @@ ignite scaffold message cancel-sell-order port channel amountDenom priceDenom or
 ignite scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module dex
 ```
 
-Use the optional `--desc` flag to define a description of the CLI command that is used to broadcast a transaction with the message.
+Use the optional `--desc` flag to define a description of the CLI command that is used to broadcast a transaction with
+the message.
 
 ## Trace the Denom
 
-The token denoms must have the same behavior as described in the `ibc-transfer` module:
+The token demons must have the same behavior as described in the `ibc-transfer` module:
 
-- An external token received from a chain has a unique `denom`, reffered to as `voucher`.
-- When a token is sent to a blockchain and then sent back and received, the chain can resolve the voucher and convert it back to the original token denomination.
+- An external token received from a chain has a unique `denom`, referred to as `voucher`.
+- When a token is sent to a blockchain and then sent back and received, the chain can resolve the voucher and convert
+  it back to the original token denomination.
 
-`Voucher` tokens are represented as hashes, therefore you must store which original denomination is related to a voucher. You can do this with an indexed type.
+`Voucher` tokens are represented as hashes, therefore you must store which original denomination is related to a
+voucher.
+You can do this with an indexed type.
 
 For a `voucher` you store, define the source port ID, source channel ID, and the original denom:
 
@@ -119,15 +128,15 @@ Create the `mars.yml` file with your content:
 # mars.yml
 accounts:
   - name: alice
-    coins: ["1000token", "100000000stake", "1000marscoin"]
+    coins: [ "1000token", "100000000stake", "1000marscoin" ]
   - name: bob
-    coins: ["500token", "1000marscoin", "100000000stake"]
+    coins: [ "500token", "1000marscoin", "100000000stake" ]
 validator:
   name: alice
   staked: "100000000stake"
 faucet:
   name: bob
-  coins: ["5token", "100000stake"]
+  coins: [ "5token", "100000stake" ]
 genesis:
   chain_id: "mars"
 init:
@@ -140,16 +149,16 @@ Create the `venus.yml` file with your content:
 # venus.yml
 accounts:
   - name: alice
-    coins: ["1000token", "1000000000stake", "1000venuscoin"]
+    coins: [ "1000token", "1000000000stake", "1000venuscoin" ]
   - name: bob
-    coins: ["500token", "1000venuscoin", "100000000stake"]
+    coins: [ "500token", "1000venuscoin", "100000000stake" ]
 validator:
   name: alice
   staked: "100000000stake"
 faucet:
   host: ":4501"
   name: bob
-  coins: ["5token", "100000stake"]
+  coins: [ "5token", "100000stake" ]
 host:
   rpc: ":26659"
   p2p: ":26658"
@@ -163,7 +172,9 @@ init:
   home: "$HOME/.venus"
 ```
 
-In the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later so you can run two blockchains in parallel and prevent conflicts when the chains are using the same ports.
+In the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various
+running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later, so you can
+run two blockchains in parallel and prevent conflicts when the chains are using the same ports.
 
 You can also use the `host` parameter to use specific ports for any of the services.
 
