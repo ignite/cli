@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	hplugin "github.com/hashicorp/go-plugin"
-	
+
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -35,8 +35,8 @@ func (p) Commands() []plugin.Command {
 }
 
 func (p) Hooks() []plugin.Hook {
- 	return []plugin.Hook{}
- }
+	return []plugin.Hook{}
+}
 
 func (p) Execute(cmd plugin.Command, args []string) error {
 	// TODO: write command execution here
@@ -61,29 +61,29 @@ func (p) Execute(cmd plugin.Command, args []string) error {
 	return nil
 }
 
-func (p) ExecuteHookPre(name string, args []string) error {
- 	switch name {
- 		default:
- 			return fmt.Errorf("hook not defined")
- 	}
- }
+func (p) ExecuteHookPre(hook plugin.Hook, args []string) error {
+	switch hook.Name {
+	default:
+		return fmt.Errorf("hook not defined")
+	}
+}
 
- func (p) ExecuteHookPost(name string, args []string) error {
- 	switch name {
- 		default:
- 			return fmt.Errorf("hook not defined")
- 	}
- }
+func (p) ExecuteHookPost(hook plugin.Hook, args []string) error {
+	switch hook.Name {
+	default:
+		return fmt.Errorf("hook not defined")
+	}
+}
 
- func (p) ExecuteHookCleanUp(name string, args []string) error {
- 	switch name {
- 		default:
- 			return fmt.Errorf("hook not defined")
- 	}
- }
+func (p) ExecuteHookCleanUp(hook plugin.Hook, args []string) error {
+	switch hook.Name {
+	default:
+		return fmt.Errorf("hook not defined")
+	}
+}
 
 func main() {
-	var pluginMap = map[string]hplugin.Plugin{
+	pluginMap := map[string]hplugin.Plugin{
 		"<%= Name %>": &plugin.InterfacePlugin{Impl: &p{}},
 	}
 

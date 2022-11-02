@@ -107,7 +107,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		err := p.Interface.ExecuteHookPre(hook.Name, args)
+		err := p.Interface.ExecuteHookPre(hook, args)
 		if err != nil {
 			return err
 		}
@@ -120,10 +120,9 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if runCmd != nil {
 			err := runCmd(cmd, args)
-
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
-				p.Interface.ExecuteHookCleanUp(hook.Name, args)
+				p.Interface.ExecuteHookCleanUp(hook, args)
 			}
 
 			return err
@@ -135,7 +134,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
-		defer p.Interface.ExecuteHookCleanUp(hook.Name, args)
+		defer p.Interface.ExecuteHookCleanUp(hook, args)
 
 		if preRun != nil {
 			err := postCmd(cmd, args)
@@ -145,15 +144,13 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		err := p.Interface.ExecuteHookPost(hook.Name, args)
-
+		err := p.Interface.ExecuteHookPost(hook, args)
 		if err != nil {
 			return err
 		}
 
 		return nil
 	}
-
 }
 
 // linkPluginCmds tries to add the plugin commands to the legacy ignite

@@ -28,18 +28,17 @@ type Interface interface {
 	Execute(cmd Command, args []string) error
 	// Hooks defines custom hooks registered with a given plugin
 	Hooks() []Hook
-	// ExecuteHookPre is invoked by Ignite when a command specified by the hook path is invoked
-	// is global for all hooks registered to a plugin
-	// context on the hook being invoked is given by the `name` parameter
-	// name is the same for both pre and post
-	ExecuteHookPre(name string, args []string) error
-	// ExecuteHookPost is invoked by Ignite when a command specified by the hook path is invoked
-	// is global for all hooks registered to a plugin
-	// context on the hook being invoked is given by the `name` parameter
-	ExecuteHookPost(name string, args []string) error
+	// ExecuteHookPre is invoked by Ignite when a command specified by the hook
+	// path is invoked is global for all hooks registered to a plugin context on
+	// the hook being invoked is given by the `hook` parameter.
+	ExecuteHookPre(hook Hook, args []string) error
+	// ExecuteHookPost is invoked by Ignite when a command specified by the hook
+	// path is invoked is global for all hooks registered to a plugin context on
+	// the hook being invoked is given by the `hook` parameter.
+	ExecuteHookPost(hook Hook, args []string) error
 	// ExecuteHookCleanUp is invoked right before the command is done executing
-	// will be called regardless of execution status of the command and hooks
-	ExecuteHookCleanUp(name string, args []string) error
+	// will be called regardless of execution status of the command and hooks.
+	ExecuteHookCleanUp(hook Hook, args []string) error
 }
 
 // Command represents a plugin command.
@@ -125,26 +124,26 @@ func (g *InterfaceRPC) Execute(c Command, args []string) error {
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookPre(name string, args []string) error {
+func (g *InterfaceRPC) ExecuteHookPre(hook Hook, args []string) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookPre", map[string]interface{}{
-		"name": name,
+		"hook": hook,
 		"args": args,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookPost(name string, args []string) error {
+func (g *InterfaceRPC) ExecuteHookPost(hook Hook, args []string) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookPost", map[string]interface{}{
-		"name": name,
+		"hook": hook,
 		"args": args,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookCleanUp(name string, args []string) error {
+func (g *InterfaceRPC) ExecuteHookCleanUp(hook Hook, args []string) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookCleanUp", map[string]interface{}{
-		"name": name,
+		"hook": hook,
 		"args": args,
 	}, &resp)
 }
@@ -171,15 +170,15 @@ func (s *InterfaceRPCServer) Execute(args map[string]interface{}, resp *interfac
 }
 
 func (s *InterfaceRPCServer) ExecuteHookPre(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.ExecuteHookPre(args["name"].(string), args["args"].([]string))
+	return s.Impl.ExecuteHookPre(args["hook"].(Hook), args["args"].([]string))
 }
 
 func (s *InterfaceRPCServer) ExecuteHookPost(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.ExecuteHookPost(args["name"].(string), args["args"].([]string))
+	return s.Impl.ExecuteHookPost(args["hook"].(Hook), args["args"].([]string))
 }
 
 func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.ExecuteHookCleanUp(args["name"].(string), args["args"].([]string))
+	return s.Impl.ExecuteHookCleanUp(args["hook"].(Hook), args["args"].([]string))
 }
 
 // This is the implementation of plugin.Interface so we can serve/consume this
