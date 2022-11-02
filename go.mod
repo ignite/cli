@@ -15,7 +15,7 @@ require (
 	github.com/charmbracelet/glow v1.4.1
 	github.com/cosmos/cosmos-sdk v0.46.3
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v5 v5.0.0
+	github.com/cosmos/ibc-go/v5 v5.0.1
 	github.com/emicklei/proto v1.11.0
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
