@@ -1,12 +1,13 @@
 # Set up your Ignite CLI development environment
 
-To ensure you have a successful experience developing with Ignite CLI, make sure that your local system meets these technical requirements.
+To ensure you have a successful experience developing with Ignite CLI, make sure that your local system meets these
+technical requirements.
 
 Ignite CLI is supported for the following operating systems:
 
-- GNU/Linux
-- macOS
-- Windows Subsystem for Linux (WSL)
+* GNU/Linux
+* macOS
+* Windows Subsystem for Linux (WSL)
 
 ## Install Go
 
@@ -22,24 +23,27 @@ This installation method removes existing Go installations, installs Go, and set
 
 ## Add the Go bin directory to your PATH
 
-Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system. Many of the initial problems are related to incorrect environment variables.
+Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system. Many
+of the initial problems are related to incorrect environment variables.
 
 1. Edit your `~/.bashrc` file and add `export PATH=$PATH:$(go env GOPATH)/bin`.
 2. To apply the changes, run `source ~/.bashrc`.
 
 ## Remove existing Ignite CLI installations
 
-Before you install a new version of Ignite CLI, remove all existing  installations.
+Before you install a new version of Ignite CLI, remove all existing installations.
 
 1. Remove the Ignite CLI binary with `rm $(which ignite)`
 
-   Depending on your user permissions, run the command with or without `sudo`.
+    Depending on your user permissions, run the command with or without `sudo`.
 
 2. Repeat this step until all Ignite CLI installations are removed from your system.
 
-`curl https://get.ignite.com/cli! | bash`
+```bash
+curl https://get.ignite.com! | bash`
+```
 
-See [Install Ignite CLI](docs/install.md).
+See [Install Ignite CLI](docs/docs/guide/01-install.md).
 
 ## Clone the Ignite CLI repo
 
