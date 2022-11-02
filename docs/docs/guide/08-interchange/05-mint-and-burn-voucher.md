@@ -5,19 +5,21 @@ description: Mint vouchers and lock and unlock native token from a blockchain.
 
 # Mint and Burn Vouchers
 
-In this chapter, you learn about vouchers. The `dex` module implementation mints vouchers and locks and unlocks native token from a blockchain.
+In this chapter, you learn about vouchers. The `dex` module implementation mints vouchers and locks and unlocks native
+token from a blockchain.
 
 There is a lot to learn from this `dex` module implementation:
 
 - You work with the `bank` keeper and use several methods it offers.
 - You interact with another module and use the module account to lock tokens.
 
-This implementation can teach you how to use various interactions with module accounts or minting, locking or burning tokens.
-
+This implementation can teach you how to use various interactions with module accounts or minting, locking or burning
+tokens.
 
 ## Create the SafeBurn Function to Burn Vouchers or Lock Tokens
 
-The `SafeBurn` function burns tokens if they are IBC vouchers (have an `ibc/` prefix) and locks tokens if they are native to the chain.
+The `SafeBurn` function burns tokens if they are IBC vouchers (have an `ibc/` prefix) and locks tokens if they are
+native to the chain.
 
 Create a new `x/dex/keeper/mint.go` file:
 
@@ -60,12 +62,18 @@ func (k Keeper) SafeBurn(ctx sdk.Context, port string, channel string, sender sd
 }
 ```
 
-If the token comes from another blockchain as an IBC token, the burning method actually burns those IBC tokens on one chain and unlocks them on the other chain. The native token are locked away.
+If the token comes from another blockchain as an IBC token, the burning method actually burns those IBC tokens on one
+chain and unlocks them on the other chain. The native token are locked away.
 
-Now, implement the `BurnTokens` keeper method as used in the previous function. The `bankKeeper` has a useful function for this:
+Now, implement the `BurnTokens` keeper method as used in the previous function. The `bankKeeper` has a useful function
+for this:
 
 ```go
 // x/dex/keeper/mint.go
+
+package keeper
+
+// ...
 
 func (k Keeper) BurnTokens(ctx sdk.Context, sender sdk.AccAddress, tokens sdk.Coin) error {
 	// transfer the coins to the module account and burn them
@@ -86,12 +94,16 @@ func (k Keeper) BurnTokens(ctx sdk.Context, sender sdk.AccAddress, tokens sdk.Co
 }
 ```
 
-Implement the `LockTokens` keeper method. 
+Implement the `LockTokens` keeper method.
 
 To lock token from a native chain, you can send the native token to the Escrow Address:
 
 ```go
 // x/dex/keeper/mint.go
+
+package keeper
+
+// ...
 
 func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel string, sender sdk.AccAddress, tokens sdk.Coin) error {
 	// create the escrow address for the tokens
@@ -108,9 +120,11 @@ func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel str
 }
 ```
 
-`BurnTokens` and `LockTokens` use `SendCoinsFromAccountToModule`, `BurnCoins`, and `SendCoins` keeper methods of the `bank` module. 
+`BurnTokens` and `LockTokens` use `SendCoinsFromAccountToModule`, `BurnCoins`, and `SendCoins` keeper methods of the
+`bank` module.
 
-To start using these function from the `dex` module, first add them to the `BankKeeper` interface in the `x/dex/types/expected_keepers.go` file.
+To start using these function from the `dex` module, first add them to the `BankKeeper` interface in the
+`x/dex/types/expected_keepers.go` file.
 
 ```go
 // x/dex/types/expected_keepers.go
@@ -128,7 +142,7 @@ type BankKeeper interface {
 }
 ```
 
-## SaveVoucherDenom 
+## SaveVoucherDenom
 
 The `SaveVoucherDenom` function saves the voucher denom to be able to convert it back later.
 
@@ -162,10 +176,15 @@ func (k Keeper) SaveVoucherDenom(ctx sdk.Context, port string, channel string, d
 }
 ```
 
-Finally, the last function to implement is the `VoucherDenom` function that returns the voucher of the denom from the port ID and channel ID:
+Finally, the last function to implement is the `VoucherDenom` function that returns the voucher of the denom from the
+port ID and channel ID:
 
 ```go
 // x/dex/keeper/denom.go
+
+package keeper
+
+// ...
 
 func VoucherDenom(port string, channel string, denom string) string {
 	// since SendPacket did not prefix the denomination, we must prefix denomination here
@@ -183,12 +202,16 @@ func VoucherDenom(port string, channel string, denom string) string {
 
 ### Implement an OriginalDenom Function
 
-The `OriginalDenom` function returns back the original denom of the voucher. 
+The `OriginalDenom` function returns back the original denom of the voucher.
 
 False is returned if the port ID and channel ID provided are not the origins of the voucher:
 
 ```go
 // x/dex/keeper/denom.go
+
+package keeper
+
+// ...
 
 func (k Keeper) OriginalDenom(ctx sdk.Context, port string, channel string, voucher string) (string, bool) {
 	trace, exist := k.GetDenomTrace(ctx, voucher)
@@ -206,12 +229,17 @@ func (k Keeper) OriginalDenom(ctx sdk.Context, port string, channel string, vouc
 
 ### Implement a SafeMint Function
 
-If a token is an IBC token (has an `ibc/` prefix), the  `SafeMint` function mints IBC token with `MintTokens`. Otherwise, it unlocks native token with `UnlockTokens`.
+If a token is an IBC token (has an `ibc/` prefix), the  `SafeMint` function mints IBC token with `MintTokens`.
+Otherwise, it unlocks native token with `UnlockTokens`.
 
 Go back to the `x/dex/keeper/mint.go` file and add the following code:
 
 ```go
 // x/dex/keeper/mint.go
+
+package keeper
+
+// ...
 
 func (k Keeper) SafeMint(ctx sdk.Context, port string, channel string, receiver sdk.AccAddress, denom string, amount int32) error {
 	if isIBCToken(denom) {
@@ -243,6 +271,10 @@ You can use the `bankKeeper` function again to MintCoins. These token will then 
 ```go
 // x/dex/keeper/mint.go
 
+package keeper
+
+// ...
+
 func (k Keeper) MintTokens(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
 	// mint new tokens if the source of the transfer is the same chain
 	if err := k.bankKeeper.MintCoins(
@@ -267,6 +299,10 @@ Finally, add the function to unlock token after they are sent back to the native
 ```go
 // x/dex/keeper/mint.go
 
+package keeper
+
+// ...
+
 func (k Keeper) UnlockTokens(ctx sdk.Context, sourcePort string, sourceChannel string, receiver sdk.AccAddress, tokens sdk.Coin) error {
 	// create the escrow address for the tokens
 	escrowAddress := ibctransfertypes.GetEscrowAddress(sourcePort, sourceChannel)
@@ -282,11 +318,17 @@ func (k Keeper) UnlockTokens(ctx sdk.Context, sourcePort string, sourceChannel s
 }
 ```
 
-The `MintTokens` function uses two keeper methods from the `bank` module: `MintCoins` and `SendCoinsFromModuleToAccount`.
-To import these methods, add their signatures to the `BankKeeper` interface in the `x/dex/types/expected_keepers.go` file:
+The `MintTokens` function uses two keeper methods from the `bank` module: `MintCoins` and `SendCoinsFromModuleToAccount`
+.
+To import these methods, add their signatures to the `BankKeeper` interface in the `x/dex/types/expected_keepers.go`
+file:
 
 ```go
 // x/dex/types/expected_keepers.go
+
+package types
+
+// ...
 
 type BankKeeper interface {
 	// ...
@@ -295,13 +337,11 @@ type BankKeeper interface {
 }
 ```
 
-
 ## Summary
 
 You finished the mint and burn voucher logic.
 
 It is a good time to make another git commit to save the state of your work:
-
 
 ```bash
 git add .

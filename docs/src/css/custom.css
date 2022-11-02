@@ -4,6 +4,15 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+.code-block-removed-line {
+	background-color: #ff000020;
+	display: block;
+	margin: 0 calc(-1 * var(--ifm-pre-padding));
+	padding: 0 var(--ifm-pre-padding);
+	border-left: 3px solid #ff000080;
+	text-decoration: line-through;
+}
+
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: theme(colors.gray.1000);
