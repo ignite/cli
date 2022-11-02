@@ -14,7 +14,6 @@ import (
 
 func init() {
 	gob.Register(Command{})
-	gob.Register(flag{})
 }
 
 // An ignite plugin must implements the Plugin interface.
@@ -91,6 +90,7 @@ type flagType string
 const (
 	flagTypeString flagType = "string"
 	flagTypeInt    flagType = "int"
+	flagTypeInt64  flagType = "int64"
 	flagTypeBool   flagType = "bool"
 )
 
@@ -136,6 +136,10 @@ func (c *Command) GobDecode(bz []byte) error {
 		case flagTypeInt:
 			defVal, _ := strconv.Atoi(f.DefValue)
 			c.Flags().IntP(f.Name, f.Shorthand, defVal, f.Usage)
+			c.Flags().Set(f.Name, f.Value)
+		case flagTypeInt64:
+			defVal, _ := strconv.ParseInt(f.DefValue, 10, 64)
+			c.Flags().Int64P(f.Name, f.Shorthand, defVal, f.Usage)
 			c.Flags().Set(f.Name, f.Value)
 		case flagTypeString:
 			c.Flags().StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
