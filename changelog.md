@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-
+- [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 - [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
