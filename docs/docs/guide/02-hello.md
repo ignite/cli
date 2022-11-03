@@ -17,7 +17,7 @@ This series of tutorials is based on the latest version of Ignite CLI, so be sur
 Use the following command:
 
 ```bash
-curl https://get.ignite.com | bash
+curl https://get.ignite.com/cli! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating
@@ -239,7 +239,7 @@ In the `query.proto` file, the response accepts `text`.
 - On the last line of the keeper function, change the line to return "Hello, Ignite CLI!":
 
 ```go
-func (k Keeper) Hello(c context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
+func (k Keeper) Hello(goCtx context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
  if req == nil {
   return nil, status.Error(codes.InvalidArgument, "invalid request")
  }
