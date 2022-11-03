@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -52,10 +51,6 @@ func App(path string) (Scaffolder, error) {
 	version, err := cosmosver.Detect(path)
 	if err != nil {
 		return Scaffolder{}, err
-	}
-
-	if !version.IsFamily(cosmosver.Stargate) {
-		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
 	}
 
 	s := Scaffolder{
