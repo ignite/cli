@@ -6,9 +6,11 @@ title: config.yml reference
 
 # Configuration file reference
 
-The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment for your blockchain.
+The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment
+for your blockchain.
 
-Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to the `config.yml` file.
+Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to
+the `config.yml` file.
 
 ## Accounts
 
