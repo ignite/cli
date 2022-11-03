@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -22,6 +23,8 @@ type pluginInterface struct {
 
 	// hookCalls holds trace of ExecuteHook* methods' invocation.
 	hookCalls map[string][]string
+	// holds arguments tied to the ExecuteHook* methods' invocation.
+	hookArgs map[string]map[string][]string
 }
 
 func (p *pluginInterface) Commands() []plugin.Command {
@@ -40,8 +43,16 @@ func (p *pluginInterface) ExecuteHookPre(hook plugin.Hook, args []string) error 
 	if p.hookCalls == nil {
 		p.hookCalls = make(map[string][]string)
 	}
+
 	p.hookCalls[hook.PlaceHookOn] = append(p.hookCalls[hook.PlaceHookOn],
 		fmt.Sprintf("pre-%s", hook.Name))
+
+	if p.hookArgs == nil && len(args) > 0 {
+		p.hookArgs = make(map[string]map[string][]string)
+	} else if len(args) > 0 {
+		p.hookArgs[hook.PlaceHookOn] = make(map[string][]string)
+		p.hookArgs[hook.PlaceHookOn]["pre"] = args
+	}
 	return nil
 }
 
@@ -51,6 +62,15 @@ func (p *pluginInterface) ExecuteHookPost(hook plugin.Hook, args []string) error
 	}
 	p.hookCalls[hook.PlaceHookOn] = append(p.hookCalls[hook.PlaceHookOn],
 		fmt.Sprintf("post-%s", hook.Name))
+
+	if p.hookArgs == nil && len(args) > 0 {
+		p.hookArgs = make(map[string]map[string][]string)
+	} else if len(args) > 0 {
+		if p.hookArgs[hook.PlaceHookOn] == nil {
+			return fmt.Errorf("post hook executed before pre for hook %q aborting", hook.Name)
+		}
+		p.hookArgs[hook.PlaceHookOn]["post"] = args
+	}
 	return nil
 }
 
@@ -60,6 +80,15 @@ func (p *pluginInterface) ExecuteHookCleanUp(hook plugin.Hook, args []string) er
 	}
 	p.hookCalls[hook.PlaceHookOn] = append(p.hookCalls[hook.PlaceHookOn],
 		fmt.Sprintf("cleanup-%s", hook.Name))
+
+	if p.hookArgs == nil && len(args) > 0 {
+		p.hookArgs = make(map[string]map[string][]string)
+	} else if len(args) > 0 {
+		if p.hookArgs[hook.PlaceHookOn] == nil {
+			return fmt.Errorf("cleanup hook executed before pre for hook %q aborting", hook.Name)
+		}
+		p.hookArgs[hook.PlaceHookOn]["cleanup"] = args
+	}
 	return nil
 }
 
@@ -80,6 +109,19 @@ func buildRootCmd() *cobra.Command {
 			Run: func(*cobra.Command, []string) {},
 		}
 	)
+
+	// test flag for passing to hook life cycles
+	scaffoldChainCmd.Flags().AddFlag(&pflag.Flag{
+		Name:      "flag",
+		Shorthand: "f",
+		Usage:     "test flag",
+	})
+	scaffoldModuleCmd.Flags().AddFlag(&pflag.Flag{
+		Name:      "flag",
+		Shorthand: "f",
+		Usage:     "test flag",
+	})
+
 	scaffoldCmd.AddCommand(scaffoldChainCmd)
 	scaffoldCmd.AddCommand(scaffoldModuleCmd)
 	rootCmd.AddCommand(scaffoldCmd)
@@ -308,9 +350,10 @@ func TestLinkPluginHooks(t *testing.T) {
 	tests := []struct {
 		name            string
 		pluginInterface *pluginInterface
-		shouldError     bool
+		flags           []string
 		expectedError   string
 		expectedCalls   map[string][]string
+		epectedArgs     map[string]map[string][]string
 	}{
 		{
 			name: "fail: hook plugin command",
@@ -325,7 +368,6 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			shouldError:   true,
 			expectedError: `unable to find commandPath "ignite test-plugin" for plugin hook "test-hook"`,
 		},
 		{
@@ -338,7 +380,6 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			shouldError:   true,
 			expectedError: `can't attach plugin hook "test-hook" to non executable command "ignite scaffold"`,
 		},
 		{
@@ -351,7 +392,6 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			shouldError:   true,
 			expectedError: `unable to find commandPath "ignite chain" for plugin hook "test-hook"`,
 		},
 		{
@@ -410,6 +450,7 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
+			flags: []string{"flag foo"},
 			expectedCalls: map[string][]string{
 				"scaffold chain": {
 					"pre-test-hook-1", "pre-test-hook-2",
@@ -418,6 +459,18 @@ func TestLinkPluginHooks(t *testing.T) {
 				},
 				"scaffold module": {
 					"pre-test-hook-3", "post-test-hook-3", "cleanup-test-hook-3",
+				},
+			},
+			epectedArgs: map[string]map[string][]string{
+				"scaffold chain": {
+					"pre":     {"flag foo"},
+					"post":    {"flag foo"},
+					"cleanup": {"flag foo"},
+				},
+				"scaffold module": {
+					"pre":     {"flag foo"},
+					"post":    {"flag foo"},
+					"cleanup": {"flag foo"},
 				},
 			},
 		},
@@ -435,11 +488,19 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
+			flags: []string{"flag foo"},
 			expectedCalls: map[string][]string{
 				"ignite scaffold chain": {
 					"pre-test-hook", "pre-test-hook",
 					"post-test-hook", "cleanup-test-hook",
 					"post-test-hook", "cleanup-test-hook",
+				},
+			},
+			epectedArgs: map[string]map[string][]string{
+				"ignite scaffold chain": {
+					"pre":     {"flag foo"},
+					"post":    {"flag foo"},
+					"cleanup": {"flag foo"},
 				},
 			},
 		},
@@ -485,21 +546,24 @@ func TestLinkPluginHooks(t *testing.T) {
 				return
 			}
 			require.NoError(p.Error)
-			execCmd(t, rootCmd)
+			execCmd(t, rootCmd, tt.flags)
 			assert.Equal(tt.expectedCalls, tt.pluginInterface.hookCalls)
+			assert.Equal(tt.epectedArgs, tt.pluginInterface.hookArgs)
 		})
 	}
 }
 
 // execCmd executes all the runnable commands contained in c.
-func execCmd(t *testing.T, c *cobra.Command) {
+func execCmd(t *testing.T, c *cobra.Command, flags []string) {
 	if c.Runnable() {
 		os.Args = strings.Fields(c.CommandPath())
+		os.Args = append(os.Args, flags...)
+		fmt.Println(flags)
 		err := c.Execute()
 		require.NoError(t, err)
 		return
 	}
 	for _, c := range c.Commands() {
-		execCmd(t, c)
+		execCmd(t, c, flags)
 	}
 }
