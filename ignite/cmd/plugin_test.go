@@ -309,6 +309,7 @@ func TestLinkPluginHooks(t *testing.T) {
 		name            string
 		pluginInterface *pluginInterface
 		shouldError     bool
+		expectedError   string
 		expectedCalls   map[string][]string
 	}{
 		{
@@ -324,7 +325,8 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			shouldError: true,
+			shouldError:   true,
+			expectedError: `unable to find commandPath "ignite test-plugin" for plugin hook "test-hook"`,
 		},
 		{
 			name: "fail: command not runnable",
@@ -336,7 +338,8 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			shouldError: true,
+			shouldError:   true,
+			expectedError: `can't attach plugin hook "test-hook" to non executable command "ignite scaffold"`,
 		},
 		{
 			name: "fail: command doesn't exists",
@@ -348,7 +351,8 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			shouldError: true,
+			shouldError:   true,
+			expectedError: `unable to find commandPath "ignite chain" for plugin hook "test-hook"`,
 		},
 		{
 			name: "ok: single hook",
@@ -476,8 +480,8 @@ func TestLinkPluginHooks(t *testing.T) {
 
 			linkPluginHooks(rootCmd, p)
 
-			if tt.shouldError {
-				require.Error(p.Error)
+			if tt.expectedError != "" {
+				require.EqualError(p.Error, tt.expectedError)
 				return
 			}
 			require.NoError(p.Error)
