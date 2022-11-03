@@ -63,6 +63,38 @@ accounts:
     cointype: 7777777
 ```
 
+## Validators
+
+Commands like `ignite chain init` and `ignite chain serve` initialize and launch a validator node for development purposes.
+
+```yml
+validators:
+  - name: alice
+    bonded: '100000000stake'
+```
+
+`name` refers to key name in the `accounts` list.
+
+`bonded` is the self-delegation amount of a validator. The `bonded` amount should not be lower than `1000000` and should be higher than the account's balance in the `account` list.
+
+Validators store their node configuration files in the data directory. By default, Ignite uses the name of the project as the name of the data directory, for example, `$HOME/.example/`. Configuration in the data directory is reset frequently by Ignite. To persist some changes to configuration files you can use `app`, `config` and `client` properties that correspond to `$HOME/.example/config/app.toml`, `$HOME/.example/config/config.toml` and `$HOME/.example/config/client.toml`.
+
+```yml
+validators:
+  - name: alice
+    bonded: '100000000stake'
+    app:
+      pruning: "nothing"
+    config:
+      moniker: "mychain"
+    client:
+      output: "json"
+```
+
+To see which properties are available for `config.toml`, `app.toml` and `client.toml`, initialize a chain with `ignite chain init` and open the file you want to know more about.
+
+Currently, Ignite starts only one validator node, so the first item in the `validators` list is used (the rest is ignored). Support for multiple validators is in progress.
+
 ## Build
 
 The `build` property lets you customize how Ignite builds your chain's binary.
@@ -131,53 +163,6 @@ faucet:
   rate_limit_window: 3600
 ```
 
-## Initialization
-
-Commands like `ignite chain init` and `ignite chain serve` initialize your blockchain for development purposes. When a blockchain node is initialized it created a "data directory" that contains node configuration, and the genesis file.
-
-By default, the project's name is used as the name of the data directory. For a project name `example` the data directory would be `$HOME/.example/`. You can specify a different data directory:
-
-```yml
-init:
-  home: "~/.mychain"
-```
-
-The data directory contains files that configure how a blockchain node is initialized and launched. For development purposes Ignite often resets the data directory. To make changes to config files persistent, specify the changes:
-
-`$DATA_DIR/config/config.toml` contains properties related to the Tendermint Core consensus engine:
-
-```yml
-init:
-  config:
-    moniker: "mychain"
-```
-
-`$DATA_DIR/config/app.toml` contains properties related to the Cosmos SDK blockchain application:
-
-
-```yml
-init:
-  app:
-    minimum-gas-prices: "10stake"
-```
-
-`$DATA_DIR/config/client.toml` configure the default behavior of the blockchain's CLI:
-
-```yml
-init:
-  client:
-    output: "json"
-```
-
-To see which properties are available for `config.toml`, `app.toml` and `client.toml`, initialize a chain with `ignite chain init` and open the file you want to know more about.
-
-By default, Ignite initializes user accounts using the `test` keyring backend. You can specify other backends like `os` or `test`:
-
-```yml
-init:
-  keyring-backend: "os"
-```
-
 ## Genesis
 
 Genesis file is the initial block in the blockchain. It is required to launch a blockchain, because it contains important information like token balances, and modules' state. Genesis is stored in `$DATA_DIR/config/genesis.json`.
@@ -193,3 +178,19 @@ genesis:
 ```
 
 To know which properties a genesis file supports, initialize a chain and look up the genesis file in the data directory.
+
+## Client code generation
+
+Ignite can generate client-side code for interacting with your chain with the `ignite generate` set of commands. Use the following properties to customize the paths where the client-side code is generated.
+
+```yml
+client:
+  openapi:
+    path: "docs/static/openapi.yml"
+  typescript:
+    path: "ts-client"
+  composables:
+    path: "vue/src/composables"
+  hooks:
+    path: "react/src/hooks"
+```
