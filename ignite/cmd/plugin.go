@@ -94,7 +94,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	}
 
 	if !cmd.Runnable() {
-		p.Error = errors.Errorf("can't attach plugin hook %q to non executable command %s", hook.Name, hook.PlaceHookOn)
+		p.Error = errors.Errorf("can't attach plugin hook %q to non executable command %q", hook.Name, hook.PlaceHookOn)
 		return
 	}
 
