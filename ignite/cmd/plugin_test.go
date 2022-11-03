@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -41,10 +42,17 @@ func TestLinkPluginCmds(t *testing.T) {
 				Run: func(*cobra.Command, []string) {},
 			}
 		)
+		scaffoldChainCmd.Flags().String("path", "", "")
 		scaffoldCmd.AddCommand(scaffoldChainCmd)
 		rootCmd.AddCommand(scaffoldCmd)
 		return rootCmd
 	}
+	// define a plugin with command flags
+	pluginWithFlags := plugin.Command{
+		Use: "flaggy",
+	}
+	pluginWithFlags.Flags().String("flag1", "", "")
+	pluginWithFlags.Flags().Int("flag2", 0, "")
 	tests := []struct {
 		name            string
 		pluginInterface pluginInterface
@@ -64,7 +72,7 @@ func TestLinkPluginCmds(t *testing.T) {
 ignite
   foo*
   scaffold
-    chain*
+    chain* --path=string
 `,
 		},
 		{
@@ -80,7 +88,7 @@ ignite
 			expectedDumpCmd: `
 ignite
   scaffold
-    chain*
+    chain* --path=string
     foo*
 `,
 		},
@@ -97,7 +105,7 @@ ignite
 			expectedDumpCmd: `
 ignite
   scaffold
-    chain*
+    chain* --path=string
     foo*
 `,
 		},
@@ -149,7 +157,7 @@ ignite
 			expectedError: `plugin command "chain" already exists in ignite's commands`,
 		},
 		{
-			name: "ok: link foo and bar at root",
+			name: "ok: link multiple at root",
 			pluginInterface: pluginInterface{
 				commands: []plugin.Command{
 					{
@@ -158,14 +166,16 @@ ignite
 					{
 						Use: "bar",
 					},
+					pluginWithFlags,
 				},
 			},
 			expectedDumpCmd: `
 ignite
   bar*
+  flaggy* --flag1=string --flag2=int
   foo*
   scaffold
-    chain*
+    chain* --path=string
 `,
 		},
 		{
@@ -177,6 +187,7 @@ ignite
 						Commands: []plugin.Command{
 							{Use: "bar"},
 							{Use: "baz"},
+							pluginWithFlags,
 						},
 					},
 				},
@@ -186,8 +197,9 @@ ignite
   foo
     bar*
     baz*
+    flaggy* --flag1=string --flag2=int
   scaffold
-    chain*
+    chain* --path=string
 `,
 		},
 		{
@@ -212,7 +224,7 @@ ignite
       corge*
       quux*
   scaffold
-    chain*
+    chain* --path=string
 `,
 		},
 	}
@@ -250,6 +262,9 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 	if c.Runnable() {
 		fmt.Fprintf(w, "*")
 	}
+	c.Flags().VisitAll(func(f *pflag.Flag) {
+		fmt.Fprintf(w, " --%s=%s", f.Name, f.Value.Type())
+	})
 	fmt.Fprintf(w, "\n")
 	for _, cc := range c.Commands() {
 		dumpCmd(cc, w, ntabs)
