@@ -20,8 +20,8 @@ type pluginInterface struct {
 	commands []plugin.Command
 }
 
-func (p pluginInterface) Commands() []plugin.Command {
-	return p.commands
+func (p pluginInterface) Commands() ([]plugin.Command, error) {
+	return p.commands, nil
 }
 
 func (pluginInterface) Execute(plugin.Command, []string) error {

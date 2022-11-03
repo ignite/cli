@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	"log"
 	"net/rpc"
 	"strconv"
 
@@ -23,7 +22,7 @@ type Interface interface {
 	// order to display the list of available commands.
 	// Each commands are independent, for nested commands, use the field
 	// Command.Commands.
-	Commands() []Command
+	Commands() ([]Command, error)
 	// Execute will be invoked by ignite when a plugin commands is executed.
 	// cmd is the executed command (one of the those returned by Commands method)
 	// args is the command line arguments passed behing the command.
@@ -169,15 +168,13 @@ func HandshakeConfig() plugin.HandshakeConfig {
 type InterfaceRPC struct{ client *rpc.Client }
 
 // Commands implements Interface.Commands
-func (g *InterfaceRPC) Commands() []Command {
+func (g *InterfaceRPC) Commands() ([]Command, error) {
 	var resp []Command
 	err := g.client.Call("Plugin.Commands", new(interface{}), &resp)
 	if err != nil {
-		// You usually want your interfaces to return errors. If they don't,
-		// there isn't much other choice here.
-		log.Fatalf("error while calling plugin %v", err)
+		return nil, fmt.Errorf("error while calling plugin: %w", err)
 	}
-	return resp
+	return resp, nil
 }
 
 // Execute implements Interface.Commands
@@ -197,8 +194,9 @@ type InterfaceRPCServer struct {
 }
 
 func (s *InterfaceRPCServer) Commands(args interface{}, resp *[]Command) error {
-	*resp = s.Impl.Commands()
-	return nil
+	var err error
+	*resp, err = s.Impl.Commands()
+	return err
 }
 
 func (s *InterfaceRPCServer) Execute(args map[string]interface{}, resp *interface{}) error {

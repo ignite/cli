@@ -26,7 +26,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(
+	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),

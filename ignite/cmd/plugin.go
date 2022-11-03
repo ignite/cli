@@ -23,7 +23,7 @@ var plugins []*plugin.Plugin
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// NOTE(tb) Not sure if it's the right place to load this.
-	chain, err := NewChainWithHomeFlags(rootCmd)
+	chain, err := newChainWithHomeFlags(rootCmd)
 	if err != nil {
 		// Binary is run outside of an chain app, plugins can't be loaded
 		return nil
@@ -63,7 +63,12 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin) {
 	if p.Error != nil {
 		return
 	}
-	for _, pluginCmd := range p.Interface.Commands() {
+	pluginCmds, err := p.Interface.Commands()
+	if err != nil {
+		p.Error = err
+		return
+	}
+	for _, pluginCmd := range pluginCmds {
 		linkPluginCmd(rootCmd, p, pluginCmd)
 		if p.Error != nil {
 			return

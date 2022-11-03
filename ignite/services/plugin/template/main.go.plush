@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"path/filepath"
 
 	hplugin "github.com/hashicorp/go-plugin"
-	
-	ignitecmd "github.com/ignite/cli/ignite/cmd"
+
+	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
@@ -16,9 +17,9 @@ func init() {
 
 type p struct{}
 
-func (p) Commands() []plugin.Command {
+func (p) Commands() ([]plugin.Command, error) {
 	// TODO: write your command list here
-	return []plugin.Command{
+	cmds := []plugin.Command{
 		{
 			Use:               "<%= Name %>",
 			Short:             "Explain what the command is doing...",
@@ -32,6 +33,7 @@ func (p) Commands() []plugin.Command {
 			},
 		},
 	}
+	return cmds, nil
 }
 
 func (p) Execute(cmd plugin.Command, args []string) error {
@@ -39,7 +41,7 @@ func (p) Execute(cmd plugin.Command, args []string) error {
 	fmt.Printf("Hello I'm the <%= Name %> plugin!\nargs=%v, with=%v\n", args, cmd.With)
 
 	// This is how the plugin can access the chain:
-	c, err := ignitecmd.NewChainWithHomeFlags(cmd.CobraCmd)
+	c, err := getChain(cmd)
 	if err != nil {
 		return err
 	}
@@ -57,8 +59,23 @@ func (p) Execute(cmd plugin.Command, args []string) error {
 	return nil
 }
 
+func getChain(cmd plugin.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+	var (
+		home, _ = cmd.Flags().GetString("home")
+		path, _ = cmd.Flags().GetString("path")
+	)
+	if home != "" {
+		chainOption = append(chainOption, chain.HomePath(home))
+	}
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+	return chain.New(absPath, chainOption...)
+}
+
 func main() {
-	var pluginMap = map[string]hplugin.Plugin{
+	pluginMap := map[string]hplugin.Plugin{
 		"<%= Name %>": &plugin.InterfacePlugin{Impl: &p{}},
 	}
 
