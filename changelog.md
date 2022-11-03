@@ -22,6 +22,10 @@
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 
+### Breaking Changes
+
+- [#3033](https://github.com/ignite/cli/pull/3033) Remove Cosmos SDK Launchpad version support.
+
 ### Fixes
 
 - [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` 
