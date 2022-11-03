@@ -72,11 +72,11 @@ func NoNumberPrefix(s string) string {
 
 // Title returns a copy of the string s with all Unicode letters that begin words
 // mapped to their Unicode title case.
-func Title(title string) string {
-	return cases.Title(language.English).String(title)
+func Title(s string) string {
+	return cases.Title(language.English).String(s)
 }
 
 // ToUpperFirst returns a copy of the string with the first unicode letter in upper case.
-func ToUpperFirst(title string) string {
-	return strings.ToUpper(title[:1]) + title[1:]
+func ToUpperFirst(s string) string {
+	return strings.ToUpper(s[:1]) + s[1:]
 }
