@@ -28,7 +28,7 @@ func (e UnsupportedVersionError) Error() string {
 	return fmt.Sprintf("config version %s is not supported", e.Version)
 }
 
-// VersionError is returned when config version doesn't match with the vertion CLI supports.
+// VersionError is returned when config version doesn't match with the version CLI supports.
 type VersionError struct {
 	Version config.Version
 }
