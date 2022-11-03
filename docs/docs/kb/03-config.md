@@ -103,3 +103,93 @@ build:
   proto:
     third_party_paths: ["my_third_party/proto"]
 ```
+
+## Faucet
+
+The faucet service sends tokens to addresses.
+
+```yml
+faucet:
+  name: bob
+  coins: ["5token", "100000stake"]
+```
+
+`name` refers to a key name in the `accounts` list. This is a required property.
+
+`coins` is the amount of tokens that will be sent to a user by the faucet. This is a required property.
+
+`coins_max` is a maximum amount of tokens that can be sent to a single address. To reset the token limit use the `rate_limit_window` property (in seconds).
+
+The default the faucet works on port `4500`. To use a different port number use the `port` property.
+
+```yml
+faucet:
+  name: faucet
+  coins: [ "100token", "5foo" ]
+  coins_max: [ "2000token", "1000foo" ]
+  port: 4500
+  rate_limit_window: 3600
+```
+
+## Initialization
+
+Commands like `ignite chain init` and `ignite chain serve` initialize your blockchain for development purposes. When a blockchain node is initialized it created a "data directory" that contains node configuration, and the genesis file.
+
+By default, the project's name is used as the name of the data directory. For a project name `example` the data directory would be `$HOME/.example/`. You can specify a different data directory:
+
+```yml
+init:
+  home: "~/.mychain"
+```
+
+The data directory contains files that configure how a blockchain node is initialized and launched. For development purposes Ignite often resets the data directory. To make changes to config files persistent, specify the changes:
+
+`$DATA_DIR/config/config.toml` contains properties related to the Tendermint Core consensus engine:
+
+```yml
+init:
+  config:
+    moniker: "mychain"
+```
+
+`$DATA_DIR/config/app.toml` contains properties related to the Cosmos SDK blockchain application:
+
+
+```yml
+init:
+  app:
+    minimum-gas-prices: "10stake"
+```
+
+`$DATA_DIR/config/client.toml` configure the default behavior of the blockchain's CLI:
+
+```yml
+init:
+  client:
+    output: "json"
+```
+
+To see which properties are available for `config.toml`, `app.toml` and `client.toml`, initialize a chain with `ignite chain init` and open the file you want to know more about.
+
+By default, Ignite initializes user accounts using the `test` keyring backend. You can specify other backends like `os` or `test`:
+
+```yml
+init:
+  keyring-backend: "os"
+```
+
+## Genesis
+
+Genesis file is the initial block in the blockchain. It is required to launch a blockchain, because it contains important information like token balances, and modules' state. Genesis is stored in `$DATA_DIR/config/genesis.json`.
+
+Since the genesis file is reinitialized frequently during development, you can set persistent options in the `genesis` property:
+
+```yml
+genesis:
+  app_state:
+    staking:
+      params:
+        bond_denom: "denom"
+```
+
+To know which properties a genesis file supports, initialize a chain and look up the genesis file in the data directory.
