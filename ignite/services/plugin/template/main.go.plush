@@ -12,6 +12,7 @@ import (
 
 func init() {
 	gob.Register(plugin.Command{})
+	gob.Register(plugin.Hook{})
 }
 
 type p struct{}
