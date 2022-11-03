@@ -20,7 +20,8 @@ const (
 	flagTag            = "tag"
 	flagBranch         = "branch"
 	flagHash           = "hash"
-	flagGenesis        = "genesis"
+	flagGenesisURL     = "genesis-url"
+	flagGenesisConfig  = "genesis-config"
 	flagCampaign       = "campaign"
 	flagShares         = "shares"
 	flagNoCheck        = "no-check"
@@ -44,7 +45,8 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagBranch, "", "Git branch to use for the repo")
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
-	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
+	c.Flags().String(flagGenesisURL, "", "URL to a custom Genesis")
+	c.Flags().String(flagGenesisConfig, "", "Name of an Ignite config file in the repo for custom Genesis")
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
@@ -74,7 +76,8 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
 		hash, _                   = cmd.Flags().GetString(flagHash)
-		genesisURL, _             = cmd.Flags().GetString(flagGenesis)
+		genesisURL, _             = cmd.Flags().GetString(flagGenesisURL)
+		genesisConfig, _          = cmd.Flags().GetString(flagGenesisConfig)
 		chainID, _                = cmd.Flags().GetString(flagChainID)
 		campaign, _               = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
@@ -172,9 +175,20 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	var initOptions []networkchain.Option
 
+	// cannot use both genesisURL and genesisConfig
+	if genesisURL != "" && genesisConfig != "" {
+		return errors.New("cannot use both genesis-url and genesis-config for initial genesis." +
+			"Please use only one of the options.")
+	}
+
 	// use custom genesis from url if given.
 	if genesisURL != "" {
 		initOptions = append(initOptions, networkchain.WithGenesisFromURL(genesisURL))
+	}
+
+	// use custom genesis config if given
+	if genesisConfig != "" {
+		initOptions = append(initOptions, networkchain.WithGenesisFromConfig(genesisConfig))
 	}
 
 	// init in a temp dir.
@@ -189,8 +203,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// prepare publish options
 	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
-	if genesisURL != "" {
-		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
+	switch {
+	case genesisURL != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisURL(genesisURL))
+	case genesisConfig != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisConfig(genesisConfig))
+
 	}
 
 	if campaign != 0 {

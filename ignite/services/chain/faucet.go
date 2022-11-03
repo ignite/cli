@@ -81,7 +81,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+			return cosmosfaucet.Faucet{}, fmt.Errorf("%zs: %s", err, coin)
 		}
 
 		var amountMax uint64
