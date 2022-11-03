@@ -11,9 +11,30 @@ import (
 )
 
 // Parse reads a config file.
-// When the version of the file beign read is not the latest
+// When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
 func Parse(configFile io.Reader) (*Config, error) {
+	cfg, err := parse(configFile)
+	if err != nil {
+		return cfg, err
+	}
+
+	return cfg, validateConfig(cfg)
+}
+
+// ParseNetwork reads a config file for Ignite Network genesis.
+// When the version of the file being read is not the latest
+// it is automatically migrated to the latest version.
+func ParseNetwork(configFile io.Reader) (*Config, error) {
+	cfg, err := parse(configFile)
+	if err != nil {
+		return cfg, err
+	}
+
+	return cfg, validateNetworkConfig(cfg)
+}
+
+func parse(configFile io.Reader) (*Config, error) {
 	var buf bytes.Buffer
 
 	// Read the config file version first to know how to decode it
@@ -41,7 +62,7 @@ func Parse(configFile io.Reader) (*Config, error) {
 		return DefaultConfig(), err
 	}
 
-	return cfg, validateConfig(cfg)
+	return cfg, nil
 }
 
 // ParseFile parses a config from a file path.
@@ -102,6 +123,16 @@ func validateConfig(c *Config) error {
 		if validator.Bonded == "" {
 			return &ValidationError{"validator 'bonded' is required"}
 		}
+	}
+
+	// TODO: We should validate all of the required config fields
+
+	return nil
+}
+
+func validateNetworkConfig(c *Config) error {
+	if len(c.Validators) != 0 {
+		return &ValidationError{"no validators can be used in config for network genesis"}
 	}
 
 	// TODO: We should validate all of the required config fields
