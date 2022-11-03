@@ -71,10 +71,7 @@ type ChainCmd struct {
 	homeDir         string
 	keyringBackend  KeyringBackend
 	keyringPassword string
-	cliCmd          string
-	cliHome         string
 	nodeAddress     string
-	legacySend      bool
 
 	isAutoChainIDDetectionEnabled bool
 
@@ -157,30 +154,6 @@ func WithKeyringPassword(password string) Option {
 func WithNodeAddress(addr string) Option {
 	return func(c *ChainCmd) {
 		c.nodeAddress = addr
-	}
-}
-
-// WithLaunchpadCLI provides the CLI application name for the blockchain
-// this is necessary for Launchpad applications since it has two different binaries but
-// not needed by Stargate applications
-func WithLaunchpadCLI(cliCmd string) Option {
-	return func(c *ChainCmd) {
-		c.cliCmd = cliCmd
-	}
-}
-
-// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
-func WithLaunchpadCLIHome(cliHome string) Option {
-	return func(c *ChainCmd) {
-		c.cliHome = cliHome
-	}
-}
-
-// WithLegacySendCommand will make the command use the legacy tx send syntax from launchpad
-// on stargate chains. e.g.: CosmWasm
-func WithLegacySendCommand() Option {
-	return func(c *ChainCmd) {
-		c.legacySend = true
 	}
 }
 
@@ -433,18 +406,6 @@ func (c ChainCmd) GentxCommand(
 			validatorName,
 			selfDelegation,
 		)
-	case c.sdkVersion.LTE(cosmosver.MaxLaunchpadVersion):
-		command = append(command,
-			optionName,
-			validatorName,
-			optionAmount,
-			selfDelegation,
-		)
-
-		// Attach home client option
-		if c.cliHome != "" {
-			command = append(command, []string{optionHomeClient, c.cliHome}...)
-		}
 	}
 
 	// Apply the options provided by the user
@@ -452,11 +413,7 @@ func (c ChainCmd) GentxCommand(
 		command = applyOption(command)
 	}
 
-	// Add necessary flags
-	if c.sdkVersion.IsFamily(cosmosver.Stargate) {
-		command = c.attachChainID(command)
-	}
-
+	command = c.attachChainID(command)
 	command = c.attachKeyringBackend(command)
 
 	return c.daemonCommand(command)
@@ -514,12 +471,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		commandTx,
 	}
 
-	if c.sdkVersion.IsFamily(cosmosver.Stargate) && !c.legacySend {
-		command = append(command,
-			"bank",
-		)
-	}
-
+	command = append(command, "bank")
 	command = append(command,
 		"send",
 		fromAddress,
@@ -532,10 +484,6 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 	command = c.attachChainID(command)
 	command = c.attachKeyringBackend(command)
 	command = c.attachNode(command)
-
-	if c.sdkVersion.IsFamily(cosmosver.Launchpad) {
-		command = append(command, optionOutput, constJSON)
-	}
 
 	return c.cliCommand(command)
 }
@@ -563,32 +511,8 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 		"--limit", "1000",
 	}
 
-	if c.sdkVersion.IsFamily(cosmosver.Launchpad) {
-		command = append(command,
-			"--trust-node",
-		)
-	}
-
 	command = c.attachNode(command)
 	return c.cliCommand(command)
-}
-
-// LaunchpadSetConfigCommand returns the command to set config value
-func (c ChainCmd) LaunchpadSetConfigCommand(name, value string) step.Option {
-	// Check version
-	if c.isStargate() {
-		panic("config command doesn't exist for Stargate")
-	}
-	return c.launchpadSetConfigCommand(name, value)
-}
-
-// LaunchpadRestServerCommand returns the command to start the CLI REST server
-func (c ChainCmd) LaunchpadRestServerCommand(apiAddress, rpcAddress string) step.Option {
-	// Check version
-	if c.isStargate() {
-		panic("rest-server command doesn't exist for Stargate")
-	}
-	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
 }
 
 // StatusCommand returns the command that fetches node's status.
@@ -643,24 +567,14 @@ func (c ChainCmd) attachNode(command []string) []string {
 	return command
 }
 
-// isStargate checks if the version for commands is Stargate
-func (c ChainCmd) isStargate() bool {
-	return c.sdkVersion.Family == cosmosver.Stargate
-}
-
 // daemonCommand returns the daemon command from the provided command
 func (c ChainCmd) daemonCommand(command []string) step.Option {
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
 // cliCommand returns the cli command from the provided command
-// cli is the daemon for Stargate
 func (c ChainCmd) cliCommand(command []string) step.Option {
-	// Check version
-	if c.isStargate() {
-		return step.Exec(c.appCmd, c.attachHome(command)...)
-	}
-	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
 // KeyringBackendFromString returns the keyring backend from its string
