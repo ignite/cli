@@ -79,7 +79,7 @@ func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 	pb := stargateGentx.Body.Messages[0].PubKey.Key
 	info.PubKey, err = base64.StdEncoding.DecodeString(pb)
 	if err != nil {
-		return info, gentx, fmt.Errorf("invalid validator public key %s", err.Error())
+		return info, gentx, fmt.Errorf("invalid validator public key %w", err)
 	}
 
 	amount, ok := sdkmath.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)

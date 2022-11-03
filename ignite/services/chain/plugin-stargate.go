@@ -12,7 +12,6 @@ import (
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
@@ -200,8 +199,6 @@ func stargateHome(app App) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, "."+app.Name)
 }
-
-func (p *stargatePlugin) Version() cosmosver.Family { return cosmosver.Stargate }
 
 func (p *stargatePlugin) SupportsIBC() bool { return true }
 

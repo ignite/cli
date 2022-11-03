@@ -22,7 +22,7 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 
 	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
 	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", fmt.Errorf("%s can't be used as a field Name: %s", name, err.Error())
+		return name, "", fmt.Errorf("%s can't be used as a field Name: %w", name, err)
 	}
 
 	// Check if the object has an explicit type. The default is a string
