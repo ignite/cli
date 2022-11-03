@@ -35,8 +35,8 @@ If you want an account to have a specific address, provide the `address` field w
 ```yml
 accounts:
   - name: bob
-    address: cosmos1s39200s6v4c96ml2xzuh389yxpd0guk2mzn3mz
     coins: ['20000token', '200000000stake']
+    address: cosmos1s39200s6v4c96ml2xzuh389yxpd0guk2mzn3mz
 ```
 
 If you want an account to be initialized from a specific mnemonic, provide the `mnemonic` field with a valid mnemonic. A private key, a public key and an address will be derived from a mnemonic.
@@ -44,8 +44,8 @@ If you want an account to be initialized from a specific mnemonic, provide the `
 ```yml
 accounts:
   - name: bob
-    mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
     coins: ['20000token', '200000000stake']
+    mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
 ```
 
 You cannot have both `address` and `mnemonic` defined for a single account.
@@ -53,3 +53,53 @@ You cannot have both `address` and `mnemonic` defined for a single account.
 Some accounts are used as validator accounts (see `validators` section). Validator accounts cannot have an `address` field, because Ignite needs to be able to derive a private key (either from a random mnemonic or from a specific one provided in the `mnemonic` field). Validator accounts should have enough tokens of the staking denomination for self-delegation.
 
 By default, the `alice` account is used as a validator account, its key is derived from a mnemonic generated randomly at genesis, the staking denomination is `stake`, and this account has enough `stake` for self-delegation.
+
+If your chain is using its own [cointype](https://github.com/satoshilabs/slips/blob/master/slip-0044.md), you can use the `cointype` field to provide the integer value
+
+```yml
+accounts:
+  - name: bob
+    coins: ['20000token', '200000000stake']
+    cointype: 7777777
+```
+
+## Build
+
+The `build` property lets you customize how Ignite builds your chain's binary.
+
+By default, Ignite builds the `main` package from `cmd/PROJECT_NAME/main.go`. If you more than one `main` package in your project, or you have renamed the directory, use the `main` property to provide the path to the `main` Go package:
+
+```yml
+build:
+  main: cmd/hello/cmd
+```
+
+Ignite compiles your project into a binary and uses the project's name with a `d` suffix as name for the binary. To customize the binary name use the `binary` property:
+
+```yml
+build:
+  binary: "helloworldd"
+```
+
+To customize the linker flags used in the build process:
+
+```yml
+build:
+  ldflags: [ "-X main.Version=development", "-X main.Date=01/05/2022T19:54" ]
+```
+
+By default, custom protocol buffer (proto) files are located in the `proto` directory. If your project keeps proto files in a different directory, you should tell Ignite about this:
+
+```yml
+build:
+  proto:
+    path: "myproto"
+```
+
+Ignite comes with required third-party proto out of the box. Ignite also looks into `third_party/proto` and `proto_vendor` directories for extra proto files. If your project keeps third-party proto files in a different directory, you should tell Ignite about this:
+
+```yml
+build:
+  proto:
+    third_party_paths: ["my_third_party/proto"]
+```
