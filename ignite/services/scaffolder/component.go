@@ -37,7 +37,7 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
 	if err := checkForbiddenComponentName(compName); err != nil {
-		return fmt.Errorf("%s can't be used as a component name: %s", compName.LowerCamel, err.Error())
+		return fmt.Errorf("%s can't be used as a component name: %w", compName.LowerCamel, err)
 	}
 
 	// Check component name is not already used
