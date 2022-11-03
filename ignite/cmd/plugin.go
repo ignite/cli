@@ -107,12 +107,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		err := p.Interface.ExecuteHookPre(hook, args)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return p.Interface.ExecuteHookPre(hook, args)
 	}
 
 	runCmd := cmd.RunE
@@ -144,12 +139,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		err := p.Interface.ExecuteHookPost(hook, args)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return p.Interface.ExecuteHookPost(hook, args)
 	}
 }
 
