@@ -11,9 +11,8 @@ Tell us what you were doing and provide a clear and concise description of issue
 
 **To reproduce**
 Steps to reproduce the behavior:
-1. 
+1.
 
 **What version are you using?**
 
-Provide the output of the `ignite version` command. 
- 
+Provide the output of the `ignite version` command.
