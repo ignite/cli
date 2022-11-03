@@ -3,7 +3,8 @@
 <!--
 Use this tutorial template as a quick starting point when writing Ignite CLI how-to tutorials. 
 
-After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
+After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown 
+formatting syntax are provided at the bottom of this template.
 
 As you write, refer to industry style and formatting guidelines. 
 
@@ -18,7 +19,11 @@ We admire, respect, and rely on these resources:
 
 <!-- To preview a content deploy so you can see what your article looks like before it is published, see [../CONTRIBUTING.md#viewing-tutorial-builds]. 
 
-Our users must be able to follow the tutorial from beginning to end on their own computer. Before submitting a tutorial for PR review, be sure to test the content by completing all steps from start to finish exactly as they are written. Cut and paste commands from the article into your terminal to make sure that typos are not present in the commands. If you find yourself executing a command that isn't in the article, incorporate that command into the article to make sure the user gets the exact same results. 
+Our users must be able to follow the tutorial from beginning to end on their own computer. Before submitting a tutorial 
+for PR review, be sure to test the content by completing all steps from start to finish exactly as they are written. 
+Cut-and-paste commands from the article into your terminal to make sure that typos are not present in the commands. If 
+you find yourself executing a command that isn't in the article, incorporate that command into the article to make sure 
+the user gets the exact same results. 
 -->
 
 <!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
@@ -41,23 +46,27 @@ Our users must be able to follow the tutorial from beginning to end on their own
 
 ### Introduction and purpose
 
-Introductory paragraph about the topic that explains what this topic is about and why the user should care; what problem does the tutorial solve?
+Introductory paragraph about the topic that explains what this topic is about and why the user should care; what problem
+does the tutorial solve?
 
 In this guide, you will [accomplish/build/] [some important thing]...
 
 When you're finished, you'll be able to...
 
-**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
+**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for
+educational purposes. This tutorial code is not intended to be used in production.
 
 ## Prerequisites
 
-<!-- Prerequisites let you leverage existing tutorials so you don't have to repeat installation or setup steps in your tutorial. -->
+<!-- Prerequisites let you leverage existing tutorials so you don't have to repeat installation or setup steps in 
+your tutorial. -->
 
 To complete this tutorial, you will need:
 
-* A local development environment for [your chain] 
+* A local development environment for [your chain]
 * Familiarity with the Cosmos ecosystem and [your chain]. See [cosmos.network](EIP-1559 for $ATOM) to learn more.
-* (Optional) If software such as Git, Go, Docker, or other tooling needs to be installed, link to the proper article describing how to install it.
+* (Optional) If software such as Git, Go, Docker, or other tooling needs to be installed, link to the proper article
+  describing how to install it.
 * (Optional) List any other accounts needed.
 
 <!-- Example - uncomment to use
@@ -78,7 +87,8 @@ Next...
 
 Finally...
 
-<!-- When showing a command, explain the command first by talking about what it does. Then show the command. Then show its output in a separate output block: -->
+<!-- When showing a command, explain the command first by talking about what it does. Then show the command. Then show 
+its output in a separate output block: -->
 
 To verify the version of Ignite CLI that is installed, run the following command:
 
@@ -89,12 +99,16 @@ ignite --version
 You'll see release details like the following output:
 
 ```
-Ignite version:	v0.19.6
-Ignite CLI build date:	2021-12-18T05:56:36Z
-Ignite CLI source hash:	-
-Your OS:		darwin
-Your arch:		amd64
-Your go version:	go version go1.16.4 darwin/amd64
+Ignite CLI version:     v0.25.0
+Ignite CLI build date:  2022-10-17T14:52:33Z
+Ignite CLI source hash: 065e30cfbc60fb84913db6da5ec1bc70be65b178*
+Cosmos SDK version:     v0.46.2
+Your OS:                linux
+Your arch:              amd64
+Your Node.js version:   v18.11.0
+Your go version:        go version go1.19.2 linux/amd64
+Is on Gitpod:           false
+
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:
@@ -111,14 +125,14 @@ Modify the title by changing the contents of the `<title>` tag:
 message Post {
   string creator = 1;
   string id = 2;
-  string title = 3; 
-  string body = 4; 
+  string title = 3;
+  string body = 4;
 }
 
 message MsgCreatePost {
   string creator = 1;
-  string title = 2; 
-  string body = 3; 
+  string title = 2;
+  string body = 3;
 }
 
 // ...
@@ -178,7 +192,8 @@ Use a plus symbol (+) if keys need to be pressed simultaneously: `CTRL+C`.
 
 **Tip:** This is a tip.
 
-Add diagrams and screenshots in PNG format with a self-describing filename. Embed them in the article using the following format:
+Add diagrams and screenshots in PNG format with a self-describing filename. Embed them in the article using the 
+following format:
 
 ![Alt text for screen readers](/path/to/img.png)
 

@@ -80,9 +80,6 @@ type Client struct {
 	// Hooks configures code generation for React hooks.
 	Hooks Hooks `yaml:"hooks"`
 
-	// Dart configures client code generation for Dart.
-	Dart Dart `yaml:"dart,omitempty"`
-
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
 }
@@ -110,12 +107,6 @@ type Composables struct {
 // Hooks configures code generation for react-query hooks.
 type Hooks struct {
 	// Path configures out location for generated vue-query hooks.
-	Path string `yaml:"path"`
-}
-
-// Dart configures client code generation for Dart.
-type Dart struct {
-	// Path configures out location for generated Dart code.
 	Path string `yaml:"path"`
 }
 

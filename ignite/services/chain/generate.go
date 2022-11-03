@@ -19,13 +19,11 @@ type generateOptions struct {
 	isComposablesEnabled bool
 	isHooksEnabled       bool
 	isVuexEnabled        bool
-	isDartEnabled        bool
 	isOpenAPIEnabled     bool
 	tsClientPath         string
 	vuexPath             string
 	composablesPath      string
 	hooksPath            string
-	dartPath             string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -75,14 +73,6 @@ func GenerateHooks(path string) GenerateTarget {
 	}
 }
 
-// GenerateDart enables generating Dart client.
-func GenerateDart(path string) GenerateTarget {
-	return func(o *generateOptions) {
-		o.isDartEnabled = true
-		o.dartPath = path
-	}
-}
-
 // GenerateOpenAPI enables generating OpenAPI spec for your chain.
 func GenerateOpenAPI() GenerateTarget {
 	return func(o *generateOptions) {
@@ -115,10 +105,6 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if p := conf.Client.Hooks.Path; p != "" {
 		additionalTargets = append(additionalTargets, GenerateHooks(p))
-	}
-
-	if p := conf.Client.Dart.Path; p != "" {
-		additionalTargets = append(additionalTargets, GenerateDart(p))
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
@@ -162,7 +148,7 @@ func (c *Chain) Generate(
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	var dartPath, openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
+	var openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
 
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
@@ -261,29 +247,6 @@ func (c *Chain) Generate(
 			),
 		)
 	}
-	if targetOptions.isDartEnabled {
-		dartPath = targetOptions.dartPath
-		if dartPath == "" {
-			dartPath = chainconfig.DartPath(conf)
-		}
-
-		// Non absolute Dart output paths must be treated as relative to the app directory
-		if !filepath.IsAbs(dartPath) {
-			dartPath = filepath.Join(c.app.Path, dartPath)
-		}
-
-		if err := os.MkdirAll(dartPath, 0o766); err != nil {
-			return err
-		}
-
-		options = append(options,
-			cosmosgen.WithDartGeneration(
-				enableThirdPartyModuleCodegen,
-				cosmosgen.DartModulePath(dartPath),
-				dartPath,
-			),
-		)
-	}
 
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath = conf.Client.OpenAPI.Path
@@ -333,14 +296,6 @@ func (c *Chain) Generate(
 		if targetOptions.isVuexEnabled {
 			c.ev.Send(
 				fmt.Sprintf("Vuex stores path: %s", vuexPath),
-				events.Icon(icons.Bullet),
-				events.ProgressFinish(),
-			)
-		}
-
-		if targetOptions.isDartEnabled {
-			c.ev.Send(
-				fmt.Sprintf("Dart path: %s", dartPath),
 				events.Icon(icons.Bullet),
 				events.ProgressFinish(),
 			)
