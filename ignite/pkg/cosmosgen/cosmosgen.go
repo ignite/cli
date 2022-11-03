@@ -22,9 +22,6 @@ type generateOptions struct {
 	vuexRootPath string
 
 	specOut string
-
-	dartOut      func(module.Module) string
-	dartRootPath string
 }
 
 // TODO add WithInstall.
@@ -48,13 +45,6 @@ func WithVuexGeneration(out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
 		o.vuexOut = out
 		o.vuexRootPath = vuexRootPath
-	}
-}
-
-func WithDartGeneration(out ModulePathFunc, rootPath string) Option {
-	return func(o *generateOptions) {
-		o.dartOut = out
-		o.dartRootPath = rootPath
 	}
 }
 
@@ -140,12 +130,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		}
 	}
 
-	if g.o.dartOut != nil {
-		if err := g.generateDart(); err != nil {
-			return err
-		}
-	}
-
 	if g.o.specOut != "" {
 		if err := generateOpenAPISpec(g); err != nil {
 			return err
@@ -160,13 +144,5 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		return filepath.Join(rootPath, m.Pkg.Name)
-	}
-}
-
-// DartModulePath generates Dart module paths for Cosmos SDK modules.
-// The root path is used as prefix for the generated paths.
-func DartModulePath(rootPath string) ModulePathFunc {
-	return func(m module.Module) string {
-		return filepath.Join(rootPath, m.Pkg.Name, "module")
 	}
 }
