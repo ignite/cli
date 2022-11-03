@@ -235,10 +235,15 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 		// get initial genesis
 		initialGenesis := launchtypes.NewDefaultInitialGenesis()
-		if o.genesisURL != "" {
+		switch {
+		case o.genesisURL != "":
 			initialGenesis = launchtypes.NewGenesisURL(
 				o.genesisURL,
 				genesisHash,
+			)
+		case o.genesisConfig != "":
+			initialGenesis = launchtypes.NewConfigGenesis(
+				o.genesisConfig,
 			)
 		}
 

@@ -369,7 +369,11 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithCustomGenesis(gts.URL))
+		launchID, campaignID, publishError := network.Publish(
+			context.Background(),
+			suite.ChainMock,
+			WithCustomGenesisURL(gts.URL),
+		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
 		require.Equal(t, uint64(0), campaignID)
@@ -578,7 +582,11 @@ func TestPublish(t *testing.T) {
 		)
 		defer gts.Close()
 
-		_, _, publishError := network.Publish(context.Background(), suite.ChainMock, WithCustomGenesis(gts.URL))
+		_, _, publishError := network.Publish(
+			context.Background(),
+			suite.ChainMock,
+			WithCustomGenesisURL(gts.URL),
+		)
 		require.Error(t, publishError)
 		require.Equal(t, expectedError.Error(), publishError.Error())
 		suite.AssertAllMocks(t)
