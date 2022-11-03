@@ -239,7 +239,7 @@ In the `query.proto` file, the response accepts `text`.
 - On the last line of the keeper function, change the line to return "Hello, Ignite CLI!":
 
 ```go
-func (k Keeper) Hello(c context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
+func (k Keeper) Hello(goCtx context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
  if req == nil {
   return nil, status.Error(codes.InvalidArgument, "invalid request")
  }
