@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ignite/cli/ignite/chainconfig"
 	"os"
+	"path/filepath"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
@@ -63,7 +65,8 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
-	if c.genesisURL != "" {
+	switch {
+	case c.genesisURL != "":
 		c.ev.Send("Fetching custom Genesis from URL", events.ProgressUpdate())
 		genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
 		if err != nil {
@@ -101,7 +104,21 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
 			return err
 		}
-	} else {
+	case c.genesisConfig != "":
+		c.ev.Send("Fetching custom Genesis from Config", events.ProgressUpdate())
+
+		// find config in downloaded source
+		path := filepath.Join(c.path, c.genesisConfig)
+		if _, err := os.Stat(path); err != nil {
+			return fmt.Errorf("the config for genesis doesn't exist: %w", err)
+		}
+
+		config, err := chainconfig.ParseNetworkFile(path)
+		if err != nil {
+			return err
+		}
+
+	default:
 		// default genesis is used, init CLI command is used to generate it
 		cmd, err := c.chain.Commands(ctx)
 		if err != nil {

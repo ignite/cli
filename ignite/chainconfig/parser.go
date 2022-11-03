@@ -77,6 +77,18 @@ func ParseFile(path string) (*Config, error) {
 	return Parse(file)
 }
 
+// ParseNetworkFile parses a config from a file path.
+func ParseNetworkFile(path string) (*Config, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return DefaultConfig(), err
+	}
+
+	defer file.Close()
+
+	return ParseNetwork(file)
+}
+
 // ReadConfigVersion reads the config version.
 func ReadConfigVersion(configFile io.Reader) (config.Version, error) {
 	c := struct {
@@ -133,6 +145,20 @@ func validateConfig(c *Config) error {
 func validateNetworkConfig(c *Config) error {
 	if len(c.Validators) != 0 {
 		return &ValidationError{"no validators can be used in config for network genesis"}
+	}
+
+	for _, account := range c.Accounts {
+		if account.Address == "" {
+			return &ValidationError{"account address is required"}
+		}
+
+		if account.Coins == nil {
+			return &ValidationError{"account coins is required"}
+		}
+
+		if account.Mnemonic != "" {
+			return &ValidationError{"cannot include mnemonic in network config genesis"}
+		}
 	}
 
 	// TODO: We should validate all of the required config fields
