@@ -83,8 +83,8 @@ func TestParseNetworkWithCurrentVersion(t *testing.T) {
 
 	// Assert: Parse must return the latest version
 	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
-	require.Equal(t, testdata.GetLatestConfig(t).Accounts, cfg.Accounts)
-	require.Equal(t, testdata.GetLatestConfig(t).Genesis, cfg.Genesis)
+	require.Equal(t, testdata.GetLatestNetworkConfig(t).Accounts, cfg.Accounts)
+	require.Equal(t, testdata.GetLatestNetworkConfig(t).Genesis, cfg.Genesis)
 }
 
 func TestParseNetworkWithInvalidData(t *testing.T) {

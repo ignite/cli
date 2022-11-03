@@ -113,7 +113,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return fmt.Errorf("the config for genesis doesn't exist: %w", err)
 		}
 
-		config, err := chainconfig.ParseNetworkFile(path)
+		_, err := chainconfig.ParseNetworkFile(path)
 		if err != nil {
 			return err
 		}

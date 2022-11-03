@@ -20,3 +20,7 @@ var NetworkConfig = networkconfigTestData.ConfigYAML
 func GetLatestConfig(t *testing.T) *chainconfig.Config {
 	return v1testdata.GetConfig(t)
 }
+
+func GetLatestNetworkConfig(t *testing.T) *chainconfig.Config {
+	return networkconfigTestData.GetConfig(t)
+}

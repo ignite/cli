@@ -2,6 +2,8 @@ package chainconfig
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"io"
 	"os"
 
@@ -148,8 +150,9 @@ func validateNetworkConfig(c *Config) error {
 	}
 
 	for _, account := range c.Accounts {
-		if account.Address == "" {
-			return &ValidationError{"account address is required"}
+		// must have valid bech32 addr
+		if _, _, err := bech32.DecodeAndConvert(account.Address); err != nil {
+			return fmt.Errorf("invalid address %s: %w", account.Address, err)
 		}
 
 		if account.Coins == nil {
