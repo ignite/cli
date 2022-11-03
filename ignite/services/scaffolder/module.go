@@ -385,9 +385,9 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		path := filepath.Join(appPath, module.PathAppModule)
 		if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
 			return fmt.Errorf(
-				"the module cannot have %s as a dependency: %s",
+				"the module cannot have %s as a dependency: %w",
 				dep.Name,
-				err.Error(),
+				err,
 			)
 		}
 

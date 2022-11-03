@@ -60,7 +60,7 @@ func VerifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator)
 	// Check values inside the gentx are correct
 	info, _, err := cosmosutil.ParseGentx(req.GenesisValidator.GenTx)
 	if err != nil {
-		return fmt.Errorf("cannot parse gentx %s", err.Error())
+		return fmt.Errorf("cannot parse gentx %w", err)
 	}
 
 	// Change the address prefix fetched from the gentx to the one used on SPN
