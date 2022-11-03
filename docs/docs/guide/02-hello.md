@@ -17,7 +17,7 @@ This series of tutorials is based on the latest version of Ignite CLI, so be sur
 Use the following command:
 
 ```bash
-curl https://get.ignite.com | bash
+curl https://get.ignite.com/cli! | bash
 ```
 
 Ignite CLI comes with a number of scaffolding commands that are designed to make development easier by creating
