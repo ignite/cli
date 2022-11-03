@@ -44,10 +44,6 @@ var (
 	// The path is relative to the app's directory.
 	DefaultHooksPath = "react/src/hooks"
 
-	// DefaultDartPath defines the default relative path to use when when scaffolding a Flutter app.
-	// The path is relative to the app's directory.
-	DefaultDartPath = "flutter/lib"
-
 	// DefaultOpenAPIPath defines the default relative path to use when when generating an OpenAPI schema.
 	// The path is relative to the app's directory.
 	DefaultOpenAPIPath = "docs/static/openapi.yml"
@@ -124,16 +120,6 @@ func HooksPath(conf *Config) string {
 	}
 
 	return DefaultHooksPath
-}
-
-// DartPath returns the relative path to the Flutter lib directory.
-// Path is relative to the app's directory.
-func DartPath(conf *Config) string {
-	if path := strings.TrimSpace(conf.Client.Dart.Path); path != "" {
-		return filepath.Clean(path)
-	}
-
-	return DefaultDartPath
 }
 
 // CreateConfigDir creates config directory if it is not created yet.
