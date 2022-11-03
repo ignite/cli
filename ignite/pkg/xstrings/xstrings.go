@@ -75,3 +75,8 @@ func NoNumberPrefix(s string) string {
 func Title(title string) string {
 	return cases.Title(language.English).String(title)
 }
+
+// ToUpperFirst returns a copy of the string with the first unicode letter in upper case.
+func ToUpperFirst(title string) string {
+	return strings.ToUpper(title[:1]) + title[1:]
+}
