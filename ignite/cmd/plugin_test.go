@@ -350,7 +350,7 @@ func TestLinkPluginHooks(t *testing.T) {
 	tests := []struct {
 		name            string
 		pluginInterface *pluginInterface
-		flags           []string
+		args            []string
 		expectedError   string
 		expectedCalls   map[string][]string
 		epectedArgs     map[string]map[string][]string
@@ -450,7 +450,7 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			flags: []string{"flag foo"},
+			args: []string{"flag foo"},
 			expectedCalls: map[string][]string{
 				"scaffold chain": {
 					"pre-test-hook-1", "pre-test-hook-2",
@@ -488,7 +488,7 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				},
 			},
-			flags: []string{"flag foo"},
+			args: []string{"flag foo"},
 			expectedCalls: map[string][]string{
 				"ignite scaffold chain": {
 					"pre-test-hook", "pre-test-hook",
@@ -546,7 +546,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				return
 			}
 			require.NoError(p.Error)
-			execCmd(t, rootCmd, tt.flags)
+			execCmd(t, rootCmd, tt.args)
 			assert.Equal(tt.expectedCalls, tt.pluginInterface.hookCalls)
 			assert.Equal(tt.epectedArgs, tt.pluginInterface.hookArgs)
 		})
@@ -554,16 +554,15 @@ func TestLinkPluginHooks(t *testing.T) {
 }
 
 // execCmd executes all the runnable commands contained in c.
-func execCmd(t *testing.T, c *cobra.Command, flags []string) {
+func execCmd(t *testing.T, c *cobra.Command, args []string) {
 	if c.Runnable() {
 		os.Args = strings.Fields(c.CommandPath())
-		os.Args = append(os.Args, flags...)
-		fmt.Println(flags)
+		os.Args = append(os.Args, args...)
 		err := c.Execute()
 		require.NoError(t, err)
 		return
 	}
 	for _, c := range c.Commands() {
-		execCmd(t, c, flags)
+		execCmd(t, c, args)
 	}
 }
