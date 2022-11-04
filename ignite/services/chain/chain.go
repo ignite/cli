@@ -10,7 +10,6 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
@@ -177,10 +176,6 @@ func New(path string, options ...Option) (*Chain, error) {
 	c.Version, err = cosmosver.Detect(c.app.Path)
 	if err != nil {
 		return nil, err
-	}
-
-	if !c.Version.IsFamily(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
 	}
 
 	// initialize the plugin depending on the version of the chain

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/docker/docker/pkg/archive"
+	"github.com/moby/moby/pkg/archive"
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cache"

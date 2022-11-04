@@ -126,6 +126,7 @@ func New(options ...Option) *Session {
 		if session.options.spinnerText != "" {
 			session.spinner.SetText(session.options.spinnerText)
 		}
+		session.spinner.Start()
 	}
 
 	// The main loop that prints the events uses a wait group to block
