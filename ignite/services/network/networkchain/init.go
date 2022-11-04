@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
