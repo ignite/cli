@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"strings"
+	"regexp"
 
 	"github.com/spf13/cobra"
 
@@ -104,7 +104,7 @@ params.
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
+	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank,FeeGrant)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
@@ -161,24 +161,19 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if len(dependencies) > 0 {
-		var formattedDependencies []modulecreate.Dependency
+		var deps []modulecreate.Dependency
 
-		// Parse the provided dependencies
-		for _, dependency := range dependencies {
-			var formattedDependency modulecreate.Dependency
+		isValid := regexp.MustCompile(`^[a-zA-Z]+$`).MatchString
 
-			splitted := strings.Split(dependency, ":")
-			switch len(splitted) {
-			case 1:
-				formattedDependency = modulecreate.NewDependency(splitted[0], "")
-			case 2:
-				formattedDependency = modulecreate.NewDependency(splitted[0], splitted[1])
-			default:
-				return fmt.Errorf("dependency %s is invalid, must have <depName> or <depName>.<depKeeperName>", dependency)
+		for _, name := range dependencies {
+			if !isValid(name) {
+				return fmt.Errorf("invalid module dependency name format '%s'", name)
 			}
-			formattedDependencies = append(formattedDependencies, formattedDependency)
+
+			deps = append(deps, modulecreate.NewDependency(name))
 		}
-		options = append(options, scaffolder.WithDependencies(formattedDependencies))
+
+		options = append(options, scaffolder.WithDependencies(deps))
 	}
 
 	var msg bytes.Buffer
@@ -210,9 +205,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 	// therefore we must warn the user to manually move the definition if it's the case
 	// https://github.com/ignite/cli/issues/818#issuecomment-865736052
-	for _, dep := range dependencies {
-		if dep == "gov" {
+	for _, name := range dependencies {
+		if name == "Gov" {
 			session.Print(govDependencyWarning)
+
+			break
 		}
 	}
 
