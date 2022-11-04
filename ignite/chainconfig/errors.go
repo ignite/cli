@@ -28,11 +28,23 @@ func (e UnsupportedVersionError) Error() string {
 	return fmt.Sprintf("config version %s is not supported", e.Version)
 }
 
-// VersionError is returned when config version is not the latest.
+// VersionError is returned when config version doesn't match with the version CLI supports.
 type VersionError struct {
 	Version config.Version
 }
 
 func (e VersionError) Error() string {
-	return fmt.Sprintf("config version %s is required and the current version is %s", LatestVersion, e.Version)
+	if LatestVersion > e.Version {
+		return fmt.Sprintf(
+			"blockchain app uses a previous config version %s and CLI expects %s",
+			e.Version,
+			LatestVersion,
+		)
+	}
+
+	return fmt.Sprintf(
+		"blockchain app uses a newer config version %s and CLI expects %s",
+		e.Version,
+		LatestVersion,
+	)
 }
