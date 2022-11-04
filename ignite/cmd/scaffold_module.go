@@ -194,7 +194,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		modificationsStr, err := sourceModificationToString(sm)
+		modificationsStr, err := SourceModificationToString(sm)
 		if err != nil {
 			return err
 		}

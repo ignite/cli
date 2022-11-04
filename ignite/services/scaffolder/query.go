@@ -41,7 +41,7 @@ func (s Scaffolder) AddQuery(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
+	if err := CheckComponentValidity(s.path, moduleName, name, true); err != nil {
 		return sm, err
 	}
 
@@ -49,7 +49,7 @@ func (s Scaffolder) AddQuery(
 	if ok := containCustomTypes(reqFields); ok {
 		return sm, errors.New("query request params can't contain custom type")
 	}
-	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
+	parsedReqFields, err := field.ParseFields(reqFields, CheckGoReservedWord)
 	if err != nil {
 		return sm, err
 	}
@@ -58,7 +58,7 @@ func (s Scaffolder) AddQuery(
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, CheckGoReservedWord)
 	if err != nil {
 		return sm, err
 	}

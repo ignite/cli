@@ -142,7 +142,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := CheckComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -165,7 +165,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	isIBC, err := isIBCModule(s.path, moduleName)
+	isIBC, err := IsIBCModule(s.path, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -277,7 +277,7 @@ func checkForbiddenTypeField(name string) error {
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 
-	return checkGoReservedWord(name)
+	return CheckGoReservedWord(name)
 }
 
 // mapGenerator returns the template generator for a map

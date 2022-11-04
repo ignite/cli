@@ -79,7 +79,7 @@ func (s Scaffolder) AddPacket(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := CheckComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -89,7 +89,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(s.path, moduleName)
+	ok, err := IsIBCModule(s.path, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -115,7 +115,7 @@ func (s Scaffolder) AddPacket(
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, ackFields); err != nil {
 		return sm, err
 	}
-	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
+	parsedAcksFields, err := field.ParseFields(ackFields, CheckGoReservedWord, signer)
 	if err != nil {
 		return sm, err
 	}
@@ -146,9 +146,9 @@ func (s Scaffolder) AddPacket(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// isIBCModule returns true if the provided module implements the IBC module interface
+// IsIBCModule returns true if the provided module implements the IBC module interface
 // we naively check the existence of module_ibc.go for this check
-func isIBCModule(appPath string, moduleName string) (bool, error) {
+func IsIBCModule(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
 	if err != nil {
 		return false, err
@@ -179,5 +179,5 @@ func checkForbiddenPacketField(name string) error {
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
-	return checkGoReservedWord(name)
+	return CheckGoReservedWord(name)
 }

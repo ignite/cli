@@ -201,7 +201,7 @@ var (
 	}
 )
 
-func sourceModificationToString(sm xgenny.SourceModification) (string, error) {
+func SourceModificationToString(sm xgenny.SourceModification) (string, error) {
 	// get file names and add prefix
 	var files []string
 	for _, modified := range sm.ModifiedFiles() {

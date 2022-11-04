@@ -42,7 +42,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

@@ -87,7 +87,7 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
+	if err := CheckComponentValidity(s.path, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -104,7 +104,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
+	parsedResFields, err := field.ParseFields(resFields, CheckGoReservedWord, scaffoldingOpts.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -181,5 +181,5 @@ func checkForbiddenMessageField(name string) error {
 		return fmt.Errorf("%s is used by the message scaffolder", name)
 	}
 
-	return checkGoReservedWord(name)
+	return CheckGoReservedWord(name)
 }

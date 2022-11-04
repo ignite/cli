@@ -96,7 +96,6 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	c.AddCommand(NewScaffoldMessage())
 	c.AddCommand(NewScaffoldQuery())
 	c.AddCommand(NewScaffoldPacket())
-	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
 	c.AddCommand(NewScaffoldReact())
 	// c.AddCommand(NewScaffoldWasm())
@@ -156,7 +155,7 @@ func scaffoldType(
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

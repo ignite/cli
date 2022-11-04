@@ -25,8 +25,8 @@ const (
 	protoFolder = "proto"
 )
 
-// checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
-func checkComponentValidity(appPath, moduleName string, compName multiformatname.Name, noMessage bool) error {
+// CheckComponentValidity performs various checks common to all components to verify if it can be scaffolded
+func CheckComponentValidity(appPath, moduleName string, compName multiformatname.Name, noMessage bool) error {
 	ok, err := moduleExists(appPath, moduleName)
 	if err != nil {
 		return err
@@ -36,16 +36,16 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if err := checkForbiddenComponentName(compName); err != nil {
+	if err := CheckForbiddenComponentName(compName); err != nil {
 		return fmt.Errorf("%s can't be used as a component name: %w", compName.LowerCamel, err)
 	}
 
 	// Check component name is not already used
-	return checkComponentCreated(appPath, moduleName, compName, noMessage)
+	return CheckComponentCreated(appPath, moduleName, compName, noMessage)
 }
 
-// checkForbiddenComponentName returns true if the name is forbidden as a component name
-func checkForbiddenComponentName(name multiformatname.Name) error {
+// CheckForbiddenComponentName returns true if the name is forbidden as a component name
+func CheckForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
 	switch name.LowerCase {
 	case
@@ -64,11 +64,11 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 		return errors.New(`name cannot end with "test"`)
 	}
 
-	return checkGoReservedWord(name.LowerCamel)
+	return CheckGoReservedWord(name.LowerCamel)
 }
 
-// checkGoReservedWord checks if the name can't be used because it is a go reserved keyword
-func checkGoReservedWord(name string) error {
+// CheckGoReservedWord checks if the name can't be used because it is a go reserved keyword
+func CheckGoReservedWord(name string) error {
 	// Check keyword or literal
 	if token.Lookup(name).IsKeyword() {
 		return fmt.Errorf("%s is a Go keyword", name)
@@ -118,8 +118,8 @@ func checkGoReservedWord(name string) error {
 	return nil
 }
 
-// checkComponentCreated checks if the component has been already created with Starport in the project
-func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
+// CheckComponentCreated checks if the component has been already created with Starport in the project
+func CheckComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
 		compName.UpperCamel:                           componentType,
@@ -180,30 +180,6 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 		}
 	}
 	return err
-}
-
-// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name
-func checkForbiddenOracleFieldName(name string) error {
-	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
-	if err != nil {
-		return err
-	}
-
-	// Check with names already used from the scaffolded code
-	switch mfName.UpperCase {
-	case
-		"CLIENTID",
-		"ORACLESCRIPTID",
-		"SOURCECHANNEL",
-		"CALLDATA",
-		"ASKCOUNT",
-		"MINCOUNT",
-		"FEELIMIT",
-		"PREPAREGAS",
-		"EXECUTEGAS":
-		return fmt.Errorf("%s is used by Starport scaffolder", name)
-	}
-	return nil
 }
 
 // checkCustomTypes returns error if one of the types is invalid
