@@ -22,7 +22,17 @@ const (
 	maxStatusEvents = 7
 )
 
-var msgStopServe = style.Faint.Render("Press the 'q' key to stop serve")
+const (
+	stateChainServeStarting uint = iota
+	stateChainServeRunning
+	stateChainServeRebuilding
+	stateChainServeQuitting
+)
+
+var (
+	msgStopServe  = style.Faint.Render("Press the 'q' key to stop serve")
+	msgWaitingFix = colors.Info("\nWaiting for a fix before retrying...\n") // TODO: Replace colors by lipgloss styles
+)
 
 func initialChainServeModel(cmd *cobra.Command, session *cliui.Session) chainServeModel {
 	bus := session.EventBus()
@@ -32,157 +42,247 @@ func initialChainServeModel(cmd *cobra.Command, session *cliui.Session) chainSer
 	cmd.SetContext(ctx)
 
 	return chainServeModel{
-		starting: true,
-		status:   model.NewStatusEvents(bus, maxStatusEvents),
-		events:   model.NewEvents(bus),
-		cmd:      cmd,
-		session:  session,
-		quit:     quit,
+		cmd:          cmd,
+		session:      session,
+		quit:         quit,
+		startModel:   model.NewStatusEvents(bus, maxStatusEvents),
+		runModel:     model.NewEvents(bus),
+		rebuildModel: model.NewStatusEvents(bus, maxStatusEvents),
+		quitModel:    model.NewEvents(bus),
 	}
 }
 
 type chainServeModel struct {
-	starting bool
-	quitting bool
-	broken   bool
-	error    error
-	cmd      *cobra.Command
-	session  *cliui.Session
-	quit     context.CancelFunc
+	state   uint // TODO: Use a state machine for the state workflow?
+	broken  bool
+	error   error
+	cmd     *cobra.Command
+	session *cliui.Session
+	quit    context.CancelFunc
 
 	// Model definitions for the views
-	status model.StatusEvents
-	events model.Events
+	startModel   model.StatusEvents
+	runModel     model.Events
+	rebuildModel model.StatusEvents
+	quitModel    model.Events
 }
 
 func (m chainServeModel) Init() tea.Cmd {
 	// On initialization wait for status events and start serving the blockchain
-	return tea.Batch(m.status.WaitEvent, chainServeStartCmd(m.cmd, m.session))
+	return tea.Batch(m.startModel.WaitEvent, chainServeStartCmd(m.cmd, m.session))
 }
 
-func (m chainServeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
+func (m chainServeModel) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if msg.String() == "q" || msg.Type == tea.KeyCtrlC {
-			m.quitting = true
-			m.quit()
-
-			// Remove the list of events received until now
-			m.events.Clear()
-		}
 	case model.QuitMsg:
-		cmd = tea.Quit
+		return m, tea.Quit
+	case tea.KeyMsg:
+		return m.keyMsgUpdate(msg), nil
 	case model.ErrorMsg:
-		m.error = msg.Error
-		cmd = tea.Quit
+		return m.errorMsgUpdate(msg)
 	case model.EventMsg:
-		// TODO: See how to deal with code refresh when no errors
-
-		// The first "starting" view displays status events one after the other
-		// until the finish event is received, which signals that the second
-		// "running" view must be displayed.
-		if m.starting && msg.ProgressIndication == events.IndicationFinish {
-			// Replace the starting view by the running one
-			m.starting = false
-			// Start waiting for events to display in the running view
-			m.events, cmd = m.events.Update(msg)
-
-			return m, cmd
-		}
-
-		if m.isRunning() {
-			// Serve will keep running when there is an error after
-			// a successful initialization until the code is fixed.
-			if msg.Group == events.GroupError {
-				m.broken = true
-
-				// Clear the current events to only display the error
-				m.events.Clear()
-			} else if m.broken {
-				m.broken = false
-
-				// Clear the error event once the problem is fixed
-				m.events.Clear()
-			}
-		}
-
-		// Update the model that is being displayed
-		return m.updateCurrentModel(msg)
-	default:
-		// Update the spinner of the model being displayed
-		return m.updateCurrentModel(msg)
+		return m.eventMsgUpdate(msg)
 	}
 
-	return m, cmd
+	// By default update the spinner of the model being displayed
+	return m.updateCurrentModel(msg)
 }
 
 func (m chainServeModel) View() string {
-	// TODO: Generalize error and quit behaviours
+	// TODO: Generalize error and quit behaviours to be reused in other models
 	if m.error != nil {
 		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(m.error.Error()))
 	}
 
-	if m.starting {
-		return m.renderStartingView()
+	var view string
+
+	switch m.state {
+	case stateChainServeStarting:
+		view = m.renderStartView()
+	case stateChainServeRunning:
+		view = m.renderRunView()
+	case stateChainServeRebuilding:
+		view = m.renderRebuildView()
+	case stateChainServeQuitting:
+		view = m.renderQuitView()
 	}
 
-	return m.renderRunningView()
+	return model.FormatView(view)
 }
 
-func (m chainServeModel) isRunning() bool {
-	return !(m.starting || m.quitting)
+func (m *chainServeModel) setState(state uint) {
+	m.state = state
+}
+
+func (m *chainServeModel) errorMsgUpdate(msg model.ErrorMsg) (tea.Model, tea.Cmd) {
+	m.error = msg.Error
+
+	return m, tea.Quit
+}
+
+func (m *chainServeModel) keyMsgUpdate(msg tea.KeyMsg) tea.Model {
+	if msg.String() == "q" || msg.Type == tea.KeyCtrlC {
+		m.setState(stateChainServeQuitting)
+		m.quit()
+	}
+
+	return m
+}
+
+func (m *chainServeModel) eventMsgUpdate(msg model.EventMsg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	isFinishEvent := msg.ProgressIndication == events.IndicationFinish
+	isErrorEvent := msg.Group == events.GroupError
+
+	// Blockchain start/build finished
+	if m.state == stateChainServeStarting && isFinishEvent {
+		m.setState(stateChainServeRunning)
+
+		// Start waiting for events to display in the running view
+		m.runModel, cmd = m.runModel.Update(msg)
+
+		return m, cmd
+	}
+
+	// Blockchain rebuild finished
+	if m.state == stateChainServeRebuilding {
+		if isErrorEvent {
+			m.broken = true
+		}
+
+		if isFinishEvent {
+			m.setState(stateChainServeRunning)
+
+			// Make sure there are not events from the previous render
+			m.runModel.Clear()
+
+			// Start waiting for events to display in the run view
+			m.runModel, cmd = m.runModel.Update(msg)
+
+			return m, cmd
+		}
+	}
+
+	if m.state == stateChainServeRunning {
+		// Serve will keep running when there is an error after
+		// a successful initialization until the code is fixed.
+		if isErrorEvent {
+			// If an error event is received it means there is an issue with the source code
+			m.broken = true
+
+			// Clear the current events to only display the error
+			m.runModel.Clear()
+
+			m.runModel, cmd = m.runModel.Update(msg)
+
+			return m, cmd
+		}
+
+		// When a status event is received during run it means something
+		// changed in the source code to trigger the blockchain rebuild.
+		if msg.InProgress() {
+			m.setState(stateChainServeRebuilding)
+			m.rebuildModel.Clear()
+
+			m.rebuildModel, cmd = m.rebuildModel.Update(msg)
+
+			return m, cmd
+		}
+
+		// When the source code is not working and the event
+		// is not an error event it means the issue was fixed.
+		if m.broken {
+			m.broken = false
+
+			// Clear the error events
+			m.runModel.Clear()
+		}
+	}
+
+	// Update the model that is being displayed
+	return m.updateCurrentModel(msg)
 }
 
 func (m chainServeModel) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	// Update the model that is being displayed
-	if m.starting {
-		m.status, cmd = m.status.Update(msg)
-	} else {
-		m.events, cmd = m.events.Update(msg)
+	switch m.state {
+	case stateChainServeStarting:
+		m.startModel, cmd = m.startModel.Update(msg)
+	case stateChainServeRunning:
+		m.runModel, cmd = m.runModel.Update(msg)
+	case stateChainServeRebuilding:
+		m.rebuildModel, cmd = m.rebuildModel.Update(msg)
+	case stateChainServeQuitting:
+		m.quitModel, cmd = m.quitModel.Update(msg)
 	}
 
 	return m, cmd
 }
 
-func (m chainServeModel) renderStartingView() string {
-	var view strings.Builder
-
-	view.WriteString(m.status.View())
-	fmt.Fprintf(&view, "\n%s\n", msgStopServe)
-
-	return model.FormatView(view.String())
+func (m chainServeModel) renderActionsMenu() string {
+	return fmt.Sprintf("\n%s\n", msgStopServe)
 }
 
-func (m chainServeModel) renderRunningView() string {
+func (m chainServeModel) renderStartView() string {
 	var view strings.Builder
 
-	if m.quitting {
-		if s := m.events.View(); s != "" {
-			view.WriteString(s)
-			view.WriteRune(model.EOL)
-		}
+	view.WriteString(m.startModel.View())
+	view.WriteString(m.renderActionsMenu())
 
-		// TODO: Replace colors by lipgloss styles
-		fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
-	} else {
-		if !m.broken {
-			view.WriteString("Chain is running\n\n")
-		}
+	return view.String()
+}
 
-		view.WriteString(m.events.View())
+func (m chainServeModel) renderRunView() string {
+	var view strings.Builder
 
-		if m.broken {
-			view.WriteString(colors.Info("\nWaiting for a fix before retrying...\n"))
-		}
-
-		fmt.Fprintf(&view, "\n%s\n", msgStopServe)
+	if !m.broken {
+		view.WriteString("Blockchain is running\n\n")
 	}
 
-	return model.FormatView(view.String())
+	view.WriteString(m.runModel.View())
+
+	if m.broken {
+		view.WriteString(msgWaitingFix)
+	}
+
+	view.WriteString(m.renderActionsMenu())
+
+	return view.String()
+}
+
+func (m chainServeModel) renderRebuildView() string {
+	var view strings.Builder
+
+	if !m.broken {
+		view.WriteString("Changes detected, restarting...\n\n")
+	}
+
+	view.WriteString(m.rebuildModel.View())
+
+	if m.broken {
+		view.WriteString(msgWaitingFix)
+	}
+
+	view.WriteString(m.renderActionsMenu())
+
+	return view.String()
+}
+
+func (m chainServeModel) renderQuitView() string {
+	var view strings.Builder
+
+	// Display the events received during quit
+	if s := m.quitModel.View(); s != "" {
+		view.WriteString(s)
+		view.WriteRune(model.EOL)
+	}
+
+	fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
+
+	return view.String()
 }
 
 func chainServeStartCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {

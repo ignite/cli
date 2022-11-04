@@ -190,10 +190,11 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 							return err
 						}
 
+						// Inform where the genesis file is saved without using
+						// progress update to keep the event text in the terminal.
 						c.ev.Send(
 							fmt.Sprintf("Genesis state saved in %s", genesisPath),
 							events.Icon(icons.CD),
-							events.ProgressFinish(),
 						)
 					}
 				case errors.As(err, &validationErr):

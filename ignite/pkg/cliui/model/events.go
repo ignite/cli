@@ -53,6 +53,11 @@ type StatusEvents struct {
 	bus        events.Bus
 }
 
+func (m *StatusEvents) Clear() {
+	m.static = nil
+	m.events.Init()
+}
+
 func (m StatusEvents) Wait() tea.Cmd {
 	return tea.Batch(spinner.Tick, m.WaitEvent)
 }
