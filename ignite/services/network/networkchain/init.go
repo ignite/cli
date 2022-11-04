@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ignite/cli/ignite/chainconfig"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/chainconfig"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
@@ -107,14 +108,43 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	case c.genesisConfig != "":
 		c.ev.Send("Fetching custom Genesis from Config", events.ProgressUpdate())
 
+		// first, initialize with default genesis
+		cmd, err := c.chain.Commands(ctx)
+		if err != nil {
+			return err
+		}
+
+		// TODO: use validator moniker https://github.com/ignite/cli/issues/1834
+		if err := cmd.Init(ctx, "moniker"); err != nil {
+			return err
+		}
+
 		// find config in downloaded source
 		path := filepath.Join(c.path, c.genesisConfig)
 		if _, err := os.Stat(path); err != nil {
 			return fmt.Errorf("the config for genesis doesn't exist: %w", err)
 		}
 
-		_, err := chainconfig.ParseNetworkFile(path)
+		config, err := chainconfig.ParseNetworkFile(path)
 		if err != nil {
+			return err
+		}
+
+		// make sure that chain id given during chain.New() has the most priority.
+		chainID, err := c.ID()
+		if err != nil {
+			return err
+		}
+		if config.Genesis != nil {
+			config.Genesis["chain_id"] = chainID
+		}
+
+		// update genesis file with the genesis values defined in the config
+		if err := c.chain.UpdateGenesisFile(config.Genesis); err != nil {
+			return err
+		}
+
+		if err := c.chain.InitAccounts(ctx, config); err != nil {
 			return err
 		}
 
@@ -129,7 +159,6 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if err := cmd.Init(ctx, "moniker"); err != nil {
 			return err
 		}
-
 	}
 
 	// check the initial genesis is valid
@@ -154,14 +183,17 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	chainGenesis, err := cosmosgenesis.FromPath(genesisPath)
 	if err != nil {
 		return err
 	}
+
 	gentxCount, err := chainGenesis.GentxCount()
 	if err != nil {
 		return err
 	}
+
 	if gentxCount > 0 {
 		return errors.New("the initial genesis for the chain should not contain gentx")
 	}

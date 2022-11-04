@@ -3,9 +3,10 @@ package chainconfig
 import (
 	"bytes"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"io"
 	"os"
+
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 
 	"gopkg.in/yaml.v2"
 
