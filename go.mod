@@ -39,7 +39,6 @@ require (
 	github.com/jpillora/chisel v1.7.7
 	github.com/lib/pq v1.10.6
 	github.com/manifoldco/promptui v0.9.0
-	github.com/mattn/go-zglob v0.0.3
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/moby v20.10.21+incompatible
 	github.com/otiai10/copy v1.7.0
