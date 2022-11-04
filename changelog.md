@@ -20,6 +20,7 @@
 - [#2998](https://github.com/ignite/cli/pull/2998) Hide `ignite generate dart` command and remove functionality.
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
+- [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 
 ### Breaking Changes
