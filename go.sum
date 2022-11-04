@@ -1039,8 +1039,8 @@ github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ignite/modules v0.0.0-20220912090139-7c325cae763a h1:0P8qg4YS0hb8jomZedhbooEKE3JZhRNAewV8+8otr6k=
-github.com/ignite/web v0.3.10 h1:WPKQi1a6gjwZPlaizT5Zq+cyUZ6b0p6VSAHr5L4i2p4=
-github.com/ignite/web v0.3.10/go.mod h1:WZWBaBYF8RazN7dE462BLpvXDY8ScacxcJ07BKwX/jY=
+github.com/ignite/web v0.4.3 h1:LHucUEXttzCf5JmxO5/xLKVx1Qz1o124HqF4Nii5uWQ=
+github.com/ignite/web v0.4.3/go.mod h1:WZWBaBYF8RazN7dE462BLpvXDY8ScacxcJ07BKwX/jY=
 github.com/imdario/mergo v0.3.5/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/imdario/mergo v0.3.8/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/imdario/mergo v0.3.10/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
