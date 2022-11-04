@@ -98,9 +98,7 @@ func TestCosmosGenScaffoldHooks(t *testing.T) {
 		)),
 	))
 
-	var (
-		hooksDireGenerated = filepath.Join(app.SourcePath(), "react/src/hooks")
-	)
+	hooksDireGenerated := filepath.Join(app.SourcePath(), "react/src/hooks")
 	require.NoError(t, os.RemoveAll(hooksDireGenerated))
 
 	env.Must(env.Exec("generate hooks",
@@ -148,5 +146,4 @@ func TestCosmosGenScaffoldHooks(t *testing.T) {
 			assert.NoError(t, err)
 		}
 	}
-
 }
