@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	vue "github.com/ignite/web"
+	webtemplates "github.com/ignite/web"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
@@ -125,5 +125,10 @@ func generate(
 
 // Vue scaffolds a Vue.js app for a chain.
 func Vue(path string) error {
-	return localfs.Save(vue.Boilerplate(), path)
+	return localfs.Save(webtemplates.VueBoilerplate(), path)
+}
+
+// React scaffolds a ReactJS app for a chain.
+func React(path string) error {
+	return localfs.Save(webtemplates.ReactBoilerplate(), path)
 }

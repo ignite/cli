@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: gen-nodetime
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up QEMU
         id: qemu
@@ -24,7 +24,7 @@ jobs:
         with:
           tag: v2.1.5-procursus2
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
 
@@ -67,7 +67,7 @@ jobs:
       run:
         shell: ${{ matrix.runner.defaults-shell }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - run: |
           if [[ "${{ matrix.runner.os }}" == "darwin" ]]; then

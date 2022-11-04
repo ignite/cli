@@ -153,10 +153,11 @@ export default {
 		},
 		{{ end }}
 		{{ end }}
-		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = [], memo = '' }) {
+		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = {amount: [], gas: "200000"}, memo = '' }) {
 			try {
 				const client=await initClient(rootGetters)
-				const result = await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.tx.send{{ .Name }}({ value, fee: {amount: fee, gas: "200000"}, memo })
+				const fullFee = Array.isArray(fee)  ? {amount: fee, gas: "200000"} :fee;
+				const result = await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.tx.send{{ .Name }}({ value, fee: fullFee, memo })
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
