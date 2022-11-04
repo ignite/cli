@@ -5,14 +5,15 @@ description: Implement the buy order logic.
 
 # Creating Buy Orders
 
-In this chapter, you implement the creation of buy orders. The logic is very similar to the sell order logic you implemented in the previous chapter.
+In this chapter, you implement the creation of buy orders. The logic is very similar to the sell order logic you
+implemented in the previous chapter.
 
 ## Modify the Proto Definition
 
 Add the buyer to the proto file definition:
 
 ```protobuf
-// proto/dex/packet.proto
+// proto/interchange/dex/packet.proto
 
 message BuyOrderPacketData {
   // ...
@@ -20,7 +21,8 @@ message BuyOrderPacketData {
 }
 ```
 
-Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
+Now, use Ignite CLI to build the proto files for the `send-buy-order` command. You used this command in previous
+chapters.
 
 ```bash
 ignite generate proto-go --yes
@@ -84,10 +86,14 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 
 * Update the buy order book
 * Distribute sold token to the buyer
-* Send to chain A the sell order after the fill attempt
+* Send the sell order to chain A after the fill attempt
 
 ```go
 // x/dex/keeper/buy_order.go
+
+package keeper
+
+// ...
 
 func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) (packetAck types.BuyOrderPacketAck, err error) {
 	// validate packet data upon receiving
@@ -154,6 +160,10 @@ The `FillSellOrder` function tries to fill the buy order with the order book and
 ```go
 // x/dex/types/buy_order_book.go
 
+package types
+
+// ...
+
 func (b *BuyOrderBook) FillSellOrder(order Order) (
 	remainingSellOrder Order,
 	liquidated []Order,
@@ -192,10 +202,15 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (
 
 ### Implement The LiquidateFromSellOrder Function
 
-The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is found, return false for match:
+The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is
+found, return false for match:
 
 ```go
 // x/dex/types/buy_order_book.go
+
+package types
+
+// ...
 
 func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 	remainingSellOrder Order,
@@ -226,7 +241,7 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 		liquidatedBuyOrder.Amount = order.Amount
 		gain = order.Amount * highestBid.Price
 
-		// Remove highest bid if it has been entirely liquidated
+		// Remove the highest bid if it has been entirely liquidated
 		highestBid.Amount -= order.Amount
 		if highestBid.Amount == 0 {
 			b.Book.Orders = b.Book.Orders[:orderCount-1]
@@ -248,7 +263,6 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 
 ## Receiving a Buy Order Acknowledgment
 
-
 After a buy order acknowledgement is received, chain `Mars`:
 
 * Stores the remaining sell order in the sell order book.
@@ -258,6 +272,10 @@ After a buy order acknowledgement is received, chain `Mars`:
 
 ```go
 // x/dex/keeper/buy_order.go
+
+package keeper
+
+// ...
 
 func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
@@ -350,6 +368,10 @@ Add the following function to the `x/dex/types/buy_order_book.go` file in the `t
 ```go
 // x/dex/types/buy_order_book.go
 
+package types
+
+// ...
+
 func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
 	return b.Book.appendOrder(creator, amount, price, Increasing)
 }
@@ -361,6 +383,10 @@ If a timeout occurs, mint back the native token:
 
 ```go
 // x/dex/keeper/buy_order.go
+
+package keeper
+
+// ...
 
 func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) error {
 	// In case of error we mint back the native token
