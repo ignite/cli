@@ -34,9 +34,9 @@ jobs:
             VERSION=${GITHUB_REF#refs/tags/v}
             TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:latest"
           fi
-          echo "version=${VERSION}"" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
-          echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"" >> $GITHUB_OUTPUT
+          echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
