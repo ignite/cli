@@ -79,7 +79,7 @@ func ParseFile(path string) (*Config, error) {
 	return Parse(file)
 }
 
-// ParseNetworkFile parses a config from a file path.
+// ParseNetworkFile parses a config for Ignite Network genesis from a file path.
 func ParseNetworkFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
