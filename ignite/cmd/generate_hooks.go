@@ -8,22 +8,18 @@ import (
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
-func NewGenerateVuex() *cobra.Command {
+func NewGenerateHooks() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "vuex",
-		Short:   "*DEPRECATED* Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateVuexHandler,
+		Use:   "hooks",
+		Short: "Generate Typescript client and React hooks for your chain's frontend from your `config.yml` file",
+		RunE:  generateHooksHandler,
 	}
-
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
-	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagOutput, "o", "", "Vuex store output path")
-
+	c.Flags().StringP(flagOutput, "o", "", "React hooks output path")
 	return c
 }
 
-func generateVuexHandler(cmd *cobra.Command, args []string) error {
+func generateHooksHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
@@ -32,8 +28,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
-		chain.PrintGeneratedPaths(),
-	)
+		chain.PrintGeneratedPaths())
 	if err != nil {
 		return err
 	}
@@ -48,9 +43,9 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateVuex(output)); err != nil {
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateHooks(output)); err != nil {
 		return err
 	}
 
-	return session.Println(icons.OK, "Generated Typescript Client and Vuex stores")
+	return session.Println(icons.OK, "Generated Typescript Client and React hooks")
 }

@@ -6,9 +6,9 @@ import (
 )
 
 <%= for (dependency) in dependencies { %>
-<%= if (dependency.Name != "bank" && dependency.Name != "account") { %>
-type <%= title(dependency.Name) %>Keeper interface {
-	// Methods imported from <%= dependency.Name %> should be defined here
+<%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
+type <%= dependency.KeeperName() %> interface {
+	// Methods imported from <%= toLower(dependency.Name) %> should be defined here
 }
 <% } %>
 <% } %>
