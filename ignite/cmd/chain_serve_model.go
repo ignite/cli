@@ -121,7 +121,7 @@ func (m *chainServeModel) errorMsgUpdate(msg model.ErrorMsg) (tea.Model, tea.Cmd
 }
 
 func (m *chainServeModel) keyMsgUpdate(msg tea.KeyMsg) tea.Model {
-	if msg.String() == "q" || msg.Type == tea.KeyCtrlC {
+	if k := msg.String(); k == "q" || k == "ctrl+c" {
 		m.setState(stateChainServeQuitting)
 		m.quit()
 	}
