@@ -98,9 +98,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 		)),
 	))
 
-	var (
-		composablesDirGenerated = filepath.Join(app.SourcePath(), "vue/src/composables")
-	)
+	composablesDirGenerated := filepath.Join(app.SourcePath(), "vue/src/composables")
 	require.NoError(t, os.RemoveAll(composablesDirGenerated))
 
 	env.Must(env.Exec("generate composables",
@@ -148,5 +146,4 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 			assert.NoError(t, err)
 		}
 	}
-
 }

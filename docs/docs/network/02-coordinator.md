@@ -40,11 +40,11 @@ The initial genesis where these accounts are added is by default the default gen
 The coordinator can specify a custom initial genesis for the chain launch with the `--genesis` flag. This custom initial
 genesis can contain additional default genesis accounts and custom params for the chain modules.
 
-A URL must be provided for the `--genesis` flag. This can either directly point to a JSON genesis file or a tarball
+A URL must be provided for the `--genesis-url` flag. This can either directly point to a JSON genesis file or a tarball
 containing a genesis file.
 
 ```shell
-ignite n chain publish https://github.com/ignite/example --genesis https://example.com/genesis.tar.gz
+ignite n chain publish https://github.com/ignite/example --genesis-url https://raw.githubusercontent.com/ignite/example/master/genesis/gen.json
 ```
 
 ## Approve validator requests
