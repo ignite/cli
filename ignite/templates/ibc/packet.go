@@ -20,10 +20,10 @@ import (
 )
 
 var (
-	//go:embed packet/component/* packet/component/**/*
+	//go:embed files/packet/component/* files/packet/component/**/*
 	fsPacketComponent embed.FS
 
-	//go:embed packet/messages/* packet/messages/**/*
+	//go:embed files/packet/messages/* files/packet/messages/**/*
 	fsPacketMessages embed.FS
 )
 
@@ -45,14 +45,14 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	var (
 		g = genny.New()
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsPacketMessages,
-			"packet/messages/",
-			opts.AppPath,
-		)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsPacketComponent,
-			"packet/component/",
+			"files/packet/component/",
+			opts.AppPath,
+		)
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsPacketMessages,
+			"files/packet/messages/",
 			opts.AppPath,
 		)
 	)
