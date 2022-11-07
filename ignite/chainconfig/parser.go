@@ -139,8 +139,6 @@ func validateConfig(c *Config) error {
 		}
 	}
 
-	// TODO: We should validate all of the required config fields
-
 	return nil
 }
 
@@ -163,8 +161,6 @@ func validateNetworkConfig(c *Config) error {
 			return &ValidationError{"cannot include mnemonic in network config genesis"}
 		}
 	}
-
-	// TODO: We should validate all of the required config fields
 
 	return nil
 }
