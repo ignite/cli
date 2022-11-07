@@ -1,10 +1,16 @@
 package ignitecmd
 
 import (
+	"context"
+	"errors"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
+	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
@@ -55,11 +61,10 @@ production, you may want to run "appd start" manually.
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// TODO: How to deal with verbose mode?
-			// session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.IgnoreEvents())
-			session := cliui.New(cliui.IgnoreEvents())
+			session := cliui.New(cliui.IgnoreEvents(), cliui.WithVerbosity(getVerbosity(cmd)))
 			defer session.End()
 
-			m := initialChainServeModel(cmd, session)
+			m := cmdmodel.NewChainServe(cmd, session.EventBus(), chainServeStartCmd(cmd, session))
 			if err := tea.NewProgram(m).Start(); err != nil {
 				return err
 			}
@@ -80,4 +85,82 @@ production, you may want to run "appd start" manually.
 	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
+}
+
+func chainServeStartCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
+	return func() tea.Msg {
+		chainOption := []chain.Option{
+			chain.WithOutputer(session),
+			chain.CollectEvents(session.EventBus()),
+		}
+
+		if flagGetProto3rdParty(cmd) {
+			chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
+		}
+
+		if flagGetCheckDependencies(cmd) {
+			chainOption = append(chainOption, chain.CheckDependencies())
+		}
+
+		// check if custom config is defined
+		config, err := cmd.Flags().GetString(flagConfig)
+		if err != nil {
+			return err
+		}
+		if config != "" {
+			chainOption = append(chainOption, chain.ConfigFile(config))
+		}
+
+		// create the chain
+		c, err := NewChainWithHomeFlags(cmd, chainOption...)
+		if err != nil {
+			return err
+		}
+
+		cacheStorage, err := newCache(cmd)
+		if err != nil {
+			return err
+		}
+
+		// serve the chain
+		var serveOptions []chain.ServeOption
+
+		forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
+		if err != nil {
+			return err
+		}
+
+		if forceUpdate {
+			serveOptions = append(serveOptions, chain.ServeForceReset())
+		}
+
+		resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
+		if err != nil {
+			return err
+		}
+
+		if resetOnce {
+			serveOptions = append(serveOptions, chain.ServeResetOnce())
+		}
+
+		quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
+		if err != nil {
+			return err
+		}
+
+		if quitOnFail {
+			serveOptions = append(serveOptions, chain.QuitOnFail())
+		}
+
+		if flagGetSkipProto(cmd) {
+			serveOptions = append(serveOptions, chain.ServeSkipProto())
+		}
+
+		err = c.Serve(cmd.Context(), cacheStorage, serveOptions...)
+		if err != nil && !errors.Is(err, context.Canceled) {
+			return cliuimodel.ErrorMsg{Error: err}
+		}
+
+		return cliuimodel.QuitMsg{}
+	}
 }

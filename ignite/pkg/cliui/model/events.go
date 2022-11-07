@@ -1,4 +1,4 @@
-package model
+package cliuimodel
 
 import (
 	"container/list"
@@ -53,7 +53,7 @@ type StatusEvents struct {
 	bus        events.Bus
 }
 
-func (m *StatusEvents) Clear() {
+func (m *StatusEvents) ClearEvents() {
 	m.static = nil
 	m.events.Init()
 }
@@ -175,8 +175,7 @@ type Events struct {
 	spinner spinner.Model
 }
 
-// Clear removes all elvents.
-func (m *Events) Clear() {
+func (m *Events) ClearEvents() {
 	m.events.Init()
 }
 
