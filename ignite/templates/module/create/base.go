@@ -23,17 +23,17 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 
 		msgServerTemplate = xgenny.NewEmbedWalker(
 			fsMsgServer,
-			"msgserver/",
+			"files/msgserver/",
 			opts.AppPath,
 		)
 		genesisTestTemplate = xgenny.NewEmbedWalker(
 			fsGenesisTest,
-			"genesistest/",
+			"files/genesistest/",
 			opts.AppPath,
 		)
-		stargateTemplate = xgenny.NewEmbedWalker(
+		baseTemplate = xgenny.NewEmbedWalker(
 			fsStargate,
-			"stargate/",
+			"files/base/",
 			opts.AppPath,
 		)
 	)
@@ -44,7 +44,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	if err := g.Box(genesisTestTemplate); err != nil {
 		return g, err
 	}
-	if err := g.Box(stargateTemplate); err != nil {
+	if err := g.Box(baseTemplate); err != nil {
 		return g, err
 	}
 
