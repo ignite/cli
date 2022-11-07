@@ -78,7 +78,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// update genesis file with the genesis values defined in the config
-	if err := c.updateGenesisFile(conf.Genesis); err != nil {
+	if err := c.UpdateGenesisFile(conf.Genesis); err != nil {
 		return err
 	}
 
@@ -128,7 +128,10 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 
 	c.ev.SendView(accounts)
 
-	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	// 0 length validator set when using network config
+	if len(conf.Validators) != 0 {
+		_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	}
 
 	return err
 }
@@ -170,7 +173,9 @@ func (c *Chain) IsInitialized() (bool, error) {
 	return true, nil
 }
 
-func (c Chain) updateGenesisFile(data map[string]interface{}) error {
+// UpdateGenesisFile updates the chain genesis with a generic map of data
+// updates are made using an override merge strategy
+func (c Chain) UpdateGenesisFile(data map[string]interface{}) error {
 	path, err := c.GenesisPath()
 	if err != nil {
 		return err
