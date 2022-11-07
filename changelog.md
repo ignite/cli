@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Features
+
+- [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite scaffold react` command.
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate composables` command.
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate hooks` command.
