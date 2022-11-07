@@ -18,6 +18,52 @@ type configs struct {
 	command Cmd
 }
 
+const routeNameTemplate = `<%
+const { routeInfo, utils } = it;
+const {
+  operationId,
+  method,
+  route,
+  moduleName,
+  responsesTypes,
+  description,
+  tags,
+  summary,
+  pathArgs,
+} = routeInfo;
+const { _, fmtToJSDocLine, require } = utils;
+
+const methodAliases = {
+  get: (pathName, hasPathInserts) =>
+    _.camelCase(` + "`" + `${pathName}_${hasPathInserts ? "detail" : "list"}` + "`" + `),
+  post: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_create` + "`" + `),
+  put: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_update` + "`" + `),
+  patch: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_partial_update` + "`" + `),
+  delete: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_delete` + "`" + `),
+};
+
+const createCustomOperationId = (method, route, moduleName) => {
+  const hasPathInserts = /\{(\w){1,}\}/g.test(route);
+  const splitedRouteBySlash = _.compact(_.replace(route, /\{(\w){1,}\}/g, "").split("/"));
+  const routeParts = (splitedRouteBySlash.length > 1
+    ? splitedRouteBySlash.splice(1)
+    : splitedRouteBySlash
+  ).join("_");
+  return routeParts.length > 3 && methodAliases[method]
+    ? methodAliases[method](routeParts, hasPathInserts)
+    : _.camelCase(_.lowerCase(method) + "_" + [moduleName].join("_")) || "index";
+};
+
+if (operationId) {
+	let routeName = operationId.replace('_','');	
+  return routeName[0].toLowerCase() + routeName.slice(1);
+}
+if (route === "/")
+  return _.camelCase(` + "`" + `${_.lowerCase(method)}Root` + "`" + `);
+
+return createCustomOperationId(method, route, moduleName);
+%>`
+
 // WithCommand assigns a typescript API generator command to use for code generation.
 // This allows to use a single nodetime STA generator binary in multiple code generation
 // calls. Otherwise `Generate` creates a new generator binary each time it is called.
@@ -72,51 +118,6 @@ func Generate(ctx context.Context, outPath, specPath string, options ...Option) 
 	if err != nil {
 		return err
 	}
-	routeNameTemplate := `<%
-const { routeInfo, utils } = it;
-const {
-  operationId,
-  method,
-  route,
-  moduleName,
-  responsesTypes,
-  description,
-  tags,
-  summary,
-  pathArgs,
-} = routeInfo;
-const { _, fmtToJSDocLine, require } = utils;
-
-const methodAliases = {
-  get: (pathName, hasPathInserts) =>
-    _.camelCase(` + "`" + `${pathName}_${hasPathInserts ? "detail" : "list"}` + "`" + `),
-  post: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_create` + "`" + `),
-  put: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_update` + "`" + `),
-  patch: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_partial_update` + "`" + `),
-  delete: (pathName, hasPathInserts) => _.camelCase(` + "`" + `${pathName}_delete` + "`" + `),
-};
-
-const createCustomOperationId = (method, route, moduleName) => {
-  const hasPathInserts = /\{(\w){1,}\}/g.test(route);
-  const splitedRouteBySlash = _.compact(_.replace(route, /\{(\w){1,}\}/g, "").split("/"));
-  const routeParts = (splitedRouteBySlash.length > 1
-    ? splitedRouteBySlash.splice(1)
-    : splitedRouteBySlash
-  ).join("_");
-  return routeParts.length > 3 && methodAliases[method]
-    ? methodAliases[method](routeParts, hasPathInserts)
-    : _.camelCase(_.lowerCase(method) + "_" + [moduleName].join("_")) || "index";
-};
-
-if (operationId) {
-	let routeName = operationId.replace('_','');	
-  return routeName[0].toLowerCase() + routeName.slice(1);
-}
-if (route === "/")
-  return _.camelCase(` + "`" + `${_.lowerCase(method)}Root` + "`" + `);
-
-return createCustomOperationId(method, route, moduleName);
-%>`
 
 	outTemplate := filepath.Join(templateTmpPath, "route-name.eta")
 	err = os.WriteFile(outTemplate, []byte(routeNameTemplate), 0o644)
