@@ -3,7 +3,9 @@ package cosmosgen
 import (
 	"context"
 	"path/filepath"
+	"strings"
 
+	"github.com/iancoleman/strcase"
 	gomodmodule "golang.org/x/mod/module"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -20,6 +22,12 @@ type generateOptions struct {
 
 	vuexOut      func(module.Module) string
 	vuexRootPath string
+
+	composablesOut      func(module.Module) string
+	composablesRootPath string
+
+	hooksOut      func(module.Module) string
+	hooksRootPath string
 
 	specOut string
 }
@@ -45,6 +53,20 @@ func WithVuexGeneration(out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
 		o.vuexOut = out
 		o.vuexRootPath = vuexRootPath
+	}
+}
+
+func WithComposablesGeneration(out ModulePathFunc, composablesRootPath string) Option {
+	return func(o *generateOptions) {
+		o.composablesOut = out
+		o.composablesRootPath = composablesRootPath
+	}
+}
+
+func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
+	return func(o *generateOptions) {
+		o.hooksOut = out
+		o.hooksRootPath = hooksRootPath
 	}
 }
 
@@ -130,6 +152,31 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		}
 	}
 
+	if g.o.composablesRootPath != "" {
+		if err := g.generateComposables("vue"); err != nil {
+			return err
+		}
+
+		// Update Vue app dependencies when Vuex stores are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateComposableDependencies("vue"); err != nil {
+			return err
+		}
+	}
+	if g.o.hooksRootPath != "" {
+		if err := g.generateComposables("react"); err != nil {
+			return err
+		}
+
+		// Update React app dependencies when Vuex stores are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateComposableDependencies("react"); err != nil {
+			return err
+		}
+	}
+
 	if g.o.specOut != "" {
 		if err := generateOpenAPISpec(g); err != nil {
 			return err
@@ -144,5 +191,15 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		return filepath.Join(rootPath, m.Pkg.Name)
+	}
+}
+
+// ComposableModulePath generates useQuery hook/composable module paths for Cosmos SDK modules.
+// The root path is used as prefix for the generated paths.
+func ComposableModulePath(rootPath string) ModulePathFunc {
+	return func(m module.Module) string {
+		replacer := strings.NewReplacer("-", "_", ".", "_")
+		modPath := strcase.ToCamel(replacer.Replace(m.Pkg.Name))
+		return filepath.Join(rootPath, "use"+modPath)
 	}
 }

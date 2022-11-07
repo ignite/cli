@@ -7,14 +7,12 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	vue "github.com/ignite/web"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/localfs"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/templates/app"
@@ -117,9 +115,4 @@ func generate(
 	opt := exec.StepOption(step.Env("GOSUMDB=off"))
 
 	return gocmd.ModTidy(ctx, absRoot, opt)
-}
-
-// Vue scaffolds a Vue.js app for a chain.
-func Vue(path string) error {
-	return localfs.Save(vue.Boilerplate(), path)
 }

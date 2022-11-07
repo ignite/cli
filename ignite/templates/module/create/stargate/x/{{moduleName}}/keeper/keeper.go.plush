@@ -20,7 +20,7 @@ type (
 		memKey   	storetypes.StoreKey
 		paramstore	paramtypes.Subspace
 		<%= for (dependency) in dependencies { %>
-        <%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper<% } %>
+        <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %><% } %>
 	}
 )
 
@@ -32,7 +32,8 @@ func NewKeeper(
     <%= if (isIBC) { %>channelKeeper cosmosibckeeper.ChannelKeeper,
     portKeeper cosmosibckeeper.PortKeeper,
     scopedKeeper cosmosibckeeper.ScopedKeeper,<% } %>
-    <%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper,<% } %>
+    <%= for (dependency) in dependencies { %>
+    <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %>,<% } %>
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -51,7 +52,8 @@ func NewKeeper(
 		storeKey: 	storeKey,
 		memKey:   	memKey,
 		paramstore:	ps,
-		<%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper: <%= dependency.Name %>Keeper,<% } %>
+		<%= for (dependency) in dependencies { %>
+		<%= toVariableName(dependency.KeeperName()) %>: <%= toVariableName(dependency.KeeperName()) %>,<% } %>
 	}
 }
 

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -51,10 +50,6 @@ func App(path string) (Scaffolder, error) {
 	version, err := cosmosver.Detect(path)
 	if err != nil {
 		return Scaffolder{}, err
-	}
-
-	if !version.IsFamily(cosmosver.Stargate) {
-		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
 	}
 
 	s := Scaffolder{
@@ -110,8 +105,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		)
 	}
 
-	if conf.Client.Vuex.Path != "" {
-		vuexPath := conf.Client.Vuex.Path
+	if vuexPath := conf.Client.Vuex.Path; vuexPath != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		if filepath.IsAbs(vuexPath) {
 			vuexPath = filepath.Join(vuexPath, "generated")
 		} else {

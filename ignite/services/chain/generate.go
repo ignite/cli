@@ -14,17 +14,17 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-const (
-	defaultVuexPath    = "vue/src/store"
-	defaultOpenAPIPath = "docs/static/openapi.yml"
-)
-
 type generateOptions struct {
-	isGoEnabled       bool
-	isTSClientEnabled bool
-	isVuexEnabled     bool
-	isOpenAPIEnabled  bool
-	tsClientPath      string
+	isGoEnabled          bool
+	isTSClientEnabled    bool
+	isComposablesEnabled bool
+	isHooksEnabled       bool
+	isVuexEnabled        bool
+	isOpenAPIEnabled     bool
+	tsClientPath         string
+	vuexPath             string
+	composablesPath      string
+	hooksPath            string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -47,11 +47,30 @@ func GenerateTSClient(path string) GenerateTarget {
 	}
 }
 
-// GenerateVuex enables generating proto based Typescript Client.
-func GenerateVuex() GenerateTarget {
+// GenerateVuex enables generating proto based Typescript Client and Vuex Stores.
+func GenerateVuex(path string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
+		o.vuexPath = path
+	}
+}
+
+// GenerateComposables enables generating proto based Typescript Client and Vue 3 composables.
+func GenerateComposables(path string) GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+		o.isComposablesEnabled = true
+		o.composablesPath = path
+	}
+}
+
+// GenerateHooks enables generating proto based Typescript Client and React composables.
+func GenerateHooks(path string) GenerateTarget {
+	return func(o *generateOptions) {
+		o.isTSClientEnabled = true
+		o.isHooksEnabled = true
+		o.hooksPath = path
 	}
 }
 
@@ -77,8 +96,17 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 			targets = append(targets, GenerateTSClient(p))
 		}
 
-		if conf.Client.Vuex.Path != "" {
-			targets = append(targets, GenerateVuex())
+		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
+		if p := conf.Client.Vuex.Path; p != "" {
+			targets = append(targets, GenerateVuex(p))
+		}
+
+		if p := conf.Client.Composables.Path; p != "" {
+			targets = append(targets, GenerateComposables(p))
+		}
+
+		if p := conf.Client.Hooks.Path; p != "" {
+			targets = append(targets, GenerateHooks(p))
 		}
 	}
 
@@ -123,8 +151,8 @@ func (c *Chain) Generate(
 	}
 
 	var (
-		openAPIPath, tsClientPath, vuexPath string
-		updateConfig                        bool
+		openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
+		updateConfig                                                    bool
 	)
 
 	if targetOptions.isTSClientEnabled {
@@ -155,14 +183,20 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
-		vuexPath = conf.Client.Vuex.Path
+		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
+		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
-			vuexPath = defaultVuexPath
+			vuexPath = chainconfig.VuexPath(conf)
 
 			// When Vuex stores are generated make sure the config is updated
 			// with the output path when the client path option is empty.
 			conf.Client.Vuex.Path = vuexPath
 			updateConfig = true
+		}
+
+		// Non absolute Vuex output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(vuexPath) {
+			vuexPath = filepath.Join(c.app.Path, vuexPath)
 		}
 
 		vuexPath = c.joinGeneratedPath(vuexPath)
@@ -174,10 +208,57 @@ func (c *Chain) Generate(
 		)
 	}
 
+	if targetOptions.isComposablesEnabled {
+		composablesPath = targetOptions.composablesPath
+
+		if composablesPath == "" {
+			composablesPath = chainconfig.ComposablesPath(conf)
+		}
+
+		// Non absolute Composables output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(composablesPath) {
+			composablesPath = filepath.Join(c.app.Path, composablesPath)
+		}
+
+		if err := os.MkdirAll(composablesPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithComposablesGeneration(
+				cosmosgen.ComposableModulePath(composablesPath),
+				composablesPath,
+			),
+		)
+	}
+
+	if targetOptions.isHooksEnabled {
+		hooksPath = targetOptions.hooksPath
+		if hooksPath == "" {
+			hooksPath = chainconfig.HooksPath(conf)
+		}
+
+		// Non absolute Hooks output paths must be treated as relative to the app directory
+		if !filepath.IsAbs(hooksPath) {
+			hooksPath = filepath.Join(c.app.Path, hooksPath)
+		}
+
+		if err := os.MkdirAll(hooksPath, 0o766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithHooksGeneration(
+				cosmosgen.ComposableModulePath(hooksPath),
+				hooksPath,
+			),
+		)
+	}
+
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
-			openAPIPath = defaultOpenAPIPath
+			openAPIPath = chainconfig.DefaultOpenAPIPath
 		}
 
 		// Non absolute OpenAPI paths must be treated as relative to the app directory
@@ -203,6 +284,22 @@ func (c *Chain) Generate(
 		if targetOptions.isTSClientEnabled {
 			c.ev.Send(
 				fmt.Sprintf("Typescript client path: %s", tsClientPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinish(),
+			)
+		}
+
+		if targetOptions.isComposablesEnabled {
+			c.ev.Send(
+				fmt.Sprintf("Vue composables path: %s", composablesPath),
+				events.Icon(icons.Bullet),
+				events.ProgressFinish(),
+			)
+		}
+
+		if targetOptions.isHooksEnabled {
+			c.ev.Send(
+				fmt.Sprintf("React hooks path: %s", hooksPath),
 				events.Icon(icons.Bullet),
 				events.ProgressFinish(),
 			)

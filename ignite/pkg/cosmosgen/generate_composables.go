@@ -17,23 +17,24 @@ import (
 	"github.com/ignite/cli/ignite/pkg/localfs"
 )
 
-// Vue scaffolds a Vue.js app for a chain.
-func Vue(path string) error {
-	return localfs.Save(webtemplates.VueBoilerplate(), path)
+// React scaffolds a React app for a chain.
+func React(path string) error {
+	return localfs.Save(webtemplates.ReactBoilerplate(), path)
 }
 
-type vuexGenerator struct {
-	g *generator
+type composablesGenerator struct {
+	g            *generator
+	frontendType string
 }
 
-func newVuexGenerator(g *generator) *vuexGenerator {
-	return &vuexGenerator{g}
+func newComposablesGenerator(g *generator, frontendType string) *composablesGenerator {
+	return &composablesGenerator{g, frontendType}
 }
 
-func (g *generator) updateVueDependencies() error {
-	// Init the path to the "vue" folder inside the app
-	vuePath := filepath.Join(g.appPath, "vue")
-	packagesPath := filepath.Join(vuePath, "package.json")
+func (g *generator) updateComposableDependencies(frontendType string) error {
+	// Init the path to the appropriate frontend folder inside the app
+	frontendPath := filepath.Join(g.appPath, frontendType)
+	packagesPath := filepath.Join(frontendPath, "package.json")
 	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
@@ -65,7 +66,7 @@ func (g *generator) updateVueDependencies() error {
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
 	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
-	tsClientRelPath, err := filepath.Rel(vuePath, tsClientPath)
+	tsClientRelPath, err := filepath.Rel(frontendPath, tsClientPath)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func (g *generator) updateVueDependencies() error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("failed to link ts-client dependency in the Vue app: %w", err)
+		return fmt.Errorf("failed to link ts-client dependency in the frontend app: %w", err)
 	}
 
 	// Save the modified package.json with the new dependencies
@@ -96,17 +97,7 @@ func (g *generator) updateVueDependencies() error {
 	return nil
 }
 
-func (g *generator) generateVuex() error {
-	// Make sure that the Vue app is scaffolded when it doesn't exist
-	// TODO: Vue and Vuex stores generation seem messy, it should be revised for a better UX
-	// TODO: The Vue path should not be hard-coded and should be related to the Vuex path
-	vuePath := filepath.Join(g.appPath, "vue")
-	if _, err := os.Stat(vuePath); os.IsNotExist(err) {
-		if err := Vue(vuePath); err != nil {
-			return err
-		}
-	}
-
+func (g *generator) generateComposables(frontendType string) error {
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
@@ -122,48 +113,60 @@ func (g *generator) generateVuex() error {
 		data.Modules = append(data.Modules, modules...)
 	}
 
-	vsg := newVuexGenerator(g)
-	if err := vsg.generateVueTemplates(data); err != nil {
+	vsg := newComposablesGenerator(g, frontendType)
+	if err := vsg.generateComposableTemplates(data); err != nil {
 		return err
 	}
 
 	return vsg.generateRootTemplates(data)
 }
 
-func (g *vuexGenerator) generateVueTemplates(p generatePayload) error {
+func (g *composablesGenerator) generateComposableTemplates(p generatePayload) error {
 	gg := &errgroup.Group{}
 
 	for _, m := range p.Modules {
 		m := m
 
 		gg.Go(func() error {
-			return g.generateVueTemplate(m, p)
+			return g.generateComposableTemplate(m, p)
 		})
 	}
 
 	return gg.Wait()
 }
 
-func (g *vuexGenerator) generateVueTemplate(m module.Module, p generatePayload) error {
-	outDir := g.g.o.vuexOut(m)
+func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
+	var outDir string
+	if g.frontendType == "vue" {
+		outDir = g.g.o.composablesOut(m)
+	} else {
+		outDir = g.g.o.hooksOut(m)
+	}
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
 
-	return templateTSClientVue.Write(outDir, "", struct {
-		Module    module.Module
-		PackageNS string
+	return templateTSClientComposable.Write(outDir, "", struct {
+		Module       module.Module
+		PackageNS    string
+		FrontendType string
 	}{
-		Module:    m,
-		PackageNS: p.PackageNS,
+		Module:       m,
+		PackageNS:    p.PackageNS,
+		FrontendType: g.frontendType,
 	})
 }
 
-func (g *vuexGenerator) generateRootTemplates(p generatePayload) error {
-	outDir := g.g.o.vuexRootPath
+func (g *composablesGenerator) generateRootTemplates(p generatePayload) error {
+	var outDir string
+	if g.frontendType == "vue" {
+		outDir = g.g.o.composablesRootPath
+	} else {
+		outDir = g.g.o.hooksRootPath
+	}
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
 
-	return templateTSClientVueRoot.Write(outDir, "", p)
+	return templateTSClientComposableRoot.Write(outDir, "", p)
 }
