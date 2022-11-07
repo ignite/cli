@@ -44,7 +44,7 @@ A URL must be provided for the `--genesis-url` flag. This can either directly po
 containing a genesis file.
 
 ```shell
-ignite n chain publish https://github.com/ignite/example --genesis-url https://example.com/genesis.tar.gz
+ignite n chain publish https://github.com/ignite/example --genesis-url https://raw.githubusercontent.com/ignite/example/master/genesis/gen.json
 ```
 
 ## Approve validator requests
