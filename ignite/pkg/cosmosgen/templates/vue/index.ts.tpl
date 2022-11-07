@@ -117,7 +117,7 @@ export default {
 			try {
 				const key = params ?? {};
 				const client = initClient(rootGetters);
-				let value= (await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCaseSta $FullName -}}
+				let value= (await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCase $FullName -}}
 				{{- $n -}}(
 					{{- range $j,$a :=$rule.Params -}}
 						{{- if (gt $j 0) -}}, {{ end }} key.{{ $a -}}

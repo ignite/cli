@@ -25,23 +25,39 @@ func newVuexGenerator(g *generator) *vuexGenerator {
 }
 
 func (g *generator) updateVueDependencies() error {
-	// Init the path to the "vue" folder inside the app
+	// Init the path to the "vue" and "vuex" folders inside the app
 	vuePath := filepath.Join(g.appPath, "vue")
 	packagesPath := filepath.Join(vuePath, "package.json")
+	vuexPackagesPath := filepath.Join(g.o.vuexRootPath, "package.json")
 	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
 
+	if _, err := os.Stat(vuexPackagesPath); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+
 	// Read the Vue app package file
-	b, err := os.ReadFile(packagesPath)
+	vuePkgRaw, err := os.ReadFile(packagesPath)
 	if err != nil {
 		return err
 	}
 
-	var pkg map[string]interface{}
+	// Read the Vuex stores package file
+	vuexPkgRaw, err := os.ReadFile(vuexPackagesPath)
+	if err != nil {
+		return err
+	}
 
-	if err := json.Unmarshal(b, &pkg); err != nil {
+	var vuePkg map[string]interface{}
+	var vuexPkg map[string]interface{}
+
+	if err := json.Unmarshal(vuePkgRaw, &vuePkg); err != nil {
 		return fmt.Errorf("error parsing %s: %w", packagesPath, err)
+	}
+
+	if err := json.Unmarshal(vuexPkgRaw, &vuexPkg); err != nil {
+		return fmt.Errorf("error parsing %s: %w", vuexPackagesPath, err)
 	}
 
 	chainPath, _, err := gomodulepath.Find(g.appPath)
@@ -59,32 +75,60 @@ func (g *generator) updateVueDependencies() error {
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
 	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
-	tsClientRelPath, err := filepath.Rel(vuePath, tsClientPath)
+	tsClientVueRelPath, err := filepath.Rel(vuePath, tsClientPath)
+	if err != nil {
+		return err
+	}
+	tsClientVuexRelPath, err := filepath.Rel(g.o.vuexRootPath, tsClientPath)
 	if err != nil {
 		return err
 	}
 
-	err = mergo.Merge(&pkg, map[string]interface{}{
+	err = mergo.Merge(&vuePkg, map[string]interface{}{
 		"dependencies": map[string]interface{}{
-			tsClientName: fmt.Sprintf("file:%s", tsClientRelPath),
+			tsClientName: fmt.Sprintf("file:%s", tsClientVueRelPath),
 		},
 	})
+
 	if err != nil {
-		return fmt.Errorf("failed to link ts-client dependency in the Vue app: %w", err)
+		return fmt.Errorf("failed to link ts-client dependency to the Vue app: %w", err)
+	}
+
+	err = mergo.Merge(&vuexPkg, map[string]interface{}{
+		"dependencies": map[string]interface{}{
+			tsClientName: fmt.Sprintf("file:%s", tsClientVuexRelPath),
+		},
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to link ts-client dependency to the Vuex stores: %w", err)
 	}
 
 	// Save the modified package.json with the new dependencies
-	file, err := os.OpenFile(packagesPath, os.O_RDWR|os.O_TRUNC, 0o644)
+	vueFile, err := os.OpenFile(packagesPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
 
-	defer file.Close()
+	// Save the modified package.json with the new dependencies
+	vuexFile, err := os.OpenFile(vuexPackagesPath, os.O_RDWR|os.O_TRUNC, 0o644)
+	if err != nil {
+		return err
+	}
 
-	enc := json.NewEncoder(file)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(pkg); err != nil {
+	defer vueFile.Close()
+	defer vuexFile.Close()
+
+	vueEnc := json.NewEncoder(vueFile)
+	vueEnc.SetIndent("", "  ")
+	if err := vueEnc.Encode(vuePkg); err != nil {
 		return fmt.Errorf("error updating %s: %w", packagesPath, err)
+	}
+
+	vuexEnc := json.NewEncoder(vuexFile)
+	vuexEnc.SetIndent("", "  ")
+	if err := vuexEnc.Encode(vuexPkg); err != nil {
+		return fmt.Errorf("error updating %s: %w", vuexPackagesPath, err)
 	}
 
 	return nil
