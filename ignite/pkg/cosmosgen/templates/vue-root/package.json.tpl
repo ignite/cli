@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "postinstall": "node postinstall.js",
     "prepublishOnly": "node local-check.js && tsc"
   },
   "main": "./lib/index.js",
