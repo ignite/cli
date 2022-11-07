@@ -15,6 +15,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
+// Gentx wraps the "testd gentx"  command for generating a gentx for a validator.
+// Returns path of generated gentx.
 func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
 	return runner.Gentx(
 		ctx,
@@ -33,6 +35,20 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 	)
 }
 
+// Start wraps the "appd start" command to begin running a chain from the daemon
+func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
+	validator := cfg.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
+		return err
+	}
+
+	err = runner.Start(ctx, "--pruning", "nothing", "--grpc.address", servers.GRPC.Address)
+
+	return &CannotStartAppError{runner.Cmd().Name(), err}
+}
+
+// Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml)
 func (c Chain) Configure(homePath string, cfg *chainconfig.Config) error {
 	if err := c.appTOML(homePath, cfg); err != nil {
 		return err
@@ -163,18 +179,6 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 
 	_, err = config.WriteTo(file)
 	return err
-}
-
-func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
-	validator := cfg.Validators[0]
-	servers, err := validator.GetServers()
-	if err != nil {
-		return err
-	}
-
-	err = runner.Start(ctx, "--pruning", "nothing", "--grpc.address", servers.GRPC.Address)
-
-	return &CannotStartAppError{runner.Cmd().Name(), err}
 }
 
 func (c Chain) appHome() string {
