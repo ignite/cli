@@ -104,7 +104,7 @@ func generate(
 		if err := run(genny.WetRunner(context.Background()), g); err != nil {
 			return err
 		}
-		g = modulecreate.NewStargateAppModify(tracer, opts)
+		g = modulecreate.NewAppModify(tracer, opts)
 		if err := run(genny.WetRunner(context.Background()), g); err != nil {
 			return err
 		}

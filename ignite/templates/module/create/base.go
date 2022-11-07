@@ -75,18 +75,18 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	return g, nil
 }
 
-// NewStargateAppModify returns generator with modifications required to register a module in the app.
-func NewStargateAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
+// NewAppModify returns generator with modifications required to register a module in the app.
+func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
 	g := genny.New()
-	g.RunFn(appModifyStargate(replacer, opts))
+	g.RunFn(appModify(replacer, opts))
 	if opts.IsIBC {
 		g.RunFn(appIBCModify(replacer, opts))
 	}
 	return g
 }
 
-// app.go modification on Stargate when creating a module
-func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+// app.go modification when creating a module
+func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
