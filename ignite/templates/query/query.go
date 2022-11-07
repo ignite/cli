@@ -41,8 +41,8 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	return nil
 }
 
-// NewStargate returns the generator to scaffold a empty query in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a empty query in a module
+func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(

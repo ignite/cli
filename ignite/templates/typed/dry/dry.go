@@ -12,8 +12,8 @@ import (
 //go:embed files/component/* files/component/**/*
 var fsComponent embed.FS
 
-// NewStargate returns the generator to scaffold a basic type in a Stargate module.
-func NewStargate(opts *typed.Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a basic type in  module.
+func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(

@@ -26,8 +26,8 @@ var (
 	fsSimapp embed.FS
 )
 
-// NewStargate returns the generator to scaffold a new type in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a new type in a module
+func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g = genny.New()
 

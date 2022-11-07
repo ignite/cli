@@ -97,7 +97,7 @@ func generate(
 			AppPath:    absRoot,
 			IsIBC:      false,
 		}
-		g, err = modulecreate.NewStargate(opts)
+		g, err = modulecreate.NewGenerator(opts)
 		if err != nil {
 			return err
 		}

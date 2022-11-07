@@ -16,8 +16,8 @@ import (
 	"github.com/ignite/cli/ignite/templates/module"
 )
 
-// NewStargate returns the generator to scaffold a module inside a Stargate app
-func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a module inside an app
+func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g = genny.New()
 

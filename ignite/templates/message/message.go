@@ -49,8 +49,8 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	return testutil.Register(g, opts.AppPath)
 }
 
-// NewStargate returns the generator to scaffold a empty message in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a empty message in a module
+func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(protoTxRPCModify(replacer, opts))

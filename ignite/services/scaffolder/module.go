@@ -200,8 +200,7 @@ func (s Scaffolder) CreateModule(
 		Dependencies: creationOpts.dependencies,
 	}
 
-	// Generator from Cosmos SDK version
-	g, err := modulecreate.NewStargate(opts)
+	g, err := modulecreate.NewGenerator(opts)
 	if err != nil {
 		return sm, err
 	}
@@ -252,7 +251,7 @@ func (s Scaffolder) ImportModule(
 	}
 
 	// run generator
-	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+	g, err := moduleimport.NewGenerator(tracer, &moduleimport.ImportOptions{
 		AppPath:          s.path,
 		Feature:          name,
 		AppName:          s.modpath.Package,

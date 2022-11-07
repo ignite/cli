@@ -12,8 +12,8 @@ import (
 	"github.com/ignite/cli/ignite/templates/module"
 )
 
-// NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
-func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold code to import wasm module inside an app
+func NewGenerator(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(replacer, opts))
 	g.RunFn(cmdModifyStargate(replacer, opts))

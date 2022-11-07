@@ -33,8 +33,8 @@ var (
 	fsSimapp embed.FS
 )
 
-// NewStargate returns the generator to scaffold a new map type in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a new map type in a module
+func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because we can't generate reliable tests for this type
 	var generateTest bool
