@@ -109,14 +109,13 @@ func (g *generator) updateVueDependencies() error {
 	if err != nil {
 		return err
 	}
+	defer vueFile.Close()
 
 	// Save the modified package.json with the new dependencies
 	vuexFile, err := os.OpenFile(vuexPackagesPath, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
-
-	defer vueFile.Close()
 	defer vuexFile.Close()
 
 	vueEnc := json.NewEncoder(vueFile)
