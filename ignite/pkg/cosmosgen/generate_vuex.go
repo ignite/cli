@@ -8,19 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	webtemplates "github.com/ignite/web"
 	"github.com/imdario/mergo"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/localfs"
 )
-
-// Vue scaffolds a Vue.js app for a chain.
-func Vue(path string) error {
-	return localfs.Save(webtemplates.VueBoilerplate(), path)
-}
 
 type vuexGenerator struct {
 	g *generator
@@ -97,16 +90,6 @@ func (g *generator) updateVueDependencies() error {
 }
 
 func (g *generator) generateVuex() error {
-	// Make sure that the Vue app is scaffolded when it doesn't exist
-	// TODO: Vue and Vuex stores generation seem messy, it should be revised for a better UX
-	// TODO: The Vue path should not be hard-coded and should be related to the Vuex path
-	vuePath := filepath.Join(g.appPath, "vue")
-	if _, err := os.Stat(vuePath); os.IsNotExist(err) {
-		if err := Vue(vuePath); err != nil {
-			return err
-		}
-	}
-
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err

@@ -8,19 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	webtemplates "github.com/ignite/web"
 	"github.com/imdario/mergo"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/localfs"
 )
-
-// React scaffolds a React app for a chain.
-func React(path string) error {
-	return localfs.Save(webtemplates.ReactBoilerplate(), path)
-}
 
 type composablesGenerator struct {
 	g            *generator
@@ -142,6 +135,7 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 	} else {
 		outDir = g.g.o.hooksOut(m)
 	}
+
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}

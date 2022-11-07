@@ -11,7 +11,7 @@ import (
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "vuex",
-		Short:   "*DEPRECATED* Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
+		Short:   "*DEPRECATED* Generate Typescript client and Vuex stores for your chain's frontend",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateVuexHandler,
 	}

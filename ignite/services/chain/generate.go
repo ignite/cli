@@ -160,13 +160,12 @@ func (c *Chain) Generate(
 		if tsClientPath == "" {
 			tsClientPath = chainconfig.TSClientPath(*conf)
 
-			// When TS client si generated make sure the config is updated
+			// When TS client is generated make sure the config is updated
 			// with the output path when the client path option is empty.
 			if conf.Client.Typescript.Path == "" {
 				conf.Client.Typescript.Path = tsClientPath
 				updateConfig = true
 			}
-
 		}
 
 		// Non absolute TS client output paths must be treated as relative to the app directory
@@ -190,7 +189,7 @@ func (c *Chain) Generate(
 
 			// When Vuex stores are generated make sure the config is updated
 			// with the output path when the client path option is empty.
-			conf.Client.Vuex.Path = vuexPath
+			conf.Client.Vuex.Path = vuexPath //nolint:staticcheck //ignore SA1019 until vuex config option is removed
 			updateConfig = true
 		}
 
@@ -213,15 +212,16 @@ func (c *Chain) Generate(
 
 		if composablesPath == "" {
 			composablesPath = chainconfig.ComposablesPath(conf)
+
+			if conf.Client.Composables.Path == "" {
+				conf.Client.Composables.Path = composablesPath
+				updateConfig = true
+			}
 		}
 
 		// Non absolute Composables output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(composablesPath) {
 			composablesPath = filepath.Join(c.app.Path, composablesPath)
-		}
-
-		if err := os.MkdirAll(composablesPath, 0o766); err != nil {
-			return err
 		}
 
 		options = append(options,
@@ -236,15 +236,16 @@ func (c *Chain) Generate(
 		hooksPath = targetOptions.hooksPath
 		if hooksPath == "" {
 			hooksPath = chainconfig.HooksPath(conf)
+
+			if conf.Client.Hooks.Path == "" {
+				conf.Client.Hooks.Path = hooksPath
+				updateConfig = true
+			}
 		}
 
 		// Non absolute Hooks output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(hooksPath) {
 			hooksPath = filepath.Join(c.app.Path, hooksPath)
-		}
-
-		if err := os.MkdirAll(hooksPath, 0o766); err != nil {
-			return err
 		}
 
 		options = append(options,

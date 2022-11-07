@@ -75,10 +75,10 @@ type Client struct {
 	Vuex Vuex `yaml:"vuex,omitempty"`
 
 	// Composables configures code generation for Vue 3 composables.
-	Composables Composables `yaml:"composables"`
+	Composables Composables `yaml:"composables,omitempty"`
 
 	// Hooks configures code generation for React hooks.
-	Hooks Hooks `yaml:"hooks"`
+	Hooks Hooks `yaml:"hooks,omitempty"`
 
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
