@@ -26,9 +26,10 @@ const (
 
 var (
 	msgStopServe  = style.Faint.Render("Press the 'q' key to stop serve")
-	msgWaitingFix = colors.Info("\nWaiting for a fix before retrying...\n") // TODO: Replace colors by lipgloss styles
+	msgWaitingFix = colors.Info("Waiting for a fix before retrying...") // TODO: Replace colors by lipgloss styles
 )
 
+// NewChainServe returns a new UI model for the chain serve command.
 func NewChainServe(ctx Context, bus events.Bus, cmd tea.Cmd) ChainServe {
 	return ChainServe{
 		model:        newModel(ctx, cmd),
@@ -39,14 +40,15 @@ func NewChainServe(ctx Context, bus events.Bus, cmd tea.Cmd) ChainServe {
 	}
 }
 
+// ChainServe defines a UI model for the chain serve command.
 type ChainServe struct {
 	model
 
-	state  uint // TODO: Use a state machine for the state workflow?
-	broken bool
-	error  error
+	state  uint  // Keeps track of the model/view being displayed
+	broken bool  // True when blockchain app's source code has issues
+	error  error // Critical error returned during command execution
 
-	// Model definitions for the views
+	// Model definitions for the chain serve views
 	startModel   cliuimodel.StatusEvents
 	runModel     cliuimodel.Events
 	rebuildModel cliuimodel.StatusEvents
@@ -225,7 +227,7 @@ func (m ChainServe) renderRunView() string {
 	view.WriteString(m.runModel.View())
 
 	if m.broken {
-		view.WriteString(msgWaitingFix)
+		fmt.Fprintf(&view, "\n%s\n", msgWaitingFix)
 	}
 
 	return view.String()
@@ -241,7 +243,7 @@ func (m ChainServe) renderRebuildView() string {
 	view.WriteString(m.rebuildModel.View())
 
 	if m.broken {
-		view.WriteString(msgWaitingFix)
+		fmt.Fprintf(&view, "\n%s\n", msgWaitingFix)
 	}
 
 	return view.String()
