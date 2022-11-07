@@ -32,7 +32,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		g = genny.New()
 
 		messagesTemplate = xgenny.NewEmbedWalker(
-			fsComponent,
+			fsMessages,
 			"files/messages/",
 			opts.AppPath,
 		)
