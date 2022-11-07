@@ -3,10 +3,11 @@ package message
 import (
 	"embed"
 	"fmt"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/templates/typed"
 	"path/filepath"
 	"strings"
+
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/templates/typed"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
