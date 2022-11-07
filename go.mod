@@ -39,7 +39,6 @@ require (
 	github.com/jpillora/chisel v1.7.7
 	github.com/lib/pq v1.10.6
 	github.com/manifoldco/promptui v0.9.0
-	github.com/mattn/go-zglob v0.0.3
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/moby v20.10.21+incompatible
 	github.com/otiai10/copy v1.7.0
@@ -52,7 +51,6 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
-	github.com/takuoki/gocase v1.1.1
 	github.com/tendermint/spn v0.2.1-0.20220921200247-8bafad876bdd
 	github.com/tendermint/tendermint v0.34.22
 	github.com/tendermint/tm-db v0.6.7
