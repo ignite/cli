@@ -11,6 +11,7 @@ import (
 
 func init() {
 	gob.Register(Command{})
+	gob.Register(Hook{})
 }
 
 // An ignite plugin must implements the Plugin interface.
@@ -25,6 +26,19 @@ type Interface interface {
 	// cmd is the executed command (one of the those returned by Commands method)
 	// args is the command line arguments passed behing the command.
 	Execute(cmd Command, args []string) error
+	// Hooks defines custom hooks registered with a given plugin
+	Hooks() []Hook
+	// ExecuteHookPre is invoked by Ignite when a command specified by the hook
+	// path is invoked is global for all hooks registered to a plugin context on
+	// the hook being invoked is given by the `hook` parameter.
+	ExecuteHookPre(hook Hook, args []string) error
+	// ExecuteHookPost is invoked by Ignite when a command specified by the hook
+	// path is invoked is global for all hooks registered to a plugin context on
+	// the hook being invoked is given by the `hook` parameter.
+	ExecuteHookPost(hook Hook, args []string) error
+	// ExecuteHookCleanUp is invoked right before the command is done executing
+	// will be called regardless of execution status of the command and hooks.
+	ExecuteHookCleanUp(hook Hook, args []string) error
 }
 
 // Command represents a plugin command.
@@ -48,6 +62,16 @@ type Command struct {
 	// Optionnal parameters populated by config at runtime via
 	// chainconfig.Plugin.With field.
 	With map[string]string
+}
+
+// Hook represents a user defined action within a plugin
+type Hook struct {
+	// identifies the hook for the client to invoke the correct hook
+	// must be unique
+	Name string
+
+	// commands to register the hooks for
+	PlaceHookOn string
 }
 
 // handshakeConfigs are used to just do a basic handshake between
@@ -79,12 +103,48 @@ func (g *InterfaceRPC) Commands() []Command {
 	return resp
 }
 
+// Hooks implements Interface.Hooks
+func (g *InterfaceRPC) Hooks() []Hook {
+	var resp []Hook
+	err := g.client.Call("Plugin.Hooks", new(interface{}), &resp)
+	if err != nil {
+		// You usually want your interfaces to return errors. If they don't,
+		// there isn't much other choice here.
+		log.Fatalf("error while calling plugin %v", err)
+	}
+	return resp
+}
+
 // Execute implements Interface.Commands
 func (g *InterfaceRPC) Execute(c Command, args []string) error {
 	var resp interface{}
 	return g.client.Call("Plugin.Execute", map[string]interface{}{
 		"command": c,
 		"args":    args,
+	}, &resp)
+}
+
+func (g *InterfaceRPC) ExecuteHookPre(hook Hook, args []string) error {
+	var resp interface{}
+	return g.client.Call("Plugin.ExecuteHookPre", map[string]interface{}{
+		"hook": hook,
+		"args": args,
+	}, &resp)
+}
+
+func (g *InterfaceRPC) ExecuteHookPost(hook Hook, args []string) error {
+	var resp interface{}
+	return g.client.Call("Plugin.ExecuteHookPost", map[string]interface{}{
+		"hook": hook,
+		"args": args,
+	}, &resp)
+}
+
+func (g *InterfaceRPC) ExecuteHookCleanUp(hook Hook, args []string) error {
+	var resp interface{}
+	return g.client.Call("Plugin.ExecuteHookCleanUp", map[string]interface{}{
+		"hook": hook,
+		"args": args,
 	}, &resp)
 }
 
@@ -100,8 +160,25 @@ func (s *InterfaceRPCServer) Commands(args interface{}, resp *[]Command) error {
 	return nil
 }
 
+func (s *InterfaceRPCServer) Hooks(args interface{}, resp *[]Hook) error {
+	*resp = s.Impl.Hooks()
+	return nil
+}
+
 func (s *InterfaceRPCServer) Execute(args map[string]interface{}, resp *interface{}) error {
 	return s.Impl.Execute(args["command"].(Command), args["args"].([]string))
+}
+
+func (s *InterfaceRPCServer) ExecuteHookPre(args map[string]interface{}, resp *interface{}) error {
+	return s.Impl.ExecuteHookPre(args["hook"].(Hook), args["args"].([]string))
+}
+
+func (s *InterfaceRPCServer) ExecuteHookPost(args map[string]interface{}, resp *interface{}) error {
+	return s.Impl.ExecuteHookPost(args["hook"].(Hook), args["args"].([]string))
+}
+
+func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, resp *interface{}) error {
+	return s.Impl.ExecuteHookCleanUp(args["hook"].(Hook), args["args"].([]string))
 }
 
 // This is the implementation of plugin.Interface so we can serve/consume this

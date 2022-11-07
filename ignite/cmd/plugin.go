@@ -19,6 +19,10 @@ import (
 // A global variable is used so the list is accessible to the plugin commands.
 var plugins []*plugin.Plugin
 
+const (
+	igniteCmdPrefix = "ignite "
+)
+
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
@@ -35,6 +39,10 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// Link plugins to related commands
 	var loadErrors []string
 	for _, p := range plugins {
+		linkPluginHooks(rootCmd, p)
+		if p.Error != nil {
+			loadErrors = append(loadErrors, p.Path)
+		}
 		linkPluginCmds(rootCmd, p)
 		if p.Error != nil {
 			loadErrors = append(loadErrors, p.Path)
@@ -57,6 +65,84 @@ func UnloadPlugins() {
 	}
 }
 
+func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin) {
+	if p.Error != nil {
+		return
+	}
+
+	for _, hook := range p.Interface.Hooks() {
+		linkPluginHook(rootCmd, p, hook)
+	}
+}
+
+func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
+	cmdPath := hook.PlaceHookOn
+
+	if !strings.HasPrefix(cmdPath, "ignite") {
+		// cmdPath must start with `ignite ` before comparison with
+		// cmd.CommandPath()
+		cmdPath = igniteCmdPrefix + cmdPath
+	}
+
+	cmdPath = strings.TrimSpace(cmdPath)
+
+	cmd := findCommandByPath(rootCmd, cmdPath)
+
+	if cmd == nil {
+		p.Error = errors.Errorf("unable to find commandPath %q for plugin hook %q", cmdPath, hook.Name)
+		return
+	}
+
+	if !cmd.Runnable() {
+		p.Error = errors.Errorf("can't attach plugin hook %q to non executable command %q", hook.Name, hook.PlaceHookOn)
+		return
+	}
+
+	preRun := cmd.PreRunE
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if preRun != nil {
+			err := preRun(cmd, args)
+			if err != nil {
+				return err
+			}
+		}
+
+		return p.Interface.ExecuteHookPre(hook, args)
+	}
+
+	runCmd := cmd.RunE
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		if runCmd != nil {
+			err := runCmd(cmd, args)
+			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
+			if err != nil {
+				p.Interface.ExecuteHookCleanUp(hook, args)
+			}
+
+			return err
+		}
+
+		time.Sleep(100 * time.Millisecond)
+		return nil
+	}
+
+	postCmd := cmd.PostRunE
+	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
+		defer p.Interface.ExecuteHookCleanUp(hook, args)
+
+		if preRun != nil {
+			err := postCmd(cmd, args)
+			if err != nil {
+				// dont return the error, log it and let execution continue to `Run`
+				return err
+			}
+		}
+
+		return p.Interface.ExecuteHookPost(hook, args)
+	}
+}
+
 // linkPluginCmds tries to add the plugin commands to the legacy ignite
 // commands.
 func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin) {
@@ -76,7 +162,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if !strings.HasPrefix(cmdPath, "ignite") {
 		// cmdPath must start with `ignite ` before comparison with
 		// cmd.CommandPath()
-		cmdPath = "ignite " + cmdPath
+		cmdPath = igniteCmdPrefix + cmdPath
 	}
 	cmdPath = strings.TrimSpace(cmdPath)
 
