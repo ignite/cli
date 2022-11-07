@@ -29,6 +29,7 @@
     "@cosmjs/stargate": "0.27.0"
   }, 
   "devDependencies": {
-    "@types/events": "^3.0.0"
+    "@types/events": "^3.0.0",
+    "typescript": "^4.8.4"
   }
 }

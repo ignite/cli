@@ -10,12 +10,19 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     }
   ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "node local-check.js && tsc"
+  },
   "main": "./lib/index.js",
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
     "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
   },
   "peerDependencies": {
     "@cosmjs/proto-signing": "0.27.0",
