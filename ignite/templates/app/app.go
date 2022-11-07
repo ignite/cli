@@ -13,13 +13,13 @@ import (
 )
 
 //go:embed files/* files/**/*
-var fsStargate embed.FS
+var fs embed.FS
 
 // New returns the generator to scaffold a new Cosmos SDK app
 func New(opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsStargate, "files/", opts.AppPath)
+		template = xgenny.NewEmbedWalker(fs, "files/", opts.AppPath)
 	)
 	if err := g.Box(template); err != nil {
 		return g, err

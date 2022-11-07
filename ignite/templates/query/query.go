@@ -17,7 +17,7 @@ import (
 )
 
 //go:embed files/* files/**/*
-var fsStargate embed.FS
+var fs embed.FS
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {
@@ -46,7 +46,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
-			fsStargate,
+			fs,
 			"files/",
 			opts.AppPath,
 		)

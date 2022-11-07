@@ -6,7 +6,7 @@ import (
 
 var (
 	//go:embed files/base/* files/base/**/*
-	fsStargate embed.FS
+	fsBase embed.FS
 
 	//go:embed files/ibc/* files/ibc/**/*
 	fsIBC embed.FS

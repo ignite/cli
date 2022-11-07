@@ -32,7 +32,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 			opts.AppPath,
 		)
 		baseTemplate = xgenny.NewEmbedWalker(
-			fsStargate,
+			fsBase,
 			"files/base/",
 			opts.AppPath,
 		)
