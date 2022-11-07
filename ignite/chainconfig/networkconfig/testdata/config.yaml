@@ -1,0 +1,31 @@
+version: 1
+accounts:
+  - name: alice
+    coins:
+      - 100000000uatom
+      - 100000000000000000000aevmos
+    address: cosmos1adn9gxjmrc3hrsdx5zpc9sj2ra7kgqkmphf8yw
+  - name: bob
+    coins:
+      - 5000000000000aevmos
+    address: cosmos1adn9gxjmrc3hrsdx5zpc9sj2ra7kgqkmphf8yw
+genesis:
+  app_state:
+    crisis:
+      constant_fee:
+        denom: aevmos
+    evm:
+      params:
+        evm_denom: aevmos
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "10000000"
+            denom: aevmos
+    mint:
+      params:
+        mint_denom: aevmos
+    staking:
+      params:
+        bond_denom: aevmos
+  chain_id: evmosd_9000-1

@@ -3,6 +3,7 @@ package testutil
 const (
 	ChainSourceHash = "testhash"
 	ChainSourceURL  = "http://example.com/test"
+	ChainConfigYML  = "config.yml"
 	ChainName       = "test"
 	ChainID         = "test-1"
 	TCPAddress      = "1.2.3.4"
