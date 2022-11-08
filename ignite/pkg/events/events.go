@@ -9,7 +9,9 @@ type ProgressIndication uint8
 
 const (
 	GroupError = "error"
+)
 
+const (
 	IndicationNone ProgressIndication = iota
 	IndicationStart
 	IndicationUpdate
