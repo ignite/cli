@@ -31,8 +31,8 @@ func (p *pluginInterface) Commands() ([]plugin.Command, error) {
 	return p.commands, nil
 }
 
-func (p *pluginInterface) Hooks() []plugin.Hook {
-	return p.hooks
+func (p *pluginInterface) Hooks() ([]plugin.Hook, error) {
+	return p.hooks, nil
 }
 
 func (p *pluginInterface) Execute(c plugin.Command, args []string) error {

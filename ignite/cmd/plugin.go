@@ -69,8 +69,12 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin) {
 	if p.Error != nil {
 		return
 	}
-
-	for _, hook := range p.Interface.Hooks() {
+	hooks, err := p.Interface.Hooks()
+	if err != nil {
+		p.Error = err
+		return
+	}
+	for _, hook := range hooks {
 		linkPluginHook(rootCmd, p, hook)
 	}
 }

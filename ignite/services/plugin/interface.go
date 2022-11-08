@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	"log"
 	"net/rpc"
 	"strconv"
 
@@ -29,8 +28,9 @@ type Interface interface {
 	// cmd is the executed command (one of the those returned by Commands method)
 	// args is the command line arguments passed behing the command.
 	Execute(cmd Command, args []string) error
+
 	// Hooks defines custom hooks registered with a given plugin
-	Hooks() []Hook
+	Hooks() ([]Hook, error)
 	// ExecuteHookPre is invoked by Ignite when a command specified by the hook
 	// path is invoked is global for all hooks registered to a plugin context on
 	// the hook being invoked is given by the `hook` parameter.
@@ -197,21 +197,19 @@ func (g *InterfaceRPC) Commands() ([]Command, error) {
 	var resp []Command
 	err := g.client.Call("Plugin.Commands", new(interface{}), &resp)
 	if err != nil {
-		return nil, fmt.Errorf("error while calling plugin: %w", err)
+		return nil, fmt.Errorf("error while calling plugin Commands: %w", err)
 	}
 	return resp, nil
 }
 
 // Hooks implements Interface.Hooks
-func (g *InterfaceRPC) Hooks() []Hook {
+func (g *InterfaceRPC) Hooks() ([]Hook, error) {
 	var resp []Hook
 	err := g.client.Call("Plugin.Hooks", new(interface{}), &resp)
 	if err != nil {
-		// You usually want your interfaces to return errors. If they don't,
-		// there isn't much other choice here.
-		log.Fatalf("error while calling plugin %v", err)
+		return nil, fmt.Errorf("error while calling plugin Hooks: %w", err)
 	}
-	return resp
+	return resp, nil
 }
 
 // Execute implements Interface.Commands
@@ -261,8 +259,9 @@ func (s *InterfaceRPCServer) Commands(args interface{}, resp *[]Command) error {
 }
 
 func (s *InterfaceRPCServer) Hooks(args interface{}, resp *[]Hook) error {
-	*resp = s.Impl.Hooks()
-	return nil
+	var err error
+	*resp, err = s.Impl.Hooks()
+	return err
 }
 
 func (s *InterfaceRPCServer) Execute(args map[string]interface{}, resp *interface{}) error {

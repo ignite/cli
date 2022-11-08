@@ -42,8 +42,8 @@ func (p) Commands() ([]plugin.Command, error) {
 	return []plugin.Command{cmd}, nil
 }
 
-func (p) Hooks() []plugin.Hook {
-	return []plugin.Hook{}
+func (p) Hooks() ([]plugin.Hook, error) {
+	return []plugin.Hook{}, nil
 }
 
 func (p) Execute(cmd plugin.Command, args []string) error {
