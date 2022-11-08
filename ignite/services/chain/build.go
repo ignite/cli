@@ -41,7 +41,7 @@ func (c *Chain) Build(
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto, false); err != nil {
 		return "", err
 	}
 
@@ -52,7 +52,7 @@ func (c *Chain) build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	output string,
-	skipProto bool,
+	skipProto, generateClients bool,
 ) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
@@ -62,9 +62,9 @@ func (c *Chain) build(
 		}
 	}()
 
-	// generate from proto files
 	if !skipProto {
-		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+		// Generate code from proto files
+		if err := c.generateFromConfig(ctx, cacheStorage, generateClients); err != nil {
 			return err
 		}
 	}

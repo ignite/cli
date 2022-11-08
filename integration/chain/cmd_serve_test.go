@@ -14,7 +14,7 @@ import (
 	envtest "github.com/ignite/cli/integration"
 )
 
-func TestServeStargateWithWasm(t *testing.T) {
+func TestServeWithWasm(t *testing.T) {
 	t.Skip()
 
 	var (
@@ -38,12 +38,12 @@ func TestServeStargateWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-func TestServeStargateWithCustomHome(t *testing.T) {
+func TestServeWithCustomHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
 		app     = env.Scaffold("github.com/test/sgblog2")
@@ -58,12 +58,12 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-func TestServeStargateWithConfigHome(t *testing.T) {
+func TestServeWithConfigHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
 		app     = env.Scaffold("github.com/test/sgblog3")
@@ -78,12 +78,12 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-func TestServeStargateWithCustomConfigFile(t *testing.T) {
+func TestServeWithCustomConfigFile(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	var (
@@ -107,13 +107,13 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-// TestServeStargateWithName tests serving a new chain scaffolded using a local name instead of a GitHub URI.
-func TestServeStargateWithName(t *testing.T) {
+// TestServeWithName tests serving a new chain scaffolded using a local name instead of a GitHub URI.
+func TestServeWithName(t *testing.T) {
 	var (
 		env     = envtest.New(t)
 		app     = env.Scaffold("sgblog5")
@@ -130,7 +130,7 @@ func TestServeStargateWithName(t *testing.T) {
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

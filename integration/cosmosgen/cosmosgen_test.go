@@ -112,7 +112,6 @@ func TestCosmosGenScaffold(t *testing.T) {
 				"g",
 				"vuex",
 				"--yes",
-				"--proto-all-modules",
 				"--clear-cache",
 			),
 			step.Workdir(app.SourcePath()),

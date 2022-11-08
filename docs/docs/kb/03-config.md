@@ -64,8 +64,7 @@ build:
 
 ## client
 
-Configures and enables client code generation. To prevent Ignite CLI from regenerating the client, remove the `client`
-property.
+Configures client code generation.
 
 ### client.vuex
 
