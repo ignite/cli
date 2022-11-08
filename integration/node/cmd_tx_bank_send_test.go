@@ -329,7 +329,7 @@ func TestNodeTxBankSend(t *testing.T) {
 		require.Contains(t, b.String(), `"fee":{"amount":[{"denom":"stake","amount":"178004"}],"gas_limit":"2000034"`)
 	}()
 
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

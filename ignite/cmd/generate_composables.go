@@ -10,12 +10,15 @@ import (
 
 func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "composables",
-		Short: "Generate Typescript client and Vue 3 composables for your chain's frontend from your `config.yml` file",
-		RunE:  generateComposablesHandler,
+		Use:     "composables",
+		Short:   "Generate Typescript client and Vue 3 composables for your chain's frontend",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateComposablesHandler,
 	}
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringP(flagOutput, "o", "", "Vue 3 composables output path")
+
 	return c
 }
 
@@ -25,7 +28,6 @@ func generateComposablesHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := NewChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths())
