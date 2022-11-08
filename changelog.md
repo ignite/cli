@@ -13,6 +13,7 @@
 - [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
+- [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
 
 ### Changes
 
