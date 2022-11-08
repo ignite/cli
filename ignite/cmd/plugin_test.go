@@ -43,25 +43,34 @@ func buildRootCmd() *cobra.Command {
 }
 
 func TestLinkPluginCmds(t *testing.T) {
-	pluginParams := map[string]string{"key": "val"}
-	// define a plugin with command flags
-	pluginWithFlags := plugin.Command{
-		Use: "flaggy",
-	}
+	var (
+		args         = []string{"arg1", "arg2"}
+		pluginParams = map[string]string{"key": "val"}
+		// define a plugin with command flags
+		pluginWithFlags = plugin.Command{
+			Use: "flaggy",
+		}
+	)
 	pluginWithFlags.Flags().String("flag1", "", "")
 	pluginWithFlags.Flags().Int("flag2", 0, "")
-	// helper to assert execute calls
-	expectExecute := func(t *testing.T, p *mocks.PluginInterface, cmd plugin.Command, args []string) {
+
+	// helper to assert pluginInterface.Execute() calls
+	expectExecute := func(t *testing.T, p *mocks.PluginInterface, cmd plugin.Command) {
 		p.EXPECT().Execute(
 			mock.MatchedBy(func(execCmd plugin.Command) bool {
 				return cmd.Use == execCmd.Use
 			}),
 			args,
 		).Run(func(execCmd plugin.Command, args []string) {
-			assert.Equal(t, cmd.Use, execCmd.Use)
+			// Assert flags are passed to Execute
+			cmd.Flags().VisitAll(func(f *pflag.Flag) {
+				assert.NotNil(t, execCmd.Flags().Lookup(f.Name), "flag %s not found", f.Name)
+			})
+			// Assert With is populated
 			assert.Equal(t, pluginParams, execCmd.With)
 		}).Return(nil)
 	}
+
 	tests := []struct {
 		name            string
 		setup           func(*testing.T, *mocks.PluginInterface)
@@ -75,7 +84,7 @@ func TestLinkPluginCmds(t *testing.T) {
 					Use: "foo",
 				}
 				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
-				expectExecute(t, p, cmd, []string{})
+				expectExecute(t, p, cmd)
 			},
 			expectedDumpCmd: `
 ignite
@@ -93,7 +102,7 @@ ignite
 					PlaceCommandUnder: "ignite scaffold",
 				}
 				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
-				expectExecute(t, p, cmd, []string{})
+				expectExecute(t, p, cmd)
 			},
 			expectedDumpCmd: `
 ignite
@@ -111,7 +120,7 @@ ignite
 					PlaceCommandUnder: "scaffold",
 				}
 				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
-				expectExecute(t, p, cmd, []string{})
+				expectExecute(t, p, cmd)
 			},
 			expectedDumpCmd: `
 ignite
@@ -192,9 +201,9 @@ ignite
 				p.EXPECT().Commands().Return([]plugin.Command{
 					fooCmd, barCmd, pluginWithFlags,
 				}, nil)
-				expectExecute(t, p, fooCmd, []string{})
-				expectExecute(t, p, barCmd, []string{})
-				expectExecute(t, p, pluginWithFlags, []string{})
+				expectExecute(t, p, fooCmd)
+				expectExecute(t, p, barCmd)
+				expectExecute(t, p, pluginWithFlags)
 			},
 			expectedDumpCmd: `
 ignite
@@ -220,9 +229,9 @@ ignite
 				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
 				// cmd is not executed because it's not runnable, only sub-commands
 				// are executed.
-				expectExecute(t, p, cmd.Commands[0], []string{})
-				expectExecute(t, p, cmd.Commands[1], []string{})
-				expectExecute(t, p, cmd.Commands[2], []string{})
+				expectExecute(t, p, cmd.Commands[0])
+				expectExecute(t, p, cmd.Commands[1])
+				expectExecute(t, p, cmd.Commands[2])
 			},
 			expectedDumpCmd: `
 ignite
@@ -246,9 +255,9 @@ ignite
 					},
 				}
 				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
-				expectExecute(t, p, cmd.Commands[0].Commands[0], []string{})
-				expectExecute(t, p, cmd.Commands[1].Commands[0], []string{})
-				expectExecute(t, p, cmd.Commands[1].Commands[1], []string{})
+				expectExecute(t, p, cmd.Commands[0].Commands[0])
+				expectExecute(t, p, cmd.Commands[1].Commands[0])
+				expectExecute(t, p, cmd.Commands[1].Commands[1])
 			},
 			expectedDumpCmd: `
 ignite
@@ -291,7 +300,7 @@ ignite
 			s.WriteString("\n")
 			dumpCmd(rootCmd, &s, 0)
 			assert.Equal(tt.expectedDumpCmd, s.String())
-			execCmd(t, rootCmd, nil)
+			execCmd(t, rootCmd, args)
 		})
 	}
 }
@@ -315,8 +324,8 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 
 func TestLinkPluginHooks(t *testing.T) {
 	pluginParams := map[string]string{"key": "val"}
-	// expectExecuteHook is a helper to assert ExecuteHook* are invoked in the
-	// expected order (pre, then post, then cleanup)
+	// helper to assert pluginInterface.ExecuteHook*() calls in expected order
+	// (pre, then post, then cleanup)
 	expectExecuteHook := func(p *mocks.PluginInterface, args []string, hooks ...plugin.Hook) {
 		var lastPre *mock.Call
 		for _, hook := range hooks {
