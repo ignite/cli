@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -63,7 +65,8 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
 	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
-	if c.genesisURL != "" {
+	switch {
+	case c.genesisURL != "":
 		c.ev.Send("Fetching custom Genesis from URL", events.ProgressUpdate())
 		genesis, err := cosmosgenesis.FromURL(ctx, c.genesisURL, genesisPath)
 		if err != nil {
@@ -101,8 +104,10 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		if err := os.WriteFile(genesisPath, genBytes, 0o644); err != nil {
 			return err
 		}
-	} else {
-		// default genesis is used, init CLI command is used to generate it
+	case c.genesisConfig != "":
+		c.ev.Send("Fetching custom Genesis from Config", events.ProgressUpdate())
+
+		// first, initialize with default genesis
 		cmd, err := c.chain.Commands(ctx)
 		if err != nil {
 			return err
@@ -113,6 +118,46 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 
+		// find config in downloaded source
+		path := filepath.Join(c.path, c.genesisConfig)
+		if _, err := os.Stat(path); err != nil {
+			return fmt.Errorf("the config for genesis doesn't exist: %w", err)
+		}
+
+		config, err := chainconfig.ParseNetworkFile(path)
+		if err != nil {
+			return err
+		}
+
+		// make sure that chain id given during chain.New() has the most priority.
+		chainID, err := c.ID()
+		if err != nil {
+			return err
+		}
+		if config.Genesis != nil {
+			config.Genesis["chain_id"] = chainID
+		}
+
+		// update genesis file with the genesis values defined in the config
+		if err := c.chain.UpdateGenesisFile(config.Genesis); err != nil {
+			return err
+		}
+
+		if err := c.chain.InitAccounts(ctx, config); err != nil {
+			return err
+		}
+
+	default:
+		// default genesis is used, init CLI command is used to generate it
+		cmd, err := c.chain.Commands(ctx)
+		if err != nil {
+			return err
+		}
+
+		// TODO: use validator moniker https://github.com/ignite/cli/issues/1834
+		if err := cmd.Init(ctx, "moniker"); err != nil {
+			return err
+		}
 	}
 
 	// check the initial genesis is valid
@@ -137,14 +182,17 @@ func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	chainGenesis, err := cosmosgenesis.FromPath(genesisPath)
 	if err != nil {
 		return err
 	}
+
 	gentxCount, err := chainGenesis.GentxCount()
 	if err != nil {
 		return err
 	}
+
 	if gentxCount > 0 {
 		return errors.New("the initial genesis for the chain should not contain gentx")
 	}
