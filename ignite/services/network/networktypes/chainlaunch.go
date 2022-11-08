@@ -20,6 +20,7 @@ type (
 		SourceHash             string      `json:"SourceHash"`
 		GenesisURL             string      `json:"GenesisURL"`
 		GenesisHash            string      `json:"GenesisHash"`
+		GenesisConfig          string      `json:"GenesisConfig"`
 		LaunchTime             time.Time   `json:"LaunchTime"`
 		CampaignID             uint64      `json:"CampaignID"`
 		LaunchTriggered        bool        `json:"LaunchTriggered"`
@@ -75,6 +76,11 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	if customGenesisURL := chain.InitialGenesis.GetGenesisURL(); customGenesisURL != nil {
 		launch.GenesisURL = customGenesisURL.Url
 		launch.GenesisHash = customGenesisURL.Hash
+	}
+
+	// check if custom config genesis if provided.
+	if customGenesisConfig := chain.InitialGenesis.GetConfigGenesis(); customGenesisConfig != nil {
+		launch.GenesisConfig = customGenesisConfig.File
 	}
 
 	return launch

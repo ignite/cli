@@ -17,10 +17,12 @@ var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateTSClientRoot    = newTemplateWriter("root")
-	templateTSClientModule  = newTemplateWriter("module")
-	templateTSClientVue     = newTemplateWriter("vue")
-	templateTSClientVueRoot = newTemplateWriter("vue-root")
+	templateTSClientRoot           = newTemplateWriter("root")
+	templateTSClientModule         = newTemplateWriter("module")
+	templateTSClientVue            = newTemplateWriter("vue")
+	templateTSClientVueRoot        = newTemplateWriter("vue-root")
+	templateTSClientComposable     = newTemplateWriter("composable")
+	templateTSClientComposableRoot = newTemplateWriter("composable-root")
 )
 
 type templateWriter struct {

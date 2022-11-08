@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush/v4"
+	"github.com/iancoleman/strcase"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -58,6 +59,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("isIBC", opts.IsIBC)
 	ctx.Set("apiPath", fmt.Sprintf("/%s/%s", appModulePath, opts.ModuleName))
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
+	ctx.Set("toVariableName", strcase.ToLowerCamel)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
@@ -134,10 +136,10 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		// Module dependencies
 		var depArgs string
 		for _, dep := range opts.Dependencies {
-			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName)
+			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName())
 
 			// If bank is a dependency, add account permissions to the module
-			if dep.Name == "bank" {
+			if dep.Name == "Bank" {
 				template = `%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 %[1]v`
 

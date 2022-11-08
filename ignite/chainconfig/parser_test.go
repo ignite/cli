@@ -70,3 +70,36 @@ func TestParseWithUnknownVersion(t *testing.T) {
 	require.NotNil(t, want)
 	require.Equal(t, want.Version, version)
 }
+
+func TestParseNetworkWithCurrentVersion(t *testing.T) {
+	// Arrange
+	r := bytes.NewReader(testdata.NetworkConfig)
+
+	// Act
+	cfg, err := chainconfig.ParseNetwork(r)
+
+	// Assert
+	require.NoError(t, err)
+
+	// Assert: Parse must return the latest version
+	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
+	require.Equal(t, testdata.GetLatestNetworkConfig(t).Accounts, cfg.Accounts)
+	require.Equal(t, testdata.GetLatestNetworkConfig(t).Genesis, cfg.Genesis)
+}
+
+func TestParseNetworkWithInvalidData(t *testing.T) {
+	// Arrange
+	r := bytes.NewReader(testdata.Versions[chainconfig.LatestVersion])
+
+	// Act
+	_, err := chainconfig.ParseNetwork(r)
+
+	// Assert error
+	require.True(
+		t,
+		strings.Contains(
+			err.Error(),
+			"config is not valid: no validators can be used in config for network genesis",
+		),
+	)
+}
