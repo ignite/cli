@@ -99,9 +99,10 @@ func New(options ...Option) *Session {
 		ev: events.NewBus(),
 		wg: &sync.WaitGroup{},
 		options: sessionOptions{
-			stdin:  os.Stdin,
-			stdout: os.Stdout,
-			stderr: os.Stderr,
+			stdin:       os.Stdin,
+			stdout:      os.Stdout,
+			stderr:      os.Stderr,
+			spinnerText: clispinner.DefaultText,
 		},
 	}
 
@@ -121,12 +122,7 @@ func New(options ...Option) *Session {
 	session.out = uilog.NewOutput(logOptions...)
 
 	if session.options.spinnerStart {
-		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
-
-		if session.options.spinnerText != "" {
-			session.spinner.SetText(session.options.spinnerText)
-		}
-		session.spinner.Start()
+		session.StartSpinner(session.options.spinnerText)
 	}
 
 	// The main loop that prints the events uses a wait group to block
@@ -169,6 +165,16 @@ func (s Session) NewOutput(label string, color uint8) uilog.Output {
 // StartSpinner starts the spinner.
 func (s *Session) StartSpinner(text string) {
 	if s.options.ignoreEvents {
+		return
+	}
+
+	// Verbose mode must not render the spinner but instead
+	// it should just print the text to display next to the
+	// app label otherwise the verbose logs would be printed
+	// with an invalid format.
+	if s.options.verbosity == uilog.VerbosityVerbose {
+		fmt.Fprint(s.out.Stdout(), text)
+
 		return
 	}
 
@@ -267,7 +273,13 @@ func (s *Session) handleEvents() {
 		case events.IndicationStart:
 			s.StartSpinner(e.String())
 		case events.IndicationUpdate:
-			s.spinner.SetText(e.String())
+			if s.spinner == nil {
+				// When the spinner is not initialized print the event
+				fmt.Fprintf(stdout, "%s\n", e)
+			} else {
+				// Otherwise update the spinner with a new text
+				s.spinner.SetText(e.String())
+			}
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
