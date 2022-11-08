@@ -17,6 +17,8 @@ func init() {
 }
 
 // An ignite plugin must implements the Plugin interface.
+//
+//go:generate mockery --srcpkg . --name Interface --structname PluginInterface --filename interface.go --with-expecter
 type Interface interface {
 	// Commands returns one or multiple commands that will be added to the list
 	// of ignite commands. It's invoked each time ignite is executed, in
@@ -167,12 +169,15 @@ func (c *Command) GobDecode(bz []byte) error {
 
 // Hook represents a user defined action within a plugin
 type Hook struct {
-	// identifies the hook for the client to invoke the correct hook
+	// Name identifies the hook for the client to invoke the correct hook
 	// must be unique
 	Name string
-
-	// commands to register the hooks for
+	// PlaceHookOn indicates the command to register the hooks for
 	PlaceHookOn string
+
+	// Optionnal parameters populated by config at runtime via
+	// chainconfig.Plugin.With field.
+	With map[string]string
 }
 
 // handshakeConfigs are used to just do a basic handshake between

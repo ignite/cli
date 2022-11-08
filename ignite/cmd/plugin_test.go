@@ -10,87 +10,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/services/plugin"
+	"github.com/ignite/cli/ignite/services/plugin/mocks"
 )
-
-// pluginInterface implements plugin.Interface for testing purpose.
-type pluginInterface struct {
-	commands []plugin.Command
-	hooks    []plugin.Hook
-
-	// hookCalls holds trace of ExecuteHook* methods' invocation.
-	hookCalls map[string][]string
-	// holds arguments tied to the ExecuteHook* methods' invocation.
-	hookArgs map[string]map[string][]string
-}
-
-func (p *pluginInterface) Commands() ([]plugin.Command, error) {
-	return p.commands, nil
-}
-
-func (p *pluginInterface) Hooks() ([]plugin.Hook, error) {
-	return p.hooks, nil
-}
-
-func (p *pluginInterface) Execute(c plugin.Command, args []string) error {
-	return nil
-}
-
-func (p *pluginInterface) ExecuteHookPre(hook plugin.Hook, args []string) error {
-	if p.hookCalls == nil {
-		p.hookCalls = make(map[string][]string)
-	}
-
-	p.hookCalls[hook.PlaceHookOn] = append(p.hookCalls[hook.PlaceHookOn],
-		fmt.Sprintf("pre-%s", hook.Name))
-
-	if p.hookArgs == nil && len(args) > 0 {
-		p.hookArgs = make(map[string]map[string][]string)
-	} else if len(args) > 0 {
-		p.hookArgs[hook.PlaceHookOn] = make(map[string][]string)
-		p.hookArgs[hook.PlaceHookOn]["pre"] = args
-	}
-	return nil
-}
-
-func (p *pluginInterface) ExecuteHookPost(hook plugin.Hook, args []string) error {
-	if p.hookCalls == nil {
-		p.hookCalls = make(map[string][]string)
-	}
-	p.hookCalls[hook.PlaceHookOn] = append(p.hookCalls[hook.PlaceHookOn],
-		fmt.Sprintf("post-%s", hook.Name))
-
-	if p.hookArgs == nil && len(args) > 0 {
-		p.hookArgs = make(map[string]map[string][]string)
-	} else if len(args) > 0 {
-		if p.hookArgs[hook.PlaceHookOn] == nil {
-			return fmt.Errorf("post hook executed before pre for hook %q aborting", hook.Name)
-		}
-		p.hookArgs[hook.PlaceHookOn]["post"] = args
-	}
-	return nil
-}
-
-func (p *pluginInterface) ExecuteHookCleanUp(hook plugin.Hook, args []string) error {
-	if p.hookCalls == nil {
-		p.hookCalls = make(map[string][]string)
-	}
-	p.hookCalls[hook.PlaceHookOn] = append(p.hookCalls[hook.PlaceHookOn],
-		fmt.Sprintf("cleanup-%s", hook.Name))
-
-	if p.hookArgs == nil && len(args) > 0 {
-		p.hookArgs = make(map[string]map[string][]string)
-	} else if len(args) > 0 {
-		if p.hookArgs[hook.PlaceHookOn] == nil {
-			return fmt.Errorf("cleanup hook executed before pre for hook %q aborting", hook.Name)
-		}
-		p.hookArgs[hook.PlaceHookOn]["cleanup"] = args
-	}
-	return nil
-}
 
 func buildRootCmd() *cobra.Command {
 	var (
@@ -125,18 +51,21 @@ func TestLinkPluginCmds(t *testing.T) {
 	pluginWithFlags.Flags().Int("flag2", 0, "")
 	tests := []struct {
 		name            string
-		pluginInterface *pluginInterface
+		setup           func(p *mocks.PluginInterface)
 		expectedDumpCmd string
 		expectedError   string
 	}{
 		{
 			name: "ok: link foo at root",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use: "foo",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use: "foo",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedDumpCmd: `
 ignite
@@ -148,13 +77,16 @@ ignite
 		},
 		{
 			name: "ok: link foo at subcommand",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use:               "foo",
-						PlaceCommandUnder: "ignite scaffold",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use:               "foo",
+							PlaceCommandUnder: "ignite scaffold",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedDumpCmd: `
 ignite
@@ -166,13 +98,16 @@ ignite
 		},
 		{
 			name: "ok: link foo at subcommand with incomplete PlaceCommandUnder",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use:               "foo",
-						PlaceCommandUnder: "scaffold",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use:               "foo",
+							PlaceCommandUnder: "scaffold",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedDumpCmd: `
 ignite
@@ -184,63 +119,78 @@ ignite
 		},
 		{
 			name: "fail: link to runnable command",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use:               "foo",
-						PlaceCommandUnder: "ignite scaffold chain",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use:               "foo",
+							PlaceCommandUnder: "ignite scaffold chain",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedError: `can't attach plugin command "foo" to runnable command "ignite scaffold chain"`,
 		},
 		{
 			name: "fail: link to unknown command",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use:               "foo",
-						PlaceCommandUnder: "ignite unknown",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use:               "foo",
+							PlaceCommandUnder: "ignite unknown",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedError: `unable to find commandPath "ignite unknown" for plugin "foo"`,
 		},
 		{
 			name: "fail: plugin name exists in legacy commands",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use: "scaffold",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use: "scaffold",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedError: `plugin command "scaffold" already exists in ignite's commands`,
 		},
 		{
 			name: "fail: plugin name exists in legacy sub commands",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use:               "chain",
-						PlaceCommandUnder: "scaffold",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use:               "chain",
+							PlaceCommandUnder: "scaffold",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedError: `plugin command "chain" already exists in ignite's commands`,
 		},
 		{
 			name: "ok: link multiple at root",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use: "foo",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use: "foo",
+						},
+						{
+							Use: "bar",
+						},
+						pluginWithFlags,
 					},
-					{
-						Use: "bar",
-					},
-					pluginWithFlags,
-				},
+					nil,
+				)
 			},
 			expectedDumpCmd: `
 ignite
@@ -254,17 +204,20 @@ ignite
 		},
 		{
 			name: "ok: link with subcommands",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use: "foo",
-						Commands: []plugin.Command{
-							{Use: "bar"},
-							{Use: "baz"},
-							pluginWithFlags,
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use: "foo",
+							Commands: []plugin.Command{
+								{Use: "bar"},
+								{Use: "baz"},
+								pluginWithFlags,
+							},
 						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedDumpCmd: `
 ignite
@@ -279,16 +232,19 @@ ignite
 		},
 		{
 			name: "ok: link with multiple subcommands",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{
-					{
-						Use: "foo",
-						Commands: []plugin.Command{
-							{Use: "bar", Commands: []plugin.Command{{Use: "baz"}}},
-							{Use: "qux", Commands: []plugin.Command{{Use: "quux"}, {Use: "corge"}}},
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Commands().Return(
+					[]plugin.Command{
+						{
+							Use: "foo",
+							Commands: []plugin.Command{
+								{Use: "bar", Commands: []plugin.Command{{Use: "baz"}}},
+								{Use: "qux", Commands: []plugin.Command{{Use: "quux"}, {Use: "corge"}}},
+							},
 						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedDumpCmd: `
 ignite
@@ -308,11 +264,13 @@ ignite
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			assert := assert.New(t)
+			pi := mocks.NewPluginInterface(t)
 			p := &plugin.Plugin{
 				Plugin:    chainconfig.Plugin{Path: "foo"},
-				Interface: tt.pluginInterface,
+				Interface: pi,
 			}
 			rootCmd := buildRootCmd()
+			tt.setup(pi)
 
 			linkPluginCmds(rootCmd, p)
 
@@ -348,137 +306,138 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 }
 
 func TestLinkPluginHooks(t *testing.T) {
+	pluginWith := map[string]string{"key": "val"}
+	// expectExecuteHook is a helper to assert ExecuteHook* are invoked in the
+	// expected order (pre, then post, then cleanup)
+	expectExecuteHook := func(p *mocks.PluginInterface, args []string, hooks ...plugin.Hook) {
+		var lastPre *mock.Call
+		for _, hook := range hooks {
+			// assert that hook.With has been populated before call to ExecuteHook
+			hook.With = pluginWith
+			pre := p.EXPECT().ExecuteHookPre(hook, args).Return(nil).Call
+			if lastPre != nil {
+				pre.NotBefore(lastPre)
+			}
+			lastPre = pre
+		}
+		for _, hook := range hooks {
+			// assert that hook.With has been populated before call to ExecuteHook
+			hook.With = pluginWith
+			post := p.EXPECT().ExecuteHookPost(hook, args).Return(nil).Call
+			cleanup := p.EXPECT().ExecuteHookCleanUp(hook, args).Return(nil).Call
+			post.NotBefore(lastPre)
+			cleanup.NotBefore(post)
+		}
+	}
 	tests := []struct {
-		name            string
-		pluginInterface *pluginInterface
-		args            []string
-		expectedError   string
-		expectedCalls   map[string][]string
-		epectedArgs     map[string]map[string][]string
+		name          string
+		args          []string
+		expectedError string
+		setup         func(*mocks.PluginInterface)
 	}{
-		{
-			name: "fail: hook plugin command",
-			pluginInterface: &pluginInterface{
-				commands: []plugin.Command{{
-					Use: "test-plugin",
-				}},
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook",
-						PlaceHookOn: "ignite test-plugin",
-					},
+		// TODO(tb): commented because linkPluginCmds is not invoked in this test,
+		// so it's not possible to assert that a hook can't be placed on a plugin
+		// command.
+		/*
+			{
+				name: "fail: hook plugin command",
+				setup: func(p *mocks.PluginInterface) {
+					p.EXPECT().Commands().Return([]plugin.Command{{Use: "test-plugin"}}, nil)
+					p.EXPECT().Hooks().Return(
+						[]plugin.Hook{
+							{
+								Name:        "test-hook",
+								PlaceHookOn: "ignite test-plugin",
+							},
+						},
+						nil,
+					)
 				},
+				expectedError: `unable to find commandPath "ignite test-plugin" for plugin hook "test-hook"`,
 			},
-			expectedError: `unable to find commandPath "ignite test-plugin" for plugin hook "test-hook"`,
-		},
+		*/
 		{
 			name: "fail: command not runnable",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook",
-						PlaceHookOn: "ignite scaffold",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Hooks().Return(
+					[]plugin.Hook{
+						{
+							Name:        "test-hook",
+							PlaceHookOn: "ignite scaffold",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedError: `can't attach plugin hook "test-hook" to non executable command "ignite scaffold"`,
 		},
 		{
 			name: "fail: command doesn't exists",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook",
-						PlaceHookOn: "ignite chain",
+			setup: func(p *mocks.PluginInterface) {
+				p.EXPECT().Hooks().Return(
+					[]plugin.Hook{
+						{
+							Name:        "test-hook",
+							PlaceHookOn: "ignite chain",
+						},
 					},
-				},
+					nil,
+				)
 			},
 			expectedError: `unable to find commandPath "ignite chain" for plugin hook "test-hook"`,
 		},
 		{
 			name: "ok: single hook",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook",
-						PlaceHookOn: "scaffold chain",
-					},
-				},
-			},
-			expectedCalls: map[string][]string{
-				"scaffold chain": {
-					"pre-test-hook", "post-test-hook", "cleanup-test-hook",
-				},
+			setup: func(p *mocks.PluginInterface) {
+				hook := plugin.Hook{
+					Name:        "test-hook",
+					PlaceHookOn: "scaffold chain",
+				}
+				p.EXPECT().Hooks().Return([]plugin.Hook{hook}, nil)
+				expectExecuteHook(p, []string{}, hook)
 			},
 		},
 		{
 			name: "ok: multiple hooks on same command",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook-1",
-						PlaceHookOn: "scaffold chain",
-					},
-					{
-						Name:        "test-hook-2",
-						PlaceHookOn: "scaffold chain",
-					},
-				},
-			},
-			expectedCalls: map[string][]string{
-				"scaffold chain": {
-					"pre-test-hook-1", "pre-test-hook-2",
-					"post-test-hook-1", "cleanup-test-hook-1",
-					"post-test-hook-2", "cleanup-test-hook-2",
-				},
+			setup: func(p *mocks.PluginInterface) {
+				hook1 := plugin.Hook{
+					Name:        "test-hook-1",
+					PlaceHookOn: "scaffold chain",
+				}
+				hook2 := plugin.Hook{
+					Name:        "test-hook-2",
+					PlaceHookOn: "scaffold chain",
+				}
+				p.EXPECT().Hooks().Return([]plugin.Hook{hook1, hook2}, nil)
+				expectExecuteHook(p, []string{}, hook1, hook2)
 			},
 		},
 		{
 			name: "ok: multiple hooks on different commands",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook-1",
-						PlaceHookOn: "scaffold chain",
-					},
-					{
-						Name:        "test-hook-2",
-						PlaceHookOn: "scaffold chain",
-					},
-					{
-						Name:        "test-hook-3",
-						PlaceHookOn: "scaffold module",
-					},
-				},
-			},
-			args: []string{"flag foo"},
-			expectedCalls: map[string][]string{
-				"scaffold chain": {
-					"pre-test-hook-1", "pre-test-hook-2",
-					"post-test-hook-1", "cleanup-test-hook-1",
-					"post-test-hook-2", "cleanup-test-hook-2",
-				},
-				"scaffold module": {
-					"pre-test-hook-3", "post-test-hook-3", "cleanup-test-hook-3",
-				},
-			},
-			epectedArgs: map[string]map[string][]string{
-				"scaffold chain": {
-					"pre":     {"flag foo"},
-					"post":    {"flag foo"},
-					"cleanup": {"flag foo"},
-				},
-				"scaffold module": {
-					"pre":     {"flag foo"},
-					"post":    {"flag foo"},
-					"cleanup": {"flag foo"},
-				},
+			args: []string{"arg1", "arg2"},
+			setup: func(p *mocks.PluginInterface) {
+				hookChain1 := plugin.Hook{
+					Name:        "test-hook-1",
+					PlaceHookOn: "scaffold chain",
+				}
+				hookChain2 := plugin.Hook{
+					Name:        "test-hook-2",
+					PlaceHookOn: "scaffold chain",
+				}
+				hookModule := plugin.Hook{
+					Name:        "test-hook-3",
+					PlaceHookOn: "scaffold module",
+				}
+				p.EXPECT().Hooks().Return([]plugin.Hook{hookChain1, hookChain2, hookModule}, nil)
+				expectExecuteHook(p, []string{"arg1", "arg2"}, hookChain1, hookChain2)
+				expectExecuteHook(p, []string{"arg1", "arg2"}, hookModule)
 			},
 		},
 		{
 			name: "ok: duplicate hook names on same command",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
+			args: []string{"arg1", "arg2"},
+			setup: func(p *mocks.PluginInterface) {
+				hooks := []plugin.Hook{
 					{
 						Name:        "test-hook",
 						PlaceHookOn: "ignite scaffold chain",
@@ -487,45 +446,25 @@ func TestLinkPluginHooks(t *testing.T) {
 						Name:        "test-hook",
 						PlaceHookOn: "ignite scaffold chain",
 					},
-				},
-			},
-			args: []string{"flag foo"},
-			expectedCalls: map[string][]string{
-				"ignite scaffold chain": {
-					"pre-test-hook", "pre-test-hook",
-					"post-test-hook", "cleanup-test-hook",
-					"post-test-hook", "cleanup-test-hook",
-				},
-			},
-			epectedArgs: map[string]map[string][]string{
-				"ignite scaffold chain": {
-					"pre":     {"flag foo"},
-					"post":    {"flag foo"},
-					"cleanup": {"flag foo"},
-				},
+				}
+				p.EXPECT().Hooks().Return(hooks, nil)
+				expectExecuteHook(p, []string{"arg1", "arg2"}, hooks...)
 			},
 		},
 		{
 			name: "ok: duplicate hook names on different commands",
-			pluginInterface: &pluginInterface{
-				hooks: []plugin.Hook{
-					{
-						Name:        "test-hook",
-						PlaceHookOn: "ignite scaffold chain",
-					},
-					{
-						Name:        "test-hook",
-						PlaceHookOn: "ignite scaffold module",
-					},
-				},
-			},
-			expectedCalls: map[string][]string{
-				"ignite scaffold chain": {
-					"pre-test-hook", "post-test-hook", "cleanup-test-hook",
-				},
-				"ignite scaffold module": {
-					"pre-test-hook", "post-test-hook", "cleanup-test-hook",
-				},
+			setup: func(p *mocks.PluginInterface) {
+				hookChain := plugin.Hook{
+					Name:        "test-hook",
+					PlaceHookOn: "ignite scaffold chain",
+				}
+				hookModule := plugin.Hook{
+					Name:        "test-hook",
+					PlaceHookOn: "ignite scaffold module",
+				}
+				p.EXPECT().Hooks().Return([]plugin.Hook{hookChain, hookModule}, nil)
+				expectExecuteHook(p, []string{}, hookChain)
+				expectExecuteHook(p, []string{}, hookModule)
 			},
 		},
 	}
@@ -533,12 +472,17 @@ func TestLinkPluginHooks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			assert := assert.New(t)
+			// assert := assert.New(t)
+			pi := mocks.NewPluginInterface(t)
 			p := &plugin.Plugin{
-				Plugin:    chainconfig.Plugin{Path: "foo"},
-				Interface: tt.pluginInterface,
+				Plugin: chainconfig.Plugin{
+					Path: "foo",
+					With: pluginWith,
+				},
+				Interface: pi,
 			}
 			rootCmd := buildRootCmd()
+			tt.setup(pi)
 
 			linkPluginHooks(rootCmd, p)
 
@@ -548,8 +492,6 @@ func TestLinkPluginHooks(t *testing.T) {
 			}
 			require.NoError(p.Error)
 			execCmd(t, rootCmd, tt.args)
-			assert.Equal(tt.expectedCalls, tt.pluginInterface.hookCalls)
-			assert.Equal(tt.epectedArgs, tt.pluginInterface.hookArgs)
 		})
 	}
 }

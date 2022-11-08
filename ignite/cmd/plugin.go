@@ -111,6 +111,8 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 				return err
 			}
 		}
+		// Pass config parameters
+		hook.With = p.With
 
 		return p.Interface.ExecuteHookPre(hook, args)
 	}
@@ -122,6 +124,9 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			err := runCmd(cmd, args)
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
+				// Pass config parameters
+				hook.With = p.With
+
 				p.Interface.ExecuteHookCleanUp(hook, args)
 			}
 
@@ -134,6 +139,9 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
+		// Pass config parameters
+		hook.With = p.With
+
 		defer p.Interface.ExecuteHookCleanUp(hook, args)
 
 		if preRun != nil {
