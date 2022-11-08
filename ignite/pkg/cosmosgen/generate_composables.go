@@ -102,10 +102,8 @@ func (g *generator) generateComposables(frontendType string) error {
 		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
-	if g.o.jsIncludeThirdParty {
-		for _, modules := range g.thirdModules {
-			data.Modules = append(data.Modules, modules...)
-		}
+	for _, modules := range g.thirdModules {
+		data.Modules = append(data.Modules, modules...)
 	}
 
 	vsg := newComposablesGenerator(g, frontendType)
@@ -137,6 +135,7 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 	} else {
 		outDir = g.g.o.hooksOut(m)
 	}
+
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
