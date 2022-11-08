@@ -37,10 +37,10 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	return loadPlugins(ctx, rootCmd, plugins)
+	return loadPlugins(rootCmd, plugins)
 }
 
-func loadPlugins(ctx context.Context, rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
+func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	// Link plugins to related commands
 	var loadErrors []string
 	for _, p := range plugins {

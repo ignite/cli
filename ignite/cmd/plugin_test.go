@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -318,7 +317,7 @@ ignite
 			rootCmd := buildRootCmd()
 			tt.setup(t, pi)
 
-			loadPlugins(context.Background(), rootCmd, []*plugin.Plugin{p})
+			loadPlugins(rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.Error(p.Error)
@@ -547,7 +546,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			rootCmd := buildRootCmd()
 			tt.setup(t, pi)
 
-			loadPlugins(context.Background(), rootCmd, []*plugin.Plugin{p})
+			loadPlugins(rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.EqualError(p.Error, tt.expectedError)
