@@ -309,20 +309,27 @@ func TestPluginLoad(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
 			p := tt.buildPlugin(t)
+			defer p.KillClient()
 
 			p.load(context.Background())
 
 			if tt.expectedError != "" {
-				require.Error(t, p.Error, "expected error %q", tt.expectedError)
-				require.Regexp(t, tt.expectedError, p.Error.Error())
+				require.Error(p.Error, "expected error %q", tt.expectedError)
+				require.Regexp(tt.expectedError, p.Error.Error())
 				return
 			}
-			require.NoError(t, p.Error)
-			require.NotNil(t, p.Interface)
-			cmds, err := p.Interface.Commands()
-			require.NoError(t, err)
-			assert.Equal(t, p.binaryName, cmds[0].Use)
+			require.NoError(p.Error)
+			require.NotNil(p.Interface)
+			manifest, err := p.Interface.Manifest()
+			require.NoError(err)
+			assert.Equal(p.binaryName, manifest.Name)
+			assert.NoError(p.Interface.Execute(ExecutedCommand{}))
+			assert.NoError(p.Interface.ExecuteHookPre(ExecutedHook{}))
+			assert.NoError(p.Interface.ExecuteHookPost(ExecutedHook{}))
+			assert.NoError(p.Interface.ExecuteHookCleanUp(ExecutedHook{}))
 		})
 	}
 }

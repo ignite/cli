@@ -37,16 +37,31 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
+	return loadPlugins(ctx, rootCmd, plugins)
+}
+
+func loadPlugins(ctx context.Context, rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	// Link plugins to related commands
 	var loadErrors []string
 	for _, p := range plugins {
-		linkPluginHooks(rootCmd, p)
 		if p.Error != nil {
 			loadErrors = append(loadErrors, p.Path)
+			continue
 		}
-		linkPluginCmds(rootCmd, p)
+		manifest, err := p.Interface.Manifest()
+		if err != nil {
+			p.Error = err
+			continue
+		}
+		linkPluginHooks(rootCmd, p, manifest.Hooks)
 		if p.Error != nil {
 			loadErrors = append(loadErrors, p.Path)
+			continue
+		}
+		linkPluginCmds(rootCmd, p, manifest.Commands)
+		if p.Error != nil {
+			loadErrors = append(loadErrors, p.Path)
+			continue
 		}
 	}
 	if len(loadErrors) > 0 {
@@ -66,13 +81,8 @@ func UnloadPlugins() {
 	}
 }
 
-func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin) {
+func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Hook) {
 	if p.Error != nil {
-		return
-	}
-	hooks, err := p.Interface.Hooks()
-	if err != nil {
-		p.Error = err
 		return
 	}
 	for _, hook := range hooks {
@@ -103,6 +113,20 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 		return
 	}
 
+	newExecutedHook := func(hook plugin.Hook, cmd *cobra.Command, args []string) plugin.ExecutedHook {
+		execHook := plugin.ExecutedHook{
+			Hook: hook,
+			ExecutedCommand: plugin.ExecutedCommand{
+				Use:  cmd.Use,
+				Path: cmd.CommandPath(),
+				Args: args,
+				With: p.With,
+			},
+		}
+		execHook.SetFlags(cmd.Flags())
+		return execHook
+	}
+
 	preRun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if preRun != nil {
@@ -111,10 +135,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 				return err
 			}
 		}
-		// Pass config parameters
-		hook.With = p.With
-
-		return p.Interface.ExecuteHookPre(hook, args)
+		return p.Interface.ExecuteHookPre(newExecutedHook(hook, cmd, args))
 	}
 
 	runCmd := cmd.RunE
@@ -124,10 +145,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			err := runCmd(cmd, args)
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
-				// Pass config parameters
-				hook.With = p.With
-
-				p.Interface.ExecuteHookCleanUp(hook, args)
+				p.Interface.ExecuteHookCleanUp(newExecutedHook(hook, cmd, args))
 			}
 
 			return err
@@ -139,10 +157,9 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
-		// Pass config parameters
-		hook.With = p.With
+		execHook := newExecutedHook(hook, cmd, args)
 
-		defer p.Interface.ExecuteHookCleanUp(hook, args)
+		defer p.Interface.ExecuteHookCleanUp(execHook)
 
 		if preRun != nil {
 			err := postCmd(cmd, args)
@@ -152,19 +169,14 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		return p.Interface.ExecuteHookPost(hook, args)
+		return p.Interface.ExecuteHookPost(execHook)
 	}
 }
 
 // linkPluginCmds tries to add the plugin commands to the legacy ignite
 // commands.
-func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin) {
+func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugin.Command) {
 	if p.Error != nil {
-		return
-	}
-	pluginCmds, err := p.Interface.Commands()
-	if err != nil {
-		p.Error = err
 		return
 	}
 	for _, pluginCmd := range pluginCmds {
@@ -204,17 +216,22 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		Short: pluginCmd.Short,
 		Long:  pluginCmd.Long,
 	}
-	newCmd.Flags().AddFlagSet(pluginCmd.Flags())
+	for _, f := range pluginCmd.Flags {
+		f.FeedFlagSet(newCmd.Flags())
+	}
 	cmd.AddCommand(newCmd)
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			// Pass config parameters
-			pluginCmd.With = p.With
-			// Pass flags
-			pluginCmd.SetFlags(cmd.Flags())
+			execCmd := plugin.ExecutedCommand{
+				Use:  cmd.Use,
+				Path: cmd.CommandPath(),
+				Args: args,
+				With: p.With,
+			}
+			execCmd.SetFlags(cmd.Flags())
 			// Call the plugin Execute
-			err := p.Interface.Execute(pluginCmd, args)
+			err := p.Interface.Execute(execCmd)
 			// NOTE(tb): This pause gives enough time for go-plugin to sync the
 			// output from stdout/stderr of the plugin. Without that pause, this
 			// output can be discarded and not printed in the user console.
