@@ -36,7 +36,7 @@ func NewNetworkChainInit() *cobra.Command {
 		Long: `Ignite network chain init is a command used by validators to initialize a
 validator node for a blockchain from the information stored on the Ignite chain.
 
-  ignite network chain init 42
+	ignite network chain init 42
 
 This command fetches the information about a chain with launch ID 42. The source
 code of the chain is cloned in a temporary directory, and the node's binary is
@@ -53,7 +53,7 @@ the values in non-interactive mode.
 Use the "--home" flag to choose a different path for the home directory of the
 blockchain:
 
-  ignite network chain init 42 --home ~/mychain
+	ignite network chain init 42 --home ~/mychain
 
 The end result of the "init" command is a validator home directory with a
 genesis validator transaction (gentx) file.`,
