@@ -11,6 +11,7 @@ import (
 	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -83,7 +84,7 @@ func FaucetHost(cfg *Config) string {
 
 // TSClientPath returns the relative path to the Typescript client directory.
 // Path is relative to the app's directory.
-func TSClientPath(conf *Config) string {
+func TSClientPath(conf Config) string {
 	if path := strings.TrimSpace(conf.Client.Typescript.Path); path != "" {
 		return filepath.Clean(path)
 	}
@@ -160,4 +161,16 @@ func CheckVersion(configFile io.Reader) error {
 	}
 
 	return nil
+}
+
+// Save saves a config to a YAML file.
+func Save(c Config, path string) error {
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o755)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return yaml.NewEncoder(file).Encode(c)
 }

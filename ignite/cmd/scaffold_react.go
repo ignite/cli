@@ -5,7 +5,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
 
 // NewScaffoldReacr scaffolds a React app for a chain.
@@ -29,9 +29,9 @@ func scaffoldReactHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	path := flagGetPath(cmd)
-	if err := scaffolder.React(path); err != nil {
+	if err := cosmosgen.React(path); err != nil {
 		return err
 	}
 
-	return session.Printf("\n🎉 Scaffolded a React app.\n\n")
+	return session.Printf("\n🎉 Scaffolded a React app in %s.\n\n", path)
 }
