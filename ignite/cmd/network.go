@@ -56,7 +56,7 @@ for launch.
 To publish the information about your chain as a coordinator run the following
 command (the URL should point to a repository with a Cosmos SDK chain):
 
-  ignite network chain publish github.com/ignite/example
+	ignite network chain publish github.com/ignite/example
 
 This command will return a launch identifier you will be using in the following
 commands. Let's say this identifier is 42.
@@ -65,26 +65,26 @@ Next, ask validators to initialize their nodes and request to join the network
 as validators. For a testnet you can use the default values suggested by the
 CLI.
 
-  ignite network chain init 42
+	ignite network chain init 42
 
-  ignite network chain join 42 --amount 95000000stake
+	ignite network chain join 42 --amount 95000000stake
 
 As a coordinator list all validator requests:
 
-  ignite network request list 42
+	ignite network request list 42
 
 Approve validator requests:
 
-  ignite network request approve 42 1,2
+	ignite network request approve 42 1,2
 
 Once you've approved all validators you need in the validator set, announce that
 the chain is ready for launch:
 
-  ignite network chain launch 42
+	ignite network chain launch 42
 
 Validators can now prepare their nodes for launch:
 
-  ignite network chain prepare 42
+	ignite network chain prepare 42
 
 The output of this command will show a command that a validator would use to
 launch their node, for example “exampled --home ~/.example”. After enough
