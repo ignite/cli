@@ -9,6 +9,7 @@ import (
 
 	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -59,18 +60,7 @@ hood, it runs "appd start", where "appd" is the name of your chain's binary. For
 production, you may want to run "appd start" manually.
 `,
 		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: How to deal with verbose mode?
-			session := cliui.New(cliui.IgnoreEvents(), cliui.WithVerbosity(getVerbosity(cmd)))
-			defer session.End()
-
-			m := cmdmodel.NewChainServe(cmd, session.EventBus(), chainServeStartCmd(cmd, session))
-			if err := tea.NewProgram(m).Start(); err != nil {
-				return err
-			}
-
-			return nil
-		},
+		RunE: chainServeHandler,
 	}
 
 	flagSetPath(c)
@@ -87,7 +77,42 @@ production, you may want to run "appd start" manually.
 	return c
 }
 
-func chainServeStartCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
+func chainServeHandler(cmd *cobra.Command, args []string) error {
+	var options []cliui.Option
+
+	// Session must not handle events when the verbosity is the default
+	// to allow render of the UI and events using bubbletea. The custom
+	// UI is not used for other verbosity levels in which the session
+	// must handle the events to use custom output prefixes.
+	verbosity := getVerbosity(cmd)
+	if verbosity == uilog.VerbosityDefault {
+		options = append(options, cliui.IgnoreEvents())
+	} else {
+		options = append(options, cliui.WithVerbosity(verbosity))
+	}
+
+	session := cliui.New(options...)
+	defer session.End()
+
+	// Depending on the verbosity execute the serve command within
+	// a bubbletea context to display the custom UI.
+	serve := chainServeCmd(cmd, session)
+	if verbosity == uilog.VerbosityDefault {
+		m := cmdmodel.NewChainServe(cmd, session.EventBus(), serve)
+		if err := tea.NewProgram(m).Start(); err != nil {
+			return err
+		}
+	}
+
+	// Otherwise run the serve command directly
+	if msg, ok := serve().(cliuimodel.ErrorMsg); ok {
+		return msg.Error
+	}
+
+	return nil
+}
+
+func chainServeCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
 	return func() tea.Msg {
 		chainOption := []chain.Option{
 			chain.WithOutputer(session),
