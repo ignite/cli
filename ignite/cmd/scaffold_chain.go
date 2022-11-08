@@ -32,15 +32,15 @@ func NewScaffoldChain() *cobra.Command {
 For example, the following command will create a blockchain called "hello" in
 the "hello/" directory:
 
-  ignite scaffold chain hello
+	ignite scaffold chain hello
 
 A project name can be a simple name or a URL. The name will be used as the Go
 module path for the project. Examples of project names:
 
-  ignite scaffold chain foo
-  ignite scaffold chain foo/bar
-  ignite scaffold chain example.org/foo
-  ignite scaffold chain github.com/username/foo
+	ignite scaffold chain foo
+	ignite scaffold chain foo/bar
+	ignite scaffold chain example.org/foo
+	ignite scaffold chain github.com/username/foo
 		
 A new directory with source code files will be created in the current directory.
 To use a different path use the "--path" flag.
@@ -58,7 +58,7 @@ example, the Cosmos Hub blockchain uses the default "cosmos" prefix, so that
 addresses look like this: "cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf". To
 use a custom address prefix use the "--address-prefix" flag. For example:
 
-  ignite scaffold chain foo --address-prefix bar
+	ignite scaffold chain foo --address-prefix bar
 
 By default when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
