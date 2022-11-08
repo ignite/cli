@@ -157,6 +157,11 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
+// Name returns the app name (prefix of the chain daemon)
+func (c ChainCmd) Name() string {
+	return c.appCmd
+}
+
 // StartCommand returns the command to start the daemon of the chain
 func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
