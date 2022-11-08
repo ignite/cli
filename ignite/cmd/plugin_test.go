@@ -323,32 +323,35 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 }
 
 func TestLinkPluginHooks(t *testing.T) {
-	pluginParams := map[string]string{"key": "val"}
-	// helper to assert pluginInterface.ExecuteHook*() calls in expected order
-	// (pre, then post, then cleanup)
-	expectExecuteHook := func(p *mocks.PluginInterface, args []string, hooks ...plugin.Hook) {
-		var lastPre *mock.Call
-		for _, hook := range hooks {
-			// assert that hook.With has been populated before call to ExecuteHook
-			hook.With = pluginParams
-			pre := p.EXPECT().ExecuteHookPre(hook, args).Return(nil).Call
-			if lastPre != nil {
-				pre.NotBefore(lastPre)
+	var (
+		args         = []string{"arg1", "arg2"}
+		pluginParams = map[string]string{"key": "val"}
+
+		// helper to assert pluginInterface.ExecuteHook*() calls in expected order
+		// (pre, then post, then cleanup)
+		expectExecuteHook = func(p *mocks.PluginInterface, hooks ...plugin.Hook) {
+			var lastPre *mock.Call
+			for _, hook := range hooks {
+				// assert that hook.With has been populated before call to ExecuteHook
+				hook.With = pluginParams
+				pre := p.EXPECT().ExecuteHookPre(hook, args).Return(nil).Call
+				if lastPre != nil {
+					pre.NotBefore(lastPre)
+				}
+				lastPre = pre
 			}
-			lastPre = pre
+			for _, hook := range hooks {
+				// assert that hook.With has been populated before call to ExecuteHook
+				hook.With = pluginParams
+				post := p.EXPECT().ExecuteHookPost(hook, args).Return(nil).Call
+				cleanup := p.EXPECT().ExecuteHookCleanUp(hook, args).Return(nil).Call
+				post.NotBefore(lastPre)
+				cleanup.NotBefore(post)
+			}
 		}
-		for _, hook := range hooks {
-			// assert that hook.With has been populated before call to ExecuteHook
-			hook.With = pluginParams
-			post := p.EXPECT().ExecuteHookPost(hook, args).Return(nil).Call
-			cleanup := p.EXPECT().ExecuteHookCleanUp(hook, args).Return(nil).Call
-			post.NotBefore(lastPre)
-			cleanup.NotBefore(post)
-		}
-	}
+	)
 	tests := []struct {
 		name          string
-		args          []string
 		expectedError string
 		setup         func(*mocks.PluginInterface)
 	}{
@@ -411,7 +414,7 @@ func TestLinkPluginHooks(t *testing.T) {
 					PlaceHookOn: "scaffold chain",
 				}
 				p.EXPECT().Hooks().Return([]plugin.Hook{hook}, nil)
-				expectExecuteHook(p, []string{}, hook)
+				expectExecuteHook(p, hook)
 			},
 		},
 		{
@@ -426,12 +429,11 @@ func TestLinkPluginHooks(t *testing.T) {
 					PlaceHookOn: "scaffold chain",
 				}
 				p.EXPECT().Hooks().Return([]plugin.Hook{hook1, hook2}, nil)
-				expectExecuteHook(p, []string{}, hook1, hook2)
+				expectExecuteHook(p, hook1, hook2)
 			},
 		},
 		{
 			name: "ok: multiple hooks on different commands",
-			args: []string{"arg1", "arg2"},
 			setup: func(p *mocks.PluginInterface) {
 				hookChain1 := plugin.Hook{
 					Name:        "test-hook-1",
@@ -446,13 +448,12 @@ func TestLinkPluginHooks(t *testing.T) {
 					PlaceHookOn: "scaffold module",
 				}
 				p.EXPECT().Hooks().Return([]plugin.Hook{hookChain1, hookChain2, hookModule}, nil)
-				expectExecuteHook(p, []string{"arg1", "arg2"}, hookChain1, hookChain2)
-				expectExecuteHook(p, []string{"arg1", "arg2"}, hookModule)
+				expectExecuteHook(p, hookChain1, hookChain2)
+				expectExecuteHook(p, hookModule)
 			},
 		},
 		{
 			name: "ok: duplicate hook names on same command",
-			args: []string{"arg1", "arg2"},
 			setup: func(p *mocks.PluginInterface) {
 				hooks := []plugin.Hook{
 					{
@@ -465,7 +466,7 @@ func TestLinkPluginHooks(t *testing.T) {
 					},
 				}
 				p.EXPECT().Hooks().Return(hooks, nil)
-				expectExecuteHook(p, []string{"arg1", "arg2"}, hooks...)
+				expectExecuteHook(p, hooks...)
 			},
 		},
 		{
@@ -480,8 +481,8 @@ func TestLinkPluginHooks(t *testing.T) {
 					PlaceHookOn: "ignite scaffold module",
 				}
 				p.EXPECT().Hooks().Return([]plugin.Hook{hookChain, hookModule}, nil)
-				expectExecuteHook(p, []string{}, hookChain)
-				expectExecuteHook(p, []string{}, hookModule)
+				expectExecuteHook(p, hookChain)
+				expectExecuteHook(p, hookModule)
 			},
 		},
 	}
@@ -508,7 +509,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				return
 			}
 			require.NoError(p.Error)
-			execCmd(t, rootCmd, tt.args)
+			execCmd(t, rootCmd, args)
 		})
 	}
 }
