@@ -43,29 +43,39 @@ func buildRootCmd() *cobra.Command {
 }
 
 func TestLinkPluginCmds(t *testing.T) {
+	pluginParams := map[string]string{"key": "val"}
 	// define a plugin with command flags
 	pluginWithFlags := plugin.Command{
 		Use: "flaggy",
 	}
 	pluginWithFlags.Flags().String("flag1", "", "")
 	pluginWithFlags.Flags().Int("flag2", 0, "")
+	// helper to assert execute calls
+	expectExecute := func(t *testing.T, p *mocks.PluginInterface, cmd plugin.Command, args []string) {
+		p.EXPECT().Execute(
+			mock.MatchedBy(func(execCmd plugin.Command) bool {
+				return cmd.Use == execCmd.Use
+			}),
+			args,
+		).Run(func(execCmd plugin.Command, args []string) {
+			assert.Equal(t, cmd.Use, execCmd.Use)
+			assert.Equal(t, pluginParams, execCmd.With)
+		}).Return(nil)
+	}
 	tests := []struct {
 		name            string
-		setup           func(p *mocks.PluginInterface)
+		setup           func(*testing.T, *mocks.PluginInterface)
 		expectedDumpCmd string
 		expectedError   string
 	}{
 		{
 			name: "ok: link foo at root",
-			setup: func(p *mocks.PluginInterface) {
-				p.EXPECT().Commands().Return(
-					[]plugin.Command{
-						{
-							Use: "foo",
-						},
-					},
-					nil,
-				)
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				cmd := plugin.Command{
+					Use: "foo",
+				}
+				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
+				expectExecute(t, p, cmd, []string{})
 			},
 			expectedDumpCmd: `
 ignite
@@ -77,16 +87,13 @@ ignite
 		},
 		{
 			name: "ok: link foo at subcommand",
-			setup: func(p *mocks.PluginInterface) {
-				p.EXPECT().Commands().Return(
-					[]plugin.Command{
-						{
-							Use:               "foo",
-							PlaceCommandUnder: "ignite scaffold",
-						},
-					},
-					nil,
-				)
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				cmd := plugin.Command{
+					Use:               "foo",
+					PlaceCommandUnder: "ignite scaffold",
+				}
+				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
+				expectExecute(t, p, cmd, []string{})
 			},
 			expectedDumpCmd: `
 ignite
@@ -98,16 +105,13 @@ ignite
 		},
 		{
 			name: "ok: link foo at subcommand with incomplete PlaceCommandUnder",
-			setup: func(p *mocks.PluginInterface) {
-				p.EXPECT().Commands().Return(
-					[]plugin.Command{
-						{
-							Use:               "foo",
-							PlaceCommandUnder: "scaffold",
-						},
-					},
-					nil,
-				)
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				cmd := plugin.Command{
+					Use:               "foo",
+					PlaceCommandUnder: "scaffold",
+				}
+				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
+				expectExecute(t, p, cmd, []string{})
 			},
 			expectedDumpCmd: `
 ignite
@@ -119,7 +123,7 @@ ignite
 		},
 		{
 			name: "fail: link to runnable command",
-			setup: func(p *mocks.PluginInterface) {
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
 				p.EXPECT().Commands().Return(
 					[]plugin.Command{
 						{
@@ -134,7 +138,7 @@ ignite
 		},
 		{
 			name: "fail: link to unknown command",
-			setup: func(p *mocks.PluginInterface) {
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
 				p.EXPECT().Commands().Return(
 					[]plugin.Command{
 						{
@@ -149,7 +153,7 @@ ignite
 		},
 		{
 			name: "fail: plugin name exists in legacy commands",
-			setup: func(p *mocks.PluginInterface) {
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
 				p.EXPECT().Commands().Return(
 					[]plugin.Command{
 						{
@@ -163,7 +167,7 @@ ignite
 		},
 		{
 			name: "fail: plugin name exists in legacy sub commands",
-			setup: func(p *mocks.PluginInterface) {
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
 				p.EXPECT().Commands().Return(
 					[]plugin.Command{
 						{
@@ -178,19 +182,19 @@ ignite
 		},
 		{
 			name: "ok: link multiple at root",
-			setup: func(p *mocks.PluginInterface) {
-				p.EXPECT().Commands().Return(
-					[]plugin.Command{
-						{
-							Use: "foo",
-						},
-						{
-							Use: "bar",
-						},
-						pluginWithFlags,
-					},
-					nil,
-				)
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				fooCmd := plugin.Command{
+					Use: "foo",
+				}
+				barCmd := plugin.Command{
+					Use: "bar",
+				}
+				p.EXPECT().Commands().Return([]plugin.Command{
+					fooCmd, barCmd, pluginWithFlags,
+				}, nil)
+				expectExecute(t, p, fooCmd, []string{})
+				expectExecute(t, p, barCmd, []string{})
+				expectExecute(t, p, pluginWithFlags, []string{})
 			},
 			expectedDumpCmd: `
 ignite
@@ -204,20 +208,21 @@ ignite
 		},
 		{
 			name: "ok: link with subcommands",
-			setup: func(p *mocks.PluginInterface) {
-				p.EXPECT().Commands().Return(
-					[]plugin.Command{
-						{
-							Use: "foo",
-							Commands: []plugin.Command{
-								{Use: "bar"},
-								{Use: "baz"},
-								pluginWithFlags,
-							},
-						},
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				cmd := plugin.Command{
+					Use: "foo",
+					Commands: []plugin.Command{
+						{Use: "bar"},
+						{Use: "baz"},
+						pluginWithFlags,
 					},
-					nil,
-				)
+				}
+				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
+				// cmd is not executed because it's not runnable, only sub-commands
+				// are executed.
+				expectExecute(t, p, cmd.Commands[0], []string{})
+				expectExecute(t, p, cmd.Commands[1], []string{})
+				expectExecute(t, p, cmd.Commands[2], []string{})
 			},
 			expectedDumpCmd: `
 ignite
@@ -232,19 +237,18 @@ ignite
 		},
 		{
 			name: "ok: link with multiple subcommands",
-			setup: func(p *mocks.PluginInterface) {
-				p.EXPECT().Commands().Return(
-					[]plugin.Command{
-						{
-							Use: "foo",
-							Commands: []plugin.Command{
-								{Use: "bar", Commands: []plugin.Command{{Use: "baz"}}},
-								{Use: "qux", Commands: []plugin.Command{{Use: "quux"}, {Use: "corge"}}},
-							},
-						},
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				cmd := plugin.Command{
+					Use: "foo",
+					Commands: []plugin.Command{
+						{Use: "bar", Commands: []plugin.Command{{Use: "baz"}}},
+						{Use: "qux", Commands: []plugin.Command{{Use: "quux"}, {Use: "corge"}}},
 					},
-					nil,
-				)
+				}
+				p.EXPECT().Commands().Return([]plugin.Command{cmd}, nil)
+				expectExecute(t, p, cmd.Commands[0].Commands[0], []string{})
+				expectExecute(t, p, cmd.Commands[1].Commands[0], []string{})
+				expectExecute(t, p, cmd.Commands[1].Commands[1], []string{})
 			},
 			expectedDumpCmd: `
 ignite
@@ -266,11 +270,14 @@ ignite
 			assert := assert.New(t)
 			pi := mocks.NewPluginInterface(t)
 			p := &plugin.Plugin{
-				Plugin:    chainconfig.Plugin{Path: "foo"},
+				Plugin: chainconfig.Plugin{
+					Path: "foo",
+					With: pluginParams,
+				},
 				Interface: pi,
 			}
 			rootCmd := buildRootCmd()
-			tt.setup(pi)
+			tt.setup(t, pi)
 
 			linkPluginCmds(rootCmd, p)
 
@@ -284,6 +291,7 @@ ignite
 			s.WriteString("\n")
 			dumpCmd(rootCmd, &s, 0)
 			assert.Equal(tt.expectedDumpCmd, s.String())
+			execCmd(t, rootCmd, nil)
 		})
 	}
 }
@@ -306,14 +314,14 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 }
 
 func TestLinkPluginHooks(t *testing.T) {
-	pluginWith := map[string]string{"key": "val"}
+	pluginParams := map[string]string{"key": "val"}
 	// expectExecuteHook is a helper to assert ExecuteHook* are invoked in the
 	// expected order (pre, then post, then cleanup)
 	expectExecuteHook := func(p *mocks.PluginInterface, args []string, hooks ...plugin.Hook) {
 		var lastPre *mock.Call
 		for _, hook := range hooks {
 			// assert that hook.With has been populated before call to ExecuteHook
-			hook.With = pluginWith
+			hook.With = pluginParams
 			pre := p.EXPECT().ExecuteHookPre(hook, args).Return(nil).Call
 			if lastPre != nil {
 				pre.NotBefore(lastPre)
@@ -322,7 +330,7 @@ func TestLinkPluginHooks(t *testing.T) {
 		}
 		for _, hook := range hooks {
 			// assert that hook.With has been populated before call to ExecuteHook
-			hook.With = pluginWith
+			hook.With = pluginParams
 			post := p.EXPECT().ExecuteHookPost(hook, args).Return(nil).Call
 			cleanup := p.EXPECT().ExecuteHookCleanUp(hook, args).Return(nil).Call
 			post.NotBefore(lastPre)
@@ -477,7 +485,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			p := &plugin.Plugin{
 				Plugin: chainconfig.Plugin{
 					Path: "foo",
-					With: pluginWith,
+					With: pluginParams,
 				},
 				Interface: pi,
 			}
