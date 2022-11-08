@@ -15,21 +15,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
-type stargatePlugin struct {
-	app App
-}
-
-func newStargatePlugin(app App) *stargatePlugin {
-	return &stargatePlugin{
-		app: app,
-	}
-}
-
-func (p *stargatePlugin) Name() string {
-	return "Stargate"
-}
-
-func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
+// Gentx wraps the "testd gentx"  command for generating a gentx for a validator.
+// Returns path of generated gentx.
+func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
 	return runner.Gentx(
 		ctx,
 		v.Name,
@@ -47,17 +35,31 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) Configure(homePath string, cfg *chainconfig.Config) error {
-	if err := p.appTOML(homePath, cfg); err != nil {
+// Start wraps the "appd start" command to begin running a chain from the daemon
+func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
+	validator := cfg.Validators[0]
+	servers, err := validator.GetServers()
+	if err != nil {
 		return err
 	}
-	if err := p.clientTOML(homePath, cfg); err != nil {
-		return err
-	}
-	return p.configTOML(homePath, cfg)
+
+	err = runner.Start(ctx, "--pruning", "nothing", "--grpc.address", servers.GRPC.Address)
+
+	return &CannotStartAppError{runner.Cmd().Name(), err}
 }
 
-func (p *stargatePlugin) appTOML(homePath string, cfg *chainconfig.Config) error {
+// Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml)
+func (c Chain) Configure(homePath string, cfg *chainconfig.Config) error {
+	if err := c.appTOML(homePath, cfg); err != nil {
+		return err
+	}
+	if err := c.clientTOML(homePath, cfg); err != nil {
+		return err
+	}
+	return c.configTOML(homePath, cfg)
+}
+
+func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -104,7 +106,7 @@ func (p *stargatePlugin) appTOML(homePath string, cfg *chainconfig.Config) error
 	return err
 }
 
-func (p *stargatePlugin) configTOML(homePath string, cfg *chainconfig.Config) error {
+func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -151,7 +153,7 @@ func (p *stargatePlugin) configTOML(homePath string, cfg *chainconfig.Config) er
 	return err
 }
 
-func (p *stargatePlugin) clientTOML(homePath string, cfg *chainconfig.Config) error {
+func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	path := filepath.Join(homePath, "config/client.toml")
 	config, err := toml.LoadFile(path)
 	if os.IsNotExist(err) {
@@ -179,28 +181,10 @@ func (p *stargatePlugin) clientTOML(homePath string, cfg *chainconfig.Config) er
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
-	validator := cfg.Validators[0]
-	servers, err := validator.GetServers()
-	if err != nil {
-		return err
-	}
-
-	err = runner.Start(ctx, "--pruning", "nothing", "--grpc.address", servers.GRPC.Address)
-
-	return &CannotStartAppError{p.app.Name, err}
-}
-
-func (p *stargatePlugin) Home() string {
-	return stargateHome(p.app)
-}
-
-func stargateHome(app App) string {
+func (c Chain) appHome() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+app.Name)
+	return filepath.Join(home, "."+c.app.Name)
 }
-
-func (p *stargatePlugin) SupportsIBC() bool { return true }
 
 func updateTomlTreeValues(t *toml.Tree, values map[string]interface{}) {
 	for name, v := range values {

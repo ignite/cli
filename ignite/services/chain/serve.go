@@ -418,7 +418,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, config) })
+	g.Go(func() error { return c.Start(ctx, commands, config) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)

@@ -43,7 +43,6 @@ type Chain struct {
 
 	Version cosmosver.Version
 
-	plugin         Plugin
 	sourceVersion  version
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
@@ -177,9 +176,6 @@ func New(path string, options ...Option) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// initialize the plugin depending on the version of the chain
-	c.plugin = c.pickPlugin()
 
 	return c, nil
 }
@@ -319,7 +315,7 @@ func (c *Chain) DefaultHome() (string, error) {
 		return validator.Home, nil
 	}
 
-	return c.plugin.Home(), nil
+	return c.appHome(), nil
 }
 
 // DefaultGentxPath returns default gentx.json path of the app.
