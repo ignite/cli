@@ -137,7 +137,7 @@ func TestPluginLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	// scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
-	// current ignite/cli.
+	// current ignite/cli sources.
 	scaffoldPlugin := func(t *testing.T, dir, name string) string {
 		require := require.New(t)
 		path, err := Scaffold(dir, name)

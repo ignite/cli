@@ -13,6 +13,7 @@ import (
 
 func init() {
 	gob.Register(plugin.Command{})
+	gob.Register(plugin.Hook{})
 }
 
 type p struct{}
@@ -39,6 +40,10 @@ func (p) Commands() ([]plugin.Command, error) {
 	cmd.Flags().String("my-flag", "", "a flag example")
 
 	return []plugin.Command{cmd}, nil
+}
+
+func (p) Hooks() []plugin.Hook {
+	return []plugin.Hook{}
 }
 
 func (p) Execute(cmd plugin.Command, args []string) error {
@@ -69,6 +74,27 @@ func (p) Execute(cmd plugin.Command, args []string) error {
 		}
 	*/
 	return nil
+}
+
+func (p) ExecuteHookPre(hook plugin.Hook, args []string) error {
+	switch hook.Name {
+	default:
+		return fmt.Errorf("hook not defined")
+	}
+}
+
+func (p) ExecuteHookPost(hook plugin.Hook, args []string) error {
+	switch hook.Name {
+	default:
+		return fmt.Errorf("hook not defined")
+	}
+}
+
+func (p) ExecuteHookCleanUp(hook plugin.Hook, args []string) error {
+	switch hook.Name {
+	default:
+		return fmt.Errorf("hook not defined")
+	}
 }
 
 func getChain(cmd plugin.Command, chainOption ...chain.Option) (*chain.Chain, error) {
