@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -296,6 +297,9 @@ func NewPluginScaffold() *cobra.Command {
 		Short: "Scaffold a new plugin",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+			defer session.End()
+
 			wd, err := os.Getwd()
 			if err != nil {
 				return err
@@ -317,11 +321,9 @@ func NewPluginScaffold() *cobra.Command {
 plugins:
 - path: %[2]s
 
-👉 once the plugin is pushed to a repository, the config becomes:
-plugins:
-- path: %[1]s
+👉 once the plugin is pushed to a repository, replace the local path by the repository path.
 `
-			fmt.Printf(message, moduleName, path)
+			session.Printf(message, moduleName, path)
 			return nil
 		},
 	}
