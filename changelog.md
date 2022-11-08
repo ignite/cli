@@ -4,6 +4,11 @@
 
 ### Features
 
+- [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
+- [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
+- [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite scaffold react` command.
+- [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate composables` command.
+- [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate hooks` command.
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 - [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
@@ -11,6 +16,8 @@
 
 ### Changes
 
+- [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
+- [#2892](https://github.com/ignite/cli/pull/2982/) `removeSigner()` method added to generated `ts-client` 
 - [#3035](https://github.com/ignite/cli/pull/3035) Bump Cosmos SDK to `v0.46.4`.
 - [#3037](https://github.com/ignite/cli/pull/3037) Bump `ibc-go` to `v5.0.1`.
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
@@ -20,6 +27,8 @@
 - [#2998](https://github.com/ignite/cli/pull/2998) Hide `ignite generate dart` command and remove functionality.
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
+- [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
+- [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 
 ### Breaking Changes
 

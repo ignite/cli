@@ -125,7 +125,7 @@ func main() {
 
 	// Broadcast a transaction from account `alice` with the message
 	// to create a post store response in txResp
-	txResp, err := cosmos.BroadcastTx(account, msg)
+	txResp, err := cosmos.BroadcastTx(context.Background(), account, msg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -191,7 +191,7 @@ Response:
 
 All posts:
 
-Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 > 
+Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 >
 ```
 
 You can confirm the new post with using the `blogd query blog posts` command that you learned about in the previous

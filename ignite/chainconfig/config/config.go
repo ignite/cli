@@ -70,7 +70,15 @@ type Client struct {
 	Typescript Typescript `yaml:"typescript,omitempty"`
 
 	// Vuex configures code generation for Vuex stores.
-	Vuex Typescript `yaml:"vuex,omitempty"`
+	//
+	// Deprecated: Will be removed eventually.
+	Vuex Vuex `yaml:"vuex,omitempty"`
+
+	// Composables configures code generation for Vue 3 composables.
+	Composables Composables `yaml:"composables"`
+
+	// Hooks configures code generation for React hooks.
+	Hooks Hooks `yaml:"hooks"`
 
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
@@ -83,8 +91,22 @@ type Typescript struct {
 }
 
 // Vuex configures code generation for Vuex stores.
+//
+// Deprecated: Will be removed eventually.
 type Vuex struct {
 	// Path configures out location for generated Vuex stores code.
+	Path string `yaml:"path"`
+}
+
+// Composables configures code generation for vue-query hooks.
+type Composables struct {
+	// Path configures out location for generated vue-query hooks.
+	Path string `yaml:"path"`
+}
+
+// Hooks configures code generation for react-query hooks.
+type Hooks struct {
+	// Path configures out location for generated vue-query hooks.
 	Path string `yaml:"path"`
 }
 

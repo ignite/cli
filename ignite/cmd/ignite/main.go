@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ignite/cli/ignite/chainconfig"
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 func main() {
@@ -39,13 +41,25 @@ func run() int {
 	}
 
 	if err != nil {
-		var validationErr validation.Error
+		var (
+			validationErr validation.Error
+			versionErr    chainconfig.VersionError
+			msg           string
+		)
 
 		if errors.As(err, &validationErr) {
-			fmt.Println(validationErr.ValidationInfo())
+			msg = validationErr.ValidationInfo()
 		} else {
-			fmt.Println(err)
+			msg = err.Error()
 		}
+
+		// Make sure the error message starts with an upper case character
+		fmt.Println(xstrings.ToUpperFirst(msg))
+
+		if errors.As(err, &versionErr) {
+			fmt.Println("Use a more recent CLI version or upgrade blockchain app's config")
+		}
+
 		return exitCodeError
 	}
 	return exitCodeOK
