@@ -7,6 +7,7 @@ import (
 	"net/rpc"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/spf13/pflag"
@@ -67,6 +68,15 @@ type Command struct {
 	Commands []Command
 }
 
+// Hook represents a user defined action within a plugin
+type Hook struct {
+	// Name identifies the hook for the client to invoke the correct hook
+	// must be unique
+	Name string
+	// PlaceHookOn indicates the command to register the hooks for
+	PlaceHookOn string
+}
+
 type ExecutedCommand struct {
 	Use string
 	// Path contains the command path, e.g. `ignite scaffold foo`
@@ -92,18 +102,6 @@ func (c *ExecutedCommand) SetFlags(fs *pflag.FlagSet) {
 	c.flags = fs
 }
 
-// gobCommandFlags is used to gob encode/decode Command.
-// Command can't be encoded because :
-// - flags is unexported (because we want to expose it via the Flags() method,
-// like a regular cobra.Command)
-// - flags type is *pflag.FlagSet which is also full of unexported fields.
-type gobCommandContextFlags struct {
-	CommandContext gobCommandContext
-	Flags          []Flag
-}
-
-type gobCommandContext ExecutedCommand
-
 type Flag struct {
 	Name      string // name as it appears on command line
 	Shorthand string // one-letter abbreviated flag
@@ -118,10 +116,15 @@ type Flag struct {
 type FlagType string
 
 const (
-	FlagTypeString FlagType = "string"
-	FlagTypeInt    FlagType = "int"
-	FlagTypeInt64  FlagType = "int64"
-	FlagTypeBool   FlagType = "bool"
+	// NOTE(tb): we declare only the main used cobra flag types for simplicity
+	// If a plugin receives an unhandled type, it will output an error.
+	FlagTypeString      FlagType = "string"
+	FlagTypeInt         FlagType = "int"
+	FlagTypeUint        FlagType = "uint"
+	FlagTypeInt64       FlagType = "int64"
+	FlagTypeUint64      FlagType = "uint64"
+	FlagTypeBool        FlagType = "bool"
+	FlagTypeStringSlice FlagType = "stringSlice"
 )
 
 func (f Flag) FeedFlagSet(fs *pflag.FlagSet) error {
@@ -134,18 +137,43 @@ func (f Flag) FeedFlagSet(fs *pflag.FlagSet) error {
 		defVal, _ := strconv.Atoi(f.DefValue)
 		fs.IntP(f.Name, f.Shorthand, defVal, f.Usage)
 		fs.Set(f.Name, f.Value)
+	case FlagTypeUint:
+		defVal, _ := strconv.ParseUint(f.DefValue, 10, 64)
+		fs.UintP(f.Name, f.Shorthand, uint(defVal), f.Usage)
+		fs.Set(f.Name, f.Value)
 	case FlagTypeInt64:
 		defVal, _ := strconv.ParseInt(f.DefValue, 10, 64)
 		fs.Int64P(f.Name, f.Shorthand, defVal, f.Usage)
 		fs.Set(f.Name, f.Value)
+	case FlagTypeUint64:
+		defVal, _ := strconv.ParseUint(f.DefValue, 10, 64)
+		fs.Uint64P(f.Name, f.Shorthand, defVal, f.Usage)
+		fs.Set(f.Name, f.Value)
 	case FlagTypeString:
 		fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
 		fs.Set(f.Name, f.Value)
+	case FlagTypeStringSlice:
+		s := strings.Trim(f.DefValue, "[]")
+		defValue := strings.Fields(s)
+		fs.StringSliceP(f.Name, f.Shorthand, defValue, f.Usage)
+		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
 	default:
 		return fmt.Errorf("flagset unmarshal: unhandled flag type %q in flag %#v", f.Type, f)
 	}
 	return nil
 }
+
+// gobCommandFlags is used to gob encode/decode Command.
+// Command can't be encoded because :
+// - flags is unexported (because we want to expose it via the Flags() method,
+// like a regular cobra.Command)
+// - flags type is *pflag.FlagSet which is also full of unexported fields.
+type gobCommandContextFlags struct {
+	CommandContext gobCommandContext
+	Flags          []Flag
+}
+
+type gobCommandContext ExecutedCommand
 
 // GobEncode implements gob.Encoder.
 // It actually encodes a gobCommandContext struct built from c.
@@ -187,15 +215,6 @@ func (c *ExecutedCommand) GobDecode(bz []byte) error {
 		}
 	}
 	return nil
-}
-
-// Hook represents a user defined action within a plugin
-type Hook struct {
-	// Name identifies the hook for the client to invoke the correct hook
-	// must be unique
-	Name string
-	// PlaceHookOn indicates the command to register the hooks for
-	PlaceHookOn string
 }
 
 // handshakeConfigs are used to just do a basic handshake between
