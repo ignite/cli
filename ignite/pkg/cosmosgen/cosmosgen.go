@@ -17,9 +17,8 @@ type generateOptions struct {
 	includeDirs []string
 	gomodPath   string
 
-	jsOut               func(module.Module) string
-	jsIncludeThirdParty bool
-	tsClientRootPath    string
+	jsOut            func(module.Module) string
+	tsClientRootPath string
 
 	vuexOut      func(module.Module) string
 	vuexRootPath string
@@ -50,26 +49,23 @@ func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option 
 	}
 }
 
-func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, vuexRootPath string) Option {
+func WithVuexGeneration(out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
 		o.vuexOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.vuexRootPath = vuexRootPath
 	}
 }
 
-func WithComposablesGeneration(includeThirdPartyModules bool, out ModulePathFunc, composablesRootPath string) Option {
+func WithComposablesGeneration(out ModulePathFunc, composablesRootPath string) Option {
 	return func(o *generateOptions) {
 		o.composablesOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.composablesRootPath = composablesRootPath
 	}
 }
 
-func WithHooksGeneration(includeThirdPartyModules bool, out ModulePathFunc, hooksRootPath string) Option {
+func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
 	return func(o *generateOptions) {
 		o.hooksOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.hooksRootPath = hooksRootPath
 	}
 }

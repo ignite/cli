@@ -7,34 +7,28 @@ description: Information about the generated Typescript client code.
 
 The `ignite generate ts-client` command generates a Typescript client for your blockchain project.
 
+Typescript client code can be automatically regenerated on reset or source code changes when the
+blockchain is started with the `--generate-clients` options.
+
 ## Client code generation
 
-A TypeScript (TS) client is automatically generated for your blockchain for custom and standard Cosmos SDK modules.
-
-To enable client code generation, add the `client` entries to `config.yml`:
+To configure TypeScript (TS) client code generation add the `client` settings to `config.yml`:
 
 ```yaml
 client:
   typescript:
-    path: "ts-client"
+    path: ts-client
 ```
 
-A TS client is generated in the `ts-client` directory.
+A TS client is generated in the `ts-client` directory when using this configuration.
 
 ## Client code regeneration
-
-By default, the filesystem is watched and the clients are regenerated automatically. Clients for standard Cosmos SDK
-modules are generated after you scaffold a blockchain.
 
 To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
 
 ```bash
 ignite generate ts-client
 ```
-
-## Preventing client code regeneration
-
-To prevent regenerating the client, remove the `client:typescript` property from `config.yml`.
 
 ## Setup
 

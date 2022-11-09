@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -81,37 +82,40 @@ func GenerateOpenAPI() GenerateTarget {
 }
 
 // generateFromConfig makes code generation from proto files from the given config
-func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage) error {
+func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
 
-	var additionalTargets []GenerateTarget
+	// Additional code generation targets
+	var targets []GenerateTarget
 
-	// parse config for additional target
-	if p := conf.Client.Typescript.Path; p != "" {
-		additionalTargets = append(additionalTargets, GenerateTSClient(p))
-	}
+	if generateClients {
+		if p := conf.Client.Typescript.Path; p != "" {
+			targets = append(targets, GenerateTSClient(p))
+		}
 
-	//nolint:staticcheck //ignore SA1019 until vuex config option is removed
-	if p := conf.Client.Vuex.Path; p != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex(p))
-	}
+		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
+		if p := conf.Client.Vuex.Path; p != "" {
+			targets = append(targets, GenerateVuex(p))
+		}
 
-	if p := conf.Client.Composables.Path; p != "" {
-		additionalTargets = append(additionalTargets, GenerateComposables(p))
-	}
+		if p := conf.Client.Composables.Path; p != "" {
+			targets = append(targets, GenerateComposables(p))
+		}
 
-	if p := conf.Client.Hooks.Path; p != "" {
-		additionalTargets = append(additionalTargets, GenerateHooks(p))
+		if p := conf.Client.Hooks.Path; p != "" {
+			targets = append(targets, GenerateHooks(p))
+		}
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateOpenAPI())
+		targets = append(targets, GenerateOpenAPI())
 	}
 
-	return c.Generate(ctx, cacheStorage, GenerateGo(), additionalTargets...)
+	// Generate proto based code for Go and optionally for any optional targets
+	return c.Generate(ctx, cacheStorage, GenerateGo(), targets...)
 }
 
 // Generate makes code generation from proto files for given target and additionalTargets.
@@ -146,23 +150,27 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithGoGeneration(c.app.ImportPath))
 	}
 
-	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
-
-	var openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
+	var (
+		openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
+		updateConfig                                                    bool
+	)
 
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			tsClientPath = chainconfig.TSClientPath(conf)
+			tsClientPath = chainconfig.TSClientPath(*conf)
+
+			// When TS client is generated make sure the config is updated
+			// with the output path when the client path option is empty.
+			if conf.Client.Typescript.Path == "" {
+				conf.Client.Typescript.Path = tsClientPath
+				updateConfig = true
+			}
 		}
 
 		// Non absolute TS client output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
-		}
-
-		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
-			return err
 		}
 
 		options = append(options,
@@ -178,6 +186,11 @@ func (c *Chain) Generate(
 		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
 			vuexPath = chainconfig.VuexPath(conf)
+
+			// When Vuex stores are generated make sure the config is updated
+			// with the output path when the client path option is empty.
+			conf.Client.Vuex.Path = vuexPath //nolint:staticcheck //ignore SA1019 until vuex config option is removed
+			updateConfig = true
 		}
 
 		// Non absolute Vuex output paths must be treated as relative to the app directory
@@ -186,13 +199,8 @@ func (c *Chain) Generate(
 		}
 
 		vuexPath = c.joinGeneratedPath(vuexPath)
-		if err := os.MkdirAll(vuexPath, 0o766); err != nil {
-			return err
-		}
-
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
-				enableThirdPartyModuleCodegen,
 				cosmosgen.TypescriptModulePath(vuexPath),
 				vuexPath,
 			),
@@ -204,6 +212,11 @@ func (c *Chain) Generate(
 
 		if composablesPath == "" {
 			composablesPath = chainconfig.ComposablesPath(conf)
+
+			if conf.Client.Composables.Path == "" {
+				conf.Client.Composables.Path = composablesPath
+				updateConfig = true
+			}
 		}
 
 		// Non absolute Composables output paths must be treated as relative to the app directory
@@ -211,13 +224,8 @@ func (c *Chain) Generate(
 			composablesPath = filepath.Join(c.app.Path, composablesPath)
 		}
 
-		if err := os.MkdirAll(composablesPath, 0o766); err != nil {
-			return err
-		}
-
 		options = append(options,
 			cosmosgen.WithComposablesGeneration(
-				enableThirdPartyModuleCodegen,
 				cosmosgen.ComposableModulePath(composablesPath),
 				composablesPath,
 			),
@@ -228,6 +236,11 @@ func (c *Chain) Generate(
 		hooksPath = targetOptions.hooksPath
 		if hooksPath == "" {
 			hooksPath = chainconfig.HooksPath(conf)
+
+			if conf.Client.Hooks.Path == "" {
+				conf.Client.Hooks.Path = hooksPath
+				updateConfig = true
+			}
 		}
 
 		// Non absolute Hooks output paths must be treated as relative to the app directory
@@ -235,13 +248,8 @@ func (c *Chain) Generate(
 			hooksPath = filepath.Join(c.app.Path, hooksPath)
 		}
 
-		if err := os.MkdirAll(hooksPath, 0o766); err != nil {
-			return err
-		}
-
 		options = append(options,
 			cosmosgen.WithHooksGeneration(
-				enableThirdPartyModuleCodegen,
 				cosmosgen.ComposableModulePath(hooksPath),
 				hooksPath,
 			),
@@ -266,7 +274,12 @@ func (c *Chain) Generate(
 		return &CannotBuildAppError{err}
 	}
 
-	c.protoBuiltAtLeastOnce = true
+	// Check if the client config options have to be updated with the paths of the generated code
+	if updateConfig {
+		if err := c.saveClientConfig(conf.Client); err != nil {
+			return fmt.Errorf("error adding generated paths to config file: %w", err)
+		}
+	}
 
 	if c.options.printGeneratedPaths {
 		if targetOptions.isTSClientEnabled {
@@ -319,4 +332,27 @@ func (c Chain) joinGeneratedPath(rootPath string) string {
 	}
 
 	return filepath.Join(c.app.Path, rootPath, "generated")
+}
+
+func (c Chain) saveClientConfig(client config.Client) error {
+	path := c.ConfigPath()
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	// Initialize the config to the file values ignoring empty
+	// values that otherwise would be initialized to defaults.
+	// Defaults must be ignored to avoid writing them to the
+	// YAML config file when they are not present.
+	var cfg chainconfig.Config
+	if err := cfg.Decode(file); err != nil {
+		return err
+	}
+
+	cfg.Client = client
+
+	return chainconfig.Save(cfg, path)
 }

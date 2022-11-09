@@ -8,9 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/imdario/mergo"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
@@ -102,10 +101,8 @@ func (g *generator) generateVuex() error {
 		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
-	if g.o.jsIncludeThirdParty {
-		for _, modules := range g.thirdModules {
-			data.Modules = append(data.Modules, modules...)
-		}
+	for _, modules := range g.thirdModules {
+		data.Modules = append(data.Modules, modules...)
 	}
 
 	vsg := newVuexGenerator(g)

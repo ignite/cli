@@ -11,12 +11,11 @@ import (
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "vuex",
-		Short:   "*DEPRECATED* Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
+		Short:   "*DEPRECATED* Generate Typescript client and Vuex stores for your chain's frontend",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateVuexHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringP(flagOutput, "o", "", "Vuex store output path")
 
@@ -29,7 +28,6 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := NewChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths(),
