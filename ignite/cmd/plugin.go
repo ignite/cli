@@ -50,7 +50,7 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 		}
 		manifest, err := p.Interface.Manifest()
 		if err != nil {
-			p.Error = err
+			p.Error = fmt.Errorf("Manifest() error: %w", err)
 			continue
 		}
 		linkPluginHooks(rootCmd, p, manifest.Hooks)
@@ -135,7 +135,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 				return err
 			}
 		}
-		return p.Interface.ExecuteHookPre(newExecutedHook(hook, cmd, args))
+		err := p.Interface.ExecuteHookPre(newExecutedHook(hook, cmd, args))
+		if err != nil {
+			return fmt.Errorf("plugin %q ExecuteHookPre() error: %w", p.Path, err)
+		}
+		return nil
 	}
 
 	runCmd := cmd.RunE
@@ -145,9 +149,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			err := runCmd(cmd, args)
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
-				p.Interface.ExecuteHookCleanUp(newExecutedHook(hook, cmd, args))
+				err := p.Interface.ExecuteHookCleanUp(newExecutedHook(hook, cmd, args))
+				if err != nil {
+					fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
+				}
 			}
-
 			return err
 		}
 
@@ -159,7 +165,12 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
 		execHook := newExecutedHook(hook, cmd, args)
 
-		defer p.Interface.ExecuteHookCleanUp(execHook)
+		defer func() {
+			err := p.Interface.ExecuteHookCleanUp(execHook)
+			if err != nil {
+				fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
+			}
+		}()
 
 		if preRun != nil {
 			err := postCmd(cmd, args)
@@ -169,7 +180,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		return p.Interface.ExecuteHookPost(execHook)
+		err := p.Interface.ExecuteHookPost(execHook)
+		if err != nil {
+			return fmt.Errorf("plugin %q ExecuteHookPost() error : %w", p.Path, err)
+		}
+		return nil
 	}
 }
 
@@ -217,7 +232,11 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		Long:  pluginCmd.Long,
 	}
 	for _, f := range pluginCmd.Flags {
-		f.FeedFlagSet(newCmd.Flags())
+		err := f.FeedFlagSet(newCmd.Flags())
+		if err != nil {
+			p.Error = err
+			return
+		}
 	}
 	cmd.AddCommand(newCmd)
 	if len(pluginCmd.Commands) == 0 {
@@ -236,7 +255,10 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 			// output from stdout/stderr of the plugin. Without that pause, this
 			// output can be discarded and not printed in the user console.
 			time.Sleep(100 * time.Millisecond)
-			return err
+			if err != nil {
+				return fmt.Errorf("plugin %q Execute() error : %w", p.Path, err)
+			}
+			return nil
 		}
 	} else {
 		for _, pluginCmd := range pluginCmd.Commands {

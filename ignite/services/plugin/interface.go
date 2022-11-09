@@ -124,7 +124,7 @@ const (
 	FlagTypeBool   FlagType = "bool"
 )
 
-func (f Flag) FeedFlagSet(fs *pflag.FlagSet) {
+func (f Flag) FeedFlagSet(fs *pflag.FlagSet) error {
 	switch f.Type {
 	case FlagTypeBool:
 		defVal, _ := strconv.ParseBool(f.DefValue)
@@ -142,8 +142,9 @@ func (f Flag) FeedFlagSet(fs *pflag.FlagSet) {
 		fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
 		fs.Set(f.Name, f.Value)
 	default:
-		panic(fmt.Sprintf("flagset unmarshal: unhandled flag type %#v", f))
+		return fmt.Errorf("flagset unmarshal: unhandled flag type %q in flag %#v", f.Type, f)
 	}
+	return nil
 }
 
 // GobEncode implements gob.Encoder.
@@ -180,7 +181,10 @@ func (c *ExecutedCommand) GobDecode(bz []byte) error {
 	}
 	*c = ExecutedCommand(gb.CommandContext)
 	for _, f := range gb.Flags {
-		f.FeedFlagSet(c.Flags())
+		err := f.FeedFlagSet(c.Flags())
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -214,11 +218,7 @@ type InterfaceRPC struct{ client *rpc.Client }
 // Manifest implements Interface.Manifest
 func (g *InterfaceRPC) Manifest() (Manifest, error) {
 	var resp Manifest
-	err := g.client.Call("Plugin.Manifest", new(interface{}), &resp)
-	if err != nil {
-		return Manifest{}, fmt.Errorf("error while calling plugin Commands: %w", err)
-	}
-	return resp, nil
+	return resp, g.client.Call("Plugin.Manifest", new(interface{}), &resp)
 }
 
 // Execute implements Interface.Commands
