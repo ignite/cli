@@ -273,7 +273,6 @@ func (p *Plugin) build(ctx context.Context) {
 
 	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
 	// because our git history is too fat.
-	// Related discussion: https://allinbits.slack.com/archives/C02NJAQN82Y/p1665403790764919
 	opt := cliexec.StepOption(step.Env("GOSUMDB=off"))
 	if err := gocmd.ModTidy(ctx, p.srcPath, opt); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
