@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/muesli/reflow/indent"
+	"github.com/muesli/reflow/wordwrap"
+
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
@@ -42,7 +45,10 @@ func (a Account) String() string {
 	b.WriteString(msg)
 
 	if a.Mnemonic != "" {
-		b.WriteString(fmt.Sprintf("\n  Mnemonic: %s\n", colors.Mnemonic(a.Mnemonic)))
+		s := wordwrap.String(a.Mnemonic, 80)
+		s = indent.String(s, 2)
+
+		b.WriteString(fmt.Sprintf(" and mnemonic:\n%s\n", colors.Mnemonic(s)))
 	}
 
 	return b.String()
