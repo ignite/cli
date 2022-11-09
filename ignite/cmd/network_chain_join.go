@@ -47,7 +47,7 @@ The following command will send a request to join blockchain with launch ID 42
 as a validator and request to be added as an account with a token balance of
 95000000 STAKE.
 
-  ignite network chain join 42 --amount 95000000stake
+	ignite network chain join 42 --amount 95000000stake
 
 A request to join as a validator contains a gentx file. Ignite looks for gentx
 in a home directory used by "ignite network chain init" by default. To use a

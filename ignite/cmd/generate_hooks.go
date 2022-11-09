@@ -10,12 +10,15 @@ import (
 
 func NewGenerateHooks() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "hooks",
-		Short: "Generate Typescript client and React hooks for your chain's frontend from your `config.yml` file",
-		RunE:  generateHooksHandler,
+		Use:     "hooks",
+		Short:   "Generate Typescript client and React hooks for your chain's frontend",
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    generateHooksHandler,
 	}
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringP(flagOutput, "o", "", "React hooks output path")
+
 	return c
 }
 
@@ -25,7 +28,6 @@ func generateHooksHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := NewChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths())

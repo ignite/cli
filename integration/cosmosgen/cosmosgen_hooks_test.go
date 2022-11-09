@@ -107,6 +107,7 @@ func TestCosmosGenScaffoldHooks(t *testing.T) {
 				envtest.IgniteApp,
 				"g",
 				"hooks",
+				"--yes",
 				"--clear-cache",
 			),
 			step.Workdir(app.SourcePath()),
