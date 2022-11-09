@@ -24,16 +24,9 @@ type EventMsg struct {
 
 // NewStatusEvents returns a new events model.
 func NewStatusEvents(bus events.Bus, maxHistory int) StatusEvents {
-	// TODO: Using latest github.com/charmbracelet/bubbles is not possible because
-	//       of https://github.com/charmbracelet/glow/issues/268, we have dependency
-	//       conflicts with markdownviewer module.
-	s := spinner.NewModel()
-	s.Spinner = spinner.Dot
-	s.ForegroundColor = ColorSpinner
-
 	return StatusEvents{
 		events:     list.New(),
-		spinner:    s,
+		spinner:    NewSpinner(),
 		maxHistory: maxHistory,
 		bus:        bus,
 	}
@@ -154,14 +147,10 @@ func (m StatusEvents) View() string {
 
 // NewEvents returns a new events model.
 func NewEvents(bus events.Bus) Events {
-	s := spinner.NewModel()
-	s.Spinner = spinner.Dot
-	s.ForegroundColor = ColorSpinner
-
 	return Events{
 		events:  list.New(),
 		bus:     bus,
-		spinner: s,
+		spinner: NewSpinner(),
 	}
 }
 
