@@ -79,7 +79,7 @@ func (s Scaffolder) AddQuery(
 	)
 
 	// Scaffold
-	g, err = query.NewStargate(tracer, opts)
+	g, err = query.NewGenerator(tracer, opts)
 	if err != nil {
 		return sm, err
 	}

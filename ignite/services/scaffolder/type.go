@@ -226,13 +226,13 @@ func (s Scaffolder) AddType(
 	// create the type generator depending on the model
 	switch {
 	case o.isList:
-		g, err = list.NewStargate(tracer, opts)
+		g, err = list.NewGenerator(tracer, opts)
 	case o.isMap:
 		g, err = mapGenerator(tracer, opts, o.indexes)
 	case o.isSingleton:
-		g, err = singleton.NewStargate(tracer, opts)
+		g, err = singleton.NewGenerator(tracer, opts)
 	default:
-		g, err = dry.NewStargate(opts)
+		g, err = dry.NewGenerator(opts)
 	}
 	if err != nil {
 		return sm, err
@@ -300,5 +300,5 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 	}
 
 	opts.Indexes = parsedIndexes
-	return maptype.NewStargate(replacer, opts)
+	return maptype.NewGenerator(replacer, opts)
 }
