@@ -84,5 +84,7 @@ func TestEventsView(t *testing.T) {
 type dummyEventsProvider struct{}
 
 func (dummyEventsProvider) Events() <-chan events.Event {
-	return make(chan events.Event)
+	c := make(chan events.Event)
+	close(c)
+	return c
 }
