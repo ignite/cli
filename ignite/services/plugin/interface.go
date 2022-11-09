@@ -26,21 +26,26 @@ type Interface interface {
 	// Manifest declares the plugin's Command(s) and Hook(s).
 	Manifest() (Manifest, error)
 
-	// Execute will be invoked by ignite when a plugin commands is executed.
-	// cmd is the executed command (one of the those returned by Commands method)
-	// args is the command line arguments passed behing the command.
+	// Execute will be invoked by ignite when a plugin Command is executed.
+	// It is global for all commands declared in Manifest, if you have declared
+	// multiple commands, use cmd.Use or cmd.Path to distinguish them.
 	Execute(cmd ExecutedCommand) error
 
-	// ExecuteHookPre is invoked by Ignite when a command specified by the hook
-	// path is invoked is global for all hooks registered to a plugin context on
-	// the hook being invoked is given by the `hook` parameter.
+	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
+	// path is invoked.
+	// It is global for all hooks declared in Manifest, if you have declared
+	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookPre(hook ExecutedHook) error
-	// ExecuteHookPost is invoked by Ignite when a command specified by the hook
-	// path is invoked is global for all hooks registered to a plugin context on
-	// the hook being invoked is given by the `hook` parameter.
+	// ExecuteHookPost is invoked by ignite when a command specified by the hook
+	// path is invoked.
+	// It is global for all hooks declared in Manifest, if you have declared
+	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookPost(hook ExecutedHook) error
-	// ExecuteHookCleanUp is invoked right before the command is done executing
-	// will be called regardless of execution status of the command and hooks.
+	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
+	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
+	// execution status of the command and hooks.
+	// It is global for all hooks declared in Manifest, if you have declared
+	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookCleanUp(hook ExecutedHook) error
 }
 
