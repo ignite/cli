@@ -28,7 +28,6 @@ func generateTSClientHandler(cmd *cobra.Command, args []string) error {
 
 	c, err := NewChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths(),

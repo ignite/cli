@@ -83,7 +83,6 @@ for your current environment.
 
 	flagSetPath(c)
 	flagSetClearCache(c)
-	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().Bool(flagRelease, false, "build for a release")
@@ -113,10 +112,6 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
-	}
-
-	if flagGetProto3rdParty(cmd) {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
 	if flagGetCheckDependencies(cmd) {
