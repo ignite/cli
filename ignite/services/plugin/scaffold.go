@@ -53,7 +53,6 @@ func Scaffold(dir, moduleName string) (string, error) {
 	}
 	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
 	// because our git history is too fat.
-	// Related discussion: https://allinbits.slack.com/archives/C02NJAQN82Y/p1665403790764919
 	opt := exec.StepOption(step.Env("GOSUMDB=off"))
 	if err := gocmd.ModTidy(context.TODO(), finalDir, opt); err != nil {
 		return "", errors.WithStack(err)
