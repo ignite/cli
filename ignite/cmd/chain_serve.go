@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -99,7 +100,11 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	// a bubbletea context to display the custom UI.
 	serve := chainServeCmd(cmd, session)
 	if verbosity == uilog.VerbosityDefault {
-		m := cmdmodel.NewChainServe(cmd, session.EventBus(), serve)
+		bus := session.EventBus()
+		bus.Send("Initializing...", events.ProgressStart())
+
+		// Render UI
+		m := cmdmodel.NewChainServe(cmd, bus, serve)
 		if err := tea.NewProgram(m).Start(); err != nil {
 			return err
 		}
