@@ -58,11 +58,7 @@ func (p) Execute(cmd plugin.ExecutedCommand) error {
 	fmt.Printf("My config parameters: %v\n", cmd.With)
 
 	// This is how the plugin can access the chain:
-	c, err := getChain(cmd)
-	if err != nil {
-		return err
-	}
-	_ = c
+	// c, err := getChain(cmd)
 
 	// According to the number of declared commands, you may need a switch:
 	/*
