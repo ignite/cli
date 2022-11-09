@@ -220,7 +220,7 @@ func (p) Manifest() (plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) ExecuteHookPre(hook plugin.Hook, args []string) error {
+func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
 	switch hook.Name {
 	case "my-hook":
 		fmt.Println("I'm executed before ignite chain build")
@@ -230,7 +230,7 @@ func (p) ExecuteHookPre(hook plugin.Hook, args []string) error {
 	return nil
 }
 
-func (p) ExecuteHookPost(hook plugin.Hook, args []string) error {
+func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
 	switch hook.Name {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (if no error)")
@@ -240,7 +240,7 @@ func (p) ExecuteHookPost(hook plugin.Hook, args []string) error {
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(hook plugin.Hook, args []string) error {
+func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
 	switch hook.Name {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (regardless errors)")
