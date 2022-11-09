@@ -5,6 +5,7 @@ import "github.com/fatih/color"
 var (
 	Earth = "🌍"
 	CD    = "💿"
+	User  = "👤"
 
 	// OK is an OK mark.
 	OK = color.New(color.FgGreen).SprintFunc()("✔")

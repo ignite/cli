@@ -100,6 +100,7 @@ func (m ChainServe) View() string {
 	}
 
 	if m.state != stateChainServeQuitting {
+		// TODO: Add actions to copy mnemonics to clipboard in run view?
 		view.WriteString(m.renderActions())
 	}
 

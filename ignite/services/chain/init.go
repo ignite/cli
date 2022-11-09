@@ -116,13 +116,13 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 
 		if account.Address == "" {
-			accounts = append(accounts, accountview.NewAccount(
+			accounts = accounts.Append(accountview.NewAccount(
 				generatedAccount.Name,
 				accountAddress,
 				accountview.WithMnemonic(generatedAccount.Mnemonic),
 			))
 		} else {
-			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
+			accounts = accounts.Append(accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
 

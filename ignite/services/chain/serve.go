@@ -20,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cliui/style"
+	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
@@ -396,8 +397,10 @@ func (c *Chain) serve(
 	}
 
 	// init phase
+	initApp := !isInit || (appModified && !exportGenesisExists)
+
 	// nolint:gocritic
-	if !isInit || (appModified && !exportGenesisExists) {
+	if initApp {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
 		if err := c.Init(ctx, true); err != nil {
@@ -432,6 +435,22 @@ func (c *Chain) serve(
 
 	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
 		return err
+	}
+
+	// Display existing accounts if they were not initialized.
+	// Note that chain init displays accounts when the app is initialized.
+	if !initApp {
+		accounts, err := commands.ListAccounts(ctx)
+		if err != nil {
+			return err
+		}
+
+		var view accountview.Accounts
+		for _, a := range accounts {
+			view = view.Append(accountview.NewAccount(a.Name, a.Address))
+		}
+
+		c.ev.SendView(view, events.ProgressFinish())
 	}
 
 	// start the blockchain
