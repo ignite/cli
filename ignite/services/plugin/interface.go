@@ -108,9 +108,8 @@ type Flag struct {
 	Usage     string // help message
 	DefValue  string // default value (as text); for usage message
 	Type      FlagType
-	// TODO add Persistent field
-	// TODO unexported?
-	Value string
+	Value     string
+	// TODO add Persistent field ?
 }
 
 type FlagType string
