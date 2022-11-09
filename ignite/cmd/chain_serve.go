@@ -15,10 +15,11 @@ import (
 )
 
 const (
-	flagForceReset = "force-reset"
-	flagResetOnce  = "reset-once"
-	flagConfig     = "config"
-	flagQuitOnFail = "quit-on-fail"
+	flagConfig          = "config"
+	flagForceReset      = "force-reset"
+	flagGenerateClients = "generate-clients"
+	flagQuitOnFail      = "quit-on-fail"
+	flagResetOnce       = "reset-once"
 )
 
 // NewChainServe creates a new serve command to serve a blockchain.
@@ -66,12 +67,12 @@ production, you may want to run "appd start" manually.
 	flagSetPath(c)
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
+	c.Flags().Bool(flagGenerateClients, false, "Generate code for the configured clients on reset or source code change")
 	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
 
 	return c
@@ -117,10 +118,6 @@ func chainServeCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
 		chainOption := []chain.Option{
 			chain.WithOutputer(session),
 			chain.CollectEvents(session.EventBus()),
-		}
-
-		if flagGetProto3rdParty(cmd) {
-			chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 		}
 
 		if flagGetCheckDependencies(cmd) {
@@ -175,6 +172,15 @@ func chainServeCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
 
 		if quitOnFail {
 			serveOptions = append(serveOptions, chain.QuitOnFail())
+		}
+
+		generateClients, err := cmd.Flags().GetBool(flagGenerateClients)
+		if err != nil {
+			return err
+		}
+
+		if generateClients {
+			serveOptions = append(serveOptions, chain.GenerateClients())
 		}
 
 		if flagGetSkipProto(cmd) {

@@ -68,7 +68,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// ovewrite app config files with the values defined in Ignite's config file
-	if err := c.plugin.Configure(home, conf); err != nil {
+	if err := c.Configure(home, conf); err != nil {
 		return err
 	}
 
@@ -144,7 +144,7 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 	}
 
 	// create the gentx from the validator from the config
-	gentxPath, err := c.plugin.Gentx(ctx, commands, v)
+	gentxPath, err := c.Gentx(ctx, commands, v)
 	if err != nil {
 		return "", err
 	}

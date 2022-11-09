@@ -65,10 +65,11 @@ var (
 )
 
 type serveOptions struct {
-	forceReset bool
-	resetOnce  bool
-	skipProto  bool
-	quitOnFail bool
+	forceReset      bool
+	resetOnce       bool
+	skipProto       bool
+	quitOnFail      bool
+	generateClients bool
 }
 
 func newServeOption() serveOptions {
@@ -99,6 +100,13 @@ func ServeResetOnce() ServeOption {
 func QuitOnFail() ServeOption {
 	return func(c *serveOptions) {
 		c.quitOnFail = true
+	}
+}
+
+// GenerateClients enables client code generation.
+func GenerateClients() ServeOption {
+	return func(c *serveOptions) {
+		c.generateClients = true
 	}
 }
 
@@ -167,7 +175,13 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err = c.serve(serveCtx, cacheStorage, shouldReset, serveOptions.skipProto)
+				err = c.serve(
+					serveCtx,
+					cacheStorage,
+					shouldReset,
+					serveOptions.skipProto,
+					serveOptions.generateClients,
+				)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -291,7 +305,11 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceReset, skipProto bool) error {
+func (c *Chain) serve(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	forceReset, skipProto, generateClients bool,
+) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -372,7 +390,7 @@ func (c *Chain) serve(ctx context.Context, cacheStorage cache.Storage, forceRese
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, cacheStorage, "", skipProto); err != nil {
+		if err := c.build(ctx, cacheStorage, "", skipProto, generateClients); err != nil {
 			return err
 		}
 	}
@@ -429,7 +447,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, config) })
+	g.Go(func() error { return c.Start(ctx, commands, config) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)

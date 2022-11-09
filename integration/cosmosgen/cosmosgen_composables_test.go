@@ -107,6 +107,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 				envtest.IgniteApp,
 				"g",
 				"composables",
+				"--yes",
 				"--clear-cache",
 			),
 			step.Workdir(app.SourcePath()),

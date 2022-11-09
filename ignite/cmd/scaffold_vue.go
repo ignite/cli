@@ -5,7 +5,7 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
 
 // NewScaffoldVue scaffolds a Vue.js app for a chain.
@@ -29,9 +29,9 @@ func scaffoldVueHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	path := flagGetPath(cmd)
-	if err := scaffolder.Vue(path); err != nil {
+	if err := cosmosgen.Vue(path); err != nil {
 		return err
 	}
 
-	return session.Printf("\n🎉 Scaffolded a Vue.js app.\n\n")
+	return session.Printf("\n🎉 Scaffolded a Vue.js app in %s.\n\n", path)
 }
