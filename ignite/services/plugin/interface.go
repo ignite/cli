@@ -45,9 +45,14 @@ type Interface interface {
 }
 
 type Manifest struct {
-	Name     string
+	Name string
+	// Commands contains the commands that will be added to the list of ignite
+	// commands. Each commands are independent, for nested commands use the
+	// inner Commands field.
 	Commands []Command
-	Hooks    []Hook
+	// Hooks contains the hooks that will be attached to the existing ignite
+	// commands.
+	Hooks []Hook
 }
 
 // Command represents a plugin command.
