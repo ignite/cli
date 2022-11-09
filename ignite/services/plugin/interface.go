@@ -23,6 +23,7 @@ func init() {
 //
 //go:generate mockery --srcpkg . --name Interface --structname PluginInterface --filename interface.go --with-expecter
 type Interface interface {
+	// Manifest declares the plugin's Command(s) and Hook(s).
 	Manifest() (Manifest, error)
 
 	// Execute will be invoked by ignite when a plugin commands is executed.
