@@ -74,8 +74,6 @@ directories that are created by default:
 | docs/          | Directory for project documentation. By default, an OpenAPI spec is generated.                                                                                          |
 | proto/         | Protocol buffer files describing the data structure.                                                                                                                    |
 | testutil/      | Helper functions for testing.                                                                                                                                           |
-| ts-client/     | A Typescript client template                                                                                                                                            |
-| vue/           | A Vue 3 web app template.                                                                                                                                               |
 | x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
 | config.yml     | A configuration file for customizing a chain in development.                                                                                                            |
 | readme.md      | A readme file for your sovereign application-specific blockchain project.                                                                                               |

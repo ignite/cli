@@ -7,14 +7,12 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	webtemplates "github.com/ignite/web"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/localfs"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/templates/app"
@@ -115,20 +113,6 @@ func generate(
 	// mod tidy requests the sumdb, until we understand why, we disable sumdb.
 	// related issue:  https://github.com/golang/go/issues/56174
 	opt := exec.StepOption(step.Env("GOSUMDB=off"))
-	if err := gocmd.ModTidy(ctx, absRoot, opt); err != nil {
-		return err
-	}
 
-	// generate the vue app.
-	return Vue(filepath.Join(absRoot, "vue"))
-}
-
-// Vue scaffolds a Vue.js app for a chain.
-func Vue(path string) error {
-	return localfs.Save(webtemplates.VueBoilerplate(), path)
-}
-
-// React scaffolds a ReactJS app for a chain.
-func React(path string) error {
-	return localfs.Save(webtemplates.ReactBoilerplate(), path)
+	return gocmd.ModTidy(ctx, absRoot, opt)
 }
