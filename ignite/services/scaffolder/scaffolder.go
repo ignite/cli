@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
@@ -93,13 +92,9 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 
 	// Generate Typescript client code if it's enabled or when Vuex stores are generated
 	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
-		tsClientPath := chainconfig.TSClientPath(conf)
+		tsClientPath := chainconfig.TSClientPath(*conf)
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(projectPath, tsClientPath)
-		}
-
-		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
-			return err
 		}
 
 		options = append(options,
@@ -119,7 +114,6 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
-				false,
 				cosmosgen.TypescriptModulePath(vuexPath),
 				vuexPath,
 			),

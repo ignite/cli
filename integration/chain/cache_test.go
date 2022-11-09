@@ -62,7 +62,6 @@ func TestCliWithCaching(t *testing.T) {
 				envtest.IgniteApp,
 				"c",
 				"build",
-				"--proto-all-modules",
 			),
 			step.Workdir(app.SourcePath()),
 		)),
@@ -78,7 +77,6 @@ func TestCliWithCaching(t *testing.T) {
 				envtest.IgniteApp,
 				"c",
 				"build",
-				"--proto-all-modules",
 			),
 			step.Workdir(app.SourcePath()),
 		)),
@@ -92,7 +90,7 @@ func TestCliWithCaching(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
