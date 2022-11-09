@@ -18,12 +18,12 @@ import (
 type EventMsg struct {
 	events.Event
 
-	start    time.Time
-	duration time.Duration
+	Start    time.Time
+	Duration time.Duration
 }
 
 // NewStatusEvents returns a new events model.
-func NewStatusEvents(bus events.Bus, maxHistory int) StatusEvents {
+func NewStatusEvents(bus events.Provider, maxHistory int) StatusEvents {
 	return StatusEvents{
 		events:     list.New(),
 		spinner:    NewSpinner(),
@@ -43,7 +43,7 @@ type StatusEvents struct {
 	events     *list.List
 	spinner    spinner.Model
 	maxHistory int
-	bus        events.Bus
+	bus        events.Provider
 }
 
 func (m *StatusEvents) ClearEvents() {
@@ -59,7 +59,7 @@ func (m StatusEvents) WaitEvent() tea.Msg {
 	e := <-m.bus.Events()
 
 	return EventMsg{
-		start: time.Now(),
+		Start: time.Now(),
 		Event: e,
 	}
 }
@@ -73,7 +73,7 @@ func (m StatusEvents) Update(msg tea.Msg) (StatusEvents, tea.Cmd) {
 			// Save the duration of the current ongoing event before setting a new one
 			if e := m.events.Front(); e != nil {
 				evt := e.Value.(EventMsg)
-				evt.duration = time.Since(evt.start)
+				evt.Duration = time.Since(evt.Start)
 				e.Value = evt
 			}
 
@@ -135,7 +135,7 @@ func (m StatusEvents) View() string {
 			}
 
 			// Display finished status event
-			d := evt.duration.Round(time.Second)
+			d := evt.Duration.Round(time.Second)
 			s := strings.TrimSuffix(evt.String(), "...")
 
 			fmt.Fprintf(&view, "%s %s %s\n", icons.OK, s, style.Faint.Render(d.String()))
@@ -146,7 +146,7 @@ func (m StatusEvents) View() string {
 }
 
 // NewEvents returns a new events model.
-func NewEvents(bus events.Bus) Events {
+func NewEvents(bus events.Provider) Events {
 	return Events{
 		events:  list.New(),
 		bus:     bus,
@@ -160,7 +160,7 @@ func NewEvents(bus events.Bus) Events {
 // from the list once they finish.
 type Events struct {
 	events  *list.List
-	bus     events.Bus
+	bus     events.Provider
 	spinner spinner.Model
 }
 
