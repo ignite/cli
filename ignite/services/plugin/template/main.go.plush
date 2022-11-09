@@ -51,7 +51,7 @@ func (p) Manifest() (plugin.Manifest, error) {
 func (p) Execute(cmd plugin.ExecutedCommand) error {
 	// TODO: write command execution here
 	fmt.Printf("Hello I'm the <%= Name %> plugin\n")
-	fmt.Printf("My executed command: %q\n", cmd.Use)
+	fmt.Printf("My executed command: %q\n", cmd.Path)
 	fmt.Printf("My args: %v\n", cmd.Args)
 	myFlag, _ := cmd.Flags().GetString("my-flag")
 	fmt.Printf("My flags: my-flag=%q\n", myFlag)

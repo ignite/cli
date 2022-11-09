@@ -28,7 +28,7 @@ type Interface interface {
 
 	// Execute will be invoked by ignite when a plugin Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
-	// multiple commands, use cmd.Use or cmd.Path to distinguish them.
+	// multiple commands, use cmd.Path to distinguish them.
 	Execute(cmd ExecutedCommand) error
 
 	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
