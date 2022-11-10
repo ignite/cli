@@ -40,7 +40,7 @@ export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
       query['pagination.limit']=perPage;
       query['pagination.offset']= (pageParam-1)*perPage;
       query['pagination.count_total']= true;
-      return  client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCaseSta $FullName -}}
+      return  client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCase $FullName -}}
         {{- $n -}}({{- range $j,$a :=$rule.Params -}}
             {{- if (gt $j 0) -}}, {{ end }} {{- $a -}}
           {{- end -}}
@@ -87,7 +87,7 @@ export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
       const { {{- if $rule.Params -}}{{- range $j,$a :=$rule.Params -}}
             {{- if (gt $j 0) -}}, {{ end }} {{ $a -}}
           {{- end -}}{{- if $rule.HasQuery -}}, {{- end -}}{{- end -}}{{- if $rule.HasQuery -}}query{{- end }} } = key{{ end }}
-      return  client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCaseSta $FullName -}}
+      return  client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCase $FullName -}}
         {{- $n -}}({{- range $j,$a :=$rule.Params -}}
             {{- if (gt $j 0) -}}, {{ end }} {{- $a -}}
           {{- end -}}
