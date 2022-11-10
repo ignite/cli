@@ -9,25 +9,27 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/xurl"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 const (
-	flagTag          = "tag"
-	flagBranch       = "branch"
-	flagHash         = "hash"
-	flagGenesis      = "genesis"
-	flagCampaign     = "campaign"
-	flagShares       = "shares"
-	flagNoCheck      = "no-check"
-	flagChainID      = "chain-id"
-	flagMainnet      = "mainnet"
-	flagRewardCoins  = "reward.coins"
-	flagRewardHeight = "reward.height"
+	flagTag            = "tag"
+	flagBranch         = "branch"
+	flagHash           = "hash"
+	flagGenesisURL     = "genesis-url"
+	flagGenesisConfig  = "genesis-config"
+	flagCampaign       = "campaign"
+	flagShares         = "shares"
+	flagNoCheck        = "no-check"
+	flagChainID        = "chain-id"
+	flagMainnet        = "mainnet"
+	flagAccountBalance = "account-balance"
+	flagRewardCoins    = "reward.coins"
+	flagRewardHeight   = "reward.height"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -43,7 +45,8 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagBranch, "", "Git branch to use for the repo")
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
-	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
+	c.Flags().String(flagGenesisURL, "", "URL to a custom Genesis")
+	c.Flags().String(flagGenesisConfig, "", "Name of an Ignite config file in the repo for custom Genesis")
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
@@ -51,26 +54,30 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
 	c.Flags().String(flagShares, "", "Add shares for the campaign")
 	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
+	c.Flags().String(flagAccountBalance, "", "Balance for each approved genesis account for the chain")
 	c.Flags().String(flagRewardCoins, "", "Reward coins")
 	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
 	c.Flags().String(flagAmount, "", "Amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetCheckDependencies())
 
 	return c
 }
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	var (
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
 		hash, _                   = cmd.Flags().GetString(flagHash)
-		genesisURL, _             = cmd.Flags().GetString(flagGenesis)
+		genesisURL, _             = cmd.Flags().GetString(flagGenesisURL)
+		genesisConfig, _          = cmd.Flags().GetString(flagGenesisConfig)
 		chainID, _                = cmd.Flags().GetString(flagChainID)
 		campaign, _               = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
@@ -78,6 +85,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaignTotalSupplyStr, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
 		sharesStr, _              = cmd.Flags().GetString(flagShares)
 		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
+		accountBalance, _         = cmd.Flags().GetString(flagAccountBalance)
 		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
 		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
 		amount, _                 = cmd.Flags().GetString(flagAmount)
@@ -87,6 +95,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	amountCoins, err := sdk.ParseCoinsNormalized(amount)
 	if err != nil {
 		return errors.Wrap(err, "error parsing amount")
+	}
+
+	accountBalanceCoins, err := sdk.ParseCoinsNormalized(accountBalance)
+	if err != nil {
+		return errors.Wrap(err, "error parsing account balance")
 	}
 
 	source, err := xurl.MightHTTPS(args[0])
@@ -162,9 +175,20 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	var initOptions []networkchain.Option
 
+	// cannot use both genesisURL and genesisConfig
+	if genesisURL != "" && genesisConfig != "" {
+		return errors.New("cannot use both genesis-url and genesis-config for initial genesis." +
+			"Please use only one of the options.")
+	}
+
 	// use custom genesis from url if given.
 	if genesisURL != "" {
 		initOptions = append(initOptions, networkchain.WithGenesisFromURL(genesisURL))
+	}
+
+	// use custom genesis config if given
+	if genesisConfig != "" {
+		initOptions = append(initOptions, networkchain.WithGenesisFromConfig(genesisConfig))
 	}
 
 	// init in a temp dir.
@@ -179,8 +203,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// prepare publish options
 	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
-	if genesisURL != "" {
-		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
+	switch {
+	case genesisURL != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisURL(genesisURL))
+	case genesisConfig != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisConfig(genesisConfig))
+
 	}
 
 	if campaign != 0 {
@@ -200,6 +228,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
 	}
 
+	if !accountBalanceCoins.IsZero() {
+		publishOptions = append(publishOptions, network.WithAccountBalance(accountBalanceCoins))
+	}
+
 	if isMainnet {
 		publishOptions = append(publishOptions, network.Mainnet())
 	}
@@ -217,6 +249,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		publishOptions = append(publishOptions, network.WithPercentageShares(sharePercentages))
 	}
 
+	// TODO: Issue an error or warning when this flag is used with "no-check"?
+	//       The "check-dependencies" flag is ignored when the "no-check" one is present.
+	if flagGetCheckDependencies(cmd) {
+		initOptions = append(initOptions, networkchain.CheckDependencies())
+	}
+
 	// init the chain.
 	c, err := nb.Chain(sourceOption, initOptions...)
 	if err != nil {
@@ -226,7 +264,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	if noCheck {
 		publishOptions = append(publishOptions, network.WithNoCheck())
 	} else if err := c.Init(cmd.Context(), cacheStorage); err != nil { // initialize the chain for checking.
-		return err
+		return fmt.Errorf("blockchain init failed: %w", err)
 	}
 
 	session.StartSpinner("Publishing...")
@@ -242,25 +280,26 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !rewardCoins.IsZero() && rewardDuration > 0 {
-		if err := n.SetReward(launchID, rewardDuration, rewardCoins); err != nil {
+		if err := n.SetReward(cmd.Context(), launchID, rewardDuration, rewardCoins); err != nil {
 			return err
 		}
 	}
 
 	if !amountCoins.IsZero() {
-		if err := n.SendAccountRequestForCoordinator(launchID, amountCoins); err != nil {
+		if err := n.SendAccountRequestForCoordinator(cmd.Context(), launchID, amountCoins); err != nil {
 			return err
 		}
 	}
 
-	session.StopSpinner()
 	session.Printf("%s Network published \n", icons.OK)
 	if isMainnet {
 		session.Printf("%s Mainnet ID: %d \n", icons.Bullet, launchID)
 	} else {
 		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
 	}
-	session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
+	if campaignID != 0 {
+		session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
+	}
 
 	return nil
 }

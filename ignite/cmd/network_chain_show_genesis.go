@@ -6,9 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/xos"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 func newNetworkChainShowGenesis() *cobra.Command {
@@ -26,8 +27,8 @@ func newNetworkChainShowGenesis() *cobra.Command {
 }
 
 func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	out, _ := cmd.Flags().GetString(flagOut)
 
@@ -55,70 +56,39 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// generate the genesis in a temp dir
+	tmpHome, err := os.MkdirTemp("", "*-spn")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpHome)
+
+	c.SetHome(tmpHome)
+
+	if err := prepareFromGenesisInformation(
+		cmd,
+		cacheStorage,
+		launchID,
+		n,
+		c,
+		chainLaunch,
+	); err != nil {
+		return err
+	}
+
+	// get the new genesis path
 	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
 
-	spnChainID, err := n.ChainID(cmd.Context())
-	if err != nil {
+	if err := os.MkdirAll(filepath.Dir(out), 0o744); err != nil {
 		return err
 	}
 
-	// check if the genesis already exists
-	if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
-		// fetch the information to construct genesis
-		genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
-		if err != nil {
-			return err
-		}
-
-		// create the chain in a temp dir
-		tmpHome, err := os.MkdirTemp("", "*-spn")
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(tmpHome)
-
-		c.SetHome(tmpHome)
-
-		rewardsInfo, lastBlockHeight, unboundingTime, err := n.RewardsInfo(
-			cmd.Context(),
-			launchID,
-			chainLaunch.ConsumerRevisionHeight,
-		)
-		if err != nil {
-			return err
-		}
-
-		if err = c.Prepare(
-			cmd.Context(),
-			cacheStorage,
-			genesisInformation,
-			rewardsInfo,
-			spnChainID,
-			lastBlockHeight,
-			unboundingTime,
-		); err != nil {
-			return err
-		}
-
-		// get the new genesis path
-		genesisPath, err = c.GenesisPath()
-		if err != nil {
-			return err
-		}
-	}
-
-	if err := os.MkdirAll(filepath.Dir(out), 0744); err != nil {
+	if err := xos.Rename(genesisPath, out); err != nil {
 		return err
 	}
-
-	if err := os.Rename(genesisPath, out); err != nil {
-		return err
-	}
-
-	session.StopSpinner()
 
 	return session.Printf("%s Genesis generated: %s\n", icons.Bullet, out)
 }

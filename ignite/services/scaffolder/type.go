@@ -7,18 +7,18 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
-	"github.com/ignite-hq/cli/ignite/templates/typed"
-	"github.com/ignite-hq/cli/ignite/templates/typed/dry"
-	"github.com/ignite-hq/cli/ignite/templates/typed/list"
-	maptype "github.com/ignite-hq/cli/ignite/templates/typed/map"
-	"github.com/ignite-hq/cli/ignite/templates/typed/singleton"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/ignite/templates/typed/dry"
+	"github.com/ignite/cli/ignite/templates/typed/list"
+	maptype "github.com/ignite/cli/ignite/templates/typed/map"
+	"github.com/ignite/cli/ignite/templates/typed/singleton"
 )
 
 // AddTypeOption configures options for AddType.
@@ -152,7 +152,7 @@ func (s Scaffolder) AddType(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
 		return sm, err
 	}
 	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, signer)
@@ -226,13 +226,13 @@ func (s Scaffolder) AddType(
 	// create the type generator depending on the model
 	switch {
 	case o.isList:
-		g, err = list.NewStargate(tracer, opts)
+		g, err = list.NewGenerator(tracer, opts)
 	case o.isMap:
 		g, err = mapGenerator(tracer, opts, o.indexes)
 	case o.isSingleton:
-		g, err = singleton.NewStargate(tracer, opts)
+		g, err = singleton.NewGenerator(tracer, opts)
 	default:
-		g, err = dry.NewStargate(opts)
+		g, err = dry.NewGenerator(opts)
 	}
 	if err != nil {
 		return sm, err
@@ -245,7 +245,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name
@@ -300,5 +300,5 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 	}
 
 	opts.Indexes = parsedIndexes
-	return maptype.NewStargate(replacer, opts)
+	return maptype.NewGenerator(replacer, opts)
 }

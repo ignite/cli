@@ -28,24 +28,24 @@ where:
 
 🧑‍🏫 **[Developer Guide](https://docs.ignite.com/guide/)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
 
-📕 **Ignite CLI Documentation](https://docs.ignite.com)**: Explore the features of Ignite CLI.
+📕 **Ignite CLI Documentation](<https://docs.ignite.com>)**: Explore the features of Ignite CLI.
 
 📚 [Cosmos SDK Documentation](https://docs.cosmos.network): Learn about the framework for building application-specific blockchains.
 
-⭐️ [Ignite CLI on Github](https://github.com/ignite-hq/cli): Submit an issue or contribute to the source code.
+⭐️ [Ignite CLI on Github](https://github.com/ignite/cli): Submit an issue or contribute to the source code.
 
 ## Ignite CLI features
 
 * Scaffold modules, messages, types with CRUD operations, IBC packets, and more
 * Start a blockchain node in development with live reloading
 * Connect to other blockchains with a built-in IBC relayer
-* Use automatically generated TypeScript/Vuex clients to interact with your blockchain
-* Use the Vue.js web app template with a set of components and Vuex modules
+* Use automatically generated TypeScript clients and Vuex stores to interact with your blockchain
+* Use the Vue 3 web app template with a set of UI components to build your custom web application
 
 ## Install Ignite CLI locally
 
 ```
-curl https://get.ignite.com/cli! | bash
+curl https://get.ignite.com/cli | bash
 ```
 
 The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/guide/install.html).

@@ -7,8 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 type (
@@ -46,11 +47,13 @@ func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
 
 // Campaign fetches the campaign from Network
 func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign information"))
+	n.ev.Send("Fetching campaign information", events.ProgressStart())
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: campaignID,
 	})
-	if err != nil {
+	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+		return networktypes.Campaign{}, ErrObjectNotFound
+	} else if err != nil {
 		return networktypes.Campaign{}, err
 	}
 	return networktypes.ToCampaign(res.Campaign), nil
@@ -60,9 +63,8 @@ func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.
 func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
 	var campaigns []networktypes.Campaign
 
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
-	res, err := n.campaignQuery.
-		CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
+	n.ev.Send("Fetching campaigns information", events.ProgressStart())
+	res, err := n.campaignQuery.CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
 		return campaigns, err
 	}
@@ -76,16 +78,20 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 }
 
 // CreateCampaign creates a campaign in Network
-func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
+func (n Network) CreateCampaign(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
+	n.ev.Send(fmt.Sprintf("Creating campaign %s", name), events.ProgressStart())
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return 0, err
+	}
 
 	msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
-		n.account.Address(networktypes.SPN),
+		addr,
 		name,
 		totalSupply,
 		[]byte(metadata),
 	)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msgCreateCampaign)
 	if err != nil {
 		return 0, err
 	}
@@ -100,21 +106,27 @@ func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (u
 
 // InitializeMainnet Initialize the mainnet of the campaign.
 func (n Network) InitializeMainnet(
+	ctx context.Context,
 	campaignID uint64,
 	sourceURL,
 	sourceHash string,
 	mainnetChainID string,
 ) (uint64, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Initializing the mainnet campaign"))
+	n.ev.Send("Initializing the mainnet campaign", events.ProgressStart())
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return 0, err
+	}
+
 	msg := campaigntypes.NewMsgInitializeMainnet(
-		n.account.Address(networktypes.SPN),
+		addr,
 		campaignID,
 		sourceURL,
 		sourceHash,
 		mainnetChainID,
 	)
 
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return 0, err
 	}
@@ -124,13 +136,14 @@ func (n Network) InitializeMainnet(
 		return 0, err
 	}
 
-	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf("Campaign %d initialized on mainnet", campaignID)))
+	n.ev.Send(fmt.Sprintf("Campaign %d initialized on mainnet", campaignID), events.ProgressFinish())
 
 	return initMainnetRes.MainnetID, nil
 }
 
 // UpdateCampaign updates the campaign name or metadata
 func (n Network) UpdateCampaign(
+	ctx context.Context,
 	id uint64,
 	props ...Prop,
 ) error {
@@ -140,8 +153,12 @@ func (n Network) UpdateCampaign(
 		apply(&p)
 	}
 
-	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Updating the campaign %d", id)))
-	account := n.account.Address(networktypes.SPN)
+	n.ev.Send(fmt.Sprintf("Updating the campaign %d", id), events.ProgressStart())
+	account, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
+
 	msgs := make([]sdk.Msg, 0)
 	if p.name != "" || len(p.metadata) > 0 {
 		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(
@@ -159,11 +176,9 @@ func (n Network) UpdateCampaign(
 		))
 	}
 
-	if _, err := n.cosmos.BroadcastTx(n.account.Name, msgs...); err != nil {
+	if _, err := n.cosmos.BroadcastTx(ctx, n.account, msgs...); err != nil {
 		return err
 	}
-	n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
-		"Campaign %d updated", id,
-	)))
+	n.ev.Send(fmt.Sprintf("Campaign %d updated", id), events.ProgressFinish())
 	return nil
 }

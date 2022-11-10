@@ -7,9 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/yaml"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/yaml"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 const (
@@ -30,18 +30,20 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 	c.Flags().String(flagCampaignTotalSupply, "", "Update the total of the mainnet of a campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
 func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	var (
 		campaignName, _        = cmd.Flags().GetString(flagCampaignName)
 		metadata, _            = cmd.Flags().GetString(flagCampaignMetadata)
 		campaignTotalSupply, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
 	)
+
 	totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupply)
 	if err != nil {
 		return err
@@ -85,7 +87,7 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 		proposals = append(proposals, network.WithCampaignTotalSupply(totalSupply))
 	}
 
-	if err = n.UpdateCampaign(campaignID, proposals...); err != nil {
+	if err = n.UpdateCampaign(cmd.Context(), campaignID, proposals...); err != nil {
 		return err
 	}
 
@@ -99,8 +101,6 @@ func networkCampaignUpdateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Print(info)
 }

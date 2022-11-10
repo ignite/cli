@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 )
 
 var (
@@ -19,6 +19,8 @@ var (
 	// ErrAccountDoesNotExist returned when account does not exit.
 	ErrAccountDoesNotExist = errors.New("account does not exit")
 )
+
+const msgEmptyKeyring = "No records were found in keyring"
 
 // Account represents a user account.
 type Account struct {
@@ -118,6 +120,15 @@ func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 	var accounts []Account
 	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.ListKeysCommand()); err != nil {
 		return err
+	}
+
+	// Make sure that the command output is not the empty keyring message.
+	// This need to be checked because when the keyring is empty the command
+	// finishes with exit code 0 and a plain text message.
+	// This behavior was added to Cosmos SDK v0.46.2. See the link
+	// https://github.com/cosmos/cosmos-sdk/blob/d01aa5b4a8/client/keys/list.go#L37
+	if strings.TrimSpace(b.String()) == msgEmptyKeyring {
+		return nil
 	}
 
 	data, err := b.JSONEnsuredBytes()

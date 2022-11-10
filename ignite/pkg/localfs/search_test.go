@@ -15,9 +15,9 @@ func setupGlobTests(t *testing.T, files []string) string {
 	for _, file := range files {
 		fileDir := filepath.Dir(file)
 		fileDir = filepath.Join(tmpdir, fileDir)
-		err := os.MkdirAll(fileDir, 0755)
+		err := os.MkdirAll(fileDir, 0o755)
 		require.NoError(t, err)
-		err = os.WriteFile(filepath.Join(tmpdir, file), []byte{}, 0644)
+		err = os.WriteFile(filepath.Join(tmpdir, file), []byte{}, 0o644)
 		require.NoError(t, err)
 	}
 	return tmpdir

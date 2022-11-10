@@ -7,28 +7,28 @@ on:
 
 jobs:
   consecutiveness:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: mktcode/consecutive-workflow-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build_and_deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ consecutiveness ]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: docs/node_modules
           key: node_modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
           cache: npm
@@ -46,7 +46,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGNITE_HQ }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGNTSERVICES }}"
           channelId: live
           target: docs.ignite.com
-          projectId: ignite-hq
+          projectId: igntservices

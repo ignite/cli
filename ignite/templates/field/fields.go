@@ -3,8 +3,8 @@ package field
 import (
 	"fmt"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
 // Fields represents a Field slice

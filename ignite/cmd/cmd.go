@@ -9,32 +9,36 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/pkg/goenv"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
-	"github.com/ignite-hq/cli/ignite/version"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/version"
 )
 
 const (
-	flagPath          = "path"
-	flagHome          = "home"
-	flagProto3rdParty = "proto-all-modules"
-	flagYes           = "yes"
-	flagClearCache    = "clear-cache"
+	flagPath       = "path"
+	flagHome       = "home"
+	flagYes        = "yes"
+	flagClearCache = "clear-cache"
+	flagSkipProto  = "skip-proto"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
+
+	statusGenerating = "Generating..."
+	statusQuerying   = "Querying..."
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -68,22 +72,24 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
 	c.AddCommand(NewNetwork())
+	c.AddCommand(NewNode())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
+	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
 
 	return c
 }
 
-func logLevel(cmd *cobra.Command) chain.LogLvl {
-	verbose, _ := cmd.Flags().GetBool("verbose")
-	if verbose {
-		return chain.LogVerbose
+func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
+	if verbose, _ := cmd.Flags().GetBool("verbose"); verbose {
+		return uilog.VerbosityVerbose
 	}
-	return chain.LogRegular
+
+	return uilog.VerbosityDefault
 }
 
 func flagSetPath(cmd *cobra.Command) {
@@ -97,13 +103,13 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagHome, "", "Home directory used for blockchains")
+	fs.String(flagHome, "", "home directory used for blockchains")
 	return fs
 }
 
 func flagNetworkFrom() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	fs.String(flagFrom, cosmosaccount.DefaultAccount, "account name to use for sending transactions to SPN")
 	return fs
 }
 
@@ -112,9 +118,20 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
+func flagSetConfig() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.StringP(flagConfig, "c", "", "ignite config file (default: ./config.yml)")
+	return fs
+}
+
+func getConfig(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagConfig)
+	return
+}
+
 func flagSetYes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.BoolP(flagYes, "y", false, "Answers interactive yes/no questions with yes")
+	fs.BoolP(flagYes, "y", false, "answers interactive yes/no questions with yes")
 	return fs
 }
 
@@ -123,25 +140,19 @@ func getYes(cmd *cobra.Command) (ok bool) {
 	return
 }
 
-func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
+func flagSetSkipProto() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-
-	info := "Enables proto code generation for 3rd party modules used in your chain"
-	if additionalInfo != "" {
-		info += ". " + additionalInfo
-	}
-
-	fs.Bool(flagProto3rdParty, false, info)
+	fs.Bool(flagSkipProto, false, "skip file generation from proto")
 	return fs
 }
 
-func flagGetProto3rdParty(cmd *cobra.Command) bool {
-	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
-	return isEnabled
+func flagGetSkipProto(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagSkipProto)
+	return skip
 }
 
 func flagSetClearCache(cmd *cobra.Command) {
-	cmd.PersistentFlags().Bool(flagClearCache, false, "Clear the build cache (advanced)")
+	cmd.PersistentFlags().Bool(flagClearCache, false, "clear the build cache (advanced)")
 }
 
 func flagGetClearCache(cmd *cobra.Command) bool {
@@ -149,7 +160,7 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
@@ -165,8 +176,8 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 }
 
 var (
-	modifyPrefix = color.New(color.FgMagenta).SprintFunc()("modify ")
-	createPrefix = color.New(color.FgGreen).SprintFunc()("create ")
+	modifyPrefix = colors.Modified("modify ")
+	createPrefix = colors.Success("create ")
 	removePrefix = func(s string) string {
 		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
 	}
@@ -278,7 +289,7 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(session cliui.Session, title string) error {
+func printSection(session *cliui.Session, title string) error {
 	return session.Printf("------\n%s\n------\n\n", title)
 }
 

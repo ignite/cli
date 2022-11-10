@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var CampaignSummaryHeader = []string{
@@ -29,8 +29,9 @@ func NewNetworkCampaignList() *cobra.Command {
 }
 
 func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -50,7 +51,7 @@ func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 }
 
 // renderCampaignSummaries writes into the provided out, the list of summarized campaigns
-func renderCampaignSummaries(campaigns []networktypes.Campaign, session cliui.Session) error {
+func renderCampaignSummaries(campaigns []networktypes.Campaign, session *cliui.Session) error {
 	var campaignEntries [][]string
 
 	for _, c := range campaigns {
@@ -66,8 +67,6 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, session cliui.Se
 			mainnetID,
 		})
 	}
-
-	session.StopSpinner()
 
 	return session.PrintTable(CampaignSummaryHeader, campaignEntries...)
 }

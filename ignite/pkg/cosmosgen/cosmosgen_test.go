@@ -5,12 +5,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 )
 
-func TestVuexStoreModulePath(t *testing.T) {
-	modulePath := VuexStoreModulePath("prefix")
+func TestTypescriptModulePath(t *testing.T) {
+	modulePath := TypescriptModulePath("prefix")
 
 	cases := []struct {
 		name         string
@@ -22,25 +22,25 @@ func TestVuexStoreModulePath(t *testing.T) {
 			name:         "github uri",
 			goModulePath: "github.com/owner/app",
 			protoPkgName: "owner.app.module",
-			want:         "prefix/owner/app/owner.app.module/module",
+			want:         "prefix/owner.app.module",
 		},
 		{
 			name:         "short uri",
 			goModulePath: "domain.com/app",
 			protoPkgName: "app.module",
-			want:         "prefix/app/app.module/module",
+			want:         "prefix/app.module",
 		},
 		{
 			name:         "path",
 			goModulePath: "owner/app",
 			protoPkgName: "owner.app.module",
-			want:         "prefix/owner/app/owner.app.module/module",
+			want:         "prefix/owner.app.module",
 		},
 		{
 			name:         "name",
 			goModulePath: "app",
 			protoPkgName: "app.module",
-			want:         "prefix/app/app.module/module",
+			want:         "prefix/app.module",
 		},
 	}
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
 // validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI
@@ -18,12 +18,11 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 	name, err := multiformatname.NewName(fieldSplit[0])
 	if err != nil {
 		return name, "", err
-
 	}
 
 	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
 	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", fmt.Errorf("%s can't be used as a field Name: %s", name, err.Error())
+		return name, "", fmt.Errorf("%s can't be used as a field Name: %w", name, err)
 	}
 
 	// Check if the object has an explicit type. The default is a string

@@ -1,13 +1,12 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 // NewChainFaucet creates a new faucet command to send coins to accounts.
@@ -30,14 +29,21 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	var (
 		toAddress = args[0]
 		coins     = args[1]
+		session   = cliui.New(
+			cliui.WithVerbosity(getVerbosity(cmd)),
+			cliui.StartSpinner(),
+		)
 	)
 
+	defer session.End()
+
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
 	}
 
-	c, err := newChainWithHomeFlags(cmd, chainOption...)
+	c, err := NewChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -58,6 +64,5 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("📨 Coins sent.")
-	return nil
+	return session.Println("📨 Coins sent.")
 }

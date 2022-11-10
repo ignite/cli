@@ -3,15 +3,13 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
-var (
-	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
-)
+var chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
 
 func newNetworkChainShowValidators() *cobra.Command {
 	c := &cobra.Command{
@@ -27,8 +25,8 @@ func newNetworkChainShowValidators() *cobra.Command {
 }
 
 func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	addressPrefix := getAddressPrefix(cmd)
 
@@ -66,8 +64,6 @@ func networkChainShowValidatorsHandler(cmd *cobra.Command, args []string) error 
 	if len(validatorEntries) == 0 {
 		return session.Printf("%s %s\n", icons.Info, "no account found")
 	}
-
-	session.StopSpinner()
 
 	return session.PrintTable(chainGenesisValSummaryHeader, validatorEntries...)
 }

@@ -1,16 +1,18 @@
 package ignitecmd
 
 import (
+	"fmt"
+
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/relayer"
-	relayerconfig "github.com/ignite-hq/cli/ignite/pkg/relayer/config"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/relayer"
+	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
 )
 
 const (
@@ -83,20 +85,22 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
 	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 
 	return c
 }
 
-func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
+func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	defer func() {
 		err = handleRelayerAccountErr(err)
 	}()
 
 	session := cliui.New()
-	defer session.Cleanup()
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err
@@ -400,6 +404,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
+	if err := sourceChain.EnsureChainSetup(cmd.Context()); err != nil {
+		return err
+	}
+
 	targetChain, err := initChain(
 		cmd,
 		r,
@@ -414,6 +422,10 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		targetClientID,
 	)
 	if err != nil {
+		return err
+	}
+
+	if err := targetChain.EnsureChainSetup(cmd.Context()); err != nil {
 		return err
 	}
 
@@ -440,17 +452,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	session.StopSpinner()
-	session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
-
-	return nil
+	return session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 }
 
 // initChain initializes chain information for the relayer connection
 func initChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
-	session cliui.Session,
+	session *cliui.Session,
 	name,
 	accountName,
 	rpcAddr,
@@ -461,10 +470,9 @@ func initChain(
 	clientID string,
 ) (*relayer.Chain, error) {
 	defer session.StopSpinner()
-	session.StartSpinner("Initializing chain...")
+	session.StartSpinner(fmt.Sprintf("Initializing chain %s...", name))
 
 	c, account, err := r.NewChain(
-		cmd.Context(),
 		accountName,
 		rpcAddr,
 		relayer.WithFaucet(faucetAddr),
@@ -477,16 +485,18 @@ func initChain(
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
+	accountAddr, err := account.Address(addressPrefix)
+	if err != nil {
+		return nil, err
+	}
+
 	session.StopSpinner()
-
-	accountAddr := account.Address(addressPrefix)
-
 	session.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)
 	session.StartSpinner(color.Yellow.Sprintf("trying to receive tokens from a faucet..."))
 
 	coins, err := c.TryRetrieve(cmd.Context())
-	session.StopSpinner()
 
+	session.StopSpinner()
 	session.Print(" |· ")
 	if err != nil {
 		session.Println(color.Yellow.Sprintf(err.Error()))

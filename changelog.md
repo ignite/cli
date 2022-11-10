@@ -1,31 +1,214 @@
 # Changelog
 
-## [`v0.22.1`](https://github.com/ignite-hq/cli/releases/tag/v0.22.1)
+## Unreleased
 
-### Fixes 
+### Features
+
+- [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
+- [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
+- [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite scaffold react` command.
+- [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate composables` command.
+- [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate hooks` command.
+- [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
+- [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+- [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
+- [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
+
+### Changes
+
+- [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
+- [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.
+- [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
+- [#2892](https://github.com/ignite/cli/pull/2982/) `removeSigner()` method added to generated `ts-client` 
+- [#3035](https://github.com/ignite/cli/pull/3035) Bump Cosmos SDK to `v0.46.4`.
+- [#3037](https://github.com/ignite/cli/pull/3037) Bump `ibc-go` to `v5.0.1`.
+- [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
+- [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
+- [#2958](https://github.com/ignite/cli/pull/2958) Support absolute paths for client code generation config paths.
+- [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
+- [#2986](https://github.com/ignite/cli/issues/2986) Remove `--proto-all-modules` flag because is now the default behaviour.
+- [#2986](https://github.com/ignite/cli/issues/2986) Remove automatic Vue code scaffolding from `scaffold chain` command.
+- [#2986](https://github.com/ignite/cli/issues/2986) Add `--generate-clients` to `chain serve` command for optional client code (re)generation.
+- [#2998](https://github.com/ignite/cli/pull/2998) Hide `ignite generate dart` command and remove functionality.
+- [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
+- [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
+- [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
+- [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
+
+### Breaking Changes
+
+- [#3033](https://github.com/ignite/cli/pull/3033) Remove Cosmos SDK Launchpad version support.
+
+### Fixes
+
+- [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
+- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` 
+template.
+
+## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#2968](https://github.com/ignite/cli/pull/2968) Dragonberry security fix upgrading Cosmos SDK to `v0.46.3`
+
+## [`v0.25.0`](https://github.com/ignite/cli/releases/tag/v0.25.0)
+
+### Features
+
+- Add `pkg/cosmostxcollector` package with support to query and save TXs and events.
+- Add `ignite network coordinator` command set.
+- Add `ignite network validator` command set.
+- Deprecate `cosmoscmd` pkg and add cmd templates for scaffolding.
+- Add generated TS client test support to integration tests.
+
+### Changes
+
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables or functions.
+- Improve genesis parser for `network` commands
+- Integration tests build their own ignite binary.
+- Updated `pkg/cosmosanalysis` to discover the list of app modules when defined in variables.
+- Switch to broadcast mode sync in `cosmosclient`
+- Updated `nodetime`: `ts-proto` to `v1.123.0`, `protobufjs` to `v7.1.1`, `swagger-typescript-api` to `v9.2.0`
+- Switched codegen client to use `axios` instead of `fetch`
+- Added `useKeplr()` and `useSigner()` methods to TS client. Allowed query-only instantiation.
+- `nodetime` built with `vercel/pkg@5.6.0`
+- Change CLI to use an events bus to print to stdout.
+- Move generated proto files to `proto/{appname}/{module}`
+- Update `pkg/cosmosanalysis` to detect when proto RPC services are using pagination.
+- Add `--peer-address` flag to `network chain join` command.
+- Change nightly tag format
+- Add cosmos-sdk version in `version` command
+- [#2935](https://github.com/ignite/cli/pull/2935) Update `gobuffalo/plush` templating tool to `v4`
+
+### Fixes
+
+- Fix ICA controller wiring.
+- Change vuex generation to use a default TS client path.
+- Fix cli action org in templates.
+- Seal the capability keeper in the `app.go` template.
+- Change faucet to allow CORS preflight requests.
+- Fix config file migration to void leaving end of file content chunks.
+- Change session print loop to block until all events are handled.
+- Handle "No records were found in keyring" message when checking keys.
+- [#2941](https://github.com/ignite/cli/issues/2941) Fix session to use the same spinner referece.
+- [#2922](https://github.com/ignite/cli/pull/2922) Network commands check for latest config version before building the chain binary.
+
+## [`v0.24.1`](https://github.com/ignite/cli/releases/tag/v0.24.1)
+
+### Features
+
+- Upgraded Cosmos SDK to `v0.46.2`.
+
+## [`v0.24.0`](https://github.com/ignite/cli/releases/tag/v0.24.0)
+
+### Features
+
+- Upgraded Cosmos SDK to `v0.46.0` and IBC to `v5` in CLI and scaffolding templates
+- Change chain init to check that no gentx are present in the initial genesis
+- Add `network rewards release` command
+- Add "make mocks" target to Makefile
+- Add `--skip-proto` flag to `build`, `init` and `serve` commands to build the chain without building proto files
+- Add `node query tx` command to query a transaction in any chain.
+- Add `node query bank` command to query an account's bank balance in any chain.
+- Add `node tx bank send` command to send funds from one account to another in any chain.
+- Add migration system for the config file to allow config versioning
+- Add `node tx bank send` command to send funds from one account to another in any chain.
+- Implement `network profile` command
+- Add `generate ts-client` command to generate a stand-alone modular TypeScript client.
+
+### Changes
+
+- Add changelog merge strategy in `.gitattributes` to avoid conflicts.
+- Refactor `templates/app` to remove `monitoringp` module from the default template
+- Updated keyring dependency to match Cosmos SDK
+- Speed up the integration tests
+- Refactor ignite network and fix genesis generation bug
+- Make Go dependency verification optional during build by adding the `--check-dependencies` flag
+  so Ignite CLI can work in a Go workspace context.
+- Temporary SPN address change for nightly
+- Rename `simapp.go.plush` simulation file template to `helpers.go.plush`
+- Remove campaign creation from the `network chain publish` command
+- Optimized JavaScript generator to use a single typescript API generator binary
+- Improve documentation and add support for protocol buffers and Go modules syntax
+- Add inline documentation for CLI commands
+- Change `cmd/account` to skip passphrase prompt when importing from mnemonic
+- Add nodejs version in the output of ignite version
+- Removed `handler.go` from scaffolded module template
+- Migrated to `cosmossdk.io` packages for and `math`
+- Vuex stores from the `generate vuex` command use the new TypeScript client
+- Upgraded frontend Vue template to v0.3.10
+
+### Fixes
+
+- Improved error handling for crypto wrapper functions
+- Fix `pkg/cosmosclient` to call the faucet prior to creating the tx.
+- Test and refactor `pkg/comosclient`.
+- Change templates to add missing call to `RegisterMsgServer` in the default module's template to match what's specified
+  in the docs
+- Fix cosmoscmd appID parameter value to sign a transaction correctly
+- Fix `scaffold query` command to use `GetClientQueryContext` instead of `GetClientTxContext`
+- Fix flaky integration tests issue that failed with "text file busy"
+- Fix default chain ID for publish
+- Replace `os.Rename` with `xos.Rename`
+- Fix CLI reference generation to add `ignite completion` documentation
+- Remove usage of deprecated `io/ioutil` package
+
+## [`v0.23.0`](https://github.com/ignite/cli/releases/tag/v0.23.0)
+
+### Features
+
+- Apps can now use generics
+
+### Fixes
+
+- Fix `pkg/cosmosanalysis` to support apps with generics
+- Remove `ignite-hq/cli` from dependency list in scaffolded chains
+
+### Changes
+
+- Change `pkg/cosmosgen` to allow importing IBC proto files
+- Improve docs for Docker related commands
+- Improve and fix documentation issues in developer tutorials
+- Add migration docs for v0.22.2
+- Improve `go mod download` error report in `pkg/cosmosgen`
+
+## [`v0.22.2`](https://github.com/ignite/cli/releases/tag/v0.22.2)
+
+### Features
+
+- Enable Darwin ARM 64 target for chain binary releases in CI templates
+
+### Changes
+
+- Rename `ignite-hq` to `ignite`
+
+## [`v0.22.1`](https://github.com/ignite/cli/releases/tag/v0.22.1)
+
+### Fixes
 
 - Fix IBC module scaffolding interface in templates
 
-## [`v0.22.0`](https://github.com/ignite-hq/cli/releases/tag/v0.22.0)
+## [`v0.22.0`](https://github.com/ignite/cli/releases/tag/v0.22.0)
 
-### Features 
+### Features
 
-- Optimized the build system. The `chain serve`, `chain build`, `chain generate` commands and other variants are way faster now
+- Optimized the build system. The `chain serve`, `chain build`, `chain generate` commands and other variants are way
+  faster now
 - Upgraded CLI and templates to use IBC v3
 
-### Fixes 
+### Fixes
 
 - Add a fix in code generation to avoid user's NodeJS configs to break TS client generation routine
 
-## [`v0.21.2`](https://github.com/ignite-hq/cli/releases/tag/v0.21.2)
+## [`v0.21.2`](https://github.com/ignite/cli/releases/tag/v0.21.2)
 
-### Fixes 
+### Fixes
 
-- Set min. gas to zero when running `chain` command set 
+- Set min. gas to zero when running `chain` command set
 
-## [`v0.21.1`](https://github.com/ignite-hq/cli/releases/tag/v0.21.1)
+## [`v0.21.1`](https://github.com/ignite/cli/releases/tag/v0.21.1)
 
-### Features 
+### Features
 
 - Add compatibility to run chains built with Cosmos-SDK `v0.46.0-alpha1` and above
 - Scaffold chains now will have `auth` module enabled by default
@@ -35,38 +218,40 @@
 - Fixed shell completion generation
 - Make sure proto package names are valid when using simple app names
 
-## [`v0.21.0`](https://github.com/ignite-hq/cli/releases/tag/v0.21.0)
+## [`v0.21.0`](https://github.com/ignite/cli/releases/tag/v0.21.0)
 
-### Features 
+### Features
 
 - Support simple app names when scaffolding chains. e.g.: `ignite scaffold chain mars`
-- Ask confirmation when scaffolding over changes that are not committed yet 
+- Ask confirmation when scaffolding over changes that are not committed yet
 
-## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
+## [`v0.20.4`](https://github.com/ignite/cli/releases/tag/v0.20.4)
 
 ### Fixes
 
 - Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
 
-## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
+## [`v0.20.3`](https://github.com/ignite/cli/releases/tag/v0.20.3)
 
 ### Fixes
 
-- Use latest version of CLI in templates to fix Linux ARM support _(It's now possible to develop chains in Linux ARM machines and since the chain depends on the CLI in its go.mod, it needs to use the latest version that support ARM targets)_
+- Use the latest version of CLI in templates to fix Linux ARM support _(It's now possible to develop chains in Linux ARM
+  machines and since the chain depends on the CLI in its `go.mod`, it needs to use the latest version that support ARM
+  targets)_
 
-## [`v0.20.2`](https://github.com/ignite-hq/cli/releases/tag/v0.20.2)
+## [`v0.20.2`](https://github.com/ignite/cli/releases/tag/v0.20.2)
 
 ### Fixes
 
 - Use `unsafe-reset-all` cmd under `tendermint` cmd for chains that use `=> v0.45.3` version of Cosmos SDK
 
-## [`v0.20.1`](https://github.com/ignite-hq/cli/releases/tag/v0.20.1)
+## [`v0.20.1`](https://github.com/ignite/cli/releases/tag/v0.20.1)
 
 ### Features
 
 - Release the CLI with Linux ARM and native M1 binaries
 
-## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.0)
+## [`v0.20.0`](https://github.com/ignite/cli/releases/tag/v0.20.0)
 
 Our new name is **Ignite CLI**!
 
@@ -78,18 +263,20 @@ Our new name is **Ignite CLI**!
 - Added support for in memory backend in `pkg/cosmosclient` package
 - Improved our tutorials and documentation
 
-## [`v0.19.5`](https://github.com/ignite-hq/cli/pull/2158/commits)
+## [`v0.19.5`](https://github.com/ignite/cli/pull/2158/commits)
 
 ### Features
 
 - Enable client code and Vuex code generation for query only modules as well.
 - Upgraded the Vue template to `v0.3.5`.
 
-### Fixes:
+### Fixes
+
 - Fixed snake case in code generation.
 - Fixed plugin installations for Go =>v1.18.
 
-### Changes:
+### Changes
+
 - Dropped transpilation of TS to JS. Code generation now only produces TS files.
 
 ## `v0.19.4`
@@ -104,7 +291,7 @@ Our new name is **Ignite CLI**!
 
 - Upgraded Flutter template to `v2.0.3`
 
-## [`v0.19.2`](https://github.com/ignite-hq/cli/milestone/14)
+## [`v0.19.2`](https://github.com/ignite/cli/milestone/14)
 
 ### Fixes
 
@@ -118,16 +305,19 @@ Our new name is **Ignite CLI**!
 
 ### Breaking Changes
 
-- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite-hq/cli/tree/develop/ignite/pkg/) in [PR 1971](https://github.com/ignite-hq/cli/pull/1971/files) 
- 
-    Updates are required if your chain uses these packages: 
+- Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the
+  Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/develop/ignite/pkg/)
+  in [PR 1971](https://github.com/ignite/cli/pull/1971/files)
+
+  Updates are required if your chain uses these packages:
 
     - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
-    - `spm/cosmoscmd` is now `pkg/cosmoscmd` 
+    - `spm/cosmoscmd` is now `pkg/cosmoscmd`
     - `spm/openapiconsole` is now `pkg/openapiconsole`
     - `testutil/sample` is now `cosmostestutil/sample`
 
-- Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/ignite-hq/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
+- Updated the faucet HTTP API schema. See API changes
+  in [fix: improve faucet reliability #1974](https://github.com/ignite/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
 
 ## `v0.19.1`
 
@@ -158,12 +348,16 @@ Our new name is **Ignite CLI**!
 
 ### Breaking Changes
 
-- Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions. See [Migration](./docs/migration/index.md).
+- Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were
+  scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must
+  update the default blockchain template to use blockchains that were scaffolded with earlier versions.
+  See [Migration](./docs/docs/migration/readme.md).
 
-### Features:
+### Features
 
 - Scaffold commands allow using previously scaffolded types as fields
-- Added `--signer` flag to `message`, `list`, `map`, and `single` scaffolding to allow customizing the name of the signer of the message
+- Added `--signer` flag to `message`, `list`, `map`, and `single` scaffolding to allow customizing the name of the
+  signer of the message
 - Added `--index` flag to `scaffold map` to provide a custom list of indices
 - Added `scaffold type` to scaffold a protocol buffer definition of a type
 - Automatically check for new Starport versions
@@ -177,11 +371,13 @@ Our new name is **Ignite CLI**!
 - Added `--path` flag for all `scaffold`, `generate` and `chain` commands
 - Added `--output` flag to the `build` command
 - Configure port of gRPC web in `config.yml` with the `host.grpc-web` property
-- Added `build.main` field to `config.yml` for apps to specify the path of the chain's main package. This property is required to be set only when an app contains multiple main packages.
+- Added `build.main` field to `config.yml` for apps to specify the path of the chain's main package. This property is
+  required to be set only when an app contains multiple main packages.
 
 ### Fixes
 
-- Scaffolding a message no longer prevents scaffolding a map, list, or single that has the same type name when using the `--no-message` flag
+- Scaffolding a message no longer prevents scaffolding a map, list, or single that has the same type name when using
+  the `--no-message` flag
 - Generate Go code from proto files only from default directories or directories specified in `config.yml`
 - Fixed faucet token transfer calculation
 - Removed `creator` field for types scaffolded with the `--no-message` flag
@@ -197,7 +393,8 @@ Our new name is **Ignite CLI**!
 
 ### Features
 
-- `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
+- `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client`
+  property
 - Support serving Cosmos SDK `v0.43.x` based chains
 
 ## `v0.17.1`
@@ -215,14 +412,16 @@ Our new name is **Ignite CLI**!
 
 - Added GitHub action that automatically builds and releases a binary
 - The `--release` flag for the `build` command adds the ability to release binaries in a tarball with a checksum file.
-- Added the flag `--no-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
+- Added the flag `--no-module` to the command `starport app` to prevent scaffolding a default module when creating a new
+  app
 - Added `--dep` flag to specify module dependency when scaffolding a module
 - Added support for multiple naming conventions for component names and field names
 - Print created and modified files when scaffolding a new component
 - Added `starport generate` namespace with commands to generate Go, Vuex and OpenAPI
 - Added `starport chain init` command to initialize a chain without starting a node
 - Scaffold a type that contains a single instance in the store
-- Introduced `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`
+- Introduced `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved
+  under `tools`
 - Added `faucet.rate_limit_window` property to `config.yml`
 - Simplified the `cmd` package in the template
 - Added `starport scaffold band` oracle query scaffolding
@@ -253,12 +452,17 @@ Our new name is **Ignite CLI**!
 
 ### Features
 
-- The new `join` flag adds the ability to pass a `--genesis` file and `--peers` address list with `starport network chain join`
+- The new `join` flag adds the ability to pass a `--genesis` file and `--peers` address list
+  with `starport network chain join`
 - The new `show` flag adds the ability to show `--genesis` and `--peers` list with `starport network chain show`
 - `protoc` is now bundled with Ignite CLI. You don't need to install it anymore.
 - Starport is now published automatically on the Docker Hub
-- `starport relayer` `configure` and `connect` commands now use the [confio/ts-relayer](https://github.com/confio/ts-relayer) under the hood. Also, checkout the new `starport relayer lowlevel` command
-- An OpenAPI spec for your chain is now automatically generated with `serve` and `build` commands: a console is available at `localhost:1317` and spec at `localhost:1317/static/openapi.yml` by default for the newly scaffolded chains
+- `starport relayer` `configure` and `connect` commands now use
+  the [confio/ts-relayer](https://github.com/confio/ts-relayer) under the hood. Also, checkout the
+  new `starport relayer lowlevel` command
+- An OpenAPI spec for your chain is now automatically generated with `serve` and `build` commands: a console is
+  available at `localhost:1317` and spec at `localhost:1317/static/openapi.yml` by default for the newly scaffolded
+  chains
 - Keplr extension is supported on web apps created with Starport
 - Added tests to the scaffold
 - Improved reliability of scaffolding by detecting placeholders
@@ -268,7 +472,7 @@ Our new name is **Ignite CLI**!
 - New types without CRUD operations can be added with the `--no-message` flag in the `type` command
 - New packet without messages can be added with the `--no-message` flag in the `packet` command
 - Added `docs` command to read Starport documentation on the CLI
-- Published documentation on https://docs.starport.network
+- Published documentation on <https://docs.starport.network>
 - Added `mnemonic` property to account in the `accounts` list to generate a key from a mnemonic
 
 ### Fixes
@@ -309,11 +513,12 @@ Our new name is **Ignite CLI**!
 ### Features
 
 - Chain state persistence between `starport serve` launches
-- Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
+- Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will
+  automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files used by Cosmos SDK modules into Ignite CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
 - Added ability to change path to home directory with `
-.home` in `config.yml`
+  .home` in `config.yml`
 - Added ability to add accounts by `address` with in `config.yml`
 - Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
 - Added `starport faucet [address] [coins]` command
@@ -323,10 +528,10 @@ Our new name is **Ignite CLI**!
 - Use SOS-lite and Docker instead of systemD
 - Arch PKGBUILD in `scripts`
 
-### Fixes:
+### Fixes
 
 - Support for CosmWasm on Stargate
-- Bug with dashes in Github username breaking proto package name
+- Bug with dashes in GitHub username breaking proto package name
 - Bug with custom address prefix
 - use docker buildx as a single command with multiple platforms to make multi-manifest work properly
 
@@ -337,9 +542,10 @@ Our new name is **Ignite CLI**!
 - Added `starport network` commands for launching blockchains
 - Added proxy (Chisel) to support launching blockchains from Gitpod
 - Upgraded the template (Stargate) to Cosmos SDK v0.40.0-rc3
-- Added a gRPC-Web proxy that is available under http://localhost:12345/grpc
+- Added a gRPC-Web proxy that is available under <http://localhost:12345/grpc>
 - Added chain id configurability by recognizing `chain_id` from `genesis` section of `config.yml`.
-- Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config` sections of `config.yml`
+- Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config`
+  sections of `config.yml`
 - Point to Stargate as default SDK version for scaffolding
 - Covered CRUD operations for Stargate scaffolding
 - Added docs on gopath to build from source directions
@@ -360,7 +566,7 @@ Our new name is **Ignite CLI**!
 
 ### Features
 
-- Added Github CLI to gitpod environment for greater ease of use
+- Added GitHub CLI to gitpod environment for greater ease of use
 - Added `starport build` command to build and install app binaries
 - Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook
 - Added `starport module create` command to scaffold custom modules
@@ -376,9 +582,9 @@ Our new name is **Ignite CLI**!
 - Update @tendermint/vue to `v0.1.7`
 - Removed "Starport Pi"
 - Removed Makefile from Downstream Pi
-- Fixed Downstream Pi image Github Action
+- Fixed Downstream Pi image GitHub Action
 - Prevent duplicated fields with `type` command
-- Fixed handling of protobufs profiler: prof_laddr -> pprof_laddr
+- Fixed handling of protobuf profiler: prof_laddr -> pprof_laddr
 - Fix an error, when a Stargate `serve` cmd doesn't start if a user doesn't have a relayer installed
 
 ## `v0.11.1`
@@ -391,9 +597,10 @@ Our new name is **Ignite CLI**!
 
 ### Features
 
-- Added experimental [Stargate](https://stargate.cosmos.network/) scaffolding option with `--sdk-version stargate` flag on `starport app` command
+- Added experimental [Stargate](https://stargate.cosmos.network/) scaffolding option with `--sdk-version stargate` flag
+  on `starport app` command
 - Pi Image Generation for chains generated with Starport
-- Github action with capture of binary artifacts for chains generated with Starport
+- GitHub action with capture of binary artifacts for chains generated with Starport
 - Gitpod: added guidelines and changed working directory into `docs`
 - Updated web scaffold with an improved sign in, balance list and a simple wallet
 - Added CRUD actions for scaffolded types: delete, update, and get
@@ -414,8 +621,10 @@ Our new name is **Ignite CLI**!
 - Compile with go1.15
 - Running `starport add type...` multiple times no longer breaks the app
 - Running `appcli tx app create-x` now checks for all required args
-- Removed unused `--denom` flag from the `app` command. It previously has moved as a prop to the `config.yml` under `accounts` section
-- Disabled proxy server in the Vue app (this was causing to some compatibilitiy issues) and enabled CORS for `appcli rest-server` instead
+- Removed unused `--denom` flag from the `app` command. It previously has moved as a prop to the `config.yml`
+  under `accounts` section
+- Disabled proxy server in the Vue app (this was causing to some compatibility issues) and enabled CORS
+  for `appcli rest-server` instead
 - `type` command supports dashes in app names
 
 ## `v0.0.10-rc.3`

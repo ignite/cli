@@ -5,20 +5,21 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
-	sperrors "github.com/ignite-hq/cli/ignite/errors"
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/chaincmd"
-	"github.com/ignite-hq/cli/ignite/pkg/checksum"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/services/chain"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/checksum"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
@@ -29,15 +30,19 @@ type Chain struct {
 	path string
 	home string
 
-	url         string
-	hash        string
-	genesisURL  string
-	genesisHash string
-	launchTime  int64
+	url           string
+	hash          string
+	genesisURL    string
+	genesisHash   string
+	genesisConfig string
+	launchTime    time.Time
+
+	accountBalance sdk.Coins
 
 	keyringBackend chaincmd.KeyringBackend
 
-	isInitialized bool
+	isInitialized     bool
+	checkDependencies bool
 
 	ref plumbing.ReferenceName
 
@@ -92,8 +97,10 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 		c.hash = launch.SourceHash
 		c.genesisURL = launch.GenesisURL
 		c.genesisHash = launch.GenesisHash
+		c.genesisConfig = launch.GenesisConfig
 		c.home = ChainHome(launch.ID)
 		c.launchTime = launch.LaunchTime
+		c.accountBalance = launch.AccountBalance
 	}
 }
 
@@ -118,10 +125,26 @@ func WithGenesisFromURL(genesisURL string) Option {
 	}
 }
 
+// WithGenesisFromConfig provides a config file for the initial genesis of the chain blockchain
+func WithGenesisFromConfig(genesisConfig string) Option {
+	return func(c *Chain) {
+		c.genesisConfig = genesisConfig
+	}
+}
+
 // CollectEvents collects events from the chain.
 func CollectEvents(ev events.Bus) Option {
 	return func(c *Chain) {
 		c.ev = ev
+	}
+}
+
+// CheckDependencies checks that cached Go dependencies of the chain have
+// not been modified since they were downloaded. Dependencies are checked
+// by running `go mod verify`.
+func CheckDependencies() Option {
+	return func(c *Chain) {
+		c.checkDependencies = true
 	}
 }
 
@@ -135,20 +158,23 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		apply(c)
 	}
 
-	c.ev.Send(events.New(events.StatusOngoing, "Fetching the source code"))
+	c.ev.Send("Fetching the source code", events.ProgressStart())
 
 	var err error
 	if c.path, c.hash, err = fetchSource(ctx, c.url, c.ref, c.hash); err != nil {
 		return nil, err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Source code fetched"))
-	c.ev.Send(events.New(events.StatusOngoing, "Setting up the blockchain"))
+	c.ev.Send("Source code fetched", events.ProgressFinish())
+	c.ev.Send("Setting up the blockchain", events.ProgressStart())
 
 	chainOption := []chain.Option{
 		chain.ID(c.id),
 		chain.HomePath(c.home),
-		chain.LogLevel(chain.LogSilent),
+	}
+
+	if c.checkDependencies {
+		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -164,12 +190,8 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		return nil, err
 	}
 
-	if !chain.Version.IsFamily(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
-	}
-
 	c.chain = chain
-	c.ev.Send(events.New(events.StatusDone, "Blockchain set up"))
+	c.ev.Send("Blockchain set up", events.ProgressFinish())
 
 	return c, nil
 }
@@ -226,6 +248,14 @@ func (c Chain) SourceHash() string {
 	return c.hash
 }
 
+func (c Chain) IsAccountBalanceFixed() bool {
+	return !c.accountBalance.IsZero()
+}
+
+func (c Chain) AccountBalance() sdk.Coins {
+	return c.accountBalance
+}
+
 func (c Chain) IsHomeDirExist() (ok bool, err error) {
 	home, err := c.chain.Home()
 	if err != nil {
@@ -253,8 +283,30 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 	return nodeID, nil
 }
 
+// CheckConfigVersion checks that the config version is the latest.
+func (c Chain) CheckConfigVersion() error {
+	configPath := c.chain.ConfigPath()
+	if configPath == "" {
+		return chainconfig.ErrConfigNotFound
+	}
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return chainconfig.CheckVersion(file)
+}
+
 // Build builds chain sources, also checks if source was already built
 func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
+	// Check that the config version is the latest before building the binary
+	if err = c.CheckConfigVersion(); err != nil {
+		return
+	}
+
 	// if chain was already published and has launch id check binary cache
 	if c.launchID != 0 {
 		if binaryName, err = c.chain.Binary(); err != nil {
@@ -273,14 +325,14 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 		}
 	}
 
-	c.ev.Send(events.New(events.StatusOngoing, "Building the chain's binary"))
+	c.ev.Send("Building the chain's binary", events.ProgressStart())
 
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, cacheStorage, ""); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
 		return "", err
 	}
 
-	c.ev.Send(events.New(events.StatusDone, "Chain's binary built"))
+	c.ev.Send("Chain's binary built", events.ProgressFinish())
 
 	// cache built binary for launch id
 	if c.launchID != 0 {
@@ -299,7 +351,6 @@ func (c *Chain) CacheBinary(launchID uint64) error {
 		return err
 	}
 	binaryChecksum, err := checksum.Binary(binaryName)
-
 	if err != nil {
 		return err
 	}
@@ -320,7 +371,7 @@ func fetchSource(
 	}
 
 	// ensure the path for chain source exists
-	if err := os.MkdirAll(path, 0755); err != nil {
+	if err := os.MkdirAll(path, 0o755); err != nil {
 		return "", "", err
 	}
 

@@ -1,10 +1,10 @@
 package networkchain
 
 import (
-	"github.com/ignite-hq/cli/ignite/chainconfig"
-	"github.com/ignite-hq/cli/ignite/pkg/checksum"
-	"github.com/ignite-hq/cli/ignite/pkg/confile"
-	"github.com/ignite-hq/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/checksum"
+	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
@@ -51,7 +51,7 @@ func cacheBinaryForLaunchID(launchID uint64, binaryHash, sourceHash string) erro
 	if err != nil {
 		return err
 	}
-	var cacheList = BinaryCacheList{}
+	cacheList := BinaryCacheList{}
 	err = confile.New(confile.DefaultYAMLEncodingCreator, cachePath).Load(&cacheList)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func checkBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string)
 	if err != nil {
 		return false, err
 	}
-	var cacheList = BinaryCacheList{}
+	cacheList := BinaryCacheList{}
 	err = confile.New(confile.DefaultYAMLEncodingCreator, cachePath).Load(&cacheList)
 	if err != nil {
 		return false, err

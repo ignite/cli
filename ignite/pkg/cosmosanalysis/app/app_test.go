@@ -1,302 +1,330 @@
 package app_test
 
 import (
+	_ "embed"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 )
 
 var (
-	AppFile = []byte(`
-package foo
-
-type Foo struct {
-	FooKeeper foo.keeper
-}
-
-func (f Foo) RegisterAPIRoutes() {}
-func (f Foo) RegisterTxService() {}
-func (f Foo) RegisterTendermintService() {}
-func (f Foo) Name() string { return app.BaseApp.Name() }
-func (f Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (f Foo) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-`)
-
-	NoAppFile = []byte(`
-package foo
-
-type Bar struct {
-	FooKeeper foo.keeper
-}
-`)
-
-	TwoAppFile = []byte(`
-package foo
-
-type Foo struct {
-	FooKeeper foo.keeper
-}
-
-func (f Foo) RegisterAPIRoutes() {}
-func (f Foo) RegisterTxService() {}
-func (f Foo) RegisterTendermintService() {}
-func (f Foo) Name() string { return app.BaseApp.Name() }
-func (f Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (f Foo) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-
-type Bar struct {
-	FooKeeper foo.keeper
-}
-
-func (f Bar) RegisterAPIRoutes() {}
-func (f Bar) RegisterTxService() {}
-func (f Bar) RegisterTendermintService() {}
-func (f Bar) Name() string { return app.BaseApp.Name() }
-func (f Bar) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (f Bar) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-`)
-	FullAppFile = []byte(`
-package app
-
-import (
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
-
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	"github.com/cosmos/cosmos-sdk/client/rpc"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/server/api"
-	"github.com/cosmos/cosmos-sdk/server/config"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmodule "github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/evidence"
-	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/mint"
-	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/cosmos/cosmos-sdk/x/params"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	ibcporttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
-
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
-	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
-
-	"github.com/tendermint/testchain/docs"
-
-	queryonlymodmodule "github.com/tendermint/testchain/x/queryonlymod"
-	queryonlymodmodulekeeper "github.com/tendermint/testchain/x/queryonlymod/keeper"
-	queryonlymodmoduletypes "github.com/tendermint/testchain/x/queryonlymod/types"
-	testchainmodule "github.com/tendermint/testchain/x/testchain"
-	testchainmodulekeeper "github.com/tendermint/testchain/x/testchain/keeper"
-	testchainmoduletypes "github.com/tendermint/testchain/x/testchain/types"
-)
-
-type App struct {}
-func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-
-var (
-	ModuleBasics = sdkmodule.NewBasicManager(
-		auth.AppModuleBasic{},
-		genutil.AppModuleBasic{},
-		bank.AppModuleBasic{},
-		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
-		mint.AppModuleBasic{},
-		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(getGovProposalHandlers()...),
-		params.AppModuleBasic{},
-		crisis.AppModuleBasic{},
-		slashing.AppModuleBasic{},
-		feegrantmodule.AppModuleBasic{},
-		ibc.AppModuleBasic{},
-		upgrade.AppModuleBasic{},
-		evidence.AppModuleBasic{},
-		transfer.AppModuleBasic{},
-		vesting.AppModuleBasic{},
-		testchainmodule.AppModuleBasic{},
-		queryonlymodmodule.AppModuleBasic{},
-		// this line is used by starport scaffolding # stargate/app/moduleBasic
-	)
-)
-
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	clientCtx := apiSvr.ClientCtx
-	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
-	authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
-	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
-	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
-}
-
-func (app *App) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
-}
-
-func (app *App) RegisterTendermintService(clientCtx client.Context) {
-	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
-}
-
-`)
+	//go:embed testdata/app_minimal.go
+	AppMinimalFile []byte
+	//go:embed testdata/app_generic.go
+	AppGenericFile []byte
+	//go:embed testdata/no_app.go
+	NoAppFile []byte
+	//go:embed testdata/two_app.go
+	TwoAppFile []byte
+	//go:embed testdata/app_full.go
+	AppFullFile []byte
 )
 
 func TestCheckKeeper(t *testing.T) {
-	tmpDir := t.TempDir()
+	tests := []struct {
+		name          string
+		appFile       []byte
+		keeperName    string
+		expectedError string
+	}{
+		{
+			name:       "minimal app",
+			appFile:    AppMinimalFile,
+			keeperName: "FooKeeper",
+		},
+		{
+			name:       "generic app",
+			appFile:    AppGenericFile,
+			keeperName: "FooKeeper",
+		},
+		{
+			name:          "no app",
+			appFile:       NoAppFile,
+			keeperName:    "FooKeeper",
+			expectedError: "app.go should contain a single app (got 0)",
+		},
+		{
+			name:          "two apps",
+			appFile:       TwoAppFile,
+			keeperName:    "FooKeeper",
+			expectedError: "app.go should contain a single app (got 2)",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			tmpFile := filepath.Join(tmpDir, "app.go")
+			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
+			require.NoError(t, err)
 
-	// Test with a source file containing an app
-	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, AppFile, 0644)
-	require.NoError(t, err)
+			err = app.CheckKeeper(tmpDir, tt.keeperName)
 
-	err = app.CheckKeeper(tmpDir, "FooKeeper")
-	require.NoError(t, err)
-	err = app.CheckKeeper(tmpDir, "BarKeeper")
-	require.Error(t, err)
-
-	// No app in source must return an error
-	tmpDirNoApp := t.TempDir()
-	tmpFileNoApp := filepath.Join(tmpDirNoApp, "app.go")
-	err = os.WriteFile(tmpFileNoApp, NoAppFile, 0644)
-	require.NoError(t, err)
-	err = app.CheckKeeper(tmpDirNoApp, "FooKeeper")
-	require.Error(t, err)
-
-	// More than one app must return an error
-	tmpDirTwoApp := t.TempDir()
-	tmpFileTwoApp := filepath.Join(tmpDirTwoApp, "app.go")
-	err = os.WriteFile(tmpFileTwoApp, TwoAppFile, 0644)
-	require.NoError(t, err)
-	err = app.CheckKeeper(tmpDirTwoApp, "FooKeeper")
-	require.Error(t, err)
+			if tt.expectedError != "" {
+				require.EqualError(t, err, tt.expectedError)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
 }
 
-func TestGetRegisteredModules(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, FullAppFile, 0644)
-	require.NoError(t, err)
-
-	tmpNoAppFile := filepath.Join(tmpDir, "someOtherFile.go")
-	err = os.WriteFile(tmpNoAppFile, NoAppFile, 0644)
-	require.NoError(t, err)
-
-	registeredModules, err := app.FindRegisteredModules(tmpDir)
-	require.NoError(t, err)
-	require.ElementsMatch(t, []string{
+func TestFindRegisteredModules(t *testing.T) {
+	basicModules := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
-		"github.com/cosmos/cosmos-sdk/x/genutil",
 		"github.com/cosmos/cosmos-sdk/x/bank",
-		"github.com/cosmos/cosmos-sdk/x/capability",
 		"github.com/cosmos/cosmos-sdk/x/staking",
-		"github.com/cosmos/cosmos-sdk/x/mint",
-		"github.com/cosmos/cosmos-sdk/x/distribution",
 		"github.com/cosmos/cosmos-sdk/x/gov",
-		"github.com/cosmos/cosmos-sdk/x/params",
-		"github.com/cosmos/cosmos-sdk/x/crisis",
-		"github.com/cosmos/cosmos-sdk/x/slashing",
-		"github.com/cosmos/cosmos-sdk/x/feegrant/module",
-		"github.com/cosmos/ibc-go/v3/modules/core",
-		"github.com/cosmos/cosmos-sdk/x/upgrade",
-		"github.com/cosmos/cosmos-sdk/x/evidence",
-		"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
-		"github.com/cosmos/cosmos-sdk/x/auth/vesting",
-		"github.com/tendermint/testchain/x/testchain",
-		"github.com/tendermint/testchain/x/queryonlymod",
-		"github.com/cosmos/cosmos-sdk/x/auth/tx",
-		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
-	}, registeredModules)
+		"github.com/username/test/x/foo",
+	}
+
+	cases := []struct {
+		name            string
+		path            string
+		expectedModules []string
+	}{
+		{
+			name:            "new basic manager arguments",
+			path:            "testdata/modules/arguments",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "cosmos-sdk/types/module with alias",
+			path:            "testdata/modules/package_alias",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "package not called app",
+			path:            "testdata/modules/package_not_called_app",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "append with arguments",
+			path:            "testdata/modules/append_arguments",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "registration not in app.go",
+			path:            "testdata/modules/registration_not_in_app_go",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same file variable",
+			path:            "testdata/modules/file_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same package variable",
+			path:            "testdata/modules/package_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "other package variable",
+			path:            "testdata/modules/external_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name: "with api routes",
+			path: "testdata/modules/api_routes",
+			expectedModules: append(
+				basicModules,
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			),
+		},
+		{
+			name:            "same file function",
+			path:            "testdata/modules/file_function",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same package function",
+			path:            "testdata/modules/package_function",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "append same package function",
+			path:            "testdata/modules/append_package_function",
+			expectedModules: basicModules,
+		},
+		{
+			name: "gaia",
+			path: "testdata/modules/gaia",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/cosmos/cosmos-sdk/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant/module",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/cosmos-sdk/x/group/module",
+				"github.com/cosmos/ibc-go/v5/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v5/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/gravity-devs/liquidity/v2/x/liquidity",
+				"github.com/strangelove-ventures/packet-forward-middleware/v2/router",
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/gaia/v8/x/icamauth",
+				"github.com/cosmos/gaia/v8/x/globalfee",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
+		},
+		{
+			name: "spn",
+			path: "testdata/modules/spn",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/ignite/modules/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant/module",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/ibc-go/v5/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v5/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/tendermint/spn/x/participation",
+				"github.com/ignite/modules/x/claim",
+				"github.com/tendermint/spn/x/profile",
+				"github.com/tendermint/spn/x/launch",
+				"github.com/tendermint/spn/x/campaign",
+				"github.com/tendermint/spn/x/monitoringc",
+				"github.com/tendermint/spn/x/monitoringp",
+				"github.com/tendermint/spn/x/reward",
+				"github.com/tendermint/fundraising/x/fundraising",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
+		},
+		{
+			name: "juno",
+			path: "testdata/modules/juno",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/CosmosContracts/juno/v10/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/ibc-go/v3/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/feegrant/module",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/CosmWasm/wasmd/x/wasm",
+				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
+		},
+		{
+			name: "osmosis",
+			path: "testdata/modules/osmosis",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/osmosis-labs/osmosis/v12/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/ibc-go/v3/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/osmosis-labs/osmosis/v12/x/gamm",
+				"github.com/osmosis-labs/osmosis/v12/x/twap/twapmodule",
+				"github.com/osmosis-labs/osmosis/v12/x/txfees",
+				"github.com/osmosis-labs/osmosis/v12/x/incentives",
+				"github.com/osmosis-labs/osmosis/v12/x/lockup",
+				"github.com/osmosis-labs/osmosis/v12/x/pool-incentives",
+				"github.com/osmosis-labs/osmosis/v12/x/epochs",
+				"github.com/osmosis-labs/osmosis/v12/x/superfluid",
+				"github.com/osmosis-labs/osmosis/v12/x/tokenfactory",
+				"github.com/CosmWasm/wasmd/x/wasm",
+				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
+		},
+		{
+			name: "akash",
+			path: "testdata/modules/akash",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/cosmos/cosmos-sdk/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/ibc-go/v3/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/ovrclk/akash/x/icaauth",
+				"github.com/ovrclk/akash/x/escrow",
+				"github.com/ovrclk/akash/x/deployment",
+				"github.com/ovrclk/akash/x/market",
+				"github.com/ovrclk/akash/x/provider",
+				"github.com/ovrclk/akash/x/audit",
+				"github.com/ovrclk/akash/x/cert",
+				"github.com/ovrclk/akash/x/inflation",
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+
+			m, err := app.FindRegisteredModules(tt.path)
+
+			require.NoError(err)
+			require.ElementsMatch(tt.expectedModules, m)
+		})
+	}
 }

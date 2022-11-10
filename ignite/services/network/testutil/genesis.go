@@ -53,7 +53,7 @@ func (g *Genesis) SaveTo(t *testing.T, dir string) string {
 	encoded, err := json.Marshal(g)
 	assert.NoError(t, err)
 	savePath := filepath.Join(dir, "genesis.json")
-	err = os.WriteFile(savePath, encoded, 0666)
+	err = os.WriteFile(savePath, encoded, 0o666)
 	assert.NoError(t, err)
 	return savePath
 }

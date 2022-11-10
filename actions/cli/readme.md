@@ -1,4 +1,5 @@
 # Ignite CLI Action
+
 This action makes the `ignite` CLI available as a Github Action.
 
 ## Quick start
@@ -16,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Print Help 
-        uses: ignite-hq/cli/actions/cli@develop
+        uses: ignite/cli/actions/cli@develop
         with:
           args: -h 
 ```

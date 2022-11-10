@@ -14,10 +14,10 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Finding files and store to output
         id: set-matrix
-        run: echo "::set-output name=matrix::$({ cd integration && find . -type d -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)"
+        run: echo "matrix=$({ cd integration && find . -type d ! -name testdata -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)" >> $GITHUB_OUTPUT
 
   integration:
     name: test ${{ matrix.test-path }}
@@ -30,14 +30,8 @@ jobs:
       matrix:
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@v2
-      - uses: technote-space/get-diff-action@v4
-        with:
-          PATTERNS: |
-            **/*
-            !**/*.md
-      - uses: actions/cache@v2
-        if: env.GIT_DIFF
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
@@ -45,16 +39,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - uses: actions/setup-go@v2
-        if: env.GIT_DIFF
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.18
-      - name: Install Ignite CLI
-        if: env.GIT_DIFF
-        run: go install ./...
+          go-version: 1.19
       - name: Run Integration Tests
-        if: env.GIT_DIFF
-        run: go test -v -timeout 60m ./integration/${{ matrix.test-path }}
+        run: GOSUMDB=off go test -v -timeout 60m ./integration/${{ matrix.test-path }}
 
   status:
     runs-on: ubuntu-latest

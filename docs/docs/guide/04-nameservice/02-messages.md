@@ -5,9 +5,12 @@ description: Add messages to define actions for the nameservice module.
 
 # Messages for the Nameservice Module
 
-Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a name that belongs to them.
+Messages are a great place to start when building a Cosmos SDK module because they define the actions that your app
+can make. Remember that the nameservice app lets users buy a name, set a value for a name to resolve to, and delete a
+name that belongs to them.
 
-With this design in mind for the `nameservice` module, it's time to create these messages to define the actions. End users can send these messages to interact with the application state:
+With this design in mind for the `nameservice` module, it's time to create these messages to define the actions.
+End users can send these messages to interact with the application state:
 
 - `BuyName`
 - `SetName`
@@ -15,14 +18,18 @@ With this design in mind for the `nameservice` module, it's time to create these
 
 ## Message Type
 
-Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the network. Because the Cosmos SDK wraps and unwraps messages from transactions, as an app developer, you only have to define messages.
+Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the
+network. Because the Cosmos SDK wraps and unwraps messages from transactions, as an app developer, you only have to
+define messages.
 
 Messages must satisfy the following interface:
 
 ```go
+package sdk
+
 // Transactions messages must fulfill the Msg
 type Msg interface {
-  proto.Message
+	proto.Message
 
 	// ValidateBasic does a simple validation check that
 	// doesn't require access to any other information.
@@ -32,46 +39,55 @@ type Msg interface {
 	// CONTRACT: All signatures must be present to be valid
 	GetSigners() []AccAddress
 
-  // Legacy methods
+	// Legacy methods
 	Type() string
 	Route() string
 	GetSignBytes() []byte
 }
 ```
 
-The `Msg` type extends `proto.Message` and contains these methods along with the legacy methods (`Type`, `Route`, and `GetSignBytes`):
+The `Msg` type extends `proto.Message` and contains these methods along with the legacy methods (`Type`, `Route`, and
+`GetSignBytes`):
 
 - `ValidateBasic`
 
-  - Called early in the processing of the message to discard obviously invalid messages.
-	- Includes only checks that do not require access to the state. For example, check that the `amount` of tokens is a positive value.
+    - Called early in the processing of the message to discard obviously invalid messages.
+        - Includes only checks that do not require access to the state. For example, check that the `amount` of tokens
+          is a
+          positive value.
 
 - `GetSigners`
 
-  - Returns the list of signers.
-  - The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that is returned by this method.
+    - Returns the list of signers.
+    - The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that
+      is returned by this method.
 
 ## Handlers
 
 Handlers define the action that needs to be taken. Each message has an associated handler.
 
-For example, handlers define which stores to update, how to update the stores, and under what conditions to act when a given message is received.
+For example, handlers define which stores to update, how to update the stores, and under what conditions to act when a
+given message is received.
 
 ## Scaffolding Messages
 
 Now, you are ready to implement these Cosmos SDK messages to achieve the desired functionality for your nameservice app:
 
 - `MsgBuyName`
-	Allow accounts to buy a name and become its owner. When an end user buys a name, they are required to pay the previous owner of the name a price higher than the price the previous owner paid for it. If a name does not have a previous owner yet, the end user must burn a `MinPrice` amount.
+  Allow accounts to buy a name and become its owner. When an end user buys a name, they are required to pay the previous
+  owner of the name a price higher than the price the previous owner paid for it. If a name does not have a previous
+  owner yet, the end user must burn a `MinPrice` amount.
 - `MsgSetName`
-	Allow name owners to set a value for a given name.
+  Allow name owners to set a value for a given name.
 - `MsgDeleteName`
-	Allow name owners to delete names that belong to them.
+  Allow name owners to delete names that belong to them.
 
 Use the `ignite scaffold message` command to scaffold new messages for your module.
 
-- The [`ignite scaffold message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
-- By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`.
+- The [`ignite scaffold message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts the message name as
+  the first argument and a list of fields for the message.
+- By default, a message is scaffolded in a module with a name that matches the name of the project, in this
+  case `nameservice`.
 
 ### Add the MsgBuyName Message
 
@@ -87,71 +103,72 @@ where:
 - name defines the name that the user can buy, sell, and delete
 - bid is the price the user bids to buy a name
 
-The `ignite scaffold message buy-name name bid` command creates and modifies several files and outputs the changes. You can view the changes in each file:
+The `ignite scaffold message buy-name name bid` command creates and modifies several files:
 
-- modify `proto/nameservice/tx.proto`
-- modify `x/nameservice/client/cli/tx.go`
-- create `x/nameservice/client/cli/tx_buy_name.go`
-- modify `x/nameservice/handler.go`
-- create `x/nameservice/keeper/msg_server_buy_name.go`
-- modify `x/nameservice/types/codec.go`
-- create `x/nameservice/types/message_buy_name.go`
+```
+modify proto/nameservice/nameservice/tx.proto
+modify x/nameservice/client/cli/tx.go
+create x/nameservice/client/cli/tx_buy_name.go
+create x/nameservice/keeper/msg_server_buy_name.go
+modify x/nameservice/types/codec.go
+create x/nameservice/types/message_buy_name.go
+```
 
-- `proto/nameservice/tx.proto`
+These are the changes for each one of these files:
+
+- `proto/nameservice/nameservice/tx.proto`
     - Adds `MsgBuyName` and `MsgBuyNameResponse` proto messages.
     - Registers `BuyName` rpc in the `Msg` service.
 
-    Open the `tx.proto` file to view the changes:
+      Open the `tx.proto` file to view the changes:
 
-    ```go
-    syntax = "proto3";
-    package username.nameservice.nameservice;
-
-    // this line is used by starport scaffolding # proto/tx/import
-
-    option go_package = "github.com/username/nameservice/x/nameservice/types";
-
-    // Msg defines the Msg service.
-    service Msg {
-    	// this line is used by starport scaffolding # proto/tx/rpc
-    rpc BuyName(MsgBuyName) returns (MsgBuyNameResponse);
-    }
-
-    // this line is used by starport scaffolding # proto/tx/message
-    message MsgBuyName {
-    string creator = 1;
-    string name = 2;
-    string bid = 3;
-    }
-
-    message MsgBuyNameResponse {
-    }
-    ```
+      ```protobuf
+      syntax = "proto3";
+  
+      package nameservice.nameservice;
+  
+      // this line is used by starport scaffolding # proto/tx/import
+  
+      option go_package = "nameservice/x/nameservice/types";
+  
+      // Msg defines the Msg service.
+      service Msg {
+        // this line is used by starport scaffolding # proto/tx/rpc
+        rpc BuyName(MsgBuyName) returns (MsgBuyNameResponse);
+      }
+  
+      // this line is used by starport scaffolding # proto/tx/message
+      message MsgBuyName {
+        string creator = 1;
+        string name = 2;
+        string bid = 3;
+      }
+  
+      message MsgBuyNameResponse {
+      }
+      ```
 
 - `x/nameservice/client/cli/tx.go`
 
-    Registers the CLI command.
+  Registers the CLI command.
 
 - `x/nameservice/types/message_buy_name.go`
 
-    Defines methods to satisfy the `Msg` interface.
-
-- `x/nameservice/handler.go`
-
-    Registers the `MsgBuyName` message in the module message handler.
+  Defines methods to satisfy the `Msg` interface.
 
 - `x/nameservice/keeper/msg_server_buy_name.go`
 
-    Defines the `BuyName` keeper method. You can notice that the message follows the `Msg` interface. The message `struct` contains all the  information required when buying a name: `Name`, `Bid`, and `Creator`. This struct was added automatically.
+  Defines the `BuyName` keeper method. You can notice that the message follows the `Msg` interface. The message
+  `struct` contains all the information required when buying a name: `Name`, `Bid`, and `Creator`. This struct was added
+  automatically.
 
 - `x/nameservice/client/cli/tx_buy_name.go`
 
-  	Adds the CLI command to broadcast a transaction with a message.
+  Adds the CLI command to broadcast a transaction with a message.
 
 - `x/nameservice/types/codec.go`
 
-    Registers the codecs.
-
+  Registers the codecs.
 
 ### Add The MsgSetName Message
 
@@ -186,4 +203,5 @@ where:
 
 ## Results
 
-Congratulations, you've defined messages that trigger state transitions. Now it's time to implement types and methods that operate on the state.
+Congratulations, you've defined messages that trigger state transitions. Now it's time to implement types and methods
+that operate on the state.

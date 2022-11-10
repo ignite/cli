@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosutil"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosutil"
 )
 
 var (
@@ -29,8 +29,8 @@ func newNetworkChainShowAccounts() *cobra.Command {
 }
 
 func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	addressPrefix := getAddressPrefix(cmd)
 
@@ -52,7 +52,6 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if len(genesisAccs)+len(vestingAccs) == 0 {
-		session.StopSpinner()
 		return session.Printf("%s %s\n", icons.Info, "empty chain account list")
 	}
 
@@ -63,7 +62,7 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		genesisAccEntries = append(genesisAccEntries, []string{address, acc.Coins})
+		genesisAccEntries = append(genesisAccEntries, []string{address, acc.Coins.String()})
 	}
 	genesisVestingAccEntries := make([][]string, 0)
 	for _, acc := range vestingAccs {
@@ -74,13 +73,12 @@ func networkChainShowAccountsHandler(cmd *cobra.Command, args []string) error {
 
 		genesisVestingAccEntries = append(genesisVestingAccEntries, []string{
 			address,
-			acc.TotalBalance,
-			acc.Vesting,
+			acc.TotalBalance.String(),
+			acc.Vesting.String(),
 			strconv.FormatInt(acc.EndTime, 10),
 		})
 	}
 
-	session.StopSpinner()
 	if len(genesisAccEntries) > 0 {
 		if err = session.PrintTable(chainGenesisAccSummaryHeader, genesisAccEntries...); err != nil {
 			return err

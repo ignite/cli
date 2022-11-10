@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
 const (
@@ -37,7 +37,7 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
 	if err := checkForbiddenComponentName(compName); err != nil {
-		return fmt.Errorf("%s can't be used as a component name: %s", compName.LowerCamel, err.Error())
+		return fmt.Errorf("%s can't be used as a component name: %w", compName.LowerCamel, err)
 	}
 
 	// Check component name is not already used
@@ -120,7 +120,6 @@ func checkGoReservedWord(name string) error {
 
 // checkComponentCreated checks if the component has been already created with Starport in the project
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
-
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
 		compName.UpperCamel:                           componentType,
@@ -208,8 +207,8 @@ func checkForbiddenOracleFieldName(name string) error {
 }
 
 // checkCustomTypes returns error if one of the types is invalid
-func checkCustomTypes(ctx context.Context, path, module string, fields []string) error {
-	protoPath := filepath.Join(path, protoFolder, module)
+func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
+	protoPath := filepath.Join(path, protoFolder, appName, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
 		fieldSplit := strings.Split(name, datatype.Separator)

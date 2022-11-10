@@ -6,14 +6,14 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
-	"github.com/ignite-hq/cli/ignite/templates/message"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/templates/message"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
 // messageOptions represents configuration for the message scaffolding
@@ -92,7 +92,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, fields); err != nil {
 		return sm, err
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
@@ -101,7 +101,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
@@ -158,7 +158,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Scaffold
-	g, err = message.NewStargate(tracer, opts)
+	g, err = message.NewGenerator(tracer, opts)
 	if err != nil {
 		return sm, err
 	}
@@ -167,7 +167,7 @@ func (s Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name

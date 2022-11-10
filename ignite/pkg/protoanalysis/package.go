@@ -81,6 +81,9 @@ type Message struct {
 	// HighestFieldNumber is the highest field number among fields of the message
 	// This allows to determine new field number when writing to proto message
 	HighestFieldNumber int
+
+	// Fields contains message's field names and types
+	Fields map[string]string
 }
 
 // Service is an RPC service.
@@ -107,6 +110,9 @@ type RPCFunc struct {
 	// spec:
 	//   https://github.com/googleapis/googleapis/blob/master/google/api/http.proto.
 	HTTPRules []HTTPRule
+
+	// Paginated indicates that the RPC function is using pagination.
+	Paginated bool
 }
 
 // HTTPRule keeps info about a configured http rule of an RPC func.

@@ -5,23 +5,22 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite-hq/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	"github.com/ignite-hq/cli/ignite/templates/typed"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsIBC, "ibc/", opts.AppPath)
+		template = xgenny.NewEmbedWalker(fsIBC, "files/ibc/", opts.AppPath)
 	)
 
 	g.RunFn(genesisModify(replacer, opts))
@@ -44,7 +43,8 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
 }
@@ -93,7 +93,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
@@ -120,7 +120,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -177,15 +177,26 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 			return err
 		}
 
+		// create IBC module
+		templateIBCModule := `%[2]vIBCModule := %[2]vmodule.NewIBCModule(app.%[3]vKeeper)
+%[1]v`
+		replacementIBCModule := fmt.Sprintf(
+			templateIBCModule,
+			module.PlaceholderSgAppKeeperDefinition,
+			opts.ModuleName,
+			xstrings.Title(opts.ModuleName),
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderSgAppKeeperDefinition, replacementIBCModule)
+
 		// Add route to IBC router
-		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)
+		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 %[1]v`
 		replacementRouter := fmt.Sprintf(
 			templateRouter,
 			module.PlaceholderIBCAppRouter,
 			opts.ModuleName,
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderIBCAppRouter, replacementRouter)
+		content = replacer.Replace(content, module.PlaceholderIBCAppRouter, replacementRouter)
 
 		// Scoped keeper declaration for the module
 		templateScopedKeeperDeclaration := `Scoped%[1]vKeeper capabilitykeeper.ScopedKeeper`

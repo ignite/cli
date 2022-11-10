@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chaincmdrunner "github.com/ignite-hq/cli/ignite/pkg/chaincmd/runner"
+	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
 // transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic

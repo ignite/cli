@@ -11,9 +11,9 @@ import (
 	"github.com/gorilla/rpc/v2/json2"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite-hq/cli/ignite/pkg/nodetime"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/nodetime"
 )
 
 // Call calls a method in the ts relayer wrapper lib with args and fills reply from the returned value.
@@ -31,7 +31,7 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 
 	resr, resw := io.Pipe()
 
-	g := errgroup.Group{}
+	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		defer resw.Close()
 

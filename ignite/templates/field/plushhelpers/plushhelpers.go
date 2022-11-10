@@ -1,11 +1,13 @@
 package plushhelpers
 
 import (
-	"github.com/gobuffalo/plush"
+	"strings"
 
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/field/datatype"
+	"github.com/gobuffalo/plush/v4"
+
+	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
 // ExtendPlushContext sets available field helpers on the provided context.
@@ -14,6 +16,7 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("mergeProtoImports", mergeProtoImports)
 	ctx.Set("mergeCustomImports", mergeCustomImports)
 	ctx.Set("title", xstrings.Title)
+	ctx.Set("toLower", strings.ToLower)
 }
 
 func mergeCustomImports(fields ...field.Fields) []string {

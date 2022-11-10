@@ -1,22 +1,21 @@
 package cosmosgen_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite-hq/cli/integration"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/integration"
 )
 
-func TestCosmosGen(t *testing.T) {
+func TestCosmosGenScaffold(t *testing.T) {
 	var (
-		env          = envtest.New(t)
-		path         = env.Scaffold("github.com/test/blog")
-		dirGenerated = filepath.Join(path, "vue/src/store/generated")
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog")
 	)
 
 	const (
@@ -33,7 +32,7 @@ func TestCosmosGen(t *testing.T) {
 				"--yes",
 				withMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -50,7 +49,7 @@ func TestCosmosGen(t *testing.T) {
 				"--module",
 				withMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -63,7 +62,7 @@ func TestCosmosGen(t *testing.T) {
 				"--yes",
 				withoutMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -79,7 +78,7 @@ func TestCosmosGen(t *testing.T) {
 				"--module",
 				withoutMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -95,26 +94,31 @@ func TestCosmosGen(t *testing.T) {
 				"--module",
 				withoutMsgModuleName,
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	require.NoError(t, os.RemoveAll(dirGenerated))
+	var (
+		vueDirGenerated = filepath.Join(app.SourcePath(), "vue/src/store/generated")
+		tsDirGenerated  = filepath.Join(app.SourcePath(), "ts-client")
+	)
+	require.NoError(t, os.RemoveAll(vueDirGenerated))
+	require.NoError(t, os.RemoveAll(tsDirGenerated))
 
-	env.Must(env.Exec("generate vuex",
+	env.Must(env.Exec("generate vue and typescript",
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
 				"g",
 				"vuex",
 				"--yes",
-				"--proto-all-modules",
+				"--clear-cache",
 			),
-			step.Workdir(path),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	var expectedCosmosModules = []string{
+	expectedModules := []string{
 		"cosmos.auth.v1beta1",
 		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
@@ -124,38 +128,28 @@ func TestCosmosGen(t *testing.T) {
 		"cosmos.evidence.v1beta1",
 		"cosmos.feegrant.v1beta1",
 		"cosmos.gov.v1beta1",
+		"cosmos.gov.v1",
+		"cosmos.group.v1",
 		"cosmos.mint.v1beta1",
+		"cosmos.nft.v1beta1",
 		"cosmos.params.v1beta1",
 		"cosmos.slashing.v1beta1",
 		"cosmos.staking.v1beta1",
 		"cosmos.tx.v1beta1",
 		"cosmos.upgrade.v1beta1",
 		"cosmos.vesting.v1beta1",
-	}
-
-	var expectedCustomModules = []string{
+		// custom modules
 		"test.blog.blog",
 		"test.blog.withmsg",
 		"test.blog.withoutmsg",
 	}
 
-	for _, chainModule := range expectedCustomModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, "test/blog", chainModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s vuex store should have be generated", chainModule))
-		require.NoError(t, statErr)
+	for _, mod := range expectedModules {
+		for _, dir := range []string{vueDirGenerated, tsDirGenerated} {
+			_, err := os.Stat(filepath.Join(dir, mod))
+			if assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, dir) {
+				assert.NoError(t, err)
+			}
+		}
 	}
-
-	chainDir, err := os.ReadDir(filepath.Join(dirGenerated, "test/blog"))
-	require.Equal(t, len(expectedCustomModules), len(chainDir), "no extra modules should have been generated for test/blog")
-	require.NoError(t, err)
-
-	for _, cosmosModule := range expectedCosmosModules {
-		_, statErr := os.Stat(filepath.Join(dirGenerated, "cosmos/cosmos-sdk", cosmosModule))
-		require.False(t, os.IsNotExist(statErr), fmt.Sprintf("the %s code generation for module should have be made", cosmosModule))
-		require.NoError(t, statErr)
-	}
-
-	cosmosDirs, err := os.ReadDir(filepath.Join(dirGenerated, "cosmos/cosmos-sdk"))
-	require.Equal(t, len(expectedCosmosModules), len(cosmosDirs), "no extra modules should have been generated for cosmos/cosmos-sdk")
-	require.NoError(t, err)
 }

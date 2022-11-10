@@ -3,8 +3,8 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 const flagOut = "out"
@@ -26,7 +26,7 @@ func NewNetworkChainShow() *cobra.Command {
 	return c
 }
 
-func networkChainLaunch(cmd *cobra.Command, args []string, session cliui.Session) (NetworkBuilder, uint64, error) {
+func networkChainLaunch(cmd *cobra.Command, args []string, session *cliui.Session) (NetworkBuilder, uint64, error) {
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
 		return nb, 0, err

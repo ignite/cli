@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
 
 func NewAccountList() *cobra.Command {
@@ -13,7 +13,6 @@ func NewAccountList() *cobra.Command {
 		RunE:  accountListHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 
 	return c
@@ -22,6 +21,7 @@ func NewAccountList() *cobra.Command {
 func accountListHandler(cmd *cobra.Command, args []string) error {
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
 		return err

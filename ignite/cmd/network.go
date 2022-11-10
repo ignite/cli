@@ -5,13 +5,13 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/pkg/gitpod"
-	"github.com/ignite-hq/cli/ignite/services/network"
-	"github.com/ignite-hq/cli/ignite/services/network/networkchain"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/gitpod"
+	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 var (
@@ -29,11 +29,11 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
-	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
+	spnNodeAddressNightly   = "http://178.128.251.28:26657"
+	spnFaucetAddressNightly = "http://178.128.251.28:4500"
 
-	spnNodeAddressLocal   = "http://0.0.0.0:26657"
-	spnFaucetAddressLocal = "http://0.0.0.0:4500"
+	spnNodeAddressLocal   = "http://0.0.0.0:26661"
+	spnFaucetAddressLocal = "http://0.0.0.0:4502"
 )
 
 // NewNetwork creates a new network command that holds some other sub commands
@@ -42,9 +42,55 @@ func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "network [command]",
 		Aliases: []string{"n"},
-		Short:   "Launch a blockchain network in production",
-		Args:    cobra.ExactArgs(1),
-		Hidden:  true,
+		Short:   "Launch a blockchain in production",
+		Long: `
+Ignite Network commands allow to coordinate the launch of sovereign Cosmos blockchains.
+
+To launch a Cosmos blockchain you need someone to be a coordinator and others to
+be validators. These are just roles, anyone can be a coordinator or a validator.
+A coordinator publishes information about a chain to be launched on the Ignite
+blockchain, approves validator requests and coordinates the launch. Validators
+send requests to join a chain and start their nodes when a blockchain is ready
+for launch.
+
+To publish the information about your chain as a coordinator run the following
+command (the URL should point to a repository with a Cosmos SDK chain):
+
+	ignite network chain publish github.com/ignite/example
+
+This command will return a launch identifier you will be using in the following
+commands. Let's say this identifier is 42.
+
+Next, ask validators to initialize their nodes and request to join the network
+as validators. For a testnet you can use the default values suggested by the
+CLI.
+
+	ignite network chain init 42
+
+	ignite network chain join 42 --amount 95000000stake
+
+As a coordinator list all validator requests:
+
+	ignite network request list 42
+
+Approve validator requests:
+
+	ignite network request approve 42 1,2
+
+Once you've approved all validators you need in the validator set, announce that
+the chain is ready for launch:
+
+	ignite network chain launch 42
+
+Validators can now prepare their nodes for launch:
+
+	ignite network chain prepare 42
+
+The output of this command will show a command that a validator would use to
+launch their node, for example “exampled --home ~/.example”. After enough
+validators launch their nodes, a blockchain will be live.
+`,
+		Args: cobra.ExactArgs(1),
 	}
 
 	// configure flags.
@@ -59,7 +105,9 @@ func NewNetwork() *cobra.Command {
 		NewNetworkCampaign(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
-		NewNetworkClient(),
+		NewNetworkValidator(),
+		NewNetworkProfile(),
+		NewNetworkCoordinator(),
 	)
 
 	return c
@@ -156,6 +204,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithAddressPrefix(networktypes.SPN),
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
+		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

@@ -1,12 +1,12 @@
 {
   "projects": {
-    "default": "ignite-hq"
+    "default": "igntservices"
   },
   "targets": {
-    "ignite-hq": {
+    "igntservices": {
       "hosting": {
         "docs.ignite.com": [
-          "ignite-go-docs"
+          "igntservices-docs"
         ]
       }
     }

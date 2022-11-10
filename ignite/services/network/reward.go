@@ -1,34 +1,37 @@
 package network
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/events"
-	"github.com/ignite-hq/cli/ignite/services/network/networktypes"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
 // SetReward set a chain reward
-func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
-	n.ev.Send(events.New(
-		events.StatusOngoing,
-		fmt.Sprintf("Setting reward %s to the chain %d at height %d",
-			coins.String(),
-			launchID,
-			lastRewardHeight,
-		),
-	))
+func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
+	n.ev.Send(
+		fmt.Sprintf("Setting reward %s to the chain %d at height %d", coins, launchID, lastRewardHeight),
+		events.ProgressStart(),
+	)
+
+	addr, err := n.account.Address(networktypes.SPN)
+	if err != nil {
+		return err
+	}
 
 	msg := rewardtypes.NewMsgSetRewards(
-		n.account.Address(networktypes.SPN),
+		addr,
 		launchID,
 		lastRewardHeight,
 		coins,
 	)
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
 	if err != nil {
 		return err
 	}
@@ -39,31 +42,61 @@ func (n Network) SetReward(launchID uint64, lastRewardHeight int64, coins sdk.Co
 	}
 
 	if setRewardRes.PreviousCoins.Empty() {
-		n.ev.Send(events.New(
-			events.StatusDone,
-			"The reward pool was empty",
-			events.Icon(icons.Info),
-		))
+		n.ev.Send("The reward pool was empty", events.Icon(icons.Info), events.ProgressFinish())
 	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf(
-				"Previous reward pool %s at height %d is overwritten",
-				coins.String(),
-				lastRewardHeight,
-			),
+		n.ev.Send(
+			fmt.Sprintf("Previous reward pool %s at height %d is overwritten", coins, lastRewardHeight),
 			events.Icon(icons.Info),
-		))
+			events.ProgressFinish(),
+		)
 	}
 
 	if setRewardRes.NewCoins.Empty() {
-		n.ev.Send(events.New(events.StatusDone, "The reward pool is removed"))
+		n.ev.Send("The reward pool is removed", events.ProgressFinish())
 	} else {
-		n.ev.Send(events.New(events.StatusDone, fmt.Sprintf(
-			"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
-			coins.String(),
-			lastRewardHeight,
-			launchID,
-		)))
+		n.ev.Send(
+			fmt.Sprintf(
+				"%s will be distributed to validators at height %d. The chain %d is now an incentivized testnet",
+				coins,
+				lastRewardHeight,
+				launchID,
+			),
+			events.ProgressFinish(),
+		)
 	}
 	return nil
+}
+
+// RewardsInfo Fetches the consensus state with the validator set,
+// the unbounding time, and the last block height from chain rewards.
+func (n Network) RewardsInfo(
+	ctx context.Context,
+	launchID uint64,
+	height int64,
+) (
+	rewardsInfo networktypes.Reward,
+	lastRewardHeight int64,
+	unboundingTime int64,
+	err error,
+) {
+	rewardsInfo, err = n.node.consensus(ctx, n.cosmos, height)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+
+	stakingParams, err := n.node.stakingParams(ctx)
+	if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	unboundingTime = int64(stakingParams.UnbondingTime.Seconds())
+
+	chainReward, err := n.ChainReward(ctx, launchID)
+	if errors.Is(err, ErrObjectNotFound) {
+		return rewardsInfo, 1, unboundingTime, nil
+	} else if err != nil {
+		return rewardsInfo, 0, 0, err
+	}
+	lastRewardHeight = chainReward.LastRewardHeight
+
+	return
 }

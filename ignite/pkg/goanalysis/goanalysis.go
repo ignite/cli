@@ -3,6 +3,7 @@ package goanalysis
 
 import (
 	"errors"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"os"
@@ -15,10 +16,8 @@ const (
 	goFileExtension = ".go"
 )
 
-var (
-	// ErrMultipleMainPackagesFound is returned when multiple main packages found while expecting only one.
-	ErrMultipleMainPackagesFound = errors.New("multiple main packages found")
-)
+// ErrMultipleMainPackagesFound is returned when multiple main packages found while expecting only one.
+var ErrMultipleMainPackagesFound = errors.New("multiple main packages found")
 
 // DiscoverMain finds main Go packages under path.
 func DiscoverMain(path string) (pkgPaths []string, err error) {
@@ -79,8 +78,13 @@ func FindImportedPackages(name string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	return FormatImports(f), nil
+}
 
-	packages := make(map[string]string) // name -> import
+// FormatImports translate f.Imports into a map where name -> package.
+// Name is the alias if declared, or the last element of the package path.
+func FormatImports(f *ast.File) map[string]string {
+	m := make(map[string]string) // name -> import
 	for _, imp := range f.Imports {
 		var importName string
 		if imp.Name != nil {
@@ -91,8 +95,7 @@ func FindImportedPackages(name string) (map[string]string, error) {
 		}
 
 		name := strings.Trim(importName, "\"")
-		packages[name] = strings.Trim(imp.Path.Value, "\"")
+		m[name] = strings.Trim(imp.Path.Value, "\"")
 	}
-
-	return packages, nil
+	return m
 }

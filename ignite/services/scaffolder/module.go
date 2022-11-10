@@ -12,20 +12,20 @@ import (
 
 	"github.com/gobuffalo/genny"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cache"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"
-	appanalysis "github.com/ignite-hq/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmosver"
-	"github.com/ignite-hq/cli/ignite/pkg/gocmd"
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/validation"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	modulecreate "github.com/ignite-hq/cli/ignite/templates/module/create"
-	moduleimport "github.com/ignite-hq/cli/ignite/templates/module/import"
+	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/module"
+	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	moduleimport "github.com/ignite/cli/ignite/templates/module/import"
 )
 
 const (
@@ -146,6 +146,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s Scaffolder) CreateModule(
+	ctx context.Context,
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName string,
@@ -199,8 +200,7 @@ func (s Scaffolder) CreateModule(
 		Dependencies: creationOpts.dependencies,
 	}
 
-	// Generator from Cosmos SDK version
-	g, err := modulecreate.NewStargate(opts)
+	g, err := modulecreate.NewGenerator(opts)
 	if err != nil {
 		return sm, err
 	}
@@ -220,18 +220,23 @@ func (s Scaffolder) CreateModule(
 	}
 
 	// Modify app.go to register the module
-	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewAppModify(tracer, opts))
 	sm.Merge(newSourceModification)
 	var validationErr validation.Error
 	if runErr != nil && !errors.As(runErr, &validationErr) {
 		return sm, runErr
 	}
 
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
+func (s Scaffolder) ImportModule(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	tracer *placeholder.Tracer,
+	name string,
+) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
@@ -246,7 +251,7 @@ func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder
 	}
 
 	// run generator
-	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+	g, err := moduleimport.NewGenerator(tracer, &moduleimport.ImportOptions{
 		AppPath:          s.path,
 		Feature:          name,
 		AppName:          s.modpath.Package,
@@ -272,7 +277,7 @@ func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder
 		return sm, err
 	}
 
-	return sm, finish(cacheStorage, s.path, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, s.path, s.modpath.RawPath)
 }
 
 // moduleExists checks if the module exists in the app
@@ -377,11 +382,11 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 	for _, dep := range dependencies {
 		// check the dependency has been registered
 		path := filepath.Join(appPath, module.PathAppModule)
-		if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
+		if err := appanalysis.CheckKeeper(path, dep.KeeperName()); err != nil {
 			return fmt.Errorf(
-				"the module cannot have %s as a dependency: %s",
+				"the module cannot have %s as a dependency: %w",
 				dep.Name,
-				err.Error(),
+				err,
 			)
 		}
 

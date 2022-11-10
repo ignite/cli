@@ -3,10 +3,10 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cliui"
-	"github.com/ignite-hq/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite-hq/cli/ignite/pkg/numbers"
-	"github.com/ignite-hq/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/numbers"
+	"github.com/ignite/cli/ignite/services/network"
 )
 
 // NewNetworkRequestReject creates a new request reject
@@ -22,12 +22,13 @@ func NewNetworkRequestReject() *cobra.Command {
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetKeyringDir())
 	return c
 }
 
 func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New()
-	defer session.Cleanup()
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	nb, err := newNetworkBuilder(cmd, CollectEvents(session.EventBus()))
 	if err != nil {
@@ -56,11 +57,9 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	for _, id := range ids {
 		reviewals = append(reviewals, network.RejectRequest(id))
 	}
-	if err := n.SubmitRequest(launchID, reviewals...); err != nil {
+	if err := n.SubmitRequest(cmd.Context(), launchID, reviewals...); err != nil {
 		return err
 	}
-
-	session.StopSpinner()
 
 	return session.Printf("%s Request(s) %s rejected\n", icons.OK, numbers.List(ids, "#"))
 }

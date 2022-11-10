@@ -1,6 +1,12 @@
 package networktypes
 
-import launchtypes "github.com/tendermint/spn/x/launch/types"
+import (
+	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	yaml "github.com/goccy/go-yaml"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
+)
 
 type (
 	NetworkType string
@@ -14,11 +20,14 @@ type (
 		SourceHash             string      `json:"SourceHash"`
 		GenesisURL             string      `json:"GenesisURL"`
 		GenesisHash            string      `json:"GenesisHash"`
-		LaunchTime             int64       `json:"LaunchTime"`
+		GenesisConfig          string      `json:"GenesisConfig"`
+		LaunchTime             time.Time   `json:"LaunchTime"`
 		CampaignID             uint64      `json:"CampaignID"`
 		LaunchTriggered        bool        `json:"LaunchTriggered"`
 		Network                NetworkType `json:"Network"`
 		Reward                 string      `json:"Reward,omitempty"`
+		AccountBalance         sdk.Coins   `json:"AccountBalance"`
+		Metadata               interface{} `json:"Metadata"`
 	}
 )
 
@@ -33,9 +42,9 @@ func (n NetworkType) String() string {
 
 // ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
 func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
-	var launchTime int64
+	var launchTime time.Time
 	if chain.LaunchTriggered {
-		launchTime = chain.LaunchTimestamp
+		launchTime = chain.LaunchTime
 	}
 
 	network := NetworkTypeTestnet
@@ -53,12 +62,25 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		CampaignID:             chain.CampaignID,
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,
+		AccountBalance:         chain.AccountBalance,
+	}
+
+	err := yaml.Unmarshal(chain.Metadata, &launch.Metadata)
+	if err != nil {
+		// an error shouldn't happen
+		// in case it occurs, we consider metadata as invalid and dismiss those
+		launch.Metadata = nil
 	}
 
 	// check if custom genesis URL is provided.
 	if customGenesisURL := chain.InitialGenesis.GetGenesisURL(); customGenesisURL != nil {
 		launch.GenesisURL = customGenesisURL.Url
 		launch.GenesisHash = customGenesisURL.Hash
+	}
+
+	// check if custom config genesis if provided.
+	if customGenesisConfig := chain.InitialGenesis.GetConfigGenesis(); customGenesisConfig != nil {
+		launch.GenesisConfig = customGenesisConfig.File
 	}
 
 	return launch

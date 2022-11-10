@@ -7,24 +7,23 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite-hq/cli/ignite/pkg/multiformatname"
-	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
-	"github.com/ignite-hq/cli/ignite/pkg/xgenny"
-	"github.com/ignite-hq/cli/ignite/pkg/xstrings"
-	"github.com/ignite-hq/cli/ignite/templates/field"
-	"github.com/ignite-hq/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite-hq/cli/ignite/templates/module"
-	"github.com/ignite-hq/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/ignite/templates/module"
+	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
 var (
-	//go:embed packet/component/* packet/component/**/*
+	//go:embed files/packet/component/* files/packet/component/**/*
 	fsPacketComponent embed.FS
 
-	//go:embed packet/messages/* packet/messages/**/*
+	//go:embed files/packet/messages/* files/packet/messages/**/*
 	fsPacketMessages embed.FS
 )
 
@@ -46,14 +45,14 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	var (
 		g = genny.New()
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsPacketMessages,
-			"packet/messages/",
-			opts.AppPath,
-		)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsPacketComponent,
-			"packet/component/",
+			"files/packet/component/",
+			opts.AppPath,
+		)
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsPacketMessages,
+			"files/packet/messages/",
 			opts.AppPath,
 		)
 	)
@@ -69,7 +68,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	// Add the send message
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(replacer, opts))
-		g.RunFn(handlerTxModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(codecModify(replacer, opts))
 		if err := g.Box(messagesTemplate); err != nil {
@@ -87,7 +85,8 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ackFields", opts.AckFields)
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
 
@@ -109,14 +108,14 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 		// Recv packet dispatch
 		templateRecv := `case *types.%[2]vPacketData_%[3]vPacket:
-	packetAck, err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+	packetAck, err := im.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
-		ack = channeltypes.NewErrorAcknowledgement(err.Error())
+		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
 		// Encode packet acknowledgment
 		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
 		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error()).Error())
+			return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error()))
 		}
 		ack = channeltypes.NewResultAcknowledgement(sdk.MustSortJSON(packetAckBytes))
 	}
@@ -138,7 +137,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 		// Ack packet dispatch
 		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
+	err := im.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
 		return err
 	}
@@ -154,7 +153,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 		// Timeout packet dispatch
 		templateTimeout := `case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+	err := im.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		return err
 	}
@@ -174,7 +173,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 
 func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "packet.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -212,7 +211,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
 		for _, f := range customFields {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {
@@ -271,7 +270,7 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 
 func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -296,7 +295,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
 			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
 			)
 		}
 		for _, f := range protoImports {
@@ -331,32 +330,6 @@ message MsgSend%[2]vResponse {
 		)
 		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)
 
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Set once the MsgServer definition if it is not defined yet
-		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
-
-		templateHandlers := `case *types.MsgSend%[2]v:
-					res, err := msgServer.Send%[2]v(sdk.WrapSDKContext(ctx), msg)
-					return sdk.WrapServiceResult(ctx, res, err)
-%[1]v`
-		replacementHandlers := fmt.Sprintf(templateHandlers,
-			Placeholder,
-			opts.PacketName.UpperCamel,
-		)
-		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

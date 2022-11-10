@@ -3,20 +3,23 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite-hq/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 // NewScaffoldType returns a new command to scaffold a type.
 func NewScaffoldType() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "type NAME [field]...",
-		Short: "Scaffold only a type definition",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  scaffoldTypeHandler,
+		Use:     "type NAME [field]...",
+		Short:   "Scaffold only a type definition",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: gitChangesConfirmPreRunHandler,
+		RunE:    scaffoldTypeHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
+	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c

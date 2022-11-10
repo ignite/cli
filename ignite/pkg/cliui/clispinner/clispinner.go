@@ -7,6 +7,9 @@ import (
 	"github.com/briandowns/spinner"
 )
 
+// DefaultText defines the default spinner text.
+const DefaultText = "Initializing..."
+
 var (
 	refreshRate  = time.Millisecond * 200
 	charset      = spinner.CharSets[4]
@@ -22,13 +25,21 @@ type (
 
 	Options struct {
 		writer io.Writer
+		text   string
 	}
 )
 
-// WithWriter configures an output for a spinner
+// WithWriter configures an output for a spinner.
 func WithWriter(w io.Writer) Option {
 	return func(options *Options) {
 		options.writer = w
+	}
+}
+
+// WithText configures the spinner text.
+func WithText(text string) Option {
+	return func(options *Options) {
+		options.text = text
 	}
 }
 
@@ -39,18 +50,23 @@ func New(options ...Option) *Spinner {
 		apply(&o)
 	}
 
-	underlyingSpinnerOptions := []spinner.Option{}
+	text := o.text
+	if text == "" {
+		text = DefaultText
+	}
+
+	spOptions := []spinner.Option{
+		spinner.WithColor(spinnerColor),
+		spinner.WithSuffix(" " + text),
+	}
+
 	if o.writer != nil {
-		underlyingSpinnerOptions = append(underlyingSpinnerOptions, spinner.WithWriter(o.writer))
+		spOptions = append(spOptions, spinner.WithWriter(o.writer))
 	}
 
-	sp := spinner.New(charset, refreshRate, underlyingSpinnerOptions...)
-
-	sp.Color(spinnerColor)
-	s := &Spinner{
-		sp: sp,
+	return &Spinner{
+		sp: spinner.New(charset, refreshRate, spOptions...),
 	}
-	return s.SetText("Initializing...")
 }
 
 // SetText sets the text for spinner.
