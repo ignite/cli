@@ -2,8 +2,9 @@ package ignitecmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
+
+	"github.com/ignite/cli/ignite/pkg/cliui"
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
@@ -33,6 +34,9 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		name      = args[0]
 		secret, _ = cmd.Flags().GetString(flagSecret)
 	)
+
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	if secret == "" {
 		if err := cliquiz.Ask(
@@ -71,6 +75,6 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %q imported.\n", name)
+	session.Printf("Account %q imported.\n", name)
 	return nil
 }

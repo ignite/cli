@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
@@ -29,6 +31,9 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 		name = args[0]
 		path = flagGetPath(cmd)
 	)
+
+	session := cliui.New(cliui.StartSpinner())
+	defer session.End()
 
 	passphrase, err := getPassphrase(cmd)
 	if err != nil {
@@ -64,6 +69,6 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %q exported to file: %s\n", name, path)
+	session.Printf("Account %q exported to file: %s\n", name, path)
 	return nil
 }
