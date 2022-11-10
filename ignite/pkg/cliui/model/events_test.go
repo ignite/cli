@@ -45,7 +45,6 @@ func TestStatusEventsView(t *testing.T) {
 	view := model.View()
 
 	// Assert
-	require.NotEmpty(t, view)
 	require.Equal(t, want, view)
 }
 
@@ -77,7 +76,6 @@ func TestEventsView(t *testing.T) {
 	view := model.View()
 
 	// Assert
-	require.NotEmpty(t, view)
 	require.Equal(t, want, view)
 }
 

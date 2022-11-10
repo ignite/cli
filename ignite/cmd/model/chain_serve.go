@@ -30,7 +30,7 @@ var (
 )
 
 // NewChainServe returns a new UI model for the chain serve command.
-func NewChainServe(ctx Context, bus events.Bus, cmd tea.Cmd) ChainServe {
+func NewChainServe(ctx Context, bus events.Provider, cmd tea.Cmd) ChainServe {
 	return ChainServe{
 		model:        newModel(ctx, cmd),
 		startModel:   cliuimodel.NewStatusEvents(bus, maxStatusEvents),
