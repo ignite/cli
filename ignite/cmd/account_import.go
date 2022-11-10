@@ -4,11 +4,10 @@ import (
 	"errors"
 	"os"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 )
