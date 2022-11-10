@@ -92,7 +92,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 	app.EnsureSteady()
 }
 
-func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
+func TestGenerateAppWithEmptyModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")

@@ -200,8 +200,7 @@ func (s Scaffolder) CreateModule(
 		Dependencies: creationOpts.dependencies,
 	}
 
-	// Generator from Cosmos SDK version
-	g, err := modulecreate.NewStargate(opts)
+	g, err := modulecreate.NewGenerator(opts)
 	if err != nil {
 		return sm, err
 	}
@@ -221,7 +220,7 @@ func (s Scaffolder) CreateModule(
 	}
 
 	// Modify app.go to register the module
-	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewAppModify(tracer, opts))
 	sm.Merge(newSourceModification)
 	var validationErr validation.Error
 	if runErr != nil && !errors.As(runErr, &validationErr) {
@@ -252,7 +251,7 @@ func (s Scaffolder) ImportModule(
 	}
 
 	// run generator
-	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+	g, err := moduleimport.NewGenerator(tracer, &moduleimport.ImportOptions{
 		AppPath:          s.path,
 		Feature:          name,
 		AppName:          s.modpath.Package,

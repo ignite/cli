@@ -12,14 +12,14 @@ import (
 	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
-//go:embed stargate/* stargate/**/*
-var fsStargate embed.FS
+//go:embed files/* files/**/*
+var fs embed.FS
 
 // New returns the generator to scaffold a new Cosmos SDK app
 func New(opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsStargate, "stargate/", opts.AppPath)
+		template = xgenny.NewEmbedWalker(fs, "files/", opts.AppPath)
 	)
 	if err := g.Box(template); err != nil {
 		return g, err

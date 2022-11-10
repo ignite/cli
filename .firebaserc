@@ -1,12 +1,12 @@
 {
   "projects": {
-    "default": "ignitesrvc"
+    "default": "igntservices"
   },
   "targets": {
-    "ignitesrvc": {
+    "igntservices": {
       "hosting": {
         "docs.ignite.com": [
-          "ignitesrvc-d"
+          "igntservices-docs"
         ]
       }
     }

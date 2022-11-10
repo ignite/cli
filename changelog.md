@@ -16,6 +16,8 @@
 
 ### Changes
 
+- [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
+- [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.
 - [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
 - [#2892](https://github.com/ignite/cli/pull/2982/) `removeSigner()` method added to generated `ts-client` 
 - [#3035](https://github.com/ignite/cli/pull/3035) Bump Cosmos SDK to `v0.46.4`.
@@ -24,6 +26,9 @@
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
 - [#2958](https://github.com/ignite/cli/pull/2958) Support absolute paths for client code generation config paths.
 - [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
+- [#2986](https://github.com/ignite/cli/issues/2986) Remove `--proto-all-modules` flag because is now the default behaviour.
+- [#2986](https://github.com/ignite/cli/issues/2986) Remove automatic Vue code scaffolding from `scaffold chain` command.
+- [#2986](https://github.com/ignite/cli/issues/2986) Add `--generate-clients` to `chain serve` command for optional client code (re)generation.
 - [#2998](https://github.com/ignite/cli/pull/2998) Hide `ignite generate dart` command and remove functionality.
 - [#2991](https://github.com/ignite/cli/pull/2991) Hide `ignite scaffold flutter` command and remove functionality.
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
@@ -36,6 +41,7 @@
 
 ### Fixes
 
+- [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
 - [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` 
 template.
 
