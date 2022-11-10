@@ -95,14 +95,14 @@ func generate(
 			AppPath:    absRoot,
 			IsIBC:      false,
 		}
-		g, err = modulecreate.NewStargate(opts)
+		g, err = modulecreate.NewGenerator(opts)
 		if err != nil {
 			return err
 		}
 		if err := run(genny.WetRunner(context.Background()), g); err != nil {
 			return err
 		}
-		g = modulecreate.NewStargateAppModify(tracer, opts)
+		g = modulecreate.NewAppModify(tracer, opts)
 		if err := run(genny.WetRunner(context.Background()), g); err != nil {
 			return err
 		}

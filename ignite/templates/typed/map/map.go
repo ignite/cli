@@ -17,24 +17,24 @@ import (
 )
 
 var (
-	//go:embed stargate/component/* stargate/component/**/*
-	fsStargateComponent embed.FS
+	//go:embed files/messages/* files/messages/**/*
+	fsMessages embed.FS
 
-	//go:embed stargate/messages/* stargate/messages/**/*
-	fsStargateMessages embed.FS
+	//go:embed files/tests/messages/* files/tests/messages/**/*
+	fsTestsMessages embed.FS
 
-	//go:embed stargate/tests/component/* stargate/tests/component/**/*
-	fsStargateTestsComponent embed.FS
+	//go:embed files/component/* files/component/**/*
+	fsComponent embed.FS
 
-	//go:embed stargate/tests/messages/* stargate/tests/messages/**/*
-	fsStargateTestsMessages embed.FS
+	//go:embed files/tests/component/* files/tests/component/**/*
+	fsTestsComponent embed.FS
 
-	//go:embed stargate/simapp/* stargate/simapp/**/*
-	fsStargateSimapp embed.FS
+	//go:embed files/simapp/* files/simapp/**/*
+	fsSimapp embed.FS
 )
 
-// NewStargate returns the generator to scaffold a new map type in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a new map type in a module
+func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because we can't generate reliable tests for this type
 	var generateTest bool
@@ -48,28 +48,28 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g = genny.New()
 
 		messagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateMessages,
-			"stargate/messages/",
+			fsMessages,
+			"files/messages/",
 			opts.AppPath,
 		)
 		testsMessagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateTestsMessages,
-			"stargate/tests/messages/",
+			fsTestsMessages,
+			"files/tests/messages/",
 			opts.AppPath,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
-			fsStargateComponent,
-			"stargate/component/",
+			fsComponent,
+			"files/component/",
 			opts.AppPath,
 		)
 		testsComponentTemplate = xgenny.NewEmbedWalker(
-			fsStargateTestsComponent,
-			"stargate/tests/component/",
+			fsTestsComponent,
+			"files/tests/component/",
 			opts.AppPath,
 		)
 		simappTemplate = xgenny.NewEmbedWalker(
-			fsStargateSimapp,
-			"stargate/simapp/",
+			fsSimapp,
+			"files/simapp/",
 			opts.AppPath,
 		)
 	)
