@@ -49,6 +49,7 @@ type Interface interface {
 	ExecuteHookCleanUp(hook ExecutedHook) error
 }
 
+// Manifest represents the plugin behavior.
 type Manifest struct {
 	Name string
 	// Commands contains the commands that will be added to the list of ignite
@@ -88,20 +89,29 @@ type Hook struct {
 	PlaceHookOn string
 }
 
+// ExecutedCommand represents a plugin command under execution.
 type ExecutedCommand struct {
+	// Use is copied from Command.Use
 	Use string
 	// Path contains the command path, e.g. `ignite scaffold foo`
-	Path  string
-	Args  []string
+	Path string
+	// Args are the command arguments
+	Args []string
+	// With contains the plugin config parameters
+	With map[string]string
+
 	flags *pflag.FlagSet
-	With  map[string]string
 }
 
+// ExecutedHook represents a plugin hook under execution.
 type ExecutedHook struct {
+	// ExecutedCommand gives access to the command attached by the hook.
 	ExecutedCommand
+	// Hook is a copy of the original Hook defined in the Manifest.
 	Hook
 }
 
+// Flags gives access to the commands' flags, like cobra.Command.Flags.
 func (c *ExecutedCommand) Flags() *pflag.FlagSet {
 	if c.flags == nil {
 		c.flags = pflag.NewFlagSet(os.Args[0], pflag.ContinueOnError)
@@ -109,10 +119,13 @@ func (c *ExecutedCommand) Flags() *pflag.FlagSet {
 	return c.flags
 }
 
+// SetFlags set the flags.
+// As a plugin developer, you probably don't need to use it.
 func (c *ExecutedCommand) SetFlags(fs *pflag.FlagSet) {
 	c.flags = fs
 }
 
+// Flag is a exportable representation of pflag.Flag.
 type Flag struct {
 	Name      string // name as it appears on command line
 	Shorthand string // one-letter abbreviated flag
@@ -123,6 +136,7 @@ type Flag struct {
 	// TODO add Persistent field ?
 }
 
+// FlagType represents the pflag.Flag.Value.Type().
 type FlagType string
 
 const (
@@ -137,6 +151,8 @@ const (
 	FlagTypeStringSlice FlagType = "stringSlice"
 )
 
+// FeedFlagSet fills fs with f.
+// As a plugin developer, you probably don't need to use it.
 func (f Flag) FeedFlagSet(fs *pflag.FlagSet) error {
 	switch f.Type {
 	case FlagTypeBool:
