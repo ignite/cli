@@ -367,10 +367,10 @@ func TestLinkPluginHooks(t *testing.T) {
 			}
 			asserter := func(hook plugin.Hook) func(hook plugin.ExecutedHook) {
 				return func(execHook plugin.ExecutedHook) {
-					assert.True(t, strings.HasSuffix(execHook.Path, hook.PlaceHookOn), "wrong path %q want %q", execHook.Path, hook.PlaceHookOn)
-					assert.Equal(t, args, execHook.Args)
+					assert.True(t, strings.HasSuffix(execHook.ExecutedCommand.Path, hook.PlaceHookOn), "wrong path %q want %q", execHook.ExecutedCommand.Path, hook.PlaceHookOn)
+					assert.Equal(t, args, execHook.ExecutedCommand.Args)
 					assertFlags(t, expectedFlags, execHook.ExecutedCommand)
-					assert.Equal(t, pluginParams, execHook.With)
+					assert.Equal(t, pluginParams, execHook.ExecutedCommand.With)
 				}
 			}
 			var lastPre *mock.Call

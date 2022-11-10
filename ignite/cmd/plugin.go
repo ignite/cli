@@ -123,7 +123,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 				With: p.With,
 			},
 		}
-		execHook.SetFlags(cmd.Flags())
+		execHook.ExecutedCommand.SetFlags(cmd.Flags())
 		return execHook
 	}
 

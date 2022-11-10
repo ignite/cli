@@ -106,7 +106,7 @@ type ExecutedCommand struct {
 // ExecutedHook represents a plugin hook under execution.
 type ExecutedHook struct {
 	// ExecutedCommand gives access to the command attached by the hook.
-	ExecutedCommand
+	ExecutedCommand ExecutedCommand
 	// Hook is a copy of the original Hook defined in the Manifest.
 	Hook
 }
