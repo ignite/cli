@@ -8,7 +8,6 @@ import (
 	"text/template"
 
 	"github.com/iancoleman/strcase"
-	"github.com/takuoki/gocase"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -53,9 +52,6 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 	funcs := template.FuncMap{
 		"camelCase": strcase.ToLowerCamel,
-		"camelCaseSta": func(word string) string {
-			return gocase.Revert(strcase.ToLowerCamel(word))
-		},
 		"capitalCase": func(word string) string {
 			replacer := strings.NewReplacer("-", "_", ".", "_")
 			word = strcase.ToCamel(replacer.Replace(word))
