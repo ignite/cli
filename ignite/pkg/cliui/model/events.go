@@ -184,7 +184,10 @@ func (m Events) Wait() tea.Cmd {
 func (m Events) WaitEvent() tea.Msg {
 	e := <-m.bus.Events()
 
-	return EventMsg{Event: e}
+	return EventMsg{
+		Event: e,
+		Start: time.Now(),
+	}
 }
 
 func (m Events) Update(msg tea.Msg) (Events, tea.Cmd) {
