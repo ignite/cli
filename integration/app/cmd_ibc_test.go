@@ -108,7 +108,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 // Deprecated: Oracle functionality is no longer tested.
 func TestCreateIBCOracle(t *testing.T) {
-	t.Skip()
+	t.Skip() // TODO remove in future
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/ibcoracle")
