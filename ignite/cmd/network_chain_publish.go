@@ -53,20 +53,6 @@ By publishing a blockchain on Ignite you become the "coordinator" of this
 blockchain. A coordinator is an account that has the authority to approve and
 reject validator requests, set parameters of the blockchain and trigger the
 launch of the chain.
-
-Ignite considers every chain launch as part of a "project". A project is a
-sequence of testnets that may result in a launch of a mainnet. By default
-"ignite network chain publish" creates a new chain, creates a new project, and
-adds the chain to the project.
-
-To publish a chain in an existing project use the "--campaign" flag (make sure
-that the campaign with a given ID exists):
-
-  ignite network chain publish github.com/ignite/example --campaign 42
-
-By default, a chain is published as a tesnet. Use the "--mainnet" flag to publish
-a mainnet. Note that a project can only have one mainnet and it's the last chain
-in the project.
 `,
 		Args: cobra.ExactArgs(1),
 		RunE: networkChainPublishHandler,
