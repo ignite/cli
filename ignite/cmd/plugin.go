@@ -394,26 +394,32 @@ func printPlugins() {
 		status := "✅ Loaded"
 		if p.Error != nil {
 			status = fmt.Sprintf("❌ Error: %v", p.Error)
+			entrywriter.MustWrite(os.Stdout, []string{"path", "status"}, []string{p.Path, status})
+			return
 		}
+
+		manifest, err := p.Interface.Manifest()
+		if err != nil {
+			panic("Error while loading plugin manifest")
+		}
+
+		fmt.Printf("\tℹ️ %s info\n", manifest.Name)
 		entrywriter.MustWrite(os.Stdout, []string{"path", "status"}, []string{p.Path, status})
 
-		printPluginCommands(p)
-		printPluginHooks(p)
+		fmt.Println("\t💻 Commands")
+		printPluginCommands(manifest.Commands)
+
+		fmt.Println("\t🪝 Hooks")
+		printPluginHooks(manifest.Hooks)
 	}
 }
 
-func printPluginCommands(p *plugin.Plugin) {
+func printPluginCommands(cmds []plugin.Command) {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
 	}
 
-	manifest, err := p.Interface.Manifest()
-	if err != nil {
-		panic("Error while loading plugin manifest")
-	}
-
-	fmt.Printf("💻 %s Commands\n", manifest.Name)
 	var entries [][]string
 	// Processes command heirarchy
 	traverse := func(cmd plugin.Command) {
@@ -441,31 +447,22 @@ func printPluginCommands(p *plugin.Plugin) {
 		}
 	}
 
-	if err != nil {
-		panic("Error while loading plugin manifest")
-	}
-
-	for _, c := range manifest.Commands {
+	for _, c := range cmds {
 		traverse(c)
 	}
-	entrywriter.MustWrite(os.Stdout, []string{"use", "under"}, entries...)
 
+	entrywriter.MustWrite(os.Stdout, []string{"use", "under"}, entries...)
 }
 
-func printPluginHooks(p *plugin.Plugin) {
+func printPluginHooks(hooks []plugin.Hook) {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
 	}
-	manifest, err := p.Interface.Manifest()
-	if err != nil {
-		panic("Error while loading plugin manifest")
-	}
 
-	fmt.Printf("🪝 %s Hooks\n", manifest.Name)
 	var entries [][]string
 
-	for _, h := range manifest.Hooks {
+	for _, h := range hooks {
 		entries = append(entries, []string{h.Name, h.PlaceHookOn})
 	}
 	entrywriter.MustWrite(os.Stdout, []string{"name", "on command"}, entries...)
