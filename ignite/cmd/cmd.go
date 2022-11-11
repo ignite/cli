@@ -28,15 +28,17 @@ import (
 )
 
 const (
-	flagPath          = "path"
-	flagHome          = "home"
-	flagProto3rdParty = "proto-all-modules"
-	flagYes           = "yes"
-	flagClearCache    = "clear-cache"
-	flagSkipProto     = "skip-proto"
+	flagPath       = "path"
+	flagHome       = "home"
+	flagYes        = "yes"
+	flagClearCache = "clear-cache"
+	flagSkipProto  = "skip-proto"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
+
+	statusGenerating = "Generating..."
+	statusQuerying   = "Querying..."
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -76,6 +78,7 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewTools())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
+	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
 
 	return c
@@ -137,23 +140,6 @@ func getYes(cmd *cobra.Command) (ok bool) {
 	return
 }
 
-func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-
-	info := "enables proto code generation for 3rd party modules used in your chain"
-	if additionalInfo != "" {
-		info += ". " + additionalInfo
-	}
-
-	fs.Bool(flagProto3rdParty, false, info)
-	return fs
-}
-
-func flagGetProto3rdParty(cmd *cobra.Command) bool {
-	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
-	return isEnabled
-}
-
 func flagSetSkipProto() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.Bool(flagSkipProto, false, "skip file generation from proto")
@@ -174,7 +160,7 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
@@ -303,7 +289,7 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-func printSection(session cliui.Session, title string) error {
+func printSection(session *cliui.Session, title string) error {
 	return session.Printf("------\n%s\n------\n\n", title)
 }
 

@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -21,10 +20,10 @@ import (
 )
 
 var (
-	//go:embed packet/component/* packet/component/**/*
+	//go:embed files/packet/component/* files/packet/component/**/*
 	fsPacketComponent embed.FS
 
-	//go:embed packet/messages/* packet/messages/**/*
+	//go:embed files/packet/messages/* files/packet/messages/**/*
 	fsPacketMessages embed.FS
 )
 
@@ -46,14 +45,14 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	var (
 		g = genny.New()
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsPacketMessages,
-			"packet/messages/",
-			opts.AppPath,
-		)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsPacketComponent,
-			"packet/component/",
+			"files/packet/component/",
+			opts.AppPath,
+		)
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsPacketMessages,
+			"files/packet/messages/",
 			opts.AppPath,
 		)
 	)
@@ -86,7 +85,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ackFields", opts.AckFields)
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))

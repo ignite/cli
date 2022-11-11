@@ -20,6 +20,8 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+
+	statusScaffolding = "Scaffolding..."
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
@@ -96,7 +98,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	c.AddCommand(NewScaffoldPacket())
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldFlutter())
+	c.AddCommand(NewScaffoldReact())
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
@@ -136,10 +138,8 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	sc, err := newApp(appPath)
 	if err != nil {
@@ -181,7 +181,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
 	return confirmWhenUncommittedChanges(session, appPath)
 }
 
-func confirmWhenUncommittedChanges(session cliui.Session, appPath string) error {
+func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error {
 	cleanState, err := xgit.AreChangesCommitted(appPath)
 	if err != nil {
 		return err

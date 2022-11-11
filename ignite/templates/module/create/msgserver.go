@@ -5,8 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -22,7 +21,7 @@ const msgServiceImport = `"github.com/cosmos/cosmos-sdk/types/msgservice"`
 func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *MsgServerOptions) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/", opts.AppPath)
+		template = xgenny.NewEmbedWalker(fsMsgServer, "files/msgserver/", opts.AppPath)
 	)
 
 	g.RunFn(codecPath(replacer, opts.AppPath, opts.ModuleName))
@@ -40,7 +39,7 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil

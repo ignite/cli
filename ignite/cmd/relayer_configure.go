@@ -95,7 +95,7 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New()
 	defer session.End()
 
 	ca, err := cosmosaccount.New(
@@ -459,7 +459,7 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 func initChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
-	session cliui.Session,
+	session *cliui.Session,
 	name,
 	accountName,
 	rpcAddr,

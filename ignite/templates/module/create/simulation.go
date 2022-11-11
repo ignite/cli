@@ -2,8 +2,7 @@ package modulecreate
 
 import (
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/templates/field"
@@ -14,7 +13,7 @@ import (
 func AddSimulation(appPath, modulePath, moduleName string, params ...field.Field) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsSimapp, "simapp/", appPath)
+		template = xgenny.NewEmbedWalker(fsSimapp, "files/simapp/", appPath)
 	)
 
 	ctx := plush.NewContext()
@@ -29,6 +28,6 @@ func AddSimulation(appPath, modulePath, moduleName string, params ...field.Field
 		return nil, err
 	}
 
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
 	return g, nil
 }

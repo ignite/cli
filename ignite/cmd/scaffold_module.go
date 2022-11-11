@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"strings"
+	"regexp"
 
 	"github.com/spf13/cobra"
 
@@ -69,7 +69,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-  ignite scaffold module foo --dep bank
+	ignite scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -77,7 +77,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-  ignite scaffold module bar --dep foo,mint,account
+	ignite scaffold module bar --dep foo,mint,account
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -90,7 +90,7 @@ blockchain is running. An example of a param is "Inflation rate change" of the
 that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-  ignite scaffold module foo --params baz:uint,bar:bool
+	ignite scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
@@ -104,7 +104,7 @@ params.
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
+	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank,FeeGrant)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
@@ -119,10 +119,8 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		appPath = flagGetPath(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)
 	if err != nil {
@@ -163,24 +161,19 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if len(dependencies) > 0 {
-		var formattedDependencies []modulecreate.Dependency
+		var deps []modulecreate.Dependency
 
-		// Parse the provided dependencies
-		for _, dependency := range dependencies {
-			var formattedDependency modulecreate.Dependency
+		isValid := regexp.MustCompile(`^[a-zA-Z]+$`).MatchString
 
-			splitted := strings.Split(dependency, ":")
-			switch len(splitted) {
-			case 1:
-				formattedDependency = modulecreate.NewDependency(splitted[0], "")
-			case 2:
-				formattedDependency = modulecreate.NewDependency(splitted[0], splitted[1])
-			default:
-				return fmt.Errorf("dependency %s is invalid, must have <depName> or <depName>.<depKeeperName>", dependency)
+		for _, name := range dependencies {
+			if !isValid(name) {
+				return fmt.Errorf("invalid module dependency name format '%s'", name)
 			}
-			formattedDependencies = append(formattedDependencies, formattedDependency)
+
+			deps = append(deps, modulecreate.NewDependency(name))
 		}
-		options = append(options, scaffolder.WithDependencies(formattedDependencies))
+
+		options = append(options, scaffolder.WithDependencies(deps))
 	}
 
 	var msg bytes.Buffer
@@ -212,9 +205,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 	// therefore we must warn the user to manually move the definition if it's the case
 	// https://github.com/ignite/cli/issues/818#issuecomment-865736052
-	for _, dep := range dependencies {
-		if dep == "gov" {
+	for _, name := range dependencies {
+		if name == "Gov" {
 			session.Print(govDependencyWarning)
+
+			break
 		}
 	}
 

@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -21,12 +22,10 @@ func NewGenerateGo() *cobra.Command {
 }
 
 func generateGoHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	session.StartSpinner("Generating...")
-
-	c, err := newChainWithHomeFlags(
+	c, err := NewChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
@@ -44,5 +43,5 @@ func generateGoHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return session.Println("⛏️  Generated go code.")
+	return session.Println(icons.OK, "Generated Go code")
 }

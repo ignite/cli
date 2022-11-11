@@ -81,7 +81,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 		}
 
 		var amountMax uint64
@@ -90,7 +90,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		for _, coinMax := range conf.Faucet.CoinsMax {
 			parsedMax, err := sdk.ParseCoinNormalized(coinMax)
 			if err != nil {
-				return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+				return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 			}
 			if parsedMax.Denom == parsedCoin.Denom {
 				amountMax = parsedMax.Amount.Uint64()
@@ -104,7 +104,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	if conf.Faucet.RateLimitWindow != "" {
 		rateLimitWindow, err := time.ParseDuration(conf.Faucet.RateLimitWindow)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, conf.Faucet.RateLimitWindow)
+			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, conf.Faucet.RateLimitWindow)
 		}
 
 		faucetOptions = append(faucetOptions, cosmosfaucet.RefreshWindow(rateLimitWindow))

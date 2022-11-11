@@ -19,7 +19,7 @@
     "@cosmjs/proto-signing": "0.27.0",
     "@cosmjs/stargate": "0.27.0",
     "@keplr-wallet/types": "^0.11.3", 
-    "axios": "^0.27.2",
+    "axios": "0.21.4",
     "buffer": "^6.0.3",
     "events": "^3.3.0"
   },
@@ -29,6 +29,7 @@
     "@cosmjs/stargate": "0.27.0"
   }, 
   "devDependencies": {
-    "@types/events": "^3.0.0"
+    "@types/events": "^3.0.0",
+    "typescript": "^4.8.4"
   }
 }

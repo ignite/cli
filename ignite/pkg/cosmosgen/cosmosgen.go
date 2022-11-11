@@ -3,7 +3,9 @@ package cosmosgen
 import (
 	"context"
 	"path/filepath"
+	"strings"
 
+	"github.com/iancoleman/strcase"
 	gomodmodule "golang.org/x/mod/module"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -15,18 +17,19 @@ type generateOptions struct {
 	includeDirs []string
 	gomodPath   string
 
-	jsOut               func(module.Module) string
-	jsIncludeThirdParty bool
-	tsClientRootPath    string
+	jsOut            func(module.Module) string
+	tsClientRootPath string
 
 	vuexOut      func(module.Module) string
 	vuexRootPath string
 
-	specOut string
+	composablesOut      func(module.Module) string
+	composablesRootPath string
 
-	dartOut               func(module.Module) string
-	dartIncludeThirdParty bool
-	dartRootPath          string
+	hooksOut      func(module.Module) string
+	hooksRootPath string
+
+	specOut string
 }
 
 // TODO add WithInstall.
@@ -46,19 +49,24 @@ func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option 
 	}
 }
 
-func WithVuexGeneration(includeThirdPartyModules bool, out ModulePathFunc, vuexRootPath string) Option {
+func WithVuexGeneration(out ModulePathFunc, vuexRootPath string) Option {
 	return func(o *generateOptions) {
 		o.vuexOut = out
-		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.vuexRootPath = vuexRootPath
 	}
 }
 
-func WithDartGeneration(includeThirdPartyModules bool, out ModulePathFunc, rootPath string) Option {
+func WithComposablesGeneration(out ModulePathFunc, composablesRootPath string) Option {
 	return func(o *generateOptions) {
-		o.dartOut = out
-		o.dartIncludeThirdParty = includeThirdPartyModules
-		o.dartRootPath = rootPath
+		o.composablesOut = out
+		o.composablesRootPath = composablesRootPath
+	}
+}
+
+func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
+	return func(o *generateOptions) {
+		o.hooksOut = out
+		o.hooksRootPath = hooksRootPath
 	}
 }
 
@@ -136,16 +144,43 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 
-		// Update Vue app dependeciens when Vuex stores are generated.
+		// Update Vuex store dependecies when Vuex stores are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateVuexDependencies(); err != nil {
+			return err
+		}
+
+		// Update Vue app dependecies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateVueDependencies(); err != nil {
 			return err
 		}
+
 	}
 
-	if g.o.dartOut != nil {
-		if err := g.generateDart(); err != nil {
+	if g.o.composablesRootPath != "" {
+		if err := g.generateComposables("vue"); err != nil {
+			return err
+		}
+
+		// Update Vue app dependencies when Vue composables are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateComposableDependencies("vue"); err != nil {
+			return err
+		}
+	}
+	if g.o.hooksRootPath != "" {
+		if err := g.generateComposables("react"); err != nil {
+			return err
+		}
+
+		// Update React app dependencies when React hooks are generated.
+		// This update is required to link the "ts-client" folder so the
+		// package is available during development before publishing it.
+		if err := g.updateComposableDependencies("react"); err != nil {
 			return err
 		}
 	}
@@ -159,10 +194,20 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	return nil
 }
 
-// TypescriptModulePath generates module paths for Cosmos SDK modules.
+// TypescriptModulePath generates TS module paths for Cosmos SDK modules.
 // The root path is used as prefix for the generated paths.
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		return filepath.Join(rootPath, m.Pkg.Name)
+	}
+}
+
+// ComposableModulePath generates useQuery hook/composable module paths for Cosmos SDK modules.
+// The root path is used as prefix for the generated paths.
+func ComposableModulePath(rootPath string) ModulePathFunc {
+	return func(m module.Module) string {
+		replacer := strings.NewReplacer("-", "_", ".", "_")
+		modPath := strcase.ToCamel(replacer.Replace(m.Pkg.Name))
+		return filepath.Join(rootPath, "use"+modPath)
 	}
 }

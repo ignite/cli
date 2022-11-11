@@ -63,10 +63,8 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText("Setting up chains..."))
 	defer session.End()
-
-	session.StartSpinner("Setting up chains...")
 
 	launchID, err := network.ParseID(args[0])
 	if err != nil {
@@ -203,7 +201,7 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 func createClient(
 	cmd *cobra.Command,
 	n network.Network,
-	session cliui.Session,
+	session *cliui.Session,
 	launchID uint64,
 	nodeAPI,
 	spnChainID string,
@@ -254,7 +252,7 @@ func createClient(
 	return chainRelayer, spnRelayer, err
 }
 
-func printRelayerOptions(session cliui.Session, obj, chainID, option string) {
+func printRelayerOptions(session *cliui.Session, obj, chainID, option string) {
 	if obj != "" {
 		session.Printf("%s The chain %s already have a %s: %s\n",
 			icons.Bullet,
