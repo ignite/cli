@@ -35,10 +35,10 @@ To reduce friction at each phase, Ignite provides an immutable and universal dat
 
 In the future, Ignite will also offer:
 
-- Token issuance: Ignite allows issuing of tokens (called vouchers) that represent a share
-  allocation of a future mainnet blockchain
+- Token issuance: Ignite allows the issuance of tokens (called vouchers) that represent a share
+  allocation of a future mainnet network
 - A fundraising platform for selling vouchers
-- A permissionless framework to reward validator activities on a launched testnet networks
+- A permissionless framework to reward validator activities on a launched testnet network
 
 ## Validator coordination
 
