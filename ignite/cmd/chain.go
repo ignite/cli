@@ -17,7 +17,6 @@ import (
 
 const (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
-	msgMigrationCancel = "stopping because config version v%d is required to run the command"
 	msgMigrationPrompt = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
 )
 
@@ -122,7 +121,10 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 			question := fmt.Sprintf(msgMigrationPrompt, version, chainconfig.LatestVersion)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
+					return fmt.Errorf(
+						"stopping because config version v%d is required to run the command",
+						chainconfig.LatestVersion,
+					)
 				}
 
 				return err

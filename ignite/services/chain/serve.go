@@ -35,9 +35,7 @@ import (
 const (
 	// EvtGroupPath is the group to use for path related events.
 	EvtGroupPath = "path"
-)
 
-const (
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
