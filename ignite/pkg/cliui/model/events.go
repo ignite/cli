@@ -109,13 +109,13 @@ func (m StatusEvents) View() string {
 		view.WriteString(evt.String())
 
 		if !strings.HasSuffix(evt.Message, "\n") {
-			view.WriteRune(EOL)
+			view.WriteRune('\n')
 		}
 	}
 
 	// Make sure there is a line between the static and status events
 	if m.static != nil && m.events.Len() > 0 {
-		view.WriteRune(EOL)
+		view.WriteRune('\n')
 	}
 
 	// Display status events
@@ -128,7 +128,7 @@ func (m StatusEvents) View() string {
 				fmt.Fprintf(&view, "%s%s\n", m.spinner.View(), evt)
 
 				if e.Next() != nil {
-					view.WriteRune(EOL)
+					view.WriteRune('\n')
 				}
 
 				continue
@@ -231,7 +231,7 @@ func (m Events) View() string {
 			// Update the group being displayed
 			group = evt.Group
 
-			view.WriteRune(EOL)
+			view.WriteRune('\n')
 		}
 
 		if e.Next() == nil && evt.InProgress() {
@@ -244,7 +244,7 @@ func (m Events) View() string {
 
 		// Make sure that events have an EOL so they are displayed right below each other
 		if !strings.HasSuffix(evt.Message, "\n") {
-			view.WriteRune(EOL)
+			view.WriteRune('\n')
 		}
 	}
 

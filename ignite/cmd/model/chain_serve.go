@@ -256,7 +256,7 @@ func (m ChainServe) renderQuitView() string {
 	// Display the events received during quit
 	if s := m.quitModel.View(); s != "" {
 		view.WriteString(s)
-		view.WriteRune(cliuimodel.EOL)
+		view.WriteRune('\n')
 	}
 
 	fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))

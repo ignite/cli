@@ -7,11 +7,6 @@ import (
 )
 
 const (
-	// EOL defines the rune for the end of line.
-	EOL = '\n'
-)
-
-const (
 	defaultIndent = 2
 )
 
