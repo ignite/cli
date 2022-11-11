@@ -297,20 +297,27 @@ func NewPlugin() *cobra.Command {
 }
 
 func NewPluginList() *cobra.Command {
-	return &cobra.Command{
+	lstCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List declared plugins and status",
+		Long:  "Prints status and information of declared plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			printPlugins()
 			return nil
 		},
 	}
+
+	lstCmd.PersistentFlags().Bool("commands", false, "List information about plugin commands")
+	lstCmd.PersistentFlags().Bool("hooks", false, "List information about plugin hooks")
+
+	return lstCmd
 }
 
 func NewPluginUpdate() *cobra.Command {
 	return &cobra.Command{
 		Use:   "update [path]",
 		Short: "Update plugins",
+		Long:  "Updates a plugin specified by path. If no path is specified all declared plugins are updated",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -342,6 +349,7 @@ func NewPluginScaffold() *cobra.Command {
 	return &cobra.Command{
 		Use:   "scaffold [github.com/org/repo]",
 		Short: "Scaffold a new plugin",
+		Long:  "Scaffolds a new plugin in the current directory with the given repository path configured. A git repository will be created with the given module name",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -381,13 +389,85 @@ func printPlugins() {
 		fmt.Println("No plugin found")
 		return
 	}
-	var entries [][]string
+
 	for _, p := range plugins {
 		status := "✅ Loaded"
 		if p.Error != nil {
 			status = fmt.Sprintf("❌ Error: %v", p.Error)
 		}
-		entries = append(entries, []string{p.Path, status})
+		entrywriter.MustWrite(os.Stdout, []string{"path", "status"}, []string{p.Path, status})
+
+		printPluginCommands(p)
+		printPluginHooks(p)
 	}
-	entrywriter.MustWrite(os.Stdout, []string{"path", "status"}, entries...)
+}
+
+func printPluginCommands(p *plugin.Plugin) {
+	if len(plugins) == 0 {
+		fmt.Println("No plugin found")
+		return
+	}
+
+	manifest, err := p.Interface.Manifest()
+	if err != nil {
+		panic("Error while loading plugin manifest")
+	}
+
+	fmt.Printf("💻 %s Commands\n", manifest.Name)
+	var entries [][]string
+	// Processes command heirarchy
+	traverse := func(cmd plugin.Command) {
+		// cmdPair is a Wrapper struct to create parent child relationship for sub commands without a `place command under`
+		type cmdPair struct {
+			cmd    *plugin.Command
+			parent *plugin.Command
+		}
+
+		var queue []cmdPair = make([]cmdPair, 0)
+		queue = append(queue, cmdPair{cmd: &cmd, parent: nil})
+
+		for len(queue) > 0 {
+			c := queue[0]
+			queue = queue[1:]
+			if c.cmd.PlaceCommandUnder != "" {
+				entries = append(entries, []string{c.cmd.Use, c.cmd.PlaceCommandUnder})
+			} else {
+				entries = append(entries, []string{c.cmd.Use, c.parent.Use})
+			}
+
+			for _, sc := range c.cmd.Commands {
+				queue = append(queue, cmdPair{cmd: &sc, parent: c.cmd})
+			}
+		}
+	}
+
+	if err != nil {
+		panic("Error while loading plugin manifest")
+	}
+
+	for _, c := range manifest.Commands {
+		traverse(c)
+	}
+	entrywriter.MustWrite(os.Stdout, []string{"use", "under"}, entries...)
+
+}
+
+func printPluginHooks(p *plugin.Plugin) {
+	if len(plugins) == 0 {
+		fmt.Println("No plugin found")
+		return
+	}
+	manifest, err := p.Interface.Manifest()
+	if err != nil {
+		panic("Error while loading plugin manifest")
+	}
+
+	fmt.Printf("🪝 %s Hooks\n", manifest.Name)
+	var entries [][]string
+
+	for _, h := range manifest.Hooks {
+		entries = append(entries, []string{h.Name, h.PlaceHookOn})
+	}
+	entrywriter.MustWrite(os.Stdout, []string{"name", "on command"}, entries...)
+
 }
