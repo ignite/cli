@@ -20,7 +20,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "launch [launch-id]",
 		Short: "Announce the launch a chain",
-		Long: `The launch command communicates to validators that the chain is ready to be
+		Long: `The launch command communicates to the world that the chain is ready to be
 launched.
 
 Only the coordinator of the chain can execute the launch command.
@@ -36,6 +36,11 @@ default, the current time is set. To give validators more time to prepare for
 the launch, set the time with the "--launch-time" flag:
 
   ignite network chain launch 42 --launch-time 2023-01-01T00:00:00Z
+
+After the launch command is executed validators can download the finalized
+genesis and prepare their nodes for the launch. For example, validators can run
+"ignite network chain prepare" to download the genesis and populate the peer
+list.
 `,
 		Args: cobra.ExactArgs(1),
 		RunE: networkChainLaunchHandler,
