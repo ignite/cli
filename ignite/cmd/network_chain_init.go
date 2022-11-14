@@ -171,7 +171,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, session, stakeDenom, defaultSelfDelegation)
+	defaultSelfDel := chainLaunch.AccountBalance.String()
+	if defaultSelfDel == "" {
+		defaultSelfDel = defaultSelfDelegation
+	}
+	v, err := askValidatorInfo(cmd, session, stakeDenom, defaultSelfDel)
 	if err != nil {
 		return err
 	}
