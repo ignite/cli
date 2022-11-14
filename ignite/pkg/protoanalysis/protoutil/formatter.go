@@ -17,6 +17,13 @@ import (
 	"github.com/emicklei/proto"
 )
 
+const (
+	srv     = "service"
+	enum    = "enum"
+	message = "message"
+	oneof   = "oneof"
+)
+
 // Formatter visits a Proto and writes formatted source.
 type Formatter struct {
 	w                  io.Writer
@@ -40,7 +47,7 @@ func (f *Formatter) Format(p *proto.Proto) {
 	}
 }
 
-// VisitCommentable visits the comment preceeding each element and returns true if
+// VisitCommentable visits the comment preceding each element and returns true if
 // one was visited. This is used to automatically print comments if they exist without
 // needing to explicitly visit them in each Visit* function.
 func (f *Formatter) VisitCommentable(c proto.Visitee) {
@@ -100,7 +107,6 @@ func (f *Formatter) formatLiteral(l *proto.Literal) {
 	}
 	// and here.
 	f.printWithIndent("}")
-	//f.newline()
 }
 
 // VisitSyntax formats a Syntax.
@@ -163,10 +169,10 @@ func (f *Formatter) VisitEnum(e *proto.Enum) {
 	f.allowedLastStatements("proto")
 
 	// Technically, we're in it.
-	f.lastStmt = "enum"
-	f.printWithIndent(fmt.Sprintf("enum %s {", e.Name))
+	f.lastStmt = enum
+	f.printWithIndent(fmt.Sprintf("%s %s {", enum, e.Name))
 	if len(e.Elements) > 0 {
-		f.currStmt = "enum"
+		f.currStmt = enum
 		f.newline()
 		for _, each := range e.Elements {
 			f.indent()
@@ -177,7 +183,7 @@ func (f *Formatter) VisitEnum(e *proto.Enum) {
 		}
 	}
 	io.WriteString(f.w, "}")
-	f.lastStmt = "enum"
+	f.lastStmt = enum
 	f.newline()
 }
 
@@ -226,10 +232,10 @@ func (f *Formatter) VisitService(s *proto.Service) {
 	f.allowedLastStatements("proto")
 
 	// Technically, we're in it.
-	f.lastStmt = "service"
-	fmt.Fprintf(f.w, "service %s {", s.Name)
+	f.lastStmt = srv
+	fmt.Fprintf(f.w, "%s %s {", srv, s.Name)
 	if len(s.Elements) > 0 {
-		f.currStmt = "service"
+		f.currStmt = srv
 		f.newline()
 		for _, each := range s.Elements {
 			f.indent()
@@ -240,7 +246,7 @@ func (f *Formatter) VisitService(s *proto.Service) {
 		}
 	}
 	io.WriteString(f.w, "}")
-	f.lastStmt = "service"
+	f.lastStmt = srv
 	f.newline()
 }
 
@@ -280,18 +286,18 @@ func (f *Formatter) VisitRPC(r *proto.RPC) {
 func (f *Formatter) VisitMessage(m *proto.Message) {
 	// Always place a newline between top-level elements.
 	// unless we're currently in a message.
-	if f.currStmt != "message" {
+	if f.currStmt != message {
 		f.allowedLastStatements("proto")
 	}
-	prefix := "message"
+	prefix := message
 	if m.IsExtend {
 		prefix = "extend"
 	}
 	f.printWithIndent(fmt.Sprintf("%s %s {", prefix, m.Name))
-	f.lastStmt = "message"
+	f.lastStmt = message
 	if len(m.Elements) > 0 {
 		f.newline()
-		f.currStmt = "message"
+		f.currStmt = message
 		for _, each := range m.Elements {
 			f.indent()
 			// Don't forget to visit comment.
@@ -302,7 +308,7 @@ func (f *Formatter) VisitMessage(m *proto.Message) {
 	}
 	f.printWithIndent("}")
 	// reset it.
-	f.lastStmt = "message"
+	f.lastStmt = message
 	f.newline()
 }
 
@@ -311,11 +317,12 @@ func (f *Formatter) VisitNormalField(nf *proto.NormalField) {
 	f.allowedLastStatements("normalfield", "message")
 	// don't support optional, required which are proto2.
 	prefix := ""
-	if nf.Repeated {
+	switch {
+	case nf.Repeated:
 		prefix = "repeated "
-	} else if nf.Optional {
+	case nf.Optional:
 		prefix = "optional "
-	} else if nf.Required {
+	case nf.Required:
 		prefix = "required "
 	}
 	f.printWithIndent(fmt.Sprintf("%s%s %s = %d", prefix, nf.Type, nf.Name, nf.Sequence))
@@ -330,11 +337,11 @@ func (f *Formatter) VisitNormalField(nf *proto.NormalField) {
 func (f *Formatter) VisitOneof(o *proto.Oneof) {
 	f.allowedLastStatements("message")
 
-	f.printWithIndent(fmt.Sprintf("oneof %s {", o.Name))
-	f.lastStmt = "oneof"
+	f.printWithIndent(fmt.Sprintf("%s %s {", oneof, o.Name))
+	f.lastStmt = oneof
 	if len(o.Elements) > 0 {
 		f.newline()
-		f.currStmt = "oneof"
+		f.currStmt = oneof
 		for _, each := range o.Elements {
 			f.indent()
 			// Don't forget to visit comment.
@@ -347,7 +354,7 @@ func (f *Formatter) VisitOneof(o *proto.Oneof) {
 		io.WriteString(f.w, "}")
 	}
 	f.newline()
-	f.lastStmt = "oneof"
+	f.lastStmt = oneof
 }
 
 // VisitOneofField formats a OneofField.

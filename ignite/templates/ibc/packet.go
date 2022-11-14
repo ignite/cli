@@ -195,7 +195,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return fmt.Errorf("failed while looking up '%s' in %s: %w", name, path, err)
 		}
-		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a seperate function.
+		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a separate function.
 		var packet *proto.Oneof
 		protoutil.Apply(m, nil, func(c *protoutil.Cursor) bool {
 			if o, ok := c.Node().(*proto.Oneof); ok {

@@ -2,12 +2,38 @@ package protoutil
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/emicklei/proto"
 	"github.com/stretchr/testify/require"
 )
+
+// Helpers:
+// Only checks containment, not positioning.
+func containsElement(f proto.Visitee, v proto.Visitee) bool {
+	contains := false
+	Apply(f, nil, func(c *Cursor) bool {
+		if reflect.DeepEqual(c.Node(), v) {
+			contains = true
+			return false
+		}
+		return true
+	})
+	return contains
+}
+
+// parseStringProto takes a string, parses it into a proto.File, and returns a ProtoFile.
+// Nodes can be created easily (newnode) by wrapping them correctly. (e.g field in a message)
+func parseStringProto(s string) (*proto.Proto, error) {
+	p, err := proto.NewParser(strings.NewReader(s)).Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
 
 // Test that the changes from adding a list with starport scaffold list <Type>
 // Relatively old files but still exercise some paths of the code.

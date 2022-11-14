@@ -132,8 +132,8 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		gogo_imp := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogo_imp, opts.TypeImport()); err != nil {
+		gogoImp := protoutil.NewImport("gogoproto/gogo.proto")
+		if err = protoutil.AddImports(pf, true, gogoImp, opts.TypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
@@ -543,8 +543,8 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			// shouldn't really occur.
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
-		creator := []*proto.NormalField{protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)}
-		commonFields := append(creator, indexes...)
+		commonFields := []*proto.NormalField{protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)}
+		commonFields = append(commonFields, indexes...)
 
 		msgCreate := protoutil.NewMessage(
 			"MsgCreate"+typU,

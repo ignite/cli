@@ -57,13 +57,13 @@ func Public() ImportSpecOpts {
 
 // NewImport creates a new import statement node:
 //
-//	// import "myproto.proto";
-//  imp := NewImport("myproto.proto")
+//		// import "myproto.proto";
+//	 imp := NewImport("myproto.proto")
 //
 // By default, no kind is assigned to it, by using Weak or Public, this can be specified:
 //
-//  // import weak "myproto.proto";
-//  imp := NewImport("myproto.proto", Weak())
+//	// import weak "myproto.proto";
+//	imp := NewImport("myproto.proto", Weak())
 func NewImport(path string, opts ...ImportSpecOpts) *proto.Import {
 	i := ImportSpec{path: path}
 	for _, opt := range opts {
@@ -78,8 +78,8 @@ func NewImport(path string, opts ...ImportSpecOpts) *proto.Import {
 
 // NewPackage creates a new package statement node:
 //
-//  // package foo.bar;
-//  pkg := NewPackage("foo.bar")
+//	// package foo.bar;
+//	pkg := NewPackage("foo.bar")
 func NewPackage(path string) *proto.Package {
 	return &proto.Package{
 		Name: path,
@@ -107,8 +107,8 @@ func Custom() OptionSpecOpts {
 // Setter allows setting specific fields for a given option
 // that denotes a type with fields.
 //
-//  // option (my_opt).field = "Value";
-//  opt := NewOption("my_opt", "Value", Custom(), Setter("field"))
+//	// option (my_opt).field = "Value";
+//	opt := NewOption("my_opt", "Value", Custom(), Setter("field"))
 func SetField(name string) OptionSpecOpts {
 	return func(f *OptionSpec) {
 		f.setter = name
@@ -117,20 +117,20 @@ func SetField(name string) OptionSpecOpts {
 
 // NewOption creates a new option statement node:
 //
-//  // option foo = 1;
-//  opt := NewOption("foo", "1")
+//	// option foo = 1;
+//	opt := NewOption("foo", "1")
 //
 // Custom options can be marked as such by using Custom, this wraps the option name
 // in parenthesis:
 //
-//  // option (foo) = 1;
-//  opt := NewOption("foo", "1", Custom())
+//	// option (foo) = 1;
+//	opt := NewOption("foo", "1", Custom())
 //
 // Since option constants can accept a number of types, strings that require quotation
 // should be passed as raw strings:
 //
-//  // option foo = "bar";
-//  opt := NewOption("foo", `bar`)
+//	// option foo = "bar";
+//	opt := NewOption("foo", `bar`)
 func NewOption(name, constant string, opts ...OptionSpecOpts) *proto.Option {
 	o := OptionSpec{name: name, constant: constant}
 	for _, opt := range opts {
@@ -184,15 +184,15 @@ func WithRPCOptions(option ...*proto.Option) RPCSpecOpts {
 
 // NewRPC creates a new RPC statement node:
 //
-//  // rpc Foo(Bar) returns(Bar) {}
-//  rpc := NewRPC("Foo", "Bar", "Bar")
+//	// rpc Foo(Bar) returns(Bar) {}
+//	rpc := NewRPC("Foo", "Bar", "Bar")
 //
 // No options are attached by default, use WithRPCOptions to add options as required:
 //
-//  // rpc Foo(Bar) returns(Bar) {
-//  //  option (foo) = 1;
-//  // }
-//  rpc := NewRPC("Foo", "Bar", "Bar", WithRPCOptions(NewOption("foo", "1")))
+//	// rpc Foo(Bar) returns(Bar) {
+//	//  option (foo) = 1;
+//	// }
+//	rpc := NewRPC("Foo", "Bar", "Bar", WithRPCOptions(NewOption("foo", "1")))
 func NewRPC(name string, inputType string, outputType string, opts ...RPCSpecOpts) *proto.RPC {
 	r := RPCSpec{name: name, inputType: inputType, outputType: outputType}
 	for _, opt := range opts {
@@ -240,19 +240,19 @@ func WithServiceOptions(options ...*proto.Option) ServiceSpecOpts {
 
 // NewService creates a new service statement node:
 //
-//  // service Foo {}
-//  service := NewService("Foo")
+//	// service Foo {}
+//	service := NewService("Foo")
 //
 // No rpcs/options are attached by default, use WithRPCs and
 // WithServiceOptions to add them as required:
 //
-//  // service Foo {
-//  //  option (foo) = 1;
-//  //  rpc Bar(Bar) returns (Bar) {}
-//  // }
-//	opt := NewOption("foo", "1")
-//  rpc := NewRPC("Bar", "Bar", "Bar")
-//  service := NewService("Foo", WithServiceOptions(opt), WithRPCs(rpc))
+//	 // service Foo {
+//	 //  option (foo) = 1;
+//	 //  rpc Bar(Bar) returns (Bar) {}
+//	 // }
+//		opt := NewOption("foo", "1")
+//	 rpc := NewRPC("Bar", "Bar", "Bar")
+//	 service := NewService("Foo", WithServiceOptions(opt), WithRPCs(rpc))
 //
 // By default, options are added first and then the rpcs.
 func NewService(name string, opts ...ServiceSpecOpts) *proto.Service {
@@ -315,14 +315,14 @@ func WithFieldOptions(options ...*proto.Option) FieldSpecOpts {
 
 // NewField creates a new field statement node:
 //
-//  // int32 Foo = 1;
-//  field := NewField("Foo", "int32", 1)
+//	// int32 Foo = 1;
+//	field := NewField("Foo", "int32", 1)
 //
 // Fields aren't marked as repeated, required or optional. Use Repeated, Optional
 // and Required to mark the field as such.
 //
-//  // repeated int32 Foo = 1;
-//  field := NewField("Foo", "int32", 1, Repeated())
+//	// repeated int32 Foo = 1;
+//	field := NewField("Foo", "int32", 1, Repeated())
 func NewField(typ, name string, sequence int, opts ...FieldSpecOpts) *proto.NormalField {
 	f := FieldSpec{name: name, typ: typ, sequence: sequence}
 	for _, opt := range opts {
@@ -331,7 +331,8 @@ func NewField(typ, name string, sequence int, opts ...FieldSpecOpts) *proto.Norm
 
 	// Check qualifiers? Though protoc will shout if we do stupid things.
 	field := &proto.NormalField{
-		Field: &proto.Field{Name: f.name,
+		Field: &proto.Field{
+			Name:     f.name,
 			Sequence: f.sequence,
 			Type:     f.typ,
 			Options:  []*proto.Option{},
@@ -387,19 +388,19 @@ func Extend() MessageSpecOpts {
 
 // NewMessage creates a new message statement node:
 //
-//  // message Foo {}
-//  message := NewMessage("Foo")
+//	// message Foo {}
+//	message := NewMessage("Foo")
 //
 // No fields/enums/options are attached by default, use WithMessageFields, WithEnums,
 // and WithMessageOptions to add them as required:
 //
-//  // message Foo {
-//  //  option (foo) = 1;
-//  //  int32 Bar = 1;
-//  // }
-//	opt := NewOption("foo", "1")
-//  field := NewField("int32", "Bar", 1)
-//  message := NewMessage("Foo", WithMessageOptions(opt), WithFields(field))
+//	 // message Foo {
+//	 //  option (foo) = 1;
+//	 //  int32 Bar = 1;
+//	 // }
+//		opt := NewOption("foo", "1")
+//	 field := NewField("int32", "Bar", 1)
+//	 message := NewMessage("Foo", WithMessageOptions(opt), WithFields(field))
 //
 // By default, options are added first, then fields and then enums.
 func NewMessage(name string, opts ...MessageSpecOpts) *proto.Message {
@@ -445,14 +446,14 @@ func WithEnumFieldOptions(options ...*proto.Option) EnumFieldSpecOpts {
 
 // NewEnumField creates a new enum field statement node:
 //
-//  // BAR = 1;
-//  field := NewEnumField("BAR", 1)
+//	// BAR = 1;
+//	field := NewEnumField("BAR", 1)
 //
 // No options are attached by default, use WithEnumFieldOptions to add them as
 // required:
 //
-//  // BAR = 1 [option (foo) = 1];
-//  field := NewEnumField("BAR", 1, WithEnumFieldOptions(NewOption("foo", "1")))
+//	// BAR = 1 [option (foo) = 1];
+//	field := NewEnumField("BAR", 1, WithEnumFieldOptions(NewOption("foo", "1")))
 func NewEnumField(name string, value int, opts ...EnumFieldSpecOpts) *proto.EnumField {
 	f := EnumFieldSpec{name: name, value: value}
 	for _, opt := range opts {
@@ -495,18 +496,18 @@ func WithEnumFields(fields ...*proto.EnumField) EnumSpecOpts {
 
 // NewEnum creates a new enum statement node:
 //
-//  // enum Foo {
-//  //  BAR = 1;
-//  // }
-//  enum := NewEnum("Foo", WithEnumFields(NewEnumField("BAR", 1)))
+//	// enum Foo {
+//	//  BAR = 1;
+//	// }
+//	enum := NewEnum("Foo", WithEnumFields(NewEnumField("BAR", 1)))
 //
 // No options are attached by default, use WithEnumOptions to add them as
 // required:
 //
-//  // enum Foo {
-//  //  BAR = 1 [option (foo) = 1];
-//  // }
-//  enum := NewEnum("Foo", WithEnumOptions(NewOption("foo", "1")), WithEnumFields(NewEnumField("BAR", 1)))
+//	// enum Foo {
+//	//  BAR = 1 [option (foo) = 1];
+//	// }
+//	enum := NewEnum("Foo", WithEnumOptions(NewOption("foo", "1")), WithEnumFields(NewEnumField("BAR", 1)))
 //
 // By default, options are added first, then fields.
 func NewEnum(name string, opts ...EnumSpecOpts) *proto.Enum {
@@ -545,22 +546,23 @@ func WithOneOfFieldOptions(options ...*proto.Option) OneOfFieldOpts {
 
 // NewOneOfField creates a new oneof field statement node:
 //
-//	// Needs to placed in a oneof block.
-//  // int32 Foo = 1;
-//  field := NewOneOfField("Foo", "int32", 1)
+//		// Needs to placed in a oneof block.
+//	 // int32 Foo = 1;
+//	 field := NewOneOfField("Foo", "int32", 1)
 //
 // Additional options can be created and attached to the field to the field via
 // WithOneOfFieldOptions:
 //
-//  // int32 Foo = 1 [option (foo) = 1];
-//  field := NewOneOfField("Foo", "int32", 1, WithOneOfFieldOptions(NewOption("foo", "1")))
+//	// int32 Foo = 1 [option (foo) = 1];
+//	field := NewOneOfField("Foo", "int32", 1, WithOneOfFieldOptions(NewOption("foo", "1")))
 func NewOneOfField(typ, name string, sequence int, opts ...OneOfFieldOpts) *proto.OneOfField {
 	f := OneOfFieldSpec{name: name, typ: typ, sequence: sequence}
 	for _, opt := range opts {
 		opt(&f)
 	}
 	field := &proto.OneOfField{
-		Field: &proto.Field{Name: f.name,
+		Field: &proto.Field{
+			Name:     f.name,
 			Sequence: f.sequence,
 			Type:     f.typ,
 			Options:  []*proto.Option{},
@@ -596,10 +598,10 @@ func WithOneOfFields(fields ...*proto.OneOfField) OneOfSpecOpts {
 
 // NewOneOf creates a new oneof statement node:
 //
-//  // oneof Foo {
-//  //  int32 Foo = 1;
-//  // }
-//  oneof := NewOneOf("Foo", WithOneOfFields(NewOneOfField("Foo", "int32", 1)))
+//	// oneof Foo {
+//	//  int32 Foo = 1;
+//	// }
+//	oneof := NewOneOf("Foo", WithOneOfFields(NewOneOfField("Foo", "int32", 1)))
 //
 // No options are attached by default, use WithOneOfOptions to add them as required.
 func NewOneOf(name string, opts ...OneOfSpecOpts) *proto.Oneof {

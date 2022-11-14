@@ -3,7 +3,6 @@ package protoutil
 import (
 	"errors"
 	"fmt"
-	"reflect"
 
 	"github.com/emicklei/proto"
 )
@@ -86,21 +85,19 @@ func AddImports(f *proto.Proto, fallback bool, imports ...*proto.Import) (err er
 			if next, ok := c.Next(); ok {
 				if _, ok := next.(*proto.Import); ok {
 					return true
-				} else {
-					for _, imp := range importMap {
-						c.InsertAfter(imp)
-					}
-					inserted = true
-					return false
 				}
-			} else {
-				// We're at the end (no Next())
 				for _, imp := range importMap {
 					c.InsertAfter(imp)
 				}
 				inserted = true
 				return false
 			}
+			// We're at the end (no Next())
+			for _, imp := range importMap {
+				c.InsertAfter(imp)
+			}
+			inserted = true
+			return false
 		}
 		return true
 	})
@@ -154,8 +151,7 @@ func NextUniqueID(m *proto.Message) int {
 	// if no elements exist => 1.
 	max := 0
 	for _, el := range m.Elements {
-		switch f := el.(type) {
-		case *proto.NormalField:
+		if f, ok := el.(*proto.NormalField); ok {
 			if f.Sequence > max {
 				max = f.Sequence
 			}
@@ -287,18 +283,4 @@ func HasService(f *proto.Proto, name string) bool {
 func HasImport(f *proto.Proto, path string) bool {
 	_, err := GetImportByPath(f, path)
 	return err == nil
-}
-
-// Only checks containment, not positioning.
-// Currently mainly used in testing.
-func containsElement(f proto.Visitee, v proto.Visitee) bool {
-	contains := false
-	Apply(f, nil, func(c *Cursor) bool {
-		if reflect.DeepEqual(c.Node(), v) {
-			contains = true
-			return false
-		}
-		return true
-	})
-	return contains
 }

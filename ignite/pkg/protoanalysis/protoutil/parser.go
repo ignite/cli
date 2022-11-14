@@ -36,14 +36,3 @@ func Printer(pf *proto.Proto) string {
 
 	return output.String()
 }
-
-// parseStringProto takes a string, parses it into a proto.File, and returns a ProtoFile.
-// Nodes can be created easily (newnode) by wrapping them correctly. (e.g field in a message)
-func parseStringProto(s string) (*proto.Proto, error) {
-	p, err := proto.NewParser(strings.NewReader(s)).Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	return p, nil
-}

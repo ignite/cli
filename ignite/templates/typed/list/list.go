@@ -133,7 +133,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			createFields = append(createFields, field.ToProtoField(i+2))
 		}
 		udfields := []*proto.NormalField{creator, protoutil.NewField("uint64", "id", 2)}
-		updateFields := udfields[:]
+		updateFields := udfields
 		for i, field := range opts.Fields {
 			updateFields = append(updateFields, field.ToProtoField(i+3))
 		}
