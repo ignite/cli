@@ -22,7 +22,7 @@ func NewGenerateVuex() *cobra.Command {
 	return c
 }
 
-func generateVuexHandler(cmd *cobra.Command, args []string) error {
+func generateVuexHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
