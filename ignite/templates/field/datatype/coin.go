@@ -3,7 +3,9 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
 var (
@@ -25,6 +27,12 @@ var (
 		GoCLIImports: []GoImport{{Name: "github.com/cosmos/cosmos-sdk/types", Alias: "sdk"}},
 		ProtoImports: []string{"gogoproto/gogo.proto", "cosmos/base/v1beta1/coin.proto"},
 		NonIndex:     true,
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
+			return protoutil.NewField(
+				"cosmos.base.v1beta1.Coin", name, index, protoutil.WithFieldOptions(opt),
+			)
+		},
 	}
 
 	// DataCoinSlice coin array data type definition
@@ -45,5 +53,11 @@ var (
 		GoCLIImports: []GoImport{{Name: "github.com/cosmos/cosmos-sdk/types", Alias: "sdk"}},
 		ProtoImports: []string{"gogoproto/gogo.proto", "cosmos/base/v1beta1/coin.proto"},
 		NonIndex:     true,
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
+			return protoutil.NewField(
+				"cosmos.base.v1beta1.Coin", name, index, protoutil.WithFieldOptions(opt), protoutil.Repeated(),
+			)
+		},
 	}
 )

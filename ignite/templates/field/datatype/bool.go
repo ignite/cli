@@ -3,7 +3,9 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
 // DataBool bool data type definition
@@ -34,6 +36,9 @@ var DataBool = DataType{
 	},
 	ToString: func(name string) string {
 		return fmt.Sprintf("strconv.FormatBool(%s)", name)
+	},
+	ToProtoField: func(_, name string, index int) *proto.NormalField {
+		return protoutil.NewField("bool", name, index)
 	},
 	GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 }
