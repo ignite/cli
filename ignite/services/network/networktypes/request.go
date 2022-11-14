@@ -58,7 +58,7 @@ func VerifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator)
 	)
 
 	// Check values inside the gentx are correct
-	info, _, err := cosmosutil.ParseGentx(req.GenesisValidator.GenTx)
+	info, err := cosmosutil.ParseGentx(req.GenesisValidator.GenTx)
 	if err != nil {
 		return fmt.Errorf("cannot parse gentx %w", err)
 	}
