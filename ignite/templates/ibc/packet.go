@@ -4,13 +4,16 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
-	"strings"
 
+	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush/v4"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 	"github.com/ignite/cli/ignite/templates/field"
@@ -59,7 +62,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	// Add the component
 	g.RunFn(moduleModify(replacer, opts))
-	g.RunFn(protoModify(replacer, opts))
+	g.RunFn(protoModify(opts))
 	g.RunFn(eventModify(replacer, opts))
 	if err := g.Box(componentTemplate); err != nil {
 		return g, err
@@ -67,7 +70,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	// Add the send message
 	if !opts.NoMessage {
-		g.RunFn(protoTxModify(replacer, opts))
+		g.RunFn(protoTxModify(opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(codecModify(replacer, opts))
 		if err := g.Box(messagesTemplate); err != nil {
@@ -171,76 +174,84 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 	}
 }
 
-func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+// Modifies packet.proto to add a field on the oneof element of the message created and
+// add a couple of messages.
+//
+// What it depends on:
+//   - Existence of a Oneof field named 'packet'.
+func protoModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-
-		content := f.String()
-
-		// Add the field in the module packet
-		fieldCount := strings.Count(content, PlaceholderIBCPacketProtoFieldNumber)
-		templateField := `%[1]v
-				%[2]vPacketData %[3]vPacket = %[4]v; %[5]v`
-		replacementField := fmt.Sprintf(
-			templateField,
-			PlaceholderIBCPacketProtoField,
-			opts.PacketName.UpperCamel,
-			opts.PacketName.LowerCamel,
-			fieldCount+2,
-			PlaceholderIBCPacketProtoFieldNumber,
-		)
-		content = replacer.Replace(content, PlaceholderIBCPacketProtoField, replacementField)
+		pf, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
+		name := cases.Title(language.English, cases.Compact).String(opts.ModuleName) + "PacketData"
+		m, err := protoutil.GetMessageByName(pf, name)
+		if err != nil {
+			return fmt.Errorf("failed while looking up '%s' in %s: %w", name, path, err)
+		}
+		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a seperate function.
+		var packet *proto.Oneof
+		protoutil.Apply(m, nil, func(c *protoutil.Cursor) bool {
+			if o, ok := c.Node().(*proto.Oneof); ok {
+				if o.Name == "packet" {
+					packet = o
+					return false
+				}
+			}
+			// continue traversing.
+			return true
+		})
+		if packet == nil {
+			return fmt.Errorf("could not find 'oneof packet' in %s", path)
+		}
+		// Count fields of oneof:
+		max := 1
+		protoutil.Apply(packet, nil, func(c *protoutil.Cursor) bool {
+			if o, ok := c.Node().(*proto.OneOfField); ok {
+				if o.Sequence > max {
+					max = o.Sequence
+				}
+			}
+			return true
+		})
+		// Add it to Oneof.
+		typU, typL := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
+		modPacket := protoutil.NewOneOfField(typU+"PacketData", typL+"Packet", max+1)
+		protoutil.Append(packet, modPacket)
 
 		// Add the message definition for packet and acknowledgment
-		var packetFields string
+		var packetFields []*proto.NormalField
 		for i, field := range opts.Fields {
-			packetFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
+			packetFields = append(packetFields, field.ToProtoField(i+1))
 		}
+		pData := protoutil.NewMessage(typU+"PacketData", protoutil.WithFields(packetFields...))
 
-		var ackFields string
+		var ackFields []*proto.NormalField
 		for i, field := range opts.AckFields {
-			ackFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
+			ackFields = append(ackFields, field.ToProtoField(i+1))
+		}
+		pAck := protoutil.NewMessage(typU+"PacketAck", protoutil.WithFields(ackFields...))
+		protoutil.Append(pf, pData, pAck)
+		// Add any custom imports.
+		var protoImports []*proto.Import
+		for _, imp := range append(opts.Fields.ProtoImports(), opts.AckFields.ProtoImports()...) {
+			protoImports = append(protoImports, protoutil.NewImport(imp))
+		}
+		for _, f := range append(opts.Fields.Custom(), opts.AckFields.Custom()...) {
+			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protopath))
+		}
+		if err := protoutil.AddImports(pf, true, protoImports...); err != nil {
+			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
-		// Ensure custom types are imported
-		protoImports := append(opts.Fields.ProtoImports(), opts.AckFields.ProtoImports()...)
-		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
-		for _, f := range customFields {
-			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
-			)
-		}
-		for _, f := range protoImports {
-			importModule := fmt.Sprintf(`
-import "%[1]v";`, f)
-			content = strings.ReplaceAll(content, importModule, "")
-
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
-			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
-		}
-
-		templateMessage := `// %[2]vPacketData defines a struct for the packet payload
-message %[2]vPacketData {
-%[3]v}
-
-// %[2]vPacketAck defines a struct for the packet acknowledgment
-message %[2]vPacketAck {
-	%[4]v}
-%[1]v`
-		replacementMessage := fmt.Sprintf(
-			templateMessage,
-			PlaceholderIBCPacketProtoMessage,
-			opts.PacketName.UpperCamel,
-			packetFields,
-			ackFields,
-		)
-		content = replacer.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage)
-
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Printer(pf))
 		return r.File(newFile)
 	}
 }
@@ -268,69 +279,62 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 	}
 }
 
-func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+// Modifies tx.proto to add a new RPC and the required messages.
+//
+// What it depends on:
+//   - Existence of a service named 'Msg'. The other elements don't depend on already existing
+//     elements in the file.
+func protoTxModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-
-		// RPC
-		templateRPC := `  rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);
-%[1]v`
-		replacementRPC := fmt.Sprintf(
-			templateRPC,
-			PlaceholderProtoTxRPC,
-			opts.PacketName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), PlaceholderProtoTxRPC, replacementRPC)
-
-		var sendFields string
-		for i, field := range opts.Fields {
-			sendFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+5))
+		pf, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
 		}
+
+		// Add RPC to service Msg.
+		srv, err := protoutil.GetServiceByName(pf, "Msg")
+		if err != nil {
+			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+		}
+		typU := opts.PacketName.UpperCamel
+		send := protoutil.NewRPC("Send"+typU, "MsgSend"+typU, "MsgSend"+typU+"Response")
+		protoutil.Append(srv, send)
+
+		// Create fields for MsgSend.
+		var sendFields []*proto.NormalField
+		for i, field := range opts.Fields {
+			sendFields = append(sendFields, field.ToProtoField(i+5))
+		}
+		creator := protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)
+		port := protoutil.NewField("string", "port", 2)
+		channel := protoutil.NewField("string", "channelID", 3)
+		timeout := protoutil.NewField("uint64", "timeoutTimestamp", 4)
+		sendFields = append(sendFields, creator, port, channel, timeout)
+
+		// Create MsgSend, MsgSendResponse and add to file.
+		msgSend := protoutil.NewMessage("MsgSend"+typU, protoutil.WithFields(sendFields...))
+		msgResp := protoutil.NewMessage("MsgSend" + typU + "Response")
+		protoutil.Append(pf, msgSend, msgResp)
 
 		// Ensure custom types are imported
-		protoImports := opts.Fields.ProtoImports()
+		var protoImports []*proto.Import
+		for _, imp := range opts.Fields.ProtoImports() {
+			protoImports = append(protoImports, protoutil.NewImport(imp))
+		}
 		for _, f := range opts.Fields.Custom() {
-			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
-			)
+			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
-		for _, f := range protoImports {
-			importModule := fmt.Sprintf(`
-import "%[1]v";`, f)
-			content = strings.ReplaceAll(content, importModule, "")
-
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoTxImport, importModule)
-			content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
+		if err := protoutil.AddImports(pf, true, protoImports...); err != nil {
+			return fmt.Errorf("error while processing %s: %w", path, err)
 		}
 
-		// Message
-		// TODO: Include timestamp height
-		// This addition would include using the type ibc.core.client.v1.Height
-		// Ex: https://github.com/cosmos/cosmos-sdk/blob/816306b85addae6350bd380997f2f4bf9dce9471/proto/ibc/applications/transfer/v1/tx.proto
-		templateMessage := `message MsgSend%[2]v {
-  string %[3]v = 1;
-  string port = 2;
-  string channelID = 3;
-  uint64 timeoutTimestamp = 4;
-%[4]v}
-
-message MsgSend%[2]vResponse {
-}
-%[1]v`
-		replacementMessage := fmt.Sprintf(
-			templateMessage,
-			PlaceholderProtoTxMessage,
-			opts.PacketName.UpperCamel,
-			opts.MsgSigner.LowerCamel,
-			sendFields,
-		)
-		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)
-
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Printer(pf))
 		return r.File(newFile)
 	}
 }

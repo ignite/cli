@@ -4,14 +4,15 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
-	"strings"
 
+	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
@@ -52,16 +53,24 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 		)
 	)
 
-	g.RunFn(protoQueryModify(replacer, opts))
+	g.RunFn(protoQueryModify(opts))
 	g.RunFn(cliQueryModify(replacer, opts))
 
 	return g, Box(template, opts, g)
 }
 
-func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+// Modifies query.proto to add the required RPCs and Messages.
+//
+// What it depends on:
+//   - Existence of a service with name "Query" since that is where the RPCs will be added.
+func protoQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		pf, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
@@ -72,79 +81,64 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			reqPath += "/"
 			reqPath = filepath.Join(reqPath, fmt.Sprintf("{%s}", field.ProtoFieldName()))
 		}
+		srv, err := protoutil.GetServiceByName(pf, "Query")
+		if err != nil {
+			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+		}
 
-		// RPC service
-		templateRPC := `// Queries a list of %[2]v items.
-	rpc %[2]v(Query%[2]vRequest) returns (Query%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v%[6]v";
-	}
-
-%[1]v`
-		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		replacementRPC := fmt.Sprintf(
-			templateRPC,
-			Placeholder2,
-			opts.QueryName.UpperCamel,
-			appModulePath,
-			opts.ModuleName,
-			opts.QueryName.Snake,
-			reqPath,
+		typU, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
+		single := protoutil.NewRPC(typU, "Query"+typU+"Request", "Query"+typU+"Response",
+			protoutil.WithRPCOptions(
+				protoutil.NewOption(
+					"google.api.http",
+					fmt.Sprintf(
+						"/%s/%s/%s%s",
+						appModulePath, opts.ModuleName, opts.QueryName.Snake, reqPath,
+					),
+					protoutil.Custom(),
+					protoutil.SetField("get"),
+				),
+			),
 		)
-		content := replacer.Replace(f.String(), Placeholder2, replacementRPC)
+		protoutil.Append(srv, single)
 
 		// Fields for request
-		var reqFields string
+		pagT, pagN := "cosmos.base.query.v1beta1.Page", "pagination"
+		var reqFields []*proto.NormalField
 		for i, field := range opts.ReqFields {
-			reqFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
+			reqFields = append(reqFields, field.ToProtoField(i+1))
 		}
 		if opts.Paginated {
-			reqFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageRequest pagination = %d;\n", len(opts.ReqFields)+1)
+			reqFields = append(reqFields, protoutil.NewField(pagT+"Request", pagN, len(opts.ReqFields)+1))
 		}
+		msgReq := protoutil.NewMessage("Query"+typU+"Request", protoutil.WithFields(reqFields...))
 
 		// Fields for response
-		var resFields string
+		var resFields []*proto.NormalField
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
+			resFields = append(resFields, field.ToProtoField(i+1))
 		}
 		if opts.Paginated {
-			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
+			resFields = append(resFields, protoutil.NewField(pagT+"Response", pagN, len(opts.ResFields)+1))
 		}
+		msgResp := protoutil.NewMessage("Query"+typU+"Response", protoutil.WithFields(resFields...))
+		protoutil.Append(pf, msgReq, msgResp)
 
 		// Ensure custom types are imported
-		protoImports := append(opts.ResFields.ProtoImports(), opts.ReqFields.ProtoImports()...)
-		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
-		for _, f := range customFields {
-			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
-			)
+		var protoImports []*proto.Import
+		for _, imp := range append(opts.ResFields.ProtoImports(), opts.ReqFields.ProtoImports()...) {
+			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
-		for _, f := range protoImports {
-			importModule := fmt.Sprintf(`
-import "%[1]v";`, f)
-			content = strings.ReplaceAll(content, importModule, "")
-
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
-			content = replacer.Replace(content, Placeholder, replacementImport)
+		for _, f := range append(opts.ResFields.Custom(), opts.ReqFields.Custom()...) {
+			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protopath))
+		}
+		if err = protoutil.AddImports(pf, true, protoImports...); err != nil {
+			// shouldn't really occur.
+			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		// Messages
-		templateMessages := `message Query%[2]vRequest {
-%[3]v}
-
-message Query%[2]vResponse {
-%[4]v}
-
-%[1]v`
-		replacementMessages := fmt.Sprintf(
-			templateMessages,
-			Placeholder3,
-			opts.QueryName.UpperCamel,
-			reqFields,
-			resFields,
-		)
-		content = replacer.Replace(content, Placeholder3, replacementMessages)
-
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Printer(pf))
 		return r.File(newFile)
 	}
 }
