@@ -63,7 +63,7 @@ func ParseGentx(gentxBz []byte) (info GentxInfo, err error) {
 	// Try parsing gentx
 	var gentx Gentx
 	if err := json.Unmarshal(gentxBz, &gentx); err != nil {
-		return info, err
+		return info, fmt.Errorf("unmarshal gentx: %w", err)
 	}
 	if gentx.Body.Messages == nil {
 		return info, errors.New("the gentx cannot be parsed")
