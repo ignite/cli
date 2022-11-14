@@ -47,13 +47,6 @@ func WithChainID(chainID string) PublishOption {
 	}
 }
 
-// WithNoCheck disables checking integrity of the chain.
-func WithNoCheck() PublishOption {
-	return func(o *publishOptions) {
-		o.noCheck = true
-	}
-}
-
 // WithCustomGenesisURL enables using a custom genesis during publish.
 func WithCustomGenesisURL(url string) PublishOption {
 	return func(o *publishOptions) {
