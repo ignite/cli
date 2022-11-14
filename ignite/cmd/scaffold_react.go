@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
 
-// NewScaffoldReacr scaffolds a React app for a chain.
+// NewScaffoldReact scaffolds a React app for a chain.
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "react",
