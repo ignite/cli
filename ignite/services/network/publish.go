@@ -22,7 +22,6 @@ type publishOptions struct {
 	genesisConfig    string
 	chainID          string
 	campaignID       uint64
-	noCheck          bool
 	metadata         string
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
