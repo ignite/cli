@@ -1,9 +1,9 @@
 ---
 sidebar_position: 5
-description: Other commands for launch coordination.
+description: Other commands for coordination.
 ---
 
-# Other commands for launch coordination
+# Other commands for coordination
 
 Ignite CLI offers various other commands to coordinate chain launches that can be used by coordinators, validators, or other participants.
 
