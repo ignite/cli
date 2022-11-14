@@ -1,7 +1,12 @@
 package typed
 
 import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/emicklei/proto"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/templates/field"
 )
 
@@ -23,4 +28,14 @@ type Options struct {
 // Validate that options are usable
 func (opts *Options) Validate() error {
 	return nil
+}
+
+// Path to proto folder in the generated app.
+func (opts *Options) ProtoPath(fname string) string {
+	return filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, fname)
+}
+
+// Return the import statement for this type.
+func (opts *Options) TypeImport() *proto.Import {
+	return protoutil.NewImport(fmt.Sprintf("%s/%s/%s.proto", opts.AppName, opts.ModuleName, opts.TypeName.Snake))
 }
