@@ -7,7 +7,7 @@ description: Other commands for coordination.
 
 Ignite CLI offers various other commands to coordinate chain launches that can be used by coordinators, validators, or other participants.
 
-The requests follow the same logic as the request for validator participation, they must be approved by the chain launch coordinator to be effective in the genesis.
+The requests follow the same logic as the request for validator participation; they must be approved by the chain coordinator to be effective in the genesis.
 
 ---
 
