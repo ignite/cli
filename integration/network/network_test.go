@@ -143,7 +143,7 @@ func TestNetworkPublish(t *testing.T) {
 	require.NoError(t, isBackendAliveErr, "spn cannot get online in time")
 }
 
-func TestNetworkPublishConfigGenesis(t *testing.T) {
+func TestNetworkPublishGenesisConfig(t *testing.T) {
 	var (
 		spnPath = cloneSPN(t)
 		env     = envtest.New(t)
