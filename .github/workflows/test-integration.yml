@@ -6,7 +6,7 @@ on:
       - '**.md'
     branches:
       - master
-      - develop
+      - main
 
 jobs:
   pre-test:
