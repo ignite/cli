@@ -3,7 +3,7 @@ name: Docs Deploy
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   consecutiveness:
