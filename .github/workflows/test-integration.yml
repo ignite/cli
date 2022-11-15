@@ -5,7 +5,6 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
       - main
 
 jobs:
