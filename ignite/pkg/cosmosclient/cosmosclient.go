@@ -52,7 +52,7 @@ var (
 )
 
 const (
-	// GasAuto allows to calulate gas automatically when sending transaction
+	// GasAuto allows to calculate gas automatically when sending transaction
 	GasAuto = "auto"
 
 	defaultNodeAddress   = "http://localhost:26657"
