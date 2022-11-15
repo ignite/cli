@@ -3,7 +3,7 @@ name: Generate embedded binaries
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   gen-nodetime:
