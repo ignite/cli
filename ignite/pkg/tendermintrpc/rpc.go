@@ -141,7 +141,7 @@ func (c Client) Status(ctx context.Context) (NodeInfo, error) {
 
 	info = out.Result.NodeInfo
 
-	// some Stargate versions have a different response payload.
+	// some versions have a different response payload.
 	if info.Network == "" {
 		var out struct {
 			Result struct {
