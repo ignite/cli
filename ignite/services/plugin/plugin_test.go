@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -16,6 +17,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
 
 func TestNewPlugin(t *testing.T) {
@@ -133,25 +136,37 @@ func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 
-	// Use a common temp dir for all the cases to facilitate cleaning.
-	tmpDir := path.Join(os.TempDir(), "ignite_"+t.Name())
-	err = os.MkdirAll(tmpDir, 0o700)
-	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
-	mkdirTmp := func(t *testing.T, dir string) string {
-		tmp, err := os.MkdirTemp(tmpDir, dir)
-		require.NoError(t, err)
-		return tmp
+	// scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
+	// current ignite/cli sources.
+	scaffoldPlugin := func(t *testing.T, dir, name string) string {
+		require := require.New(t)
+		path, err := Scaffold(dir, name)
+		require.NoError(err)
+		// We want the scaffolded plugin to use the current version of ignite/cli,
+		// for that we need to update the plugin go.mod and add a replace to target
+		// current ignite/cli
+		gomod, err := gomodule.ParseAt(path)
+		require.NoError(err)
+		// use GOMOD env to get current directory module path
+		modpath, err := gocmd.Env(gocmd.EnvGOMOD)
+		require.NoError(err)
+		modpath = filepath.Dir(modpath)
+		gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
+		// Save go.mod
+		data, err := gomod.Format()
+		require.NoError(err)
+		err = os.WriteFile(filepath.Join(path, "go.mod"), data, 0o644)
+		require.NoError(err)
+		return path
 	}
 
 	// Helper to make a local git repository with gofile committed.
 	// Returns the repo directory and the git.Repository
 	makeGitRepo := func(t *testing.T, name string) (string, *git.Repository) {
 		require := require.New(t)
-		repoDir := mkdirTmp(t, "plugin_repo")
-		path, err := Scaffold(repoDir, "github.com/ignite/"+name)
+		repoDir := t.TempDir()
+		scaffoldPlugin(t, repoDir, "github.com/ignite/"+name)
 		require.NoError(err)
-		require.DirExists(path)
 		repo, err := git.PlainInit(repoDir, false)
 		require.NoError(err)
 		w, err := repo.Worktree()
@@ -168,7 +183,6 @@ func TestPluginLoad(t *testing.T) {
 		require.NoError(err)
 		return repoDir, repo
 	}
-
 	tests := []struct {
 		name          string
 		buildPlugin   func(t *testing.T) Plugin
@@ -196,12 +210,8 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
-				repoDir := mkdirTmp(t, "plugin_local")
-				path, err := Scaffold(repoDir, "github.com/foo/bar")
-				require.NoError(t, err)
-				require.DirExists(t, path)
 				return Plugin{
-					srcPath:    path,
+					srcPath:    scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar"),
 					binaryName: "bar",
 				}
 			},
@@ -210,7 +220,7 @@ func TestPluginLoad(t *testing.T) {
 			name: "ok: from git repo",
 			buildPlugin: func(t *testing.T) Plugin {
 				repoDir, _ := makeGitRepo(t, "remote")
-				cloneDir := mkdirTmp(t, "clone_dir")
+				cloneDir := t.TempDir()
 
 				return Plugin{
 					cloneURL:   repoDir,
@@ -223,7 +233,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "fail: git repo doesnt exists",
 			buildPlugin: func(t *testing.T) Plugin {
-				cloneDir := mkdirTmp(t, "clone_dir")
+				cloneDir := t.TempDir()
 
 				return Plugin{
 					cloneURL: "/xxxx/yyyy",
@@ -245,7 +255,7 @@ func TestPluginLoad(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				cloneDir := mkdirTmp(t, "clone_dir")
+				cloneDir := t.TempDir()
 
 				return Plugin{
 					cloneURL:   repoDir,
@@ -268,7 +278,7 @@ func TestPluginLoad(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				cloneDir := mkdirTmp(t, "clone_dir")
+				cloneDir := t.TempDir()
 
 				return Plugin{
 					cloneURL:   repoDir,
@@ -284,7 +294,7 @@ func TestPluginLoad(t *testing.T) {
 			buildPlugin: func(t *testing.T) Plugin {
 				repoDir, _ := makeGitRepo(t, "remote-no-ref")
 
-				cloneDir := mkdirTmp(t, "clone_dir")
+				cloneDir := t.TempDir()
 
 				return Plugin{
 					cloneURL:   repoDir,
@@ -299,18 +309,27 @@ func TestPluginLoad(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
 			p := tt.buildPlugin(t)
+			defer p.KillClient()
 
 			p.load(context.Background())
 
 			if tt.expectedError != "" {
-				require.Error(t, p.Error, "expected error %q", tt.expectedError)
-				require.Regexp(t, tt.expectedError, p.Error.Error())
+				require.Error(p.Error, "expected error %q", tt.expectedError)
+				require.Regexp(tt.expectedError, p.Error.Error())
 				return
 			}
-			require.NoError(t, p.Error)
-			require.NotNil(t, p.Interface)
-			assert.Equal(t, p.binaryName, p.Interface.Commands()[0].Use)
+			require.NoError(p.Error)
+			require.NotNil(p.Interface)
+			manifest, err := p.Interface.Manifest()
+			require.NoError(err)
+			assert.Equal(p.binaryName, manifest.Name)
+			assert.NoError(p.Interface.Execute(ExecutedCommand{}))
+			assert.NoError(p.Interface.ExecuteHookPre(ExecutedHook{}))
+			assert.NoError(p.Interface.ExecuteHookPost(ExecutedHook{}))
+			assert.NoError(p.Interface.ExecuteHookCleanUp(ExecutedHook{}))
 		})
 	}
 }
