@@ -22,7 +22,6 @@ type publishOptions struct {
 	genesisConfig    string
 	chainID          string
 	campaignID       uint64
-	noCheck          bool
 	metadata         string
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
@@ -44,13 +43,6 @@ func WithCampaign(id uint64) PublishOption {
 func WithChainID(chainID string) PublishOption {
 	return func(o *publishOptions) {
 		o.chainID = chainID
-	}
-}
-
-// WithNoCheck disables checking integrity of the chain.
-func WithNoCheck() PublishOption {
-	return func(o *publishOptions) {
-		o.noCheck = true
 	}
 }
 
