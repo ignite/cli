@@ -571,7 +571,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 			return TxService{}, errors.WithStack(err)
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an additional amount to ensure sufficient gas is provided
+		// we add an amount to ensure sufficient gas is provided
 		gas += 20000
 	}
 	txf = txf.WithGas(gas)
