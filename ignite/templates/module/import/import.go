@@ -12,11 +12,11 @@ import (
 	"github.com/ignite/cli/ignite/templates/module"
 )
 
-// NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
-func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold code to import wasm module inside an app
+func NewGenerator(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(appModifyStargate(replacer, opts))
-	g.RunFn(cmdModifyStargate(replacer, opts))
+	g.RunFn(appModify(replacer, opts))
+	g.RunFn(cmdModify(replacer, opts))
 
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
@@ -25,8 +25,8 @@ func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Gen
 	return g, nil
 }
 
-// app.go modification on Stargate when importing wasm
-func appModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
+// app.go modification when importing wasm
+func appModify(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
@@ -145,8 +145,8 @@ func appModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny
 	}
 }
 
-// main.go modification on Stargate when importing wasm
-func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
+// main.go modification when importing wasm
+func cmdModify(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "cmd", opts.BinaryNamePrefix+"d/cmd/root.go")
 		f, err := r.Disk.Find(path)

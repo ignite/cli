@@ -13,7 +13,7 @@ import (
 func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsGenesisTest, "genesistest/", appPath)
+		template = xgenny.NewEmbedWalker(fsGenesisTest, "files/genesistest/", appPath)
 	)
 
 	ctx := plush.NewContext()

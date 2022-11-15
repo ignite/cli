@@ -16,24 +16,24 @@ import (
 	"github.com/ignite/cli/ignite/templates/module"
 )
 
-// NewStargate returns the generator to scaffold a module inside a Stargate app
-func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
+// NewGenerator returns the generator to scaffold a module inside an app
+func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g = genny.New()
 
 		msgServerTemplate = xgenny.NewEmbedWalker(
 			fsMsgServer,
-			"msgserver/",
+			"files/msgserver/",
 			opts.AppPath,
 		)
 		genesisTestTemplate = xgenny.NewEmbedWalker(
 			fsGenesisTest,
-			"genesistest/",
+			"files/genesistest/",
 			opts.AppPath,
 		)
-		stargateTemplate = xgenny.NewEmbedWalker(
-			fsStargate,
-			"stargate/",
+		baseTemplate = xgenny.NewEmbedWalker(
+			fsBase,
+			"files/base/",
 			opts.AppPath,
 		)
 	)
@@ -44,7 +44,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	if err := g.Box(genesisTestTemplate); err != nil {
 		return g, err
 	}
-	if err := g.Box(stargateTemplate); err != nil {
+	if err := g.Box(baseTemplate); err != nil {
 		return g, err
 	}
 
@@ -75,18 +75,18 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	return g, nil
 }
 
-// NewStargateAppModify returns generator with modifications required to register a module in the app.
-func NewStargateAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
+// NewAppModify returns generator with modifications required to register a module in the app.
+func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
 	g := genny.New()
-	g.RunFn(appModifyStargate(replacer, opts))
+	g.RunFn(appModify(replacer, opts))
 	if opts.IsIBC {
 		g.RunFn(appIBCModify(replacer, opts))
 	}
 	return g
 }
 
-// app.go modification on Stargate when creating a module
-func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+// app.go modification when creating a module
+func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
