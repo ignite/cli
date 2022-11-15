@@ -22,8 +22,8 @@ ignite n chain list
 ```
 Launch Id  Chain Id  Source                              Phase
 
-3   example-1  https://github.com/ignite/example   coordinating
-2   spn-10   https://github.com/tendermint/spn   launched
+3   example-1   https://github.com/ignite/example   coordinating
+2   spn-10      https://github.com/tendermint/spn   launched
 1   example-20  https://github.com/tendermint/spn   launching
 ```
 
