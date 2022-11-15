@@ -34,7 +34,7 @@ Blockchain set up
 ## Request to remove a genesis account
 
 Any participant can request to remove a genesis account from the chain genesis.
-It might be the case if, for example, a user suggests an account balance is so high it could harm the network.
+It might be the case if, for example, a user suggests an account balance that is so high it could harm the network.
 The participant must provide the address of the account.
 
 Any prefix can be used for the Bech32 address, it is automatically converted into `spn` on the Ignite Chain.
