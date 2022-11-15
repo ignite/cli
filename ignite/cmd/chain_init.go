@@ -92,7 +92,6 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		cliui.WithVerbosity(getVerbosity(cmd)),
 		cliui.StartSpinner(),
 	)
-
 	defer session.End()
 
 	chainOption := []chain.Option{

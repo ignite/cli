@@ -22,7 +22,7 @@ func NewGenerateHooks() *cobra.Command {
 	return c
 }
 
-func generateHooksHandler(cmd *cobra.Command, args []string) error {
+func generateHooksHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 

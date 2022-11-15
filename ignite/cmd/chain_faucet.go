@@ -34,7 +34,6 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 			cliui.StartSpinner(),
 		)
 	)
-
 	defer session.End()
 
 	chainOption := []chain.Option{
