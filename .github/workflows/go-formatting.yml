@@ -1,7 +1,7 @@
 name: Go formatting
 on:
   push:
-    branches: [develop]
+    branches: [main]
     paths:
       - '**.go'
 
