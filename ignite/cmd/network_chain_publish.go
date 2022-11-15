@@ -279,10 +279,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if noCheck {
-		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if err := c.Init(cmd.Context(), cacheStorage); err != nil { // initialize the chain for checking.
-		return fmt.Errorf("blockchain init failed: %w", err)
+	if !noCheck {
+		if err := c.Init(cmd.Context(), cacheStorage); err != nil {
+			// initialize the chain for checking.
+			return fmt.Errorf("blockchain init failed: %w", err)
+		}
 	}
 
 	session.StartSpinner("Publishing...")
