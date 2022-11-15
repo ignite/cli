@@ -5,8 +5,7 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
-      - develop
+      - main
 jobs:
   lint:
     name: golangci-lint
