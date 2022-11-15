@@ -87,7 +87,6 @@ func (f *Formatter) VisitComment(c *proto.Comment) {
 	f.newline()
 }
 
-// todo: look into its indent usage here.
 func (f *Formatter) formatLiteral(l *proto.Literal) {
 	if len(l.OrderedMap) == 0 && len(l.Array) == 0 {
 		fmt.Fprintf(f.w, "%s", l.SourceRepresentation())

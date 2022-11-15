@@ -2,6 +2,7 @@ package datatype
 
 import (
 	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 )
 

@@ -1,3 +1,4 @@
+// Utils holds some functions that mostly wrap cursor and make adding things easier.
 package protoutil
 
 import (
@@ -7,10 +8,7 @@ import (
 	"github.com/emicklei/proto"
 )
 
-// Utils holds some functions that mostly wrap cursor and make adding things easier.
-
 // AddAfterSyntax tries to add the given Visitee after the 'syntax' statement.
-//
 // If no syntax statement is found, returns an error.
 func AddAfterSyntax(f *proto.Proto, v proto.Visitee) error {
 	// return false to immediately stop
@@ -31,7 +29,6 @@ func AddAfterSyntax(f *proto.Proto, v proto.Visitee) error {
 }
 
 // AddAfterPackage tries to add the given Visitee after the 'package' statement.
-//
 // If no package statement is found, returns an error.
 func AddAfterPackage(f *proto.Proto, v proto.Visitee) error {
 	inserted := false
@@ -68,7 +65,7 @@ func importFallback(f *proto.Proto, imp *proto.Import) error {
 // If fallback is supplied, attempts to add it after the 'package'
 // statement and then the 'syntax' statement are made.
 //
-// If non of the attempts are successful, returns an error.
+// If none of the attempts are successful, returns an error.
 func AddImports(f *proto.Proto, fallback bool, imports ...*proto.Import) (err error) {
 	// No effect.
 	if len(imports) == 0 {
@@ -125,8 +122,6 @@ func AddImports(f *proto.Proto, fallback bool, imports ...*proto.Import) (err er
 	}
 	return errors.New("unable to add import, no import statements found")
 }
-
-// TODO: Get(Least/Min)UniqueID?
 
 // NextUniqueID goes through the fields of the given Message and returns
 // an id > max(fieldIds). It does not try to 'plug the holes' by selecting the

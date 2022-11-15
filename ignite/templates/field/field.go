@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 )

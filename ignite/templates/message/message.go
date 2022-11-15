@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/templates/typed"
