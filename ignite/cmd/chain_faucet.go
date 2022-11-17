@@ -42,7 +42,7 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		chain.CollectEvents(session.EventBus()),
 	}
 
-	c, err := NewChainWithHomeFlags(cmd, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
