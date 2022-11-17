@@ -1,6 +1,7 @@
 package gocmd
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -34,6 +35,9 @@ const (
 
 	// CommandFmt represents go "fmt" command.
 	CommandFmt = "fmt"
+
+	// CommandEnv represents go "env" command.
+	CommandEnv = "env"
 )
 
 const (
@@ -46,7 +50,15 @@ const (
 const (
 	EnvGOOS   = "GOOS"
 	EnvGOARCH = "GOARCH"
+	EnvGOMOD  = "GOMOD"
 )
+
+// Env returns the value of `go env name`
+func Env(name string) (string, error) {
+	var b bytes.Buffer
+	err := exec.Exec(context.Background(), []string{Name(), CommandEnv, name}, exec.StepOption(step.Stdout(&b)))
+	return b.String(), err
+}
 
 // Name returns the name of Go binary to use.
 func Name() string {
