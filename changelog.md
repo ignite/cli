@@ -36,6 +36,7 @@
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
+- [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 
 ### Breaking Changes
 
@@ -43,7 +44,7 @@
 
 ### Fixes
 
-
+- [#3114](https://github.com/ignite/cli/pull/3114) Fix out of gas issue when approving many requests
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
 - [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go`
   template.
