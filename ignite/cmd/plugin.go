@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -67,7 +66,7 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	if len(loadErrors) > 0 {
 		// unload any plugin that could have been loaded
 		UnloadPlugins()
-		printPlugins()
+		printPlugins(cliui.New(cliui.WithStdout(os.Stdout)))
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
@@ -303,7 +302,9 @@ func NewPluginList() *cobra.Command {
 		Short: "List declared plugins and status",
 		Long:  "Prints status and information of declared plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			printPlugins()
+			s := cliui.New(cliui.WithStdout(os.Stdout))
+
+			printPlugins(s)
 			return nil
 		},
 	}
@@ -391,6 +392,7 @@ func NewPluginDescribe() *cobra.Command {
 			if len(plugins) == 0 {
 				return errors.New("no plugins found")
 			}
+			s := cliui.New(cliui.WithStdout(os.Stdout))
 
 			for _, p := range plugins {
 				if p.Path == args[0] {
@@ -399,8 +401,9 @@ func NewPluginDescribe() *cobra.Command {
 						return err
 					}
 
-					printPluginCommands(manifest.Commands)
-					printPluginHooks(manifest.Hooks)
+					printPluginCommands(manifest.Commands, s)
+					printPluginHooks(manifest.Hooks, s)
+					break
 				}
 			}
 
@@ -409,7 +412,7 @@ func NewPluginDescribe() *cobra.Command {
 	}
 }
 
-func printPlugins() {
+func printPlugins(session *cliui.Session) {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
@@ -434,11 +437,11 @@ func printPlugins() {
 		status = fmt.Sprintf("%s 🪝 %d 💻 %d", status, hookCount, cmdCount)
 		entries = append(entries, []string{p.Path, status})
 
-		entrywriter.MustWrite(os.Stdout, []string{"Path", "Status"}, entries...)
+		session.PrintTable([]string{"Path", "Status"}, entries...)
 	}
 }
 
-func printPluginCommands(cmds []plugin.Command) {
+func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
@@ -475,10 +478,10 @@ func printPluginCommands(cmds []plugin.Command) {
 		traverse(c)
 	}
 
-	entrywriter.MustWrite(os.Stdout, []string{"command use", "under"}, entries...)
+	session.PrintTable([]string{"command use", "under"}, entries...)
 }
 
-func printPluginHooks(hooks []plugin.Hook) {
+func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
@@ -490,5 +493,5 @@ func printPluginHooks(hooks []plugin.Hook) {
 		entries = append(entries, []string{h.Name, h.PlaceHookOn})
 	}
 
-	entrywriter.MustWrite(os.Stdout, []string{"hook name", "on"}, entries...)
+	session.PrintTable([]string{"hook name", "on"}, entries...)
 }
