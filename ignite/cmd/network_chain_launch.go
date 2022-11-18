@@ -41,6 +41,10 @@ After the launch command is executed, validators can generate the finalized
 genesis and prepare their nodes for the launch. For example, validators can run
 "ignite network chain prepare" to generate the genesis and populate the peer
 list.
+
+If you want to change the launch time or open up the genesis file for changes
+you can use "ignite network chain revert-launch" to make it possible, for
+example, to accept new validators and add accounts.
 `,
 		Args: cobra.ExactArgs(1),
 		RunE: networkChainLaunchHandler,
