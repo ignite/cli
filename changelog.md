@@ -11,6 +11,7 @@
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate hooks` command.
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 - [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+- [#3060](https://github.com/ignite/cli/pull/3060) Plugin system flag support
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
 
