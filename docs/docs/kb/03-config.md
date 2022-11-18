@@ -79,12 +79,15 @@ validators:
 
 `bonded` is the self-delegation amount of a validator. The `bonded` amount should not be lower than `1000000` and should be higher than the account's balance in the `account` list.
 
-Validators store their node configuration files in the data directory. By default, Ignite uses the name of the project as the name of the data directory, for example, `$HOME/.example/`. Configuration in the data directory is reset frequently by Ignite. To persist some changes to configuration files you can use `app`, `config` and `client` properties that correspond to `$HOME/.example/config/app.toml`, `$HOME/.example/config/config.toml` and `$HOME/.example/config/client.toml`.
+Validators store their node configuration files in the data directory. By default, Ignite uses the name of the project as the name of the data directory, for example, `$HOME/.example/`. To use a different path for the data directory you can customize the `home` property.
+
+Configuration in the data directory is reset frequently by Ignite. To persist some changes to configuration files you can use `app`, `config` and `client` properties that correspond to `$HOME/.example/config/app.toml`, `$HOME/.example/config/config.toml` and `$HOME/.example/config/client.toml`.
 
 ```yml
 validators:
   - name: alice
     bonded: '100000000stake'
+    home: "~/.mychain"
     app:
       pruning: "nothing"
     config:
