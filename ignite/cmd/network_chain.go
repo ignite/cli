@@ -16,8 +16,8 @@ blockchains with Ignite.
 As a coordinator you "publish" your blockchain to Ignite. When enough validators
 are approved for the genesis and no changes are excepted to be made to the
 genesis, a coordinator announces that the chain is ready for launch with the
-"launch" command. In the case of an unsuccessful launch, the coordinator can revert it using the "revert-launch"
-command.
+"launch" command. In the case of an unsuccessful launch, the coordinator can revert it
+using the "revert-launch" command.
 
 As a validator, you "init" your node and apply to become a validator for a
 blockchain with the "join" command. After the launch of the chain is announced,
