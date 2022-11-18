@@ -438,7 +438,7 @@ func printPlugins() {
 	}
 }
 
-func printPluginCommands(cmds []plugin.Command) error {
+func printPluginCommands(cmds []plugin.Command) {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
