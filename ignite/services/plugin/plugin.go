@@ -22,6 +22,8 @@ import (
 
 	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/services/chain"
@@ -269,7 +271,10 @@ func (p *Plugin) build(ctx context.Context) {
 	}
 	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Building plugin %q...", p.Path))).End()
 
-	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
+	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
+	// because our git history is too fat.
+	opt := cliexec.StepOption(step.Env("GOSUMDB=off"))
+	if err := gocmd.ModTidy(ctx, p.srcPath, opt); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
