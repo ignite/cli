@@ -308,9 +308,6 @@ func NewPluginList() *cobra.Command {
 		},
 	}
 
-	lstCmd.PersistentFlags().Bool("commands", false, "List information about plugin commands")
-	lstCmd.PersistentFlags().Bool("hooks", false, "List information about plugin hooks")
-
 	return lstCmd
 }
 
@@ -350,7 +347,7 @@ func NewPluginScaffold() *cobra.Command {
 	return &cobra.Command{
 		Use:   "scaffold [github.com/org/repo]",
 		Short: "Scaffold a new plugin",
-		Long:  "Scaffolds a new plugin in the current directory with the given repository path configured. A git repository will be created with the given module name",
+		Long:  "Scaffolds a new plugin in the current directory with the given repository path configured. A git repository will be created with the given module name, unless the current directory is already a git repository.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -428,15 +425,11 @@ func printPlugins() {
 		if err != nil {
 			panic("Error while loading plugin manifest")
 		}
-		var hookCount int
-		for range manifest.Hooks {
-			hookCount++
-		}
 
-		var cmdCount int
-		for range manifest.Commands {
-			cmdCount++
-		}
+		var (
+			hookCount = len(manifest.Hooks)
+			cmdCount  = len(manifest.Commands)
+		)
 
 		status = fmt.Sprintf("%s 🪝 %d 💻 %d", status, hookCount, cmdCount)
 		entries = append(entries, []string{p.Path, status})
@@ -445,7 +438,7 @@ func printPlugins() {
 	}
 }
 
-func printPluginCommands(cmds []plugin.Command) {
+func printPluginCommands(cmds []plugin.Command) error {
 	if len(plugins) == 0 {
 		fmt.Println("No plugin found")
 		return
@@ -496,5 +489,6 @@ func printPluginHooks(hooks []plugin.Hook) {
 	for _, h := range hooks {
 		entries = append(entries, []string{h.Name, h.PlaceHookOn})
 	}
+
 	entrywriter.MustWrite(os.Stdout, []string{"hook name", "on"}, entries...)
 }
