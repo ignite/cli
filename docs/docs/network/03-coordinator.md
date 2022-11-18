@@ -63,11 +63,11 @@ ignite n request list 3
 **Output**
 
 ```
-Id  Status   Type    Content
-1  APPROVED  Add Genesis Account  spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 100000000stake
-2  APPROVED  Add Genesis Validator  e3d3ca59d8214206839985712282967aaeddfb01@84.118.211.157:26656, spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 95000000stake
-3  PENDING  Add Genesis Account  spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 95000000stake
-4  PENDING  Add Genesis Validator  b10f3857133907a14dca5541a14df9e8e3389875@84.118.211.157:26656, spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 95000000stake
+Id  Status      Type                    Content
+1  APPROVED     Add Genesis Account     spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 100000000stake
+2  APPROVED     Add Genesis Validator   e3d3ca59d8214206839985712282967aaeddfb01@84.118.211.157:26656, spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 95000000stake
+3  PENDING      Add Genesis Account     spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 95000000stake
+4  PENDING      Add Genesis Validator   b10f3857133907a14dca5541a14df9e8e3389875@84.118.211.157:26656, spn1daefnhnupn85e8vv0yc5epmnkcr5epkqncn2le, 95000000stake
 ```
 
 The coordinator can either approve or reject these requests.
