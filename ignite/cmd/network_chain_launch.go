@@ -37,7 +37,7 @@ the launch, set the time with the "--launch-time" flag:
 
   ignite network chain launch 42 --launch-time 2023-01-01T00:00:00Z
 
-After the launch command is executed validators can download the finalized
+After the launch command is executed, validators can download the finalized
 genesis and prepare their nodes for the launch. For example, validators can run
 "ignite network chain prepare" to download the genesis and populate the peer
 list.
