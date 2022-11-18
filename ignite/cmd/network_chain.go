@@ -19,7 +19,7 @@ genesis, a coordinator announces that the chain is ready for launch with the
 "launch" command. The chain launch can be cancelled with the "revert-launch"
 command.
 
-As a validator you "init" your node and apply to become a validator for a
+As a validator, you "init" your node and apply to become a validator for a
 blockchain with the "join" command. After the launch of the chain is announced,
 validators can generate the finalized genesis and download the list of peers with the
 "prepare" command.
