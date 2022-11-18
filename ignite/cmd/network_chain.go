@@ -21,7 +21,7 @@ command.
 
 As a validator you "init" your node and apply to become a validator for a
 blockchain with the "join" command. After the launch of the chain is announced,
-validators can download the finalized genesis and a list of peers with the
+validators can generate the finalized genesis and download the list of peers with the
 "prepare" command.
 
 The "install" command can be used to download, compile the source code and
