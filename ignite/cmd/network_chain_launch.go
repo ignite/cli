@@ -39,7 +39,7 @@ the launch, set the time with the "--launch-time" flag:
 
 After the launch command is executed, validators can download the finalized
 genesis and prepare their nodes for the launch. For example, validators can run
-"ignite network chain prepare" to download the genesis and populate the peer
+"ignite network chain prepare" to generate the genesis and populate the peer
 list.
 `,
 		Args: cobra.ExactArgs(1),
