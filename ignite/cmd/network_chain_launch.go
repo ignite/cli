@@ -19,7 +19,7 @@ const (
 func NewNetworkChainLaunch() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "launch [launch-id]",
-		Short: "Announce the launch a chain",
+		Short: "Announce the launch of a chain",
 		Long: `The launch command communicates to the world that the chain is ready to be
 launched.
 
