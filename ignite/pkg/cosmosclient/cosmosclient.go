@@ -52,6 +52,9 @@ var (
 )
 
 const (
+	// GasAuto allows to calculate gas automatically when sending transaction
+	GasAuto = "auto"
+
 	defaultNodeAddress   = "http://localhost:26657"
 	defaultGasAdjustment = 1.0
 	defaultGasLimit      = 300000
@@ -560,7 +563,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 	}
 
 	var gas uint64
-	if c.gas != "" && c.gas != "auto" {
+	if c.gas != "" && c.gas != GasAuto {
 		gas, err = strconv.ParseUint(c.gas, 10, 64)
 		if err != nil {
 			return TxService{}, errors.WithStack(err)
@@ -571,7 +574,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 			return TxService{}, errors.WithStack(err)
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an additional amount to ensure sufficient gas is provided
+		// we add an amount to ensure sufficient gas is provided
 		gas += 20000
 	}
 	txf = txf.WithGas(gas)
