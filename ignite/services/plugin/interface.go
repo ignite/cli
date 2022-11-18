@@ -1,44 +1,64 @@
 package plugin
 
 import (
+	"bytes"
 	"encoding/gob"
-	"log"
+	"fmt"
 	"net/rpc"
+	"os"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 func init() {
-	gob.Register(Command{})
-	gob.Register(Hook{})
+	gob.Register(Manifest{})
+	gob.Register(ExecutedCommand{})
+	gob.Register(ExecutedHook{})
 }
 
 // An ignite plugin must implements the Plugin interface.
+//
+//go:generate mockery --srcpkg . --name Interface --structname PluginInterface --filename interface.go --with-expecter
 type Interface interface {
-	// Commands returns one or multiple commands that will be added to the list
-	// of ignite commands. It's invoked each time ignite is executed, in
-	// order to display the list of available commands.
-	// Each commands are independent, for nested commands, use the field
-	// Command.Commands.
-	Commands() []Command
-	// Execute will be invoked by ignite when a plugin commands is executed.
-	// cmd is the executed command (one of the those returned by Commands method)
-	// args is the command line arguments passed behing the command.
-	Execute(cmd Command, args []string) error
-	// Hooks defines custom hooks registered with a given plugin
-	Hooks() []Hook
-	// ExecuteHookPre is invoked by Ignite when a command specified by the hook
-	// path is invoked is global for all hooks registered to a plugin context on
-	// the hook being invoked is given by the `hook` parameter.
-	ExecuteHookPre(hook Hook, args []string) error
-	// ExecuteHookPost is invoked by Ignite when a command specified by the hook
-	// path is invoked is global for all hooks registered to a plugin context on
-	// the hook being invoked is given by the `hook` parameter.
-	ExecuteHookPost(hook Hook, args []string) error
-	// ExecuteHookCleanUp is invoked right before the command is done executing
-	// will be called regardless of execution status of the command and hooks.
-	ExecuteHookCleanUp(hook Hook, args []string) error
+	// Manifest declares the plugin's Command(s) and Hook(s).
+	Manifest() (Manifest, error)
+
+	// Execute will be invoked by ignite when a plugin Command is executed.
+	// It is global for all commands declared in Manifest, if you have declared
+	// multiple commands, use cmd.Path to distinguish them.
+	Execute(cmd ExecutedCommand) error
+
+	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
+	// path is invoked.
+	// It is global for all hooks declared in Manifest, if you have declared
+	// multiple hooks, use hook.Name to distinguish them.
+	ExecuteHookPre(hook ExecutedHook) error
+	// ExecuteHookPost is invoked by ignite when a command specified by the hook
+	// path is invoked.
+	// It is global for all hooks declared in Manifest, if you have declared
+	// multiple hooks, use hook.Name to distinguish them.
+	ExecuteHookPost(hook ExecutedHook) error
+	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
+	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
+	// execution status of the command and hooks.
+	// It is global for all hooks declared in Manifest, if you have declared
+	// multiple hooks, use hook.Name to distinguish them.
+	ExecuteHookCleanUp(hook ExecutedHook) error
+}
+
+// Manifest represents the plugin behavior.
+type Manifest struct {
+	Name string
+	// Commands contains the commands that will be added to the list of ignite
+	// commands. Each commands are independent, for nested commands use the
+	// inner Commands field.
+	Commands []Command
+	// Hooks contains the hooks that will be attached to the existing ignite
+	// commands.
+	Hooks []Hook
 }
 
 // Command represents a plugin command.
@@ -49,6 +69,8 @@ type Command struct {
 	Short string
 	// Same as cobra.Command.Long
 	Long string
+	// Flags holds the list of command flags
+	Flags []Flag
 	// PlaceCommandUnder indicates where the command should be placed.
 	// For instance `ignite scaffold` will place the command at the
 	// `scaffold` command.
@@ -56,22 +78,169 @@ type Command struct {
 	PlaceCommandUnder string
 	// List of sub commands
 	Commands []Command
-
-	// The following fields are populated at runtime
-	CobraCmd *cobra.Command
-	// Optionnal parameters populated by config at runtime via
-	// chainconfig.Plugin.With field.
-	With map[string]string
 }
 
 // Hook represents a user defined action within a plugin
 type Hook struct {
-	// identifies the hook for the client to invoke the correct hook
+	// Name identifies the hook for the client to invoke the correct hook
 	// must be unique
 	Name string
-
-	// commands to register the hooks for
+	// PlaceHookOn indicates the command to register the hooks for
 	PlaceHookOn string
+}
+
+// ExecutedCommand represents a plugin command under execution.
+type ExecutedCommand struct {
+	// Use is copied from Command.Use
+	Use string
+	// Path contains the command path, e.g. `ignite scaffold foo`
+	Path string
+	// Args are the command arguments
+	Args []string
+	// With contains the plugin config parameters
+	With map[string]string
+
+	flags *pflag.FlagSet
+}
+
+// ExecutedHook represents a plugin hook under execution.
+type ExecutedHook struct {
+	// ExecutedCommand gives access to the command attached by the hook.
+	ExecutedCommand ExecutedCommand
+	// Hook is a copy of the original Hook defined in the Manifest.
+	Hook
+}
+
+// Flags gives access to the commands' flags, like cobra.Command.Flags.
+func (c *ExecutedCommand) Flags() *pflag.FlagSet {
+	if c.flags == nil {
+		c.flags = pflag.NewFlagSet(os.Args[0], pflag.ContinueOnError)
+	}
+	return c.flags
+}
+
+// SetFlags set the flags.
+// As a plugin developer, you probably don't need to use it.
+func (c *ExecutedCommand) SetFlags(fs *pflag.FlagSet) {
+	c.flags = fs
+}
+
+// Flag is a exportable representation of pflag.Flag.
+type Flag struct {
+	Name      string // name as it appears on command line
+	Shorthand string // one-letter abbreviated flag
+	Usage     string // help message
+	DefValue  string // default value (as text); for usage message
+	Type      FlagType
+	Value     string
+	// TODO add Persistent field ?
+}
+
+// FlagType represents the pflag.Flag.Value.Type().
+type FlagType string
+
+const (
+	// NOTE(tb): we declare only the main used cobra flag types for simplicity
+	// If a plugin receives an unhandled type, it will output an error.
+	FlagTypeString      FlagType = "string"
+	FlagTypeInt         FlagType = "int"
+	FlagTypeUint        FlagType = "uint"
+	FlagTypeInt64       FlagType = "int64"
+	FlagTypeUint64      FlagType = "uint64"
+	FlagTypeBool        FlagType = "bool"
+	FlagTypeStringSlice FlagType = "stringSlice"
+)
+
+// FeedFlagSet fills fs with f.
+// As a plugin developer, you probably don't need to use it.
+func (f Flag) FeedFlagSet(fs *pflag.FlagSet) error {
+	switch f.Type {
+	case FlagTypeBool:
+		defVal, _ := strconv.ParseBool(f.DefValue)
+		fs.BoolP(f.Name, f.Shorthand, defVal, f.Usage)
+		fs.Set(f.Name, f.Value)
+	case FlagTypeInt:
+		defVal, _ := strconv.Atoi(f.DefValue)
+		fs.IntP(f.Name, f.Shorthand, defVal, f.Usage)
+		fs.Set(f.Name, f.Value)
+	case FlagTypeUint:
+		defVal, _ := strconv.ParseUint(f.DefValue, 10, 64)
+		fs.UintP(f.Name, f.Shorthand, uint(defVal), f.Usage)
+		fs.Set(f.Name, f.Value)
+	case FlagTypeInt64:
+		defVal, _ := strconv.ParseInt(f.DefValue, 10, 64)
+		fs.Int64P(f.Name, f.Shorthand, defVal, f.Usage)
+		fs.Set(f.Name, f.Value)
+	case FlagTypeUint64:
+		defVal, _ := strconv.ParseUint(f.DefValue, 10, 64)
+		fs.Uint64P(f.Name, f.Shorthand, defVal, f.Usage)
+		fs.Set(f.Name, f.Value)
+	case FlagTypeString:
+		fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
+		fs.Set(f.Name, f.Value)
+	case FlagTypeStringSlice:
+		s := strings.Trim(f.DefValue, "[]")
+		defValue := strings.Fields(s)
+		fs.StringSliceP(f.Name, f.Shorthand, defValue, f.Usage)
+		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
+	default:
+		return fmt.Errorf("flagset unmarshal: unhandled flag type %q in flag %#v", f.Type, f)
+	}
+	return nil
+}
+
+// gobCommandFlags is used to gob encode/decode Command.
+// Command can't be encoded because :
+// - flags is unexported (because we want to expose it via the Flags() method,
+// like a regular cobra.Command)
+// - flags type is *pflag.FlagSet which is also full of unexported fields.
+type gobCommandContextFlags struct {
+	CommandContext gobCommandContext
+	Flags          []Flag
+}
+
+type gobCommandContext ExecutedCommand
+
+// GobEncode implements gob.Encoder.
+// It actually encodes a gobCommandContext struct built from c.
+func (c ExecutedCommand) GobEncode() ([]byte, error) {
+	var ff []Flag
+	if c.flags != nil {
+		c.flags.VisitAll(func(pf *pflag.Flag) {
+			ff = append(ff, Flag{
+				Name:      pf.Name,
+				Shorthand: pf.Shorthand,
+				Usage:     pf.Usage,
+				DefValue:  pf.DefValue,
+				Value:     pf.Value.String(),
+				Type:      FlagType(pf.Value.Type()),
+			})
+		})
+	}
+	var b bytes.Buffer
+	err := gob.NewEncoder(&b).Encode(gobCommandContextFlags{
+		CommandContext: gobCommandContext(c),
+		Flags:          ff,
+	})
+	return b.Bytes(), err
+}
+
+// GobDecode implements gob.Decoder.
+// It actually decodes a gobCommandContext struct and fills c with it.
+func (c *ExecutedCommand) GobDecode(bz []byte) error {
+	var gb gobCommandContextFlags
+	err := gob.NewDecoder(bytes.NewReader(bz)).Decode(&gb)
+	if err != nil {
+		return err
+	}
+	*c = ExecutedCommand(gb.CommandContext)
+	for _, f := range gb.Flags {
+		err := f.FeedFlagSet(c.Flags())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // handshakeConfigs are used to just do a basic handshake between
@@ -91,60 +260,38 @@ func HandshakeConfig() plugin.HandshakeConfig {
 // Here is an implementation that talks over RPC
 type InterfaceRPC struct{ client *rpc.Client }
 
-// Commands implements Interface.Commands
-func (g *InterfaceRPC) Commands() []Command {
-	var resp []Command
-	err := g.client.Call("Plugin.Commands", new(interface{}), &resp)
-	if err != nil {
-		// You usually want your interfaces to return errors. If they don't,
-		// there isn't much other choice here.
-		log.Fatalf("error while calling plugin %v", err)
-	}
-	return resp
-}
-
-// Hooks implements Interface.Hooks
-func (g *InterfaceRPC) Hooks() []Hook {
-	var resp []Hook
-	err := g.client.Call("Plugin.Hooks", new(interface{}), &resp)
-	if err != nil {
-		// You usually want your interfaces to return errors. If they don't,
-		// there isn't much other choice here.
-		log.Fatalf("error while calling plugin %v", err)
-	}
-	return resp
+// Manifest implements Interface.Manifest
+func (g *InterfaceRPC) Manifest() (Manifest, error) {
+	var resp Manifest
+	return resp, g.client.Call("Plugin.Manifest", new(interface{}), &resp)
 }
 
 // Execute implements Interface.Commands
-func (g *InterfaceRPC) Execute(c Command, args []string) error {
+func (g *InterfaceRPC) Execute(c ExecutedCommand) error {
 	var resp interface{}
 	return g.client.Call("Plugin.Execute", map[string]interface{}{
-		"command": c,
-		"args":    args,
+		"executedCommand": c,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookPre(hook Hook, args []string) error {
+func (g *InterfaceRPC) ExecuteHookPre(hook ExecutedHook) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookPre", map[string]interface{}{
-		"hook": hook,
-		"args": args,
+		"executedHook": hook,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookPost(hook Hook, args []string) error {
+func (g *InterfaceRPC) ExecuteHookPost(hook ExecutedHook) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookPost", map[string]interface{}{
-		"hook": hook,
-		"args": args,
+		"executedHook": hook,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookCleanUp(hook Hook, args []string) error {
+func (g *InterfaceRPC) ExecuteHookCleanUp(hook ExecutedHook) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookCleanUp", map[string]interface{}{
-		"hook": hook,
-		"args": args,
+		"executedHook": hook,
 	}, &resp)
 }
 
@@ -155,30 +302,26 @@ type InterfaceRPCServer struct {
 	Impl Interface
 }
 
-func (s *InterfaceRPCServer) Commands(args interface{}, resp *[]Command) error {
-	*resp = s.Impl.Commands()
-	return nil
-}
-
-func (s *InterfaceRPCServer) Hooks(args interface{}, resp *[]Hook) error {
-	*resp = s.Impl.Hooks()
-	return nil
+func (s *InterfaceRPCServer) Manifest(args interface{}, resp *Manifest) error {
+	var err error
+	*resp, err = s.Impl.Manifest()
+	return err
 }
 
 func (s *InterfaceRPCServer) Execute(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.Execute(args["command"].(Command), args["args"].([]string))
+	return s.Impl.Execute(args["executedCommand"].(ExecutedCommand))
 }
 
 func (s *InterfaceRPCServer) ExecuteHookPre(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.ExecuteHookPre(args["hook"].(Hook), args["args"].([]string))
+	return s.Impl.ExecuteHookPre(args["executedHook"].(ExecutedHook))
 }
 
 func (s *InterfaceRPCServer) ExecuteHookPost(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.ExecuteHookPost(args["hook"].(Hook), args["args"].([]string))
+	return s.Impl.ExecuteHookPost(args["executedHook"].(ExecutedHook))
 }
 
 func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, resp *interface{}) error {
-	return s.Impl.ExecuteHookCleanUp(args["hook"].(Hook), args["args"].([]string))
+	return s.Impl.ExecuteHookCleanUp(args["executedHook"].(ExecutedHook))
 }
 
 // This is the implementation of plugin.Interface so we can serve/consume this
