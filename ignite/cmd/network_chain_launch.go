@@ -25,7 +25,7 @@ launched.
 
 Only the coordinator of the chain can execute the launch command.
 
-  ignite network chain launch 42
+	ignite network chain launch 42
 
 After the launch command is executed no changes to the genesis are accepted. For
 example, validators will no longer be able to successfully execute the "ignite
@@ -35,7 +35,7 @@ The launch command sets the date and time after which the chain will start. By
 default, the current time is set. To give validators more time to prepare for
 the launch, set the time with the "--launch-time" flag:
 
-  ignite network chain launch 42 --launch-time 2023-01-01T00:00:00Z
+	ignite network chain launch 42 --launch-time 2023-01-01T00:00:00Z
 
 After the launch command is executed, validators can generate the finalized
 genesis and prepare their nodes for the launch. For example, validators can run
