@@ -50,7 +50,10 @@ one expected by your chain. When an account is provided with an `address` a key
 pair will not be generated, because it's impossible to derive a key from an
 address. An account with a given address will be added to the genesis file (with
 an associated token balance), but because there is no key pair, you will not be
-able to broadcast transactions from that address.
+able to broadcast transactions from that address. This is useful when you have
+generated a key pair outside of Ignite (for example, using your chain's CLI or
+in an extension wallet) and want to have a token balance associated with the
+address of this key pair.
 
 ```yml
 accounts:
@@ -84,7 +87,7 @@ is `stake`, and this account has enough `stake` for self-delegation.
 
 If your chain is using its own
 [cointype](https://github.com/satoshilabs/slips/blob/master/slip-0044.md), you
-can use the `cointype` field to provide the integer value.
+can use the `cointype` field to provide the integer value
 
 ```yml
 accounts:
