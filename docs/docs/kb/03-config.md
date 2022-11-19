@@ -84,7 +84,7 @@ is `stake`, and this account has enough `stake` for self-delegation.
 
 If your chain is using its own
 [cointype](https://github.com/satoshilabs/slips/blob/master/slip-0044.md), you
-can use the `cointype` field to provide the integer value
+can use the `cointype` field to provide the integer value.
 
 ```yml
 accounts:
