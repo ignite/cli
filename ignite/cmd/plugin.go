@@ -304,8 +304,7 @@ func NewPluginList() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			printPlugins(s)
-			return nil
+			return printPlugins(s)
 		},
 	}
 
@@ -389,16 +388,13 @@ func NewPluginDescribe() *cobra.Command {
 		Short: "outputs information about the specified plugin. must be registered",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(plugins) == 0 {
-				return errors.New("no plugins found")
-			}
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
 			for _, p := range plugins {
 				if p.Path == args[0] {
 					manifest, err := p.Interface.Manifest()
 					if err != nil {
-						return err
+						return fmt.Errorf("error while loading plugin manifest\n%s", err)
 					}
 
 					printPluginCommands(manifest.Commands, s)
@@ -412,11 +408,7 @@ func NewPluginDescribe() *cobra.Command {
 	}
 }
 
-func printPlugins(session *cliui.Session) {
-	if len(plugins) == 0 {
-		fmt.Println("No plugin found")
-		return
-	}
+func printPlugins(session *cliui.Session) error {
 	var entries [][]string
 	for _, p := range plugins {
 		status := "✅ Loaded"
@@ -426,7 +418,7 @@ func printPlugins(session *cliui.Session) {
 
 		manifest, err := p.Interface.Manifest()
 		if err != nil {
-			panic("Error while loading plugin manifest")
+			return fmt.Errorf("error while loading plugin manifest\n%s", err)
 		}
 
 		var (
@@ -439,14 +431,11 @@ func printPlugins(session *cliui.Session) {
 	}
 
 	session.PrintTable([]string{"Path", "Status"}, entries...)
+
+	return nil
 }
 
 func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
-	if len(plugins) == 0 {
-		fmt.Println("No plugin found")
-		return
-	}
-
 	var entries [][]string
 	// Processes command graph
 	traverse := func(cmd plugin.Command) {
@@ -482,11 +471,6 @@ func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
 }
 
 func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) {
-	if len(plugins) == 0 {
-		fmt.Println("No plugin found")
-		return
-	}
-
 	var entries [][]string
 
 	for _, h := range hooks {
