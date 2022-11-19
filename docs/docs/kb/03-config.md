@@ -48,7 +48,9 @@ If you want an account to have a specific address, provide the `address` field
 with a valid bech32 address. The prefix (by default, `cosmos`) should match the
 one expected by your chain. When an account is provided with an `address` a key
 pair will not be generated, because it's impossible to derive a key from an
-address.
+address. An account with a given address will be added to the genesis file (with
+an associated token balance), but because there is no key pair, you will not be
+able to broadcast transactions from that address.
 
 ```yml
 accounts:
