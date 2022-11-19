@@ -436,9 +436,9 @@ func printPlugins(session *cliui.Session) {
 
 		status = fmt.Sprintf("%s 🪝 %d 💻 %d", status, hookCount, cmdCount)
 		entries = append(entries, []string{p.Path, status})
-
-		session.PrintTable([]string{"Path", "Status"}, entries...)
 	}
+
+	session.PrintTable([]string{"Path", "Status"}, entries...)
 }
 
 func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
