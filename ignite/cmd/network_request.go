@@ -8,8 +8,7 @@ func NewNetworkRequest() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "request",
 		Short: "Create, show, reject and approve requests",
-		Long: `
-The "request" namespace contains commands for creating, showing, approving, and
+		Long: `The "request" namespace contains commands for creating, showing, approving, and
 rejecting requests.
 
 A request is mechanism in Ignite that allows changes to be made to the genesis
