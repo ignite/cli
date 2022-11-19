@@ -26,8 +26,28 @@ func NewNetworkChainPrepare() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "prepare [launch-id]",
 		Short: "Prepare the chain for launch",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainPrepareHandler,
+		Long: `The prepare command prepares a validator node for the chain launch by generating
+the final genesis and adding IP addresses of peers to the validator's
+configuration file.
+
+	ignite network chain prepare 42
+
+By default, Ignite uses "$HOME/spn/LAUNCH_ID" as the data directory. If you used
+a different data directory when initializing the node, use the "--home" flag and
+set the correct path to the data directory.
+
+Ignite generates the genesis file in "config/genesis.json" and adds peer IPs by
+modifying "config/config.toml".
+
+The prepare command should be executed after the coordinator has triggered the
+chain launch and finalized the genesis with "ignite network chain launch". You
+can force Ignite to run the prepare command without checking if the launch has
+been triggered with the "--force" flag (this is not recommended).
+
+After the prepare command is executed the node is ready to be started.
+`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainPrepareHandler,
 	}
 
 	flagSetClearCache(c)
