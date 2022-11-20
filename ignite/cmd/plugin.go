@@ -385,7 +385,8 @@ plugins:
 func NewPluginDescribe() *cobra.Command {
 	return &cobra.Command{
 		Use:   "describe [path]",
-		Short: "outputs information about the specified plugin. must be registered",
+		Short: "outputs information about the a registered plugin",
+		Long:  "outputs information about a registered plugins commands and hooks.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
@@ -394,7 +395,7 @@ func NewPluginDescribe() *cobra.Command {
 				if p.Path == args[0] {
 					manifest, err := p.Interface.Manifest()
 					if err != nil {
-						return fmt.Errorf("error while loading plugin manifest\n%s", err)
+						return fmt.Errorf("error while loading plugin manifest: %w", err)
 					}
 
 					printPluginCommands(manifest.Commands, s)
@@ -418,7 +419,7 @@ func printPlugins(session *cliui.Session) error {
 
 		manifest, err := p.Interface.Manifest()
 		if err != nil {
-			return fmt.Errorf("error while loading plugin manifest\n%s", err)
+			return fmt.Errorf("error while loading plugin manifest: %w", err)
 		}
 
 		var (
