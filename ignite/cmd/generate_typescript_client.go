@@ -17,7 +17,7 @@ func NewGenerateTSClient() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
+	c.Flags().StringP(flagOutput, "o", "", "TypeScript client output path")
 
 	return c
 }

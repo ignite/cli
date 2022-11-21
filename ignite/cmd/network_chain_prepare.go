@@ -51,7 +51,7 @@ After the prepare command is executed the node is ready to be started.
 	}
 
 	flagSetClearCache(c)
-	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
+	c.Flags().BoolP(flagForce, "f", false, "force the prepare command to run even if the chain is not launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
