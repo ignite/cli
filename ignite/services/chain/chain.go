@@ -10,7 +10,6 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
@@ -18,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
+	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
@@ -43,14 +43,10 @@ type Chain struct {
 
 	Version cosmosver.Version
 
-	plugin         Plugin
 	sourceVersion  version
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
-
-	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
-	protoBuiltAtLeastOnce bool
 
 	ev          events.Bus
 	logOutputer uilog.Outputer
@@ -67,13 +63,12 @@ type chainOptions struct {
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
 
-	// isThirdPartyModuleCodegen indicates if proto code generation should be made
-	// for 3rd party modules. SDK modules are also considered as a 3rd party.
-	isThirdPartyModuleCodegenEnabled bool
-
 	// checkDependencies checks that cached Go dependencies of the chain have not
 	// been modified since they were downloaded.
 	checkDependencies bool
+
+	// printGeneratedPaths prints the output paths of the generated code
+	printGeneratedPaths bool
 
 	// path of a custom config file
 	ConfigFile string
@@ -110,14 +105,6 @@ func ConfigFile(configFile string) Option {
 	}
 }
 
-// EnableThirdPartyModuleCodegen enables code generation for third party modules,
-// including the SDK.
-func EnableThirdPartyModuleCodegen() Option {
-	return func(c *Chain) {
-		c.options.isThirdPartyModuleCodegenEnabled = true
-	}
-}
-
 // WithOutputer sets the CLI outputer for the chain.
 func WithOutputer(s uilog.Outputer) Option {
 	return func(c *Chain) {
@@ -138,6 +125,13 @@ func CollectEvents(ev events.Bus) Option {
 func CheckDependencies() Option {
 	return func(c *Chain) {
 		c.options.checkDependencies = true
+	}
+}
+
+// PrintGeneratedPaths prints the output paths of the generated code.
+func PrintGeneratedPaths() Option {
+	return func(c *Chain) {
+		c.options.printGeneratedPaths = true
 	}
 }
 
@@ -167,13 +161,6 @@ func New(path string, options ...Option) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if !c.Version.IsFamily(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
-	}
-
-	// initialize the plugin depending on the version of the chain
-	c.plugin = c.pickPlugin()
 
 	return c, nil
 }
@@ -313,7 +300,7 @@ func (c *Chain) DefaultHome() (string, error) {
 		return validator.Home, nil
 	}
 
-	return c.plugin.Home(), nil
+	return c.appHome(), nil
 }
 
 // DefaultGentxPath returns default gentx.json path of the app.
@@ -433,6 +420,11 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
+
+	// Try to make the binary path absolute. This will also
+	// find the binary path when the Go bin path is not part
+	// of the PATH environment variable.
+	binary = xexec.TryResolveAbsPath(binary)
 
 	backend, err := c.KeyringBackend()
 	if err != nil {

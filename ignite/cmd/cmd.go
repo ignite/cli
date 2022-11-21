@@ -28,15 +28,17 @@ import (
 )
 
 const (
-	flagPath          = "path"
-	flagHome          = "home"
-	flagProto3rdParty = "proto-all-modules"
-	flagYes           = "yes"
-	flagClearCache    = "clear-cache"
-	flagSkipProto     = "skip-proto"
+	flagPath       = "path"
+	flagHome       = "home"
+	flagYes        = "yes"
+	flagClearCache = "clear-cache"
+	flagSkipProto  = "skip-proto"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
+
+	statusGenerating = "Generating..."
+	statusQuerying   = "Querying..."
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -76,6 +78,7 @@ ignite scaffold chain github.com/username/mars`,
 	c.AddCommand(NewTools())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
+	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
 
 	return c
@@ -117,7 +120,7 @@ func getHome(cmd *cobra.Command) (home string) {
 
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagConfig, "c", "", "ignite config file (default: ./config.yml)")
+	fs.StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
 	return fs
 }
 
@@ -135,23 +138,6 @@ func flagSetYes() *flag.FlagSet {
 func getYes(cmd *cobra.Command) (ok bool) {
 	ok, _ = cmd.Flags().GetBool(flagYes)
 	return
-}
-
-func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-
-	info := "enables proto code generation for 3rd party modules used in your chain"
-	if additionalInfo != "" {
-		info += ". " + additionalInfo
-	}
-
-	fs.Bool(flagProto3rdParty, false, info)
-	return fs
-}
-
-func flagGetProto3rdParty(cmd *cobra.Command) bool {
-	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
-	return isEnabled
 }
 
 func flagSetSkipProto() *flag.FlagSet {

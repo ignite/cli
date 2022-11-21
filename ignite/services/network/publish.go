@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -20,9 +19,9 @@ import (
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
 	genesisURL       string
+	genesisConfig    string
 	chainID          string
 	campaignID       uint64
-	noCheck          bool
 	metadata         string
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
@@ -47,17 +46,17 @@ func WithChainID(chainID string) PublishOption {
 	}
 }
 
-// WithNoCheck disables checking integrity of the chain.
-func WithNoCheck() PublishOption {
+// WithCustomGenesisURL enables using a custom genesis during publish.
+func WithCustomGenesisURL(url string) PublishOption {
 	return func(o *publishOptions) {
-		o.noCheck = true
+		o.genesisURL = url
 	}
 }
 
-// WithCustomGenesis enables using a custom genesis during publish.
-func WithCustomGenesis(url string) PublishOption {
+// WithCustomGenesisConfig enables using a custom genesis during publish.
+func WithCustomGenesisConfig(configFile string) PublishOption {
 	return func(o *publishOptions) {
-		o.genesisURL = url
+		o.genesisConfig = configFile
 	}
 }
 
@@ -143,7 +142,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 	campaignID = o.campaignID
 
-	n.ev.Send("Publishing the network", events.ProgressStarted())
+	n.ev.Send("Publishing the network", events.ProgressStart())
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one
@@ -228,10 +227,15 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 		// get initial genesis
 		initialGenesis := launchtypes.NewDefaultInitialGenesis()
-		if o.genesisURL != "" {
+		switch {
+		case o.genesisURL != "":
 			initialGenesis = launchtypes.NewGenesisURL(
 				o.genesisURL,
 				genesisHash,
+			)
+		case o.genesisConfig != "":
+			initialGenesis = launchtypes.NewConfigGenesis(
+				o.genesisConfig,
 			)
 		}
 
@@ -261,58 +265,4 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 
 	return launchID, campaignID, nil
-}
-
-func (n Network) SendAccountRequestForCoordinator(ctx context.Context, launchID uint64, amount sdk.Coins) error {
-	addr, err := n.account.Address(networktypes.SPN)
-	if err != nil {
-		return err
-	}
-
-	return n.sendAccountRequest(ctx, launchID, addr, amount)
-}
-
-// SendAccountRequest creates an add AddAccount request message.
-func (n Network) sendAccountRequest(
-	ctx context.Context,
-	launchID uint64,
-	address string,
-	amount sdk.Coins,
-) error {
-	addr, err := n.account.Address(networktypes.SPN)
-	if err != nil {
-		return err
-	}
-
-	msg := launchtypes.NewMsgSendRequest(
-		addr,
-		launchID,
-		launchtypes.NewGenesisAccount(
-			launchID,
-			address,
-			amount,
-		),
-	)
-
-	n.ev.Send("Broadcasting account transactions", events.ProgressStarted())
-
-	res, err := n.cosmos.BroadcastTx(ctx, n.account, msg)
-	if err != nil {
-		return err
-	}
-
-	var requestRes launchtypes.MsgSendRequestResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-
-	if requestRes.AutoApproved {
-		n.ev.Send("Account added to the network by the coordinator!", events.ProgressFinished())
-	} else {
-		n.ev.Send(
-			fmt.Sprintf("Request %d to add account to the network has been submitted!", requestRes.RequestID),
-			events.ProgressFinished(),
-		)
-	}
-	return nil
 }

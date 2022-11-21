@@ -33,14 +33,38 @@ func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "join [launch-id]",
 		Short: "Request to join a network as a validator",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainJoinHandler,
+		Long: `The "join" command is used by validators to send a request to join a blockchain.
+The required argument is a launch ID of a blockchain. The "join" command expects
+that the validator has already setup a home directory for the blockchain and has
+a gentx either by running "ignite network chain init" or initializing the data
+directory manually with the chain's binary.
+
+By default the "join" command just sends the request to join as a validator.
+However, often a validator also needs to request an genesis account with a token
+balance to afford self-delegation.
+
+The following command will send a request to join blockchain with launch ID 42
+as a validator and request to be added as an account with a token balance of
+95000000 STAKE.
+
+	ignite network chain join 42 --amount 95000000stake
+
+A request to join as a validator contains a gentx file. Ignite looks for gentx
+in a home directory used by "ignite network chain init" by default. To use a
+different directory, use the "--home" flag or pass a gentx file directly with
+the  "--gentx" flag.
+
+Since "join" broadcasts a transaction to the Ignite blockchain, you will need an
+account on the Ignite blockchain. During the testnet phase, however, Ignite
+automatically requests tokens from a faucet.`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainJoinHandler,
 	}
 
-	c.Flags().String(flagGentx, "", "Path to a gentx json file")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
-	c.Flags().String(flagPeerAddress, "", "Peer's address")
-	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
+	c.Flags().String(flagGentx, "", "path to a gentx json file")
+	c.Flags().String(flagAmount, "", "amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
+	c.Flags().String(flagPeerAddress, "", "peer's address")
+	c.Flags().Bool(flagNoAccount, false, "prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())

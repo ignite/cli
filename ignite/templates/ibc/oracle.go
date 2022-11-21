@@ -18,7 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
-//go:embed oracle/* oracle/**/*
+//go:embed files/oracle/* files/oracle/**/*
 var fsOracle embed.FS
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
@@ -32,10 +32,12 @@ type OracleOptions struct {
 }
 
 // NewOracle returns the generator to scaffold the implementation of the Oracle interface inside a module
+//
+// Deprecated: This function is no longer maintained
 func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath)
+	template := xgenny.NewEmbedWalker(fsOracle, "files/oracle/", opts.AppPath)
 
 	g.RunFn(moduleOracleModify(replacer, opts))
 	g.RunFn(protoQueryOracleModify(replacer, opts))
@@ -74,6 +76,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	return g, nil
 }
 
+// Deprecated: This function is no longer maintained
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
@@ -111,6 +114,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 	}
 }
 
+// Deprecated: This function is no longer maintained
 func protoQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
@@ -165,6 +169,7 @@ message QueryLast%[2]vIdResponse {int64 request_id = 1;}
 	}
 }
 
+// Deprecated: This function is no longer maintained
 func protoTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
@@ -226,6 +231,7 @@ message Msg%[2]vDataResponse {
 	}
 }
 
+// Deprecated: This function is no longer maintained
 func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
@@ -244,6 +250,7 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 	}
 }
 
+// Deprecated: This function is no longer maintained
 func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
@@ -260,6 +267,7 @@ func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions)
 	}
 }
 
+// Deprecated: This function is no longer maintained
 func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
@@ -291,6 +299,7 @@ func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 	}
 }
 
+// Deprecated: This function is no longer maintained
 func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")

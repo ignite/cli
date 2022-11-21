@@ -31,21 +31,21 @@ installs the binary in the $(go env GOPATH)/bin directory.
 
 You can customize the output directory for the binary using a flag:
 
-  ignite chain build --output dist
+	ignite chain build --output dist
 
 To compile the binary Ignite first compiles protocol buffer (proto) files into
 Go source code. Proto files contain required type and services definitions. If
 you're using another program to compile proto files, you can use a flag to tell
 Ignite to skip the proto compilation step:
 
-  ignite chain build --skip-proto
+	ignite chain build --skip-proto
 
 Afterwards, Ignite install dependencies specified in the go.mod file. By default
 Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
-  ignite chain build --check-dependencies
+	ignite chain build --check-dependencies
 
 Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
@@ -53,21 +53,21 @@ scaffolded project and "d" stands for daemon. If your your project contains more
 than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 
-build:
-  main: custom/path/to/main
+	build:
+		main: custom/path/to/main
 
 By default the binary name will match the top-level module name (specified in
 go.mod) with a suffix "d". This can be customized in config.yml:
 
-build:
-  binary: mychaind
+	build:
+		binary: mychaind
 
 You can also specify custom linker flags:
 
-build:
-  ldflags:
-    - "-X main.Version=development"
-    - "-X main.Date=01/05/2022T19:54"
+	build:
+		ldflags:
+			- "-X main.Version=development"
+			- "-X main.Date=01/05/2022T19:54"
 
 To build binaries for a release, use the --release flag. The binaries for one or
 more specified release targets are built in a "release/" directory in the
@@ -75,7 +75,7 @@ project's source directory. Specify the release targets with GOOS:GOARCH build
 tags. If the optional --release.targets is not specified, a binary is created
 for your current environment.
 
-  ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+	ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 `,
 		Args: cobra.NoArgs,
 		RunE: chainBuildHandler,
@@ -83,7 +83,6 @@ for your current environment.
 
 	flagSetPath(c)
 	flagSetClearCache(c)
-	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().Bool(flagRelease, false, "build for a release")
@@ -101,19 +100,17 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
 		output, _         = cmd.Flags().GetString(flagOutput)
-		session           = cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
+		session           = cliui.New(
+			cliui.WithVerbosity(getVerbosity(cmd)),
+			cliui.StartSpinner(),
+		)
 	)
-
 	defer session.End()
 
 	chainOption := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
-	}
-
-	if flagGetProto3rdParty(cmd) {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
 	if flagGetCheckDependencies(cmd) {

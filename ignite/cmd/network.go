@@ -56,7 +56,7 @@ for launch.
 To publish the information about your chain as a coordinator run the following
 command (the URL should point to a repository with a Cosmos SDK chain):
 
-  ignite network chain publish github.com/ignite/example
+	ignite network chain publish github.com/ignite/example
 
 This command will return a launch identifier you will be using in the following
 commands. Let's say this identifier is 42.
@@ -65,26 +65,26 @@ Next, ask validators to initialize their nodes and request to join the network
 as validators. For a testnet you can use the default values suggested by the
 CLI.
 
-  ignite network chain init 42
+	ignite network chain init 42
 
-  ignite network chain join 42 --amount 95000000stake
+	ignite network chain join 42 --amount 95000000stake
 
 As a coordinator list all validator requests:
 
-  ignite network request list 42
+	ignite network request list 42
 
 Approve validator requests:
 
-  ignite network request approve 42 1,2
+	ignite network request approve 42 1,2
 
 Once you've approved all validators you need in the validator set, announce that
 the chain is ready for launch:
 
-  ignite network chain launch 42
+	ignite network chain launch 42
 
 Validators can now prepare their nodes for launch:
 
-  ignite network chain prepare 42
+	ignite network chain prepare 42
 
 The output of this command will show a command that a validator would use to
 launch their node, for example “exampled --home ~/.example”. After enough
@@ -94,8 +94,8 @@ validators launch their nodes, a blockchain will be live.
 	}
 
 	// configure flags.
-	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
-	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
+	c.PersistentFlags().BoolVar(&local, flagLocal, false, "use local SPN network")
+	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "use nightly SPN network")
 	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressNightly, "SPN node address")
 	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressNightly, "SPN faucet address")
 
@@ -135,7 +135,7 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 
 func flagSetSPNAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	fs.String(flagAddressPrefix, networktypes.SPN, "account address prefix")
 	return fs
 }
 
@@ -205,6 +205,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
+		cosmosclient.WithGas(cosmosclient.GasAuto),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

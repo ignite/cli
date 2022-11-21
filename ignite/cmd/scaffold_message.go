@@ -32,7 +32,7 @@ recipient's account.
 Ignite's message scaffolding lets you create new types of messages and add them
 to your chain. For example:
 
-  ignite scaffold message add-pool amount:coins denom active:bool --module dex
+	ignite scaffold message add-pool amount:coins denom active:bool --module dex
 
 The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
@@ -50,7 +50,7 @@ Inside this function, you can implement message handling logic.
 When successfully processed a message can return data. Use the —response flag to
 specify response fields and their types. For example
 
-  ignite scaffold message create-post title body --response id:int,title
+	ignite scaffold message create-post title body --response id:int,title
 
 The command above will scaffold MsgCreatePost which returns both an ID (an
 integer) and a title (a string).
@@ -68,11 +68,11 @@ for details.
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
-	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
-	c.Flags().Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
-	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
-	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
+	c.Flags().String(flagModule, "", "module to add the message into. Default: app's main module")
+	c.Flags().StringSliceP(flagResponse, "r", []string{}, "response fields")
+	c.Flags().Bool(flagNoSimulation, false, "disable CRUD simulation scaffolding")
+	c.Flags().StringP(flagDescription, "d", "", "description of the command")
+	c.Flags().String(flagSigner, "", "label for the message signer (default: creator)")
 
 	return c
 }
@@ -87,10 +87,8 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		withoutSimulation = flagGetNoSimulation(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {

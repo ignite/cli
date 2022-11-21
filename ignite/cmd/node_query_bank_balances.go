@@ -24,6 +24,9 @@ func NewNodeQueryBankBalances() *cobra.Command {
 }
 
 func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
+	defer session.End()
+
 	inputAccount := args[0]
 
 	client, err := newNodeCosmosClient(cmd)
@@ -41,10 +44,6 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session := cliui.New(cliui.StartSpinner())
-	defer session.End()
-	session.StartSpinner("Querying...")
 
 	balances, err := client.BankBalances(cmd.Context(), address, pagination)
 	if err != nil {

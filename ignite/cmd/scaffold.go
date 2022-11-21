@@ -20,6 +20,8 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+
+	statusScaffolding = "Scaffolding..."
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
@@ -96,7 +98,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	c.AddCommand(NewScaffoldPacket())
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldFlutter())
+	c.AddCommand(NewScaffoldReact())
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
@@ -136,10 +138,8 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	sc, err := newApp(appPath)
 	if err != nil {
@@ -203,10 +203,10 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 
 func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
-	f.String(flagModule, "", "Module to add into. Default is app's main module")
-	f.Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
-	f.Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
-	f.String(flagSigner, "", "Label for the message signer (default: creator)")
+	f.String(flagModule, "", "module to add into. Default is app's main module")
+	f.Bool(flagNoMessage, false, "disable CRUD interaction messages scaffolding")
+	f.Bool(flagNoSimulation, false, "disable CRUD simulation scaffolding")
+	f.String(flagSigner, "", "label for the message signer (default: creator)")
 	return f
 }
 

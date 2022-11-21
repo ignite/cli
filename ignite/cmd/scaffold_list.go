@@ -36,7 +36,7 @@ provides the logic to create, read, update, and delete instances of the type.
 For example, let's review a command that generates the code to handle a list of
 posts and each post has "title" and "body" fields:
 
-  ignite scaffold list post title body
+	ignite scaffold list post title body
 
 This provides you with a "Post" type, MsgCreatePost, MsgUpdatePost,
 MsgDeletePost and two queries: Post and PostAll. The compiled CLI, let's say the
@@ -53,13 +53,13 @@ different type, you can specify it after a colon ":". The following types are
 supported: string, bool, int, uint, coin, array.string, array.int, array.uint,
 array.coin. An example of using custom types:
 
-  ignite scaffold list pool amount:coin tags:array.string height:int
+	ignite scaffold list pool amount:coin tags:array.string height:int
   
 Ignite also supports custom types:
   
-  ignite scaffold list product-details name description
-  
-  ignite scaffold list product price:coin details:ProductDetails
+	ignite scaffold list product-details name description
+
+	ignite scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field. Ignite doesn't support arrays of
@@ -69,19 +69,19 @@ By default the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
 different module:
 
-  ignite scaffold list post title body --module blog
+	ignite scaffold list post title body --module blog
 
 By default, each message comes with a "creator" field that represents the
 address of the transaction signer. You can customize the name of this field with
 a flag:
 
-  ignite scaffold list post title body --signer author
+	ignite scaffold list post title body --signer author
 
 It's possible to scaffold just the getter/setter logic without the CRUD
 messages. This is useful when you want the methods to handle a type, but would
 like to scaffold messages manually. Use a flag to skip message scaffolding:
 
-  ignite scaffold list post title body --no-message
+	ignite scaffold list post title body --no-message
 
 The "creator" field is not generated if a list is scaffolded with the
 "--no-message" flag.

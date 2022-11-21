@@ -4,11 +4,9 @@ package scaffolder
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -54,10 +52,6 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, err
 	}
 
-	if !version.IsFamily(cosmosver.Stargate) {
-		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
-	}
-
 	s := Scaffolder{
 		Version: version,
 		path:    path,
@@ -96,35 +90,43 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
-	// generate Typescript Client code as well if it is enabled or when the vuex store is being generated
-	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" {
-		tsClientRootPath := filepath.Join(projectPath, chainconfig.TSClientPath(conf))
-		if err := os.MkdirAll(tsClientRootPath, 0o766); err != nil {
-			return err
+	// Generate Typescript client code if it's enabled or when Vuex stores are generated
+	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
+		tsClientPath := chainconfig.TSClientPath(*conf)
+		if !filepath.IsAbs(tsClientPath) {
+			tsClientPath = filepath.Join(projectPath, tsClientPath)
 		}
 
 		options = append(options,
 			cosmosgen.WithTSClientGeneration(
-				cosmosgen.TypescriptModulePath(tsClientRootPath),
-				tsClientRootPath,
+				cosmosgen.TypescriptModulePath(tsClientPath),
+				tsClientPath,
 			),
 		)
 	}
 
-	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+	if vuexPath := conf.Client.Vuex.Path; vuexPath != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
+		if filepath.IsAbs(vuexPath) {
+			vuexPath = filepath.Join(vuexPath, "generated")
+		} else {
+			vuexPath = filepath.Join(projectPath, vuexPath, "generated")
+		}
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
-				false,
-				cosmosgen.TypescriptModulePath(storeRootPath),
-				storeRootPath,
+				cosmosgen.TypescriptModulePath(vuexPath),
+				vuexPath,
 			),
 		)
 	}
+
 	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+		openAPIPath := conf.Client.OpenAPI.Path
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(projectPath, openAPIPath)
+		}
+
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
 	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, options...)

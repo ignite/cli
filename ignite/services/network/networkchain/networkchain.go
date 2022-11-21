@@ -12,12 +12,10 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/checksum"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/services/chain"
@@ -32,11 +30,12 @@ type Chain struct {
 	path string
 	home string
 
-	url         string
-	hash        string
-	genesisURL  string
-	genesisHash string
-	launchTime  time.Time
+	url           string
+	hash          string
+	genesisURL    string
+	genesisHash   string
+	genesisConfig string
+	launchTime    time.Time
 
 	accountBalance sdk.Coins
 
@@ -98,6 +97,7 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 		c.hash = launch.SourceHash
 		c.genesisURL = launch.GenesisURL
 		c.genesisHash = launch.GenesisHash
+		c.genesisConfig = launch.GenesisConfig
 		c.home = ChainHome(launch.ID)
 		c.launchTime = launch.LaunchTime
 		c.accountBalance = launch.AccountBalance
@@ -122,6 +122,13 @@ func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 func WithGenesisFromURL(genesisURL string) Option {
 	return func(c *Chain) {
 		c.genesisURL = genesisURL
+	}
+}
+
+// WithGenesisFromConfig provides a config file for the initial genesis of the chain blockchain
+func WithGenesisFromConfig(genesisConfig string) Option {
+	return func(c *Chain) {
+		c.genesisConfig = genesisConfig
 	}
 }
 
@@ -151,15 +158,15 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		apply(c)
 	}
 
-	c.ev.Send("Fetching the source code", events.ProgressStarted())
+	c.ev.Send("Fetching the source code", events.ProgressStart())
 
 	var err error
 	if c.path, c.hash, err = fetchSource(ctx, c.url, c.ref, c.hash); err != nil {
 		return nil, err
 	}
 
-	c.ev.Send("Source code fetched", events.ProgressFinished())
-	c.ev.Send("Setting up the blockchain", events.ProgressStarted())
+	c.ev.Send("Source code fetched", events.ProgressFinish())
+	c.ev.Send("Setting up the blockchain", events.ProgressStart())
 
 	chainOption := []chain.Option{
 		chain.ID(c.id),
@@ -183,12 +190,8 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 		return nil, err
 	}
 
-	if !chain.Version.IsFamily(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
-	}
-
 	c.chain = chain
-	c.ev.Send("Blockchain set up", events.ProgressFinished())
+	c.ev.Send("Blockchain set up", events.ProgressFinish())
 
 	return c, nil
 }
@@ -322,14 +325,14 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 		}
 	}
 
-	c.ev.Send("Building the chain's binary", events.ProgressStarted())
+	c.ev.Send("Building the chain's binary", events.ProgressStart())
 
 	// build binary
 	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
 		return "", err
 	}
 
-	c.ev.Send("Chain's binary built", events.ProgressFinished())
+	c.ev.Send("Chain's binary built", events.ProgressFinish())
 
 	// cache built binary for launch id
 	if c.launchID != 0 {

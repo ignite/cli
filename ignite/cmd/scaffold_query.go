@@ -27,10 +27,10 @@ func NewScaffoldQuery() *cobra.Command {
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
-	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
-	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
-	c.Flags().Bool(flagPaginated, false, "Define if the request can be paginated")
+	c.Flags().String(flagModule, "", "module to add the query into. Default: app's main module")
+	c.Flags().StringSliceP(flagResponse, "r", []string{}, "response fields")
+	c.Flags().StringP(flagDescription, "d", "", "description of the command")
+	c.Flags().Bool(flagPaginated, false, "define if the request can be paginated")
 
 	return c
 }
@@ -38,10 +38,8 @@ func NewScaffoldQuery() *cobra.Command {
 func queryHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	// Get the module to add the type into
 	module, err := cmd.Flags().GetString(flagModule)
