@@ -26,6 +26,11 @@ const (
 	flagValidatorIdentity        = "validator-identity"
 	flagValidatorSelfDelegation  = "validator-self-delegation"
 	flagValidatorGasPrice        = "validator-gas-price"
+
+	defaultSelfDelegation          = "95000000stake"
+	defaultCommissionMax           = "0.10"
+	defaultCommissionMaxRate       = "0.20"
+	defaultCommissionMaxChangeRate = "0.01"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -33,19 +38,43 @@ func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init [launch-id]",
 		Short: "Initialize a chain from a published chain ID",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainInitHandler,
+		Long: `Ignite network chain init is a command used by validators to initialize a
+validator node for a blockchain from the information stored on the Ignite chain.
+
+	ignite network chain init 42
+
+This command fetches the information about a chain with launch ID 42. The source
+code of the chain is cloned in a temporary directory, and the node's binary is
+compiled from the source. The binary is then used to initialize the node. By
+default, Ignite uses "~/spn/[launch-id]/" as the home directory for the blockchain.
+
+An important part of initializing a validator node is creation of the gentx (a
+transaction that adds a validator at the genesis of the chain).
+
+The "init" command will prompt for values like self-delegation and commission.
+These values will be used in the validator's gentx. You can use flags to provide
+the values in non-interactive mode.
+
+Use the "--home" flag to choose a different path for the home directory of the
+blockchain:
+
+	ignite network chain init 42 --home ~/mychain
+
+The end result of the "init" command is a validator home directory with a
+genesis validator transaction (gentx) file.`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainInitHandler,
 	}
 
 	flagSetClearCache(c)
-	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
-	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
-	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
-	c.Flags().String(flagValidatorSecurityContact, "", "Validator security contact email")
-	c.Flags().String(flagValidatorMoniker, "", "Custom validator moniker")
-	c.Flags().String(flagValidatorIdentity, "", "Validator identity signature (ex. UPort or Keybase)")
-	c.Flags().String(flagValidatorSelfDelegation, "", "Validator minimum self delegation")
-	c.Flags().String(flagValidatorGasPrice, "", "Validator gas price")
+	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "account for the chain validator")
+	c.Flags().String(flagValidatorWebsite, "", "associate a website with the validator")
+	c.Flags().String(flagValidatorDetails, "", "details about the validator")
+	c.Flags().String(flagValidatorSecurityContact, "", "validator security contact email")
+	c.Flags().String(flagValidatorMoniker, "", "custom validator moniker")
+	c.Flags().String(flagValidatorIdentity, "", "validator identity signature (ex. UPort or Keybase)")
+	c.Flags().String(flagValidatorSelfDelegation, "", "validator minimum self delegation")
+	c.Flags().String(flagValidatorGasPrice, "", "validator gas price")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -142,7 +171,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, session, stakeDenom)
+	defaultSelfDel := chainLaunch.AccountBalance.String()
+	if defaultSelfDel == "" {
+		defaultSelfDel = defaultSelfDelegation
+	}
+	v, err := askValidatorInfo(cmd, session, stakeDenom, defaultSelfDel)
 	if err != nil {
 		return err
 	}
@@ -157,7 +190,12 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(cmd *cobra.Command, session *cliui.Session, stakeDenom string) (chain.Validator, error) {
+func askValidatorInfo(
+	cmd *cobra.Command,
+	session *cliui.Session,
+	stakeDenom,
+	defaultSelfDel string,
+) (chain.Validator, error) {
 	var (
 		account, _         = cmd.Flags().GetString(flagValidatorAccount)
 		website, _         = cmd.Flags().GetString(flagValidatorWebsite)
@@ -185,22 +223,22 @@ func askValidatorInfo(cmd *cobra.Command, session *cliui.Session, stakeDenom str
 	questions := append([]cliquiz.Question{},
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
-			cliquiz.DefaultAnswer("95000000stake"),
+			cliquiz.DefaultAnswer(defaultSelfDel),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission rate",
 			&v.CommissionRate,
-			cliquiz.DefaultAnswer("0.10"),
+			cliquiz.DefaultAnswer(defaultCommissionMax),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission max rate",
 			&v.CommissionMaxRate,
-			cliquiz.DefaultAnswer("0.20"),
+			cliquiz.DefaultAnswer(defaultCommissionMaxRate),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission max change rate",
 			&v.CommissionMaxChangeRate,
-			cliquiz.DefaultAnswer("0.01"),
+			cliquiz.DefaultAnswer(defaultCommissionMaxChangeRate),
 			cliquiz.Required(),
 		),
 	)

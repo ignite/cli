@@ -70,10 +70,15 @@ type Client struct {
 	Typescript Typescript `yaml:"typescript,omitempty"`
 
 	// Vuex configures code generation for Vuex stores.
-	Vuex Typescript `yaml:"vuex,omitempty"`
+	//
+	// Deprecated: Will be removed eventually.
+	Vuex Vuex `yaml:"vuex,omitempty"`
 
-	// Dart configures client code generation for Dart.
-	Dart Dart `yaml:"dart,omitempty"`
+	// Composables configures code generation for Vue 3 composables.
+	Composables Composables `yaml:"composables,omitempty"`
+
+	// Hooks configures code generation for React hooks.
+	Hooks Hooks `yaml:"hooks,omitempty"`
 
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
@@ -86,14 +91,22 @@ type Typescript struct {
 }
 
 // Vuex configures code generation for Vuex stores.
+//
+// Deprecated: Will be removed eventually.
 type Vuex struct {
 	// Path configures out location for generated Vuex stores code.
 	Path string `yaml:"path"`
 }
 
-// Dart configures client code generation for Dart.
-type Dart struct {
-	// Path configures out location for generated Dart code.
+// Composables configures code generation for vue-query hooks.
+type Composables struct {
+	// Path configures out location for generated vue-query hooks.
+	Path string `yaml:"path"`
+}
+
+// Hooks configures code generation for react-query hooks.
+type Hooks struct {
+	// Path configures out location for generated vue-query hooks.
 	Path string `yaml:"path"`
 }
 
@@ -154,7 +167,7 @@ type Host struct {
 // BaseConfig defines a struct with the fields that are common to all config versions.
 type BaseConfig struct {
 	Version  Version   `yaml:"version"`
-	Build    Build     `yaml:"build"`
+	Build    Build     `yaml:"build,omitempty"`
 	Accounts []Account `yaml:"accounts"`
 	Faucet   Faucet    `yaml:"faucet,omitempty"`
 	Client   Client    `yaml:"client,omitempty"`

@@ -19,6 +19,9 @@ func NewNodeTxBankSend() *cobra.Command {
 }
 
 func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.End()
+
 	var (
 		fromAccountInput = args[0]
 		toAccountInput   = args[1]
@@ -52,9 +55,6 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	session := cliui.New(cliui.StartSpinner())
-	defer session.End()
 
 	if generateOnly {
 		json, err := tx.EncodeJSON()

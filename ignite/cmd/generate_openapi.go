@@ -4,13 +4,14 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
 func NewGenerateOpenAPI() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "openapi",
-		Short:   "Generate generates an OpenAPI spec for your chain from your config.yml",
+		Short:   "Generate an OpenAPI spec for your chain",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateOpenAPIHandler,
 	}
@@ -20,16 +21,15 @@ func NewGenerateOpenAPI() *cobra.Command {
 	return c
 }
 
-func generateOpenAPIHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+func generateOpenAPIHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
-
-	session.StartSpinner("Generating...")
 
 	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+		chain.PrintGeneratedPaths(),
 	)
 	if err != nil {
 		return err
@@ -44,5 +44,5 @@ func generateOpenAPIHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return session.Println("⛏️  Generated OpenAPI spec.")
+	return session.Println(icons.OK, "Generated OpenAPI spec")
 }

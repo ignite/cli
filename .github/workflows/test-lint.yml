@@ -5,15 +5,14 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
-      - develop
+      - main
 jobs:
   lint:
     name: golangci-lint
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -21,6 +20,6 @@ jobs:
       - uses: golangci/golangci-lint-action@master
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.49.0
+          version: v1.50.1
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}

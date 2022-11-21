@@ -4,11 +4,13 @@ sidebar_position: 7
 
 # Keeper
 
-Keepers are a Cosmos SDK abstraction whose role is to manage access to the subset of the state defined by various modules.
+Keepers are a Cosmos SDK abstraction whose role is to manage access to the subset of the state defined by various
+modules.
 
 ## Create scavenge
 
-Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.go` file so the create scavenge method can manage the following:
+Make the required changes in the `x/scavenge/keeper/msg_server_submit_scavenge.go` file so the create scavenge method
+can manage the following:
 
 * Check that a scavenge with a given solution hash doesn't exist
 * Send tokens from the scavenge creator account to a module account
@@ -76,11 +78,16 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
 }
 ```
 
-Notice the use of `moduleAcct`. This account is not controlled by a public key pair, but is a reference to an account that is owned by this actual module. `moduleAcct` is used to hold the bounty reward that is attached to a scavenge until that scavenge has been solved, at which point the bounty is paid to the account who solved the scavenge.
+Notice the use of `moduleAcct`. This account is not controlled by a public key pair, but is a reference to an account
+that is owned by this actual module. `moduleAcct` is used to hold the bounty reward that is attached to a scavenge until
+that scavenge has been solved, at which point the bounty is paid to the account who solved the scavenge.
 
-`SubmitScavenge` uses the `SendCoins` method from the `bank` module. When you scaffolded the scavenge module, you used `--dep bank` to specify a dependency between the `scavenge` and `bank` modules. This dependency automatically created an `expected_keepers.go` file with a `BankKeeper` interface.
+`SubmitScavenge` uses the `SendCoins` method from the `bank` module. When you scaffolded the scavenge module, you used
+`--dep bank` to specify a dependency between the `scavenge` and `bank` modules. This dependency automatically created
+an `expected_keepers.go` file with a `BankKeeper` interface.
 
-To use the `BankKeeper` interface in the keeper methods of the `scavenge` module, add `SendCoins` to the `x/scavenge/types/expected_keepers.go` file:
+To use the `BankKeeper` interface in the keeper methods of the `scavenge` module, add `SendCoins` to the
+`x/scavenge/types/expected_keepers.go`file:
 
 ```go
 // x/scavenge/types/expected_keepers.go
@@ -98,7 +105,8 @@ type BankKeeper interface {
 
 ## Commit Solution
 
-Make the required changes in the `x/scavenge/keeper/msg_server_commit_solution.go` file so the commit solution method can manage the following:
+Make the required changes in the `x/scavenge/keeper/msg_server_commit_solution.go` file so the commit solution method
+can manage the following:
 
 * Check that commit with a given hash doesn't exist in the store
 * Write a new commit to the store
@@ -143,12 +151,13 @@ func (k msgServer) CommitSolution(goCtx context.Context, msg *types.MsgCommitSol
 
 ## Reveal Solution
 
-Make the required changes in the `x/scavenge/keeper/msg_server_reveal_solution.go` file so the reveal solution method can manage the following:
+Make the required changes in the `x/scavenge/keeper/msg_server_reveal_solution.go` file so the reveal solution method
+can manage the following:
 
 * Check that a commit with a given hash exists in the store
 * Check that a scavenge with a given solution hash exists in the store
 * Check that the scavenge hasn't already been solved
-* Send tokens from the module account to the account that revealed the correct anwer
+* Send tokens from the module account to the account that revealed the correct answer
 * Write the updated scavenge to the store
 
 ```go
@@ -180,7 +189,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 	// convert the hash to a string
 	var solutionScavengerHashString = hex.EncodeToString(solutionScavengerHash[:])
 
-	// try getting a commit using the the hash of solution and address
+	// try getting a commit using the hash of solution and address
 	_, isFound := k.GetCommit(ctx, solutionScavengerHashString)
 
 	// return an error if a commit doesn't exist
@@ -195,7 +204,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 	var solutionHashString = hex.EncodeToString(solutionHash[:])
 	var scavenge types.Scavenge
 
-	// get a scavenge from the stre using the solution hash
+	// get a scavenge from the store using the solution hash
 	scavenge, isFound = k.GetScavenge(ctx, solutionHashString)
 
 	// return an error if the solution doesn't exist
@@ -238,7 +247,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 		return nil, sdkError
 	}
 
-	// save the udpated scavenge to the store
+	// save the updated scavenge to the store
 	k.SetScavenge(ctx, scavenge)
 	return &types.MsgRevealSolutionResponse{}, nil
 }

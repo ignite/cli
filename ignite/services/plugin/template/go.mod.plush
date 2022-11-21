@@ -1,0 +1,12 @@
+module <%= ModuleName %>
+
+go 1.18
+
+require (
+	github.com/hashicorp/go-plugin v1.4.4
+	github.com/ignite/cli v0.25.2-0.20221117140529-b69217cd8334
+)
+
+replace (
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+)

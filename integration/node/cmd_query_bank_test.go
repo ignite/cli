@@ -279,7 +279,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		)
 	}()
 
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

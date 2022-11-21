@@ -20,7 +20,8 @@ const (
 	flagTag            = "tag"
 	flagBranch         = "branch"
 	flagHash           = "hash"
-	flagGenesis        = "genesis"
+	flagGenesisURL     = "genesis-url"
+	flagGenesisConfig  = "genesis-config"
 	flagCampaign       = "campaign"
 	flagShares         = "shares"
 	flagNoCheck        = "no-check"
@@ -36,26 +37,45 @@ func NewNetworkChainPublish() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "publish [source-url]",
 		Short: "Publish a new chain to start a new network",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainPublishHandler,
+		Long: `To begin the process of launching a blockchain with Ignite, a coordinator needs
+to publish the information about a blockchain. The only required bit of
+information is the URL of the source code of the blockchain.
+
+The following command publishes the information about an example blockchain:
+
+  ignite network chain publish github.com/ignite/example
+
+This command fetches the source code of the blockchain, compiles the binary,
+verifies that a blockchain can be started with the binary, and publishes the
+information about the blockchain to Ignite. The command returns an integer number
+that acts as an identifier of the chain on Ignite.
+
+By publishing a blockchain on Ignite you become the "coordinator" of this
+blockchain. A coordinator is an account that has the authority to approve and
+reject validator requests, set parameters of the blockchain and trigger the
+launch of the chain.
+`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainPublishHandler,
 	}
 
 	flagSetClearCache(c)
 	c.Flags().String(flagBranch, "", "Git branch to use for the repo")
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
-	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
-	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
-	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
-	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
-	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
-	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
-	c.Flags().String(flagShares, "", "Add shares for the campaign")
-	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
-	c.Flags().String(flagAccountBalance, "", "Balance for each approved genesis account for the chain")
-	c.Flags().String(flagRewardCoins, "", "Reward coins")
-	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request")
+	c.Flags().String(flagGenesisURL, "", "URL to a custom Genesis")
+	c.Flags().String(flagGenesisConfig, "", "name of an Ignite config file in the repo for custom Genesis")
+	c.Flags().String(flagChainID, "", "chain ID to use for this network")
+	c.Flags().Uint64(flagCampaign, 0, "campaign ID to use for this network")
+	c.Flags().Bool(flagNoCheck, false, "skip verifying chain's integrity")
+	c.Flags().String(flagCampaignMetadata, "", "add a campaign metadata")
+	c.Flags().String(flagCampaignTotalSupply, "", "add a total of the mainnet of a campaign")
+	c.Flags().String(flagShares, "", "add shares for the campaign")
+	c.Flags().Bool(flagMainnet, false, "initialize a mainnet campaign")
+	c.Flags().String(flagAccountBalance, "", "balance for each approved genesis account for the chain")
+	c.Flags().String(flagRewardCoins, "", "reward coins")
+	c.Flags().Int64(flagRewardHeight, 0, "last reward height")
+	c.Flags().String(flagAmount, "", "amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
@@ -74,7 +94,8 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		tag, _                    = cmd.Flags().GetString(flagTag)
 		branch, _                 = cmd.Flags().GetString(flagBranch)
 		hash, _                   = cmd.Flags().GetString(flagHash)
-		genesisURL, _             = cmd.Flags().GetString(flagGenesis)
+		genesisURL, _             = cmd.Flags().GetString(flagGenesisURL)
+		genesisConfig, _          = cmd.Flags().GetString(flagGenesisConfig)
 		chainID, _                = cmd.Flags().GetString(flagChainID)
 		campaign, _               = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
@@ -172,9 +193,20 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	var initOptions []networkchain.Option
 
+	// cannot use both genesisURL and genesisConfig
+	if genesisURL != "" && genesisConfig != "" {
+		return errors.New("cannot use both genesis-url and genesis-config for initial genesis." +
+			"Please use only one of the options.")
+	}
+
 	// use custom genesis from url if given.
 	if genesisURL != "" {
 		initOptions = append(initOptions, networkchain.WithGenesisFromURL(genesisURL))
+	}
+
+	// use custom genesis config if given
+	if genesisConfig != "" {
+		initOptions = append(initOptions, networkchain.WithGenesisFromConfig(genesisConfig))
 	}
 
 	// init in a temp dir.
@@ -189,8 +221,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// prepare publish options
 	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
 
-	if genesisURL != "" {
-		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
+	switch {
+	case genesisURL != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisURL(genesisURL))
+	case genesisConfig != "":
+		publishOptions = append(publishOptions, network.WithCustomGenesisConfig(genesisConfig))
+
 	}
 
 	if campaign != 0 {
@@ -243,10 +279,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if noCheck {
-		publishOptions = append(publishOptions, network.WithNoCheck())
-	} else if err := c.Init(cmd.Context(), cacheStorage); err != nil { // initialize the chain for checking.
-		return err
+	if !noCheck {
+		if err := c.Init(cmd.Context(), cacheStorage); err != nil {
+			// initialize the chain for checking.
+			return fmt.Errorf("blockchain init failed: %w", err)
+		}
 	}
 
 	session.StartSpinner("Publishing...")

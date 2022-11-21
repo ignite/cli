@@ -23,8 +23,8 @@ type (
 		Memo             string
 	}
 
-	// StargateGentx represents the stargate gentx file
-	StargateGentx struct {
+	// Gentx represents the gentx file
+	Gentx struct {
 		Body struct {
 			Messages []struct {
 				DelegatorAddress string `json:"delegator_address"`
@@ -53,44 +53,44 @@ func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
 	if err != nil {
 		return info, gentx, err
 	}
-	return ParseGentx(gentx)
+
+	info, err = ParseGentx(gentx)
+	return info, gentx, err
 }
 
 // ParseGentx returns GentxInfo and the gentx file in bytes
-// TODO refector. no need to return file, it's already given as gentx in the argument.
-func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
-	// Try parsing Stargate gentx
-	var stargateGentx StargateGentx
-	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
-		return info, gentx, err
+func ParseGentx(gentxBz []byte) (info GentxInfo, err error) {
+	// Try parsing gentx
+	var gentx Gentx
+	if err := json.Unmarshal(gentxBz, &gentx); err != nil {
+		return info, fmt.Errorf("unmarshal gentx: %w", err)
 	}
-	if stargateGentx.Body.Messages == nil {
-		return info, gentx, errors.New("the gentx cannot be parsed")
-	}
-
-	// This is a stargate gentx
-	if len(stargateGentx.Body.Messages) != 1 {
-		return info, gentx, errors.New("add validator gentx must contain 1 message")
+	if gentx.Body.Messages == nil {
+		return info, errors.New("the gentx cannot be parsed")
 	}
 
-	info.Memo = stargateGentx.Body.Memo
-	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
+	if len(gentx.Body.Messages) != 1 {
+		return info, errors.New("add validator gentx must contain 1 message")
+	}
 
-	pb := stargateGentx.Body.Messages[0].PubKey.Key
+	info.Memo = gentx.Body.Memo
+	info.DelegatorAddress = gentx.Body.Messages[0].DelegatorAddress
+
+	pb := gentx.Body.Messages[0].PubKey.Key
 	info.PubKey, err = base64.StdEncoding.DecodeString(pb)
 	if err != nil {
-		return info, gentx, fmt.Errorf("invalid validator public key %s", err.Error())
+		return info, fmt.Errorf("invalid validator public key %w", err)
 	}
 
-	amount, ok := sdkmath.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
+	amount, ok := sdkmath.NewIntFromString(gentx.Body.Messages[0].Value.Amount)
 	if !ok {
-		return info, gentx, errors.New("the self-delegation inside the gentx is invalid")
+		return info, errors.New("the self-delegation inside the gentx is invalid")
 	}
 
 	info.SelfDelegation = sdk.NewCoin(
-		stargateGentx.Body.Messages[0].Value.Denom,
+		gentx.Body.Messages[0].Value.Denom,
 		amount,
 	)
 
-	return info, gentx, nil
+	return info, nil
 }

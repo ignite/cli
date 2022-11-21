@@ -198,6 +198,19 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
         additionalLanguages: ["protobuf", "go-module"],  // https://prismjs.com/#supported-languages
+        magicComments: [
+          // Remember to extend the default highlight class name as well!
+          {
+            className: 'theme-code-block-highlighted-line',
+            line: 'highlight-next-line',
+            block: {start: 'highlight-start', end: 'highlight-end'},
+          },
+          {
+            className: 'code-block-removed-line',
+            line: 'remove-next-line',
+            block: {start: 'remove-start', end: 'remove-end'},
+          },
+        ],
       },
       algolia: {
         appId: "VVETP7QCVE",
@@ -205,6 +218,16 @@ const config = {
         indexName: "ignite-cli",
         contextualSearch: false,
       },
+      zoom: {
+        selector: '.markdown :not(em) > img',
+        config: {
+          // options you can specify via https://github.com/francoischalifour/medium-zoom#usage
+          background: {
+            light: 'rgb(255, 255, 255)',
+            dark: 'rgb(50, 50, 50)'
+          }
+        }
+      }
     }),
   plugins: [
     async function myPlugin(context, options) {
@@ -219,6 +242,7 @@ const config = {
         },
       };
     },
+    require.resolve("docusaurus-plugin-image-zoom")
   ],
 };
 

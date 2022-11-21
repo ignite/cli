@@ -97,7 +97,7 @@ type runOptions struct {
 // run executes a command.
 func (r Runner) run(ctx context.Context, runOptions runOptions, stepOptions ...step.Option) error {
 	// we use a truncated buffer to prevent memory leak
-	// this is because Stargate app currently send logs to StdErr
+	// this is because app currently send logs to StdErr
 	// therefore if the app successfully starts, the written logs can become extensive
 	errb := truncatedbuffer.NewTruncatedBuffer(runOptions.wrappedStdErrMaxLen)
 

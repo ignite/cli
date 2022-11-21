@@ -29,10 +29,10 @@ func NewScaffoldPacket() *cobra.Command {
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
+	c.Flags().StringSlice(flagAck, []string{}, "custom acknowledgment type (field1,field2,...)")
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
-	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
-	c.Flags().Bool(flagNoMessage, false, "Disable send message scaffolding")
+	c.Flags().String(flagSigner, "", "label for the message signer (default: creator)")
+	c.Flags().Bool(flagNoMessage, false, "disable send message scaffolding")
 
 	return c
 }
@@ -45,10 +45,8 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		appPath      = flagGetPath(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {

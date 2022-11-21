@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/docker/docker/pkg/archive"
+	"github.com/moby/moby/pkg/archive"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

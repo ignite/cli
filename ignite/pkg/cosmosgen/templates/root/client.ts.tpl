@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 import {
   GeneratedType,
   OfflineSigner,
@@ -20,7 +21,7 @@ const defaultFee = {
 export class IgniteClient extends EventEmitter {
 	static plugins: Module[] = [];
   env: Env;
-  signer: OfflineSigner;
+  signer?: OfflineSigner;
   registry: Array<[string, GeneratedType]> = [];
   static plugin<T extends Module | Module[]>(plugin: T) {
     const currentPlugins = this.plugins;
@@ -62,8 +63,12 @@ export class IgniteClient extends EventEmitter {
       }
 		});		
   }
-  async useSigner(signer: OfflineSigner) {    
+  useSigner(signer: OfflineSigner) {    
       this.signer = signer;
+      this.emit("signer-changed", this.signer);
+  }
+  removeSigner() {    
+      this.signer = undefined;
       this.emit("signer-changed", this.signer);
   }
   async useKeplr(keplrChainInfo: Partial<ChainInfo> = {}) {
