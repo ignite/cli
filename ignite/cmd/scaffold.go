@@ -203,10 +203,10 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 
 func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
-	f.String(flagModule, "", "Module to add into. Default is app's main module")
-	f.Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
-	f.Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
-	f.String(flagSigner, "", "Label for the message signer (default: creator)")
+	f.String(flagModule, "", "module to add into. Default is app's main module")
+	f.Bool(flagNoMessage, false, "disable CRUD interaction messages scaffolding")
+	f.Bool(flagNoSimulation, false, "disable CRUD simulation scaffolding")
+	f.String(flagSigner, "", "label for the message signer (default: creator)")
 	return f
 }
 
