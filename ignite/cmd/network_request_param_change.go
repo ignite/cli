@@ -10,7 +10,7 @@ import (
 // NewNetworkRequestParamChange creates a new command to send param change request
 func NewNetworkRequestParamChange() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "param [launch-id] [module-name] [param-name] [value (json, string, number)]",
+		Use:   "param-change [launch-id] [module-name] [param-name] [value (json, string, number)]",
 		Short: "Send request to change param",
 		RunE:  networkRequestParamChangeHandler,
 		Args:  cobra.ExactArgs(4),
