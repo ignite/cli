@@ -8,8 +8,6 @@ import (
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush/v4"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -190,7 +188,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		name := cases.Title(language.English, cases.Compact).String(opts.ModuleName) + "PacketData"
+		name := xstrings.Title(opts.ModuleName)
 		m, err := protoutil.GetMessageByName(pf, name)
 		if err != nil {
 			return fmt.Errorf("failed while looking up '%s' in %s: %w", name, path, err)

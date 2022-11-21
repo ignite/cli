@@ -30,6 +30,18 @@ import (
 // See Apply for details.
 type ApplyFunc func(*Cursor) bool
 
+// Apply traverses a syntax tree recursively, starting with root,
+// and calling pre and post for each node as described below.
+// Apply returns the syntax tree, possibly modified.
+//
+// If pre is not nil, it is called for each node before the node's
+// children are traversed (pre-order). If pre returns false, no
+// children are traversed, and post is not called for that node.
+//
+// If post is not nil, and a prior call of pre didn't return false,
+// post is called for each node after its children are traversed
+// (post-order). If post returns false, traversal is terminated and
+// Apply returns immediately.
 func Apply(root proto.Visitee, pre, post ApplyFunc) (result proto.Visitee) {
 	parent := &struct{ proto.Visitee }{root}
 	defer func() {
@@ -45,6 +57,9 @@ func Apply(root proto.Visitee, pre, post ApplyFunc) (result proto.Visitee) {
 
 var abort = new(int) // singleton, to signal termination of Apply
 
+// A Cursor describes a node encountered during Apply.
+// Information about the node and its parent is available
+// from the Node, Parent, Name, and Index methods.
 type Cursor struct {
 	parent proto.Visitee // parent (containing a []proto.Visitee slice)
 	name   string

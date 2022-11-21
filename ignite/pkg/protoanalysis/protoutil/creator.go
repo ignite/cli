@@ -1,14 +1,13 @@
+// Wrap proto structs to allow easier creation, protobuf lang is small enough
+// to easily allow this.package protoutil
 package protoutil
 
 import (
 	"fmt"
-	"unicode"
+	"strconv"
 
 	"github.com/emicklei/proto"
 )
-
-// Wrap proto structs to allow easier creation, protobuf lang is small enough
-// to easily allow this.
 
 // TODO: Can also support comments/inline comments? -- Probably, formatting is currently
 // flaky with how it prints them, though.
@@ -627,10 +626,8 @@ func isString(s string) bool {
 	if s == "true" || s == "false" {
 		return false
 	}
-	for _, r := range s {
-		if unicode.IsNumber(r) {
-			return false
-		}
+	if _, err := strconv.ParseInt(s, 10, 64); err == nil {
+		return false
 	}
 	return true
 }
