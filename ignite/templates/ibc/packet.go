@@ -188,7 +188,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		name := xstrings.Title(opts.ModuleName)
+		name := xstrings.Title(opts.ModuleName) + "PacketData"
 		m, err := protoutil.GetMessageByName(pf, name)
 		if err != nil {
 			return fmt.Errorf("failed while looking up '%s' in %s: %w", name, path, err)

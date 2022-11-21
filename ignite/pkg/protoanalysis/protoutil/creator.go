@@ -626,7 +626,7 @@ func isString(s string) bool {
 	if s == "true" || s == "false" {
 		return false
 	}
-	if _, err := strconv.ParseInt(s, 10, 64); err == nil {
+	if _, err := strconv.ParseFloat(s, 64); err == nil {
 		return false
 	}
 	return true

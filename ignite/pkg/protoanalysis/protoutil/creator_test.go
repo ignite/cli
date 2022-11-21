@@ -556,5 +556,5 @@ func TestIsString(t *testing.T) {
 	require.False(t, isString("3.1929348317293483e-10"))
 
 	// A single numbers means not a string, parser would fail with that either way.
-	require.False(t, isString("isthisastringohnoitactuallyisn't1.0"))
+	require.True(t, isString("isthisastringohnoitactuallyisn't1.0"))
 }
