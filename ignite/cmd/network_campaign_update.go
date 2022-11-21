@@ -25,9 +25,9 @@ func NewNetworkCampaignUpdate() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkCampaignUpdateHandler,
 	}
-	c.Flags().String(flagCampaignName, "", "Update the campaign name")
-	c.Flags().String(flagCampaignMetadata, "", "Update the campaign metadata")
-	c.Flags().String(flagCampaignTotalSupply, "", "Update the total of the mainnet of a campaign")
+	c.Flags().String(flagCampaignName, "", "update the campaign name")
+	c.Flags().String(flagCampaignMetadata, "", "update the campaign metadata")
+	c.Flags().String(flagCampaignTotalSupply, "", "update the total of the mainnet of a campaign")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
