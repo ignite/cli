@@ -61,10 +61,10 @@ automatically requests tokens from a faucet.`,
 		RunE: networkChainJoinHandler,
 	}
 
-	c.Flags().String(flagGentx, "", "Path to a gentx json file")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
-	c.Flags().String(flagPeerAddress, "", "Peer's address")
-	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
+	c.Flags().String(flagGentx, "", "path to a gentx json file")
+	c.Flags().String(flagAmount, "", "amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
+	c.Flags().String(flagPeerAddress, "", "peer's address")
+	c.Flags().Bool(flagNoAccount, false, "prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
