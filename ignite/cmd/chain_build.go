@@ -117,7 +117,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
-	c, err := NewChainWithHomeFlags(cmd, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
