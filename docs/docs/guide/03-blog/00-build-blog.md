@@ -97,7 +97,7 @@ create x/blog/types/message_create_post_test.go
 As always, start with a proto file. Inside the `proto/blog/blog/tx.proto` file, the `MsgCreatePost` message has been
 created. Edit the file to add the line that defines the `id` for `message MsgCreatePostResponse`:
 
-```protobuf
+```protobuf title="proto/blog/blog/tx.proto"
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
@@ -105,6 +105,7 @@ message MsgCreatePost {
 }
 
 message MsgCreatePostResponse {
+  // highlight-next-line
   uint64 id = 1;
 }
 ```
@@ -113,9 +114,9 @@ message MsgCreatePostResponse {
 
 Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title, and body.
 Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs
-to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
+to return is an ID of a created post. The `CreatePost` RPC was already added to the `Msg` service:
 
-```protobuf
+```protobuf title="proto/blog/blog/tx.proto"
 service Msg {
   rpc CreatePost(MsgCreatePost) returns (MsgCreatePostResponse);
 }
@@ -133,7 +134,7 @@ You need to do two things:
 * Create a variable of type `Post` with title and body from the message
 * Append this `Post` to the store
 
-```go
+```go title="x/blog/keeper/msg_server_create_post.go"
 package keeper
 
 // ...
@@ -142,6 +143,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 	// Get the context
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+  // highlight-start
 	// Create variable of type Post
 	var post = types.Post{
 		Creator: msg.Creator,
@@ -154,19 +156,18 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 	// Return the ID of the post
 	return &types.MsgCreatePostResponse{Id: id}, nil
+  //highlight-end
 }
 ```
 
-## Define Post type and AppendPost keeper method
-
-Define the `Post` type and the `AppendPost` keeper method.
+## Define the `Post` type and `AppendPost` keeper method
 
 When you define the `Post` type in a proto file, Ignite CLI (with the help of `protoc`) takes care of generating the
 required Go files.
 
 Create the `proto/blog/blog/post.proto` file and define the `Post` message:
 
-```protobuf
+```protobuf title="proto/blog/blog/post.proto"
 syntax = "proto3";
 
 package blog.blog;
@@ -207,9 +208,9 @@ The file will be empty for now.
   Since both post values and post count (index) values are kept in the store, you can use different
   prefixes: `Post/value/` and `Post/count/`.
 
-Then, add these prefixes to the `x/blog/types/keys.go` file in the `const` and add a comment that describes the keys:
+Then, add these prefixes to the `x/blog/types/keys.go` file:
 
-```go
+```go title="x/blog/types/keys.go"
 package types
 
 const (
@@ -233,7 +234,7 @@ Your blog is now updated to take these actions when a `Post` message is sent to 
 In the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can add these comments to help you visualize
 what you do next:
 
-```go
+```go title="x/blog/keeper/post.go"
 package keeper
 
 import (
@@ -255,7 +256,7 @@ import (
 
 First, implement `GetPostCount`:
 
-```go
+```go title="x/blog/keeper/post.go"
 package keeper
 
 // ...
@@ -282,7 +283,7 @@ func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
 
 Now that `GetPostCount` returns the correct number of posts in the store, implement `SetPostCount`:
 
-```go
+```go title="x/blog/keeper/post.go"
 package keeper
 
 // ...
@@ -307,7 +308,7 @@ Now that you have implemented functions for getting the number of posts and sett
 same `x/blog/keeper/post.go`
 file, implement the logic behind the `AppendPost` function:
 
-```go
+```go title="x/blog/keeper/post.go"
 package keeper
 
 // ...
@@ -358,7 +359,7 @@ ignite scaffold query posts --response title,body
 
 Two components are responsible for querying data:
 
-* An rpc inside `service Query` in a proto file that defines data types and specifies the HTTP API endpoint
+* An RPC inside `service Query` in a proto file that defines data types and specifies the HTTP API endpoint
 * A keeper method that performs the querying from the key-value store
 
 First, review the services and messages in `proto/blog/query.proto`. The `Posts` rpc accepts an empty request and
@@ -371,13 +372,13 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 1. Add the `import`:
 
-```protobuf
+```protobuf title="proto/blog/query.proto"
 import "blog/blog/post.proto";
 ```
 
 2. Add pagination to the post request:
 
-```protobuf
+```protobuf title="proto/blog/query.proto"
 message QueryPostsRequest {
   // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
@@ -386,7 +387,7 @@ message QueryPostsRequest {
 
 3. Add pagination to the post response:
 
-```protobuf
+```protobuf title="proto/blog/query.proto"
 message QueryPostsResponse {
   // Returning a list of posts
   repeated Post Post = 1;
@@ -399,7 +400,7 @@ message QueryPostsResponse {
 To implement post querying logic in the `x/blog/keeper/grpc_query_posts.go` file, delete the contents of that file and
 replace it with:
 
-```go
+```go title="x/blog/keeper/grpc_query_posts.go"
 package keeper
 
 import (
@@ -453,35 +454,6 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 	return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
 }
 ```
-
-## Add gRPC to the module handler
-
-In the `x/blog/module.go` file:
-
-1. Add `"context"` to the imports, don't save the file yet.
-
-```go
-import (
-    "context"
-
-    // ...
-)
-```
-
-2. Update the `RegisterGRPCGatewayRoutes` function to register the query handler client:
-
-```go
-package blog
-
-/// ...
-
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
-
-3. Now that you've modified the file with the two updates, now it's safe to save the file.
 
 ## Use the CLI to create a post
 
