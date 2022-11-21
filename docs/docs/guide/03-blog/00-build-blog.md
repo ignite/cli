@@ -26,14 +26,8 @@ By completing this tutorial, you will learn about:
 **Note:** All the functions in this chapter can be scaffolded with a single
 command, but instead you will learn how to add each functionality individually.
 
-## Prerequisites
-
-This series of blog tutorials is based on the latest version of Ignite CLI. Use
-the following command:
-
-```bash
-curl https://get.ignite.com | bash
-```
+This tutorial has been updated to work with a specific version of Ignite CLI
+v0.25.1.
 
 ## Create your blog chain
 
@@ -389,27 +383,18 @@ posts can be long, so add pagination. When pagination is added, the request and
 response include a page number, so you can request a particular page when you
 know what page has been returned.
 
-To define the types in proto files, make the following updates in
-`proto/blog/query.proto`:
-
-1. Add the `import`:
+Import the `Post` type from `post.proto`, add pagination to `QueryPostsRequest`
+and to `QueryPostsResponse` and return a list of posts from
+`QueryPostsResponse`.
 
 ```protobuf title="proto/blog/query.proto"
 import "blog/blog/post.proto";
-```
 
-2. Add pagination to the post request:
-
-```protobuf title="proto/blog/query.proto"
 message QueryPostsRequest {
   // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
-```
 
-3. Add pagination to the post response:
-
-```protobuf title="proto/blog/query.proto"
 message QueryPostsResponse {
   // Returning a list of posts
   repeated Post Post = 1;
