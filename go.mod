@@ -67,7 +67,7 @@ require (
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.3.0
 	golang.org/x/vuln v0.0.0-20221122171214-05fb7250142c
-	google.golang.org/grpc v1.50.1
+	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/gofumpt v0.4.0
