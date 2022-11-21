@@ -4,7 +4,7 @@
 
 ### Features
 
-- [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param` command.
+- [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite scaffold react` command.
