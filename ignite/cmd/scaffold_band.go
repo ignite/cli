@@ -34,8 +34,8 @@ func NewScaffoldBandchain() *cobra.Command {
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
-	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
+	c.Flags().String(flagModule, "", "IBC module to add the packet into")
+	c.Flags().String(flagSigner, "", "label for the message signer (default: creator)")
 
 	return c
 }

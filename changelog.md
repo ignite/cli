@@ -1,5 +1,3 @@
-# Changelog
-
 ## Unreleased
 
 ### Features
@@ -48,6 +46,13 @@
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
 - [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go`
   template.
+
+## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
+# Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 

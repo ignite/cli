@@ -53,7 +53,7 @@ example, to accept new validators and add accounts.
 	c.Flags().String(
 		flagLauchTime,
 		"",
-		"Timestamp the chain is effectively launched (example \"2022-01-01T00:00:00Z\")",
+		"timestamp the chain is effectively launched (example \"2022-01-01T00:00:00Z\")",
 	)
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
