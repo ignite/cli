@@ -27,7 +27,7 @@ func NewNodeTx() *cobra.Command {
 	c.PersistentFlags().AddFlagSet(flagSetKeyringDir())
 	c.PersistentFlags().AddFlagSet(flagSetGenerateOnly())
 	c.PersistentFlags().AddFlagSet(flagSetGasFlags())
-	c.PersistentFlags().String(flagFees, "", "Fees to pay along with transaction; eg: 10uatom")
+	c.PersistentFlags().String(flagFees, "", "fees to pay along with transaction; eg: 10uatom")
 
 	c.AddCommand(NewNodeTxBank())
 
@@ -36,7 +36,7 @@ func NewNodeTx() *cobra.Command {
 
 func flagSetGenerateOnly() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagGenerateOnly, false, "Build an unsigned transaction and write it to STDOUT")
+	fs.Bool(flagGenerateOnly, false, "build an unsigned transaction and write it to STDOUT")
 	return fs
 }
 
@@ -47,7 +47,7 @@ func getGenerateOnly(cmd *cobra.Command) bool {
 
 func flagSetGasFlags() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagGasPrices, "", "Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)")
+	fs.String(flagGasPrices, "", "gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)")
 	fs.String(flagGas, gasFlagAuto, fmt.Sprintf("gas limit to set per-transaction; set to %q to calculate sufficient gas automatically", gasFlagAuto))
 	return fs
 }
