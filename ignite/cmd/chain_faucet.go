@@ -20,7 +20,7 @@ func NewChainFaucet() *cobra.Command {
 
 	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+	c.Flags().BoolP("verbose", "v", false, "verbose output")
 
 	return c
 }
