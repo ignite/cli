@@ -110,7 +110,7 @@ validators:
 `name` refers to key name in the `accounts` list.
 
 `bonded` is the self-delegation amount of a validator. The `bonded` amount
-should not be lower than `1000000` and should be higher than the account's
+should not be lower than `1000000` nor higher than the account's
 balance in the `account` list.
 
 Validators store their node configuration files in the data directory. By
