@@ -21,7 +21,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 	}
 
 	flagSetClearCache(c)
-	c.Flags().String(flagOut, "./genesis.json", "Path to output Genesis file")
+	c.Flags().String(flagOut, "./genesis.json", "path to output Genesis file")
 
 	return c
 }
