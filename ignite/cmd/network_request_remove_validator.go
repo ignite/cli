@@ -13,7 +13,7 @@ import (
 func NewNetworkRequestRemoveValidator() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "remove-validator [launch-id] [address]",
-		Short: "Send request to remove validator",
+		Short: "Send request to remove a validator",
 		RunE:  networkRequestRemoveValidatorHandler,
 		Args:  cobra.ExactArgs(2),
 	}

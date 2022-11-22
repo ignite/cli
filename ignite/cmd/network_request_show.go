@@ -16,7 +16,7 @@ import (
 func NewNetworkRequestShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [launch-id] [request-id]",
-		Short: "Show pending requests details",
+		Short: "Show detailed information about a request",
 		RunE:  networkRequestShowHandler,
 		Args:  cobra.ExactArgs(2),
 	}
