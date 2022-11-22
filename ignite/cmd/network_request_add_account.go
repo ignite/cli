@@ -20,7 +20,7 @@ func NewNetworkRequestAddAccount() *cobra.Command {
 		Use:   "add-account [launch-id] [address] [coins]",
 		Short: "Send request to add account",
 		Long: `The "add account" command creates a new request to add an account with a given
-address to the genesis of the chain with a coin balance.
+address and a specified coin balance to the genesis of the chain.
 
 The request automatically fails to be applied if a genesis account or a vesting
 account with an identical address is already specified in the launch
