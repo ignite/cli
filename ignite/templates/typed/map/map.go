@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-  
-  "github.com/emicklei/proto"
+
+	"github.com/emicklei/proto"
 
 	"github.com/gobuffalo/genny/v2"
 
