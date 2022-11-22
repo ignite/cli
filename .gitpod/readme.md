@@ -9,18 +9,12 @@ In this browser-based development environment, the terminal window is in the low
 To create a blockchain and start a node in development:
 
 ```bash
-ignite scaffold chain github.com/username/mars
+ignite scaffold chain example
 
-cd mars
+cd example
 
 ignite chain serve
 ```
-
-where:
-
-* github.com represents a local development repository
-* username is a placeholder, be sure to replace username with your name
-* blog is the name of your chain
 
 ## Next steps
 
@@ -61,7 +55,7 @@ Ignite CLI is a free and open source product maintained by [Ignite](https://igni
 * [ignite.com website](https://ignite.com)
 * [@ignite_dev on Twitter](https://twitter.com/ignite_dev)
 * [ignite.com/blog](https://ignite.com/blog/)
-* [Ignite Discord](https://discord.com/ignite)
+* [Ignite Discord](https://discord.gg/ignite)
 * [Ignite YouTube](https://www.youtube.com/channel/ignitehq)
 * [Ignite docs](https://docs.ignite.com/)
 * [Ignite jobs](https://ignite.com/careers)
