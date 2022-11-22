@@ -8,7 +8,8 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-	"github.com/gobuffalo/genny"
+
+	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"

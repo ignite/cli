@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-	"github.com/gobuffalo/genny"
+
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
