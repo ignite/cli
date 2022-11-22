@@ -16,7 +16,7 @@ func NewNetworkRequestReject() *cobra.Command {
 		Use:     "reject [launch-id] [number<,...>]",
 		Aliases: []string{"accept"},
 		Short:   "Reject requests",
-		Long: `The "reject" command is used by a chain's coordinator to approve requests.
+		Long: `The "reject" command is used by a chain's coordinator to reject requests.
 
 	ignite network request reject 42 1,2,3-6,7,8
 
