@@ -385,8 +385,8 @@ plugins:
 func NewPluginDescribe() *cobra.Command {
 	return &cobra.Command{
 		Use:   "describe [path]",
-		Short: "outputs information about the a registered plugin",
-		Long:  "outputs information about a registered plugins commands and hooks.",
+		Short: "Output information about the a registered plugin",
+		Long:  "Output information about a registered plugins commands and hooks.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
