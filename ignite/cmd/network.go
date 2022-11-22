@@ -94,8 +94,8 @@ validators launch their nodes, a blockchain will be live.
 	}
 
 	// configure flags.
-	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
-	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
+	c.PersistentFlags().BoolVar(&local, flagLocal, false, "use local SPN network")
+	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "use nightly SPN network")
 	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressNightly, "SPN node address")
 	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressNightly, "SPN faucet address")
 
@@ -135,7 +135,7 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 
 func flagSetSPNAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	fs.String(flagAddressPrefix, networktypes.SPN, "account address prefix")
 	return fs
 }
 

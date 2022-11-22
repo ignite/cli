@@ -1,5 +1,3 @@
-# Changelog
-
 ## Unreleased
 
 ### Features
@@ -36,6 +34,7 @@
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
+- [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 
 ### Breaking Changes
 
@@ -45,8 +44,15 @@
 
 - [#3114](https://github.com/ignite/cli/pull/3114) Fix out of gas issue when approving many requests
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
-- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go`
-  template.
+- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` template.
+- [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error. 
+
+## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
+# Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
