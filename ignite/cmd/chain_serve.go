@@ -98,105 +98,100 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 
 	// Depending on the verbosity execute the serve command within
 	// a bubbletea context to display the custom UI.
-	serve := chainServeCmd(cmd, session)
 	if verbosity == uilog.VerbosityDefault {
 		bus := session.EventBus()
 		bus.Send("Initializing...", events.ProgressStart())
 
 		// Render UI
-		m := cmdmodel.NewChainServe(cmd, bus, serve)
-		if err := tea.NewProgram(m).Start(); err != nil {
-			return err
-		}
+		m := cmdmodel.NewChainServe(cmd, bus, chainServeCmd(cmd, session))
+		return tea.NewProgram(m).Start()
 	}
 
 	// Otherwise run the serve command directly
-	if msg, ok := serve().(cliuimodel.ErrorMsg); ok {
-		return msg.Error
-	}
-
-	return nil
+	return chainServe(cmd, session)
 }
 
 func chainServeCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
 	return func() tea.Msg {
-		chainOption := []chain.Option{
-			chain.WithOutputer(session),
-			chain.CollectEvents(session.EventBus()),
-		}
-
-		if flagGetCheckDependencies(cmd) {
-			chainOption = append(chainOption, chain.CheckDependencies())
-		}
-
-		// check if custom config is defined
-		config, err := cmd.Flags().GetString(flagConfig)
-		if err != nil {
-			return err
-		}
-		if config != "" {
-			chainOption = append(chainOption, chain.ConfigFile(config))
-		}
-
-		// create the chain
-		c, err := newChainWithHomeFlags(cmd, chainOption...)
-		if err != nil {
-			return err
-		}
-
-		cacheStorage, err := newCache(cmd)
-		if err != nil {
-			return err
-		}
-
-		// serve the chain
-		var serveOptions []chain.ServeOption
-
-		forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
-		if err != nil {
-			return err
-		}
-
-		if forceUpdate {
-			serveOptions = append(serveOptions, chain.ServeForceReset())
-		}
-
-		resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
-		if err != nil {
-			return err
-		}
-
-		if resetOnce {
-			serveOptions = append(serveOptions, chain.ServeResetOnce())
-		}
-
-		quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
-		if err != nil {
-			return err
-		}
-
-		if quitOnFail {
-			serveOptions = append(serveOptions, chain.QuitOnFail())
-		}
-
-		generateClients, err := cmd.Flags().GetBool(flagGenerateClients)
-		if err != nil {
-			return err
-		}
-
-		if generateClients {
-			serveOptions = append(serveOptions, chain.GenerateClients())
-		}
-
-		if flagGetSkipProto(cmd) {
-			serveOptions = append(serveOptions, chain.ServeSkipProto())
-		}
-
-		err = c.Serve(cmd.Context(), cacheStorage, serveOptions...)
-		if err != nil && !errors.Is(err, context.Canceled) {
+		if err := chainServe(cmd, session); err != nil && !errors.Is(err, context.Canceled) {
 			return cliuimodel.ErrorMsg{Error: err}
 		}
-
 		return cliuimodel.QuitMsg{}
 	}
+}
+
+func chainServe(cmd *cobra.Command, session *cliui.Session) error {
+	chainOption := []chain.Option{
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+	}
+
+	if flagGetCheckDependencies(cmd) {
+		chainOption = append(chainOption, chain.CheckDependencies())
+	}
+
+	// check if custom config is defined
+	config, err := cmd.Flags().GetString(flagConfig)
+	if err != nil {
+		return err
+	}
+	if config != "" {
+		chainOption = append(chainOption, chain.ConfigFile(config))
+	}
+
+	// create the chain
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
+	if err != nil {
+		return err
+	}
+
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
+	// serve the chain
+	var serveOptions []chain.ServeOption
+
+	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
+	if err != nil {
+		return err
+	}
+
+	if forceUpdate {
+		serveOptions = append(serveOptions, chain.ServeForceReset())
+	}
+
+	resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
+	if err != nil {
+		return err
+	}
+
+	if resetOnce {
+		serveOptions = append(serveOptions, chain.ServeResetOnce())
+	}
+
+	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
+	if err != nil {
+		return err
+	}
+
+	if quitOnFail {
+		serveOptions = append(serveOptions, chain.QuitOnFail())
+	}
+
+	generateClients, err := cmd.Flags().GetBool(flagGenerateClients)
+	if err != nil {
+		return err
+	}
+
+	if generateClients {
+		serveOptions = append(serveOptions, chain.GenerateClients())
+	}
+
+	if flagGetSkipProto(cmd) {
+		serveOptions = append(serveOptions, chain.ServeSkipProto())
+	}
+
+	return c.Serve(cmd.Context(), cacheStorage, serveOptions...)
 }
