@@ -1,6 +1,7 @@
 package cmdmodel
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -29,10 +30,25 @@ var (
 	msgWaitingFix = colors.Info("Waiting for a fix before retrying...") // TODO: Replace colors by lipgloss styles
 )
 
+type Context interface {
+	// Context returns the current context.
+	Context() context.Context
+
+	// SetContext updates the context with a new one.
+	SetContext(context.Context)
+}
+
 // NewChainServe returns a new UI model for the chain serve command.
-func NewChainServe(ctx Context, bus events.Provider, cmd tea.Cmd) ChainServe {
+func NewChainServe(mCtx Context, bus events.Provider, cmd tea.Cmd) ChainServe {
+	// Initialize a context and cancel function to stop execution
+	ctx, quit := context.WithCancel(mCtx.Context())
+
+	// Update the context to allow stopping by using the 'q' key
+	mCtx.SetContext(ctx)
+
 	return ChainServe{
-		model:        newModel(ctx, cmd),
+		cmd:          cmd,
+		quit:         quit,
 		startModel:   cliuimodel.NewStatusEvents(bus, maxStatusEvents),
 		runModel:     cliuimodel.NewEvents(bus),
 		rebuildModel: cliuimodel.NewStatusEvents(bus, maxStatusEvents),
@@ -42,7 +58,8 @@ func NewChainServe(ctx Context, bus events.Provider, cmd tea.Cmd) ChainServe {
 
 // ChainServe defines a UI model for the chain serve command.
 type ChainServe struct {
-	model
+	cmd  tea.Cmd
+	quit context.CancelFunc
 
 	state  uint  // Keeps track of the model/view being displayed
 	broken bool  // True when blockchain app's source code has issues
@@ -57,28 +74,33 @@ type ChainServe struct {
 
 func (m ChainServe) Init() tea.Cmd {
 	// On initialization wait for status events and start serving the blockchain
-	return tea.Batch(m.startModel.WaitEvent, m.model.Init())
+	return tea.Batch(m.startModel.WaitEvent, m.cmd)
 }
 
-func (m ChainServe) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
+func (m ChainServe) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if checkQuitKeyMsg(msg) {
 		m.setState(stateChainServeQuitting)
 	}
 
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		if checkQuitKeyMsg(msg) {
+			// Cancel the context to signal stop
+			m.quit()
+		}
+	case cliuimodel.QuitMsg:
+		// When a quit message is received stop execution
+		return m, tea.Quit
 	case cliuimodel.EventMsg:
 		return m.processEventMsg(msg)
 	case cliuimodel.ErrorMsg:
 		m.error = msg.Error
 		return m, tea.Quit
 	default:
-		if m.model, cmd = m.model.Update(msg); cmd != nil {
-			return m, cmd
-		}
-
-		// Update the model that is being displayed
 		return m.updateCurrentModel(msg)
 	}
+
+	return m, nil
 }
 
 func (m ChainServe) View() string {
@@ -262,4 +284,15 @@ func (m ChainServe) renderQuitView() string {
 	fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
 
 	return view.String()
+}
+
+func checkQuitKeyMsg(m tea.Msg) bool {
+	msg, ok := m.(tea.KeyMsg)
+	if !ok {
+		return false
+	}
+
+	key := msg.String()
+
+	return key == "q" || key == "ctrl+c"
 }
