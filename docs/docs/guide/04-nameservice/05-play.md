@@ -36,9 +36,9 @@ nameserviced tx nameservice buy-name foo 20token --from alice
 
 where:
 
-- buy-name is the command that accepts two arguments
-- foo is the name
-- 20token is the bid
+- `buy-name` is the command that accepts two arguments
+- `foo` is the name
+- `20token` is the bid
 - the `--from alice` flag specifies the user account that signs and broadcasts
   the transaction
 
@@ -52,8 +52,8 @@ Here is what an unsigned transaction looks like:
   "body": {
     "messages": [
       {
-        "@type": "/username.nameservice.nameservice.MsgBuyName",
-        "creator": "cosmos1p0fprxtpk497jvczexp96sy2w43hupeph9km5d",
+        "@type": "/nameservice.nameservice.MsgBuyName",
+        "creator": "cosmos1vh7akm79jdh87ytkgk2qld5t4m3nwegt5ge248",
         "name": "foo",
         "bid": "20token"
       }
@@ -70,7 +70,8 @@ Here is what an unsigned transaction looks like:
       "gas_limit": "200000",
       "payer": "",
       "granter": ""
-    }
+    },
+    "tip": null
   },
   "signatures": []
 }
@@ -82,10 +83,10 @@ Look at the transaction details:
 
 - The transaction contains only one message: `MsgBuyName`.
 - The message `@type` matches the package name of the corresponding proto file,
-  `proto/nameservice/nameservice/tx.proto` .
+  `proto/nameservice/nameservice/tx.proto`.
 - The `creator` field is populated automatically with the address of the account
   broadcasting the transaction.
-- The local account `alice` address is `cosmos1p0f...km5d`.
+- The local account `alice` address is `cosmos1vh7...e248`.
 - Values of `name` and `bid` are passed as CLI arguments.
 
 After the transaction is broadcast and included in a block, the blockchain
@@ -94,36 +95,23 @@ processed.
 
 ```json
 {
-  "height": "658",
-  "txhash": "EDC1842BE4B596DDD9E2D34F2E372354F9BA5F6D2E4B3F1C2664F4FF05D433B7",
+  "height": "160",
+  "txhash": "38401948E1535F068CED99D640B10F0F08AB57F6B7781ABFEC128B073ADC89C7",
   "codespace": "",
   "code": 0,
-  "data": "0A090A074275794E616D65",
-  "raw_log": "[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"BuyName\"}]}]}]",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "BuyName"
-            }
-          ]
-        }
-      ]
-    }
-  ],
+  "data": "122D0A2B2F6E616D65736572766963652E6E616D65736572766963652E4D73674275794E616D65526573706F6E7365",
+  "raw_log": "",
+  "logs": [],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "47954",
+  "gas_used": "78793",
   "tx": null,
-  "timestamp": ""
+  "timestamp": "",
+  "events": []
 }
 ```
+
+Contents of `raw_log`, `logs`, and `events` are omitted.
 
 ## Query the Chain for a List of Names
 
@@ -139,15 +127,15 @@ The response confirms that the name `foo` was successfully purchased by `alice`
 and the current `price` is set to`20token`.
 
 ```yaml
-Whois:
-  - creator: cosmos1p0fprxtpk497jvczexp96sy2w43hupeph9km5d
-    index: foo
-    name: foo
-    price: 20token
-    value: ""
 pagination:
   next_key: null
   total: "0"
+whois:
+- index: foo
+  name: foo
+  owner: cosmos1vh7akm79jdh87ytkgk2qld5t4m3nwegt5ge248
+  price: 20token
+  value: ""
 ```
 
 ## Set a Value to the Name
@@ -168,15 +156,15 @@ nameserviced q nameservice list-whois
 The response shows that `name` is now `foo`.
 
 ```yaml
-Whois:
-  - creator: cosmos1p0fprxtpk497jvczexp96sy2w43hupeph9km5d
-    index: foo
-    name: foo
-    price: 20token
-    value: bar
 pagination:
   next_key: null
   total: "0"
+whois:
+- index: foo
+  name: foo
+  owner: cosmos1vh7akm79jdh87ytkgk2qld5t4m3nwegt5ge248
+  price: 20token
+  value: bar
 ```
 
 ## Buy an Existing Name
@@ -202,15 +190,15 @@ The response shows a different creator address than `alice` (it's now the
 address for `bob`) and the `price` is now`40token`.
 
 ```yaml
-Whois:
-  - creator: cosmos1ku6sqpk9rgwgx98u2gs9c05aa9wrps969g0wy5
-    index: foo
-    name: foo
-    price: 40token
-    value: bar
 pagination:
   next_key: null
   total: "0"
+whois:
+- index: foo
+  name: foo
+  owner: cosmos1hgtyllz4cdrg2umnngg8f9t3tvjaccwc8e9736
+  price: 40token
+  value: bar
 ```
 
 ## Query the Bank Balance
@@ -236,8 +224,8 @@ authorized to change the value.
 
 ```json
 {
-  "height": "981",
-  "txhash": "8E9951EDC5C9D76C2164BE9572B336B13CCF46653F45F54B2C1FEA702389FAE8",
+  "height": "1167",
+  "txhash": "9D5D28A9C61DCFF4FCC833EFB35A9A5C45CC561116448671269A0EA058712663",
   "codespace": "sdk",
   "code": 4,
   "data": "",
@@ -245,22 +233,27 @@ authorized to change the value.
   "logs": [],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "39214",
+  "gas_used": "44669",
   "tx": null,
-  "timestamp": ""
+  "timestamp": "",
+  "events": []
 }
 ```
 
+```bash
+nameserviced q nameservice list-whois 
+```
+
 ```yaml
-Whois:
-  - creator: cosmos1ku6sqpk9rgwgx98u2gs9c05aa9wrps969g0wy5
-    index: foo
-    name: foo
-    price: 40token
-    value: bar
 pagination:
   next_key: null
   total: "0"
+whois:
+- index: foo
+  name: foo
+  owner: cosmos1hgtyllz4cdrg2umnngg8f9t3tvjaccwc8e9736
+  price: 40token
+  value: bar
 ```
 
 ## Conclusion
@@ -273,7 +266,7 @@ You successfully completed these steps:
 - Learned how to work with module dependencies
 - Use several scaffolding methods
 - Learned about Cosmos SDK types and functions
-- Used the CLI to broadcast transactions , and so much more
+- Used the CLI to broadcast transactions, and so much more
 
 You are now prepared to continue your journey to learn about escrow accounts and
 IBC.

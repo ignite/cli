@@ -25,9 +25,9 @@ functionality code for data stored in different ways:
 
 ## Add the whois Type
 
-Use the `ignite scaffold map` command to scaffold the `whois` type and create
-the code that implements CRUD functionality to create, read, update, and delete
-information about names.
+Use the [`ignite scaffold map`](https://docs.ignite.com/cli#ignite-scaffold-map)
+command to scaffold the `whois` type and create the code that implements CRUD
+functionality to create, read, update, and delete information about names.
 
 In this example, the `whois` type is stored in a map-like data structure:
 
@@ -37,10 +37,10 @@ ignite scaffold map whois name value price owner --no-message
 
 where:
 
-- whois is the type
-- name is the name the user sets
-- value is the name that name resolves to
-- price is the bid
+- `whois` is the type
+- `name` is the name the user sets
+- `value` is the name that name resolves to
+- `price` is the bid
 - `--no-message` flag skips message creation
 
 By default, generic CRUD messages are scaffolded. However, you've already
@@ -105,10 +105,6 @@ and modified several files:
 
   Logic for validating the genesis file.
 
-- `x/nameservice/module.go`
-
-  Registers gRPC gateway routes.
-
 ## Keeper Package
 
 In the `x/nameservice/keeper/whois.go` file, take at a look at the keeper
@@ -116,9 +112,6 @@ package.
 
 - `SetWhois` uses a key-value store with a prefix for the `Whois` type and uses
   a `store.Set` method to write a `Whois` into the store.
-
-<!-- where is this? teach me please
-`Whois-value-` encodes the `Whois` type that is generated from a protocol buffer definition-->
 
 - `GetWhois` selects a store using the `Whois` prefix and uses a `store.Get`
   method to fetch a `Whois` with a particular index.

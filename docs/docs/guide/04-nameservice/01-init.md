@@ -3,7 +3,7 @@ sidebar_position: 1
 description: Scaffold a blockchain and create a nameservice module.
 ---
 
-# Scaffold the Nameservice Module
+# The Nameservice module
 
 Scaffold a blockchain and create a `nameservice` module for the nameservice app.
 Remember, the goal of the nameservice app is to send tokens between participants
@@ -12,7 +12,7 @@ so that end users can buy names and set a value to the names.
 ## Create a Blockchain
 
 Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command.
-The [ignite scaffold chain](https://docs.ignite.com/cli/#ignite-scaffold-chain)
+The [`ignite scaffold chain`](https://docs.ignite.com/cli#ignite-scaffold-chain)
 command accepts one argument: the Go module path that is used for the project.
 
 By default, a chain is scaffolded with a new empty Cosmos SDK module. You want
@@ -23,7 +23,7 @@ to create the nameservice module without scaffolding a module, so use the
 ignite scaffold chain nameservice --no-module
 ```
 
-This command created a new directory `nameservice` with a brand new Cosmos SDK
+This command created a new directory `nameservice` with a brand-new Cosmos SDK
 blockchain. This blockchain doesn't have any application-specific logic yet, but
 it imports standard Cosmos SDK modules, such as `auth`, `bank`, `mint`, and
 others.
@@ -52,7 +52,7 @@ ignite scaffold module nameservice --dep bank
 
 ## Results
 
-The Ignite CLI scaffold command has done all of the work for you!
+The [`ignite scaffold module`](https://docs.ignite.com/cli#ignite-scaffold-module) command has done all the work for you!
 
 - The `nameservice` module was created in the `x/nameservice` directory.
 - The `nameservice` module was imported into the blockchain in the `app/app.go`

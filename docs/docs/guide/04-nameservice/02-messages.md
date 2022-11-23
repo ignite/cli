@@ -65,14 +65,6 @@ legacy methods (`Type`, `Route`, and `GetSignBytes`):
     - The Cosmos SDK ensures that each message contained in a transaction is
       signed by all the signers in the list that is returned by this method.
 
-## Handlers
-
-Handlers define the action that needs to be taken. Each message has an
-associated handler.
-
-For example, handlers define which stores to update, how to update the stores,
-and under what conditions to act when a given message is received.
-
 ## Scaffolding Messages
 
 Now, you are ready to implement these Cosmos SDK messages to achieve the desired
@@ -94,7 +86,7 @@ module.
 - By default, a message is scaffolded in a module with a name that matches the
   name of the project, in this case `nameservice`.
 
-### Add the MsgBuyName Message
+### Add the `MsgBuyName` Message
 
 To create the `MsgBuyName` message for the nameservice module:
 
@@ -104,9 +96,9 @@ ignite scaffold message buy-name name bid
 
 where:
 
-- buy-name is the message name
-- name defines the name that the user can buy, sell, and delete
-- bid is the price the user bids to buy a name
+- `buy-name` is the message name
+- `name` defines the name that the user can buy, sell, and delete
+- `bid` is the price the user bids to buy a name
 
 The `ignite scaffold message buy-name name bid` command creates and modifies
 several files:
@@ -116,15 +108,18 @@ modify proto/nameservice/nameservice/tx.proto
 modify x/nameservice/client/cli/tx.go
 create x/nameservice/client/cli/tx_buy_name.go
 create x/nameservice/keeper/msg_server_buy_name.go
+modify x/nameservice/module_simulation.go
+create x/nameservice/simulation/buy_name.go
 modify x/nameservice/types/codec.go
 create x/nameservice/types/message_buy_name.go
+create x/nameservice/types/message_buy_name_test.go
 ```
 
 These are the changes for each one of these files:
 
 - `proto/nameservice/nameservice/tx.proto`
     - Adds `MsgBuyName` and `MsgBuyNameResponse` proto messages.
-    - Registers `BuyName` rpc in the `Msg` service.
+    - Registers `BuyName` RPC in the `Msg` service.
 
       Open the `tx.proto` file to view the changes:
 
@@ -177,7 +172,7 @@ These are the changes for each one of these files:
 
   Registers the codecs.
 
-### Add The MsgSetName Message
+### Add The `MsgSetName` Message
 
 To create the `MsgSetName` for the nameservice module:
 
@@ -187,14 +182,14 @@ ignite scaffold message set-name name value
 
 where:
 
-- set-name is the message name
-- name is the name the user sets
-- value is the literal value that the name resolves to
+- `set-name` is the message name
+- `name` is the name the user sets
+- `value` is the literal value that the name resolves to
 
 This `ignite scaffold message` command modifies and creates the same set of
 files as the `MsgBuyName` message.
 
-### Add The MsgDeleteName Message
+### Add The `MsgDeleteName` Message
 
 You need a message so that an end user can delete a name that belongs to them.
 
@@ -206,8 +201,8 @@ ignite scaffold message delete-name name
 
 where:
 
-- delete-name is the message name
-- name is message name to delete
+- `delete-name` is the message name
+- `name` is message name to delete
 
 ## Results
 
