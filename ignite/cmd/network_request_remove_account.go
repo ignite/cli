@@ -13,7 +13,7 @@ import (
 func NewNetworkRequestRemoveAccount() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "remove-account [launch-id] [address]",
-		Short: "Send request to remove account",
+		Short: "Send request to remove a genesis account",
 		RunE:  networkRequestRemoveAccountHandler,
 		Args:  cobra.ExactArgs(2),
 	}
