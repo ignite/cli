@@ -19,7 +19,7 @@ var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
 func NewNetworkRequestList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list [launch-id]",
-		Short: "List all pending requests",
+		Short: "List all requests for a chain",
 		RunE:  networkRequestListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
