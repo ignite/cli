@@ -1,13 +1,14 @@
 name: Docs Deploy Preview
 
 on:
-  pull_request_target:
+  pull_request:
     paths:
       - "docs/**"
 
 jobs:
   build_and_deploy:
-    runs-on: self-hosted
+    if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -17,21 +18,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: docs/node_modules
-          key: node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: npm
-          cache-dependency-path: docs/package-lock.json
+          cache: yarn
+          cache-dependency-path: docs/yarn.lock
 
       - name: Install Dependencies
-        run: npm install
+        run: yarn install
         working-directory: ./docs
 
       - name: Build
-        run: npm run build
+        run: yarn run build
         working-directory: ./docs
 
       - name: Deploy
@@ -42,3 +43,4 @@ jobs:
           expires: 7d
           target: docs.ignite.com
           projectId: igntservices
+          firebaseToolsVersion: v11.12.0
