@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -67,7 +66,7 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	if len(loadErrors) > 0 {
 		// unload any plugin that could have been loaded
 		UnloadPlugins()
-		printPlugins()
+		printPlugins(cliui.New(cliui.WithStdout(os.Stdout)))
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
@@ -293,24 +292,30 @@ func NewPlugin() *cobra.Command {
 	c.AddCommand(NewPluginList())
 	c.AddCommand(NewPluginUpdate())
 	c.AddCommand(NewPluginScaffold())
+	c.AddCommand(NewPluginDescribe())
 	return c
 }
 
 func NewPluginList() *cobra.Command {
-	return &cobra.Command{
+	lstCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List declared plugins and status",
+		Long:  "Prints status and information of declared plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			printPlugins()
-			return nil
+			s := cliui.New(cliui.WithStdout(os.Stdout))
+
+			return printPlugins(s)
 		},
 	}
+
+	return lstCmd
 }
 
 func NewPluginUpdate() *cobra.Command {
 	return &cobra.Command{
 		Use:   "update [path]",
 		Short: "Update plugins",
+		Long:  "Updates a plugin specified by path. If no path is specified all declared plugins are updated",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -342,6 +347,7 @@ func NewPluginScaffold() *cobra.Command {
 	return &cobra.Command{
 		Use:   "scaffold [github.com/org/repo]",
 		Short: "Scaffold a new plugin",
+		Long:  "Scaffolds a new plugin in the current directory with the given repository path configured. A git repository will be created with the given module name, unless the current directory is already a git repository.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -376,18 +382,101 @@ plugins:
 	}
 }
 
-func printPlugins() {
-	if len(plugins) == 0 {
-		fmt.Println("No plugin found")
-		return
+func NewPluginDescribe() *cobra.Command {
+	return &cobra.Command{
+		Use:   "describe [path]",
+		Short: "Output information about the a registered plugin",
+		Long:  "Output information about a registered plugins commands and hooks.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			s := cliui.New(cliui.WithStdout(os.Stdout))
+
+			for _, p := range plugins {
+				if p.Path == args[0] {
+					manifest, err := p.Interface.Manifest()
+					if err != nil {
+						return fmt.Errorf("error while loading plugin manifest: %w", err)
+					}
+
+					printPluginCommands(manifest.Commands, s)
+					printPluginHooks(manifest.Hooks, s)
+					break
+				}
+			}
+
+			return nil
+		},
 	}
+}
+
+func printPlugins(session *cliui.Session) error {
 	var entries [][]string
 	for _, p := range plugins {
 		status := "✅ Loaded"
 		if p.Error != nil {
 			status = fmt.Sprintf("❌ Error: %v", p.Error)
 		}
+
+		manifest, err := p.Interface.Manifest()
+		if err != nil {
+			return fmt.Errorf("error while loading plugin manifest: %w", err)
+		}
+
+		var (
+			hookCount = len(manifest.Hooks)
+			cmdCount  = len(manifest.Commands)
+		)
+
+		status = fmt.Sprintf("%s 🪝 %d 💻 %d", status, hookCount, cmdCount)
 		entries = append(entries, []string{p.Path, status})
 	}
-	entrywriter.MustWrite(os.Stdout, []string{"path", "status"}, entries...)
+
+	session.PrintTable([]string{"Path", "Status"}, entries...)
+
+	return nil
+}
+
+func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
+	var entries [][]string
+	// Processes command graph
+	traverse := func(cmd plugin.Command) {
+		// cmdPair is a Wrapper struct to create parent child relationship for sub commands without a `place command under`
+		type cmdPair struct {
+			cmd    plugin.Command
+			parent plugin.Command
+		}
+
+		queue := make([]cmdPair, 0)
+		queue = append(queue, cmdPair{cmd: cmd, parent: plugin.Command{}})
+
+		for len(queue) > 0 {
+			c := queue[0]
+			queue = queue[1:]
+			if c.cmd.PlaceCommandUnder != "" {
+				entries = append(entries, []string{c.cmd.Use, c.cmd.PlaceCommandUnder})
+			} else {
+				entries = append(entries, []string{c.cmd.Use, c.parent.Use})
+			}
+
+			for _, sc := range c.cmd.Commands {
+				queue = append(queue, cmdPair{cmd: sc, parent: c.cmd})
+			}
+		}
+	}
+
+	for _, c := range cmds {
+		traverse(c)
+	}
+
+	session.PrintTable([]string{"command use", "under"}, entries...)
+}
+
+func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) {
+	var entries [][]string
+
+	for _, h := range hooks {
+		entries = append(entries, []string{h.Name, h.PlaceHookOn})
+	}
+
+	session.PrintTable([]string{"hook name", "on"}, entries...)
 }
