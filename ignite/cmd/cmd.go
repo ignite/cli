@@ -120,7 +120,7 @@ func getHome(cmd *cobra.Command) (home string) {
 
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagConfig, "c", "", "ignite config file (default: ./config.yml)")
+	fs.StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
 	return fs
 }
 
@@ -160,7 +160,7 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))

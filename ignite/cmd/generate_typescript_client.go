@@ -17,16 +17,16 @@ func NewGenerateTSClient() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
+	c.Flags().StringP(flagOutput, "o", "", "TypeScript client output path")
 
 	return c
 }
 
-func generateTSClientHandler(cmd *cobra.Command, args []string) error {
+func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(
+	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),

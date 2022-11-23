@@ -35,9 +35,9 @@ func NewNetworkChainList() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  networkChainListHandler,
 	}
-	c.Flags().Bool(flagAdvanced, false, "Show advanced information about the chains")
-	c.Flags().Uint64(flagLimit, 100, "Limit of results per page")
-	c.Flags().Uint64(flagPage, 1, "Page for chain list result")
+	c.Flags().Bool(flagAdvanced, false, "show advanced information about the chains")
+	c.Flags().Uint64(flagLimit, 100, "limit of results per page")
+	c.Flags().Uint64(flagPage, 1, "page for chain list result")
 
 	return c
 }

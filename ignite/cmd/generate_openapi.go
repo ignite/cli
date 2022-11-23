@@ -21,11 +21,11 @@ func NewGenerateOpenAPI() *cobra.Command {
 	return c
 }
 
-func generateOpenAPIHandler(cmd *cobra.Command, args []string) error {
+func generateOpenAPIHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(
+	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),

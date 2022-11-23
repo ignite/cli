@@ -1,5 +1,3 @@
-# Changelog
-
 ## Unreleased
 
 ### Features
@@ -11,6 +9,7 @@
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate hooks` command.
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 - [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+- [#3060](https://github.com/ignite/cli/pull/3060) Plugin system flag support
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
 - [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
@@ -20,7 +19,7 @@
 - [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
 - [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.
 - [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
-- [#2892](https://github.com/ignite/cli/pull/2982/) `removeSigner()` method added to generated `ts-client` 
+- [#2892](https://github.com/ignite/cli/pull/2982/) `removeSigner()` method added to generated `ts-client`
 - [#3035](https://github.com/ignite/cli/pull/3035) Bump Cosmos SDK to `v0.46.4`.
 - [#3037](https://github.com/ignite/cli/pull/3037) Bump `ibc-go` to `v5.0.1`.
 - [#2957](https://github.com/ignite/cli/pull/2957) Change generate commands to print the path to the generated code.
@@ -35,6 +34,8 @@
 - [#2944](https://github.com/ignite/cli/pull/2944) Add a new event "update" status option to `pkg/cliui`.
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
+- [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
+- [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 
 ### Breaking Changes
 
@@ -42,9 +43,17 @@
 
 ### Fixes
 
+- [#3114](https://github.com/ignite/cli/pull/3114) Fix out of gas issue when approving many requests
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
-- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` 
-template.
+- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` template.
+- [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error. 
+
+## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
+# Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
@@ -312,10 +321,10 @@ Our new name is **Ignite CLI**!
 
   Updates are required if your chain uses these packages:
 
-    - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
-    - `spm/cosmoscmd` is now `pkg/cosmoscmd`
-    - `spm/openapiconsole` is now `pkg/openapiconsole`
-    - `testutil/sample` is now `cosmostestutil/sample`
+  - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
+  - `spm/cosmoscmd` is now `pkg/cosmoscmd`
+  - `spm/openapiconsole` is now `pkg/openapiconsole`
+  - `testutil/sample` is now `cosmostestutil/sample`
 
 - Updated the faucet HTTP API schema. See API changes
   in [fix: improve faucet reliability #1974](https://github.com/ignite/cli/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
@@ -336,7 +345,7 @@ Our new name is **Ignite CLI**!
 - Added `starport scaffold flutter` to scaffold a Flutter mobile app template
 - Parameters can be specified with a new `--params` flag when scaffolding modules (#1716)
 - Simulations can be run with `starport chain simulate`
-- Set `cointype` for accounts in  `config.yml` (#1663)
+- Set `cointype` for accounts in `config.yml` (#1663)
 
 ### Fixes
 
@@ -518,8 +527,7 @@ Our new name is **Ignite CLI**!
   automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files used by Cosmos SDK modules into Ignite CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
-- Added ability to change path to home directory with `
-  .home` in `config.yml`
+- Added ability to change path to home directory with ` .home` in `config.yml`
 - Added ability to add accounts by `address` with in `config.yml`
 - Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
 - Added `starport faucet [address] [coins]` command

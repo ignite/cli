@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 description: Ignite Network commands for validators.
 ---
 
@@ -22,8 +22,8 @@ ignite n chain list
 ```
 Launch Id  Chain Id  Source                              Phase
 
-3   example-1  https://github.com/ignite/example   coordinating
-2   spn-10   https://github.com/tendermint/spn   launched
+3   example-1   https://github.com/ignite/example   coordinating
+2   spn-10      https://github.com/tendermint/spn   launched
 1   example-20  https://github.com/tendermint/spn   launching
 ```
 
@@ -32,9 +32,9 @@ Launch Id  Chain Id  Source                              Phase
   practice but doesn't need to be unique on Ignite.
 - `Source` is the repository URL of the project.
 - `Phase` is the current phase of the chain launch. A chain can have 3 different phases:
-    - `coordinating`: means the chain is open to receive requests from validators
-    - `launching`: means the chain no longer receives requests but it hasn't been launched yet
-    - `launched`: means the chain network has been launched
+  - `coordinating`: means the chain is open to receive requests from validators
+  - `launching`: means the chain no longer receives requests but it hasn't been launched yet
+  - `launched`: means the chain network has been launched
 
 ---
 
