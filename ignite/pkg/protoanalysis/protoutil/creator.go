@@ -620,6 +620,24 @@ func NewOneOf(name string, opts ...OneOfSpecOpts) *proto.Oneof {
 	return oneof
 }
 
+// Attach a comment top level nodes. Currently only supports Messages, Rpc's and Services.
+// Silently ignores other nodes though they can easily be added by just appending a new
+// case to the switch statement.
+func AttachComment(n proto.Visitee, comment string) {
+	c := &proto.Comment{
+		// Attach a starting space here, i.e // text and not //text
+		Lines: []string{" " + comment},
+	}
+	switch n := n.(type) {
+	case *proto.Message:
+		n.Comment = c
+	case *proto.RPC:
+		n.Comment = c
+	case *proto.Service:
+		n.Comment = c
+	}
+}
+
 // Handle this better. Currently s with at least one digit is
 // considered a number and if not, a string.
 func isString(s string) bool {

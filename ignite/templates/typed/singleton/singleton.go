@@ -139,6 +139,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
+		protoutil.AttachComment(single, fmt.Sprintf("Queries a %v by index.", typ))
 		protoutil.Append(srv, single)
 
 		// Add the service messages

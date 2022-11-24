@@ -197,6 +197,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
+		protoutil.AttachComment(single, fmt.Sprintf("Queries a %v by id.", typ))
 		all := protoutil.NewRPC(typ+"All", "QueryAll"+typ+"Request", "QueryAll"+typ+"Response",
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
@@ -210,6 +211,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
+		protoutil.AttachComment(single, fmt.Sprintf("Queries a list of %v items.", typ))
 		protoutil.Append(srv, single, all)
 
 		// Add messages

@@ -101,6 +101,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 				),
 			),
 		)
+		protoutil.AttachComment(single, fmt.Sprintf("Queries a list of %v items.", typU))
 		protoutil.Append(srv, single)
 
 		// Fields for request

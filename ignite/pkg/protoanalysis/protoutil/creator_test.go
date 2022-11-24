@@ -539,6 +539,23 @@ func TestCreateOneof(t *testing.T) {
 	}
 }
 
+func TestAttachComment(t *testing.T) {
+	// Attach comment to message
+	msg := NewMessage("my_message")
+	AttachComment(msg, "my comment")
+	require.Equal(t, " my comment", msg.Comment.Lines[0], "expected %v, got %v", "my comment", msg.Comment.Lines[0])
+
+	// Attach comment to an rpc call
+	rpc := NewRPC("my_rpc", "my_request", "my_response")
+	AttachComment(rpc, "my comment")
+	require.Equal(t, " my comment", rpc.Comment.Lines[0], "expected %v, got %v", "my comment", rpc.Comment.Lines[0])
+
+	// Attach comment to a service
+	svc := NewService("my_service")
+	AttachComment(svc, "my comment")
+	require.Equal(t, " my comment", svc.Comment.Lines[0], "expected %v, got %v", "my comment", svc.Comment.Lines[0])
+}
+
 func TestIsString(t *testing.T) {
 	require.True(t, isString("string"))
 	require.True(t, isString("THIS/PATH/IS/STRING"))

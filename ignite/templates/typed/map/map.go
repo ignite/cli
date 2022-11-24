@@ -162,6 +162,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
+		protoutil.AttachComment(single, fmt.Sprintf("Queries a %v by index.", typU))
 		all := protoutil.NewRPC(typU+"All", "QueryAll"+typU+"Request", "QueryAll"+typU+"Response",
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
@@ -175,6 +176,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
+		protoutil.AttachComment(single, fmt.Sprintf("Queries a list of %v items.", typU))
 		protoutil.Append(srv, single, all)
 
 		//  Ensure custom types are imported

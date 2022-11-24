@@ -230,12 +230,13 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			packetFields = append(packetFields, field.ToProtoField(i+1))
 		}
 		pData := protoutil.NewMessage(typU+"PacketData", protoutil.WithFields(packetFields...))
-
+		protoutil.AttachComment(pData, typU+"PacketData defines a struct for the packet payload")
 		var ackFields []*proto.NormalField
 		for i, field := range opts.AckFields {
 			ackFields = append(ackFields, field.ToProtoField(i+1))
 		}
 		pAck := protoutil.NewMessage(typU+"PacketAck", protoutil.WithFields(ackFields...))
+		protoutil.AttachComment(pAck, typU+"PacketAck defines a struct for the packet acknowledgment")
 		protoutil.Append(pf, pData, pAck)
 		// Add any custom imports.
 		var protoImports []*proto.Import
