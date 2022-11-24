@@ -17,9 +17,7 @@ method can manage the following:
 * Send tokens from the scavenge creator account to a module account
 * Write the scavenge to the store
 
-```go
-// x/scavenge/keeper/msg_server_submit_scavenge.go
-
+```go title="x/scavenge/keeper/msg_server_submit_scavenge.go"
 package keeper
 
 import (
@@ -90,19 +88,13 @@ scaffolded the scavenge module, you used `--dep bank` to specify a dependency
 between the `scavenge` and `bank` modules. This dependency automatically created
 an `expected_keepers.go` file with a `BankKeeper` interface.
 
-To use the `BankKeeper` interface in the keeper methods of the `scavenge`
-module, add `SendCoins` to the `x/scavenge/types/expected_keepers.go`file:
+To use the `bank` module's token transfer functionality in the keeper methods of the `scavenge`
+module, add `SendCoins` to `BankKeeper` interface:
 
-```go
+```go title="x/scavenge/types/expected_keepers.go"
 // x/scavenge/types/expected_keepers.go
-
-package types
-
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 type BankKeeper interface {
+  // highlight-next-line
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 ```
@@ -116,9 +108,7 @@ method can manage the following:
 * Check that commit with a given hash doesn't exist in the store
 * Write a new commit to the store
 
-```go
-// x/scavenge/keeper/msg_server_commit_solution.go
-
+```go title="x/scavenge/keeper/msg_server_commit_solution.go"
 package keeper
 
 import (
