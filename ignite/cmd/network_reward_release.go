@@ -122,11 +122,11 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 
 	r := relayer.New(ca)
 	// initialize the chains
-	spnChain, err := initChain(
+	spnChain, err := InitChain(
 		cmd,
 		r,
 		session,
-		relayerSource,
+		RelayerSource,
 		getFrom(cmd),
 		spnNodeAddress,
 		spnFaucetAddress,
@@ -140,11 +140,11 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	}
 	spnChain.ID = spn.ChainID
 
-	testnetChain, err := initChain(
+	testnetChain, err := InitChain(
 		cmd,
 		r,
 		session,
-		relayerTarget,
+		RelayerTarget,
 		testnetAccount,
 		chainRPC,
 		testnetFaucet,

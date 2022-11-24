@@ -178,10 +178,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 		execHook := plugin.ExecutedHook{
 			Hook: hook,
 			ExecutedCommand: plugin.ExecutedCommand{
-				Use:  cmd.Use,
-				Path: cmd.CommandPath(),
-				Args: args,
-				With: p.With,
+				Use:    cmd.Use,
+				Path:   cmd.CommandPath(),
+				Args:   args,
+				OSArgs: os.Args,
+				With:   p.With,
 			},
 		}
 		execHook.ExecutedCommand.SetFlags(cmd.Flags())
@@ -288,9 +289,10 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		}
 	}
 	newCmd := &cobra.Command{
-		Use:   pluginCmd.Use,
-		Short: pluginCmd.Short,
-		Long:  pluginCmd.Long,
+		Use:     pluginCmd.Use,
+		Aliases: pluginCmd.Aliases,
+		Short:   pluginCmd.Short,
+		Long:    pluginCmd.Long,
 	}
 	for _, f := range pluginCmd.Flags {
 		err := f.FeedFlagSet(newCmd.Flags())

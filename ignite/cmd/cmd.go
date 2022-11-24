@@ -72,7 +72,7 @@ To get started, create a blockchain:
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
-	c.AddCommand(NewNetwork())
+	// c.AddCommand(NewNetwork())
 	c.AddCommand(NewNode())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())

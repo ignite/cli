@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-plugin"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
@@ -61,10 +62,31 @@ type Manifest struct {
 	Hooks []Hook
 }
 
+func (m *Manifest) ImportCobraCommand(c *cobra.Command, placeCommandUnder string) {
+	m.Commands = append(m.Commands, convertCobraCommand(c, placeCommandUnder))
+}
+
+func convertCobraCommand(c *cobra.Command, placeCommandUnder string) Command {
+	cmd := Command{
+		Use:               c.Use,
+		Aliases:           c.Aliases,
+		Short:             c.Short,
+		Long:              c.Long,
+		PlaceCommandUnder: placeCommandUnder,
+		Flags:             convertPFlags(c.Flags()),
+	}
+	for _, c := range c.Commands() {
+		cmd.Commands = append(cmd.Commands, convertCobraCommand(c, ""))
+	}
+	return cmd
+}
+
 // Command represents a plugin command.
 type Command struct {
 	// Same as cobra.Command.Use
 	Use string
+	// Same as cobra.Command.Aliases
+	Aliases []string
 	// Same as cobra.Command.Short
 	Short string
 	// Same as cobra.Command.Long
@@ -97,6 +119,8 @@ type ExecutedCommand struct {
 	Path string
 	// Args are the command arguments
 	Args []string
+	// Full list of args taken from os.Args
+	OSArgs []string
 	// With contains the plugin config parameters
 	With map[string]string
 
@@ -204,9 +228,18 @@ type gobCommandContext ExecutedCommand
 // GobEncode implements gob.Encoder.
 // It actually encodes a gobCommandContext struct built from c.
 func (c ExecutedCommand) GobEncode() ([]byte, error) {
+	var b bytes.Buffer
+	err := gob.NewEncoder(&b).Encode(gobCommandContextFlags{
+		CommandContext: gobCommandContext(c),
+		Flags:          convertPFlags(c.flags),
+	})
+	return b.Bytes(), err
+}
+
+func convertPFlags(flags *pflag.FlagSet) []Flag {
 	var ff []Flag
-	if c.flags != nil {
-		c.flags.VisitAll(func(pf *pflag.Flag) {
+	if flags != nil {
+		flags.VisitAll(func(pf *pflag.Flag) {
 			ff = append(ff, Flag{
 				Name:      pf.Name,
 				Shorthand: pf.Shorthand,
@@ -217,12 +250,7 @@ func (c ExecutedCommand) GobEncode() ([]byte, error) {
 			})
 		})
 	}
-	var b bytes.Buffer
-	err := gob.NewEncoder(&b).Encode(gobCommandContextFlags{
-		CommandContext: gobCommandContext(c),
-		Flags:          ff,
-	})
-	return b.Bytes(), err
+	return ff
 }
 
 // GobDecode implements gob.Decoder.

@@ -205,7 +205,7 @@ func TestPluginLoad(t *testing.T) {
 					binaryName: "testdata",
 				}
 			},
-			expectedError: `no packages to build`,
+			expectedError: `no Go files in`,
 		},
 		{
 			name: "ok: from local",

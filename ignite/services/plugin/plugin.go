@@ -291,7 +291,7 @@ func (p *Plugin) build(ctx context.Context) {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	if err := gocmd.BuildAll(ctx, p.binaryName, p.srcPath, nil); err != nil {
+	if err := gocmd.Build(ctx, p.binaryName, p.srcPath, nil); err != nil {
 		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
