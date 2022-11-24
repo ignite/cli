@@ -157,9 +157,7 @@ method can manage the following:
   answer
 * Write the updated scavenge to the store
 
-```go
-// x/scavenge/keeper/msg_server_reveal_solution.go
-
+```go title="x/scavenge/keeper/msg_server_reveal_solution.go"
 package keeper
 
 import (

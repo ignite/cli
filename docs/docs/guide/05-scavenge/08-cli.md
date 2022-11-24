@@ -24,22 +24,16 @@ in the `x/scavenge/client/cli/` directory.
 
 Both files use the [Cobra](https://github.com/spf13/cobra) library.
 
-## The tx.go file
-
-The `tx.go` file contains the `GetTxCmd` standard method that is used in the
-Cosmos SDK. This method is referenced later in the `module.go` file that
-describes exactly which attributes a modules has.
-
-This method makes it easier to incorporate different modules for different
-reasons at the level of the actual application. You are focused on a module now,
-but later you create an application that uses this module and other modules that
-are already available within the Cosmos SDK.
-
 ## Commit solution
 
-```go
-// x/scavenge/client/cli/tx_commit_solution.go
+Previously, you have scaffolded the code for handling the "commit solution"
+message. You defined two fields for the message: "solution hash" and "solution
+scavenger hash". This is the data you want to submit to the blockchain. On the
+CLI, however, you want the user to be able to submit the solution as a string.
+Make the appropriate changes to the CLI to calculate the hash of the solution
+and the hash of the solution with the scavenger address.
 
+```go title="x/scavenge/client/cli/tx_commit_solution.go"
 package cli
 
 import (
@@ -57,9 +51,11 @@ import (
 func CmdCommitSolution() *cobra.Command {
 	cmd := &cobra.Command{
 		// pass a solution as the only argument
+    // highlight-next-line
 		Use:   "commit-solution [solution]",
 		Short: "Broadcast message commit-solution",
 		// set the number of arguments to 1
+    // highlight-next-line
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -76,16 +72,20 @@ func CmdCommitSolution() *cobra.Command {
 			solutionHashString := hex.EncodeToString(solutionHash[:])
 
 			// convert a scavenger address to string
-			var scavenger = clientCtx.GetFromAddress().String()
+			scavenger := clientCtx.GetFromAddress().String()
 
 			// find the hash of solution and scavenger address
-			var solutionScavengerHash = sha256.Sum256([]byte(solution + scavenger))
+			solutionScavengerHash := sha256.Sum256([]byte(solution + scavenger))
 
 			// convert the hash to string
-			var solutionScavengerHashString = hex.EncodeToString(solutionScavengerHash[:])
+			solutionScavengerHashString := hex.EncodeToString(solutionScavengerHash[:])
 
 			// create a new message
-			msg := types.NewMsgCommitSolution(clientCtx.GetFromAddress().String(), solutionHashString, solutionScavengerHashString)
+			msg := types.NewMsgCommitSolution(
+        clientCtx.GetFromAddress().String(),
+        solutionHashString,
+        solutionScavengerHashString
+      )
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -111,9 +111,10 @@ representations in the keeper.
 
 ## Submit scavenge
 
-```go
-// x/scavenge/client/cli/tx_submit_scavenge.go
+Modify the "submit scavenge" CLI to calculate the hash from a solution submitted
+as a string.
 
+```go title="x/scavenge/client/cli/tx_submit_scavenge.go"
 package cli
 
 import (
