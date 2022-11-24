@@ -282,9 +282,13 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		p.Error = errors.Errorf("can't attach plugin command %q to runnable command %q", pluginCmd.Use, cmd.CommandPath())
 		return
 	}
+	pluginCmdName := pluginCmd.Use
+	if i := strings.Index(pluginCmdName, " "); i >= 0 {
+		pluginCmdName = pluginCmdName[:i]
+	}
 	for _, cmd := range cmd.Commands() {
-		if cmd.Name() == pluginCmd.Use {
-			p.Error = errors.Errorf("plugin command %q already exists in ignite's commands", pluginCmd.Use)
+		if cmd.Name() == pluginCmdName {
+			p.Error = errors.Errorf("plugin command %q already exists in ignite's commands", pluginCmdName)
 			return
 		}
 	}
