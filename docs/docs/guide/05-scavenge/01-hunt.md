@@ -6,6 +6,8 @@ slug: /guide/scavenge
 
 # Scavenger hunt game
 
+> This tutorial has been updated to work with Ignite CLI v0.25.2.
+
 In this tutorial, you will build a blockchain for a scavenger hunt game and
 learn how to:
 
