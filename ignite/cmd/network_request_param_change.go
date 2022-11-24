@@ -7,12 +7,12 @@ import (
 	"github.com/ignite/cli/ignite/services/network"
 )
 
-// NewNetworkRequestParamChange creates a new command to send param change request
-func NewNetworkRequestParamChange() *cobra.Command {
+// NewNetworkRequestChangeParam creates a new command to send param change request
+func NewNetworkRequestChangeParam() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "param-change [launch-id] [module-name] [param-name] [value (json, string, number)]",
-		Short: "Send request to change param",
-		RunE:  networkRequestParamChangeHandler,
+		Use:   "change-param [launch-id] [module-name] [param-name] [value (json, string, number)]",
+		Short: "Send request to change a module param",
+		RunE:  networkRequestChangeParamHandler,
 		Args:  cobra.ExactArgs(4),
 	}
 
@@ -24,7 +24,7 @@ func NewNetworkRequestParamChange() *cobra.Command {
 	return c
 }
 
-func networkRequestParamChangeHandler(cmd *cobra.Command, args []string) error {
+func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
