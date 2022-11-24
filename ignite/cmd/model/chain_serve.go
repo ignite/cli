@@ -122,7 +122,6 @@ func (m ChainServe) View() string {
 	}
 
 	if m.state != stateChainServeQuitting {
-		// TODO: Add actions to copy mnemonics to clipboard in run view?
 		view.WriteString(m.renderActions())
 	}
 
@@ -176,9 +175,15 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 			return m, cmd
 		}
 	case stateChainServeRunning:
-		// Serve will be displayed when there is an error until the code is fixed.
-		// It will show an error traceback until the code is changed and the rebuild
-		// view is displayed.
+		// Run view shows account addresses, API URLs and the paths required to
+		// have a context on the running blockchain app and waits for errors or
+		// changes in the blockchain app source code.
+		// If an error event is received during run it means that there is an error
+		// in the app source code in which case the error message and traceback are
+		// displayed until the code is fixed, or otherwise when an status event is
+		// received it means that the code changed so the app must be rebuilt.
+
+		// Run view will show an error traceback until the code is fixed
 		if msg.Group == events.GroupError {
 			// Clear the current events to only display the error
 			m.runModel.ClearEvents()
