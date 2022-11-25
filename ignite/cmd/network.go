@@ -95,7 +95,7 @@ validators launch their nodes, a blockchain will be live.
 
 	// configure flags.
 	c.PersistentFlags().BoolVar(&local, flagLocal, false, "use Ignite chain running locally")
-	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "use Ignite chain, the nightly version")
+	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "use Ignite chain - nightly version")
 	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressNightly, "set Ignite chain RPC address")
 	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressNightly, "set Ignite chain faucet address")
 
