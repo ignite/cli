@@ -50,6 +50,10 @@ type Plugin struct {
 	binaryName string
 
 	client *hplugin.Client
+
+	// if a plugin's ShareHost flag is set to true, isHost is used to decern if a
+	// plugin instance is controlling the rpc server.
+	isHost bool
 }
 
 // Load loads the plugins found in the chain config.
@@ -145,6 +149,11 @@ func (p *Plugin) KillClient() {
 	if p.client != nil {
 		p.client.Kill()
 	}
+
+	if p.isHost {
+		DeletePluginConf(p.Path)
+		p.isHost = false
+	}
 }
 
 func (p *Plugin) isLocal() bool {
@@ -194,15 +203,40 @@ func (p *Plugin) load(ctx context.Context) {
 		Output: os.Stderr,
 		Level:  hclog.Error,
 	})
-	// We're a host! Start by launching the plugin process.
-	p.client = hplugin.NewClient(&hplugin.ClientConfig{
-		HandshakeConfig: handshakeConfig,
-		Plugins:         pluginMap,
-		Logger:          logger,
-		Cmd:             exec.Command(p.binaryPath()),
-		SyncStderr:      os.Stderr,
-		SyncStdout:      os.Stdout,
-	})
+	if p.Plugin.ShareHost && CheckPluginConf(p.Path) {
+		rconf := hplugin.ReattachConfig{}
+		err := ReadPluginConfig(p.Path, &rconf)
+		fmt.Printf("%v\n", rconf)
+
+		if err != nil {
+			p.Error = err
+			return
+		}
+
+		// We're a host! Start by launching the plugin process.
+		p.client = hplugin.NewClient(&hplugin.ClientConfig{
+			HandshakeConfig: handshakeConfig,
+			Plugins:         pluginMap,
+			Logger:          logger,
+			Reattach:        &rconf,
+			SyncStderr:      os.Stderr,
+			SyncStdout:      os.Stdout,
+		})
+	} else {
+		// We're a host! Start by launching the plugin process.
+		p.client = hplugin.NewClient(&hplugin.ClientConfig{
+			HandshakeConfig: handshakeConfig,
+			Plugins:         pluginMap,
+			Logger:          logger,
+			Cmd:             exec.Command(p.binaryPath()),
+			SyncStderr:      os.Stderr,
+			SyncStdout:      os.Stdout,
+		})
+
+		if p.Plugin.ShareHost {
+			p.isHost = true
+		}
+	}
 
 	// Connect via RPC
 	rpcClient, err := p.client.Client()
@@ -221,6 +255,12 @@ func (p *Plugin) load(ctx context.Context) {
 	// We should have an Interface now! This feels like a normal interface
 	// implementation but is in fact over an RPC connection.
 	p.Interface = raw.(Interface)
+
+	if !CheckPluginConf(p.Path) && p.isHost {
+		fmt.Printf("%v\n", *p.client.ReattachConfig())
+		WritePluginConfig(p.Path, *p.client.ReattachConfig())
+	}
+
 }
 
 // fetch clones the plugin repository at the expected reference.

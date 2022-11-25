@@ -327,6 +327,8 @@ func printPlugins() {
 		status := "✅ Loaded"
 		if p.Error != nil {
 			status = fmt.Sprintf("❌ Error: %v", p.Error)
+			entries = append(entries, []string{p.Path, status})
+			continue
 		}
 		entries = append(entries, []string{p.Path, status})
 	}

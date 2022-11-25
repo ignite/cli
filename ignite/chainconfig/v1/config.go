@@ -46,6 +46,10 @@ type Plugin struct {
 	Path string `yaml:"path"`
 	// With holds arguments passed to the plugin interface
 	With map[string]string `yaml:"with"`
+	// ShareHost holds context on if a plugin should attach to an already existing rpc server if available
+	// flagging this true will allow only one plugin server for the given plugin to be created at a time, if another instance if running
+	// the plugin's RPC client will only attach to it.
+	ShareHost bool
 }
 
 func (c *Config) SetDefaults() error {
