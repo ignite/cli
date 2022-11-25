@@ -13,7 +13,7 @@ import (
 func NewNetworkChainRevertLaunch() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "revert-launch [launch-id]",
-		Short: "Revert the launch a network",
+		Short: "Revert launch of a network",
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainRevertLaunchHandler,
 	}
