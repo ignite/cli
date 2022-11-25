@@ -44,7 +44,7 @@ ignite scaffold module scavenge --dep bank
 ```
 
 This command creates the `x/scavenge` directory and imports the scavenge module
-into the blockchain in the `app/app.go` directory.
+into the blockchain in the `app/app.go` file.
 
 ## Save changes
 
