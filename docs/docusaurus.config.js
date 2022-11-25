@@ -127,14 +127,6 @@ const config = {
                 label: "Accelerator",
                 href: "https://ignite.com/accelerator",
               },
-              {
-                label: "Ventures",
-                href: "https://ignite.com/ventures",
-              },
-              {
-                label: "Emeris",
-                href: "https://emeris.com",
-              },
             ],
           },
           {
