@@ -73,7 +73,7 @@ Supported types:
 "ignite scaffold map".
 
 Ignite also supports custom types:
-  
+
 	ignite scaffold list product-details name desc
 	ignite scaffold list product price:coin details:ProductDetails
 
