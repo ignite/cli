@@ -18,7 +18,7 @@ For the scavenger hunt game, the scavenge module requires 3 messages:
 
 ## Submit scavenge message
 
-The submit scavenge message must contain all the information that is required to
+The *submit* scavenge message must contain all the information that is required to
 create a scavenge:
 
 * Description - the question to be solved or description of the challenge.
