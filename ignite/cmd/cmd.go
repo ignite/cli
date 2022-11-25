@@ -104,7 +104,7 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagHome, "", "a directory where the blockchain node is initialized")
+	fs.String(flagHome, "", "directory where the blockchain node is initialized")
 	return fs
 }
 
