@@ -18,7 +18,7 @@ For the scavenger hunt game, the scavenge module requires 3 messages:
 
 ## Submit scavenge message
 
-The *submit* scavenge message must contain all the information that is required to
+The "submit scavenge" message must contain all the information that is required to
 create a scavenge:
 
 * Description - the question to be solved or description of the challenge.
@@ -128,7 +128,7 @@ two separate actions, `MsgCommitSolution` and `MsgRevealSolution`.
 
 ## Commit solution message
 
-The commit solution message requires the following fields:
+The "commit solution" message requires the following fields:
 
 * Solution hash - the scrambled solution
 * Solution scavenger hash - the hash of the combination of the solution and the
@@ -157,7 +157,7 @@ create x/scavenge/types/message_commit_solution_test.go
 
 ## Reveal solution message
 
-The reveal solution message requires only one field:
+The "reveal solution" message requires only one field:
 
 * Solution - the plain text version of the solution
 
