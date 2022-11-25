@@ -5,14 +5,16 @@ description: Define keepers for the nameservice module.
 
 # Keeper
 
-> The main core of a Cosmos SDK module is a piece called the keeper. The keeper handles interactions with the store,
-> has references to other [keepers](https://docs.cosmos.network/main/building-modules/keeper.html) for cross-module
-> interactions, and contains most of the core functionality of a module.
+> The main core of a Cosmos SDK module is a piece called the keeper. The keeper
+> handles interactions with the store, has references to other
+> [keepers](https://docs.cosmos.network/main/building-modules/keeper.html) for
+> cross-module interactions, and contains most of the core functionality of a
+> module.
 
 ## Define Keepers for the Nameservice Module
 
-Keepers are module-specific. Keeper is part of the Cosmos SDK that is responsible for writing data to the store.
-Each module uses its own keeper.
+Keepers are module-specific. Keeper is part of the Cosmos SDK that is
+responsible for writing data to the store. Each module uses its own keeper.
 
 In this section, define the keepers that are required by the nameservice module:
 
@@ -22,12 +24,9 @@ In this section, define the keepers that are required by the nameservice module:
 
 ## Buy Name
 
-To define the keeper for the buy name transaction, add this code to the `x/nameservice/keeper/msg_server_buy_name.go`
-file:
+Define the keeper method for handling the "buy name" message:
 
-```go
-// x/nameservice/keeper/msg_server_buy_name.go
-
+```go title="x/nameservice/keeper/msg_server_buy_name.go"
 package keeper
 
 import (
@@ -98,25 +97,18 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 }
 ```
 
-When you scaffolded the `nameservice` module you used `--dep bank` to specify a dependency between the `nameservice`
-and `bank` modules.
+When you scaffolded the `nameservice` module you used `--dep bank` to specify a
+dependency between the `nameservice` and `bank` modules.
 
-This dependency automatically created an `expected_keepers.go` file with a `BankKeeper` interface.
+This dependency automatically created a `expected_keepers.go` file with a
+`BankKeeper` interface.
 
-The `BuyName` transaction uses `SendCoins` and `SendCoinsFromAccountToModule` methods from the `bank` module.
+The `BuyName` transaction uses `SendCoins` and `SendCoinsFromAccountToModule`
+methods from the `bank` module.
 
-Edit the `x/nameservice/types/expected_keepers.go` file to add `SendCoins` and `SendCoinsFromAccountToModule` to be
-able to use it in the keeper methods of the `nameservice` module.
+Add `SendCoins` and `SendCoinsFromAccountToModule` to the `BankKeeper` interface:
 
-```go
-// x/nameservice/types/expected_keepers.go
-
-package types
-
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
+```go title="x/nameservice/types/expected_keepers.go"
 type BankKeeper interface {
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
@@ -125,12 +117,9 @@ type BankKeeper interface {
 
 ## Set Name
 
-To define the keeper for the set name transaction, add this code to the `x/nameservice/keeper/msg_server_set_name.go`
-file:
+Define the keeper method for handling the "set name" message:
 
-```go
-// x/nameservice/keeper/msg_server_set_name.go
-
+```go title="x/nameservice/keeper/msg_server_set_name.go"
 package keeper
 
 import (
@@ -170,12 +159,9 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 ## Delete Name
 
-To define the keeper for the delete name transaction, add this code to
-the `x/nameservice/keeper/msg_server_delete_name.go` file:
+Define the keeper method for handling the "delete name" message:
 
-```go
-// x/nameservice/keeper/msg_server_delete_name.go
-
+```go title="x/nameservice/keeper/msg_server_delete_name.go"
 package keeper
 
 import (
