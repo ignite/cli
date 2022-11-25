@@ -9,7 +9,7 @@ running on a machine somewhere. Each module has its own namespace within the CLI
 that gives it the ability to create and sign messages that are destined to be
 handled by that module.
 
-The CLI also comes with the ability to query the state of that module. When
+The CLI also comes with the ability to query the state of a module. When
 combined with the rest of the app, the CLI lets you do things like generate keys
 for a new account or check the status of an interaction you already had with the
 application.
