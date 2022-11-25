@@ -5,7 +5,7 @@ sidebar_position: 4
 # Messages
 
 Messages are a great place to start when building a module because messages
-define your application actions. Think of all the scenarios where a user would
+define your application's actions. Think of all the scenarios where a user would
 be able to update the state of the application in any way. These scenarios are
 the basic interactions, similar to CRUD (create, read, update, and delete)
 operations. Messages are objects whose end-goal is to trigger state-transitions.
