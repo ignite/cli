@@ -150,15 +150,13 @@ func (m ChainServe) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
 	// When an error event is received it means there is an issue with
 	// the blockchain app's source code that the user must fix.
 	m.broken = msg.Group == events.GroupError
 
 	// UI responds to key press or mouse events by default but we use
 	// events and the events bus to interact with the UI during execution.
-	// State defines the model/view that is being displayed.
+	// Check if the state must be changed to switch to a different view.
 	switch m.state {
 	case stateChainServeStarting:
 		// Start view displays status events until the blockchain is running or an
@@ -168,11 +166,6 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 		// started successfully and the run view is displayed.
 		if msg.ProgressIndication == events.IndicationFinish {
 			m.setState(stateChainServeRunning)
-
-			// Prepare model for the run view
-			m.runModel, cmd = m.runModel.Update(msg)
-
-			return m, cmd
 		}
 	case stateChainServeRunning:
 		// Run view shows account addresses, API URLs and the paths required to
@@ -182,38 +175,14 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 		// in the app source code in which case the error message and traceback are
 		// displayed until the code is fixed, or otherwise when an status event is
 		// received it means that the code changed so the app must be rebuilt.
-
-		// Run view will show an error traceback until the code is fixed
-		if msg.Group == events.GroupError {
-			// Clear the current events to only display the error
-			m.runModel.ClearEvents()
-
-			// Prepare model for the run view
-			m.runModel, cmd = m.runModel.Update(msg)
-
-			return m, cmd
-		}
-
-		// When the received event is not an error make sure to change the broken property
 		if m.broken {
-			m.broken = false
-
-			// Clear error events
+			// Clear events to only display the error received with the last event message
 			m.runModel.ClearEvents()
-		}
-
-		// When a status event is received during run it means something
-		// changed in the source code to trigger the blockchain rebuild.
-		if msg.InProgress() {
+		} else if msg.InProgress() {
+			// When a status event is received during run it means something
+			// changed in the source code which triggers the blockchain rebuild.
+			m.runModel.ClearEvents()
 			m.setState(stateChainServeRebuilding)
-
-			// Make sure there are not events from a previous "rebuild" render
-			m.rebuildModel.ClearEvents()
-
-			// Prepare model for the rebuild view
-			m.rebuildModel, cmd = m.rebuildModel.Update(msg)
-
-			return m, cmd
 		}
 	case stateChainServeRebuilding:
 		// Rebuild view is similar to run view but only displayed when the source
@@ -221,15 +190,8 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 		// When the status finish event is not an error it means that the blockchain
 		// was rebuilt successfully and the run view is displayed.
 		if msg.ProgressIndication == events.IndicationFinish {
+			m.rebuildModel.ClearEvents()
 			m.setState(stateChainServeRunning)
-
-			// Make sure there are not events from a previous "run" render
-			m.runModel.ClearEvents()
-
-			// Prepare model for the run view
-			m.runModel, cmd = m.runModel.Update(msg)
-
-			return m, cmd
 		}
 	}
 
