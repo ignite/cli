@@ -10,7 +10,7 @@ In the previous sections you've added three message types to the project:
 * `CommitSolution`
 * `RevealSolution`
 
-In Cosmos SDK blockchain messages are registered as RPCs in the `Msg` service in
+In the Cosmos SDK messages are registered as RPCs in the `Msg` service in
 a protocol buffer file.
 
 ```proto title="proto/scavenge/scavenge/tx.proto"
