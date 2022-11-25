@@ -24,6 +24,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/services/chain"
@@ -191,10 +192,14 @@ func (p *Plugin) load(ctx context.Context) {
 		p.binaryName: &InterfacePlugin{},
 	}
 	// Create an hclog.Logger
+	logLevel := hclog.Error
+	if env.DebugEnabled() {
+		logLevel = hclog.Trace
+	}
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   fmt.Sprintf("plugin %s", p.Path),
 		Output: os.Stderr,
-		Level:  hclog.Error,
+		Level:  logLevel,
 	})
 	// We're a host! Start by launching the plugin process.
 	p.client = hplugin.NewClient(&hplugin.ClientConfig{
