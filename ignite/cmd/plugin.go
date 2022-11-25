@@ -311,10 +311,11 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			return clictx.Do(cmd.Context(), func() error {
 				execCmd := plugin.ExecutedCommand{
-					Use:  cmd.Use,
-					Path: cmd.CommandPath(),
-					Args: args,
-					With: p.With,
+					Use:    cmd.Use,
+					Path:   cmd.CommandPath(),
+					Args:   args,
+					OSArgs: os.Args,
+					With:   p.With,
 				}
 				execCmd.SetFlags(cmd.Flags())
 				// Call the plugin Execute
