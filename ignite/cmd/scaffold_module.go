@@ -35,7 +35,7 @@ app.GovKeeper = ...
 func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "module [name]",
-		Short: "Scaffold a Cosmos SDK module",
+		Short: "Custom Cosmos SDK module",
 		Long: `Scaffold a new Cosmos SDK module.
 
 Cosmos SDK is a modular framework and each independent piece of functionality is
@@ -77,7 +77,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-	ignite scaffold module bar --dep foo,mint,account
+	ignite scaffold module bar --dep foo,mint,account,FeeGrant
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -104,11 +104,11 @@ params.
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank,FeeGrant)")
-	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
+	c.Flags().StringSlice(flagDep, []string{}, "add a dependency on another module")
+	c.Flags().Bool(flagIBC, false, "add IBC functionality")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
-	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
-	c.Flags().StringSlice(flagParams, []string{}, "scaffold module params")
+	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
+	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
 
 	return c
 }
