@@ -11,7 +11,7 @@ import (
 func NewGenerateOpenAPI() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "openapi",
-		Short:   "Generate an OpenAPI spec for your chain",
+		Short:   "OpenAPI spec for your chain",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateOpenAPIHandler,
 	}

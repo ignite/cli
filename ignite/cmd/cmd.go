@@ -54,7 +54,8 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-ignite scaffold chain github.com/username/mars`,
+	ignite scaffold chain example
+`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -103,7 +104,7 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagHome, "", "home directory used for blockchains")
+	fs.String(flagHome, "", "directory where the blockchain node is initialized")
 	return fs
 }
 

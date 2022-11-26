@@ -26,7 +26,7 @@ var (
 func NewChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain [command]",
-		Short: "Build, initialize and start a blockchain node or perform other actions on the blockchain",
+		Short: "Build, init and start a blockchain node",
 		Long: `Commands in this namespace let you to build, initialize, and start your
 blockchain node locally for development purposes.
 

@@ -11,7 +11,7 @@ import (
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "ts-client",
-		Short:   "Generate Typescript client for your chain's frontend",
+		Short:   "TypeScript frontend client",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateTSClientHandler,
 	}

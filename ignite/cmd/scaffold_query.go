@@ -17,7 +17,7 @@ const (
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "query [name] [request_field1] [request_field2] ...",
-		Short:   "Query to get data from the blockchain",
+		Short:   "Query for fetching data from a blockchain",
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    queryHandler,
@@ -29,7 +29,7 @@ func NewScaffoldQuery() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().String(flagModule, "", "module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "response fields")
-	c.Flags().StringP(flagDescription, "d", "", "description of the command")
+	c.Flags().StringP(flagDescription, "d", "", "description of the CLI to broadcast a tx with the message")
 	c.Flags().Bool(flagPaginated, false, "define if the request can be paginated")
 
 	return c
