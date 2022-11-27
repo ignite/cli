@@ -49,7 +49,7 @@ type Plugin struct {
 	// ShareHost holds context on if a plugin should attach to an already existing rpc server if available
 	// flagging this true will allow only one plugin server for the given plugin to be created at a time, if another instance if running
 	// the plugin's RPC client will only attach to it.
-	ShareHost bool
+	ShareHost bool `yaml:"sharedHost"`
 }
 
 func (c *Config) SetDefaults() error {

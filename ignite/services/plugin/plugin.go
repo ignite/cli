@@ -148,11 +148,10 @@ func newPlugin(pluginsDir string, cp chainconfig.Plugin) *Plugin {
 }
 
 func (p *Plugin) KillClient() {
-	if p.client != nil {
-		p.client.Kill()
-	}
-
 	if p.isHost {
+		if p.client != nil {
+			p.client.Kill()
+		}
 		DeletePluginConf(p.Path)
 		p.isHost = false
 	}
@@ -224,6 +223,7 @@ func (p *Plugin) load(ctx context.Context) {
 			SyncStderr:      os.Stderr,
 			SyncStdout:      os.Stdout,
 		})
+
 	} else {
 		// We're a host! Start by launching the plugin process.
 		p.client = hplugin.NewClient(&hplugin.ClientConfig{
@@ -235,9 +235,7 @@ func (p *Plugin) load(ctx context.Context) {
 			SyncStdout:      os.Stdout,
 		})
 
-		if p.Plugin.ShareHost {
-			p.isHost = true
-		}
+		p.isHost = true
 	}
 
 	// Connect via RPC
