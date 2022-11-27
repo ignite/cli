@@ -7,7 +7,7 @@ import "github.com/spf13/cobra"
 func NewNetworkCoordinator() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "coordinator",
-		Short: "Interact with coordinator profiles",
+		Short: "Show and update a coordinator profile",
 	}
 	c.AddCommand(
 		NewNetworkCoordinatorShow(),

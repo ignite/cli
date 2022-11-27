@@ -22,7 +22,7 @@ func newNetworkChainShowPeers() *cobra.Command {
 		RunE:  networkChainShowPeersHandler,
 	}
 
-	c.Flags().String(flagOut, "./peers.txt", "Path to output peers list")
+	c.Flags().String(flagOut, "./peers.txt", "path to output peers list")
 
 	return c
 }

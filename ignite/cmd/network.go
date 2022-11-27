@@ -94,10 +94,10 @@ validators launch their nodes, a blockchain will be live.
 	}
 
 	// configure flags.
-	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
-	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
-	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressNightly, "SPN node address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressNightly, "SPN faucet address")
+	c.PersistentFlags().BoolVar(&local, flagLocal, false, "use Ignite chain running locally")
+	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "use Ignite chain - nightly version")
+	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressNightly, "set Ignite chain RPC address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressNightly, "set Ignite chain faucet address")
 
 	// add sub commands.
 	c.AddCommand(
@@ -135,7 +135,7 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 
 func flagSetSPNAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	fs.String(flagAddressPrefix, networktypes.SPN, "account address prefix")
 	return fs
 }
 
@@ -205,6 +205,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
+		cosmosclient.WithGas(cosmosclient.GasAuto),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

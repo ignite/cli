@@ -26,6 +26,11 @@ const (
 	flagValidatorIdentity        = "validator-identity"
 	flagValidatorSelfDelegation  = "validator-self-delegation"
 	flagValidatorGasPrice        = "validator-gas-price"
+
+	defaultSelfDelegation          = "95000000stake"
+	defaultCommissionMax           = "0.10"
+	defaultCommissionMaxRate       = "0.20"
+	defaultCommissionMaxChangeRate = "0.01"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -62,14 +67,14 @@ genesis validator transaction (gentx) file.`,
 	}
 
 	flagSetClearCache(c)
-	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
-	c.Flags().String(flagValidatorWebsite, "", "Associate a website with the validator")
-	c.Flags().String(flagValidatorDetails, "", "Details about the validator")
-	c.Flags().String(flagValidatorSecurityContact, "", "Validator security contact email")
-	c.Flags().String(flagValidatorMoniker, "", "Custom validator moniker")
-	c.Flags().String(flagValidatorIdentity, "", "Validator identity signature (ex. UPort or Keybase)")
-	c.Flags().String(flagValidatorSelfDelegation, "", "Validator minimum self delegation")
-	c.Flags().String(flagValidatorGasPrice, "", "Validator gas price")
+	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "account for the chain validator")
+	c.Flags().String(flagValidatorWebsite, "", "associate a website with the validator")
+	c.Flags().String(flagValidatorDetails, "", "details about the validator")
+	c.Flags().String(flagValidatorSecurityContact, "", "validator security contact email")
+	c.Flags().String(flagValidatorMoniker, "", "custom validator moniker")
+	c.Flags().String(flagValidatorIdentity, "", "validator identity signature (ex. UPort or Keybase)")
+	c.Flags().String(flagValidatorSelfDelegation, "", "validator minimum self delegation")
+	c.Flags().String(flagValidatorGasPrice, "", "validator gas price")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -166,7 +171,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(cmd, session, stakeDenom)
+	defaultSelfDel := chainLaunch.AccountBalance.String()
+	if defaultSelfDel == "" {
+		defaultSelfDel = defaultSelfDelegation
+	}
+	v, err := askValidatorInfo(cmd, session, stakeDenom, defaultSelfDel)
 	if err != nil {
 		return err
 	}
@@ -181,7 +190,12 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(cmd *cobra.Command, session *cliui.Session, stakeDenom string) (chain.Validator, error) {
+func askValidatorInfo(
+	cmd *cobra.Command,
+	session *cliui.Session,
+	stakeDenom,
+	defaultSelfDel string,
+) (chain.Validator, error) {
 	var (
 		account, _         = cmd.Flags().GetString(flagValidatorAccount)
 		website, _         = cmd.Flags().GetString(flagValidatorWebsite)
@@ -209,22 +223,22 @@ func askValidatorInfo(cmd *cobra.Command, session *cliui.Session, stakeDenom str
 	questions := append([]cliquiz.Question{},
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
-			cliquiz.DefaultAnswer("95000000stake"),
+			cliquiz.DefaultAnswer(defaultSelfDel),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission rate",
 			&v.CommissionRate,
-			cliquiz.DefaultAnswer("0.10"),
+			cliquiz.DefaultAnswer(defaultCommissionMax),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission max rate",
 			&v.CommissionMaxRate,
-			cliquiz.DefaultAnswer("0.20"),
+			cliquiz.DefaultAnswer(defaultCommissionMaxRate),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission max change rate",
 			&v.CommissionMaxChangeRate,
-			cliquiz.DefaultAnswer("0.01"),
+			cliquiz.DefaultAnswer(defaultCommissionMaxChangeRate),
 			cliquiz.Required(),
 		),
 	)

@@ -26,7 +26,7 @@ var (
 func NewChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain [command]",
-		Short: "Build, initialize and start a blockchain node or perform other actions on the blockchain",
+		Short: "Build, init and start a blockchain node",
 		Long: `Commands in this namespace let you to build, initialize, and start your
 blockchain node locally for development purposes.
 
@@ -136,15 +136,15 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, chainconfig.LatestVersion))
 		}
 
-		file, err := os.OpenFile(configPath, os.O_WRONLY|os.O_TRUNC, 0o755)
-		if err != nil {
+		// Convert the current config to the latest version and update the YAML file
+		var buf bytes.Buffer
+		if err := chainconfig.MigrateLatest(bytes.NewReader(rawCfg), &buf); err != nil {
 			return err
 		}
 
-		defer file.Close()
-
-		// Convert the current config to the latest version and update the YAML file
-		return chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
+		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
+			return fmt.Errorf("config file migration failed: %w", err)
+		}
 	}
 
 	return nil

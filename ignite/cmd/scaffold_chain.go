@@ -26,7 +26,7 @@ Documentation: https://docs.ignite.com
 func NewScaffoldChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain [name]",
-		Short: "Fully-featured Cosmos SDK blockchain",
+		Short: "New Cosmos SDK blockchain",
 		Long: `Create a new application-specific Cosmos SDK blockchain.
 
 For example, the following command will create a blockchain called "hello" in
@@ -74,8 +74,8 @@ about Cosmos SDK on https://docs.cosmos.network
 
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
-	c.Flags().StringP(flagPath, "p", ".", "Create a project in a specific path")
-	c.Flags().Bool(flagNoDefaultModule, false, "Create a project without a default module")
+	c.Flags().StringP(flagPath, "p", ".", "create a project in a specific path")
+	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 
 	return c
 }

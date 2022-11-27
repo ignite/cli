@@ -11,13 +11,13 @@ import (
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "ts-client",
-		Short:   "Generate Typescript client for your chain's frontend",
+		Short:   "TypeScript frontend client",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateTSClientHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagOutput, "o", "", "typescript client output path")
+	c.Flags().StringP(flagOutput, "o", "", "TypeScript client output path")
 
 	return c
 }
@@ -26,7 +26,7 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(
+	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),

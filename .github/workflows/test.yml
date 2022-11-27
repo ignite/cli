@@ -6,8 +6,7 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
-      - develop
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest

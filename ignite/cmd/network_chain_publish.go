@@ -43,17 +43,35 @@ information is the URL of the source code of the blockchain.
 
 The following command publishes the information about an example blockchain:
 
-  ignite network chain publish github.com/ignite/example
+	ignite network chain publish github.com/ignite/example
 
 This command fetches the source code of the blockchain, compiles the binary,
 verifies that a blockchain can be started with the binary, and publishes the
-information about the blockchain to Ignite. The command returns an integer number
-that acts as an identifier of the chain on Ignite.
+information about the blockchain to Ignite. Currently, only public repositories
+are supported. The command returns an integer number that acts as an identifier
+of the chain on Ignite.
 
 By publishing a blockchain on Ignite you become the "coordinator" of this
 blockchain. A coordinator is an account that has the authority to approve and
 reject validator requests, set parameters of the blockchain and trigger the
 launch of the chain.
+
+The default Git branch is used when publishing a chain. If you want to use a
+specific branch, tag or a commit hash, use "--branch", "--tag", or "--hash"
+flags respectively.
+
+The repository name is used as the default chain ID. Ignite does not ensure that
+chain IDs are unique, but they have to have a valid format: [string]-[integer].
+To set a custom chain ID use the "--chain-id" flag.
+
+	ignite network chain publish github.com/ignite/example --chain-id foo-1
+
+Once the chain is published users can request accounts with coin balances to be
+added to the chain's genesis. By default, users are free to request any number
+of tokens. If you want all users requesting tokens to get the same amount, use
+the "--account-balance" flag with a list of coins.
+
+	ignite network chain publish github.com/ignite/example --account-balance 2000foocoin
 `,
 		Args: cobra.ExactArgs(1),
 		RunE: networkChainPublishHandler,
@@ -64,18 +82,18 @@ launch of the chain.
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesisURL, "", "URL to a custom Genesis")
-	c.Flags().String(flagGenesisConfig, "", "Name of an Ignite config file in the repo for custom Genesis")
-	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
-	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
-	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
-	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
-	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
-	c.Flags().String(flagShares, "", "Add shares for the campaign")
-	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
-	c.Flags().String(flagAccountBalance, "", "Balance for each approved genesis account for the chain")
-	c.Flags().String(flagRewardCoins, "", "Reward coins")
-	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request")
+	c.Flags().String(flagGenesisConfig, "", "name of an Ignite config file in the repo for custom Genesis")
+	c.Flags().String(flagChainID, "", "chain ID to use for this network")
+	c.Flags().Uint64(flagCampaign, 0, "campaign ID to use for this network")
+	c.Flags().Bool(flagNoCheck, false, "skip verifying chain's integrity")
+	c.Flags().String(flagCampaignMetadata, "", "add a campaign metadata")
+	c.Flags().String(flagCampaignTotalSupply, "", "add a total of the mainnet of a campaign")
+	c.Flags().String(flagShares, "", "add shares for the campaign")
+	c.Flags().Bool(flagMainnet, false, "initialize a mainnet campaign")
+	c.Flags().String(flagAccountBalance, "", "balance for each approved genesis account for the chain")
+	c.Flags().String(flagRewardCoins, "", "reward coins")
+	c.Flags().Int64(flagRewardHeight, 0, "last reward height")
+	c.Flags().String(flagAmount, "", "amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
