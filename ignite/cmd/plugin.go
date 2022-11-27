@@ -407,7 +407,7 @@ func NewPluginAdd() *cobra.Command {
 			return nil
 		},
 	}
-	cmdPluginAdd.Flags().Bool("load", false, "load plugins after saving new plugin decleration")
+	cmdPluginAdd.Flags().Bool("load", false, "load plugins after saving new plugin declaration")
 
 	return cmdPluginAdd
 }
