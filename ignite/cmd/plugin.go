@@ -7,12 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-
+	"github.com/ignite/cli/ignite/chainconfig"
+	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 )
 
 // plugins hold the list of plugin declared in the config.
@@ -293,6 +294,9 @@ func NewPlugin() *cobra.Command {
 	c.AddCommand(NewPluginUpdate())
 	c.AddCommand(NewPluginScaffold())
 	c.AddCommand(NewPluginDescribe())
+	c.AddCommand(NewPluginAdd())
+	c.AddCommand(NewPluginRemove())
+
 	return c
 }
 
@@ -341,6 +345,134 @@ func NewPluginUpdate() *cobra.Command {
 			return errors.Errorf("Plugin %q not found", args[0])
 		},
 	}
+}
+
+func NewPluginAdd() *cobra.Command {
+	cmdPluginAdd := &cobra.Command{
+		Use:  "add [path]",
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return fmt.Errorf("must provide a plugin path")
+			}
+			chain, err := newChainWithHomeFlags(cmd)
+			s := cliui.New(cliui.WithStdout(os.Stdout))
+
+			if err != nil {
+				return err
+			}
+			conf, err := chain.Config()
+
+			if err != nil {
+				return err
+			}
+
+			p := v1.Plugin{
+				Path: args[0],
+			}
+
+			for _, p := range conf.Plugins {
+				if p.Path == args[0] {
+					return fmt.Errorf("cannot add duplicate plugin %s", args[0])
+				}
+			}
+
+			conf.Plugins = append(conf.Plugins, p)
+			s.Printf("🎉 %s added \n", args[0])
+			err = chainconfig.Save(*conf, chain.ConfigPath())
+
+			if err != nil {
+				return err
+			}
+
+			if flag, err := cmd.Flags().GetBool("load"); err == nil && flag {
+				chain, err = newChainWithHomeFlags(cmd)
+
+				if err != nil {
+					return err
+				}
+
+				ctx := context.Background()
+				s.StartSpinner("Loading plugins")
+				plugins, err = plugin.Load(ctx, chain)
+				s.StopSpinner()
+
+				if err != nil {
+					return err
+				}
+
+				s.Println("Done loading plugins from chain config")
+			}
+
+			return nil
+		},
+	}
+	cmdPluginAdd.Flags().Bool("load", false, "load plugins after saving new plugin decleration")
+
+	return cmdPluginAdd
+}
+
+func NewPluginRemove() *cobra.Command {
+	cmdPluginRemove := &cobra.Command{
+		Use:  "remove [path]",
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return fmt.Errorf("must provide a plugin path")
+			}
+
+			chain, err := newChainWithHomeFlags(cmd)
+			s := cliui.New(cliui.WithStdout(os.Stdout))
+
+			if err != nil {
+				return err
+			}
+			conf, err := chain.Config()
+
+			if err != nil {
+				return err
+			}
+
+			for i, cp := range conf.Plugins {
+				if cp.Path == args[0] {
+					conf.Plugins = append(conf.Plugins[:i], conf.Plugins[i+1:]...)
+					break
+				}
+			}
+
+			s.Printf("Saving plugin config %s\n", args[0])
+			err = chainconfig.Save(*conf, chain.ConfigPath())
+
+			s.Printf("🎉 %s added \n", args[0])
+			if err != nil {
+				return err
+			}
+
+			if flag, err := cmd.Flags().GetBool("load"); err == nil && flag {
+				chain, err = newChainWithHomeFlags(cmd)
+
+				if err != nil {
+					return err
+				}
+
+				ctx := context.Background()
+				s.StartSpinner("Loading plugins")
+				plugins, err = plugin.Load(ctx, chain)
+				s.StopSpinner()
+
+				if err != nil {
+					return err
+				}
+
+				s.Println("Done loading plugins from chain config")
+			}
+
+			return nil
+		},
+	}
+
+	cmdPluginRemove.Flags().Bool("load", false, "load plugins after saving new plugin decleration")
+	return cmdPluginRemove
 }
 
 func NewPluginScaffold() *cobra.Command {
