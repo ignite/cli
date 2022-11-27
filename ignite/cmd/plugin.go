@@ -448,30 +448,10 @@ func NewPluginRemove() *cobra.Command {
 				return err
 			}
 
-			if flag, err := cmd.Flags().GetBool("load"); err == nil && flag {
-				chain, err = newChainWithHomeFlags(cmd)
-
-				if err != nil {
-					return err
-				}
-
-				ctx := context.Background()
-				s.StartSpinner("Loading plugins")
-				plugins, err = plugin.Load(ctx, chain)
-				s.StopSpinner()
-
-				if err != nil {
-					return err
-				}
-
-				s.Println("Done loading plugins from chain config")
-			}
-
 			return nil
 		},
 	}
 
-	cmdPluginRemove.Flags().Bool("load", false, "load plugins after saving new plugin decleration")
 	return cmdPluginRemove
 }
 
