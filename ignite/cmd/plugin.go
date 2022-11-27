@@ -7,13 +7,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/ignite/chainconfig"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
 // plugins hold the list of plugin declared in the config.
@@ -362,7 +363,6 @@ func NewPluginAdd() *cobra.Command {
 				return err
 			}
 			conf, err := chain.Config()
-
 			if err != nil {
 				return err
 			}
@@ -428,7 +428,6 @@ func NewPluginRemove() *cobra.Command {
 				return err
 			}
 			conf, err := chain.Config()
-
 			if err != nil {
 				return err
 			}
