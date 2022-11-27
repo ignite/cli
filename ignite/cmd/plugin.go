@@ -442,7 +442,7 @@ func NewPluginRemove() *cobra.Command {
 			s.Printf("Saving plugin config %s\n", args[0])
 			err = chainconfig.Save(*conf, chain.ConfigPath())
 
-			s.Printf("🎉 %s added \n", args[0])
+			s.Printf("🎉 %s removed \n", args[0])
 			if err != nil {
 				return err
 			}
