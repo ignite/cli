@@ -1,38 +1,11 @@
-package config
+package base
 
 import (
-	"fmt"
-	"io"
-
 	"github.com/imdario/mergo"
 
+	"github.com/ignite/cli/ignite/config/chain"
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
-
-// Version defines the type for the config version number.
-type Version uint
-
-func (v Version) String() string {
-	return fmt.Sprintf("v%d", v)
-}
-
-// Converter defines the interface required to migrate configurations to newer versions.
-type Converter interface {
-	// Clone clones the config by returning a new copy of the current one.
-	Clone() (Converter, error)
-
-	// SetDefaults assigns default values to empty config fields.
-	SetDefaults() error
-
-	// GetVersion returns the config version.
-	GetVersion() Version
-
-	// ConvertNext converts the config to the next version.
-	ConvertNext() (Converter, error)
-
-	// Decode decodes the config file from YAML and updates it's values.
-	Decode(io.Reader) error
-}
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
@@ -164,33 +137,33 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
-// BaseConfig defines a struct with the fields that are common to all config versions.
-type BaseConfig struct {
-	Version  Version   `yaml:"version"`
-	Build    Build     `yaml:"build,omitempty"`
-	Accounts []Account `yaml:"accounts"`
-	Faucet   Faucet    `yaml:"faucet,omitempty"`
-	Client   Client    `yaml:"client,omitempty"`
-	Genesis  xyaml.Map `yaml:"genesis,omitempty"`
+// Config defines a struct with the fields that are common to all config versions.
+type Config struct {
+	Version  chain.Version `yaml:"version"`
+	Build    Build         `yaml:"build,omitempty"`
+	Accounts []Account     `yaml:"accounts"`
+	Faucet   Faucet        `yaml:"faucet,omitempty"`
+	Client   Client        `yaml:"client,omitempty"`
+	Genesis  xyaml.Map     `yaml:"genesis,omitempty"`
 }
 
 // GetVersion returns the config version.
-func (c BaseConfig) GetVersion() Version {
+func (c Config) GetVersion() chain.Version {
 	return c.Version
 }
 
 // SetDefaults assigns default values to empty config fields.
-func (c *BaseConfig) SetDefaults() error {
-	if err := mergo.Merge(c, DefaultBaseConfig()); err != nil {
+func (c *Config) SetDefaults() error {
+	if err := mergo.Merge(c, DefaultConfig()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// DefaultBaseConfig returns a base config with default values.
-func DefaultBaseConfig() BaseConfig {
-	return BaseConfig{
+// DefaultConfig returns a base config with default values.
+func DefaultConfig() Config {
+	return Config{
 		Build: Build{
 			Proto: Proto{
 				Path:            "proto",

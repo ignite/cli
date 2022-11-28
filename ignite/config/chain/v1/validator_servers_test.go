@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 

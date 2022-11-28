@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig/config"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/config/chain/base"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
@@ -24,16 +24,16 @@ func TestConfigDecode(t *testing.T) {
 
 	require.NoError(err)
 	expected := v1.Config{
-		BaseConfig: config.BaseConfig{
+		Config: base.Config{
 			Version: 1,
-			Build: config.Build{
+			Build: base.Build{
 				Binary: "evmosd",
-				Proto: config.Proto{
+				Proto: base.Proto{
 					Path:            "proto",
 					ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
 				},
 			},
-			Accounts: []config.Account{
+			Accounts: []base.Account{
 				{
 					Name:     "alice",
 					Coins:    []string{"100000000uatom", "100000000000000000000aevmos"},
@@ -45,7 +45,7 @@ func TestConfigDecode(t *testing.T) {
 					Address: "cosmos1adn9gxjmrc3hrsdx5zpc9sj2ra7kgqkmphf8yw",
 				},
 			},
-			Faucet: config.Faucet{
+			Faucet: base.Faucet{
 				Name:  &[]string{"bob"}[0],
 				Coins: []string{"10aevmos"},
 				Host:  "0.0.0.0:4600",

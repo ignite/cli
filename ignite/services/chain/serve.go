@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -53,7 +53,7 @@ var (
 
 	// starportSavePath is the place where chain exported genesis are saved
 	starportSavePath = xfilepath.Join(
-		chainconfig.ConfigDirPath,
+		config.DirPath,
 		xfilepath.Path("local-chains"),
 	)
 )
@@ -130,7 +130,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 		if _, err := os.Stat(c.options.ConfigFile); err != nil {
 			return err
 		}
-	} else if _, err := chainconfig.LocateDefault(c.app.Path); err != nil {
+	} else if _, err := config.LocateDefault(c.app.Path); err != nil {
 		return err
 	}
 
@@ -160,7 +160,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					serveCtx      context.Context
 					buildErr      *CannotBuildAppError
 					startErr      *CannotStartAppError
-					validationErr *chainconfig.ValidationError
+					validationErr *config.ValidationError
 				)
 
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
@@ -427,7 +427,7 @@ func (c *Chain) serve(
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
+func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -436,7 +436,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.Start(ctx, commands, config) })
+	g.Go(func() error { return c.Start(ctx, commands, cfg) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
@@ -462,7 +462,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	c.served = true
 
 	// Get the first validator
-	validator := config.Validators[0]
+	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
@@ -485,7 +485,7 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 	)
 
 	if isFaucetEnabled {
-		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(config))
+		faucetAddr, _ := xurl.HTTP(config.FaucetHost(cfg))
 
 		c.ev.Send(
 			fmt.Sprintf("Token faucet: %s", faucetAddr),
@@ -497,13 +497,13 @@ func (c *Chain) start(ctx context.Context, config *chainconfig.Config) error {
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return err
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    chainconfig.FaucetHost(config),
+		Addr:    config.FaucetHost(cfg),
 		Handler: faucet,
 	})
 }

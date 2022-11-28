@@ -8,7 +8,7 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
@@ -96,7 +96,7 @@ func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bo
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, cfg *config.ChainConfig) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 	var accounts accountview.Accounts
 
 	// add accounts from config into genesis
-	for _, account := range conf.Accounts {
+	for _, account := range cfg.Accounts {
 		var generatedAccount chaincmdrunner.Account
 		accountAddress := account.Address
 
@@ -139,8 +139,8 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 	c.ev.SendView(accounts)
 
 	// 0 length validator set when using network config
-	if len(conf.Validators) != 0 {
-		_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	if len(cfg.Validators) != 0 {
+		_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
 	}
 
 	return err
@@ -232,7 +232,7 @@ type Account struct {
 	Coins    string
 }
 
-func createValidatorFromConfig(conf *chainconfig.Config) (validator Validator) {
+func createValidatorFromConfig(conf *config.ChainConfig) (validator Validator) {
 	// Currently, we support the config file with one valid validator.
 	validatorFromConfig := conf.Validators[0]
 	validator.Name = validatorFromConfig.Name
