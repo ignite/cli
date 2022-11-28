@@ -33,7 +33,7 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 
 	c.ev.Send("Initializing the blockchain", events.ProgressStart())
 
-	if err = c.chain.Init(ctx, false); err != nil {
+	if err = c.chain.Init(ctx, false, false, false); err != nil {
 		return err
 	}
 

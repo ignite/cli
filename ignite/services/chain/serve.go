@@ -387,7 +387,7 @@ func (c *Chain) serve(
 	if !isInit || (appModified && !exportGenesisExists) {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
-		if err := c.Init(ctx, true); err != nil {
+		if err := c.Init(ctx, true, true, true); err != nil {
 			return err
 		}
 	} else if appModified {

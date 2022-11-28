@@ -287,7 +287,7 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 func (c Chain) CheckConfigVersion() error {
 	configPath := c.chain.ConfigPath()
 	if configPath == "" {
-		return chainconfig.ErrConfigNotFound
+		return nil
 	}
 
 	file, err := os.Open(configPath)
