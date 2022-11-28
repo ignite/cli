@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 
@@ -11,6 +10,8 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfigv1 "github.com/ignite/cli/ignite/chainconfig/v1"
+
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
@@ -187,14 +188,19 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		var servers chainconfigv1.Servers
+
 		if len(conf.Validators) == 0 {
-			return "", errors.New("no validator in config")
+			servers = chainconfigv1.DefaultServers()
+		} else {
+			validator := conf.Validators[0]
+			servers, err = validator.GetServers()
+			if err != nil {
+				return "", err
+			}
 		}
-		validator := conf.Validators[0]
-		servers, err := validator.GetServers()
-		if err != nil {
-			return "", err
-		}
+
 		rpcAddress = servers.RPC.Address
 	}
 	return rpcAddress, nil
@@ -444,13 +450,16 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
+	var servers chainconfigv1.Servers
+
 	if len(config.Validators) == 0 {
-		return chaincmdrunner.Runner{}, errors.New("no validator in config")
-	}
-	validator := config.Validators[0]
-	servers, err := validator.GetServers()
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
+		servers = chainconfigv1.DefaultServers()
+	} else {
+		validator := config.Validators[0]
+		servers, err = validator.GetServers()
+		if err != nil {
+			return chaincmdrunner.Runner{}, err
+		}
 	}
 
 	nodeAddr, err := xurl.TCP(servers.RPC.Address)
