@@ -79,28 +79,21 @@ func (m ChainServe) Init() tea.Cmd {
 
 func (m ChainServe) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if checkQuitKeyMsg(msg) {
-		m.setState(stateChainServeQuitting)
+		m.state = stateChainServeQuitting
 	}
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if checkQuitKeyMsg(msg) {
-			// Cancel the context to signal stop
-			m.quit()
-		}
 	case cliuimodel.QuitMsg:
-		// When a quit message is received stop execution
-		return m, tea.Quit
+		return m.processQuitMsg(msg)
+	case cliuimodel.ErrorMsg:
+		return m.processErrorMsg(msg)
+	case tea.KeyMsg:
+		return m.processKeyMsg(msg)
 	case cliuimodel.EventMsg:
 		return m.processEventMsg(msg)
-	case cliuimodel.ErrorMsg:
-		m.error = msg.Error
-		return m, tea.Quit
 	default:
 		return m.updateCurrentModel(msg)
 	}
-
-	return m, nil
 }
 
 func (m ChainServe) View() string {
@@ -128,10 +121,6 @@ func (m ChainServe) View() string {
 	return cliuimodel.FormatView(view.String())
 }
 
-func (m *ChainServe) setState(state uint) {
-	m.state = state
-}
-
 func (m ChainServe) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -149,7 +138,25 @@ func (m ChainServe) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cmd) {
+func (m ChainServe) processQuitMsg(msg cliuimodel.QuitMsg) (tea.Model, tea.Cmd) {
+	return m, tea.Quit
+}
+
+func (m ChainServe) processErrorMsg(msg cliuimodel.ErrorMsg) (tea.Model, tea.Cmd) {
+	m.error = msg.Error
+	return m, tea.Quit
+}
+
+func (m ChainServe) processKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	if checkQuitKeyMsg(msg) {
+		// Cancel the context to signal stop
+		m.quit()
+	}
+
+	return m, nil
+}
+
+func (m ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cmd) {
 	// When an error event is received it means there is an issue with
 	// the blockchain app's source code that the user must fix.
 	m.broken = msg.Group == events.GroupError
@@ -165,7 +172,7 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 		// When the status finish event is not an error it means that the blockchain
 		// started successfully and the run view is displayed.
 		if msg.ProgressIndication == events.IndicationFinish {
-			m.setState(stateChainServeRunning)
+			m.state = stateChainServeRunning
 		}
 	case stateChainServeRunning:
 		// Run view shows account addresses, API URLs and the paths required to
@@ -182,7 +189,7 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 			// When a status event is received during run it means something
 			// changed in the source code which triggers the blockchain rebuild.
 			m.runModel.ClearEvents()
-			m.setState(stateChainServeRebuilding)
+			m.state = stateChainServeRebuilding
 		}
 	case stateChainServeRebuilding:
 		// Rebuild view is similar to run view but only displayed when the source
@@ -191,7 +198,7 @@ func (m *ChainServe) processEventMsg(msg cliuimodel.EventMsg) (tea.Model, tea.Cm
 		// was rebuilt successfully and the run view is displayed.
 		if msg.ProgressIndication == events.IndicationFinish {
 			m.rebuildModel.ClearEvents()
-			m.setState(stateChainServeRunning)
+			m.state = stateChainServeRunning
 		}
 	}
 
