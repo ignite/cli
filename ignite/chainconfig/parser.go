@@ -18,7 +18,7 @@ import (
 func Parse(configFile io.Reader) (*Config, error) {
 	cfg, err := parse(configFile)
 	if err != nil {
-		return cfg, err
+		return cfg, fmt.Errorf("error parsing config file: %w", err)
 	}
 
 	return cfg, validateConfig(cfg)

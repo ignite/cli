@@ -22,8 +22,10 @@ By default, the data directory will be initialized in $HOME/.mychain, where
 "mychain" is the name of the project. To set a custom data directory use the
 --home flag or set the value in config.yml:
 
-	init:
-		home: "~/.customdir"
+	validators:
+	  - name: alice
+	    bonded: '100000000stake'
+	    home: "~/.customdir"
 
 The data directory contains three files in the "config" directory: app.toml,
 config.toml, client.toml. These files let you customize the behavior of your
@@ -31,15 +33,17 @@ blockchain node and the client executable. When a chain is re-initialized the
 data directory can be reset. To make some values in these files persistent, set
 them in config.yml:
 
-	init:
-		app:
-			minimum-gas-prices: "0.025stake"
-		config:
-			consensus:
-				timeout_commit: "5s"
-				timeout_propose: "5s"
-		client:
-			output: "json"
+	validators:
+	  - name: alice
+	    bonded: '100000000stake'
+	    app:
+	      minimum-gas-prices: "0.025stake"
+	    config:
+	      consensus:
+	        timeout_commit: "5s"
+	        timeout_propose: "5s"
+	    client:
+	      output: "json"
 
 The configuration above changes the minimum gas price of the validator (by
 default the gas price is set to 0 to allow "free" transactions), sets the block
@@ -61,10 +65,10 @@ including consensus and module parameters. You can customize the values of the
 genesis in config.yml:
 
 	genesis:
-		app_state:
-			staking:
-				params:
-					bond_denom: "foo"
+	  app_state:
+	    staking:
+	      params:
+	        bond_denom: "foo"
 
 The example above changes the staking token to "foo". If you change the staking
 denom, make sure the validator account has the right tokens.

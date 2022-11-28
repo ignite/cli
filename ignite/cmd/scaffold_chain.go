@@ -26,7 +26,7 @@ Documentation: https://docs.ignite.com
 func NewScaffoldChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain [name]",
-		Short: "Fully-featured Cosmos SDK blockchain",
+		Short: "New Cosmos SDK blockchain",
 		Long: `Create a new application-specific Cosmos SDK blockchain.
 
 For example, the following command will create a blockchain called "hello" in

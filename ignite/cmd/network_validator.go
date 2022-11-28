@@ -7,7 +7,7 @@ import "github.com/spf13/cobra"
 func NewNetworkValidator() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "validator",
-		Short: "Interact with validator profiles",
+		Short: "Show and update a validator profile",
 	}
 	c.AddCommand(
 		NewNetworkValidatorShow(),

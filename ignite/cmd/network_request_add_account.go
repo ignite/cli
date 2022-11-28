@@ -19,8 +19,20 @@ func NewNetworkRequestAddAccount() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "add-account [launch-id] [address] [coins]",
 		Short: "Send request to add account",
-		RunE:  networkRequestAddAccountHandler,
-		Args:  cobra.RangeArgs(2, 3),
+		Long: `The "add account" command creates a new request to add an account with a given
+address and a specified coin balance to the genesis of the chain.
+
+The request automatically fails to be applied if a genesis account or a vesting
+account with an identical address is already specified in the launch
+information.
+
+If a coordinator has specified that all genesis accounts on a chain should have
+the same balance (useful for testnets, for example), the "add account" expects
+only an address as an argument. Attempt to provide a token balance will result
+in an error.
+`,
+		RunE: networkRequestAddAccountHandler,
+		Args: cobra.RangeArgs(2, 3),
 	}
 
 	flagSetClearCache(c)

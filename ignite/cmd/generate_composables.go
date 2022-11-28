@@ -11,7 +11,7 @@ import (
 func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "composables",
-		Short:   "Generate Typescript client and Vue 3 composables for your chain's frontend",
+		Short:   "TypeScript frontend client and Vue 3 composables",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateComposablesHandler,
 	}

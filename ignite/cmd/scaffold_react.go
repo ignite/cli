@@ -12,7 +12,7 @@ import (
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "react",
-		Short:   "Generate React web app template",
+		Short:   "React web app template",
 		Args:    cobra.NoArgs,
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    scaffoldReactHandler,
