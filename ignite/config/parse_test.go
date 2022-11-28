@@ -9,13 +9,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/testdata"
 )
 
 func TestReadConfigVersion(t *testing.T) {
 	// Arrange
 	r := strings.NewReader("version: 42")
-	want := baseconfig.Version(42)
+	want := chainconfig.Version(42)
 
 	// Act
 	version, err := config.ReadConfigVersion(r)
@@ -56,7 +57,7 @@ func TestParseWithCurrentVersion(t *testing.T) {
 
 func TestParseWithUnknownVersion(t *testing.T) {
 	// Arrange
-	version := baseconfig.Version(9999)
+	version := chainconfig.Version(9999)
 	r := strings.NewReader(fmt.Sprintf("version: %d", version))
 
 	var want *config.UnsupportedVersionError

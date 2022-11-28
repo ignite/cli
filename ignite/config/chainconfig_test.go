@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 )
 
 func TestCheckVersion(t *testing.T) {
@@ -33,5 +34,5 @@ func TestCheckVersionWithOutdatedVersion(t *testing.T) {
 
 	// Assert
 	require.ErrorAs(t, err, &wantError)
-	require.Equal(t, wantError.Version, baseconfig.Version(0))
+	require.Equal(t, wantError.Version, chainconfig.Version(0))
 }
