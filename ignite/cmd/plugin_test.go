@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
+	config "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/services/plugin"
 	"github.com/ignite/cli/ignite/services/plugin/mocks"
 )

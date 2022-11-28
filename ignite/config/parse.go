@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/ignite/cli/ignite/config/plugins"
+
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
 
@@ -16,7 +18,7 @@ import (
 // When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
 func Parse(configFile io.Reader) (*ChainConfig, error) {
-	cfg, err := parse(configFile)
+	cfg, err := parseChainConfig(configFile)
 	if err != nil {
 		return cfg, fmt.Errorf("error parsing config file: %w", err)
 	}
@@ -28,7 +30,7 @@ func Parse(configFile io.Reader) (*ChainConfig, error) {
 // When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
 func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
-	cfg, err := parse(configFile)
+	cfg, err := parseChainConfig(configFile)
 	if err != nil {
 		return cfg, err
 	}
@@ -36,7 +38,12 @@ func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
 	return cfg, validateNetworkConfig(cfg)
 }
 
-func parse(configFile io.Reader) (*ChainConfig, error) {
+// ParsePlugins reads a config file for ignite binary plugins
+func ParsePlugins(configFile io.Reader) (*plugins.Config, error) {
+	return parsePluginsConfig(configFile)
+}
+
+func parseChainConfig(configFile io.Reader) (*ChainConfig, error) {
 	var buf bytes.Buffer
 
 	// Read the config file version first to know how to decode it
@@ -47,7 +54,7 @@ func parse(configFile io.Reader) (*ChainConfig, error) {
 
 	// Decode the current config file version and assign default
 	// values for the fields that are empty
-	c, err := decodeConfig(&buf, version)
+	c, err := decodeChainConfig(&buf, version)
 	if err != nil {
 		return DefaultChainConfig(), err
 	}
@@ -65,6 +72,14 @@ func parse(configFile io.Reader) (*ChainConfig, error) {
 	}
 
 	return cfg, nil
+}
+
+func parsePluginsConfig(configFile io.Reader) (*plugins.Config, error) {
+	var c plugins.Config
+
+	err := yaml.NewDecoder(configFile).Decode(&c)
+
+	return &c, err
 }
 
 // ParseFile parses a config from a file path.
@@ -91,6 +106,18 @@ func ParseNetworkFile(path string) (*ChainConfig, error) {
 	return ParseNetwork(file)
 }
 
+// ParsePluginsFile parses a plugins config.
+func ParsePluginsFile(path string) (*plugins.Config, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return plugins.DefaultConfig(), err
+	}
+
+	defer file.Close()
+
+	return ParsePlugins(file)
+}
+
 // ReadConfigVersion reads the config version.
 func ReadConfigVersion(configFile io.Reader) (base.Version, error) {
 	c := struct {
@@ -102,7 +129,7 @@ func ReadConfigVersion(configFile io.Reader) (base.Version, error) {
 	return c.Version, err
 }
 
-func decodeConfig(r io.Reader, version base.Version) (base.Converter, error) {
+func decodeChainConfig(r io.Reader, version base.Version) (base.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
 		return nil, &UnsupportedVersionError{version}

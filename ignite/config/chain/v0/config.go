@@ -30,11 +30,7 @@ func (c *Config) Clone() (base.Converter, error) {
 
 // Decode decodes the config file values from YAML.
 func (c *Config) Decode(r io.Reader) error {
-	if err := yaml.NewDecoder(r).Decode(c); err != nil {
-		return err
-	}
-
-	return nil
+	return yaml.NewDecoder(r).Decode(c)
 }
 
 // Validator holds info related to validator settings.

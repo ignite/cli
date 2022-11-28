@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config/chain/base"
-	v12 "github.com/ignite/cli/ignite/config/chain/v1"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
@@ -18,12 +18,12 @@ func TestConfigDecode(t *testing.T) {
 	f, err := os.Open("testdata/config2.yaml")
 	require.NoError(err)
 	defer f.Close()
-	var cfg v12.Config
+	var cfg v1.Config
 
 	err = cfg.Decode(f)
 
 	require.NoError(err)
-	expected := v12.Config{
+	expected := v1.Config{
 		Config: base.Config{
 			Version: 1,
 			Build: base.Build{
@@ -62,7 +62,7 @@ func TestConfigDecode(t *testing.T) {
 				"chain_id": "evmosd_9000-1",
 			},
 		},
-		Validators: []v12.Validator{{
+		Validators: []v1.Validator{{
 			Name:   "alice",
 			Bonded: "100000000000000000000aevmos",
 			Home:   "$HOME/.evmosd",
@@ -73,30 +73,21 @@ func TestConfigDecode(t *testing.T) {
 				},
 			},
 		}},
-		Plugins: []v12.Plugin{
-			{
-				Path: "/path/to/plugin1",
-			},
-			{
-				Path: "/path/to/plugin2",
-				With: map[string]string{"foo": "bar", "bar": "baz"},
-			},
-		},
 	}
 	assert.Equal(expected, cfg)
 }
 
 func TestConfigValidatorDefaultServers(t *testing.T) {
 	// Arrange
-	c := v12.Config{
-		Validators: []v12.Validator{
+	c := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "name-1",
 				Bonded: "100ATOM",
 			},
 		},
 	}
-	servers := v12.Servers{}
+	servers := v1.Servers{}
 
 	// Act
 	err := c.SetDefaults()
@@ -108,20 +99,20 @@ func TestConfigValidatorDefaultServers(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert
-	require.Equal(t, v12.DefaultGRPCAddress, servers.GRPC.Address)
-	require.Equal(t, v12.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
-	require.Equal(t, v12.DefaultAPIAddress, servers.API.Address)
-	require.Equal(t, v12.DefaultRPCAddress, servers.RPC.Address)
-	require.Equal(t, v12.DefaultP2PAddress, servers.P2P.Address)
-	require.Equal(t, v12.DefaultPProfAddress, servers.RPC.PProfAddress)
+	require.Equal(t, v1.DefaultGRPCAddress, servers.GRPC.Address)
+	require.Equal(t, v1.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
+	require.Equal(t, v1.DefaultAPIAddress, servers.API.Address)
+	require.Equal(t, v1.DefaultRPCAddress, servers.RPC.Address)
+	require.Equal(t, v1.DefaultP2PAddress, servers.P2P.Address)
+	require.Equal(t, v1.DefaultPProfAddress, servers.RPC.PProfAddress)
 }
 
 func TestConfigValidatorWithExistingServers(t *testing.T) {
 	// Arrange
 	rpcAddr := "127.0.0.1:1234"
 	apiAddr := "127.0.0.1:4321"
-	c := v12.Config{
-		Validators: []v12.Validator{
+	c := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "name-1",
 				Bonded: "100ATOM",
@@ -136,7 +127,7 @@ func TestConfigValidatorWithExistingServers(t *testing.T) {
 			},
 		},
 	}
-	servers := v12.Servers{}
+	servers := v1.Servers{}
 
 	// Act
 	err := c.SetDefaults()
@@ -150,10 +141,10 @@ func TestConfigValidatorWithExistingServers(t *testing.T) {
 	// Assert
 	require.Equal(t, rpcAddr, servers.RPC.Address)
 	require.Equal(t, apiAddr, servers.API.Address)
-	require.Equal(t, v12.DefaultGRPCAddress, servers.GRPC.Address)
-	require.Equal(t, v12.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
-	require.Equal(t, v12.DefaultP2PAddress, servers.P2P.Address)
-	require.Equal(t, v12.DefaultPProfAddress, servers.RPC.PProfAddress)
+	require.Equal(t, v1.DefaultGRPCAddress, servers.GRPC.Address)
+	require.Equal(t, v1.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
+	require.Equal(t, v1.DefaultP2PAddress, servers.P2P.Address)
+	require.Equal(t, v1.DefaultPProfAddress, servers.RPC.PProfAddress)
 }
 
 func TestConfigValidatorsWithExistingServers(t *testing.T) {
@@ -161,8 +152,8 @@ func TestConfigValidatorsWithExistingServers(t *testing.T) {
 	inc := uint64(10)
 	rpcAddr := "127.0.0.1:1234"
 	apiAddr := "127.0.0.1:4321"
-	c := v12.Config{
-		Validators: []v12.Validator{
+	c := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "name-1",
 				Bonded: "100ATOM",
@@ -181,7 +172,7 @@ func TestConfigValidatorsWithExistingServers(t *testing.T) {
 			},
 		},
 	}
-	servers := v12.Servers{}
+	servers := v1.Servers{}
 
 	// Act
 	err := c.SetDefaults()
@@ -197,17 +188,17 @@ func TestConfigValidatorsWithExistingServers(t *testing.T) {
 	require.Equal(t, apiAddr, servers.API.Address)
 
 	// Assert: The second validator should have the ports incremented by 10
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultGRPCAddress, inc), servers.GRPC.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultP2PAddress, inc), servers.P2P.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCAddress, inc), servers.GRPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultP2PAddress, inc), servers.P2P.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
 }
 
 func TestConfigValidatorsDefaultServers(t *testing.T) {
 	// Arrange
 	inc := uint64(10)
-	c := v12.Config{
-		Validators: []v12.Validator{
+	c := v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "name-1",
 				Bonded: "100ATOM",
@@ -218,7 +209,7 @@ func TestConfigValidatorsDefaultServers(t *testing.T) {
 			},
 		},
 	}
-	servers := v12.Servers{}
+	servers := v1.Servers{}
 
 	// Act
 	err := c.SetDefaults()
@@ -230,18 +221,18 @@ func TestConfigValidatorsDefaultServers(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert: The second validator should have the ports incremented by 10
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultGRPCAddress, inc), servers.GRPC.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultAPIAddress, inc), servers.API.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultRPCAddress, inc), servers.RPC.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultP2PAddress, inc), servers.P2P.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(v12.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCAddress, inc), servers.GRPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultAPIAddress, inc), servers.API.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultRPCAddress, inc), servers.RPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultP2PAddress, inc), servers.P2P.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(v1.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
 }
 
 func TestClone(t *testing.T) {
 	// Arrange
-	c := &v12.Config{
-		Validators: []v12.Validator{
+	c := &v1.Config{
+		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",

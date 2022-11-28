@@ -7,9 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ignite/cli/ignite/config"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -27,16 +30,25 @@ const (
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// NOTE(tb) Not sure if it's the right place to load this.
-	chain, err := newChainWithHomeFlags(rootCmd)
+	cfg, err := parseLocalPlugins(rootCmd)
 	if err != nil {
-		// Binary is run outside of an chain app, plugins can't be loaded
+		// if binary is run where there is no plugin.yml, don't load
 		return nil
 	}
-	plugins, err = plugin.Load(ctx, chain)
+
+	// TODO: parse global config
+
+	plugins, err = plugin.Load(ctx, cfg)
 	if err != nil {
 		return err
 	}
 	return loadPlugins(rootCmd, plugins)
+}
+
+func parseLocalPlugins(rootCmd *cobra.Command) (*pluginsconfig.Config, error) {
+	pluginsPath := getPlugins(rootCmd)
+
+	return config.ParsePluginsFile(pluginsPath)
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
