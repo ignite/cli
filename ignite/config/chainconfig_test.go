@@ -3,8 +3,9 @@ package config_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain/base"
 	"testing"
+
+	"github.com/ignite/cli/ignite/config/chain/base"
 
 	"github.com/stretchr/testify/require"
 

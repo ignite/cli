@@ -3,8 +3,9 @@ package testdata
 import (
 	"bytes"
 	_ "embed"
-	"github.com/ignite/cli/ignite/config/chain/v1"
 	"testing"
+
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"

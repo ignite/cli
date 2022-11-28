@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/ignite/cli/ignite/config/chain/base"
 	"io"
+
+	"github.com/ignite/cli/ignite/config/chain/base"
 
 	"gopkg.in/yaml.v2"
 )

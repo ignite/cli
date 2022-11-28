@@ -14,7 +14,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	envtest "github.com/ignite/cli/integration"

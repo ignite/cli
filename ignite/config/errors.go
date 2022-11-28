@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+
 	"github.com/ignite/cli/ignite/config/chain/base"
 )
 

@@ -2,12 +2,13 @@ package envtest
 
 import (
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain/v1"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"

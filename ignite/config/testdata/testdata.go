@@ -1,13 +1,13 @@
 package testdata
 
 import (
-	"github.com/ignite/cli/ignite/config/chain/base"
-	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
-	v1testdata "github.com/ignite/cli/ignite/config/chain/v1/testdata"
 	"testing"
 
 	"github.com/ignite/cli/ignite/config"
-	networkconfigTestData "github.com/ignite/cli/ignite/config/networkconfig/testdata"
+	"github.com/ignite/cli/ignite/config/chain/base"
+	networkconfigTestdata "github.com/ignite/cli/ignite/config/chain/network/testdata"
+	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
+	v1testdata "github.com/ignite/cli/ignite/config/chain/v1/testdata"
 )
 
 var Versions = map[base.Version][]byte{
@@ -15,12 +15,12 @@ var Versions = map[base.Version][]byte{
 	1: v1testdata.ConfigYAML,
 }
 
-var NetworkConfig = networkconfigTestData.ConfigYAML
+var NetworkConfig = networkconfigTestdata.ConfigYAML
 
 func GetLatestConfig(t *testing.T) *config.ChainConfig {
 	return v1testdata.GetConfig(t)
 }
 
 func GetLatestNetworkConfig(t *testing.T) *config.ChainConfig {
-	return networkconfigTestData.GetConfig(t)
+	return networkconfigTestdata.GetConfig(t)
 }

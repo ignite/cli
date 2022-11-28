@@ -1,8 +1,9 @@
 package v0_test
 
 import (
-	"github.com/ignite/cli/ignite/config/chain/v0"
 	"testing"
+
+	v0 "github.com/ignite/cli/ignite/config/chain/v0"
 
 	"github.com/stretchr/testify/require"
 )

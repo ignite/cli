@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"honnef.co/go/tools/config"
 
-	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	envtest "github.com/ignite/cli/integration"

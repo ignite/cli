@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 )

@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-
 	"os"
 	"path/filepath"
 

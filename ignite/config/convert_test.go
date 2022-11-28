@@ -2,8 +2,9 @@ package config_test
 
 import (
 	"bytes"
-	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	"testing"
+
+	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 
 	"github.com/stretchr/testify/require"
 

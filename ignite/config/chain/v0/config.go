@@ -1,8 +1,9 @@
 package v0
 
 import (
-	"github.com/ignite/cli/ignite/config/chain/base"
 	"io"
+
+	"github.com/ignite/cli/ignite/config/chain/base"
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"

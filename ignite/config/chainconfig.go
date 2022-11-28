@@ -10,8 +10,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/config/chain/base"
-	"github.com/ignite/cli/ignite/config/chain/v0"
-	"github.com/ignite/cli/ignite/config/chain/v1"
+	v0 "github.com/ignite/cli/ignite/config/chain/v0"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
