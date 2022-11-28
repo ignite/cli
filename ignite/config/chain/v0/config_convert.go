@@ -2,19 +2,19 @@ package v0
 
 import (
 	"github.com/ignite/cli/ignite/config/chain/base"
-	v12 "github.com/ignite/cli/ignite/config/chain/v1"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 )
 
 // ConvertNext converts the current config version to the next one.
 func (c *Config) ConvertNext() (base.Converter, error) {
-	targetCfg := v12.DefaultConfig()
+	targetCfg := v1.DefaultConfig()
 
 	// All the fields in the base config remain the same
 	targetCfg.Config = c.Config
 	targetCfg.Version = 1
 
 	// There is always only one validator in version 0
-	validator := v12.Validator{}
+	validator := v1.Validator{}
 	validator.Name = c.Validator.Name
 	validator.Bonded = c.Validator.Staked
 	validator.Home = c.Init.Home
@@ -30,7 +30,7 @@ func (c *Config) ConvertNext() (base.Converter, error) {
 	}
 
 	// The host configuration must be defined in the validators for version 1
-	servers := v12.Servers{}
+	servers := v1.Servers{}
 
 	if c.Host.P2P != "" {
 		servers.P2P.Address = c.Host.P2P

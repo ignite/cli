@@ -3,16 +3,15 @@ package v1_test
 import (
 	"testing"
 
-	v12 "github.com/ignite/cli/ignite/config/chain/v1"
-
 	"github.com/stretchr/testify/require"
 
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 
 func TestValidatorGetServers(t *testing.T) {
 	// Arrange
-	want := v12.DefaultServers()
+	want := v1.DefaultServers()
 	want.RPC.Address = "127.0.0.0:1"
 	want.P2P.Address = "127.0.0.0:2"
 	want.GRPC.Address = "127.0.0.0:3"
@@ -20,7 +19,7 @@ func TestValidatorGetServers(t *testing.T) {
 	want.RPC.PProfAddress = "127.0.0.0:5"
 	want.API.Address = "127.0.0.0:6"
 
-	v := v12.Validator{
+	v := v1.Validator{
 		App: map[string]interface{}{
 			"grpc":     map[string]interface{}{"address": want.GRPC.Address},
 			"grpc-web": map[string]interface{}{"address": want.GRPCWeb.Address},
@@ -45,8 +44,8 @@ func TestValidatorGetServers(t *testing.T) {
 
 func TestValidatorSetServers(t *testing.T) {
 	// Arrange
-	v := v12.Validator{}
-	s := v12.DefaultServers()
+	v := v1.Validator{}
+	s := v1.DefaultServers()
 	wantApp := xyaml.Map{
 		"grpc":     map[string]interface{}{"address": s.GRPC.Address},
 		"grpc-web": map[string]interface{}{"address": s.GRPCWeb.Address},

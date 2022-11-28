@@ -3,10 +3,10 @@ package v0
 import (
 	"io"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
-
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/ignite/config/chain/base"
 )
 
 // Config is the user given configuration to do additional setup during serve.

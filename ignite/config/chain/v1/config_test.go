@@ -4,12 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
-	v12 "github.com/ignite/cli/ignite/config/chain/v1"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/config/chain/base"
+	v12 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
