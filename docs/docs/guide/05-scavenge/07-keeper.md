@@ -92,7 +92,6 @@ To use the `bank` module's token transfer functionality in the keeper methods of
 module, add `SendCoins` to `BankKeeper` interface:
 
 ```go title="x/scavenge/types/expected_keepers.go"
-// x/scavenge/types/expected_keepers.go
 type BankKeeper interface {
   // highlight-next-line
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
