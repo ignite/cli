@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -186,6 +187,9 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
+		if len(conf.Validators) == 0 {
+			return "", errors.New("no validator in config")
+		}
 		validator := conf.Validators[0]
 		servers, err := validator.GetServers()
 		if err != nil {
@@ -295,9 +299,11 @@ func (c *Chain) DefaultHome() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	validator := config.Validators[0]
-	if validator.Home != "" {
-		return validator.Home, nil
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+		if validator.Home != "" {
+			return validator.Home, nil
+		}
 	}
 
 	return c.appHome(), nil
@@ -369,17 +375,19 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return "", err
 	}
 
-	// 2nd.
-	validator := config.Validators[0]
-	if validator.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
-	}
+	if len(config.Validators) > 0 {
+		// 2nd.
+		validator := config.Validators[0]
+		if validator.KeyringBackend != "" {
+			return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
+		}
 
-	// 3rd.
-	if validator.Client != nil {
-		if backend, ok := validator.Client["keyring-backend"]; ok {
-			if backendStr, ok := backend.(string); ok {
-				return chaincmd.KeyringBackendFromString(backendStr)
+		// 3rd.
+		if validator.Client != nil {
+			if backend, ok := validator.Client["keyring-backend"]; ok {
+				if backendStr, ok := backend.(string); ok {
+					return chaincmd.KeyringBackendFromString(backendStr)
+				}
 			}
 		}
 	}
@@ -436,6 +444,9 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
+	if len(config.Validators) == 0 {
+		return chaincmdrunner.Runner{}, errors.New("no validator in config")
+	}
 	validator := config.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {
