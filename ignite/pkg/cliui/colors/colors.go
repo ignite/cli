@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	Yellow  = "fce94f"
-	Red     = "ef2929"
-	Green   = "4e9a06"
-	Magenta = "75507b"
-	Cyan    = "34e2e2"
+	Yellow  = "#c4a000"
+	Red     = "#ef2929"
+	Green   = "#4e9a06"
+	Magenta = "#75507b"
+	Cyan    = "#34e2e2"
 )
 
 var (
