@@ -119,7 +119,7 @@ Review the `x/scavenge/keeper/scavenge.go` file to see the `SetScavenge` updates
 that were made in the `keeper` package, like the `store.Set` method that writes
 a scavenge into the store:
 
-```go
+```go title="x/scavenge/keeper/scavenge.go"
 package keeper
 
 // ...
