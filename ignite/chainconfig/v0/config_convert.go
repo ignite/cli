@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"github.com/ignite/cli/ignite/chainconfig/base"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 )
 

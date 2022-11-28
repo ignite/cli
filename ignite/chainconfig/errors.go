@@ -3,6 +3,8 @@ package chainconfig
 import (
 	"errors"
 	"fmt"
+
+	"github.com/ignite/cli/ignite/chainconfig/base"
 )
 
 // ErrConfigNotFound indicates that the config.yml can't be found.

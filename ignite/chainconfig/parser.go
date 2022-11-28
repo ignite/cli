@@ -8,6 +8,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/ignite/chainconfig/base"
 )
 
 // Parse reads a config file.

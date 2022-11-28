@@ -2,6 +2,7 @@ package chainconfig
 
 import (
 	"fmt"
+
 	"io"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/chainconfig/base"
 	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"

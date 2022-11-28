@@ -6,6 +6,7 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/chainconfig/base"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
