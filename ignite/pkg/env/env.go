@@ -3,7 +3,7 @@ package env
 import "os"
 
 const (
-	debug = "IGN_DEBUG"
+	debug = "IGNT_DEBUG"
 )
 
 func DebugEnabled() bool {
