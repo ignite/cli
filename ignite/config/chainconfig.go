@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	// ConfigDirPath returns the path of configuration directory of Ignite.
-	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
+	// DirPath returns the path of configuration directory of Ignite.
+	DirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
 
 	// ConfigFileNames is a list of recognized names as for Ignite's config file.
 	ConfigFileNames = []string{"config.yml", "config.yaml"}
@@ -127,7 +127,7 @@ func HooksPath(conf *Config) string {
 
 // CreateConfigDir creates config directory if it is not created yet.
 func CreateConfigDir() error {
-	path, err := ConfigDirPath()
+	path, err := DirPath()
 	if err != nil {
 		return err
 	}

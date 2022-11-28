@@ -31,7 +31,7 @@ import (
 
 // pluginsPath holds the plugin cache directory.
 var pluginsPath = xfilepath.Join(
-	config.ConfigDirPath,
+	config.DirPath,
 	xfilepath.Path("plugins"),
 )
 

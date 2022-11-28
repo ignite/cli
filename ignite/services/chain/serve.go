@@ -53,7 +53,7 @@ var (
 
 	// starportSavePath is the place where chain exported genesis are saved
 	starportSavePath = xfilepath.Join(
-		config.ConfigDirPath,
+		config.DirPath,
 		xfilepath.Path("local-chains"),
 	)
 )

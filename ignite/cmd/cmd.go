@@ -295,7 +295,7 @@ func printSection(session *cliui.Session, title string) error {
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
-	cacheRootDir, err := config.ConfigDirPath()
+	cacheRootDir, err := config.DirPath()
 	if err != nil {
 		return cache.Storage{}, err
 	}

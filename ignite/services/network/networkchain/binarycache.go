@@ -78,7 +78,7 @@ func checkBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string)
 
 func getBinaryCacheFilepath() (string, error) {
 	return xfilepath.Join(
-		config.ConfigDirPath,
+		config.DirPath,
 		xfilepath.Path(SPNCacheDirectory),
 		xfilepath.Path(BinaryCacheDirectory),
 		xfilepath.Path(BinaryCacheFilename),
