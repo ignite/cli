@@ -6,19 +6,21 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
-	c := Config{Config: baseconfig.DefaulConfig()}
+	c := Config{Config: base.DefaulConfig()}
 	c.Version = 1
 	return &c
 }
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
-	baseconfig.Config `yaml:",inline"`
+	base.Config `yaml:",inline"`
 
 	Validators []Validator `yaml:"validators"`
 	Plugins    []Plugin    `yaml:"plugins,omitempty"`
@@ -61,7 +63,7 @@ func (c *Config) SetDefaults() error {
 }
 
 // Clone returns an identical copy of the instance
-func (c *Config) Clone() (baseconfig.Converter, error) {
+func (c *Config) Clone() (chainconfig.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err
@@ -72,11 +74,7 @@ func (c *Config) Clone() (baseconfig.Converter, error) {
 
 // Decode decodes the config file values from YAML.
 func (c *Config) Decode(r io.Reader) error {
-	if err := yaml.NewDecoder(r).Decode(c); err != nil {
-		return err
-	}
-
-	return nil
+	return yaml.NewDecoder(r).Decode(c)
 }
 
 func (c *Config) updateValidatorAddresses() (err error) {

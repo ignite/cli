@@ -1,38 +1,11 @@
-package baseconfig
+package base
 
 import (
-	"fmt"
-	"io"
-
 	"github.com/imdario/mergo"
 
+	"github.com/ignite/cli/ignite/config/chain"
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
-
-// Version defines the type for the config version number.
-type Version uint
-
-func (v Version) String() string {
-	return fmt.Sprintf("v%d", v)
-}
-
-// Converter defines the interface required to migrate configurations to newer versions.
-type Converter interface {
-	// Clone clones the config by returning a new copy of the current one.
-	Clone() (Converter, error)
-
-	// SetDefaults assigns default values to empty config fields.
-	SetDefaults() error
-
-	// GetVersion returns the config version.
-	GetVersion() Version
-
-	// ConvertNext converts the config to the next version.
-	ConvertNext() (Converter, error)
-
-	// Decode decodes the config file from YAML and updates it's values.
-	Decode(io.Reader) error
-}
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
@@ -166,16 +139,16 @@ type Host struct {
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
-	Version  Version   `yaml:"version"`
-	Build    Build     `yaml:"build,omitempty"`
-	Accounts []Account `yaml:"accounts"`
-	Faucet   Faucet    `yaml:"faucet,omitempty"`
-	Client   Client    `yaml:"client,omitempty"`
-	Genesis  xyaml.Map `yaml:"genesis,omitempty"`
+	Version  chain.Version `yaml:"version"`
+	Build    Build         `yaml:"build,omitempty"`
+	Accounts []Account     `yaml:"accounts"`
+	Faucet   Faucet        `yaml:"faucet,omitempty"`
+	Client   Client        `yaml:"client,omitempty"`
+	Genesis  xyaml.Map     `yaml:"genesis,omitempty"`
 }
 
 // GetVersion returns the config version.
-func (c Config) GetVersion() Version {
+func (c Config) GetVersion() chain.Version {
 	return c.Version
 }
 
