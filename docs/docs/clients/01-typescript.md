@@ -5,14 +5,16 @@ description: Information about the generated Typescript client code.
 
 # Typescript code generation
 
-The `ignite generate ts-client` command generates a Typescript client for your blockchain project.
+The `ignite generate ts-client` command generates a Typescript client for your
+blockchain project.
 
-Typescript client code can be automatically regenerated on reset or source code changes when the
-blockchain is started with the `--generate-clients` options.
+Typescript client code can be automatically regenerated on reset or source code
+changes when the blockchain is started with the `--generate-clients` options.
 
 ## Client code generation
 
-To configure TypeScript (TS) client code generation add the `client` settings to `config.yml`:
+To configure TypeScript (TS) client code generation add the `client` settings to
+`config.yml`:
 
 ```yaml
 client:
@@ -20,11 +22,13 @@ client:
     path: ts-client
 ```
 
-A TS client is generated in the `ts-client` directory when using this configuration.
+A TS client is generated in the `ts-client` directory when using this
+configuration.
 
 ## Client code regeneration
 
-To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
+To regenerate all clients for custom and standard Cosmos SDK modules, run this
+command:
 
 ```bash
 ignite generate ts-client
@@ -32,12 +36,14 @@ ignite generate ts-client
 
 ## Setup
 
-The best way to get started building with the TypeScript client is by using a [Vite](https://vitejs.dev/) boilerplate.
-Vite provides boilerplate code for vanilla TS projects as well as react, vue, lit, svelte and preact frameworks.
-You can find additional information at the [Vite Getting Started guide](https://vitejs.dev/guide/).
+The best way to get started building with the TypeScript client is by using a
+[Vite](https://vitejs.dev/) boilerplate. Vite provides boilerplate code for
+vanilla TS projects as well as react, vue, lit, svelte and preact frameworks.
+You can find additional information at the [Vite Getting Started
+guide](https://vitejs.dev/guide/).
 
-You will also need to polyfill the client's dependencies. The following is an example of setting up a vanilla TS
-project with the necessary polyfills.
+You will also need to polyfill the client's dependencies. The following is an
+example of setting up a vanilla TS project with the necessary polyfills.
 
 ```bash
 npm create vite@latest my-frontend-app -- --template vanilla-ts
@@ -70,24 +76,26 @@ export default defineConfig({
 })
 ```
 
-You are then ready to use the generated client code inside this project directly or by publishing the client and
-installing it as any other npm package.
+You are then ready to use the generated client code inside this project directly
+or by publishing the client and installing it as any other npm package.
 
 ## Usage
 
-The code generated in `ts-client` comes with a `package.json` file ready to publish which you can modify to suit your
-needs.
+The code generated in `ts-client` comes with a `package.json` file ready to
+publish which you can modify to suit your needs.
 
-The client is based on a modular architecture where you can configure a client class to support the modules you need
-and instantiate it.
+The client is based on a modular architecture where you can configure a client
+class to support the modules you need and instantiate it.
 
-By default, the generated client exports a client class that includes all the Cosmos SDK, custom and 3rd party modules
-in use in your project.
+By default, the generated client exports a client class that includes all the
+Cosmos SDK, custom and 3rd party modules in use in your project.
 
-To instantiate the client you need to provide environment information (endpoints and chain prefix) and an optional
-wallet (implementing the CosmJS OfflineSigner interface).
+To instantiate the client you need to provide environment information (endpoints
+and chain prefix) and an optional wallet (implementing the CosmJS OfflineSigner
+interface).
 
-For example, to connect to a local chain instance running under the Ignite CLI defaults, using a CosmJS wallet:
+For example, to connect to a local chain instance running under the Ignite CLI
+defaults, using a CosmJS wallet:
 
 ```typescript
 import { Client } from '<path-to-ts-client>';
@@ -105,8 +113,9 @@ const client = new Client({
 );
 ```
 
-The resulting client instance contains namespaces for each module, each with a `query` and `tx` namespace containing
-the module's relevant querying and transacting methods with full type and auto-completion support.
+The resulting client instance contains namespaces for each module, each with a
+`query` and `tx` namespace containing the module's relevant querying and
+transacting methods with full type and auto-completion support.
 
 e.g.
 
@@ -135,8 +144,9 @@ const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend(
 );
 ```
 
-If you prefer, you can construct a lighter client using only the modules you are interested in by importing the
-generic client class and expanding it with the modules you need:
+If you prefer, you can construct a lighter client using only the modules you are
+interested in by importing the generic client class and expanding it with the
+modules you need:
 
 ```typescript
 import { IgniteClient } from '<path-to-ts-client>/client';
@@ -157,7 +167,8 @@ const client = new CustomClient({
 );
 ```
 
-You can also construct TX messages separately and send them in a single TX using a global signing client like so:
+You can also construct TX messages separately and send them in a single TX using
+a global signing client like so:
 
 ```typescript
 const msg1 = await client.CosmosBankV1Beta1.tx.msgSend(
@@ -191,8 +202,9 @@ const msg2 = await client.CosmosBankV1Beta1.tx.msgSend(
 const tx_result = await client.signAndBroadcast([msg1, msg2], fee, memo);
 ```
 
-Finally, for additional ease-of-use, apart from the modular client mentioned above, each generated module is usable on
-its own in a stripped-down way by exposing a separate txClient and queryClient.
+Finally, for additional ease-of-use, apart from the modular client mentioned
+above, each generated module is usable on its own in a stripped-down way by
+exposing a separate txClient and queryClient.
 
 e.g.
 
@@ -238,7 +250,9 @@ const tx_result = await client.sendMsgSend(
 
 ## Usage with Keplr
 
-Normally, Keplr provides a wallet object implementing the OfflineSigner interface so you can simply replace the wallet argument in client instantiation with it like so:
+Normally, Keplr provides a wallet object implementing the OfflineSigner
+interface so you can simply replace the wallet argument in client instantiation
+with it like so:
 
 
 ```typescript
@@ -254,9 +268,15 @@ const client = new Client({
 );
 ```
 
-The problem is that for a new Ignite CLI scaffolded chain, Keplr has no knowledge of it thus requiring an initial call to [`experimentalSuggestChain()`](https://docs.keplr.app/api/suggest-chain.html) method to add the chain information to the user's Keplr instance.
+The problem is that for a new Ignite CLI scaffolded chain, Keplr has no
+knowledge of it thus requiring an initial call to
+[`experimentalSuggestChain()`](https://docs.keplr.app/api/suggest-chain.html)
+method to add the chain information to the user's Keplr instance.
 
-The generated client makes this easier by offering a `useKeplr()` method that autodiscovers the chain information and sets it up for you. Thus you can instantiate the client without a wallet and then call `useKeplr()` to enable transacting via Keplr like so:
+The generated client makes this easier by offering a `useKeplr()` method that
+autodiscovers the chain information and sets it up for you. Thus you can
+instantiate the client without a wallet and then call `useKeplr()` to enable
+transacting via Keplr like so:
 
 ```typescript
 import { Client } from '<path-to-ts-client>';
@@ -270,9 +290,14 @@ const client = new Client({
 await client.useKeplr();
 ```
 
-`useKeplr()` optionally accepts an object argument that contains one or more of the same keys as the `ChainInfo` type argument of `experimentalSuggestChain()` allowing you to override the auto-discovered values.
+`useKeplr()` optionally accepts an object argument that contains one or more of
+the same keys as the `ChainInfo` type argument of `experimentalSuggestChain()`
+allowing you to override the auto-discovered values.
 
-For example, the default chain name and token precision (which are not recorded on-chain) are set to `<chainId> Network` and `0` while the ticker for the denom is set to the denom name in uppercase. If you wanted to override these, you could do something like:
+For example, the default chain name and token precision (which are not recorded
+on-chain) are set to `<chainId> Network` and `0` while the ticker for the denom
+is set to the denom name in uppercase. If you wanted to override these, you
+could do something like:
 
 
 ```typescript
@@ -289,7 +314,8 @@ await client.useKeplr({ chainName: 'My Great Chain', stakeCurrency : { coinDenom
 
 ## Wallet switching
 
-The client also allows you to switch out the wallet for a different one on an already instantiated client like so:
+The client also allows you to switch out the wallet for a different one on an
+already instantiated client like so:
 
 ```typescript
 import { Client } from '<path-to-ts-client>';
