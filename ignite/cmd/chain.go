@@ -9,7 +9,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -100,7 +100,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	appPath := flagGetPath(cmd)
 	configPath := getConfig(cmd)
 	if configPath == "" {
-		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
+		if configPath, err = config.LocateDefault(appPath); err != nil {
 			return err
 		}
 	}
@@ -110,19 +110,19 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 		return err
 	}
 
-	version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
+	version, err := config.ReadConfigVersion(bytes.NewReader(rawCfg))
 	if err != nil {
 		return err
 	}
 
-	// Config files with older versions must be migrated to the latest before executing the command
-	if version != chainconfig.LatestVersion {
+	// ChainConfig files with older versions must be migrated to the latest before executing the command
+	if version != config.LatestVersion {
 		if !getYes(cmd) {
 			// Confirm before overwritting the config file
-			question := fmt.Sprintf(msgMigrationPrompt, version, chainconfig.LatestVersion)
+			question := fmt.Sprintf(msgMigrationPrompt, version, config.LatestVersion)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
+					return fmt.Errorf(msgMigrationCancel, config.LatestVersion)
 				}
 
 				return err
@@ -133,12 +133,12 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 				return err
 			}
 		} else {
-			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, chainconfig.LatestVersion))
+			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, config.LatestVersion))
 		}
 
 		// Convert the current config to the latest version and update the YAML file
 		var buf bytes.Buffer
-		if err := chainconfig.MigrateLatest(bytes.NewReader(rawCfg), &buf); err != nil {
+		if err := config.MigrateLatest(bytes.NewReader(rawCfg), &buf); err != nil {
 			return err
 		}
 

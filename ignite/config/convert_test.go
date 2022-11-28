@@ -1,4 +1,4 @@
-package chainconfig_test
+package config_test
 
 import (
 	"bytes"
@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/testdata"
-	v0testdata "github.com/ignite/cli/ignite/chainconfig/v0/testdata"
+	"github.com/ignite/cli/ignite/config"
+	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
+	"github.com/ignite/cli/ignite/config/testdata"
 )
 
 func TestConvertLatest(t *testing.T) {
@@ -16,22 +16,22 @@ func TestConvertLatest(t *testing.T) {
 	cfgV0 := v0testdata.GetConfig(t)
 
 	// Act
-	cfgLatest, err := chainconfig.ConvertLatest(cfgV0)
+	cfgLatest, err := config.ConvertLatest(cfgV0)
 
 	// Assert
 	require.NoError(t, err)
-	require.Equal(t, chainconfig.LatestVersion, cfgLatest.GetVersion())
+	require.Equal(t, config.LatestVersion, cfgLatest.GetVersion())
 	require.Equal(t, testdata.GetLatestConfig(t), cfgLatest)
 }
 
 func TestMigrateLatest(t *testing.T) {
 	// Arrange
-	current := bytes.NewReader(testdata.Versions[chainconfig.LatestVersion-1])
+	current := bytes.NewReader(testdata.Versions[config.LatestVersion-1])
 	latest := bytes.Buffer{}
-	want := string(testdata.Versions[chainconfig.LatestVersion])
+	want := string(testdata.Versions[config.LatestVersion])
 
 	// Act
-	err := chainconfig.MigrateLatest(current, &latest)
+	err := config.MigrateLatest(current, &latest)
 
 	// Assert
 	require.NotEmpty(t, want, "testdata is missing the latest config version")

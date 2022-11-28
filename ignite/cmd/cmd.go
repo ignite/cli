@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -295,7 +295,7 @@ func printSection(session *cliui.Session, title string) error {
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
-	cacheRootDir, err := chainconfig.ConfigDirPath()
+	cacheRootDir, err := config.DirPath()
 	if err != nil {
 		return cache.Storage{}, err
 	}
