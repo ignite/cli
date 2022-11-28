@@ -12,7 +12,7 @@ func NewRelayer() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "relayer",
 		Aliases: []string{"r"},
-		Short:   "Connect blockchains by using IBC protocol",
+		Short:   "Connect blockchains with an IBC relayer",
 	}
 
 	c.AddCommand(

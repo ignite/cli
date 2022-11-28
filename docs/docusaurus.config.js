@@ -56,7 +56,8 @@ const config = {
     ({
       image: "img/og-image.jpg",
       announcementBar: {
-        content: '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
+        content:
+          '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
         isCloseable: false,
       },
       docs: {
@@ -126,14 +127,6 @@ const config = {
                 label: "Accelerator",
                 href: "https://ignite.com/accelerator",
               },
-              {
-                label: "Ventures",
-                href: "https://ignite.com/ventures",
-              },
-              {
-                label: "Emeris",
-                href: "https://emeris.com",
-              },
             ],
           },
           {
@@ -197,18 +190,18 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ["protobuf", "go-module"],  // https://prismjs.com/#supported-languages
+        additionalLanguages: ["protobuf", "go-module"], // https://prismjs.com/#supported-languages
         magicComments: [
           // Remember to extend the default highlight class name as well!
           {
-            className: 'theme-code-block-highlighted-line',
-            line: 'highlight-next-line',
-            block: {start: 'highlight-start', end: 'highlight-end'},
+            className: "theme-code-block-highlighted-line",
+            line: "highlight-next-line",
+            block: { start: "highlight-start", end: "highlight-end" },
           },
           {
-            className: 'code-block-removed-line',
-            line: 'remove-next-line',
-            block: {start: 'remove-start', end: 'remove-end'},
+            className: "code-block-removed-line",
+            line: "remove-next-line",
+            block: { start: "remove-start", end: "remove-end" },
           },
         ],
       },
@@ -219,15 +212,15 @@ const config = {
         contextualSearch: false,
       },
       zoom: {
-        selector: '.markdown :not(em) > img',
+        selector: ".markdown :not(em) > img",
         config: {
           // options you can specify via https://github.com/francoischalifour/medium-zoom#usage
           background: {
-            light: 'rgb(255, 255, 255)',
-            dark: 'rgb(50, 50, 50)'
-          }
-        }
-      }
+            light: "rgb(255, 255, 255)",
+            dark: "rgb(50, 50, 50)",
+          },
+        },
+      },
     }),
   plugins: [
     async function myPlugin(context, options) {
@@ -242,7 +235,7 @@ const config = {
         },
       };
     },
-    require.resolve("docusaurus-plugin-image-zoom")
+    require.resolve("docusaurus-plugin-image-zoom"),
   ],
 };
 
