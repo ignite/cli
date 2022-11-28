@@ -50,7 +50,6 @@ func TestV0ToV1Validator(t *testing.T) {
 	require.Equal(t, cfgV0.Validator.Name, validator.Name)
 	require.Equal(t, cfgV0.Validator.Staked, validator.Bonded)
 	require.Equal(t, cfgV0.Init.Home, validator.Home)
-	require.Equal(t, cfgV0.Init.KeyringBackend, validator.KeyringBackend)
 	require.Equal(t, cfgV0.Init.Client, validator.Client)
 	require.Equal(t, cfgV0.Host.RPC, servers.RPC.Address)
 	require.Equal(t, cfgV0.Host.P2P, servers.P2P.Address)

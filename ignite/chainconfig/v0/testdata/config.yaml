@@ -17,6 +17,8 @@ build:
   binary: "evmosd"
 init:
   home: "$HOME/.evmosd"
+  client:
+    keyring-backend: "os"
   app:
     evm-rpc:
       address: "0.0.0.0:8545"

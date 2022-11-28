@@ -371,20 +371,15 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 
 	// 2nd.
 	validator := config.Validators[0]
-	if validator.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
-	}
-
-	// 3rd.
 	if validator.Client != nil {
-		if backend, ok := validator.Client["keyring-backend"]; ok {
-			if backendStr, ok := backend.(string); ok {
-				return chaincmd.KeyringBackendFromString(backendStr)
+		if v, ok := validator.Client["keyring-backend"]; ok {
+			if backend, ok := v.(string); ok {
+				return chaincmd.KeyringBackendFromString(backend)
 			}
 		}
 	}
 
-	// 4th.
+	// 3rd.
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -400,7 +395,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 5th.
+	// 4th.
 	return chaincmd.KeyringBackendTest, nil
 }
 
