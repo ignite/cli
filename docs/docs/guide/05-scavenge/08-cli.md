@@ -51,11 +51,11 @@ import (
 func CmdCommitSolution() *cobra.Command {
 	cmd := &cobra.Command{
 		// pass a solution as the only argument
-    // highlight-next-line
+		// highlight-next-line
 		Use:   "commit-solution [solution]",
 		Short: "Broadcast message commit-solution",
 		// set the number of arguments to 1
-    // highlight-next-line
+		// highlight-next-line
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -82,10 +82,10 @@ func CmdCommitSolution() *cobra.Command {
 
 			// create a new message
 			msg := types.NewMsgCommitSolution(
-        clientCtx.GetFromAddress().String(),
-        solutionHashString,
-        solutionScavengerHashString,
-      )
+				clientCtx.GetFromAddress().String(),
+				solutionHashString,
+				solutionScavengerHashString,
+			)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

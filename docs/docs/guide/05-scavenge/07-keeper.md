@@ -93,7 +93,7 @@ module, add `SendCoins` to `BankKeeper` interface:
 
 ```go title="x/scavenge/types/expected_keepers.go"
 type BankKeeper interface {
-  // highlight-next-line
+	// highlight-next-line
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 ```
