@@ -33,7 +33,7 @@ var (
 			return name
 		},
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
-			return protoutil.NewField("string", name, index)
+			return protoutil.NewField(name, "string", index)
 		},
 	}
 
@@ -54,7 +54,7 @@ var (
 		GoCLIImports: []GoImport{{Name: "strings"}},
 		NonIndex:     true,
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
-			return protoutil.NewField("string", name, index, protoutil.Repeated())
+			return protoutil.NewField(name, "string", index, protoutil.Repeated())
 		},
 	}
 )

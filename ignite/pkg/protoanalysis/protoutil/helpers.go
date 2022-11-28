@@ -1,4 +1,4 @@
-// Utils holds some functions that mostly wrap cursor and make adding things easier.
+// Helpers holds some functions that mostly wrap cursor and make adding things easier.
 package protoutil
 
 import (

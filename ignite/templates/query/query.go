@@ -111,7 +111,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			reqFields = append(reqFields, field.ToProtoField(i+1))
 		}
 		if opts.Paginated {
-			reqFields = append(reqFields, protoutil.NewField(pagT+"Request", pagN, len(opts.ReqFields)+1))
+			reqFields = append(reqFields, protoutil.NewField(pagN, pagT+"Request", len(opts.ReqFields)+1))
 		}
 		msgReq := protoutil.NewMessage("Query"+typU+"Request", protoutil.WithFields(reqFields...))
 
@@ -121,7 +121,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			resFields = append(resFields, field.ToProtoField(i+1))
 		}
 		if opts.Paginated {
-			resFields = append(resFields, protoutil.NewField(pagT+"Response", pagN, len(opts.ResFields)+1))
+			resFields = append(resFields, protoutil.NewField(pagN, pagT+"Response", len(opts.ResFields)+1))
 		}
 		msgResp := protoutil.NewMessage("Query"+typU+"Response", protoutil.WithFields(resFields...))
 		protoutil.Append(pf, msgReq, msgResp)
@@ -140,7 +140,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

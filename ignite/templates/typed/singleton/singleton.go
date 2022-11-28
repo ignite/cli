@@ -150,7 +150,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		msgResp := protoutil.NewMessage("QueryGet"+typ+"Response", protoutil.WithFields(field))
 		protoutil.Append(pf, msgReq, msgResp)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
@@ -200,13 +200,13 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		seqNumber := protoutil.NextUniqueID(m)
 		field := protoutil.NewField(
-			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
 			seqNumber,
 		)
 		// We can just append it to GenesisState
 		protoutil.Append(m, field)
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
@@ -392,7 +392,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Add the messages
-		creator := protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)
+		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
 		fields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			fields = append(fields, field.ToProtoField(i+3))
@@ -413,7 +413,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			msgCreate, msgCreateResp, msgUpdate, msgUpdateResp, msgDelete, msgDeleteResp,
 		)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

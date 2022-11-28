@@ -27,7 +27,7 @@ var DataCustom = DataType{
             		}`, prefix, name.UpperCamel, datatype, argIndex)
 	},
 	ToProtoField: func(datatype, name string, index int) *proto.NormalField {
-		return protoutil.NewField(datatype, name, index)
+		return protoutil.NewField(name, datatype, index)
 	},
 	GoCLIImports: []GoImport{{Name: "encoding/json"}},
 	NonIndex:     true,

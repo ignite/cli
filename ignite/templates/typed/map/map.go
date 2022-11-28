@@ -207,28 +207,28 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		gogoproto := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		msgGetResp := protoutil.NewMessage(
 			"QueryGet"+typU+"Response",
-			protoutil.WithFields(protoutil.NewField(typU, typL, 1, protoutil.WithFieldOptions(gogoproto))),
+			protoutil.WithFields(protoutil.NewField(typL, typU, 1, protoutil.WithFieldOptions(gogoproto))),
 		)
 		msgAllReq := protoutil.NewMessage(
 			"QueryAll"+typU+"Request",
-			protoutil.WithFields(protoutil.NewField(pagT+"Request", pagN, 1)),
+			protoutil.WithFields(protoutil.NewField(pagN, pagT+"Request", 1)),
 		)
 		msgAllResp := protoutil.NewMessage(
 			"QueryAll"+typU+"Response",
 			protoutil.WithFields(
 				protoutil.NewField(
-					typU,
 					typL,
+					typU,
 					1,
 					protoutil.Repeated(),
 					protoutil.WithFieldOptions(gogoproto),
 				),
-				protoutil.NewField(pagT+"Response", pagN, 2),
+				protoutil.NewField(pagN, pagT+"Response", 2),
 			),
 		)
 		protoutil.Append(pf, msgGetReq, msgGetResp, msgAllReq, msgAllResp)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
@@ -283,11 +283,11 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		typL, typU := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
 		opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeList := protoutil.NewField(
-			typU, typL+"List", seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(opt),
+			typL+"List", typU, seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(opt),
 		)
 		protoutil.Append(m, typeList)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
@@ -546,7 +546,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			// shouldn't really occur.
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
-		commonFields := []*proto.NormalField{protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)}
+		commonFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
 		commonFields = append(commonFields, indexes...)
 
 		msgCreate := protoutil.NewMessage(
@@ -567,7 +567,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			msgCreate, msgCreateResp, msgUpdate, msgUpdateResp, msgDelete, msgDeleteResp,
 		)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

@@ -128,12 +128,12 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Messages
-		creator := protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)
+		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
 		createFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			createFields = append(createFields, field.ToProtoField(i+2))
 		}
-		udfields := []*proto.NormalField{creator, protoutil.NewField("uint64", "id", 2)}
+		udfields := []*proto.NormalField{creator, protoutil.NewField("id", "uint64", 2)}
 		updateFields := udfields
 		for i, field := range opts.Fields {
 			updateFields = append(updateFields, field.ToProtoField(i+3))
@@ -142,7 +142,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		msgCreate := protoutil.NewMessage("MsgCreate"+name, protoutil.WithFields(createFields...))
 		msgCreateResp := protoutil.NewMessage(
 			"MsgCreate"+name+"Response",
-			protoutil.WithFields(protoutil.NewField("uint64", "id", 1)),
+			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		msgUpdate := protoutil.NewMessage("MsgUpdate"+name, protoutil.WithFields(updateFields...))
 		msgUpdateResp := protoutil.NewMessage("MsgUpdate" + name + "Response")
@@ -151,7 +151,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		protoutil.Append(pf,
 			msgCreate, msgCreateResp, msgUpdate, msgUpdateResp, msgDelete, msgDeleteResp,
 		)
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 
 		return r.File(newFile)
 	}
@@ -220,24 +220,24 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 
 		queryReq := protoutil.NewMessage(
 			"QueryGet"+typ+"Request",
-			protoutil.WithFields(protoutil.NewField("uint64", "id", 1)),
+			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		field := protoutil.NewField(typ, typ, 1, protoutil.WithFieldOptions(gogoOpt))
 		queryResp := protoutil.NewMessage("QueryGet"+typ+"Response", protoutil.WithFields(field))
 
 		queryAllReq := protoutil.NewMessage(
 			"QueryAll"+typ+"Request",
-			protoutil.WithFields(protoutil.NewField(pagT+"Request", pagN, 1)),
+			protoutil.WithFields(protoutil.NewField(pagN, pagT+"Request", 1)),
 		)
 		field = protoutil.NewField(typ, typ, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOpt))
 		queryAllResp := protoutil.NewMessage(
 			"QueryAll"+typ+"Response",
-			protoutil.WithFields(field, protoutil.NewField(pagT+"Response", pagN, 2)),
+			protoutil.WithFields(field, protoutil.NewField(pagN, pagT+"Response", 2)),
 		)
 
 		protoutil.Append(pf, queryReq, queryResp, queryAllReq, queryAllResp)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

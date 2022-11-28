@@ -158,17 +158,17 @@ func TestAppendFile(t *testing.T) {
 	Append(f, o)
 	require.True(t, containsElement(f, o))
 
-	oneof_f := NewOneOfField("string", "this", 2)
+	oneof_f := NewOneofField("this", "string", 2)
 	// Can directly append an option if required:
 	opt := NewOption("this", "that")
 	Append(oneof_f, opt)
 	require.True(t, containsElement(oneof_f, opt))
 
-	oneof := NewOneOf("myoneof")
+	oneof := NewOneof("myoneof")
 	Append(oneof, oneof_f)
 	require.True(t, containsElement(oneof, oneof_f))
 
-	normalfield := NewField("string", "that", 3)
+	normalfield := NewField("that", "string", 3)
 
 	m := NewMessage("Hello")
 	Append(m, oneof)
@@ -218,7 +218,7 @@ func TestAppendEdges(t *testing.T) {
 
 	// Appending a non-option to NormalField/OneOfField panics.
 	require.Panics(t, func() {
-		f := NewField("string", "that", 3)
+		f := NewField("that", "string", 3)
 		Append(f, NewImport("that"))
 	})
 }

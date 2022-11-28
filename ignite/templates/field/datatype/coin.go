@@ -31,7 +31,7 @@ var (
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 			return protoutil.NewField(
-				"cosmos.base.v1beta1.Coin", name, index, protoutil.WithFieldOptions(opt),
+				name, "cosmos.base.v1beta1.Coin", index, protoutil.WithFieldOptions(opt),
 			)
 		},
 	}
@@ -57,7 +57,7 @@ var (
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 			return protoutil.NewField(
-				"cosmos.base.v1beta1.Coin", name, index, protoutil.WithFieldOptions(opt), protoutil.Repeated(),
+				name, "cosmos.base.v1beta1.Coin", index, protoutil.WithFieldOptions(opt), protoutil.Repeated(),
 			)
 		},
 	}

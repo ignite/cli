@@ -141,10 +141,10 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
 		}
 		seqNum := protoutil.NextUniqueID(genesis)
-		field := protoutil.NewField("string", "port_id", seqNum)
+		field := protoutil.NewField("port_id", "string", seqNum)
 		protoutil.Append(genesis, field)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

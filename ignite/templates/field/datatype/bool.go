@@ -39,7 +39,7 @@ var DataBool = DataType{
 		return fmt.Sprintf("strconv.FormatBool(%s)", name)
 	},
 	ToProtoField: func(_, name string, index int) *proto.NormalField {
-		return protoutil.NewField("bool", name, index)
+		return protoutil.NewField(name, "bool", index)
 	},
 	GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 }

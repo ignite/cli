@@ -38,7 +38,7 @@ var (
 			return fmt.Sprintf("strconv.Itoa(int(%s))", name)
 		},
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
-			return protoutil.NewField("uint64", name, index)
+			return protoutil.NewField(name, "uint64", index)
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 	}
@@ -66,7 +66,7 @@ var (
 				prefix, name.UpperCamel, argIndex)
 		},
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
-			return protoutil.NewField("uint64", name, index, protoutil.Repeated())
+			return protoutil.NewField(name, "uint64", index, protoutil.Repeated())
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
 		NonIndex:     true,

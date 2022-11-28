@@ -221,7 +221,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		})
 		// Add it to Oneof.
 		typU, typL := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		modPacket := protoutil.NewOneOfField(typU+"PacketData", typL+"Packet", max+1)
+		modPacket := protoutil.NewOneofField(typL+"Packet", typU+"PacketData", max+1)
 		protoutil.Append(packet, modPacket)
 
 		// Add the message definition for packet and acknowledgment
@@ -251,7 +251,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
@@ -310,10 +310,10 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		for i, field := range opts.Fields {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
-		creator := protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)
-		port := protoutil.NewField("string", "port", 2)
-		channel := protoutil.NewField("string", "channelID", 3)
-		timeout := protoutil.NewField("uint64", "timeoutTimestamp", 4)
+		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
+		port := protoutil.NewField("port", "string", 2)
+		channel := protoutil.NewField("channelID", "string", 3)
+		timeout := protoutil.NewField("timeoutTimestamp", "uint64", 4)
 		sendFields = append(sendFields, creator, port, channel, timeout)
 
 		// Create MsgSend, MsgSendResponse and add to file.
@@ -334,7 +334,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			return fmt.Errorf("error while processing %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

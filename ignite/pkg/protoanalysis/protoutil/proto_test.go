@@ -91,19 +91,19 @@ service Msg {}
 // Test that the changes from adding a list with starport scaffold list <Type>
 // are applied correctly to tx.proto
 func TestAddEmptyList_tx(t *testing.T) {
-	typ, modname := "Kirby", "chainname"
+	typename, modname := "Kirby", "chainname"
 	f, err := parseStringProto(txProto)
 	require.NoError(t, err)
 
 	// 1) Add import for the new type (module/lowercase_typ)
-	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typ)))
+	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typename)))
 	AddImports(f, true, imp)
 	require.True(t, containsElement(f, imp))
 
 	// 2) Add rpcs
 	rpcs := []*proto.RPC{}
 	for _, op := range []string{"Create", "Update", "Delete"} {
-		rpc := NewRPC(op+typ, "Msg"+op+typ, "Msg"+op+typ+"Response")
+		rpc := NewRPC(op+typename, "Msg"+op+typename, "Msg"+op+typename+"Response")
 		rpcs = append(rpcs, rpc)
 	}
 	Apply(f, nil, func(c *Cursor) bool {
@@ -125,10 +125,10 @@ func TestAddEmptyList_tx(t *testing.T) {
 	}
 	// Add the messages after service Msgs at the end of f.
 	createtyp := NewMessage("MsgCreateKirby",
-		WithFields(NewField("string", "creator", 1)))
+		WithFields(NewField("creator", "string", 1)))
 	resp := NewMessage("MsgCreateKirbyResponse",
 		WithFields(
-			NewField("uint64", "id", 1),
+			NewField("id", "uint64", 1),
 		),
 	)
 	Append(f, createtyp, resp)
@@ -137,8 +137,8 @@ func TestAddEmptyList_tx(t *testing.T) {
 
 	updatetyp := NewMessage("MsgUpdateKirby",
 		WithFields(
-			NewField("string", "creator", 1),
-			NewField("uint64", "id", 2),
+			NewField("creator", "string", 1),
+			NewField("id", "uint64", 2),
 		),
 	)
 	updateResp := NewMessage("MsgUpdateKirbyResponse")
@@ -148,8 +148,8 @@ func TestAddEmptyList_tx(t *testing.T) {
 
 	deltyp := NewMessage("MsgDeleteKirby",
 		WithFields(
-			NewField("string", "creator", 1),
-			NewField("uint64", "id", 2),
+			NewField("creator", "string", 1),
+			NewField("id", "uint64", 2),
 		),
 	)
 	delResp := NewMessage("MsgDeleteResponse")
@@ -161,12 +161,12 @@ func TestAddEmptyList_tx(t *testing.T) {
 // Test that the changes from adding a list with starport scaffold list <Type>
 // are applied correctly to genesis.proto
 func TestAddEmptyList_genesis(t *testing.T) {
-	typ, modname := "Kirby", "mod"
+	typename, modname := "Kirby", "mod"
 	f, err := parseStringProto(genesisProto)
 	require.NoError(t, err)
 
 	// 1) Add import for the new type (module/lowercase_typ)
-	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typ)))
+	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typename)))
 	AddImports(f, true, imp)
 	require.True(t, containsElement(f, imp))
 
@@ -174,11 +174,11 @@ func TestAddEmptyList_genesis(t *testing.T) {
 	Apply(f, nil, func(c *Cursor) bool {
 		if m, ok := c.Node().(*proto.Message); ok {
 			if m.Name == "GenesisState" {
-				lst := NewField(typ, typ+"List", 2,
+				lst := NewField(typename+"List", typename, 2,
 					WithFieldOptions(NewOption("gogoproto.nullable", "false", Custom())),
 					Repeated(),
 				)
-				field := NewField(typ, typ+"Count", 3)
+				field := NewField(typename+"Count", typename, 3)
 				Append(m, lst, field)
 				require.True(t, containsElement(f, lst))
 				require.True(t, containsElement(f, field))
@@ -190,33 +190,33 @@ func TestAddEmptyList_genesis(t *testing.T) {
 }
 
 func TestAddEmptyList_query(t *testing.T) {
-	typ, modname := "Kirby", "mod"
+	typename, modname := "Kirby", "mod"
 	f, err := parseStringProto(queryProto)
 	require.NoError(t, err)
 
 	// 1) Add import for the new type (module/lowercase_typ)
-	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typ)))
+	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typename)))
 	AddImports(f, true, imp)
 	require.True(t, containsElement(f, imp))
 
 	q, err := GetServiceByName(f, "Query")
 	require.NoError(t, err)
 	// Add the rpcs
-	single := NewRPC(typ, "QueryGet"+typ+"Request", "QueryGet"+typ+"Response",
+	single := NewRPC(typename, "QueryGet"+typename+"Request", "QueryGet"+typename+"Response",
 		WithRPCOptions(
 			NewOption(
 				"google.api.http",
-				"/cosmonaut/chainname/chainname/"+typ+"/{id}",
+				"/cosmonaut/chainname/chainname/"+typename+"/{id}",
 				Custom(),
 				SetField("get"),
 			),
 		),
 	)
-	all := NewRPC(typ+"All", "QueryAll"+typ+"Request", "QueryAll"+typ+"Response",
+	all := NewRPC(typename+"All", "QueryAll"+typename+"Request", "QueryAll"+typename+"Response",
 		WithRPCOptions(
 			NewOption(
 				"google.api.http",
-				"/cosmonaut/chainname/chainname/"+typ,
+				"/cosmonaut/chainname/chainname/"+typename,
 				Custom(),
 				SetField("get"),
 			),

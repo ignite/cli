@@ -50,17 +50,17 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		// Create option and List field.
 		opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeList := protoutil.NewField(
-			upperName,
 			lowerName+"List",
+			upperName,
 			seqNumber,
 			protoutil.Repeated(),
 			protoutil.WithFieldOptions(opt),
 		)
 		// Create count field.
-		typeCount := protoutil.NewField("uint64", lowerName+"Count", seqNumber+1)
+		typeCount := protoutil.NewField(lowerName+"Count", "uint64", seqNumber+1)
 		protoutil.Append(m, typeList, typeCount)
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }

@@ -1,5 +1,5 @@
 // Wrap proto structs to allow easier creation, protobuf lang is small enough
-// to easily allow this.package protoutil
+// to easily allow this.
 package protoutil
 
 import (
@@ -11,6 +11,12 @@ import (
 
 // TODO: Can also support comments/inline comments? -- Probably, formatting is currently
 // flaky with how it prints them, though.
+
+// Values for the kind of import.
+const (
+	KindWeak   = "weak"
+	KindPublic = "public"
+)
 
 // Create a new Literal:
 //
@@ -38,19 +44,19 @@ type ImportSpec struct {
 }
 
 // Type alias for a callable accepting an ImportSpec.
-type ImportSpecOpts func(i *ImportSpec)
+type ImportSpecOptions func(i *ImportSpec)
 
 // Weak allows you to set the kind of the import statement to 'weak'.
-func Weak() ImportSpecOpts {
+func Weak() ImportSpecOptions {
 	return func(i *ImportSpec) {
-		i.kind = "weak"
+		i.kind = KindWeak
 	}
 }
 
 // Public allows you to set the kind of the import statement to 'public'.
-func Public() ImportSpecOpts {
+func Public() ImportSpecOptions {
 	return func(i *ImportSpec) {
-		i.kind = "public"
+		i.kind = KindPublic
 	}
 }
 
@@ -63,7 +69,7 @@ func Public() ImportSpecOpts {
 //
 //	// import weak "myproto.proto";
 //	imp := NewImport("myproto.proto", Weak())
-func NewImport(path string, opts ...ImportSpecOpts) *proto.Import {
+func NewImport(path string, opts ...ImportSpecOptions) *proto.Import {
 	i := ImportSpec{path: path}
 	for _, opt := range opts {
 		opt(&i)
@@ -93,22 +99,22 @@ type OptionSpec struct {
 	custom   bool
 }
 
-// OptionSpecOpts is a function that accepts an OptionSpec.
-type OptionSpecOpts func(o *OptionSpec)
+// OptionSpecOptions is a function that accepts an OptionSpec.
+type OptionSpecOptions func(o *OptionSpec)
 
 // Custom denotes the option as being a custom option.
-func Custom() OptionSpecOpts {
+func Custom() OptionSpecOptions {
 	return func(f *OptionSpec) {
 		f.custom = true
 	}
 }
 
-// Setter allows setting specific fields for a given option
+// SetField allows setting specific fields for a given option
 // that denotes a type with fields.
 //
 //	// option (my_opt).field = "Value";
 //	opt := NewOption("my_opt", "Value", Custom(), Setter("field"))
-func SetField(name string) OptionSpecOpts {
+func SetField(name string) OptionSpecOptions {
 	return func(f *OptionSpec) {
 		f.setter = name
 	}
@@ -130,7 +136,7 @@ func SetField(name string) OptionSpecOpts {
 //
 //	// option foo = "bar";
 //	opt := NewOption("foo", `bar`)
-func NewOption(name, constant string, opts ...OptionSpecOpts) *proto.Option {
+func NewOption(name, constant string, opts ...OptionSpecOptions) *proto.Option {
 	o := OptionSpec{name: name, constant: constant}
 	for _, opt := range opts {
 		opt(&o)
@@ -158,24 +164,24 @@ type RPCSpec struct {
 }
 
 // Type alias for a callable accepting an RPCSpec.
-type RPCSpecOpts func(i *RPCSpec)
+type RPCSpecOptions func(i *RPCSpec)
 
 // Mark request as streaming.
-func StreamRequest() RPCSpecOpts {
+func StreamRequest() RPCSpecOptions {
 	return func(r *RPCSpec) {
 		r.streamsReq = true
 	}
 }
 
 // Mark response as streaming.
-func StreamResponse() RPCSpecOpts {
+func StreamResponse() RPCSpecOptions {
 	return func(r *RPCSpec) {
 		r.streamsResp = true
 	}
 }
 
 // WithRPCOptions adds options to the RPC.
-func WithRPCOptions(option ...*proto.Option) RPCSpecOpts {
+func WithRPCOptions(option ...*proto.Option) RPCSpecOptions {
 	return func(o *RPCSpec) {
 		o.options = append(o.options, option...)
 	}
@@ -192,7 +198,7 @@ func WithRPCOptions(option ...*proto.Option) RPCSpecOpts {
 //	//  option (foo) = 1;
 //	// }
 //	rpc := NewRPC("Foo", "Bar", "Bar", WithRPCOptions(NewOption("foo", "1")))
-func NewRPC(name string, inputType string, outputType string, opts ...RPCSpecOpts) *proto.RPC {
+func NewRPC(name string, inputType string, outputType string, opts ...RPCSpecOptions) *proto.RPC {
 	r := RPCSpec{name: name, inputType: inputType, outputType: outputType}
 	for _, opt := range opts {
 		opt(&r)
@@ -220,18 +226,18 @@ type ServiceSpec struct {
 	opts []*proto.Option
 }
 
-// ServiceSpecOpts is a type alias for a callable accepting a ServiceSpec.
-type ServiceSpecOpts func(i *ServiceSpec)
+// ServiceSpecOptions is a type alias for a callable accepting a ServiceSpec.
+type ServiceSpecOptions func(i *ServiceSpec)
 
 // WithRPCs adds rpcs to the service.
-func WithRPCs(rpcs ...*proto.RPC) ServiceSpecOpts {
+func WithRPCs(rpcs ...*proto.RPC) ServiceSpecOptions {
 	return func(s *ServiceSpec) {
 		s.rpcs = append(s.rpcs, rpcs...)
 	}
 }
 
 // WithServiceOptions adds options to the service.
-func WithServiceOptions(options ...*proto.Option) ServiceSpecOpts {
+func WithServiceOptions(options ...*proto.Option) ServiceSpecOptions {
 	return func(s *ServiceSpec) {
 		s.opts = append(s.opts, options...)
 	}
@@ -254,7 +260,7 @@ func WithServiceOptions(options ...*proto.Option) ServiceSpecOpts {
 //	 service := NewService("Foo", WithServiceOptions(opt), WithRPCs(rpc))
 //
 // By default, options are added first and then the rpcs.
-func NewService(name string, opts ...ServiceSpecOpts) *proto.Service {
+func NewService(name string, opts ...ServiceSpecOptions) *proto.Service {
 	s := ServiceSpec{name: name}
 	for _, opt := range opts {
 		opt(&s)
@@ -275,38 +281,38 @@ func NewService(name string, opts ...ServiceSpecOpts) *proto.Service {
 
 // FieldSpec holds information relevant to the field statement.
 type FieldSpec struct {
-	name, typ                    string
+	name, typename               string
 	sequence                     int
 	repeated, optional, required bool
 	options                      []*proto.Option
 }
 
-// FieldSpecOpts is a type alias for a callable accepting a FieldSpec.
-type FieldSpecOpts func(f *FieldSpec)
+// FieldSpecOptions is a type alias for a callable accepting a FieldSpec.
+type FieldSpecOptions func(f *FieldSpec)
 
 // Repeated marks the field as repeated.
-func Repeated() FieldSpecOpts {
+func Repeated() FieldSpecOptions {
 	return func(f *FieldSpec) {
 		f.repeated = true
 	}
 }
 
 // Optional marks the field as optional.
-func Optional() FieldSpecOpts {
+func Optional() FieldSpecOptions {
 	return func(f *FieldSpec) {
 		f.optional = true
 	}
 }
 
 // Required marks the field as required.
-func Required() FieldSpecOpts {
+func Required() FieldSpecOptions {
 	return func(f *FieldSpec) {
 		f.required = true
 	}
 }
 
 // WithFieldOptions adds options to the field.
-func WithFieldOptions(options ...*proto.Option) FieldSpecOpts {
+func WithFieldOptions(options ...*proto.Option) FieldSpecOptions {
 	return func(f *FieldSpec) {
 		f.options = append(f.options, options...)
 	}
@@ -322,8 +328,8 @@ func WithFieldOptions(options ...*proto.Option) FieldSpecOpts {
 //
 //	// repeated int32 Foo = 1;
 //	field := NewField("Foo", "int32", 1, Repeated())
-func NewField(typ, name string, sequence int, opts ...FieldSpecOpts) *proto.NormalField {
-	f := FieldSpec{name: name, typ: typ, sequence: sequence}
+func NewField(name, typename string, sequence int, opts ...FieldSpecOptions) *proto.NormalField {
+	f := FieldSpec{name: name, typename: typename, sequence: sequence}
 	for _, opt := range opts {
 		opt(&f)
 	}
@@ -333,7 +339,7 @@ func NewField(typ, name string, sequence int, opts ...FieldSpecOpts) *proto.Norm
 		Field: &proto.Field{
 			Name:     f.name,
 			Sequence: f.sequence,
-			Type:     f.typ,
+			Type:     f.typename,
 			Options:  []*proto.Option{},
 		},
 		Repeated: f.repeated,
@@ -349,37 +355,37 @@ func NewField(typ, name string, sequence int, opts ...FieldSpecOpts) *proto.Norm
 // MessageSpec holds information relevant to the message statement.
 type MessageSpec struct {
 	name     string
-	fields   []*proto.NormalField // needs a good amount of work.
+	fields   []*proto.NormalField
 	enums    []*proto.Enum
 	options  []*proto.Option
 	isExtend bool
 }
 
-// MessageSpecOpts is a type alias for a callable accepting a MessageSpec.
-type MessageSpecOpts func(i *MessageSpec)
+// MessageSpecOptions is a type alias for a callable accepting a MessageSpec.
+type MessageSpecOptions func(i *MessageSpec)
 
 // WithMessageOptions adds options to the message.
-func WithMessageOptions(options ...*proto.Option) MessageSpecOpts {
+func WithMessageOptions(options ...*proto.Option) MessageSpecOptions {
 	return func(m *MessageSpec) {
 		m.options = append(m.options, options...)
 	}
 }
 
 // WithMessageFields adds fields to the message.
-func WithFields(fields ...*proto.NormalField) MessageSpecOpts {
+func WithFields(fields ...*proto.NormalField) MessageSpecOptions {
 	return func(m *MessageSpec) {
 		m.fields = append(m.fields, fields...)
 	}
 }
 
 // WithEnums adds enums to the message.
-func WithEnums(enum ...*proto.Enum) MessageSpecOpts {
+func WithEnums(enum ...*proto.Enum) MessageSpecOptions {
 	return func(m *MessageSpec) {
 		m.enums = append(m.enums, enum...)
 	}
 }
 
-func Extend() MessageSpecOpts {
+func Extend() MessageSpecOptions {
 	return func(m *MessageSpec) {
 		m.isExtend = true
 	}
@@ -402,7 +408,7 @@ func Extend() MessageSpecOpts {
 //	 message := NewMessage("Foo", WithMessageOptions(opt), WithFields(field))
 //
 // By default, options are added first, then fields and then enums.
-func NewMessage(name string, opts ...MessageSpecOpts) *proto.Message {
+func NewMessage(name string, opts ...MessageSpecOptions) *proto.Message {
 	m := MessageSpec{name: name}
 	for _, opt := range opts {
 		opt(&m)
@@ -433,11 +439,11 @@ type EnumFieldSpec struct {
 	options []*proto.Option
 }
 
-// EnumFieldSpecOpts is a type alias for a callable accepting an EnumFieldSpec.
-type EnumFieldSpecOpts func(f *EnumFieldSpec)
+// EnumFieldSpecOptions is a type alias for a callable accepting an EnumFieldSpec.
+type EnumFieldSpecOptions func(f *EnumFieldSpec)
 
 // WithEnumFieldOptions adds options to the enum field.
-func WithEnumFieldOptions(options ...*proto.Option) EnumFieldSpecOpts {
+func WithEnumFieldOptions(options ...*proto.Option) EnumFieldSpecOptions {
 	return func(f *EnumFieldSpec) {
 		f.options = append(f.options, options...)
 	}
@@ -453,7 +459,7 @@ func WithEnumFieldOptions(options ...*proto.Option) EnumFieldSpecOpts {
 //
 //	// BAR = 1 [option (foo) = 1];
 //	field := NewEnumField("BAR", 1, WithEnumFieldOptions(NewOption("foo", "1")))
-func NewEnumField(name string, value int, opts ...EnumFieldSpecOpts) *proto.EnumField {
+func NewEnumField(name string, value int, opts ...EnumFieldSpecOptions) *proto.EnumField {
 	f := EnumFieldSpec{name: name, value: value}
 	for _, opt := range opts {
 		opt(&f)
@@ -527,35 +533,35 @@ func NewEnum(name string, opts ...EnumSpecOpts) *proto.Enum {
 }
 
 // OneOfField holds information relevant to the oneof field statement.
-type OneOfFieldSpec struct {
-	name, typ string
-	sequence  int
-	options   []*proto.Option
+type OneofFieldSpec struct {
+	name, typename string
+	sequence       int
+	options        []*proto.Option
 }
 
-// OneOfFieldOpts is a type alias for a callable accepting a OneOfField.
-type OneOfFieldOpts func(f *OneOfFieldSpec)
+// OneofFieldOptions is a type alias for a callable accepting a OneOfField.
+type OneofFieldOptions func(f *OneofFieldSpec)
 
-// WithOneOfFieldOptions adds options to the oneof field.
-func WithOneOfFieldOptions(options ...*proto.Option) OneOfFieldOpts {
-	return func(f *OneOfFieldSpec) {
+// WithOneofFieldOptions adds options to the oneof field.
+func WithOneofFieldOptions(options ...*proto.Option) OneofFieldOptions {
+	return func(f *OneofFieldSpec) {
 		f.options = append(f.options, options...)
 	}
 }
 
-// NewOneOfField creates a new oneof field statement node:
+// NewOneofField creates a new oneof field statement node:
 //
 //		// Needs to placed in a oneof block.
 //	 // int32 Foo = 1;
-//	 field := NewOneOfField("Foo", "int32", 1)
+//	 field := NewOneofField("Foo", "int32", 1)
 //
 // Additional options can be created and attached to the field to the field via
 // WithOneOfFieldOptions:
 //
 //	// int32 Foo = 1 [option (foo) = 1];
-//	field := NewOneOfField("Foo", "int32", 1, WithOneOfFieldOptions(NewOption("foo", "1")))
-func NewOneOfField(typ, name string, sequence int, opts ...OneOfFieldOpts) *proto.OneOfField {
-	f := OneOfFieldSpec{name: name, typ: typ, sequence: sequence}
+//	field := NewOneofField("Foo", "int32", 1, WithOneOfFieldOptions(NewOption("foo", "1")))
+func NewOneofField(name, typename string, sequence int, opts ...OneofFieldOptions) *proto.OneOfField {
+	f := OneofFieldSpec{name: name, typename: typename, sequence: sequence}
 	for _, opt := range opts {
 		opt(&f)
 	}
@@ -563,7 +569,7 @@ func NewOneOfField(typ, name string, sequence int, opts ...OneOfFieldOpts) *prot
 		Field: &proto.Field{
 			Name:     f.name,
 			Sequence: f.sequence,
-			Type:     f.typ,
+			Type:     f.typename,
 			Options:  []*proto.Option{},
 		},
 	}
@@ -578,32 +584,32 @@ type OneofSpec struct {
 	fields  []*proto.OneOfField
 }
 
-// OneOfSpecOpts is a type alias for a callable accepting a OneOfSpec.
-type OneOfSpecOpts func(o *OneofSpec)
+// OneofSpecOptions is a type alias for a callable accepting a OneOfSpec.
+type OneofSpecOptions func(o *OneofSpec)
 
-// WithOneOfOptions adds options to the oneof.
-func WithOneOfOptions(options ...*proto.Option) OneOfSpecOpts {
+// WithOneofOptions adds options to the oneof.
+func WithOneofOptions(options ...*proto.Option) OneofSpecOptions {
 	return func(o *OneofSpec) {
 		o.options = append(o.options, options...)
 	}
 }
 
-// WithOneOfFields adds fields to the oneof.
-func WithOneOfFields(fields ...*proto.OneOfField) OneOfSpecOpts {
+// WithOneofFields adds fields to the oneof.
+func WithOneofFields(fields ...*proto.OneOfField) OneofSpecOptions {
 	return func(o *OneofSpec) {
 		o.fields = append(o.fields, fields...)
 	}
 }
 
-// NewOneOf creates a new oneof statement node:
+// NewOneof creates a new oneof statement node:
 //
 //	// oneof Foo {
 //	//  int32 Foo = 1;
 //	// }
-//	oneof := NewOneOf("Foo", WithOneOfFields(NewOneOfField("Foo", "int32", 1)))
+//	oneof := NewOneof("Foo", WithOneOfFields(NewOneOfField("Foo", "int32", 1)))
 //
 // No options are attached by default, use WithOneOfOptions to add them as required.
-func NewOneOf(name string, opts ...OneOfSpecOpts) *proto.Oneof {
+func NewOneof(name string, opts ...OneofSpecOptions) *proto.Oneof {
 	o := OneofSpec{name: name}
 	for _, opt := range opts {
 		opt(&o)
@@ -638,8 +644,7 @@ func AttachComment(n proto.Visitee, comment string) {
 	}
 }
 
-// Handle this better. Currently s with at least one digit is
-// considered a number and if not, a string.
+// Check if s is a string, exclude special cases of "false" and "true".
 func isString(s string) bool {
 	if s == "true" || s == "false" {
 		return false

@@ -8,8 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Sanity checks
+const (
+	proto_path = "../testdata/liquidity"
+)
 
+// Sanity check: Ensure that parsing works fine.
 func TestParseSuccess(t *testing.T) {
 	files := []string{"genesis", "liquidity", "msg", "query", "tx"}
 	for _, file := range files {
@@ -26,6 +29,7 @@ func TestParseSuccess(t *testing.T) {
 	require.Error(t, err)
 }
 
+// Sanity check: Ensure that parsing works fine with a string input.
 func TestParseString(t *testing.T) {
 	_, err := parseStringProto(`syntax = "proto3";
 	
@@ -44,10 +48,6 @@ func TestParseString(t *testing.T) {
 	require.Error(t, err)
 }
 
-const (
-	proto_path = "../testdata/liquidity"
-)
-
 func TestParseProtoFiles(t *testing.T) {
 	files := []string{"genesis", "liquidity", "msg", "query", "tx"}
 	for _, f := range files {
@@ -60,7 +60,7 @@ func TestParseProtoFiles(t *testing.T) {
 
 		// Pass through printer and check that it still parses
 		// afterwards:
-		out := Printer(nodes)
+		out := Print(nodes)
 		_, err = parseStringProto(out)
 		require.NoError(t, err)
 	}

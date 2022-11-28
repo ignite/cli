@@ -26,9 +26,9 @@ func ParseProtoFile(r io.Reader) (*proto.Proto, error) {
 	return proto.NewParser(r).Parse()
 }
 
-// Printer() formats the proto file using proto-contrib/pkg/protofmt.
+// Print() formats the proto file using proto-contrib/pkg/protofmt.
 // This does have certain opinions on how formatting is done.
-func Printer(pf *proto.Proto) string {
+func Print(pf *proto.Proto) string {
 	output := new(strings.Builder)
 	protofmt.NewFormatter(output, "  ").Format(pf) // 2 spaces
 

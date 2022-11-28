@@ -104,7 +104,7 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 		typ := opts.MsgName.UpperCamel
 		protoutil.Append(s, protoutil.NewRPC(typ, "Msg"+typ, "Msg"+typ+"Response"))
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
@@ -121,7 +121,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			return err
 		}
 		// Prepare the fields and create the messages.
-		msgFields := []*proto.NormalField{protoutil.NewField("string", opts.MsgSigner.LowerCamel, 1)}
+		msgFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
 		for i, field := range opts.Fields {
 			msgFields = append(msgFields, field.ToProtoField(i+2))
 		}
@@ -149,7 +149,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Printer(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(pf))
 		return r.File(newFile)
 	}
 }
