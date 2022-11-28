@@ -154,15 +154,15 @@ func (c Config) GetVersion() chain.Version {
 
 // SetDefaults assigns default values to empty config fields.
 func (c *Config) SetDefaults() error {
-	if err := mergo.Merge(c, DefaulConfig()); err != nil {
+	if err := mergo.Merge(c, DefaultConfig()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// DefaulConfig returns a base config with default values.
-func DefaulConfig() Config {
+// DefaultConfig returns a base config with default values.
+func DefaultConfig() Config {
 	return Config{
 		Build: Build{
 			Proto: Proto{

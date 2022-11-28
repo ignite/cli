@@ -13,7 +13,7 @@ import (
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
-	c := Config{Config: base.DefaulConfig()}
+	c := Config{Config: base.DefaultConfig()}
 	c.Version = 1
 	return &c
 }
