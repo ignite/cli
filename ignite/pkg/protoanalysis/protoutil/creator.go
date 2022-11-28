@@ -198,7 +198,7 @@ func WithRPCOptions(option ...*proto.Option) RPCSpecOptions {
 //	//  option (foo) = 1;
 //	// }
 //	rpc := NewRPC("Foo", "Bar", "Bar", WithRPCOptions(NewOption("foo", "1")))
-func NewRPC(name string, inputType string, outputType string, opts ...RPCSpecOptions) *proto.RPC {
+func NewRPC(name, inputType, outputType string, opts ...RPCSpecOptions) *proto.RPC {
 	r := RPCSpec{name: name, inputType: inputType, outputType: outputType}
 	for _, opt := range opts {
 		opt(&r)
