@@ -3,9 +3,9 @@ package config
 import (
 	"io"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
-
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/ignite/config/chain/base"
 )
 
 // Build time check for the latest config version type.

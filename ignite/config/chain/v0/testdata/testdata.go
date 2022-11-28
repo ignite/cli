@@ -5,10 +5,10 @@ import (
 	_ "embed"
 	"testing"
 
-	v0 "github.com/ignite/cli/ignite/config/chain/v0"
-
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
+
+	v0 "github.com/ignite/cli/ignite/config/chain/v0"
 )
 
 //go:embed config.yaml

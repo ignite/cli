@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"testing"
 
-	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
+	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	"github.com/ignite/cli/ignite/config/testdata"
 )
 

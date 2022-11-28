@@ -11,8 +11,8 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"honnef.co/go/tools/config"
 
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -65,7 +65,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *config.Config) {
+	app.EditConfig(func(c *config.ChainConfig) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

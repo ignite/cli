@@ -6,11 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/config/testdata"
 )
 

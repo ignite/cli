@@ -10,8 +10,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
-	"honnef.co/go/tools/config"
 
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
@@ -56,7 +56,7 @@ func TestNodeTxBankSend(t *testing.T) {
 	bobAccount, bobMnemonic, err := ca.Create(bob)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *config.Config) {
+	app.EditConfig(func(c *config.ChainConfig) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

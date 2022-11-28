@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"honnef.co/go/tools/config"
 
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	envtest "github.com/ignite/cli/integration"
@@ -26,7 +26,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		isBackendAliveErr error
 	)
 
-	var cfg config.Config
+	var cfg config.ChainConfig
 	cf := confile.New(confile.DefaultYAMLEncodingCreator, filepath.Join(app.SourcePath(), "config.yml"))
 	require.NoError(t, cf.Load(&cfg))
 
