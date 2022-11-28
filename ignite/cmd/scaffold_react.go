@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
@@ -19,7 +19,7 @@ func NewScaffoldReact() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagPath, "p", "./"+chainconfig.DefaultReactPath, "path to scaffold content of the React app")
+	c.Flags().StringP(flagPath, "p", "./"+config.DefaultReactPath, "path to scaffold content of the React app")
 
 	return c
 }

@@ -6,20 +6,21 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/chainconfig/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/base"
 )
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
-	config.BaseConfig `yaml:",inline"`
+	base.Config `yaml:",inline"`
 
-	Validator Validator   `yaml:"validator"`
-	Init      config.Init `yaml:"init"`
-	Host      config.Host `yaml:"host"`
+	Validator Validator `yaml:"validator"`
+	Init      base.Init `yaml:"init"`
+	Host      base.Host `yaml:"host"`
 }
 
 // Clone returns an identical copy of the instance.
-func (c *Config) Clone() (config.Converter, error) {
+func (c *Config) Clone() (chainconfig.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err
@@ -30,11 +31,7 @@ func (c *Config) Clone() (config.Converter, error) {
 
 // Decode decodes the config file values from YAML.
 func (c *Config) Decode(r io.Reader) error {
-	if err := yaml.NewDecoder(r).Decode(c); err != nil {
-		return err
-	}
-
-	return nil
+	return yaml.NewDecoder(r).Decode(c)
 }
 
 // Validator holds info related to validator settings.

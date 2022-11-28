@@ -1,4 +1,4 @@
-package chainconfig_test
+package config_test
 
 import (
 	"bytes"
@@ -7,18 +7,18 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/config"
+	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 )
 
 func TestCheckVersion(t *testing.T) {
 	// Arrange
 	cfg := bytes.NewBufferString(
-		fmt.Sprintf("version: %d", chainconfig.LatestVersion),
+		fmt.Sprintf("version: %d", config.LatestVersion),
 	)
 
 	// Act
-	err := chainconfig.CheckVersion(cfg)
+	err := config.CheckVersion(cfg)
 
 	// Assert
 	require.NoError(t, err)
@@ -27,12 +27,12 @@ func TestCheckVersion(t *testing.T) {
 func TestCheckVersionWithOutdatedVersion(t *testing.T) {
 	// Arrange
 	cfg := bytes.NewBufferString("version: 0")
-	wantError := chainconfig.VersionError{}
+	wantError := config.VersionError{}
 
 	// Act
-	err := chainconfig.CheckVersion(cfg)
+	err := config.CheckVersion(cfg)
 
 	// Assert
 	require.ErrorAs(t, err, &wantError)
-	require.Equal(t, wantError.Version, config.Version(0))
+	require.Equal(t, wantError.Version, chainconfig.Version(0))
 }
