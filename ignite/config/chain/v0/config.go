@@ -5,21 +5,19 @@ import (
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
-
-	"github.com/ignite/cli/ignite/config/chain/base"
 )
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
-	base.Config `yaml:",inline"`
+	baseconfig.Config `yaml:",inline"`
 
-	Validator Validator `yaml:"validator"`
-	Init      base.Init `yaml:"init"`
-	Host      base.Host `yaml:"host"`
+	Validator Validator       `yaml:"validator"`
+	Init      baseconfig.Init `yaml:"init"`
+	Host      baseconfig.Host `yaml:"host"`
 }
 
 // Clone returns an identical copy of the instance.
-func (c *Config) Clone() (base.Converter, error) {
+func (c *Config) Clone() (baseconfig.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err

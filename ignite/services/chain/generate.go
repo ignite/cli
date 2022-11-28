@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -334,7 +333,7 @@ func (c Chain) joinGeneratedPath(rootPath string) string {
 	return filepath.Join(c.app.Path, rootPath, "generated")
 }
 
-func (c Chain) saveClientConfig(client base.Client) error {
+func (c Chain) saveClientConfig(client baseconfig.Client) error {
 	path := c.ConfigPath()
 	file, err := os.Open(path)
 	if err != nil {

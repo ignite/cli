@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
@@ -66,14 +65,14 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	require.NoError(t, err)
 
 	app.EditConfig(func(c *config.ChainConfig) {
-		c.Accounts = []base.Account{
+		c.Accounts = []baseconfig.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
 				Coins:    []string{"5600atoken", "1200btoken", "100000000stake"},
 			},
 		}
-		c.Faucet = base.Faucet{}
+		c.Faucet = baseconfig.Faucet{}
 		c.Validators[0].KeyringBackend = keyring.BackendTest
 	})
 
