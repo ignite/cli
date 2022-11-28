@@ -20,7 +20,7 @@ import (
 	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -31,14 +31,14 @@ import (
 
 // pluginsPath holds the plugin cache directory.
 var pluginsPath = xfilepath.Join(
-	chainconfig.ConfigDirPath,
+	config.DirPath,
 	xfilepath.Path("plugins"),
 )
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
 	// Embed the plugin configuration
-	chainconfig.Plugin
+	config.Plugin
 	// Interface allows to communicate with the plugin via net/rpc.
 	Interface Interface
 	// If any error occurred during the plugin load, it's stored here
@@ -97,7 +97,7 @@ func Update(plugins ...*Plugin) error {
 }
 
 // newPlugin creates a Plugin from configuration.
-func newPlugin(pluginsDir string, cp chainconfig.Plugin) *Plugin {
+func newPlugin(pluginsDir string, cp config.Plugin) *Plugin {
 	var (
 		p          = &Plugin{Plugin: cp}
 		pluginPath = cp.Path
