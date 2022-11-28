@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"honnef.co/go/tools/config"
 
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -41,7 +42,7 @@ func TestCustomModule(t *testing.T) {
 		},
 	}
 
-	app.EditConfig(func(cfg *config.Config) {
+	app.EditConfig(func(cfg *config.ChainConfig) {
 		cfg.Accounts = append(cfg.Accounts, accounts...)
 	})
 
