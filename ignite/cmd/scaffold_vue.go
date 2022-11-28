@@ -12,7 +12,7 @@ import (
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "vue",
-		Short:   "Generate Vue 3 web app template",
+		Short:   "Vue 3 web app template",
 		Args:    cobra.NoArgs,
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    scaffoldVueHandler,

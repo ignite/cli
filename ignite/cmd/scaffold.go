@@ -28,7 +28,7 @@ const (
 func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "scaffold [command]",
-		Short: "Scaffold a new blockchain, module, message, query, and more",
+		Short: "Create a new blockchain, module, message, query, and more",
 		Long: `Scaffolding is a quick way to generate code for major pieces of your
 application.
 
@@ -203,9 +203,9 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 
 func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
-	f.String(flagModule, "", "module to add into. Default is app's main module")
-	f.Bool(flagNoMessage, false, "disable CRUD interaction messages scaffolding")
-	f.Bool(flagNoSimulation, false, "disable CRUD simulation scaffolding")
+	f.String(flagModule, "", "specify which module to generate code in")
+	f.Bool(flagNoMessage, false, "skip generating message handling logic")
+	f.Bool(flagNoSimulation, false, "skip simulation logic")
 	f.String(flagSigner, "", "label for the message signer (default: creator)")
 	return f
 }
