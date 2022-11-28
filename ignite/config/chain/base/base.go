@@ -164,8 +164,8 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
-// BaseConfig defines a struct with the fields that are common to all config versions.
-type BaseConfig struct {
+// Config defines a struct with the fields that are common to all config versions.
+type Config struct {
 	Version  Version   `yaml:"version"`
 	Build    Build     `yaml:"build,omitempty"`
 	Accounts []Account `yaml:"accounts"`
@@ -175,22 +175,22 @@ type BaseConfig struct {
 }
 
 // GetVersion returns the config version.
-func (c BaseConfig) GetVersion() Version {
+func (c Config) GetVersion() Version {
 	return c.Version
 }
 
 // SetDefaults assigns default values to empty config fields.
-func (c *BaseConfig) SetDefaults() error {
-	if err := mergo.Merge(c, DefaultBaseConfig()); err != nil {
+func (c *Config) SetDefaults() error {
+	if err := mergo.Merge(c, DefaulConfig()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// DefaultBaseConfig returns a base config with default values.
-func DefaultBaseConfig() BaseConfig {
-	return BaseConfig{
+// DefaulConfig returns a base config with default values.
+func DefaulConfig() Config {
+	return Config{
 		Build: Build{
 			Proto: Proto{
 				Path:            "proto",

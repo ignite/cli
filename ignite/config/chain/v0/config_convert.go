@@ -10,7 +10,7 @@ func (c *Config) ConvertNext() (base.Converter, error) {
 	targetCfg := v12.DefaultConfig()
 
 	// All the fields in the base config remain the same
-	targetCfg.BaseConfig = c.BaseConfig
+	targetCfg.Config = c.Config
 	targetCfg.Version = 1
 
 	// There is always only one validator in version 0

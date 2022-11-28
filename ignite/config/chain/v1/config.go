@@ -12,14 +12,14 @@ import (
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
-	c := Config{BaseConfig: base.DefaultBaseConfig()}
+	c := Config{Config: base.DefaultBaseConfig()}
 	c.Version = 1
 	return &c
 }
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
-	base.BaseConfig `yaml:",inline"`
+	base.Config `yaml:",inline"`
 
 	Validators []Validator `yaml:"validators"`
 	Plugins    []Plugin    `yaml:"plugins,omitempty"`
@@ -49,7 +49,7 @@ type Plugin struct {
 }
 
 func (c *Config) SetDefaults() error {
-	if err := c.BaseConfig.SetDefaults(); err != nil {
+	if err := c.Config.SetDefaults(); err != nil {
 		return err
 	}
 

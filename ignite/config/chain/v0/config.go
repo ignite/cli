@@ -11,7 +11,7 @@ import (
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
-	base.BaseConfig `yaml:",inline"`
+	base.Config `yaml:",inline"`
 
 	Validator Validator `yaml:"validator"`
 	Init      base.Init `yaml:"init"`

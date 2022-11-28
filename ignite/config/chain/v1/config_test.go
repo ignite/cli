@@ -25,7 +25,7 @@ func TestConfigDecode(t *testing.T) {
 
 	require.NoError(err)
 	expected := v12.Config{
-		BaseConfig: base.BaseConfig{
+		Config: base.Config{
 			Version: 1,
 			Build: base.Build{
 				Binary: "evmosd",
