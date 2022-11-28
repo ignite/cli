@@ -19,31 +19,29 @@ const (
 	moniker = "mynode"
 )
 
-// Init initializes the chain and applies all optional configurations.
-func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
-	conf, err := c.Config()
-	if err != nil {
-		return &CannotBuildAppError{err}
-	}
-
-	if err := c.InitChain(ctx); err != nil {
+// Init initializes the chain
+// initAccounts true intializes accounts for the chain from Ignite the config
+// initConfiguration initilizes node configuration from the Ignite config
+// initGenesis initializes genesis state for the chain from Ignite config
+func (c *Chain) Init(ctx context.Context, initAccounts, initConfiguration, initGenesis bool) error {
+	if err := c.InitChain(ctx, initConfiguration, initGenesis); err != nil {
 		return err
 	}
 
 	if initAccounts {
+		conf, err := c.Config()
+		if err != nil {
+			return &CannotBuildAppError{err}
+		}
+
 		return c.InitAccounts(ctx, conf)
 	}
 	return nil
 }
 
 // InitChain initializes the chain.
-func (c *Chain) InitChain(ctx context.Context) error {
+func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bool) error {
 	chainID, err := c.ID()
-	if err != nil {
-		return err
-	}
-
-	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
@@ -67,19 +65,31 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
+	var conf *chainconfig.Config
+	if initConfiguration || initGenesis {
+		conf, err = c.Config()
+		if err != nil {
+			return err
+		}
+	}
+
 	// ovewrite app config files with the values defined in Ignite's config file
-	if err := c.Configure(home, conf); err != nil {
-		return err
+	if initConfiguration {
+		if err := c.Configure(home, conf); err != nil {
+			return err
+		}
 	}
 
-	// make sure that chain id given during chain.New() has the most priority.
-	if conf.Genesis != nil {
-		conf.Genesis["chain_id"] = chainID
-	}
+	if initGenesis {
+		// make sure that chain id given during chain.New() has the most priority.
+		if conf.Genesis != nil {
+			conf.Genesis["chain_id"] = chainID
+		}
 
-	// update genesis file with the genesis values defined in the config
-	if err := c.UpdateGenesisFile(conf.Genesis); err != nil {
-		return err
+		// update genesis file with the genesis values defined in the config
+		if err := c.UpdateGenesisFile(conf.Genesis); err != nil {
+			return err
+		}
 	}
 
 	return nil
