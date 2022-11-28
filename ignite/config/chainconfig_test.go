@@ -3,12 +3,12 @@ package config_test
 import (
 	"bytes"
 	"fmt"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/base"
 )
 
 func TestCheckVersion(t *testing.T) {

@@ -1,13 +1,13 @@
 package testdata
 
 import (
+	"github.com/ignite/cli/ignite/config/chain/base"
+	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
+	v1testdata "github.com/ignite/cli/ignite/config/chain/v1/testdata"
 	"testing"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/base"
 	networkconfigTestData "github.com/ignite/cli/ignite/config/networkconfig/testdata"
-	v0testdata "github.com/ignite/cli/ignite/config/v0/testdata"
-	v1testdata "github.com/ignite/cli/ignite/config/v1/testdata"
 )
 
 var Versions = map[base.Version][]byte{

@@ -2,6 +2,7 @@ package envtest
 
 import (
 	"fmt"
+	"github.com/ignite/cli/ignite/config/chain/v1"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,7 +13,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/config"
-	v1 "github.com/ignite/cli/ignite/config/v1"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"

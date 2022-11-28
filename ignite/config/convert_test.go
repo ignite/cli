@@ -2,13 +2,13 @@ package config_test
 
 import (
 	"bytes"
+	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/config/testdata"
-	v0testdata "github.com/ignite/cli/ignite/config/v0/testdata"
 )
 
 func TestConvertLatest(t *testing.T) {

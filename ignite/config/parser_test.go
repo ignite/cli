@@ -3,13 +3,13 @@ package config_test
 import (
 	"bytes"
 	"fmt"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/base"
 	"github.com/ignite/cli/ignite/config/testdata"
 )
 

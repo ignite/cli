@@ -3,13 +3,12 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"io"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
-
-	"github.com/ignite/cli/ignite/config/base"
 )
 
 // Parse reads a config file.
