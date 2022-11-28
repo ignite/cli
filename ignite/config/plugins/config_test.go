@@ -4,9 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ignite/cli/ignite/config/plugins"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/config/plugins"
 )
 
 func TestConfigDecode(t *testing.T) {
