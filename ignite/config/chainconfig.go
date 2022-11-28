@@ -20,8 +20,8 @@ var (
 	// DirPath returns the path of configuration directory of Ignite.
 	DirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
 
-	// ConfigFileNames is a list of recognized names as for Ignite's config file.
-	ConfigFileNames = []string{"config.yml", "config.yaml"}
+	// ChainConfigFilenames is a list of recognized names as for Ignite's chain config file.
+	ChainConfigFilenames = []string{"config.yml", "config.yaml"}
 
 	// DefaultTSClientPath defines the default relative path to use when generating the TS client.
 	// The path is relative to the app's directory.
@@ -47,7 +47,7 @@ var (
 	// The path is relative to the app's directory.
 	DefaultHooksPath = "react/src/hooks"
 
-	// DefaultOpenAPIPath defines the default relative path to use when when generating an OpenAPI schema.
+	// DefaultOpenAPIPath defines the default relative path to use when generating an OpenAPI schema.
 	// The path is relative to the app's directory.
 	DefaultOpenAPIPath = "docs/static/openapi.yml"
 
@@ -138,7 +138,7 @@ func CreateConfigDir() error {
 // LocateDefault locates the default path for the config file.
 // Returns ErrConfigNotFound when no config file found.
 func LocateDefault(root string) (path string, err error) {
-	for _, name := range ConfigFileNames {
+	for _, name := range ChainConfigFilenames {
 		path = filepath.Join(root, name)
 		if _, err := os.Stat(path); err == nil {
 			return path, nil
