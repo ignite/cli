@@ -9,7 +9,6 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/chainconfig/config"
 	v0 "github.com/ignite/cli/ignite/chainconfig/v0"
 	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -51,10 +50,10 @@ var (
 	DefaultOpenAPIPath = "docs/static/openapi.yml"
 
 	// LatestVersion defines the latest version of the config.
-	LatestVersion config.Version = 1
+	LatestVersion base.Version = 1
 
 	// Versions holds config types for the supported versions.
-	Versions = map[config.Version]config.Converter{
+	Versions = map[base.Version]base.Converter{
 		0: &v0.Config{},
 		1: &v1.Config{},
 	}

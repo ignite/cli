@@ -6,20 +6,19 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
-	c := Config{BaseConfig: config.DefaultBaseConfig()}
+	c := Config{BaseConfig: base.DefaultBaseConfig()}
 	c.Version = 1
 	return &c
 }
 
 // Config is the user given configuration to do additional setup during serve.
 type Config struct {
-	config.BaseConfig `yaml:",inline"`
+	base.BaseConfig `yaml:",inline"`
 
 	Validators []Validator `yaml:"validators"`
 	Plugins    []Plugin    `yaml:"plugins,omitempty"`
@@ -62,7 +61,7 @@ func (c *Config) SetDefaults() error {
 }
 
 // Clone returns an identical copy of the instance
-func (c *Config) Clone() (config.Converter, error) {
+func (c *Config) Clone() (base.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err

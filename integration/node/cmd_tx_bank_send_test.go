@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/config"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -57,7 +56,7 @@ func TestNodeTxBankSend(t *testing.T) {
 	require.NoError(t, err)
 
 	app.EditConfig(func(c *chainconfig.Config) {
-		c.Accounts = []config.Account{
+		c.Accounts = []base.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
@@ -69,7 +68,7 @@ func TestNodeTxBankSend(t *testing.T) {
 				Coins:    []string{"10000token", "100000000stake"},
 			},
 		}
-		c.Faucet = config.Faucet{}
+		c.Faucet = base.Faucet{}
 		c.Validators[0].KeyringBackend = keyring.BackendTest
 	})
 	env.Must(env.Exec("import alice",

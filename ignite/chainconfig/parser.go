@@ -8,8 +8,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
-
-	"github.com/ignite/cli/ignite/chainconfig/config"
 )
 
 // Parse reads a config file.
@@ -92,9 +90,9 @@ func ParseNetworkFile(path string) (*Config, error) {
 }
 
 // ReadConfigVersion reads the config version.
-func ReadConfigVersion(configFile io.Reader) (config.Version, error) {
+func ReadConfigVersion(configFile io.Reader) (base.Version, error) {
 	c := struct {
-		Version config.Version `yaml:"version"`
+		Version base.Version `yaml:"version"`
 	}{}
 
 	err := yaml.NewDecoder(configFile).Decode(&c)
@@ -102,7 +100,7 @@ func ReadConfigVersion(configFile io.Reader) (config.Version, error) {
 	return c.Version, err
 }
 
-func decodeConfig(r io.Reader, version config.Version) (config.Converter, error) {
+func decodeConfig(r io.Reader, version base.Version) (base.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
 		return nil, &UnsupportedVersionError{version}
