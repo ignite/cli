@@ -65,7 +65,7 @@ func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bo
 		return err
 	}
 
-	var conf *chainconfig.Config
+	var conf *config.ChainConfig
 	if initConfiguration || initGenesis {
 		conf, err = c.Config()
 		if err != nil {
