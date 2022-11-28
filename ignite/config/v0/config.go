@@ -1,7 +1,7 @@
 package v0
 
 import (
-	"github.com/ignite/cli/ignite/chainconfig/base"
+	"github.com/ignite/cli/ignite/config/base"
 	"io"
 
 	"github.com/imdario/mergo"

@@ -1,4 +1,4 @@
-package chainconfig
+package config
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/chainconfig/base"
+	"github.com/ignite/cli/ignite/config/base"
 )
 
 // Parse reads a config file.

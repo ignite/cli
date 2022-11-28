@@ -6,7 +6,7 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -76,11 +76,11 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		return err
 	}
 
-	confpath, err := chainconfig.LocateDefault(projectPath)
+	confpath, err := config.LocateDefault(projectPath)
 	if err != nil {
 		return err
 	}
-	conf, err := chainconfig.ParseFile(confpath)
+	conf, err := config.ParseFile(confpath)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 
 	// Generate Typescript client code if it's enabled or when Vuex stores are generated
 	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
-		tsClientPath := chainconfig.TSClientPath(*conf)
+		tsClientPath := config.TSClientPath(*conf)
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(projectPath, tsClientPath)
 		}

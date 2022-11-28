@@ -1,4 +1,4 @@
-package chainconfig_test
+package config_test
 
 import (
 	"bytes"
@@ -8,8 +8,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/testdata"
+	"github.com/ignite/cli/ignite/config"
+	"github.com/ignite/cli/ignite/config/base"
+	"github.com/ignite/cli/ignite/config/testdata"
 )
 
 func TestReadConfigVersion(t *testing.T) {
@@ -18,7 +19,7 @@ func TestReadConfigVersion(t *testing.T) {
 	want := base.Version(42)
 
 	// Act
-	version, err := chainconfig.ReadConfigVersion(r)
+	version, err := config.ReadConfigVersion(r)
 
 	// Assert
 	require.NoError(t, err)
@@ -27,30 +28,30 @@ func TestReadConfigVersion(t *testing.T) {
 
 func TestParse(t *testing.T) {
 	// Arrange: Initialize a reader with the previous version
-	ver := chainconfig.LatestVersion - 1
+	ver := config.LatestVersion - 1
 	r := bytes.NewReader(testdata.Versions[ver])
 
 	// Act
-	cfg, err := chainconfig.Parse(r)
+	cfg, err := config.Parse(r)
 
 	// Assert
 	require.NoError(t, err)
 
 	// Assert: Parse must return the latest version
-	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
+	require.Equal(t, config.LatestVersion, cfg.Version)
 	require.Equal(t, testdata.GetLatestConfig(t), cfg)
 }
 
 func TestParseWithCurrentVersion(t *testing.T) {
 	// Arrange
-	r := bytes.NewReader(testdata.Versions[chainconfig.LatestVersion])
+	r := bytes.NewReader(testdata.Versions[config.LatestVersion])
 
 	// Act
-	cfg, err := chainconfig.Parse(r)
+	cfg, err := config.Parse(r)
 
 	// Assert
 	require.NoError(t, err)
-	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
+	require.Equal(t, config.LatestVersion, cfg.Version)
 	require.Equal(t, testdata.GetLatestConfig(t), cfg)
 }
 
@@ -59,10 +60,10 @@ func TestParseWithUnknownVersion(t *testing.T) {
 	version := base.Version(9999)
 	r := strings.NewReader(fmt.Sprintf("version: %d", version))
 
-	var want *chainconfig.UnsupportedVersionError
+	var want *config.UnsupportedVersionError
 
 	// Act
-	_, err := chainconfig.Parse(r)
+	_, err := config.Parse(r)
 
 	// Assert
 	require.ErrorAs(t, err, &want)
@@ -75,23 +76,23 @@ func TestParseNetworkWithCurrentVersion(t *testing.T) {
 	r := bytes.NewReader(testdata.NetworkConfig)
 
 	// Act
-	cfg, err := chainconfig.ParseNetwork(r)
+	cfg, err := config.ParseNetwork(r)
 
 	// Assert
 	require.NoError(t, err)
 
 	// Assert: Parse must return the latest version
-	require.Equal(t, chainconfig.LatestVersion, cfg.Version)
+	require.Equal(t, config.LatestVersion, cfg.Version)
 	require.Equal(t, testdata.GetLatestNetworkConfig(t).Accounts, cfg.Accounts)
 	require.Equal(t, testdata.GetLatestNetworkConfig(t).Genesis, cfg.Genesis)
 }
 
 func TestParseNetworkWithInvalidData(t *testing.T) {
 	// Arrange
-	r := bytes.NewReader(testdata.Versions[chainconfig.LatestVersion])
+	r := bytes.NewReader(testdata.Versions[config.LatestVersion])
 
 	// Act
-	_, err := chainconfig.ParseNetwork(r)
+	_, err := config.ParseNetwork(r)
 
 	// Assert error
 	require.True(

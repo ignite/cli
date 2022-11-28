@@ -55,7 +55,7 @@ func TestNodeTxBankSend(t *testing.T) {
 	bobAccount, bobMnemonic, err := ca.Create(bob)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *chainconfig.Config) {
+	app.EditConfig(func(c *config.Config) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

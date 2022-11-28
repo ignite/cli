@@ -1,6 +1,6 @@
 package v1
 
-import "github.com/ignite/cli/ignite/chainconfig/base"
+import "github.com/ignite/cli/ignite/config/base"
 
 // ConvertNext implements the conversion of the current config to the next version.
 func (c *Config) ConvertNext() (base.Converter, error) {

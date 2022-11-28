@@ -5,8 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	v0testdata "github.com/ignite/cli/ignite/chainconfig/v0/testdata"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	"github.com/ignite/cli/ignite/config/base"
+	v0testdata "github.com/ignite/cli/ignite/config/v0/testdata"
+	v1 "github.com/ignite/cli/ignite/config/v1"
 )
 
 func TestV0ToV1(t *testing.T) {

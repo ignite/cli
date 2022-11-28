@@ -74,17 +74,17 @@ func migrateSPNConfig(t *testing.T, spnPath string) {
 	rawCfg, err := os.ReadFile(configPath)
 	require.NoError(t, err)
 
-	version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
+	version, err := config.ReadConfigVersion(bytes.NewReader(rawCfg))
 	require.NoError(t, err)
-	if version != chainconfig.LatestVersion {
-		t.Logf("migrating spn config from v%d to v%d", version, chainconfig.LatestVersion)
+	if version != config.LatestVersion {
+		t.Logf("migrating spn config from v%d to v%d", version, config.LatestVersion)
 
 		file, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o755)
 		require.NoError(t, err)
 
 		defer file.Close()
 
-		err = chainconfig.MigrateLatest(bytes.NewReader(rawCfg), file)
+		err = config.MigrateLatest(bytes.NewReader(rawCfg), file)
 		require.NoError(t, err)
 	}
 }

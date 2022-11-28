@@ -40,7 +40,7 @@ func TestCustomModule(t *testing.T) {
 		},
 	}
 
-	app.EditConfig(func(cfg *chainconfig.Config) {
+	app.EditConfig(func(cfg *config.Config) {
 		cfg.Accounts = append(cfg.Accounts, accounts...)
 	})
 

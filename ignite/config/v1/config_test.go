@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	v1 "github.com/ignite/cli/ignite/config/v1"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
