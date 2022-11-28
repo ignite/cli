@@ -5,7 +5,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 )
 
 // Build time check for the latest config version type.
@@ -15,7 +15,7 @@ import (
 var _ = Versions[LatestVersion].(*ChainConfig)
 
 // ConvertLatest converts a config to the latest version.
-func ConvertLatest(c base.Converter) (_ *ChainConfig, err error) {
+func ConvertLatest(c chainconfig.Converter) (_ *ChainConfig, err error) {
 	for c.GetVersion() < LatestVersion {
 		c, err = c.ConvertNext()
 		if err != nil {

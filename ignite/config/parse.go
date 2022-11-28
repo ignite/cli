@@ -6,12 +6,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/ignite/cli/ignite/config/plugins"
-
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/plugins"
 )
 
 // Parse reads a config file.
@@ -119,9 +118,9 @@ func ParsePluginsFile(path string) (*plugins.Config, error) {
 }
 
 // ReadConfigVersion reads the config version.
-func ReadConfigVersion(configFile io.Reader) (base.Version, error) {
+func ReadConfigVersion(configFile io.Reader) (chainconfig.Version, error) {
 	c := struct {
-		Version base.Version `yaml:"version"`
+		Version chainconfig.Version `yaml:"version"`
 	}{}
 
 	err := yaml.NewDecoder(configFile).Decode(&c)
@@ -129,7 +128,7 @@ func ReadConfigVersion(configFile io.Reader) (base.Version, error) {
 	return c.Version, err
 }
 
-func decodeChainConfig(r io.Reader, version base.Version) (base.Converter, error) {
+func decodeChainConfig(r io.Reader, version chainconfig.Version) (chainconfig.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
 		return nil, &UnsupportedVersionError{version}

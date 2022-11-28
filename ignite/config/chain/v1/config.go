@@ -6,13 +6,14 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
-	c := Config{Config: base.DefaulConfig()}
+	c := Config{Config: base.DefaultConfig()}
 	c.Version = 1
 	return &c
 }
@@ -38,7 +39,7 @@ func (c *Config) SetDefaults() error {
 }
 
 // Clone returns an identical copy of the instance
-func (c *Config) Clone() (base.Converter, error) {
+func (c *Config) Clone() (chainconfig.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err

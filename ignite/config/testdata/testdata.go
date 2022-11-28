@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/chain/base"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	networkconfigTestdata "github.com/ignite/cli/ignite/config/chain/network/testdata"
 	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	v1testdata "github.com/ignite/cli/ignite/config/chain/v1/testdata"
 )
 
-var Versions = map[base.Version][]byte{
+var Versions = map[chainconfig.Version][]byte{
 	0: v0testdata.ConfigYAML,
 	1: v1testdata.ConfigYAML,
 }
