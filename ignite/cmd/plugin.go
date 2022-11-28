@@ -412,22 +412,21 @@ func NewPluginDescribe() *cobra.Command {
 func printPlugins(session *cliui.Session) error {
 	var entries [][]string
 	for _, p := range plugins {
-		status := "✅ Loaded"
+		var status string
 		if p.Error != nil {
 			status = fmt.Sprintf("❌ Error: %v", p.Error)
+		} else {
+			manifest, err := p.Interface.Manifest()
+			if err != nil {
+				return fmt.Errorf("error while loading plugin manifest: %w", err)
+			}
+
+			var (
+				hookCount = len(manifest.Hooks)
+				cmdCount  = len(manifest.Commands)
+			)
+			status = fmt.Sprintf("✅ Loaded 🪝 %d 💻 %d", hookCount, cmdCount)
 		}
-
-		manifest, err := p.Interface.Manifest()
-		if err != nil {
-			return fmt.Errorf("error while loading plugin manifest: %w", err)
-		}
-
-		var (
-			hookCount = len(manifest.Hooks)
-			cmdCount  = len(manifest.Commands)
-		)
-
-		status = fmt.Sprintf("%s 🪝 %d 💻 %d", status, hookCount, cmdCount)
 		entries = append(entries, []string{p.Path, status})
 	}
 
