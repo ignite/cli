@@ -84,7 +84,7 @@ func CmdCommitSolution() *cobra.Command {
 			msg := types.NewMsgCommitSolution(
         clientCtx.GetFromAddress().String(),
         solutionHashString,
-        solutionScavengerHashString
+        solutionScavengerHashString,
       )
 			if err := msg.ValidateBasic(); err != nil {
 				return err
