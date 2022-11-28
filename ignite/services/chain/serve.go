@@ -427,7 +427,7 @@ func (c *Chain) serve(
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, cfg *config.Config) error {
+func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err

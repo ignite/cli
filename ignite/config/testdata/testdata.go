@@ -17,10 +17,10 @@ var Versions = map[base.Version][]byte{
 
 var NetworkConfig = networkconfigTestData.ConfigYAML
 
-func GetLatestConfig(t *testing.T) *config.Config {
+func GetLatestConfig(t *testing.T) *config.ChainConfig {
 	return v1testdata.GetConfig(t)
 }
 
-func GetLatestNetworkConfig(t *testing.T) *config.Config {
+func GetLatestNetworkConfig(t *testing.T) *config.ChainConfig {
 	return networkconfigTestData.GetConfig(t)
 }

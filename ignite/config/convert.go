@@ -11,10 +11,10 @@ import (
 // This is required to be sure that conversion to latest
 // doesn't break when a new config version is added without
 // updating the references to the previous version.
-var _ = Versions[LatestVersion].(*Config)
+var _ = Versions[LatestVersion].(*ChainConfig)
 
 // ConvertLatest converts a config to the latest version.
-func ConvertLatest(c base.Converter) (_ *Config, err error) {
+func ConvertLatest(c base.Converter) (_ *ChainConfig, err error) {
 	for c.GetVersion() < LatestVersion {
 		c, err = c.ConvertNext()
 		if err != nil {
@@ -25,7 +25,7 @@ func ConvertLatest(c base.Converter) (_ *Config, err error) {
 	// Cast to the latest version type.
 	// This is safe because there is a build time check that makes sure
 	// the type for the latest config version is the right one here.
-	return c.(*Config), nil
+	return c.(*ChainConfig), nil
 }
 
 // MigrateLatest migrates a config file to the latest version.

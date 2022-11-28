@@ -211,10 +211,10 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*config.Config, error) {
+func (c *Chain) Config() (*config.ChainConfig, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return config.DefaultConfig(), nil
+		return config.DefaultChainConfig(), nil
 	}
 	return config.ParseFile(configPath)
 }

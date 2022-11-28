@@ -115,7 +115,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 		return err
 	}
 
-	// Config files with older versions must be migrated to the latest before executing the command
+	// ChainConfig files with older versions must be migrated to the latest before executing the command
 	if version != config.LatestVersion {
 		if !getYes(cmd) {
 			// Confirm before overwritting the config file

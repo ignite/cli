@@ -86,7 +86,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, cfg *config.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, cfg *config.ChainConfig) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -222,7 +222,7 @@ type Account struct {
 	Coins    string
 }
 
-func createValidatorFromConfig(conf *config.Config) (validator Validator) {
+func createValidatorFromConfig(conf *config.ChainConfig) (validator Validator) {
 	// Currently, we support the config file with one valid validator.
 	validatorFromConfig := conf.Validators[0]
 	validator.Name = validatorFromConfig.Name

@@ -348,7 +348,7 @@ func (c Chain) saveClientConfig(client base.Client) error {
 	// values that otherwise would be initialized to defaults.
 	// Defaults must be ignored to avoid writing them to the
 	// YAML config file when they are not present.
-	var cfg config.Config
+	var cfg config.ChainConfig
 	if err := cfg.Decode(file); err != nil {
 		return err
 	}
