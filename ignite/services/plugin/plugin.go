@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/config/plugins"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -38,7 +38,7 @@ var pluginsPath = xfilepath.Join(
 // Plugin represents a ignite plugin.
 type Plugin struct {
 	// Embed the plugin configuration
-	plugins.Plugin
+	pluginsconfig.Plugin
 	// Interface allows to communicate with the plugin via net/rpc.
 	Interface Interface
 	// If any error occurred during the plugin load, it's stored here
@@ -66,7 +66,7 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(ctx context.Context, cfg *plugins.Config) ([]*Plugin, error) {
+func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
 	pluginsDir, err := pluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -95,7 +95,7 @@ func Update(plugins ...*Plugin) error {
 }
 
 // newPlugin creates a Plugin from configuration.
-func newPlugin(pluginsDir string, cp plugins.Plugin) *Plugin {
+func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	var (
 		p          = &Plugin{Plugin: cp}
 		pluginPath = cp.Path
