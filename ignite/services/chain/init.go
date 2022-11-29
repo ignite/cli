@@ -20,8 +20,8 @@ const (
 )
 
 // Init initializes the chain
-// initAccounts true intializes accounts for the chain from Ignite the config
-// initConfiguration initilizes node configuration from the Ignite config
+// initAccounts initializes chain accounts from the Ignite config
+// initConfiguration initializes node configuration from the Ignite config
 // initGenesis initializes genesis state for the chain from Ignite config
 func (c *Chain) Init(ctx context.Context, initAccounts, initConfiguration, initGenesis bool) error {
 	if err := c.InitChain(ctx, initConfiguration, initGenesis); err != nil {
