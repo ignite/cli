@@ -186,7 +186,12 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		validator := conf.Validators[0]
+
+		validator, err := config.FirstValidator(conf)
+		if err != nil {
+			return "", err
+		}
+
 		servers, err := validator.GetServers()
 		if err != nil {
 			return "", err
@@ -291,11 +296,16 @@ func (c *Chain) Home() (string, error) {
 // DefaultHome returns the blockchain node's default home dir when not specified in the app
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return "", err
 	}
-	validator := config.Validators[0]
+
+	validator, err := config.FirstValidator(cfg)
+	if err != nil {
+		return "", err
+	}
+
 	if validator.Home != "" {
 		return validator.Home, nil
 	}
@@ -364,14 +374,14 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return c.options.keyringBackend, nil
 	}
 
-	config, err := c.Config()
+	// 2nd.
+	cfg, err := c.Config()
 	if err != nil {
 		return "", err
 	}
 
-	// 2nd.
-	validator := config.Validators[0]
-	if validator.KeyringBackend != "" {
+	validator, err := config.FirstValidator(cfg)
+	if err == nil && validator.KeyringBackend != "" {
 		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
 	}
 
@@ -431,12 +441,16 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	validator := config.Validators[0]
+	validator, err := config.FirstValidator(cfg)
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err

@@ -60,8 +60,13 @@ var (
 	}
 )
 
-// ChainConfig defines the latest chain config.
-type ChainConfig = v1.Config
+type (
+	// ChainConfig defines the latest chain config.
+	ChainConfig = v1.Config
+
+	// Validator defines the latest validator settings.
+	Validator = v1.Validator
+)
 
 // DefaultChainConfig returns a config for the latest version initialized with default values.
 func DefaultChainConfig() *ChainConfig {
@@ -171,4 +176,14 @@ func Save(c ChainConfig, path string) error {
 	defer file.Close()
 
 	return yaml.NewEncoder(file).Encode(c)
+}
+
+// FirstValidator returns the first validator from the validators list.
+// An error is returned when there are not validators defined in the config.
+func FirstValidator(conf *ChainConfig) (Validator, error) {
+	if len(conf.Validators) == 0 {
+		return Validator{}, &ValidationError{"at least one validator is required"}
+	}
+
+	return conf.Validators[0], nil
 }

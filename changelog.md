@@ -36,6 +36,7 @@
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
+- [#3194](https://github.com/ignite/cli/issues/3194) Move config validators check to validate only when required.
 
 ### Breaking Changes
 
