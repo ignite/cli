@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -202,7 +202,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := chainconfig.LocateDefault(c.app.Path)
+	path, err := config.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -210,12 +210,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*chainconfig.Config, error) {
+func (c *Chain) Config() (*config.ChainConfig, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConfig(), nil
+		return config.DefaultChainConfig(), nil
 	}
-	return chainconfig.ParseFile(configPath)
+	return config.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -472,7 +472,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	// Enable command output only when CLI verbosity is enabled
 	if c.logOutputer != nil && c.logOutputer.Verbosity() == uilog.VerbosityVerbose {
-		out := c.logOutputer.NewOutput(c.app.D(), 96)
+		out := c.logOutputer.NewOutput(c.app.D(), colors.Cyan)
 		ccrOptions = append(
 			ccrOptions,
 			chaincmdrunner.Stdout(out.Stdout()),
