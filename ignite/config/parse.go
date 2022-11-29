@@ -16,7 +16,7 @@ import (
 // When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
 func Parse(configFile io.Reader) (*ChainConfig, error) {
-	cfg, err := parseChainConfig(configFile)
+	cfg, err := parse(configFile)
 	if err != nil {
 		return cfg, fmt.Errorf("error parsing config file: %w", err)
 	}
@@ -28,7 +28,7 @@ func Parse(configFile io.Reader) (*ChainConfig, error) {
 // When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
 func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
-	cfg, err := parseChainConfig(configFile)
+	cfg, err := parse(configFile)
 	if err != nil {
 		return cfg, err
 	}
@@ -36,7 +36,7 @@ func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
 	return cfg, validateNetworkConfig(cfg)
 }
 
-func parseChainConfig(configFile io.Reader) (*ChainConfig, error) {
+func parse(configFile io.Reader) (*ChainConfig, error) {
 	var buf bytes.Buffer
 
 	// Read the config file version first to know how to decode it
@@ -47,7 +47,7 @@ func parseChainConfig(configFile io.Reader) (*ChainConfig, error) {
 
 	// Decode the current config file version and assign default
 	// values for the fields that are empty
-	c, err := decodeChainConfig(&buf, version)
+	c, err := decodeConfig(&buf, version)
 	if err != nil {
 		return DefaultChainConfig(), err
 	}
@@ -102,7 +102,7 @@ func ReadConfigVersion(configFile io.Reader) (chainconfig.Version, error) {
 	return c.Version, err
 }
 
-func decodeChainConfig(r io.Reader, version chainconfig.Version) (chainconfig.Converter, error) {
+func decodeConfig(r io.Reader, version chainconfig.Version) (chainconfig.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
 		return nil, &UnsupportedVersionError{version}
