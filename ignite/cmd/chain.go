@@ -18,7 +18,8 @@ import (
 var (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
 	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
-	msgMigrationPrompt = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
+	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -118,8 +119,11 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	// ChainConfig files with older versions must be migrated to the latest before executing the command
 	if version != config.LatestVersion {
 		if !getYes(cmd) {
+			prefix := fmt.Sprintf(msgMigrationPrefix, version, config.LatestVersion)
+			question := fmt.Sprintf(msgMigrationPrompt, config.LatestVersion)
+
 			// Confirm before overwritting the config file
-			question := fmt.Sprintf(msgMigrationPrompt, version, config.LatestVersion)
+			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
 					return fmt.Errorf(msgMigrationCancel, config.LatestVersion)
