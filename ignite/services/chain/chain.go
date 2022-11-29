@@ -380,8 +380,8 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return "", err
 	}
 
-	validator, err := config.FirstValidator(cfg)
-	if err == nil && validator.KeyringBackend != "" {
+	validator, _ := config.FirstValidator(cfg)
+	if validator.KeyringBackend != "" {
 		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
 	}
 
