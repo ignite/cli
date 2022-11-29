@@ -2946,19 +2946,39 @@ business logic you will implement next.
 By default, all fields are assumed to be strings. If you want a field of a
 different type, you can specify it after a colon ":". The following types are
 supported: string, bool, int, uint, coin, array.string, array.int, array.uint,
-array.coin. An example of using custom types:
+array.coin. An example of using field types:
 
 	ignite scaffold list pool amount:coin tags:array.string height:int
-  
-Ignite also supports custom types:
-  
-	ignite scaffold list product-details name description
 
+Supported types:
+
+| Type         | Alias   | Index | Code Type | Description                     |
+|--------------|---------|-------|-----------|---------------------------------|
+| string       | -       | yes   | string    | Text type                       |
+| array.string | strings | no    | []string  | List of text type               |
+| bool         | -       | yes   | bool      | Boolean type                    |
+| int          | -       | yes   | int32     | Integer type                    |
+| array.int    | ints    | no    | []int32   | List of integers types          |
+| uint         | -       | yes   | uint64    | Unsigned integer type           |
+| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
+| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
+| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
+
+"Index" indicates whether the type can be used an an index in
+"ignite scaffold map".
+
+Ignite also supports custom types:
+
+	ignite scaffold list product-details name desc
 	ignite scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field. Ignite doesn't support arrays of
 custom types yet.
+
+Your chain will accept custom types in JSON-notation:
+
+	exampled tx example create-product 100coin '{"name": "x", "desc": "y"}' --from alice
 
 By default the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
