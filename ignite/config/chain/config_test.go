@@ -3,8 +3,10 @@ package chain_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"testing"
+
+	"github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/version"
 
 	"github.com/stretchr/testify/require"
 )
@@ -12,11 +14,11 @@ import (
 func TestCheckVersion(t *testing.T) {
 	// Arrange
 	cfg := bytes.NewBufferString(
-		fmt.Sprintf("version: %d", LatestVersion),
+		fmt.Sprintf("version: %d", chain.LatestVersion),
 	)
 
 	// Act
-	err := CheckVersion(cfg)
+	err := chain.CheckVersion(cfg)
 
 	// Assert
 	require.NoError(t, err)
@@ -28,9 +30,9 @@ func TestCheckVersionWithOutdatedVersion(t *testing.T) {
 	wantError := chain.VersionError{}
 
 	// Act
-	err := CheckVersion(cfg)
+	err := chain.CheckVersion(cfg)
 
 	// Assert
 	require.ErrorAs(t, err, &wantError)
-	require.Equal(t, wantError.Version, Version(0))
+	require.Equal(t, wantError.Version, version.Version(0))
 }

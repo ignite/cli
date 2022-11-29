@@ -3,9 +3,10 @@ package chain
 import (
 	"context"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -347,7 +348,7 @@ func (c Chain) saveClientConfig(client base.Client) error {
 	// values that otherwise would be initialized to defaults.
 	// Defaults must be ignored to avoid writing them to the
 	// YAML config file when they are not present.
-	var cfg chain.ChainConfig
+	var cfg chain.Config
 	if err := cfg.Decode(file); err != nil {
 		return err
 	}

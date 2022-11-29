@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/imdario/mergo"
 	"golang.org/x/sync/errgroup"

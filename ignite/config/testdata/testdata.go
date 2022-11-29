@@ -3,6 +3,8 @@ package testdata
 import (
 	"testing"
 
+	"github.com/ignite/cli/ignite/config/chain/version"
+
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -12,7 +14,7 @@ import (
 	pluginsconfigTestdata "github.com/ignite/cli/ignite/config/plugins/testdata"
 )
 
-var Versions = map[chainconfig.Version][]byte{
+var Versions = map[version.Version][]byte{
 	0: v0testdata.ConfigYAML,
 	1: v1testdata.ConfigYAML,
 }
@@ -21,11 +23,11 @@ var NetworkConfig = networkconfigTestdata.ConfigYAML
 
 var PluginsConfig = pluginsconfigTestdata.ConfigYAML
 
-func GetLatestConfig(t *testing.T) *chainconfig.ChainConfig {
+func GetLatestConfig(t *testing.T) *chainconfig.Config {
 	return v1testdata.GetConfig(t)
 }
 
-func GetLatestNetworkConfig(t *testing.T) *chainconfig.ChainConfig {
+func GetLatestNetworkConfig(t *testing.T) *chainconfig.Config {
 	return networkconfigTestdata.GetConfig(t)
 }
 

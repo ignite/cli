@@ -3,9 +3,10 @@ package v0_test
 import (
 	"testing"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain/version"
+
 	"github.com/stretchr/testify/require"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 )

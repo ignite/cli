@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite/cli/ignite/config/chain/version"
+
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/config"
 	v0 "github.com/ignite/cli/ignite/config/chain/v0"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 )
@@ -48,25 +49,25 @@ var (
 	DefaultOpenAPIPath = "docs/static/openapi.yml"
 
 	// LatestVersion defines the latest version of the config.
-	LatestVersion Version = 1
+	LatestVersion version.Version = 1
 
 	// Versions holds config types for the supported versions.
-	Versions = map[Version]Converter{
+	Versions = map[version.Version]version.Converter{
 		0: &v0.Config{},
 		1: &v1.Config{},
 	}
 )
 
-// ChainConfig defines the latest chain config.
-type ChainConfig = v1.Config
+// Config defines the latest chain config.
+type Config = v1.Config
 
 // DefaultChainConfig returns a config for the latest version initialized with default values.
-func DefaultChainConfig() *ChainConfig {
+func DefaultChainConfig() *Config {
 	return v1.DefaultConfig()
 }
 
 // FaucetHost returns the faucet host to use.
-func FaucetHost(cfg *ChainConfig) string {
+func FaucetHost(cfg *Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
 	host := cfg.Faucet.Host
@@ -79,7 +80,7 @@ func FaucetHost(cfg *ChainConfig) string {
 
 // TSClientPath returns the relative path to the Typescript client directory.
 // Path is relative to the app's directory.
-func TSClientPath(conf ChainConfig) string {
+func TSClientPath(conf Config) string {
 	if path := strings.TrimSpace(conf.Client.Typescript.Path); path != "" {
 		return filepath.Clean(path)
 	}
@@ -89,7 +90,7 @@ func TSClientPath(conf ChainConfig) string {
 
 // VuexPath returns the relative path to the Vuex stores directory.
 // Path is relative to the app's directory.
-func VuexPath(conf *ChainConfig) string {
+func VuexPath(conf *Config) string {
 	//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 	if path := strings.TrimSpace(conf.Client.Vuex.Path); path != "" {
 		return filepath.Clean(path)
@@ -100,7 +101,7 @@ func VuexPath(conf *ChainConfig) string {
 
 // ComposablesPath returns the relative path to the Vue useQuery composables directory.
 // Path is relative to the app's directory.
-func ComposablesPath(conf *ChainConfig) string {
+func ComposablesPath(conf *Config) string {
 	if path := strings.TrimSpace(conf.Client.Composables.Path); path != "" {
 		return filepath.Clean(path)
 	}
@@ -110,22 +111,12 @@ func ComposablesPath(conf *ChainConfig) string {
 
 // HooksPath returns the relative path to the React useQuery hooks directory.
 // Path is relative to the app's directory.
-func HooksPath(conf *ChainConfig) string {
+func HooksPath(conf *Config) string {
 	if path := strings.TrimSpace(conf.Client.Hooks.Path); path != "" {
 		return filepath.Clean(path)
 	}
 
 	return DefaultHooksPath
-}
-
-// CreateConfigDir creates config directory if it is not created yet.
-func CreateConfigDir() error {
-	path, err := config.DirPath()
-	if err != nil {
-		return err
-	}
-
-	return os.MkdirAll(path, 0o755)
 }
 
 // LocateDefault locates the default path for the config file.
@@ -159,7 +150,7 @@ func CheckVersion(configFile io.Reader) error {
 }
 
 // Save saves a config to a YAML file.
-func Save(c ChainConfig, path string) error {
+func Save(c Config, path string) error {
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o755)
 	if err != nil {
 		return err

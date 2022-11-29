@@ -3,10 +3,11 @@ package networkchain
 import (
 	"context"
 	"errors"
-	chain2 "github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"os/exec"
 	"time"
+
+	chain2 "github.com/ignite/cli/ignite/config/chain"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-git/go-git/v5"

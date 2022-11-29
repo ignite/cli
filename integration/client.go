@@ -2,11 +2,12 @@ package envtest
 
 import (
 	"bytes"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/stretchr/testify/require"
 

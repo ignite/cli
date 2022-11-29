@@ -6,7 +6,6 @@ package plugin
 import (
 	"context"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -21,6 +20,7 @@ import (
 	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
 
+	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
@@ -32,7 +32,7 @@ import (
 
 // pluginsPath holds the plugin cache directory.
 var pluginsPath = xfilepath.Join(
-	chain.DirPath,
+	config.DirPath,
 	xfilepath.Path("plugins"),
 )
 

@@ -3,7 +3,7 @@ package chain
 import (
 	"context"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
+
 	"net/http"
 	"os"
 	"os/exec"
@@ -15,6 +15,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -53,7 +55,7 @@ var (
 
 	// starportSavePath is the place where chain exported genesis are saved
 	starportSavePath = xfilepath.Join(
-		chain.DirPath,
+		config.DirPath,
 		xfilepath.Path("local-chains"),
 	)
 )
@@ -130,7 +132,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 		if _, err := os.Stat(c.options.ConfigFile); err != nil {
 			return err
 		}
-	} else if _, err := chain.LocateDefault(c.app.Path); err != nil {
+	} else if _, err := chainconfig.LocateDefault(c.app.Path); err != nil {
 		return err
 	}
 
@@ -160,7 +162,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					serveCtx      context.Context
 					buildErr      *CannotBuildAppError
 					startErr      *CannotStartAppError
-					validationErr *chain.ValidationError
+					validationErr *chainconfig.ValidationError
 				)
 
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
@@ -427,7 +429,7 @@ func (c *Chain) serve(
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, cfg *chain.ChainConfig) error {
+func (c *Chain) start(ctx context.Context, cfg *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -485,7 +487,7 @@ func (c *Chain) start(ctx context.Context, cfg *chain.ChainConfig) error {
 	)
 
 	if isFaucetEnabled {
-		faucetAddr, _ := xurl.HTTP(chain.FaucetHost(cfg))
+		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(cfg))
 
 		c.ev.Send(
 			fmt.Sprintf("Token faucet: %s", faucetAddr),
@@ -503,7 +505,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    chain.FaucetHost(cfg),
+		Addr:    chainconfig.FaucetHost(cfg),
 		Handler: faucet,
 	})
 }

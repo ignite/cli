@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"testing"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/stretchr/testify/require"
 
@@ -41,7 +42,7 @@ func TestCustomModule(t *testing.T) {
 		},
 	}
 
-	app.EditConfig(func(cfg *chain.ChainConfig) {
+	app.EditConfig(func(cfg *chain.Config) {
 		cfg.Accounts = append(cfg.Accounts, accounts...)
 	})
 

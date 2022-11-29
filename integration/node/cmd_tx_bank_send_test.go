@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/stretchr/testify/require"
@@ -56,7 +57,7 @@ func TestNodeTxBankSend(t *testing.T) {
 	bobAccount, bobMnemonic, err := ca.Create(bob)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *chain.ChainConfig) {
+	app.EditConfig(func(c *chain.Config) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

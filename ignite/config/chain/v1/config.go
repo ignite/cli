@@ -3,10 +3,11 @@ package v1
 import (
 	"io"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain/version"
+
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )

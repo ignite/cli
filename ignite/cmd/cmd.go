@@ -3,7 +3,6 @@ package ignitecmd
 import (
 	"context"
 	"fmt"
-	chain2 "github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -308,7 +308,7 @@ func printSection(session *cliui.Session, title string) error {
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
-	cacheRootDir, err := chain2.DirPath()
+	cacheRootDir, err := config.DirPath()
 	if err != nil {
 		return cache.Storage{}, err
 	}

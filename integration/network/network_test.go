@@ -3,12 +3,13 @@ package network_test
 import (
 	"bytes"
 	"context"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/blang/semver/v4"
 	"github.com/go-git/go-git/v5"
@@ -84,7 +85,7 @@ func migrateSPNConfig(t *testing.T, spnPath string) {
 
 		defer file.Close()
 
-		err = chain.MigrateLatest(bytes.NewReader(rawCfg), file)
+		err = version.MigrateLatest(bytes.NewReader(rawCfg), file)
 		require.NoError(t, err)
 	}
 }

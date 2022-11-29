@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
+	"github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"

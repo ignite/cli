@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"runtime"
 	"runtime/debug"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/blang/semver/v4"
 	"github.com/google/go-github/v48/github"

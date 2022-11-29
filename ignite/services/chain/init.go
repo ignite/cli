@@ -2,10 +2,11 @@ package chain
 
 import (
 	"context"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/imdario/mergo"
 
@@ -86,7 +87,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, cfg *chain.ChainConfig) error {
+func (c *Chain) InitAccounts(ctx context.Context, cfg *chain.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -222,7 +223,7 @@ type Account struct {
 	Coins    string
 }
 
-func createValidatorFromConfig(conf *chain.ChainConfig) (validator Validator) {
+func createValidatorFromConfig(conf *chain.Config) (validator Validator) {
 	// Currently, we support the config file with one valid validator.
 	validatorFromConfig := conf.Validators[0]
 	validator.Name = validatorFromConfig.Name

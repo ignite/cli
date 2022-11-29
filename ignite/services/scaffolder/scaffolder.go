@@ -4,8 +4,9 @@ package scaffolder
 
 import (
 	"context"
-	"github.com/ignite/cli/ignite/config/chain"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"

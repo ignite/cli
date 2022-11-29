@@ -3,9 +3,10 @@ package chain
 import (
 	"context"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
@@ -36,7 +37,7 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 }
 
 // Start wraps the "appd start" command to begin running a chain from the daemon
-func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chain.ChainConfig) error {
+func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chain.Config) error {
 	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
 	if err != nil {
@@ -49,7 +50,7 @@ func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *cha
 }
 
 // Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml)
-func (c Chain) Configure(homePath string, cfg *chain.ChainConfig) error {
+func (c Chain) Configure(homePath string, cfg *chain.Config) error {
 	if err := c.appTOML(homePath, cfg); err != nil {
 		return err
 	}
@@ -59,7 +60,7 @@ func (c Chain) Configure(homePath string, cfg *chain.ChainConfig) error {
 	return c.configTOML(homePath, cfg)
 }
 
-func (c Chain) appTOML(homePath string, cfg *chain.ChainConfig) error {
+func (c Chain) appTOML(homePath string, cfg *chain.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -106,7 +107,7 @@ func (c Chain) appTOML(homePath string, cfg *chain.ChainConfig) error {
 	return err
 }
 
-func (c Chain) configTOML(homePath string, cfg *chain.ChainConfig) error {
+func (c Chain) configTOML(homePath string, cfg *chain.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -153,7 +154,7 @@ func (c Chain) configTOML(homePath string, cfg *chain.ChainConfig) error {
 	return err
 }
 
-func (c Chain) clientTOML(homePath string, cfg *chain.ChainConfig) error {
+func (c Chain) clientTOML(homePath string, cfg *chain.Config) error {
 	path := filepath.Join(homePath, "config/client.toml")
 	config, err := toml.LoadFile(path)
 	if os.IsNotExist(err) {

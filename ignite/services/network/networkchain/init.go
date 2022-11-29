@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"

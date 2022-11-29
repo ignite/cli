@@ -3,10 +3,11 @@ package node_test
 import (
 	"bytes"
 	"context"
-	"github.com/ignite/cli/ignite/config/chain"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -65,7 +66,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *chain.ChainConfig) {
+	app.EditConfig(func(c *chain.Config) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

@@ -2,9 +2,10 @@ package chain
 
 import (
 	"context"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/config/chain"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/spn/pkg/chainid"
@@ -210,7 +211,7 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*chain.ChainConfig, error) {
+func (c *Chain) Config() (*chain.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
 		return chain.DefaultChainConfig(), nil

@@ -2,7 +2,6 @@ package envtest
 
 import (
 	"fmt"
-	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/config/chain"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -187,7 +187,7 @@ func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 	port, err := availableport.Find(1)
 	require.NoError(a.env.t, err)
 
-	a.EditConfig(func(c *chain.ChainConfig) {
+	a.EditConfig(func(c *chain.Config) {
 		c.Faucet.Port = port[0]
 		c.Faucet.Coins = coins
 		c.Faucet.CoinsMax = coinsMax
@@ -219,7 +219,7 @@ func (a App) RandomizeServerPorts() Hosts {
 		API:     genAddr(ports[5]),
 	}
 
-	a.EditConfig(func(c *chain.ChainConfig) {
+	a.EditConfig(func(c *chain.Config) {
 		v := &c.Validators[0]
 
 		s := v1.Servers{}
@@ -241,24 +241,24 @@ func (a App) RandomizeServerPorts() Hosts {
 func (a App) UseRandomHomeDir() (homeDirPath string) {
 	dir := a.env.TmpDir()
 
-	a.EditConfig(func(c *chain.ChainConfig) {
+	a.EditConfig(func(c *chain.Config) {
 		c.Validators[0].Home = dir
 	})
 
 	return dir
 }
 
-func (a App) Config() chain.ChainConfig {
+func (a App) Config() chain.Config {
 	bz, err := os.ReadFile(a.configPath)
 	require.NoError(a.env.t, err)
 
-	var conf chain.ChainConfig
+	var conf chain.Config
 	err = yaml.Unmarshal(bz, &conf)
 	require.NoError(a.env.t, err)
 	return conf
 }
 
-func (a App) EditConfig(apply func(*chain.ChainConfig)) {
+func (a App) EditConfig(apply func(*chain.Config)) {
 	conf := a.Config()
 	apply(&conf)
 
