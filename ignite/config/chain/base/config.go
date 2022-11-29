@@ -7,6 +7,26 @@ import (
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 
+var (
+	// DefaultGRPCAddress is the default GRPC address.
+	DefaultGRPCAddress = "0.0.0.0:9090"
+
+	// DefaultGRPCWebAddress is the default GRPC-Web address.
+	DefaultGRPCWebAddress = "0.0.0.0:9091"
+
+	// DefaultAPIAddress is the default API address.
+	DefaultAPIAddress = "0.0.0.0:1317"
+
+	// DefaultRPCAddress is the default RPC address.
+	DefaultRPCAddress = "0.0.0.0:26657"
+
+	// DefaultP2PAddress is the default P2P address.
+	DefaultP2PAddress = "0.0.0.0:26656"
+
+	// DefaultPProfAddress is the default Prof address.
+	DefaultPProfAddress = "0.0.0.0:6060"
+)
+
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`

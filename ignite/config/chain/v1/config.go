@@ -8,6 +8,7 @@ import (
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
+	baseconfig "github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
@@ -111,43 +112,43 @@ func (c *Config) updateValidatorAddresses() (err error) {
 func incrementDefaultServerPortsBy(s Servers, inc uint64) (Servers, error) {
 	var err error
 
-	if s.GRPC.Address == DefaultGRPCAddress {
-		s.GRPC.Address, err = xnet.IncreasePortBy(DefaultGRPCAddress, inc)
+	if s.GRPC.Address == baseconfig.DefaultGRPCAddress {
+		s.GRPC.Address, err = xnet.IncreasePortBy(baseconfig.DefaultGRPCAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.GRPCWeb.Address == DefaultGRPCWebAddress {
-		s.GRPCWeb.Address, err = xnet.IncreasePortBy(DefaultGRPCWebAddress, inc)
+	if s.GRPCWeb.Address == baseconfig.DefaultGRPCWebAddress {
+		s.GRPCWeb.Address, err = xnet.IncreasePortBy(baseconfig.DefaultGRPCWebAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.API.Address == DefaultAPIAddress {
-		s.API.Address, err = xnet.IncreasePortBy(DefaultAPIAddress, inc)
+	if s.API.Address == baseconfig.DefaultAPIAddress {
+		s.API.Address, err = xnet.IncreasePortBy(baseconfig.DefaultAPIAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.P2P.Address == DefaultP2PAddress {
-		s.P2P.Address, err = xnet.IncreasePortBy(DefaultP2PAddress, inc)
+	if s.P2P.Address == baseconfig.DefaultP2PAddress {
+		s.P2P.Address, err = xnet.IncreasePortBy(baseconfig.DefaultP2PAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.RPC.Address == DefaultRPCAddress {
-		s.RPC.Address, err = xnet.IncreasePortBy(DefaultRPCAddress, inc)
+	if s.RPC.Address == baseconfig.DefaultRPCAddress {
+		s.RPC.Address, err = xnet.IncreasePortBy(baseconfig.DefaultRPCAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.RPC.PProfAddress == DefaultPProfAddress {
-		s.RPC.PProfAddress, err = xnet.IncreasePortBy(DefaultPProfAddress, inc)
+	if s.RPC.PProfAddress == baseconfig.DefaultPProfAddress {
+		s.RPC.PProfAddress, err = xnet.IncreasePortBy(baseconfig.DefaultPProfAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}

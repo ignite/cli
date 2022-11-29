@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	"github.com/ignite/cli/ignite/config"
+	baseconfig "github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -189,7 +190,8 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 
 		validator, err := config.FirstValidator(conf)
 		if err != nil {
-			return "", err
+			// When there are no validators return the default RPC address
+			return baseconfig.DefaultRPCAddress, err
 		}
 
 		servers, err := validator.GetServers()
