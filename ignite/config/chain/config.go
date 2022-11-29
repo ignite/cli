@@ -9,17 +9,15 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/config"
 	v0 "github.com/ignite/cli/ignite/config/chain/v0"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 var (
-	// DirPath returns the path of configuration directory of Ignite.
-	DirPath = xfilepath.JoinFromHome(xfilepath.Path(".ignite"))
 
-	// ChainConfigFilenames is a list of recognized names as Ignite's chain config file.
-	ChainConfigFilenames = []string{"config.yml", "config.yaml"}
+	// ConfigFilenames is a list of recognized names as Ignite's chain config file.
+	ConfigFilenames = []string{"config.yml", "config.yaml"}
 
 	// DefaultTSClientPath defines the default relative path to use when generating the TS client.
 	// The path is relative to the app's directory.
@@ -122,7 +120,7 @@ func HooksPath(conf *ChainConfig) string {
 
 // CreateConfigDir creates config directory if it is not created yet.
 func CreateConfigDir() error {
-	path, err := DirPath()
+	path, err := config.DirPath()
 	if err != nil {
 		return err
 	}
@@ -133,7 +131,7 @@ func CreateConfigDir() error {
 // LocateDefault locates the default path for the config file.
 // Returns ErrConfigNotFound when no config file found.
 func LocateDefault(root string) (path string, err error) {
-	for _, name := range ChainConfigFilenames {
+	for _, name := range ConfigFilenames {
 		path = filepath.Join(root, name)
 		if _, err := os.Stat(path); err == nil {
 			return path, nil
