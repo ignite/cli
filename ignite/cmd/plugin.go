@@ -20,11 +20,9 @@ const (
 	igniteCmdPrefix = "ignite "
 )
 
-var (
-	// plugins hold the list of plugin declared in the config.
-	// A global variable is used so the list is accessible to the plugin commands.
-	plugins []*plugin.Plugin
-)
+// plugins hold the list of plugin declared in the config.
+// A global variable is used so the list is accessible to the plugin commands.
+var plugins []*plugin.Plugin
 
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
@@ -54,6 +52,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 
 	}
 
+	// nolint: appendAssign
 	plugins = append(localPlugins, globalPlugins...)
 	if len(plugins) == 0 {
 		return nil
