@@ -38,7 +38,7 @@ ignite tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2`,
 func NewToolsIBCRelayer() *cobra.Command {
 	return &cobra.Command{
 		Use:     "ibc-relayer [--] [...]",
-		Short:   "Typescript implementation of an IBC relayer",
+		Short:   "TypeScript implementation of an IBC relayer",
 		RunE:    toolsNodetimeProxy(nodetime.CommandIBCRelayer),
 		Example: `ignite tools ibc-relayer -- -h`,
 	}
