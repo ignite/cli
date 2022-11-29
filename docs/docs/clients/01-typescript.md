@@ -3,42 +3,40 @@ sidebar_position: 1
 description: Information about the generated TypeScript client code.
 ---
 
-# TypeScript code generation
+# TypeScript frontend
 
-The `ignite generate ts-client` command generates a TypeScript client for your
-blockchain project.
+Ignite offers powerful functionality for generating client-side code for your
+blockchain. Think of this as a one-click client SDK generation tailored
+specifically for your blockchain.
 
-TypeScript client code can be automatically regenerated on reset or source code
-changes when the blockchain is started with the `--generate-clients` options:
+See [`ignite generate ts-client --help`](/cli#ignite-generate-ts-client) learn
+more on how to use TypeScript code generation.
 
-```
-ignite chain serve --generate-clients
-```
+## Starting a node
 
-## Client code generation
+For testing purposes add a new account to `config.yml` with a mnemonic:
 
-To configure TypeScript (TS) client code generation add the `client` settings to
-`config.yml`:
-
-```yaml
-client:
-  typescript:
-    path: ts-client
+```yml title="config.yml"
+accounts:
+  - name: frank
+    coins: ["1000token", "100000000stake"]
+    mnemonic: play butter frown city voyage pupil rabbit wheat thrive mind skate turkey helmet thrive door either differ gate exhibit impose city swallow goat faint
 ```
 
-A TS client is generated in the `ts-client` directory when using this
-configuration.
+Run a command to generate TypeScript clients for both standard and custom Cosmos
+SDK modules:
 
-## Client code regeneration
-
-To generate all clients for custom and standard Cosmos SDK modules, run this
-command:
-
-```bash
+```
 ignite generate ts-client --clear-cache
 ```
 
-## Setup
+Run a command to start your blockchain node:
+
+```
+ignite chain serve -r
+```
+
+## Setting up a TypeScript frontend client
 
 The best way to get started building with the TypeScript client is by using a
 [Vite](https://vitejs.dev/) boilerplate. Vite provides boilerplate code for
@@ -82,24 +80,6 @@ export default defineConfig({
 
 You are then ready to use the generated client code inside this project directly
 or by publishing the client and installing it as any other `npm` package.
-
-## Starting a node
-
-For testing purposes add a new account to `config.yml` with a mnemonic:
-
-```yml title="config.yml"
-accounts:
-  - name: frank
-    coins: ["1000token", "100000000stake"]
-    mnemonic: play butter frown city voyage pupil rabbit wheat thrive mind skate turkey helmet thrive door either differ gate exhibit impose city swallow goat faint
-```
-
-Run the following command in your blockchain's project directory to start a
-node:
-
-```
-ignite chain serve -r
-```
 
 After the chain starts, you will see Frank's address is
 `cosmos13xkhcx2dquhqdml0k37sr7yndquwteuvt2cml7`. We'll be using Frank's account
@@ -207,10 +187,18 @@ const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend({
 ## Broadcasting a transaction with a custom message
 
 If your chain already has custom messages defined, you can use those. If not,
-we'll be using Ignite's scaffolded code as an example. Create a post with CRUD messages:
+we'll be using Ignite's scaffolded code as an example. Create a post with CRUD
+messages:
 
 ```
 ignite scaffold list post title body
+```
+
+After adding messages to your chain you may need to re-generate the TypeScript
+client:
+
+```
+ignite generate ts-client --clear-cache
 ```
 
 Broadcast a transaction containing the custom `MsgCreatePost`:
