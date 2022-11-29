@@ -10,7 +10,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/config/plugins"
 )
 
 // Parse reads a config file.
@@ -35,11 +34,6 @@ func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
 	}
 
 	return cfg, validateNetworkConfig(cfg)
-}
-
-// ParsePlugins reads a config file for ignite binary plugins
-func ParsePlugins(configFile io.Reader) (*plugins.Config, error) {
-	return parsePluginsConfig(configFile)
 }
 
 func parseChainConfig(configFile io.Reader) (*ChainConfig, error) {
@@ -73,14 +67,6 @@ func parseChainConfig(configFile io.Reader) (*ChainConfig, error) {
 	return cfg, nil
 }
 
-func parsePluginsConfig(configFile io.Reader) (*plugins.Config, error) {
-	var c plugins.Config
-
-	err := yaml.NewDecoder(configFile).Decode(&c)
-
-	return &c, err
-}
-
 // ParseFile parses a config from a file path.
 func ParseFile(path string) (*ChainConfig, error) {
 	file, err := os.Open(path)
@@ -103,18 +89,6 @@ func ParseNetworkFile(path string) (*ChainConfig, error) {
 	defer file.Close()
 
 	return ParseNetwork(file)
-}
-
-// ParsePluginsFile parses a plugins config.
-func ParsePluginsFile(path string) (*plugins.Config, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return plugins.DefaultConfig(), err
-	}
-
-	defer file.Close()
-
-	return ParsePlugins(file)
 }
 
 // ReadConfigVersion reads the config version.
