@@ -120,6 +120,11 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 	session.StartSpinner("Fetching chain info...")
 	session.Println()
 
+	spnAddresses, err := getSpnAddresses(cmd)
+	if err != nil {
+		return err
+	}
+
 	r := relayer.New(ca)
 	// initialize the chains
 	spnChain, err := initChain(
@@ -128,8 +133,8 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		session,
 		relayerSource,
 		getFrom(cmd),
-		spnNodeAddress,
-		spnFaucetAddress,
+		spnAddresses.NodeAddress,
+		spnAddresses.FaucetAddress,
 		spnGasPrice,
 		spnGasLimit,
 		networktypes.SPN,
