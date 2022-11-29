@@ -29,8 +29,8 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "http://178.128.251.28:26657"
-	spnFaucetAddressNightly = "http://178.128.251.28:4500"
+	spnNodeAddressNightly   = "https://rpc.devnet.ignite.com:443"
+	spnFaucetAddressNightly = "https://faucet.devnet.ignite.com:443"
 
 	spnNodeAddressLocal   = "http://0.0.0.0:26661"
 	spnFaucetAddressLocal = "http://0.0.0.0:4502"
