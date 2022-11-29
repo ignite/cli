@@ -134,7 +134,7 @@ func getConfig(cmd *cobra.Command) (config string) {
 
 func flagSetPlugins() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagPlugins, "x", "", "Ignite plugins file (default: ./plugins.yml)")
+	fs.StringP(flagPlugins, "x", "", "path to Ignite plugins config file (default: ./plugins.yml)")
 	return fs
 }
 
