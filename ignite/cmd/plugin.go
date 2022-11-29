@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
@@ -53,7 +52,7 @@ func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err e
 		}
 	}
 
-	cfg, err = config.ParsePluginsFile(pluginsPath)
+	cfg, err = pluginsconfig.ParseFile(pluginsPath)
 
 	return cfg, err
 }

@@ -1,8 +1,9 @@
 package testdata
 
 import (
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"testing"
+
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 
 	"github.com/ignite/cli/ignite/config"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"

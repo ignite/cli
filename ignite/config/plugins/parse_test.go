@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/config/testdata"
-	"github.com/stretchr/testify/require"
 )
 
 func TestParse(t *testing.T) {
