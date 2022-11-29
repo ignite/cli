@@ -30,8 +30,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
-// pluginsPath holds the plugin cache directory.
-var pluginsPath = xfilepath.Join(
+// PluginsPath holds the plugin cache directory.
+var PluginsPath = xfilepath.Join(
 	config.DirPath,
 	xfilepath.Path("plugins"),
 )
@@ -68,7 +68,7 @@ type Plugin struct {
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
 func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
-	pluginsDir, err := pluginsPath()
+	pluginsDir, err := PluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

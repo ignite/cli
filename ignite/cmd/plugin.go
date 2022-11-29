@@ -16,38 +16,71 @@ import (
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
-// plugins hold the list of plugin declared in the config.
-// A global variable is used so the list is accessible to the plugin commands.
-var plugins []*plugin.Plugin
-
 const (
 	igniteCmdPrefix = "ignite "
+)
+
+var (
+	// plugins hold the list of plugin declared in the config.
+	// A global variable is used so the list is accessible to the plugin commands.
+	plugins []*plugin.Plugin
 )
 
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	// NOTE(tb) Not sure if it's the right place to load this.
-	cfg, err := parseLocalPlugins(rootCmd)
+	localCfg, err := parseLocalConfig(rootCmd)
 	if err != nil {
 		// if binary is run where there is no plugin.yml, don't load
 		return nil
 	}
 
-	// TODO: parse global config
-
-	plugins, err = plugin.Load(ctx, cfg)
+	localPlugins, err := plugin.Load(ctx, localCfg)
 	if err != nil {
 		return err
 	}
+
+	globalCfg, err := parseGlobalConfig(rootCmd)
+	if err != nil {
+		return nil
+	}
+
+	globalPlugins, err := plugin.Load(ctx, globalCfg)
+	if err != nil {
+		return err
+	}
+
+	plugins = append(localPlugins, globalPlugins...)
+
+	// TODO: sort duplicates
+
 	return loadPlugins(rootCmd, plugins)
 }
 
-func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+func parseLocalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
 	appPath := flagGetPath(rootCmd)
 	pluginsPath := getPlugins(rootCmd)
 	if pluginsPath == "" {
 		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
+			return cfg, err
+		}
+	}
+
+	cfg, err = pluginsconfig.ParseFile(pluginsPath)
+
+	return cfg, err
+}
+
+func parseGlobalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+	globalPath, err := plugin.PluginsPath()
+	if err != nil {
+		return cfg, err
+	}
+
+	pluginsPath := getPlugins(rootCmd)
+	if pluginsPath == "" {
+		if pluginsPath, err = pluginsconfig.LocateDefault(globalPath); err != nil {
 			return cfg, err
 		}
 	}
