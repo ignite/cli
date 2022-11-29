@@ -10,8 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	chainconfig "github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -367,14 +366,14 @@ func NewPluginAdd() *cobra.Command {
 				return err
 			}
 
-			p := v1.Plugin{
-				Path: args[0],
-			}
-
 			for _, p := range conf.Plugins {
 				if p.Path == args[0] {
 					return fmt.Errorf("cannot add duplicate plugin %s", args[0])
 				}
+			}
+
+			p := chainconfig.Plugin{
+				Path: args[0],
 			}
 
 			conf.Plugins = append(conf.Plugins, p)
