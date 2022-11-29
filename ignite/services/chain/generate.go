@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/config"
+	"github.com/ignite/cli/ignite/config"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -158,7 +158,7 @@ func (c *Chain) Generate(
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			tsClientPath = chainconfig.TSClientPath(*conf)
+			tsClientPath = config.TSClientPath(*conf)
 
 			// When TS client is generated make sure the config is updated
 			// with the output path when the client path option is empty.
@@ -185,7 +185,7 @@ func (c *Chain) Generate(
 		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
-			vuexPath = chainconfig.VuexPath(conf)
+			vuexPath = config.VuexPath(conf)
 
 			// When Vuex stores are generated make sure the config is updated
 			// with the output path when the client path option is empty.
@@ -211,7 +211,7 @@ func (c *Chain) Generate(
 		composablesPath = targetOptions.composablesPath
 
 		if composablesPath == "" {
-			composablesPath = chainconfig.ComposablesPath(conf)
+			composablesPath = config.ComposablesPath(conf)
 
 			if conf.Client.Composables.Path == "" {
 				conf.Client.Composables.Path = composablesPath
@@ -235,7 +235,7 @@ func (c *Chain) Generate(
 	if targetOptions.isHooksEnabled {
 		hooksPath = targetOptions.hooksPath
 		if hooksPath == "" {
-			hooksPath = chainconfig.HooksPath(conf)
+			hooksPath = config.HooksPath(conf)
 
 			if conf.Client.Hooks.Path == "" {
 				conf.Client.Hooks.Path = hooksPath
@@ -259,7 +259,7 @@ func (c *Chain) Generate(
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
-			openAPIPath = chainconfig.DefaultOpenAPIPath
+			openAPIPath = config.DefaultOpenAPIPath
 		}
 
 		// Non absolute OpenAPI paths must be treated as relative to the app directory
@@ -334,7 +334,7 @@ func (c Chain) joinGeneratedPath(rootPath string) string {
 	return filepath.Join(c.app.Path, rootPath, "generated")
 }
 
-func (c Chain) saveClientConfig(client config.Client) error {
+func (c Chain) saveClientConfig(client base.Client) error {
 	path := c.ConfigPath()
 	file, err := os.Open(path)
 	if err != nil {
@@ -347,12 +347,12 @@ func (c Chain) saveClientConfig(client config.Client) error {
 	// values that otherwise would be initialized to defaults.
 	// Defaults must be ignored to avoid writing them to the
 	// YAML config file when they are not present.
-	var cfg chainconfig.Config
+	var cfg config.ChainConfig
 	if err := cfg.Decode(file); err != nil {
 		return err
 	}
 
 	cfg.Client = client
 
-	return chainconfig.Save(cfg, path)
+	return config.Save(cfg, path)
 }
