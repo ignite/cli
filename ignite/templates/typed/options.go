@@ -31,12 +31,12 @@ func (opts *Options) Validate() error {
 	return nil
 }
 
-// Path to proto folder in the generated app.
+// ProtoPath returns the path to the proto folder within the generated app.
 func (opts *Options) ProtoPath(fname string) string {
 	return filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, fname)
 }
 
-// Return the import statement for this type.
-func (opts *Options) TypeImport() *proto.Import {
+// ProtoTypeImport Return the protobuf import statement for this type.
+func (opts *Options) ProtoTypeImport() *proto.Import {
 	return protoutil.NewImport(fmt.Sprintf("%s/%s/%s.proto", opts.AppName, opts.ModuleName, opts.TypeName.Snake))
 }

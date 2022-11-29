@@ -134,7 +134,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		}
 		// Add initial import for the new type
 		gogoImp := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoImp, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, gogoImp, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
@@ -269,7 +269,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		// Add initial import for the new type
 		gogoproto := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoproto, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, gogoproto, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Get next available sequence number from GenesisState.
@@ -504,7 +504,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		if err = protoutil.AddImports(pf, true, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 

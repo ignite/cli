@@ -37,7 +37,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		// Add initial import for the new type
 		gogoproto := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoproto, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, gogoproto, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Get next available sequence number from GenesisState.

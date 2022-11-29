@@ -98,7 +98,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Import
-		if err = protoutil.AddImports(pf, true, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
@@ -174,7 +174,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		}
 		// Imports for the new type and gogoproto.
 		gogoproto := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoproto, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, gogoproto, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Add to Query:

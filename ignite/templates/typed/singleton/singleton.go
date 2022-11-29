@@ -116,7 +116,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 
 		// Import the type and gogoproto.
 		gogoproto := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoproto, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, gogoproto, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Find service.
@@ -190,7 +190,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		if err = protoutil.AddImports(pf, true, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
@@ -361,7 +361,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Add initial import for the new type:
-		if err = protoutil.AddImports(pf, true, opts.TypeImport()); err != nil {
+		if err = protoutil.AddImports(pf, true, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 		// Add the RPC service.
