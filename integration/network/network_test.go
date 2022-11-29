@@ -3,6 +3,7 @@ package network_test
 import (
 	"bytes"
 	"context"
+	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path"
 	"path/filepath"
@@ -14,7 +15,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	envtest "github.com/ignite/cli/integration"
@@ -74,17 +74,17 @@ func migrateSPNConfig(t *testing.T, spnPath string) {
 	rawCfg, err := os.ReadFile(configPath)
 	require.NoError(t, err)
 
-	version, err := config.ReadConfigVersion(bytes.NewReader(rawCfg))
+	version, err := chain.ReadConfigVersion(bytes.NewReader(rawCfg))
 	require.NoError(t, err)
-	if version != config.LatestVersion {
-		t.Logf("migrating spn config from v%d to v%d", version, config.LatestVersion)
+	if version != chain.LatestVersion {
+		t.Logf("migrating spn config from v%d to v%d", version, chain.LatestVersion)
 
 		file, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o755)
 		require.NoError(t, err)
 
 		defer file.Close()
 
-		err = config.MigrateLatest(bytes.NewReader(rawCfg), file)
+		err = chain.MigrateLatest(bytes.NewReader(rawCfg), file)
 		require.NoError(t, err)
 	}
 }

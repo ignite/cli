@@ -3,6 +3,7 @@ package networkchain
 import (
 	"context"
 	"errors"
+	chain2 "github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"os/exec"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
-	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/checksum"
@@ -287,7 +287,7 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 func (c Chain) CheckConfigVersion() error {
 	configPath := c.chain.ConfigPath()
 	if configPath == "" {
-		return config.ErrConfigNotFound
+		return chain2.ErrConfigNotFound
 	}
 
 	file, err := os.Open(configPath)
@@ -297,7 +297,7 @@ func (c Chain) CheckConfigVersion() error {
 
 	defer file.Close()
 
-	return config.CheckVersion(file)
+	return chain2.CheckVersion(file)
 }
 
 // Build builds chain sources, also checks if source was already built

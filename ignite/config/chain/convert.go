@@ -1,12 +1,36 @@
-package config
+package chain
 
 import (
+	"fmt"
 	"io"
 
 	"gopkg.in/yaml.v2"
-
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
 )
+
+// Version defines the type for the config version number.
+type Version uint
+
+func (v Version) String() string {
+	return fmt.Sprintf("v%d", v)
+}
+
+// Converter defines the interface required to migrate configurations to newer versions.
+type Converter interface {
+	// Clone clones the config by returning a new copy of the current one.
+	Clone() (Converter, error)
+
+	// SetDefaults assigns default values to empty config fields.
+	SetDefaults() error
+
+	// GetVersion returns the config version.
+	GetVersion() Version
+
+	// ConvertNext converts the config to the next version.
+	ConvertNext() (Converter, error)
+
+	// Decode decodes the config file from YAML and updates its values.
+	Decode(io.Reader) error
+}
 
 // Build time check for the latest config version type.
 // This is required to be sure that conversion to latest
@@ -15,7 +39,7 @@ import (
 var _ = Versions[LatestVersion].(*ChainConfig)
 
 // ConvertLatest converts a config to the latest version.
-func ConvertLatest(c chainconfig.Converter) (_ *ChainConfig, err error) {
+func ConvertLatest(c Converter) (_ *ChainConfig, err error) {
 	for c.GetVersion() < LatestVersion {
 		c, err = c.ConvertNext()
 		if err != nil {

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -124,7 +124,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return fmt.Errorf("the config for genesis doesn't exist: %w", err)
 		}
 
-		config, err := config.ParseNetworkFile(path)
+		config, err := chain.ParseNetworkFile(path)
 		if err != nil {
 			return err
 		}

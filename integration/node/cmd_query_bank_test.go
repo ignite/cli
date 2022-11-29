@@ -3,6 +3,7 @@ package node_test
 import (
 	"bytes"
 	"context"
+	"github.com/ignite/cli/ignite/config/chain"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -12,7 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -65,7 +65,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *config.ChainConfig) {
+	app.EditConfig(func(c *chain.ChainConfig) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

@@ -5,7 +5,6 @@ import (
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 
-	"github.com/ignite/cli/ignite/config"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	networkconfigTestdata "github.com/ignite/cli/ignite/config/chain/network/testdata"
 	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
@@ -22,11 +21,11 @@ var NetworkConfig = networkconfigTestdata.ConfigYAML
 
 var PluginsConfig = pluginsconfigTestdata.ConfigYAML
 
-func GetLatestConfig(t *testing.T) *config.ChainConfig {
+func GetLatestConfig(t *testing.T) *chainconfig.ChainConfig {
 	return v1testdata.GetConfig(t)
 }
 
-func GetLatestNetworkConfig(t *testing.T) *config.ChainConfig {
+func GetLatestNetworkConfig(t *testing.T) *chainconfig.ChainConfig {
 	return networkconfigTestdata.GetConfig(t)
 }
 

@@ -1,9 +1,9 @@
 package ignitecmd
 
 import (
+	"github.com/ignite/cli/ignite/config/chain"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
@@ -19,7 +19,7 @@ func NewScaffoldVue() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagPath, "p", "./"+config.DefaultVuePath, "path to scaffold content of the Vue.js app")
+	c.Flags().StringP(flagPath, "p", "./"+chain.DefaultVuePath, "path to scaffold content of the Vue.js app")
 
 	return c
 }

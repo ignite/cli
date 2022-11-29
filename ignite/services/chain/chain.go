@@ -2,13 +2,13 @@ package chain
 
 import (
 	"context"
+	"github.com/ignite/cli/ignite/config/chain"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -202,7 +202,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := config.LocateDefault(c.app.Path)
+	path, err := chain.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -210,12 +210,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*config.ChainConfig, error) {
+func (c *Chain) Config() (*chain.ChainConfig, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return config.DefaultChainConfig(), nil
+		return chain.DefaultChainConfig(), nil
 	}
-	return config.ParseFile(configPath)
+	return chain.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
