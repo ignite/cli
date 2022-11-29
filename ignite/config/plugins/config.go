@@ -2,15 +2,37 @@ package plugins
 
 import (
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
+)
+
+var (
+	// PluginsConfigFilenames is a list of recognized names as Ignite's plugins config file.
+	PluginsConfigFilenames = []string{"plugins.yml", "plugins.yaml"}
 )
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
 	c := Config{}
 	return &c
+}
+
+// LocateDefault locates the default path for the config file.
+// Returns ErrConfigNotFound when no config file found.
+func LocateDefault(root string) (path string, err error) {
+	for _, name := range PluginsConfigFilenames {
+		path = filepath.Join(root, name)
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		} else if !os.IsNotExist(err) {
+			return "", err
+		}
+	}
+
+	return "", ErrConfigNotFound
 }
 
 type Config struct {
