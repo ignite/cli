@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignite/cli/ignite/config"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
