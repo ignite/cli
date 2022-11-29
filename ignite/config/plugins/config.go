@@ -9,8 +9,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// PluginsConfigFilenames is a list of recognized names as Ignite's plugins config file.
-var PluginsConfigFilenames = []string{"plugins.yml", "plugins.yaml"}
+// ConfigFilenames is a list of recognized names as Ignite's plugins config file.
+var ConfigFilenames = []string{"plugins.yml", "plugins.yaml"}
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
@@ -21,7 +21,7 @@ func DefaultConfig() *Config {
 // LocateDefault locates the default path for the config file.
 // Returns ErrConfigNotFound when no config file found.
 func LocateDefault(root string) (path string, err error) {
-	for _, name := range PluginsConfigFilenames {
+	for _, name := range ConfigFilenames {
 		path = filepath.Join(root, name)
 		if _, err := os.Stat(path); err == nil {
 			return path, nil
