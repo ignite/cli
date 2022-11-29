@@ -29,29 +29,35 @@ var (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
+	var (
+		localPlugins  []*plugin.Plugin
+		globalPlugins []*plugin.Plugin
+	)
+
 	// NOTE(tb) Not sure if it's the right place to load this.
 	localCfg, err := parseLocalConfig(rootCmd)
-	if err != nil {
-		// if binary is run where there is no plugin.yml, don't load
-		return nil
-	}
-
-	localPlugins, err := plugin.Load(ctx, localCfg)
-	if err != nil {
-		return err
+	// if binary is run where there is no cfg, don't load
+	if err == nil {
+		localPlugins, err = plugin.Load(ctx, localCfg)
+		if err != nil {
+			return err
+		}
 	}
 
 	globalCfg, err := parseGlobalConfig(rootCmd)
-	if err != nil {
-		return nil
-	}
+	// if binary is run where there is no cfg, don't load
+	if err == nil {
+		globalPlugins, err = plugin.Load(ctx, globalCfg)
+		if err != nil {
+			return err
+		}
 
-	globalPlugins, err := plugin.Load(ctx, globalCfg)
-	if err != nil {
-		return err
 	}
 
 	plugins = append(localPlugins, globalPlugins...)
+	if len(plugins) == 0 {
+		return nil
+	}
 
 	// TODO: sort duplicates
 
@@ -67,9 +73,7 @@ func parseLocalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err er
 		}
 	}
 
-	cfg, err = pluginsconfig.ParseFile(pluginsPath)
-
-	return cfg, err
+	return pluginsconfig.ParseFile(pluginsPath)
 }
 
 func parseGlobalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
@@ -85,9 +89,7 @@ func parseGlobalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err e
 		}
 	}
 
-	cfg, err = pluginsconfig.ParseFile(pluginsPath)
-
-	return cfg, err
+	return pluginsconfig.ParseFile(pluginsPath)
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {

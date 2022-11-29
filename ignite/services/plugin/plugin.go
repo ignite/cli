@@ -77,7 +77,6 @@ func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
 		p := newPlugin(pluginsDir, cp)
 		p.load(ctx)
 
-		// TODO: override global plugins with locally defined ones
 		plugins = append(plugins, p)
 	}
 	return plugins, nil

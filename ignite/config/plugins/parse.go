@@ -28,6 +28,5 @@ func parse(configFile io.Reader) (*Config, error) {
 	var c Config
 
 	err := yaml.NewDecoder(configFile).Decode(&c)
-
 	return &c, err
 }
