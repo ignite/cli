@@ -9,10 +9,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var (
-	// PluginsConfigFilenames is a list of recognized names as Ignite's plugins config file.
-	PluginsConfigFilenames = []string{"plugins.yml", "plugins.yaml"}
-)
+// PluginsConfigFilenames is a list of recognized names as Ignite's plugins config file.
+var PluginsConfigFilenames = []string{"plugins.yml", "plugins.yaml"}
 
 // DefaultConfig returns a config with default values.
 func DefaultConfig() *Config {
