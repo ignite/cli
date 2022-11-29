@@ -28,7 +28,7 @@ func run() int {
 
 	// Load plugins if any
 	if err := ignitecmd.LoadPlugins(ctx, cmd); err != nil {
-		fmt.Printf("Error while loading chain's plugins: %v\n", err)
+		fmt.Printf("Error while loading plugins: %v\n", err)
 		return exitCodeError
 	}
 	defer ignitecmd.UnloadPlugins()
