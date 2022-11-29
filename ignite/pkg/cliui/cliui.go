@@ -140,7 +140,7 @@ func (s Session) Verbosity() uilog.Verbosity {
 // The new output will use the session's verbosity, stderr and stdout.
 // Label and color arguments are used to prefix the output when the
 // session verbosity is verbose.
-func (s Session) NewOutput(label string, color uint8) uilog.Output {
+func (s Session) NewOutput(label, color string) uilog.Output {
 	options := []uilog.Option{
 		uilog.WithStdout(s.options.stdout),
 		uilog.WithStderr(s.options.stderr),
