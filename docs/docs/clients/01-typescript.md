@@ -1,14 +1,14 @@
 ---
 sidebar_position: 1
-description: Information about the generated Typescript client code.
+description: Information about the generated TypeScript client code.
 ---
 
-# Typescript code generation
+# TypeScript code generation
 
-The `ignite generate ts-client` command generates a Typescript client for your
+The `ignite generate ts-client` command generates a TypeScript client for your
 blockchain project.
 
-Typescript client code can be automatically regenerated on reset or source code
+TypeScript client code can be automatically regenerated on reset or source code
 changes when the blockchain is started with the `--generate-clients` options:
 
 ```
