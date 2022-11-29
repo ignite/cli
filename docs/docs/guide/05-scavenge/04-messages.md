@@ -4,10 +4,11 @@ sidebar_position: 4
 
 # Messages
 
-Messages are a great place to start when building a module because messages define your application actions. Think of
-all the scenarios where a user would be able to update the state of the application in any way. These scenarios are the
-basic interactions, similar to CRUD (create, read, update, and delete) operations. Messages are objects whose end-goal
-is to trigger state-transitions.
+Messages are a great place to start when building a module because messages
+define your application's actions. Think of all the scenarios where a user would
+be able to update the state of the application in any way. These scenarios are
+the basic interactions, similar to CRUD (create, read, update, and delete)
+operations. Messages are objects whose end-goal is to trigger state-transitions.
 
 For the scavenger hunt game, the scavenge module requires 3 messages:
 
@@ -17,16 +18,18 @@ For the scavenger hunt game, the scavenge module requires 3 messages:
 
 ## Submit scavenge message
 
-The submit scavenge message must contain all the information that is required to create a scavenge:
+The "submit scavenge" message must contain all the information that is required to
+create a scavenge:
 
 * Description - the question to be solved or description of the challenge.
 * Solution hash - the scrambled solution.
 * Reward - the bounty that is awarded to whoever submits the answer first.
 
-Use the `ignite scaffold message` command to scaffold a new Cosmos SDK message for your module. The command accepts the
-message name as the first argument and a list of fields. By default, a message is scaffolded in a module with a name
-that matches the name of the project, in our case `scavenge`. You can use a flag to overwrite this default naming
-behavior.
+Use the `ignite scaffold message` command to scaffold a new Cosmos SDK message
+for your module. The command accepts the message name as the first argument and
+a list of fields. By default, a message is scaffolded in a module with a name
+that matches the name of the project, in our case `scavenge`. You can use a flag
+to overwrite this default naming behavior.
 
 ```bash
 ignite scaffold message submit-scavenge solutionHash description reward
@@ -96,8 +99,9 @@ The `scaffold message` command does all of these code updates for you:
 
     * Registers the codecs
 
-In `x/scavenge/types/message_submit_scavenge.go`, you can notice that the message follows the `sdk.Msg` interface.
-The message `struct` automatically contains the information required to create a new scavenge:
+In `x/scavenge/types/message_submit_scavenge.go`, you can notice that the
+message follows the `sdk.Msg` interface. The message `struct` automatically
+contains the information required to create a new scavenge:
 
 ```go
 package types
@@ -114,24 +118,28 @@ func NewMsgSubmitScavenge(creator string, solutionHash string, description strin
 }
 ```
 
-The `Msg` interface requires some other methods be set, like validating the content of the `struct` and confirming the
-message was signed and submitted by the creator.
+The `Msg` interface requires some other methods be set, like validating the
+content of the `struct` and confirming the message was signed and submitted by
+the creator.
 
-Now that a user can submit a scavenge, the only other essential action is to be able to solve the scavenge. As described
-earlier to prevent front running, use two separate actions, `MsgCommitSolution` and `MsgRevealSolution`.
+Now that a user can submit a scavenge, the only other essential action is to be
+able to solve the scavenge. As described earlier to prevent front running, use
+two separate actions, `MsgCommitSolution` and `MsgRevealSolution`.
 
 ## Commit solution message
 
-The commit solution message requires the following fields:
+The "commit solution" message requires the following fields:
 
 * Solution hash - the scrambled solution
-* Solution scavenger hash - the hash of the combination of the solution and the person who solved it
+* Solution scavenger hash - the hash of the combination of the solution and the
+  person who solved it
 
 ```bash
 ignite scaffold message commit-solution solutionHash solutionScavengerHash
 ```
 
-Because you're using the same `ignite scaffold message` command, the set of modified and created files is the same:
+Because you're using the same `ignite scaffold message` command, the set of
+modified and created files is the same:
 
 ```
 modify proto/scavenge/scavenge/tx.proto
@@ -149,7 +157,7 @@ create x/scavenge/types/message_commit_solution_test.go
 
 ## Reveal solution message
 
-The reveal solution message requires only one field:
+The "reveal solution" message requires only one field:
 
 * Solution - the plain text version of the solution
 
@@ -157,11 +165,12 @@ The reveal solution message requires only one field:
 ignite scaffold message reveal-solution solution
 ```
 
-Again, because you're using the same `ignite scaffold message` command, the set of modified and created files is the
-same for the `reveal-solution` message.
+Again, because you're using the same `ignite scaffold message` command, the set
+of modified and created files is the same for the `reveal-solution` message.
 
-Information about the scavenger (the creator of the message is automatically included) and the solution hash can be
-deterministically derived from the solution string.
+Information about the scavenger (the creator of the message is automatically
+included) and the solution hash can be deterministically derived from the
+solution string.
 
 ## Save changes
 
