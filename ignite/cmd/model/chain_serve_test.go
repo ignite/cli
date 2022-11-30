@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
+	"github.com/ignite/cli/ignite/cmd/model/testdata"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
@@ -25,7 +26,7 @@ func TestChainServeErrorView(t *testing.T) {
 	var model tea.Model
 
 	err := errors.New("Test error")
-	model = cmdmodel.NewChainServe(modelContext{}, dummyEventsProvider{}, fooCmd)
+	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 	want := fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(err.Error()))
 
 	// Arrange: Update model with an error message
@@ -44,7 +45,7 @@ func TestChainServeStartView(t *testing.T) {
 
 	spinner := cliuimodel.NewSpinner()
 	queue := []string{"Event 1...", "Event 2..."}
-	model = cmdmodel.NewChainServe(modelContext{}, dummyEventsProvider{}, fooCmd)
+	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 
 	want := fmt.Sprintf(
 		"%s%s\n\n%s %s %s\n\n%s\n",
@@ -77,7 +78,7 @@ func TestChainServeRunView(t *testing.T) {
 	var model tea.Model
 
 	queue := []string{"Event 1", "Event 2"}
-	model = cmdmodel.NewChainServe(modelContext{}, dummyEventsProvider{}, fooCmd)
+	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 
 	want := fmt.Sprintf("Blockchain is running\n\n%s\n%s\n\n%s\n", queue[0], queue[1], actions)
 	want = cliuimodel.FormatView(want)
@@ -100,7 +101,7 @@ func TestChainServeRunBrokenView(t *testing.T) {
 	// Arrange
 	var model tea.Model
 
-	model = cmdmodel.NewChainServe(modelContext{}, dummyEventsProvider{}, fooCmd)
+	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 	traceback := "Error traceback\nFoo"
 	waitingFix := colors.Info("Waiting for a fix before retrying...")
 
@@ -131,7 +132,7 @@ func TestChainServeRebuildView(t *testing.T) {
 	spinner := cliuimodel.NewSpinner()
 	duration := style.Faint.Render("0s")
 	queue := []string{"Event 1", "Event 2"}
-	model = cmdmodel.NewChainServe(modelContext{}, dummyEventsProvider{}, fooCmd)
+	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 
 	want := fmt.Sprintf(
 		"Changes detected, restarting...\n\n%s%s\n\n%s %s %s\n%s Rebuild %s\n\n%s\n",
