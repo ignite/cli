@@ -14,6 +14,8 @@ more on how to use TypeScript code generation.
 
 ## Starting a node
 
+If you already have an Ignite/Cosmos SDK
+
 For testing purposes add a new account to `config.yml` with a mnemonic:
 
 ```yml title="config.yml"
@@ -103,11 +105,7 @@ By default, the generated client exports a client class that includes all the
 Cosmos SDK, custom and 3rd party modules in use in your project.
 
 To instantiate the client you need to provide environment information (endpoints
-and chain prefix) and an optional wallet (implementing the CosmJS
-`OfflineSigner` interface).
-
-For example, to connect to a local chain instance running under the Ignite CLI
-defaults, using a CosmJS wallet:
+and chain prefix). For querying that's all you need:
 
 ```typescript title="my-frontend-app/src/main.ts"
 import { Client } from "../../ts-client";
@@ -117,8 +115,7 @@ const client = new Client(
     apiURL: "http://localhost:1317",
     rpcURL: "http://localhost:26657",
     prefix: "cosmos",
-  },
-  wallet
+  }
 );
 ```
 
@@ -139,7 +136,8 @@ const balances = await client.CosmosBankV1Beta1.query.queryAllBalances('cosmos13
 
 Add signing capabilities to the client by creating a wallet from a mnemonic
 (we're using the Frank's mnemonic added to `config.yml` earlier) and passing it
-as an optional argument to `Client()`:
+as an optional argument to `Client()`. The wallet implements the CosmJS
+OfflineSigner` interface.
 
 ```typescript title="my-frontend-app/src/main.ts"
 import { Client } from "../../ts-client";
