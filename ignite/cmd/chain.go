@@ -122,7 +122,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 			prefix := fmt.Sprintf(msgMigrationPrefix, version, chainconfig.LatestVersion)
 			question := fmt.Sprintf(msgMigrationPrompt, chainconfig.LatestVersion)
 
-			// Confirm before overwritting the config file
+			// Confirm before overwriting the config file
 			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
