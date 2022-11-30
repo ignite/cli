@@ -405,6 +405,19 @@ func NewPluginAdd() *cobra.Command {
 				Path: args[0],
 			}
 
+			ctx := context.Background()
+			s.StartSpinner("Loading plugins")
+			pluginInstance, err := plugin.LoadSingle(ctx, &p)
+			s.StopSpinner()
+
+			if err != nil {
+				return err
+			}
+			if pluginInstance.Error != nil {
+				return errors.Wrapf(pluginInstance.Error, fmt.Sprintf("Error while attempting to load plugin: %s\n", args[0]))
+			}
+			s.Println("Done loading plugin")
+
 			conf.Plugins = append(conf.Plugins, p)
 			s.Printf("🎉 %s added \n", args[0])
 			err = conf.Save(confPath)
@@ -413,39 +426,9 @@ func NewPluginAdd() *cobra.Command {
 				return err
 			}
 
-			if flag, err := cmd.Flags().GetBool("load"); err == nil && flag {
-				nodePath := chain.ConfigPath()
-				nodePath = path.Dir(nodePath)
-				confPath, err := pluginsconfig.LocateDefault(nodePath)
-				if err != nil {
-					return err
-				}
-				var conf pluginsconfig.Config
-				f, err := os.Open(confPath)
-				if err != nil {
-					return err
-				}
-				err = conf.Decode(f)
-				if err != nil {
-					return err
-				}
-
-				ctx := context.Background()
-				s.StartSpinner("Loading plugins")
-				plugins, err = plugin.Load(ctx, &conf)
-				s.StopSpinner()
-
-				if err != nil {
-					return err
-				}
-
-				s.Println("Done loading plugins from chain config")
-			}
-
 			return nil
 		},
 	}
-	cmdPluginAdd.Flags().Bool("load", false, "load plugins after saving new plugin declaration")
 
 	return cmdPluginAdd
 }
