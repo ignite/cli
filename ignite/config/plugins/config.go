@@ -72,5 +72,11 @@ func (c *Config) Clone() (*Config, error) {
 
 // Decode decodes the config file values from YAML.
 func (c *Config) Decode(r io.Reader) error {
-	return yaml.NewDecoder(r).Decode(c)
+	err := yaml.NewDecoder(r).Decode(c)
+	// if the error is end of file meaning an empty file on read return nil
+	if err == io.EOF {
+		return nil
+	}
+
+	return err
 }
