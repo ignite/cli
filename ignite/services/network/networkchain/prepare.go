@@ -104,13 +104,13 @@ func (c Chain) buildGenesis(
 
 	// apply genesis information to the genesis
 	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts, addressPrefix); err != nil {
-		return errors.Wrap(err, "error applying genesis accounts to genesis")
+		return fmt.Errorf("error applying genesis accounts to genesis: %w", err)
 	}
 	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts, addressPrefix); err != nil {
-		return errors.Wrap(err, "error applying vesting accounts to genesis")
+		return fmt.Errorf("error applying vesting accounts to genesis: %w", err)
 	}
 	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
-		return errors.Wrap(err, "error applying genesis validators to genesis")
+		return fmt.Errorf("error applying genesis validators to genesis: %w", err)
 	}
 
 	genesisPath, err := c.chain.GenesisPath()
@@ -144,6 +144,10 @@ func (c Chain) buildGenesis(
 		); err != nil {
 			return errors.Wrap(err, "genesis cannot be updated for reward related fields")
 		}
+	}
+
+	if err := applyParamChanges(genesis, gi.ParamChanges); err != nil {
+		return fmt.Errorf("error applying param changes to genesis: %w", err)
 	}
 
 	c.ev.Send("Genesis built", events.ProgressFinish())
@@ -251,6 +255,21 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	}
 
 	return c.updateConfigFromGenesisValidators(genesisVals)
+}
+
+// applyParamChanges adds the param changes into the genesis
+func applyParamChanges(
+	genesis *cosmosgenesis.Genesis,
+	paramChanges []networktypes.ParamChange,
+) error {
+	// update chain ID and launch time
+	if err := genesis.Update(
+		jsonfile.WithKeyValue(cosmosgenesis.FieldChainID, c.id),
+		jsonfile.WithKeyValueTimestamp(cosmosgenesis.FieldGenesisTime, c.launchTime.Unix()),
+	); err != nil {
+		return errors.Wrap(err, "genesis cannot be updated")
+	}
+
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
