@@ -262,14 +262,15 @@ func applyParamChanges(
 	genesis *cosmosgenesis.Genesis,
 	paramChanges []networktypes.ParamChange,
 ) error {
-	// update chain ID and launch time
-	if err := genesis.Update(
-		jsonfile.WithKeyValue(cosmosgenesis.FieldChainID, c.id),
-		jsonfile.WithKeyValueTimestamp(cosmosgenesis.FieldGenesisTime, c.launchTime.Unix()),
-	); err != nil {
-		return errors.Wrap(err, "genesis cannot be updated")
+	for _, pc := range paramChanges {
+		if err := genesis.Update(
+			jsonfile.WithKeyValueByte(cosmosgenesis.ParamField(pc.Module, pc.Param), pc.Value),
+		); err != nil {
+			return fmt.Errorf("genesis cannot be updated: %w", err)
+		}
 	}
 
+	return nil
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain

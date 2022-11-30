@@ -201,9 +201,16 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 }
 
 // WithKeyValue update a file value object by key
-func WithKeyValue(key string, value string) UpdateFileOption {
+func WithKeyValue(key, value string) UpdateFileOption {
 	return func(update map[string][]byte) {
 		update[key] = []byte(`"` + value + `"`)
+	}
+}
+
+// WithKeyValueByte update a file byte value object by key
+func WithKeyValueByte(key string, value []byte) UpdateFileOption {
+	return func(update map[string][]byte) {
+		update[key] = bytes.Join([][]byte{[]byte(`"`), value, []byte(`"`)}, []byte(""))
 	}
 }
 

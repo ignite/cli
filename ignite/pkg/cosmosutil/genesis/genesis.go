@@ -2,6 +2,7 @@ package genesis
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/ignite/cli/ignite/pkg/jsonfile"
@@ -36,6 +37,11 @@ type (
 	}
 	gentxs []struct{}
 )
+
+// ParamField returns the field name of a given module param pair
+func ParamField(module, param string) string {
+	return fmt.Sprintf("app_state.%s.params.%s", module, param)
+}
 
 // FromPath parse genesis object from path
 func FromPath(path string) (*Genesis, error) {
