@@ -46,7 +46,7 @@ vanilla TS projects as well as React, Vue, Lit, Svelte and Preact frameworks.
 You can find additional information at the [Vite Getting Started
 guide](https://vitejs.dev/guide/).
 
-You will also need to polyfill the client's dependencies. The following is an
+You will also need to [polyfill](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill) the client's dependencies. The following is an
 example of setting up a vanilla TS project with the necessary polyfills.
 
 ```bash
