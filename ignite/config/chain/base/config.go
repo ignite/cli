@@ -4,7 +4,6 @@ import (
 	"github.com/imdario/mergo"
 
 	"github.com/ignite/cli/ignite/config/chain/version"
-
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 

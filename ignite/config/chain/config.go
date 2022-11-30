@@ -7,12 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/config/chain/version"
-
 	"gopkg.in/yaml.v2"
 
 	v0 "github.com/ignite/cli/ignite/config/chain/v0"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 var (
