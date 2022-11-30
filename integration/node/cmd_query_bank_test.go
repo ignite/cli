@@ -20,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/integration"
 )
 
@@ -74,7 +75,9 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			},
 		}
 		c.Faucet = base.Faucet{}
-		c.Validators[0].KeyringBackend = keyring.BackendTest
+		c.Validators[0].Client = xyaml.Map{
+			"keyring-backend": keyring.BackendTest,
+		}
 	})
 
 	env.Must(env.Exec("import alice",

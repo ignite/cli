@@ -18,7 +18,6 @@ func (c *Config) ConvertNext() (chainconfig.Converter, error) {
 	validator.Name = c.Validator.Name
 	validator.Bonded = c.Validator.Staked
 	validator.Home = c.Init.Home
-	validator.KeyringBackend = c.Init.KeyringBackend
 	validator.Client = c.Init.Client
 
 	if c.Init.App != nil {

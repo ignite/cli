@@ -122,9 +122,6 @@ type Init struct {
 
 	// Home overwrites default home directory used for the app
 	Home string `yaml:"home"`
-
-	// KeyringBackend is the default keyring backend to use for blockchain initialization
-	KeyringBackend string `yaml:"keyring-backend"`
 }
 
 // Host keeps configuration related to started servers.
