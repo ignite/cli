@@ -1,7 +1,7 @@
 package networkchain
 
 import (
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/checksum"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -78,7 +78,7 @@ func checkBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string)
 
 func getBinaryCacheFilepath() (string, error) {
 	return xfilepath.Join(
-		chainconfig.ConfigDirPath,
+		config.DirPath,
 		xfilepath.Path(SPNCacheDirectory),
 		xfilepath.Path(BinaryCacheDirectory),
 		xfilepath.Path(BinaryCacheFilename),

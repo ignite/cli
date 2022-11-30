@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/lineprefixer"
 	"github.com/ignite/cli/ignite/pkg/cliui/prefixgen"
 	"github.com/ignite/cli/ignite/pkg/xio"
@@ -11,7 +12,7 @@ import (
 
 const (
 	defaultVerboseLabel      = "ignite"
-	defaultVerboseLabelColor = 91
+	defaultVerboseLabelColor = colors.Red
 )
 
 // Verbosity enumerates possible verbosity levels for CLI output.
@@ -26,7 +27,7 @@ const (
 // Outputer defines an interface for logging output creation.
 type Outputer interface {
 	// NewOutput returns a new logging output.
-	NewOutput(label string, color uint8) Output
+	NewOutput(label, color string) Output
 
 	// Verbosity returns the current verbosity level for the logging output.
 	Verbosity() Verbosity
@@ -59,7 +60,7 @@ type option struct {
 	stderr            io.WriteCloser
 	verbosity         Verbosity
 	verboseLabel      string
-	verboseLabelColor uint8
+	verboseLabelColor string
 }
 
 // Option configures log output options.
@@ -75,7 +76,7 @@ func Verbose() Option {
 }
 
 // CustomVerbose changes the log output to be prefixed with a custom label.
-func CustomVerbose(label string, color uint8) Option {
+func CustomVerbose(label, color string) Option {
 	return func(o *option) {
 		o.verbosity = VerbosityVerbose
 		o.verboseLabel = label

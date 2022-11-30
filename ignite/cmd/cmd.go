@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -33,6 +33,7 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
+	flagPlugins    = "plugins"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -81,6 +82,7 @@ To get started, create a blockchain:
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
+	c.PersistentFlags().AddFlagSet(flagSetPlugins())
 
 	return c
 }
@@ -121,12 +123,23 @@ func getHome(cmd *cobra.Command) (home string) {
 
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
+	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
 	return fs
 }
 
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
+	return
+}
+
+func flagSetPlugins() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.StringP(flagPlugins, "x", "", "path to Ignite plugins config file (default: ./plugins.yml)")
+	return fs
+}
+
+func getPlugins(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagPlugins)
 	return
 }
 
@@ -295,7 +308,7 @@ func printSection(session *cliui.Session, title string) error {
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
-	cacheRootDir, err := chainconfig.ConfigDirPath()
+	cacheRootDir, err := config.DirPath()
 	if err != nil {
 		return cache.Storage{}, err
 	}

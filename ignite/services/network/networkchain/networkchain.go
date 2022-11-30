@@ -11,7 +11,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/checksum"
@@ -287,7 +287,7 @@ func (c Chain) NodeID(ctx context.Context) (string, error) {
 func (c Chain) CheckConfigVersion() error {
 	configPath := c.chain.ConfigPath()
 	if configPath == "" {
-		return chainconfig.ErrConfigNotFound
+		return config.ErrConfigNotFound
 	}
 
 	file, err := os.Open(configPath)
@@ -297,7 +297,7 @@ func (c Chain) CheckConfigVersion() error {
 
 	defer file.Close()
 
-	return chainconfig.CheckVersion(file)
+	return config.CheckVersion(file)
 }
 
 // Build builds chain sources, also checks if source was already built
