@@ -21,6 +21,9 @@ const (
 	flagResponse     = "response"
 	flagDescription  = "desc"
 
+	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
+	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
+
 	statusScaffolding = "Scaffolding..."
 )
 
@@ -188,8 +191,8 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 	}
 
 	if !cleanState {
-		question := "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed without committing your saved changes"
-		if err := session.AskConfirm(question); err != nil {
+		session.Println(msgCommitPrefix)
+		if err := session.AskConfirm(msgCommitPrompt); err != nil {
 			if errors.Is(err, promptui.ErrAbort) {
 				return errors.New("No")
 			}
