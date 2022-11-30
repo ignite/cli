@@ -80,6 +80,7 @@ func (c *Config) Decode(r io.Reader) error {
 	return nil
 }
 
+// Save persists a config yaml to a specified path on disk must be writable
 func (c *Config) Save(path string) error {
 	return persist(c, path)
 }
