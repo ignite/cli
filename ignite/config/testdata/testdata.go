@@ -3,14 +3,12 @@ package testdata
 import (
 	"testing"
 
-	"github.com/ignite/cli/ignite/config/chain/version"
-
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	networkconfigTestdata "github.com/ignite/cli/ignite/config/chain/network/testdata"
 	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	v1testdata "github.com/ignite/cli/ignite/config/chain/v1/testdata"
+	"github.com/ignite/cli/ignite/config/chain/version"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	pluginsconfigTestdata "github.com/ignite/cli/ignite/config/plugins/testdata"
 )
 
