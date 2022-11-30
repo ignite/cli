@@ -57,7 +57,8 @@ type Plugin struct {
 	// path: github.com/foo/bar/plugin1@v42
 	Path string `yaml:"path"`
 	// With holds arguments passed to the plugin interface
-	With map[string]string `yaml:"with"`
+	With       map[string]string `yaml:"with"`
+	SharedHost bool              `yaml:"sharedHost"`
 }
 
 // Clone returns an identical copy of the instance

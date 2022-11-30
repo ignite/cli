@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 )
 
@@ -107,7 +107,8 @@ func DeletePluginConf(path string) error {
 }
 
 func newCache() (*cache.Cache[ConfigContext], error) {
-	cacheRootDir, err := chainconfig.ConfigDirPath()
+	cacheRootDir, err := chainconfig.DirPath()
+
 	if err != nil {
 		return nil, err
 	}

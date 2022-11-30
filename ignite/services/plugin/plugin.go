@@ -207,7 +207,7 @@ func (p *Plugin) load(ctx context.Context) {
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
-	if p.Plugin.ShareHost && CheckPluginConf(p.Path) {
+	if p.Plugin.SharedHost && CheckPluginConf(p.Path) {
 		rconf := hplugin.ReattachConfig{}
 		err := ReadPluginConfig(p.Path, &rconf)
 		fmt.Printf("%v\n", rconf)
