@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/version"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestCheckVersion(t *testing.T) {

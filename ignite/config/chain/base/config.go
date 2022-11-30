@@ -4,7 +4,6 @@ import (
 	"github.com/imdario/mergo"
 
 	"github.com/ignite/cli/ignite/config/chain/version"
-
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 
@@ -123,9 +122,6 @@ type Init struct {
 
 	// Home overwrites default home directory used for the app
 	Home string `yaml:"home"`
-
-	// KeyringBackend is the default keyring backend to use for blockchain initialization
-	KeyringBackend string `yaml:"keyring-backend"`
 }
 
 // Host keeps configuration related to started servers.

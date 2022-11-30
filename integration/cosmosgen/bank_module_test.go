@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ignite/cli/ignite/config/chain"
-
 	"github.com/stretchr/testify/require"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
@@ -59,7 +58,7 @@ func TestBankModule(t *testing.T) {
 		},
 	}
 
-	app.EditConfig(func(cfg *chain.Config) {
+	app.EditConfig(func(cfg *chainconfig.Config) {
 		cfg.Accounts = append(cfg.Accounts, accounts...)
 	})
 

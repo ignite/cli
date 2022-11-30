@@ -7,7 +7,7 @@ import (
 	"os"
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
-	"github.com/ignite/cli/ignite/config/chain"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
@@ -43,7 +43,7 @@ func run() int {
 	if err != nil {
 		var (
 			validationErr validation.Error
-			versionErr    chain.VersionError
+			versionErr    chainconfig.VersionError
 			msg           string
 		)
 

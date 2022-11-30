@@ -7,13 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite/cli/ignite/config/chain"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -21,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/integration"
 )
 
@@ -66,7 +66,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *chain.Config) {
+	app.EditConfig(func(c *chainconfig.Config) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,
@@ -75,7 +75,9 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			},
 		}
 		c.Faucet = base.Faucet{}
-		c.Validators[0].KeyringBackend = keyring.BackendTest
+		c.Validators[0].Client = xyaml.Map{
+			"keyring-backend": keyring.BackendTest,
+		}
 	})
 
 	env.Must(env.Exec("import alice",

@@ -32,7 +32,6 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		globalPlugins []*plugin.Plugin
 	)
 
-	// NOTE(tb) Not sure if it's the right place to load this.
 	localCfg, err := parseLocalConfig(rootCmd)
 	// if binary is run where there is no cfg, don't load
 	if err == nil {

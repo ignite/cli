@@ -6,8 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/config/chain"
-
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -159,7 +158,7 @@ func (c *Chain) Generate(
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
-			tsClientPath = chain.TSClientPath(*conf)
+			tsClientPath = chainconfig.TSClientPath(*conf)
 
 			// When TS client is generated make sure the config is updated
 			// with the output path when the client path option is empty.
@@ -186,7 +185,7 @@ func (c *Chain) Generate(
 		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
-			vuexPath = chain.VuexPath(conf)
+			vuexPath = chainconfig.VuexPath(conf)
 
 			// When Vuex stores are generated make sure the config is updated
 			// with the output path when the client path option is empty.
@@ -212,7 +211,7 @@ func (c *Chain) Generate(
 		composablesPath = targetOptions.composablesPath
 
 		if composablesPath == "" {
-			composablesPath = chain.ComposablesPath(conf)
+			composablesPath = chainconfig.ComposablesPath(conf)
 
 			if conf.Client.Composables.Path == "" {
 				conf.Client.Composables.Path = composablesPath
@@ -236,7 +235,7 @@ func (c *Chain) Generate(
 	if targetOptions.isHooksEnabled {
 		hooksPath = targetOptions.hooksPath
 		if hooksPath == "" {
-			hooksPath = chain.HooksPath(conf)
+			hooksPath = chainconfig.HooksPath(conf)
 
 			if conf.Client.Hooks.Path == "" {
 				conf.Client.Hooks.Path = hooksPath
@@ -260,7 +259,7 @@ func (c *Chain) Generate(
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath = conf.Client.OpenAPI.Path
 		if openAPIPath == "" {
-			openAPIPath = chain.DefaultOpenAPIPath
+			openAPIPath = chainconfig.DefaultOpenAPIPath
 		}
 
 		// Non absolute OpenAPI paths must be treated as relative to the app directory
@@ -348,12 +347,12 @@ func (c Chain) saveClientConfig(client base.Client) error {
 	// values that otherwise would be initialized to defaults.
 	// Defaults must be ignored to avoid writing them to the
 	// YAML config file when they are not present.
-	var cfg chain.Config
+	var cfg chainconfig.Config
 	if err := cfg.Decode(file); err != nil {
 		return err
 	}
 
 	cfg.Client = client
 
-	return chain.Save(cfg, path)
+	return chainconfig.Save(cfg, path)
 }

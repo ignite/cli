@@ -6,10 +6,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/ignite/cli/ignite/config/chain/version"
-
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 // Parse reads a config file.

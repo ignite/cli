@@ -10,11 +10,10 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/ignite/cli/ignite/config/chain"
-
 	"github.com/blang/semver/v4"
 	"github.com/google/go-github/v48/github"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
@@ -104,7 +103,7 @@ func Long(ctx context.Context) string {
 	write("Ignite CLI version", Version)
 	write("Ignite CLI build date", date)
 	write("Ignite CLI source hash", head)
-	write("Ignite CLI config version", chain.LatestVersion)
+	write("Ignite CLI config version", chainconfig.LatestVersion)
 	write("Cosmos SDK version", sdkVersion)
 
 	write("Your OS", runtime.GOOS)
