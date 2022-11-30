@@ -387,7 +387,6 @@ func NewPluginAdd() *cobra.Command {
 			}
 			var conf pluginsconfig.Config
 			f, err := os.Open(confPath)
-
 			if err != nil {
 				return err
 			}
@@ -423,7 +422,6 @@ func NewPluginAdd() *cobra.Command {
 				}
 				var conf pluginsconfig.Config
 				f, err := os.Open(confPath)
-
 				if err != nil {
 					return err
 				}
@@ -477,7 +475,6 @@ func NewPluginRemove() *cobra.Command {
 			}
 			var conf pluginsconfig.Config
 			f, err := os.Open(confPath)
-
 			if err != nil {
 				return err
 			}

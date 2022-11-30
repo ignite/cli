@@ -202,6 +202,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
+
 	path, err := config.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""

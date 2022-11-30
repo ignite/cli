@@ -7,7 +7,7 @@ import (
 )
 
 func Persist(config Config, path string) error {
-	f, err := os.OpenFile(path, os.O_RDWR, 0644)
+	f, err := os.OpenFile(path, os.O_RDWR, 0o644)
 	if err != nil {
 		return err
 	}
