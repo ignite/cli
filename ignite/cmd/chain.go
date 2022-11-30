@@ -9,7 +9,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -18,7 +18,8 @@ import (
 var (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
 	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
-	msgMigrationPrompt = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
+	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -100,7 +101,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	appPath := flagGetPath(cmd)
 	configPath := getConfig(cmd)
 	if configPath == "" {
-		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
+		if configPath, err = config.LocateDefault(appPath); err != nil {
 			return err
 		}
 	}
@@ -110,19 +111,22 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 		return err
 	}
 
-	version, err := chainconfig.ReadConfigVersion(bytes.NewReader(rawCfg))
+	version, err := config.ReadConfigVersion(bytes.NewReader(rawCfg))
 	if err != nil {
 		return err
 	}
 
-	// Config files with older versions must be migrated to the latest before executing the command
-	if version != chainconfig.LatestVersion {
+	// ChainConfig files with older versions must be migrated to the latest before executing the command
+	if version != config.LatestVersion {
 		if !getYes(cmd) {
+			prefix := fmt.Sprintf(msgMigrationPrefix, version, config.LatestVersion)
+			question := fmt.Sprintf(msgMigrationPrompt, config.LatestVersion)
+
 			// Confirm before overwritting the config file
-			question := fmt.Sprintf(msgMigrationPrompt, version, chainconfig.LatestVersion)
+			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
+					return fmt.Errorf(msgMigrationCancel, config.LatestVersion)
 				}
 
 				return err
@@ -133,12 +137,12 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 				return err
 			}
 		} else {
-			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, chainconfig.LatestVersion))
+			session.Printf("%s %s\n", icons.Info, colors.Infof(msgMigration, version, config.LatestVersion))
 		}
 
 		// Convert the current config to the latest version and update the YAML file
 		var buf bytes.Buffer
-		if err := chainconfig.MigrateLatest(bytes.NewReader(rawCfg), &buf); err != nil {
+		if err := config.MigrateLatest(bytes.NewReader(rawCfg), &buf); err != nil {
 			return err
 		}
 
