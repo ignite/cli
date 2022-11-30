@@ -134,7 +134,9 @@ transacting methods with full type and auto-completion support.
 To query for a balance of an address:
 
 ```typescript
-const balances = await client.CosmosBankV1Beta1.query.queryAllBalances('cosmos13xkhcx2dquhqdml0k37sr7yndquwteuvt2cml7');
+const balances = await client.CosmosBankV1Beta1.query.queryAllBalances(
+  'cosmos13xkhcx2dquhqdml0k37sr7yndquwteuvt2cml7'
+);
 ```
 
 ## Broadcasting a transaction
