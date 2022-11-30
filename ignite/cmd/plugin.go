@@ -27,10 +27,9 @@ const (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	// NOTE(tb) Not sure if it's the right place to load this.
 	cfg, err := parseLocalPlugins(rootCmd)
 	if err != nil {
-		// if binary is run where there is no plugin.yml, don't load
+		// if binary is run where there is no plugins.yml, don't load
 		return nil
 	}
 
