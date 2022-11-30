@@ -9,8 +9,8 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
@@ -138,7 +138,7 @@ func (m StatusEvents) View() string {
 			d := evt.Duration.Round(time.Second)
 			s := strings.TrimSuffix(evt.String(), "...")
 
-			fmt.Fprintf(&view, "%s %s %s\n", icons.OK, s, style.Faint.Render(d.String()))
+			fmt.Fprintf(&view, "%s %s %s\n", icons.OK, s, colors.Faint(d.String()))
 		}
 	}
 

@@ -19,7 +19,6 @@ import (
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
@@ -525,12 +524,12 @@ func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
 	appBin, _ := c.AbsBinaryPath()
 
 	c.ev.Send(
-		fmt.Sprintf("Data directory: %s", style.Faint.Render(appHome)),
+		fmt.Sprintf("Data directory: %s", colors.Faint(appHome)),
 		events.Icon(icons.Bullet),
 		events.Group(EvtGroupPath),
 	)
 	c.ev.Send(
-		fmt.Sprintf("App binary: %s", style.Faint.Render(appBin)),
+		fmt.Sprintf("App binary: %s", colors.Faint(appBin)),
 		events.Icon(icons.Bullet),
 		events.Group(EvtGroupPath),
 	)

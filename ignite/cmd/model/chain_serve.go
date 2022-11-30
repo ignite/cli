@@ -10,7 +10,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
@@ -26,8 +25,8 @@ const (
 )
 
 var (
-	msgStopServe  = style.Faint.Render("Press the 'q' key to stop serve")
-	msgWaitingFix = colors.Info("Waiting for a fix before retrying...") // TODO: Replace colors by lipgloss styles
+	msgStopServe  = colors.Faint("Press the 'q' key to stop serve")
+	msgWaitingFix = colors.Info("Waiting for a fix before retrying...")
 )
 
 type Context interface {

@@ -15,11 +15,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-var actions = style.Faint.Render("Press the 'q' key to stop serve")
+var actions = colors.Faint("Press the 'q' key to stop serve")
 
 func TestChainServeErrorView(t *testing.T) {
 	// Arrange
@@ -53,7 +52,7 @@ func TestChainServeStartView(t *testing.T) {
 		queue[1],
 		icons.OK,
 		strings.TrimSuffix(queue[0], "..."),
-		style.Faint.Render("0s"),
+		colors.Faint("0s"),
 		actions,
 	)
 	want = cliuimodel.FormatView(want)
@@ -130,7 +129,7 @@ func TestChainServeRebuildView(t *testing.T) {
 	var model tea.Model
 
 	spinner := cliuimodel.NewSpinner()
-	duration := style.Faint.Render("0s")
+	duration := colors.Faint("0s")
 	queue := []string{"Event 1", "Event 2"}
 	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 

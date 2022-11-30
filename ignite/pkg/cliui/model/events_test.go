@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/ignite/pkg/cliui/style"
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
@@ -25,7 +25,7 @@ func TestStatusEventsView(t *testing.T) {
 		queue[1],
 		icons.OK,
 		strings.TrimSuffix(queue[0], "..."),
-		style.Faint.Render("0s"),
+		colors.Faint("0s"),
 	)
 
 	// Arrange: Update model with status events

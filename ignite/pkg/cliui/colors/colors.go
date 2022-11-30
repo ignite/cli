@@ -24,6 +24,7 @@ var (
 	modified = lipgloss.NewStyle().Foreground(lipgloss.Color(Magenta))
 	name     = lipgloss.NewStyle().Foreground(lipgloss.Color(White)).Bold(true)
 	mnemonic = lipgloss.NewStyle().Foreground(lipgloss.Color(HiBlue))
+	faint    = lipgloss.NewStyle().Faint(true)
 )
 
 // SprintFunc returns a function to apply a foreground color to any number of texts.
@@ -62,4 +63,9 @@ func Name(i ...interface{}) string {
 
 func Mnemonic(i ...interface{}) string {
 	return mnemonic.Render(fmt.Sprint(i...))
+}
+
+// Faint styles the text using a dimmer shade for the foreground color.
+func Faint(i ...interface{}) string {
+	return faint.Render(fmt.Sprint(i...))
 }
