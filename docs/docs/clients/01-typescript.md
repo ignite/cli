@@ -14,7 +14,12 @@ more on how to use TypeScript code generation.
 
 ## Starting a node
 
-If you already have an Ignite/Cosmos SDK
+Create a new blockchain with `ignite scaffold chain`. You can use an existing
+blockchain project if you have one, instead.
+
+```
+ignite scaffold chain example
+```
 
 For testing purposes add a new account to `config.yml` with a mnemonic:
 
