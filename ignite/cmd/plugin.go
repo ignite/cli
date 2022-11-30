@@ -407,7 +407,7 @@ func NewPluginAdd() *cobra.Command {
 
 			conf.Plugins = append(conf.Plugins, p)
 			s.Printf("🎉 %s added \n", args[0])
-			err = pluginsconfig.Persist(conf, confPath)
+			err = conf.Save(confPath)
 
 			if err != nil {
 				return err
@@ -491,7 +491,7 @@ func NewPluginRemove() *cobra.Command {
 			}
 
 			s.Printf("Saving plugin config %s\n", args[0])
-			err = pluginsconfig.Persist(conf, confPath)
+			err = conf.Save(confPath)
 
 			s.Printf("🎉 %s removed \n", args[0])
 			if err != nil {
