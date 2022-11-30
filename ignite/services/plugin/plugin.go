@@ -1,5 +1,5 @@
 // Package plugin implements ignite plugin management.
-// A ignite plugin is a binary which communicates with the ignite binary
+// An ignite plugin is a binary which communicates with the ignite binary
 // via RPC thanks to the github.com/hashicorp/go-plugin library.
 package plugin
 
@@ -20,25 +20,26 @@ import (
 	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/services/chain"
 )
 
 // pluginsPath holds the plugin cache directory.
 var pluginsPath = xfilepath.Join(
-	chainconfig.ConfigDirPath,
+	config.DirPath,
 	xfilepath.Path("plugins"),
 )
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
 	// Embed the plugin configuration
-	chainconfig.Plugin
+	pluginsconfig.Plugin
 	// Interface allows to communicate with the plugin via net/rpc.
 	Interface Interface
 	// If any error occurred during the plugin load, it's stored here
@@ -66,19 +67,17 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(ctx context.Context, c *chain.Chain) ([]*Plugin, error) {
-	conf, err := c.Config()
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
+func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
 	pluginsDir, err := pluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	var plugins []*Plugin
-	for _, cp := range conf.Plugins {
+	for _, cp := range cfg.Plugins {
 		p := newPlugin(pluginsDir, cp)
 		p.load(ctx)
+
+		// TODO: override global plugins with locally defined ones
 		plugins = append(plugins, p)
 	}
 	return plugins, nil
@@ -97,7 +96,7 @@ func Update(plugins ...*Plugin) error {
 }
 
 // newPlugin creates a Plugin from configuration.
-func newPlugin(pluginsDir string, cp chainconfig.Plugin) *Plugin {
+func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	var (
 		p          = &Plugin{Plugin: cp}
 		pluginPath = cp.Path
@@ -191,10 +190,14 @@ func (p *Plugin) load(ctx context.Context) {
 		p.binaryName: &InterfacePlugin{},
 	}
 	// Create an hclog.Logger
+	logLevel := hclog.Error
+	if env.DebugEnabled() {
+		logLevel = hclog.Trace
+	}
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   fmt.Sprintf("plugin %s", p.Path),
 		Output: os.Stderr,
-		Level:  hclog.Error,
+		Level:  logLevel,
 	})
 	// We're a host! Start by launching the plugin process.
 	p.client = hplugin.NewClient(&hplugin.ClientConfig{

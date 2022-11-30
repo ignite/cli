@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -26,17 +27,33 @@ const (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	// NOTE(tb) Not sure if it's the right place to load this.
-	chain, err := newChainWithHomeFlags(rootCmd)
+	cfg, err := parseLocalPlugins(rootCmd)
 	if err != nil {
-		// Binary is run outside of an chain app, plugins can't be loaded
+		// if binary is run where there is no plugins.yml, don't load
 		return nil
 	}
-	plugins, err = plugin.Load(ctx, chain)
+
+	// TODO: parse global config
+
+	plugins, err = plugin.Load(ctx, cfg)
 	if err != nil {
 		return err
 	}
 	return loadPlugins(rootCmd, plugins)
+}
+
+func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+	appPath := flagGetPath(rootCmd)
+	pluginsPath := getPlugins(rootCmd)
+	if pluginsPath == "" {
+		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
+			return cfg, err
+		}
+	}
+
+	cfg, err = pluginsconfig.ParseFile(pluginsPath)
+
+	return cfg, err
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
