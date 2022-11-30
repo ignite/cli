@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	chainconfig "github.com/ignite/cli/ignite/config"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -27,17 +28,33 @@ const (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	// NOTE(tb) Not sure if it's the right place to load this.
-	chain, err := newChainWithHomeFlags(rootCmd)
+	cfg, err := parseLocalPlugins(rootCmd)
 	if err != nil {
-		// Binary is run outside of an chain app, plugins can't be loaded
+		// if binary is run where there is no plugins.yml, don't load
 		return nil
 	}
-	plugins, err = plugin.Load(ctx, chain)
+
+	// TODO: parse global config
+
+	plugins, err = plugin.Load(ctx, cfg)
 	if err != nil {
 		return err
 	}
 	return loadPlugins(rootCmd, plugins)
+}
+
+func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+	appPath := flagGetPath(rootCmd)
+	pluginsPath := getPlugins(rootCmd)
+	if pluginsPath == "" {
+		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
+			return cfg, err
+		}
+	}
+
+	cfg, err = pluginsconfig.ParseFile(pluginsPath)
+
+	return cfg, err
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
@@ -361,7 +378,20 @@ func NewPluginAdd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			conf, err := chain.Config()
+			nodePath := chain.ConfigPath()
+			nodePath = path.Dir(nodePath)
+
+			confPath, err := pluginsconfig.LocateDefault(nodePath)
+			if err != nil {
+				return err
+			}
+			var conf pluginsconfig.Config
+			f, err := os.Open(confPath)
+
+			if err != nil {
+				return err
+			}
+			err = conf.Decode(f)
 			if err != nil {
 				return err
 			}
@@ -372,28 +402,39 @@ func NewPluginAdd() *cobra.Command {
 				}
 			}
 
-			p := chainconfig.Plugin{
+			p := pluginsconfig.Plugin{
 				Path: args[0],
 			}
 
 			conf.Plugins = append(conf.Plugins, p)
 			s.Printf("🎉 %s added \n", args[0])
-			err = chainconfig.Save(*conf, chain.ConfigPath())
+			err = pluginsconfig.Persist(conf, confPath)
 
 			if err != nil {
 				return err
 			}
 
 			if flag, err := cmd.Flags().GetBool("load"); err == nil && flag {
-				chain, err = newChainWithHomeFlags(cmd)
+				nodePath := chain.ConfigPath()
+				nodePath = path.Dir(nodePath)
+				confPath, err := pluginsconfig.LocateDefault(nodePath)
+				if err != nil {
+					return err
+				}
+				var conf pluginsconfig.Config
+				f, err := os.Open(confPath)
 
+				if err != nil {
+					return err
+				}
+				err = conf.Decode(f)
 				if err != nil {
 					return err
 				}
 
 				ctx := context.Background()
 				s.StartSpinner("Loading plugins")
-				plugins, err = plugin.Load(ctx, chain)
+				plugins, err = plugin.Load(ctx, &conf)
 				s.StopSpinner()
 
 				if err != nil {
@@ -426,7 +467,21 @@ func NewPluginRemove() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			conf, err := chain.Config()
+
+			nodePath := chain.ConfigPath()
+			nodePath = path.Dir(nodePath)
+
+			confPath, err := pluginsconfig.LocateDefault(nodePath)
+			if err != nil {
+				return err
+			}
+			var conf pluginsconfig.Config
+			f, err := os.Open(confPath)
+
+			if err != nil {
+				return err
+			}
+			err = conf.Decode(f)
 			if err != nil {
 				return err
 			}
@@ -439,7 +494,7 @@ func NewPluginRemove() *cobra.Command {
 			}
 
 			s.Printf("Saving plugin config %s\n", args[0])
-			err = chainconfig.Save(*conf, chain.ConfigPath())
+			err = pluginsconfig.Persist(conf, confPath)
 
 			s.Printf("🎉 %s removed \n", args[0])
 			if err != nil {

@@ -24,9 +24,6 @@ type Validator struct {
 	// Home overwrites default home directory used for the app
 	Home string `yaml:"home,omitempty"`
 
-	// KeyringBackend is the default keyring backend to use for blockchain initialization
-	KeyringBackend string `yaml:"keyring-backend,omitempty"`
-
 	// Gentx overwrites appd's config/gentx.toml configs.
 	Gentx *Gentx `yaml:"gentx,omitempty"`
 }

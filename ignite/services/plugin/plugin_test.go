@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
@@ -27,7 +27,7 @@ func TestNewPlugin(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		pluginCfg      config.Plugin
+		pluginCfg      pluginsconfig.Plugin
 		expectedPlugin Plugin
 	}{
 		{
@@ -38,21 +38,21 @@ func TestNewPlugin(t *testing.T) {
 		},
 		{
 			name:      "fail: local plugin doesnt exists",
-			pluginCfg: config.Plugin{Path: "/xxx/yyy/plugin"},
+			pluginCfg: pluginsconfig.Plugin{Path: "/xxx/yyy/plugin"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`local plugin path "/xxx/yyy/plugin" not found`),
 			},
 		},
 		{
 			name:      "fail: local plugin is not a dir",
-			pluginCfg: config.Plugin{Path: path.Join(wd, "testdata/fakebin")},
+			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata/fakebin")},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(fmt.Sprintf("local plugin path %q is not a dir", path.Join(wd, "testdata/fakebin"))),
 			},
 		},
 		{
 			name:      "ok: local plugin",
-			pluginCfg: config.Plugin{Path: path.Join(wd, "testdata")},
+			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata")},
 			expectedPlugin: Plugin{
 				srcPath:    path.Join(wd, "testdata"),
 				binaryName: "testdata",
@@ -60,21 +60,21 @@ func TestNewPlugin(t *testing.T) {
 		},
 		{
 			name:      "fail: remote plugin with only domain",
-			pluginCfg: config.Plugin{Path: "github.com"},
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`plugin path "github.com" is not a valid repository URL`),
 			},
 		},
 		{
 			name:      "fail: remote plugin with incomplete URL",
-			pluginCfg: config.Plugin{Path: "github.com/ignite"},
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`plugin path "github.com/ignite" is not a valid repository URL`),
 			},
 		},
 		{
 			name:      "ok: remote plugin",
-			pluginCfg: config.Plugin{Path: "github.com/ignite/plugin"},
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin"},
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin",
 				cloneURL:   "https://github.com/ignite/plugin",
@@ -86,7 +86,7 @@ func TestNewPlugin(t *testing.T) {
 		},
 		{
 			name:      "ok: remote plugin with @ref",
-			pluginCfg: config.Plugin{Path: "github.com/ignite/plugin@develop"},
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin@develop"},
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
@@ -98,7 +98,7 @@ func TestNewPlugin(t *testing.T) {
 		},
 		{
 			name:      "ok: remote plugin with subpath",
-			pluginCfg: config.Plugin{Path: "github.com/ignite/plugin/plugin1"},
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1"},
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin",
 				cloneURL:   "https://github.com/ignite/plugin",
@@ -110,7 +110,7 @@ func TestNewPlugin(t *testing.T) {
 		},
 		{
 			name:      "ok: remote plugin with subpath and @ref",
-			pluginCfg: config.Plugin{Path: "github.com/ignite/plugin/plugin1@develop"},
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1@develop"},
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
@@ -343,7 +343,7 @@ func TestPluginClean(t *testing.T) {
 		{
 			name: "dont clean local plugin",
 			plugin: &Plugin{
-				Plugin: config.Plugin{Path: "/local"},
+				Plugin: pluginsconfig.Plugin{Path: "/local"},
 			},
 		},
 		{
