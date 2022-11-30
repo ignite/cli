@@ -7,12 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/config/testdata"
+	"github.com/ignite/cli/ignite/config/plugins/testdata"
 )
 
 func TestParse(t *testing.T) {
 	// Arrange: Initialize a reader with the previous version
-	r := bytes.NewReader(testdata.PluginsConfig)
+	r := bytes.NewReader(testdata.ConfigYAML)
 
 	// Act
 	cfg, err := pluginsconfig.Parse(r)
@@ -21,5 +21,5 @@ func TestParse(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert: Parse must return the latest version
-	require.Equal(t, testdata.GetPluginsConfig(t), cfg)
+	require.Equal(t, testdata.GetConfig(t), cfg)
 }
