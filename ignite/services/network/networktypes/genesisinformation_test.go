@@ -14,6 +14,8 @@ import (
 
 var sampleCoins = sdk.NewCoins(sdk.NewCoin("bar", sdkmath.NewInt(1000)), sdk.NewCoin("foo", sdkmath.NewInt(2000)))
 
+// TODO add param-change tests
+
 func TestToGenesisAccount(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -141,6 +143,13 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 				Address: "spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6",
 				Gentx:   []byte("aaa"),
 				Peer:    launchtypes.NewPeerConn("foo", "foo"),
+			},
+		},
+		[]networktypes.ParamChange{
+			{
+				Module: "mint",
+				Param:  "mint_denom",
+				Value:  []byte("bar"),
 			},
 		},
 	)
