@@ -71,49 +71,49 @@ func protoQueryModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 
 		// if the query has request fields, they are appended to the rpc query
-		var reqPath string
+		var requestPath string
 		for _, field := range opts.ReqFields {
-			reqPath += "/"
-			reqPath = filepath.Join(reqPath, fmt.Sprintf("{%s}", field.ProtoFieldName()))
+			requestPath += "/"
+			requestPath = filepath.Join(requestPath, fmt.Sprintf("{%s}", field.ProtoFieldName()))
 		}
-		srv, err := protoutil.GetServiceByName(pf, "Query")
+		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
 			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 
-		typU, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
-		single := protoutil.NewRPC(typU, "Query"+typU+"Request", "Query"+typU+"Response",
+		typenameUpper, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
+		rpcSingle := protoutil.NewRPC(typenameUpper, "Query"+typenameUpper+"Request", "Query"+typenameUpper+"Response",
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
 					fmt.Sprintf(
 						"/%s/%s/%s%s",
-						appModulePath, opts.ModuleName, opts.QueryName.Snake, reqPath,
+						appModulePath, opts.ModuleName, opts.QueryName.Snake, requestPath,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),
 				),
 			),
 		)
-		protoutil.AttachComment(single, fmt.Sprintf("Queries a list of %v items.", typU))
-		protoutil.Append(srv, single)
+		protoutil.AttachComment(rpcSingle, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.Append(serviceQuery, rpcSingle)
 
 		// Fields for request
-		pagT, pagN := "cosmos.base.query.v1beta1.Page", "pagination"
+		paginationType, paginationName := "cosmos.base.query.v1beta1.Page", "pagination"
 		var reqFields []*proto.NormalField
 		for i, field := range opts.ReqFields {
 			reqFields = append(reqFields, field.ToProtoField(i+1))
 		}
 		if opts.Paginated {
-			reqFields = append(reqFields, protoutil.NewField(pagN, pagT+"Request", len(opts.ReqFields)+1))
+			reqFields = append(reqFields, protoutil.NewField(paginationName, paginationType+"Request", len(opts.ReqFields)+1))
 		}
-		msgReq := protoutil.NewMessage("Query"+typU+"Request", protoutil.WithFields(reqFields...))
+		requestMessage := protoutil.NewMessage("Query"+typenameUpper+"Request", protoutil.WithFields(reqFields...))
 
 		// Fields for response
 		var resFields []*proto.NormalField
@@ -121,10 +121,10 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			resFields = append(resFields, field.ToProtoField(i+1))
 		}
 		if opts.Paginated {
-			resFields = append(resFields, protoutil.NewField(pagN, pagT+"Response", len(opts.ResFields)+1))
+			resFields = append(resFields, protoutil.NewField(paginationName, paginationType+"Response", len(opts.ResFields)+1))
 		}
-		msgResp := protoutil.NewMessage("Query"+typU+"Response", protoutil.WithFields(resFields...))
-		protoutil.Append(pf, msgReq, msgResp)
+		responseMessage := protoutil.NewMessage("Query"+typenameUpper+"Response", protoutil.WithFields(resFields...))
+		protoutil.Append(protoFile, requestMessage, responseMessage)
 
 		// Ensure custom types are imported
 		var protoImports []*proto.Import
@@ -135,12 +135,11 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
-		if err = protoutil.AddImports(pf, true, protoImports...); err != nil {
-			// shouldn't really occur.
+		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
 			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

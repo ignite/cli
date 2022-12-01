@@ -31,36 +31,36 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 		// Add initial import for the new type
-		gogoproto := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoproto, opts.ProtoTypeImport()); err != nil {
+		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Get next available sequence number from GenesisState.
-		m, err := protoutil.GetMessageByName(pf, typed.ProtoGenesisStateMessage)
+		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
 		if err != nil {
 			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
-		seqNumber := protoutil.NextUniqueID(m)
-		lowerName, upperName := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
+		seqNumber := protoutil.NextUniqueID(genesisState)
+		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
 		// Create option and List field.
-		opt := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
+		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeList := protoutil.NewField(
-			lowerName+"List",
-			upperName,
+			typenameLower+"List",
+			typenameUpper,
 			seqNumber,
 			protoutil.Repeated(),
-			protoutil.WithFieldOptions(opt),
+			protoutil.WithFieldOptions(gogoOption),
 		)
 		// Create count field.
-		typeCount := protoutil.NewField(lowerName+"Count", "uint64", seqNumber+1)
-		protoutil.Append(m, typeList, typeCount)
+		countFIeld := protoutil.NewField(typenameLower+"Count", "uint64", seqNumber+1)
+		protoutil.Append(genesisState, typeList, countFIeld)
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

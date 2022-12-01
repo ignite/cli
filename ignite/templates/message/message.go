@@ -92,19 +92,19 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 		// = Add new rpc to Msg.
-		s, err := protoutil.GetServiceByName(pf, "Msg")
+		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
 			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
-		typ := opts.MsgName.UpperCamel
-		protoutil.Append(s, protoutil.NewRPC(typ, "Msg"+typ, "Msg"+typ+"Response"))
+		typenameUpper := opts.MsgName.UpperCamel
+		protoutil.Append(serviceMsg, protoutil.NewRPC(typenameUpper, "Msg"+typenameUpper, "Msg"+typenameUpper+"Response"))
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
@@ -116,7 +116,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
@@ -130,10 +130,10 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			resFields = append(resFields, field.ToProtoField(i+1))
 		}
 
-		typ := opts.MsgName.UpperCamel
-		msg := protoutil.NewMessage("Msg"+typ, protoutil.WithFields(msgFields...))
-		msgResp := protoutil.NewMessage("Msg"+typ+"Response", protoutil.WithFields(resFields...))
-		protoutil.Append(pf, msg, msgResp)
+		typenameUpper := opts.MsgName.UpperCamel
+		msg := protoutil.NewMessage("Msg"+typenameUpper, protoutil.WithFields(msgFields...))
+		msgResp := protoutil.NewMessage("Msg"+typenameUpper+"Response", protoutil.WithFields(resFields...))
+		protoutil.Append(protoFile, msg, msgResp)
 
 		// Ensure custom types are imported
 		var protoImports []*proto.Import
@@ -141,15 +141,14 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range append(opts.ResFields.Custom(), opts.Fields.Custom()...) {
-			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
-			protoImports = append(protoImports, protoutil.NewImport(protopath))
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
-		if err = protoutil.AddImports(pf, true, protoImports...); err != nil {
-			// shouldn't really occur.
+		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
 			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

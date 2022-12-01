@@ -130,21 +130,21 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 
 		// Grab GenesisState and add next (always 2, I gather) available field.
-		genesis, err := protoutil.GetMessageByName(pf, "GenesisState")
+		// TODO: typed.ProtoGenesisStateMessage exists but in subfolder, so we can't use it here, refactor?
+		genesisState, err := protoutil.GetMessageByName(protoFile, "GenesisState")
 		if err != nil {
 			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
 		}
-		seqNum := protoutil.NextUniqueID(genesis)
-		field := protoutil.NewField("port_id", "string", seqNum)
-		protoutil.Append(genesis, field)
+		field := protoutil.NewField("port_id", "string", protoutil.NextUniqueID(genesisState))
+		protoutil.Append(genesisState, field)
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

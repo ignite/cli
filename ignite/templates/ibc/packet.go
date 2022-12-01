@@ -185,18 +185,18 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 		name := xstrings.Title(opts.ModuleName) + "PacketData"
-		m, err := protoutil.GetMessageByName(pf, name)
+		message, err := protoutil.GetMessageByName(protoFile, name)
 		if err != nil {
-			return fmt.Errorf("failed while looking up '%s' in %s: %w", name, path, err)
+			return fmt.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
 		}
 		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a separate function.
 		var packet *proto.Oneof
-		protoutil.Apply(m, nil, func(c *protoutil.Cursor) bool {
+		protoutil.Apply(message, nil, func(c *protoutil.Cursor) bool {
 			if o, ok := c.Node().(*proto.Oneof); ok {
 				if o.Name == "packet" {
 					packet = o
@@ -207,7 +207,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		if packet == nil {
-			return fmt.Errorf("could not find 'oneof packet' in %s", path)
+			return fmt.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
 		max := 1
@@ -220,24 +220,25 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		// Add it to Oneof.
-		typU, typL := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		modPacket := protoutil.NewOneofField(typL+"Packet", typU+"PacketData", max+1)
-		protoutil.Append(packet, modPacket)
+		typenameUpper, typenameLower := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
+		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", max+1)
+		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment
 		var packetFields []*proto.NormalField
 		for i, field := range opts.Fields {
 			packetFields = append(packetFields, field.ToProtoField(i+1))
 		}
-		pData := protoutil.NewMessage(typU+"PacketData", protoutil.WithFields(packetFields...))
-		protoutil.AttachComment(pData, typU+"PacketData defines a struct for the packet payload")
+		packetData := protoutil.NewMessage(typenameUpper+"PacketData", protoutil.WithFields(packetFields...))
+		protoutil.AttachComment(packetData, typenameUpper+"PacketData defines a struct for the packet payload")
 		var ackFields []*proto.NormalField
 		for i, field := range opts.AckFields {
 			ackFields = append(ackFields, field.ToProtoField(i+1))
 		}
-		pAck := protoutil.NewMessage(typU+"PacketAck", protoutil.WithFields(ackFields...))
-		protoutil.AttachComment(pAck, typU+"PacketAck defines a struct for the packet acknowledgment")
-		protoutil.Append(pf, pData, pAck)
+		packetAck := protoutil.NewMessage(typenameUpper+"PacketAck", protoutil.WithFields(ackFields...))
+		protoutil.AttachComment(packetAck, typenameUpper+"PacketAck defines a struct for the packet acknowledgment")
+		protoutil.Append(protoFile, packetData, packetAck)
+
 		// Add any custom imports.
 		var protoImports []*proto.Import
 		for _, imp := range append(opts.Fields.ProtoImports(), opts.AckFields.ProtoImports()...) {
@@ -247,11 +248,11 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
-		if err := protoutil.AddImports(pf, true, protoImports...); err != nil {
+		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
 			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
@@ -291,35 +292,36 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 
 		// Add RPC to service Msg.
-		srv, err := protoutil.GetServiceByName(pf, "Msg")
+		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
 			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
-		typU := opts.PacketName.UpperCamel
-		send := protoutil.NewRPC("Send"+typU, "MsgSend"+typU, "MsgSend"+typU+"Response")
-		protoutil.Append(srv, send)
+		typenameUpper := opts.PacketName.UpperCamel
+		send := protoutil.NewRPC("Send"+typenameUpper, "MsgSend"+typenameUpper, "MsgSend"+typenameUpper+"Response")
+		protoutil.Append(serviceMsg, send)
 
 		// Create fields for MsgSend.
 		var sendFields []*proto.NormalField
 		for i, field := range opts.Fields {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		port := protoutil.NewField("port", "string", 2)
-		channel := protoutil.NewField("channelID", "string", 3)
-		timeout := protoutil.NewField("timeoutTimestamp", "uint64", 4)
-		sendFields = append(sendFields, creator, port, channel, timeout)
+		sendFields = append(sendFields,
+			protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1),
+			protoutil.NewField("port", "string", 2),
+			protoutil.NewField("channelID", "string", 3),
+			protoutil.NewField("timeoutTimestamp", "uint64", 4),
+		)
 
 		// Create MsgSend, MsgSendResponse and add to file.
-		msgSend := protoutil.NewMessage("MsgSend"+typU, protoutil.WithFields(sendFields...))
-		msgResp := protoutil.NewMessage("MsgSend" + typU + "Response")
-		protoutil.Append(pf, msgSend, msgResp)
+		msgSend := protoutil.NewMessage("MsgSend"+typenameUpper, protoutil.WithFields(sendFields...))
+		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
+		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
 		// Ensure custom types are imported
 		var protoImports []*proto.Import
@@ -330,11 +332,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
-		if err := protoutil.AddImports(pf, true, protoImports...); err != nil {
+		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
 			return fmt.Errorf("error while processing %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

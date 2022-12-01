@@ -109,24 +109,24 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 
-		// Import the type and gogoproto.
-		gogoproto := protoutil.NewImport("gogoproto/gogo.proto")
-		if err = protoutil.AddImports(pf, true, gogoproto, opts.ProtoTypeImport()); err != nil {
+		// Import the type and gogoImport.
+		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Find service.
-		srv, err := protoutil.GetServiceByName(pf, "Query")
+		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
 			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		typ := opts.TypeName.UpperCamel
-		single := protoutil.NewRPC(typ, "QueryGet"+typ+"Request", "QueryGet"+typ+"Response",
+		typenameUpper := opts.TypeName.UpperCamel
+		rpcQueryGet := protoutil.NewRPC(typenameUpper, "QueryGet"+typenameUpper+"Request", "QueryGet"+typenameUpper+"Response",
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -139,18 +139,18 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(single, fmt.Sprintf("Queries a %v by index.", typ))
-		protoutil.Append(srv, single)
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
+		protoutil.Append(serviceQuery, rpcQueryGet)
 
 		// Add the service messages
-		msgReq := protoutil.NewMessage("QueryGet" + typ + "Request")
-		field := protoutil.NewField(typ, typ, 1,
+		queryGetRequest := protoutil.NewMessage("QueryGet" + typenameUpper + "Request")
+		field := protoutil.NewField(typenameUpper, typenameUpper, 1,
 			protoutil.WithFieldOptions(protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())),
 		)
-		msgResp := protoutil.NewMessage("QueryGet"+typ+"Response", protoutil.WithFields(field))
-		protoutil.Append(pf, msgReq, msgResp)
+		queryGetResponse := protoutil.NewMessage("QueryGet"+typenameUpper+"Response", protoutil.WithFields(field))
+		protoutil.Append(protoFile, queryGetRequest, queryGetResponse)
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
@@ -185,28 +185,29 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 		// Add initial import for the new type
-		if err = protoutil.AddImports(pf, true, opts.ProtoTypeImport()); err != nil {
+		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		m, err := protoutil.GetMessageByName(pf, typed.ProtoGenesisStateMessage)
+		// Add field to GenesisState message.
+		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
 		if err != nil {
 			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
-		seqNumber := protoutil.NextUniqueID(m)
+		seqNumber := protoutil.NextUniqueID(genesisState)
 		field := protoutil.NewField(
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 			seqNumber,
 		)
-		// We can just append it to GenesisState
-		protoutil.Append(m, field)
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		protoutil.Append(genesisState, field)
+
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
@@ -355,26 +356,27 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		pf, err := protoutil.ParseProtoFile(f)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
 
 		// Add initial import for the new type:
-		if err = protoutil.AddImports(pf, true, opts.ProtoTypeImport()); err != nil {
+		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 		// Add the RPC service.
-		s, err := protoutil.GetServiceByName(pf, "Msg")
+		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
 			return fmt.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
 		}
-		// better to append them altogether, single traversal.
+		// Append create, update, delete rpcs. Better to append them altogether, single traversal.
 		name := opts.TypeName.UpperCamel
-		create := protoutil.NewRPC("Create"+name, "MsgCreate"+name, "MsgCreate"+name+"Response")
-		update := protoutil.NewRPC("Update"+name, "MsgUpdate"+name, "MsgUpdate"+name+"Response")
-		delete := protoutil.NewRPC("Delete"+name, "MsgDelete"+name, "MsgDelete"+name+"Response")
-		protoutil.Append(s, create, update, delete)
+		protoutil.Append(serviceMsg,
+			protoutil.NewRPC("Create"+name, "MsgCreate"+name, "MsgCreate"+name+"Response"),
+			protoutil.NewRPC("Update"+name, "MsgUpdate"+name, "MsgUpdate"+name+"Response"),
+			protoutil.NewRPC("Delete"+name, "MsgDelete"+name, "MsgDelete"+name+"Response"),
+		)
 
 		// Ensure custom types are imported
 		var protoImports []*proto.Import
@@ -386,7 +388,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		// we already know an import exists, pass false for fallback.
-		if err = protoutil.AddImports(pf, false, protoImports...); err != nil {
+		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
 			// shouldn't really occur.
 			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
 		}
@@ -400,20 +402,20 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		msgCreate := protoutil.NewMessage(
 			"MsgCreate"+name, protoutil.WithFields(fields...),
 		)
-		msgCreateResp := protoutil.NewMessage("MsgCreate" + name + "Response")
+		msgCreateResponse := protoutil.NewMessage("MsgCreate" + name + "Response")
 		msgUpdate := protoutil.NewMessage(
 			"MsgUpdate"+name, protoutil.WithFields(fields...),
 		)
-		msgUpdateResp := protoutil.NewMessage("MsgUpdate" + name + "Response")
+		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + name + "Response")
 		msgDelete := protoutil.NewMessage(
 			"MsgDelete"+name, protoutil.WithFields(creator),
 		)
-		msgDeleteResp := protoutil.NewMessage("MsgDelete" + name + "Response")
-		protoutil.Append(pf,
-			msgCreate, msgCreateResp, msgUpdate, msgUpdateResp, msgDelete, msgDeleteResp,
+		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + name + "Response")
+		protoutil.Append(protoFile,
+			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
 		)
 
-		newFile := genny.NewFileS(path, protoutil.Print(pf))
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
