@@ -50,4 +50,6 @@ validators:
     evm-rpc:
       address: 0.0.0.0:8545
       ws-address: 0.0.0.0:8546
+  client:
+    keyring-backend: os
   home: $HOME/.evmosd

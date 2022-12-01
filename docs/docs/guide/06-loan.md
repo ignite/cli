@@ -256,8 +256,7 @@ Add the following code to the `ValidateBasic()` function in the `x/loan/types/me
 ```go
 package types
 
-...
-
+// ...
 
 func (msg *MsgRequestLoan) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
