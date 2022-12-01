@@ -27,15 +27,10 @@ var plugins []*plugin.Plugin
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	var (
-		localPlugins  []*plugin.Plugin
-		globalPlugins []*plugin.Plugin
-	)
-
 	localCfg, err := parseLocalConfig(rootCmd)
 	// if binary is run where there is no cfg, don't load
 	if err == nil {
-		localPlugins, err = plugin.Load(ctx, localCfg)
+		plugins, err = plugin.Load(ctx, localCfg)
 		if err != nil {
 			return err
 		}
@@ -44,15 +39,13 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	globalCfg, err := parseGlobalConfig(rootCmd)
 	// if binary is run where there is no cfg, don't load
 	if err == nil {
-		globalPlugins, err = plugin.Load(ctx, globalCfg)
+		globalPlugins, err := plugin.Load(ctx, globalCfg)
 		if err != nil {
 			return err
 		}
-
+		plugins = append(plugins, globalPlugins...)
 	}
 
-	// nolint: appendAssign
-	plugins = append(localPlugins, globalPlugins...)
 	if len(plugins) == 0 {
 		return nil
 	}
