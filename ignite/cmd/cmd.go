@@ -33,6 +33,7 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
+	flagPlugins    = "plugins"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -81,6 +82,7 @@ To get started, create a blockchain:
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
+	c.PersistentFlags().AddFlagSet(flagSetPlugins())
 
 	return c
 }
@@ -121,12 +123,23 @@ func getHome(cmd *cobra.Command) (home string) {
 
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagConfig, "c", "", "Ignite config file (default: ./config.yml)")
+	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
 	return fs
 }
 
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
+	return
+}
+
+func flagSetPlugins() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.StringP(flagPlugins, "x", "", "path to Ignite plugins config file (default: ./plugins.yml)")
+	return fs
+}
+
+func getPlugins(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagPlugins)
 	return
 }
 
