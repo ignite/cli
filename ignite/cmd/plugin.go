@@ -28,7 +28,7 @@ const (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	cfg, err := parseLocalPlugins(rootCmd)
+	cfg, _, err := parseLocalPlugins(rootCmd)
 	if err != nil {
 		// if binary is run where there is no plugins.yml, don't load
 		return nil
@@ -43,18 +43,18 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	return loadPlugins(rootCmd, plugins)
 }
 
-func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, path string, err error) {
 	appPath := flagGetPath(rootCmd)
 	pluginsPath := getPlugins(rootCmd)
 	if pluginsPath == "" {
 		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
-			return cfg, err
+			return cfg, appPath, err
 		}
 	}
 
 	cfg, err = pluginsconfig.ParseFile(pluginsPath)
 
-	return cfg, err
+	return cfg, pluginsPath, err
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
@@ -371,18 +371,7 @@ func NewPluginAdd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			appPath, err := os.Getwd()
-			if err != nil {
-				return fmt.Errorf("app path cannot be found")
-			}
-
-			confPath, err := pluginsconfig.LocateDefault(appPath)
-
-			if err != nil {
-				return err
-			}
-
-			conf, err := parseLocalPlugins(cmd)
+			conf, persistPath, err := parseLocalPlugins(cmd)
 
 			if err != nil {
 				return err
@@ -414,7 +403,11 @@ func NewPluginAdd() *cobra.Command {
 
 			conf.Plugins = append(conf.Plugins, p)
 
-			err = conf.Save(confPath)
+			if err != nil {
+				return err
+			}
+
+			err = conf.Save(persistPath)
 
 			if err != nil {
 				return err
@@ -436,18 +429,7 @@ func NewPluginRemove() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			appPath, err := os.Getwd()
-			if err != nil {
-				return fmt.Errorf("app path cannot be found")
-			}
-
-			confPath, err := pluginsconfig.LocateDefault(appPath)
-
-			if err != nil {
-				return err
-			}
-
-			conf, err := parseLocalPlugins(cmd)
+			conf, persistPath, err := parseLocalPlugins(cmd)
 
 			if err != nil {
 				return err
@@ -460,11 +442,12 @@ func NewPluginRemove() *cobra.Command {
 				}
 			}
 
-			err = conf.Save(confPath)
+			err = conf.Save(persistPath)
 
 			if err != nil {
 				return err
 			}
+
 			s.Printf("%s %s removed\n", icons.OK, args[0])
 
 			return nil
