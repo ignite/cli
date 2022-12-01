@@ -192,32 +192,42 @@ To make sure the receiving chain has content on the creator of a blog post, add 
 - The sender is verified as the signer of the message, so you can add the `msg.Sender` as the creator to the new packet
 - before it is sent over IBC.
 
-```go
+```go title="x/blog/keeper/msg_server_ibc_post.go"
 package keeper
 
 import (
+	// ...
 	"planet/x/blog/types"
 )
 
-...
+func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-// x/blog/keeper/msg_server_ibc_post.go
+	// TODO: logic before transmitting the packet
 
-// Construct the packet
-var packet types.IbcPostPacketData
-packet.Title = msg.Title
-packet.Content = msg.Content
-packet.Creator = msg.Creator // < ---
+	// Construct the packet
+	var packet types.IbcPostPacketData
 
-// Transmit the packet
-err := k.TransmitIbcPostPacket(
-    ctx,
-    packet,
-    msg.Port,
-    msg.ChannelID,
-    clienttypes.ZeroHeight(),
-    msg.TimeoutTimestamp,
-)
+	packet.Title = msg.Title
+	packet.Content = msg.Content
+	// highlight-next-line
+	packet.Creator = msg.Creator
+
+	// Transmit the packet
+	err := k.TransmitIbcPostPacket(
+		ctx,
+		packet,
+		msg.Port,
+		msg.ChannelID,
+		clienttypes.ZeroHeight(),
+		msg.TimeoutTimestamp,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgSendIbcPostResponse{}, nil
+}
 ```
 
 ### Receive the post
@@ -262,11 +272,11 @@ In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below `
 ```go
 // x/blog/keeper/ibc_post.go
 import (
-//...
+	//...
 
-"strconv"
+	"strconv"
 
-//...
+// ...
 )
 ```
 
@@ -275,7 +285,7 @@ Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 ```go
 package keeper
 
-...
+// ...
 
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
 	// validate packet data upon receiving
@@ -311,7 +321,7 @@ packet.
 ```go
 package keeper
 
-...
+// ...
 
 // x/blog/keeper/ibc_post.go
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
@@ -353,16 +363,16 @@ Store posts that have not been received by target chains in `timedoutPost` posts
 ```go
 // x/blog/keeper/ibc_post.go
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-k.AppendTimedoutPost(
-ctx,
-types.TimedoutPost{
-Creator: data.Creator,
-Title:   data.Title,
-Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
-},
-)
+	k.AppendTimedoutPost(
+		ctx,
+		types.TimedoutPost{
+			Creator: data.Creator,
+			Title:   data.Title,
+			Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+		},
+	)
 
-return nil
+	return nil
 }
 
 ```

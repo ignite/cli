@@ -18,6 +18,8 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.1.0
 	github.com/emicklei/proto v1.11.0
+	github.com/emicklei/proto-contrib v0.12.0
+	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gobuffalo/genny/v2 v2.1.0
@@ -51,6 +53,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
+	github.com/tbruyelle/mdgofmt v0.1.2
 	github.com/tendermint/spn v0.2.1-0.20220921200247-8bafad876bdd
 	github.com/tendermint/tendermint v0.34.23
 	github.com/tendermint/tm-db v0.6.7
