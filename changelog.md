@@ -2,6 +2,7 @@
 
 ### Features
 
+- [#3184](https://github.com/ignite/cli/pull/3184) Separate `plugins.yml` config file.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite scaffold react` command.
@@ -47,6 +48,9 @@
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
 - [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` template.
 - [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error. 
+- [#3129](https://github.com/ignite/cli/issues/3129) Remove redundant `keyring-backend` config option.
+- [#3187](https://github.com/ignite/cli/issues/3187) Change prompt text to fit within 80 characters width.
+- [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
