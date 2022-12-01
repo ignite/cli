@@ -611,11 +611,12 @@ type CannotBuildAppError struct {
 
 func (e *CannotBuildAppError) Error() string {
 	// TODO: Find at which point the error is wrapped twice
-	if err, ok := e.Err.(*CannotBuildAppError); ok {
-		return err.Error()
+	var buildErr *CannotBuildAppError
+	if errors.As(e.Err, &buildErr) {
+		return buildErr.Error()
 	}
 
-	return fmt.Sprintf("cannot build app:\n\n  %s", e.Err)
+	return fmt.Sprintf("cannot build app:\n\n%s", e.Err)
 }
 
 func (e *CannotBuildAppError) Unwrap() error {
