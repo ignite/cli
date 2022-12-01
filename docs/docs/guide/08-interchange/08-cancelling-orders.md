@@ -79,13 +79,13 @@ Add this function to the `x/dex/types/order_book.go` function in the `types` dir
 // x/dex/types/order_book.go
 
 func (book OrderBook) GetOrderFromID(id int32) (Order, error) {
-for _, order := range book.Orders {
-if order.Id == id {
-return *order, nil
-}
-}
+	for _, order := range book.Orders {
+		if order.Id == id {
+			return *order, nil
+		}
+	}
 
-return Order{}, ErrOrderNotFound
+	return Order{}, ErrOrderNotFound
 }
 ```
 
