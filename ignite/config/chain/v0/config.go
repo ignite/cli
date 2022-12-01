@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/config/chain/base"
-	chainconfig "github.com/ignite/cli/ignite/config/chain/version"
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 // Config is the user given configuration to do additional setup during serve.
@@ -20,7 +20,7 @@ type Config struct {
 }
 
 // Clone returns an identical copy of the instance.
-func (c *Config) Clone() (chainconfig.Converter, error) {
+func (c *Config) Clone() (version.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err
