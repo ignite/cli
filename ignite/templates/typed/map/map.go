@@ -6,10 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/emicklei/proto"
+
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 	"github.com/ignite/cli/ignite/templates/module"
@@ -74,9 +77,9 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		)
 	)
 
-	g.RunFn(protoRPCModify(replacer, opts))
+	g.RunFn(protoRPCModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
-	g.RunFn(genesisProtoModify(replacer, opts))
+	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
@@ -84,7 +87,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 	// Modifications for new messages
 	if !opts.NoMessage {
-		g.RunFn(protoTxModify(replacer, opts))
+		g.RunFn(protoTxModify(opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
@@ -113,106 +116,120 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	return g, typed.Box(componentTemplate, opts, g)
 }
 
-func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+// Modifies query.proto to add the required RPCs and Messages.
+//
+// What it depends on:
+//   - Existence of a service with name "Query". Adds the rpc's there.
+func protoRPCModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
+		path := opts.ProtoPath("query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// Import the type
-		templateImport := `import "%s/%s/%s.proto";
-%s`
-		replacementImport := fmt.Sprintf(templateImport,
-			opts.AppName,
-			opts.ModuleName,
-			opts.TypeName.Snake,
-			typed.Placeholder,
-		)
-		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
-
-		// Add gogo.proto
-		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
-		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
+		protoFile, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
+		// Add initial import for the new type
+		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
+			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+		}
 
 		var protoIndexes []string
 		for _, index := range opts.Indexes {
 			protoIndexes = append(protoIndexes, fmt.Sprintf("{%s}", index.ProtoFieldName()))
 		}
 		indexPath := strings.Join(protoIndexes, "/")
-
-		// Add the service
-		templateService := `// Queries a %[2]v by index.
-	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
-	}
-
-	// Queries a list of %[2]v items.
-	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v";
-	}
-
-%[1]v`
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		replacementService := fmt.Sprintf(templateService,
-			typed.Placeholder2,
-			opts.TypeName.UpperCamel,
-			appModulePath,
-			opts.ModuleName,
-			opts.TypeName.Snake,
-			indexPath,
-		)
-		content = replacer.Replace(content, typed.Placeholder2, replacementService)
-
-		// Add the service messages
-		var queryIndexFields string
-		for i, index := range opts.Indexes {
-			queryIndexFields += fmt.Sprintf("  %s;\n", index.ProtoType(i+1))
+		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
+		if err != nil {
+			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
+		typenameUpper, typenameSnake, typenameLower := opts.TypeName.UpperCamel, opts.TypeName.Snake, opts.TypeName.LowerCamel
+		rpcQueryGet := protoutil.NewRPC(typenameUpper, "QueryGet"+typenameUpper+"Request", "QueryGet"+typenameUpper+"Response",
+			protoutil.WithRPCOptions(
+				protoutil.NewOption(
+					"google.api.http",
+					fmt.Sprintf(
+						"/%s/%s/%s/%s",
+						appModulePath, opts.ModuleName, typenameSnake, indexPath,
+					),
+					protoutil.Custom(),
+					protoutil.SetField("get"),
+				),
+			),
+		)
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
 
-		// Ensure custom types are imported
-		protoImports := opts.Fields.ProtoImports()
+		rpcQueryAll := protoutil.NewRPC(typenameUpper+"All", "QueryAll"+typenameUpper+"Request", "QueryAll"+typenameUpper+"Response",
+			protoutil.WithRPCOptions(
+				protoutil.NewOption(
+					"google.api.http",
+					fmt.Sprintf(
+						"/%s/%s/%s",
+						appModulePath, opts.ModuleName, typenameSnake,
+					),
+					protoutil.Custom(),
+					protoutil.SetField("get"),
+				),
+			),
+		)
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.Append(serviceQuery, rpcQueryGet, rpcQueryAll)
+
+		//  Ensure custom types are imported
+		var protoImports []*proto.Import
+		for _, imp := range opts.Fields.ProtoImports() {
+			protoImports = append(protoImports, protoutil.NewImport(imp))
+		}
 		for _, f := range opts.Fields.Custom() {
-			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
-			)
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
-		for _, f := range protoImports {
-			importModule := fmt.Sprintf(`
-import "%[1]v";`, f)
-			content = strings.ReplaceAll(content, importModule, "")
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.Placeholder, importModule)
-			content = replacer.Replace(content, typed.Placeholder, replacementImport)
+		// we already know an import exists, pass false for fallback.
+		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
+			// shouldn't really occur.
+			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		templateMessage := `message QueryGet%[2]vRequest {
-	%[4]v
-}
-
-message QueryGet%[2]vResponse {
-	%[2]v %[3]v = 1 [(gogoproto.nullable) = false];
-}
-
-message QueryAll%[2]vRequest {
-	cosmos.base.query.v1beta1.PageRequest pagination = 1;
-}
-
-message QueryAll%[2]vResponse {
-	repeated %[2]v %[3]v = 1 [(gogoproto.nullable) = false];
-	cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-%[1]v`
-		replacementMessage := fmt.Sprintf(templateMessage,
-			typed.Placeholder3,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
-			queryIndexFields,
+		// Add the messages.
+		var queryIndexFields []*proto.NormalField
+		for i, index := range opts.Indexes {
+			queryIndexFields = append(queryIndexFields, index.ToProtoField(i+1))
+		}
+		paginationType, paginationName := "cosmos.base.query.v1beta1.Page", "pagination"
+		queryGetRequest := protoutil.NewMessage(
+			"QueryGet"+typenameUpper+"Request",
+			protoutil.WithFields(queryIndexFields...),
 		)
-		content = replacer.Replace(content, typed.Placeholder3, replacementMessage)
+		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
+		queryGetResponse := protoutil.NewMessage(
+			"QueryGet"+typenameUpper+"Response",
+			protoutil.WithFields(protoutil.NewField(typenameLower, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))),
+		)
+		queryAllRequest := protoutil.NewMessage(
+			"QueryAll"+typenameUpper+"Request",
+			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
+		)
+		queryAllResponse := protoutil.NewMessage(
+			"QueryAll"+typenameUpper+"Response",
+			protoutil.WithFields(
+				protoutil.NewField(
+					typenameLower,
+					typenameUpper,
+					1,
+					protoutil.Repeated(),
+					protoutil.WithFieldOptions(gogoOption),
+				),
+				protoutil.NewField(paginationName, paginationType+"Response", 2),
+			),
+		)
+		protoutil.Append(protoFile, queryGetRequest, queryGetResponse, queryAllRequest, queryAllResponse)
 
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
@@ -236,47 +253,42 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 	}
 }
 
-func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+// Modifies the genesis.proto file to add a new field.
+//
+// What it depends on:
+//   - Existence of a message with name "GenesisState". Adds the field there.
+func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
+		path := opts.ProtoPath("genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-
-		templateProtoImport := `import "%[2]v/%[3]v/%[4]v.proto";
-%[1]v`
-		replacementProtoImport := fmt.Sprintf(
-			templateProtoImport,
-			typed.PlaceholderGenesisProtoImport,
-			opts.AppName,
-			opts.ModuleName,
-			opts.TypeName.Snake,
-		)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
-
-		// Add gogo.proto
-		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.PlaceholderGenesisProtoImport)
-		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
-
-		// Parse proto file to determine the field numbers
-		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
+		// Add initial import for the new type
+		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
+			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+		}
+		// Get next available sequence number from GenesisState.
+		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
+		if err != nil {
+			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
+		}
+		seqNumber := protoutil.NextUniqueID(genesisState)
 
-		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
-  %[1]v`
-		replacementProtoState := fmt.Sprintf(
-			templateProtoState,
-			typed.PlaceholderGenesisProtoState,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
-			highestNumber+1,
+		// Create new option and append to GenesisState message.
+		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
+		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
+		typeListField := protoutil.NewField(
+			typenameLower+"List", typenameUpper, seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption),
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
+		protoutil.Append(genesisState, typeListField)
 
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
@@ -476,90 +488,86 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 	}
 }
 
-func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+// protoTxModify modifies the tx.proto file to add the required RPCs and messages.
+//
+// What it expects:
+//   - A service named "Msg" to exist in the proto file, it appends the RPCs inside it.
+func protoTxModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
+		path := opts.ProtoPath("tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// Import
-		templateImport := `import "%s/%s/%s.proto";
-%s`
-		replacementImport := fmt.Sprintf(templateImport,
-			opts.AppName,
-			opts.ModuleName,
-			opts.TypeName.Snake,
-			typed.PlaceholderProtoTxImport,
-		)
-		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
-
-		// RPC service
-		templateRPC := `  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
-  rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
-  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);
-%[1]v`
-		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, typed.PlaceholderProtoTxRPC, replacementRPC)
-
-		// Messages
-		var indexes string
-		for i, index := range opts.Indexes {
-			indexes += fmt.Sprintf("  %s;\n", index.ProtoType(i+2))
+		protoFile, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
+		// Add initial import for the new type
+		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
+			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
-		var fields string
+		// RPC service
+		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
+		if err != nil {
+			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+		}
+		// better to append them altogether, single traversal.
+		typenameUpper := opts.TypeName.UpperCamel
+		protoutil.Append(serviceMsg,
+			protoutil.NewRPC("Create"+typenameUpper, "MsgCreate"+typenameUpper, "MsgCreate"+typenameUpper+"Response"),
+			protoutil.NewRPC("Update"+typenameUpper, "MsgUpdate"+typenameUpper, "MsgUpdate"+typenameUpper+"Response"),
+			protoutil.NewRPC("Delete"+typenameUpper, "MsgDelete"+typenameUpper, "MsgDelete"+typenameUpper+"Response"),
+		)
+
+		// Messages
+		var indexes []*proto.NormalField
+		for i, index := range opts.Indexes {
+			indexes = append(indexes, index.ToProtoField(i+2))
+		}
+
+		var fields []*proto.NormalField
 		for i, f := range opts.Fields {
-			fields += fmt.Sprintf("  %s;\n", f.ProtoType(i+2+len(opts.Indexes)))
+			fields = append(fields, f.ToProtoField(i+2+len(opts.Indexes)))
 		}
 
 		// Ensure custom types are imported
-		protoImports := append(opts.Fields.ProtoImports(), opts.Indexes.ProtoImports()...)
-		customFields := append(opts.Fields.Custom(), opts.Indexes.Custom()...)
-		for _, f := range customFields {
-			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
-			)
+		var protoImports []*proto.Import
+		for _, imp := range append(opts.Fields.ProtoImports(), opts.Indexes.ProtoImports()...) {
+			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
-		for _, f := range protoImports {
-			importModule := fmt.Sprintf(`
-import "%[1]v";`, f)
-			content = strings.ReplaceAll(content, importModule, "")
-
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
-			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
+		for _, f := range opts.Fields.Custom() {
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
+		// we already know an import exists, pass false for fallback.
+		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
+			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+		}
+		commonFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
+		commonFields = append(commonFields, indexes...)
 
-		templateMessages := `message MsgCreate%[2]v {
-  string %[3]v = 1;
-%[4]v
-%[5]v}
-message MsgCreate%[2]vResponse {}
-
-message MsgUpdate%[2]v {
-  string %[3]v = 1;
-%[4]v
-%[5]v}
-message MsgUpdate%[2]vResponse {}
-
-message MsgDelete%[2]v {
-  string %[3]v = 1;
-%[4]v}
-message MsgDelete%[2]vResponse {}
-
-%[1]v`
-		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
-			opts.TypeName.UpperCamel,
-			opts.MsgSigner.LowerCamel,
-			indexes,
-			fields,
+		msgCreate := protoutil.NewMessage(
+			"MsgCreate"+typenameUpper,
+			protoutil.WithFields(append(commonFields, fields...)...),
 		)
-		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
+		msgCreateResponse := protoutil.NewMessage("MsgCreate" + typenameUpper + "Response")
 
-		newFile := genny.NewFileS(path, content)
+		msgUpdate := protoutil.NewMessage(
+			"MsgUpdate"+typenameUpper,
+			protoutil.WithFields(append(commonFields, fields...)...),
+		)
+		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + typenameUpper + "Response")
+
+		msgDelete := protoutil.NewMessage("MsgDelete"+typenameUpper, protoutil.WithFields(commonFields...))
+		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + typenameUpper + "Response")
+		protoutil.Append(protoFile,
+			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
+		)
+
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

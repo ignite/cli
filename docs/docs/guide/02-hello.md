@@ -244,12 +244,12 @@ function that handles the query and returns data.
 
 ```go title="x/hello/keeper/grpc_query_hello.go"
 func (k Keeper) Hello(goCtx context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
- if req == nil {
-  return nil, status.Error(codes.InvalidArgument, "invalid request")
- }
- ctx := sdk.UnwrapSDKContext(goCtx)
- _ = ctx
- return &types.QueryHelloResponse{}, nil
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	_ = ctx
+	return &types.QueryHelloResponse{}, nil
 }
 ```
 
@@ -273,15 +273,15 @@ In the `query.proto` file, the response accepts `text`.
 
 ```go title="x/hello/keeper/grpc_query_hello.go"
 func (k Keeper) Hello(goCtx context.Context, req *types.QueryHelloRequest) (*types.QueryHelloResponse, error) {
-  if req == nil {
-    return nil, status.Error(codes.InvalidArgument, "invalid request")
-  }
-  ctx := sdk.UnwrapSDKContext(goCtx)
-  _ = ctx
-  // remove-next-line
-  return &types.QueryHelloResponse{}, nil
-  // highlight-next-line
-  return &types.QueryHelloResponse{Text: "Hello, Ignite CLI!"}, nil
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	_ = ctx
+	// remove-next-line
+	return &types.QueryHelloResponse{}, nil
+	// highlight-next-line
+	return &types.QueryHelloResponse{Text: "Hello, Ignite CLI!"}, nil
 }
 ```
 
