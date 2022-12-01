@@ -366,9 +366,14 @@ func NewPluginUpdate() *cobra.Command {
 
 func NewPluginAdd() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
-		Use:   "add [path]",
+		Use:   "add [path] [args]",
 		Short: "Adds a plugin declaration to a chain's plugin configuration",
-		Args:  cobra.ExactArgs(1),
+		Long: `Adds a plugin declaration to a chain's plugin configuration.
+				Respects key value pairs declared after the plugin path to be added to the generated configurationdefinition
+				example:
+					ignite plugin add /path/to/plugin/ foo:bar
+		`,
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
@@ -385,6 +390,20 @@ func NewPluginAdd() *cobra.Command {
 
 			p := pluginsconfig.Plugin{
 				Path: args[0],
+				With: make(map[string]string),
+			}
+
+			var pluginArgs []string
+			if len(args) > 1 {
+				pluginArgs = args[1:]
+			}
+
+			for _, pa := range pluginArgs {
+				kv := strings.Split(pa, ":")
+				if len(kv) != 2 {
+					continue
+				}
+				p.With[kv[0]] = kv[1]
 			}
 
 			ctx := context.Background()
