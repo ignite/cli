@@ -122,7 +122,7 @@ func TestInitAndCommit(t *testing.T) {
 				assert.Equal("Initialized with Ignite CLI", lastCommit.Message)
 				assert.WithinDuration(time.Now(), lastCommit.Committer.When, time.Second)
 				assert.Equal("Developer Experience team at Tendermint", lastCommit.Author.Name)
-				assert.Equal("hello@tendermint.com", lastCommit.Author.Email)
+				assert.Equal("hello@ignite.com", lastCommit.Author.Email)
 				stats, err := lastCommit.Stats()
 				require.NoError(err)
 				var files []string
