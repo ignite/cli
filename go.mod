@@ -51,7 +51,8 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
-	github.com/tendermint/spn v0.2.1-0.20221125172725-052fbf576cb2
+	github.com/tbruyelle/mdgofmt v0.1.2
+  github.com/tendermint/spn v0.2.1-0.20221125172725-052fbf576cb2
 	github.com/tendermint/tendermint v0.34.23
 	github.com/tendermint/tm-db v0.6.7
 	github.com/vektra/mockery/v2 v2.14.1
