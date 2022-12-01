@@ -373,7 +373,6 @@ func NewPluginAdd() *cobra.Command {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
 			conf, persistPath, err := parseLocalPlugins(cmd)
-
 			if err != nil {
 				return err
 			}
@@ -432,7 +431,6 @@ func NewPluginRemove() *cobra.Command {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
 			conf, persistPath, err := parseLocalPlugins(cmd)
-
 			if err != nil {
 				return err
 			}

@@ -34,7 +34,7 @@ func LocateDefault(root string) (path string, err error) {
 }
 
 type Config struct {
-	Plugins []Plugin `yaml:"plugins,omitempty"`
+	Plugins []Plugin `yaml:"plugins"`
 }
 
 // Plugin keeps plugin name and location.
