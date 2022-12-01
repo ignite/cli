@@ -7,7 +7,6 @@ import (
 
 	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
-	chainconfig "github.com/ignite/cli/ignite/config/chain/version"
 )
 
 func TestV0ToV1(t *testing.T) {
