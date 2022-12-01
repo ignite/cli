@@ -366,8 +366,9 @@ func NewPluginUpdate() *cobra.Command {
 
 func NewPluginAdd() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
-		Use:  "add [path]",
-		Args: cobra.ExactArgs(1),
+		Use:   "add [path]",
+		Short: "Adds a plugin decleration to a chain's plugin configuration",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
@@ -424,8 +425,9 @@ func NewPluginAdd() *cobra.Command {
 
 func NewPluginRemove() *cobra.Command {
 	cmdPluginRemove := &cobra.Command{
-		Use:  "remove [path]",
-		Args: cobra.ExactArgs(1),
+		Use:   "remove [path]",
+		Short: "Removes a plugin decleration from a chain's plugin configuration",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
