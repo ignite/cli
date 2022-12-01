@@ -9,7 +9,7 @@ import (
 // persist writes a plugin configuration file to a specified file.
 // the configuration state that is passed in will be the new state of the file
 // before writing the new definition to disk, a truncate and seek operation
-// are performed to assure the file contnets will be overriden.
+// are performed to assure the file contnets will be overridden.
 func persist(config *Config, path string) error {
 	f, err := os.OpenFile(path, os.O_RDWR, 0o644)
 	if err != nil {
