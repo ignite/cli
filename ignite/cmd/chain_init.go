@@ -118,7 +118,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if _, err := c.Build(cmd.Context(), cacheStorage, "", flagGetSkipProto(cmd)); err != nil {
+	if _, err := c.Build(cmd.Context(), cacheStorage, "", flagGetSkipProto(cmd), false); err != nil {
 		return err
 	}
 

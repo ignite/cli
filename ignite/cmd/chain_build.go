@@ -136,7 +136,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return session.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 	}
 
-	binaryName, err := c.Build(cmd.Context(), cacheStorage, output, flagGetSkipProto(cmd))
+	binaryName, err := c.Build(cmd.Context(), cacheStorage, output, flagGetSkipProto(cmd), false)
 	if err != nil {
 		return err
 	}

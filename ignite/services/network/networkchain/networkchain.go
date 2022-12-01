@@ -328,7 +328,7 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 	c.ev.Send("Building the chain's binary", events.ProgressStart())
 
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true, false); err != nil {
 		return "", err
 	}
 
