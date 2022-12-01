@@ -120,7 +120,7 @@ func TestInitAndCommit(t *testing.T) {
 			assert.Equal(tt.expectedNumCommits, numCommits)
 			if assert.NotNil(lastCommit) {
 				assert.Equal("Initialized with Ignite CLI", lastCommit.Message)
-				assert.WithinDuration(time.Now(), lastCommit.Committer.When, time.Second)
+				assert.WithinDuration(time.Now(), lastCommit.Committer.When, 10*time.Second)
 				assert.Equal("Developer Experience team at Tendermint", lastCommit.Author.Name)
 				assert.Equal("hello@tendermint.com", lastCommit.Author.Email)
 				stats, err := lastCommit.Stats()
