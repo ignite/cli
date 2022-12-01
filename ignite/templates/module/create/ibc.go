@@ -9,6 +9,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
@@ -25,7 +26,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 	g.RunFn(genesisModify(replacer, opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
-	g.RunFn(genesisProtoModify(replacer, opts))
+	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(keysModify(replacer, opts))
 
 	if err := g.Box(template); err != nil {
@@ -118,23 +119,32 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 	}
 }
 
-func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+// Modifies genesis.proto to add a new field.
+//
+// What it depends on:
+//   - Existence of a message named 'GenesisState' in genesis.proto.
+func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
+		protoFile, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
 
-		// Determine the new field number
-		content := f.String()
+		// Grab GenesisState and add next (always 2, I gather) available field.
+		// TODO: typed.ProtoGenesisStateMessage exists but in subfolder, so we can't use it here, refactor?
+		genesisState, err := protoutil.GetMessageByName(protoFile, "GenesisState")
+		if err != nil {
+			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
+		}
+		field := protoutil.NewField("port_id", "string", protoutil.NextUniqueID(genesisState))
+		protoutil.Append(genesisState, field)
 
-		template := `string port_id = 2;
-  %s`
-		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState)
-		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)
-
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
