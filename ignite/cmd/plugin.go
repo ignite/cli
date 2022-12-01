@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path"
 	"strings"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -369,28 +369,21 @@ func NewPluginAdd() *cobra.Command {
 		Use:  "add [path]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return fmt.Errorf("must provide a plugin path")
-			}
-			chain, err := newChainWithHomeFlags(cmd)
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
+			appPath, err := os.Getwd()
 			if err != nil {
-				return err
+				return fmt.Errorf("app path cannot be found")
 			}
-			nodePath := chain.ConfigPath()
-			nodePath = path.Dir(nodePath)
 
-			confPath, err := pluginsconfig.LocateDefault(nodePath)
+			confPath, err := pluginsconfig.LocateDefault(appPath)
+
 			if err != nil {
 				return err
 			}
-			var conf pluginsconfig.Config
-			f, err := os.Open(confPath)
-			if err != nil {
-				return err
-			}
-			err = conf.Decode(f)
+
+			conf, err := parseLocalPlugins(cmd)
+
 			if err != nil {
 				return err
 			}
@@ -406,25 +399,28 @@ func NewPluginAdd() *cobra.Command {
 			}
 
 			ctx := context.Background()
-			s.StartSpinner("Loading plugins")
+			s.StartSpinner("Loading plugin")
 			pluginInstance, err := plugin.LoadSingle(ctx, &p)
 			s.StopSpinner()
 
 			if err != nil {
 				return err
 			}
+
 			if pluginInstance.Error != nil {
 				return errors.Wrapf(pluginInstance.Error, fmt.Sprintf("Error while attempting to load plugin: %s\n", args[0]))
 			}
 			s.Println("Done loading plugin")
 
 			conf.Plugins = append(conf.Plugins, p)
-			s.Printf("🎉 %s added \n", args[0])
+
 			err = conf.Save(confPath)
 
 			if err != nil {
 				return err
 			}
+
+			s.Printf("🎉 %s added \n", args[0])
 
 			return nil
 		},
@@ -438,30 +434,21 @@ func NewPluginRemove() *cobra.Command {
 		Use:  "remove [path]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return fmt.Errorf("must provide a plugin path")
-			}
-
-			chain, err := newChainWithHomeFlags(cmd)
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
+			appPath, err := os.Getwd()
+			if err != nil {
+				return fmt.Errorf("app path cannot be found")
+			}
+
+			confPath, err := pluginsconfig.LocateDefault(appPath)
+
 			if err != nil {
 				return err
 			}
 
-			nodePath := chain.ConfigPath()
-			nodePath = path.Dir(nodePath)
+			conf, err := parseLocalPlugins(cmd)
 
-			confPath, err := pluginsconfig.LocateDefault(nodePath)
-			if err != nil {
-				return err
-			}
-			var conf pluginsconfig.Config
-			f, err := os.Open(confPath)
-			if err != nil {
-				return err
-			}
-			err = conf.Decode(f)
 			if err != nil {
 				return err
 			}
@@ -473,13 +460,12 @@ func NewPluginRemove() *cobra.Command {
 				}
 			}
 
-			s.Printf("Saving plugin config %s\n", args[0])
 			err = conf.Save(confPath)
 
-			s.Printf("🎉 %s removed \n", args[0])
 			if err != nil {
 				return err
 			}
+			s.Printf("%s %s removed\n", icons.OK, args[0])
 
 			return nil
 		},
