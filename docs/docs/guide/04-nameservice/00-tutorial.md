@@ -54,7 +54,7 @@ make it all possible!
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework
   allows developers like you to create custom blockchains that can natively
   interact with other blockchains.
-- [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html)
+- [Tendermint](https://docs.tendermint.com/main/introduction/what-is-tendermint.html)
   software securely and consistently replicates an app on many machines. The
   Tendermint app-agnostic engine handles the networking and consensus layers of
   your blockchain.
