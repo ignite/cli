@@ -358,10 +358,12 @@ func TestClone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			assert := assert.New(t)
-			files, _ := os.ReadDir(tt.dir)
-			dirWasEmpty := len(files) == 0
+			var (
+				require     = require.New(t)
+				assert      = assert.New(t)
+				files, _    = os.ReadDir(tt.dir)
+				dirWasEmpty = len(files) == 0
+			)
 
 			err := xgit.Clone(context.Background(), tt.urlRef, tt.dir)
 
