@@ -30,7 +30,7 @@ ignite scaffold chain example
 ```
 
 The [`ignite scaffold chain`](/cli#ignite-scaffold-chain) command will create a
-new blockchain called `example` in a new directory `example`.
+new blockchain in a new directory `example`.
 
 The new blockchain is built using the Cosmos SDK framework and imports several
 standard modules to provide a range of functionality. These modules include
@@ -48,7 +48,7 @@ blockchain and build their desired functionality on top of it.
 ## Directory structure
 
 In order to understand what the Ignite CLI has generated for your project, you
-can inspect the contents of the example directory.
+can inspect the contents of the `example/` directory.
 
 The `app/` directory contains the files that connect the different parts of the
 blockchain together. The most important file in this directory is `app.go`,
