@@ -178,33 +178,6 @@ func (c *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
-// other chains for relayer related actions.
-func (c *Chain) RPCPublicAddress() (string, error) {
-	rpcAddress := os.Getenv("RPC_ADDRESS")
-	if rpcAddress == "" {
-		conf, err := c.Config()
-		if err != nil {
-			return "", err
-		}
-
-		var servers chainconfigv1.Servers
-
-		if len(conf.Validators) == 0 {
-			servers = chainconfigv1.DefaultServers()
-		} else {
-			validator := conf.Validators[0]
-			servers, err = validator.GetServers()
-			if err != nil {
-				return "", err
-			}
-		}
-
-		rpcAddress = servers.RPC.Address
-	}
-	return rpcAddress, nil
-}
-
 // ConfigPath returns the config path of the chain
 // Empty string means that the chain has no defined config
 func (c *Chain) ConfigPath() string {
