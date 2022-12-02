@@ -11,9 +11,6 @@
     },
     {
       "pattern": "^index.md"
-    },
-    {
-      "pattern": "^index.md"
     }
   ]
 }
