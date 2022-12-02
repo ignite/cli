@@ -167,12 +167,8 @@ const config = {
             title: "Contact",
             items: [
               {
-                label: "Media Inquiries",
-                href: "mailto:media@tendermint.com",
-              },
-              {
                 label: "Business Inquiries",
-                href: "mailto:business@tendermint.com",
+                href: "mailto:business@ignite.com",
               },
             ],
           },

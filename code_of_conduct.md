@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Report instances of abusive, harassing, or otherwise unacceptable behavior to the community leaders responsible for
 enforcement at
-<conduct@tendermint.com>.
+<conduct@ignite.com>.
 
 All complaints will be reviewed and investigated promptly and fairly.
 
