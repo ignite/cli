@@ -15,7 +15,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-var (
+const (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
 	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
 	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
