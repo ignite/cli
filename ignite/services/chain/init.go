@@ -116,17 +116,17 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *config.ChainConfig) error
 		}
 
 		if account.Address == "" {
-			accounts = append(accounts, accountview.NewAccount(
+			accounts = accounts.Append(accountview.NewAccount(
 				generatedAccount.Name,
 				accountAddress,
 				accountview.WithMnemonic(generatedAccount.Mnemonic),
 			))
 		} else {
-			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
+			accounts = accounts.Append(accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
 
-	c.ev.SendView(accounts)
+	c.ev.SendView(accounts, events.ProgressFinish())
 
 	// 0 length validator set when using network config
 	if len(cfg.Validators) != 0 {
