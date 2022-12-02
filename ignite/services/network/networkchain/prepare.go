@@ -257,7 +257,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	return c.updateConfigFromGenesisValidators(genesisVals)
 }
 
-// applyParamChanges adds the param changes into the genesis
+// applyParamChanges applies the param changes into the genesis
 func applyParamChanges(
 	genesis *cosmosgenesis.Genesis,
 	paramChanges []networktypes.ParamChange,
