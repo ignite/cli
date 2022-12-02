@@ -1,0 +1,10 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://docs.cosmos.network/main/modules/"
+    },
+    {
+      "pattern": "^http://localhost"
+    }
+  ]
+}

@@ -8,3 +8,4 @@ jobs:
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
           folder-path: "docs"
+          config-file: '.github/workflows/md-link-checker-config.json'
