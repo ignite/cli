@@ -238,7 +238,6 @@ func (p *Plugin) fetch() {
 	}
 	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Fetching plugin %q...", p.cloneURL))).End()
 
-	// TODO use original format
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
 	if err != nil {
