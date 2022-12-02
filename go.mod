@@ -3,7 +3,7 @@ module github.com/ignite/cli
 go 1.18
 
 require (
-	cosmossdk.io/math v1.0.0-beta.3
+	cosmossdk.io/math v1.0.0-beta.4
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -21,7 +21,6 @@ require (
 	github.com/cosmos/ibc-go/v5 v5.1.0
 	github.com/emicklei/proto v1.11.0
 	github.com/emicklei/proto-contrib v0.12.0
-	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gobuffalo/genny/v2 v2.1.0
@@ -67,7 +66,7 @@ require (
 	golang.org/x/term v0.2.0
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.3.0
-	golang.org/x/vuln v0.0.0-20220919155316-41b1fc70d0a6
+	golang.org/x/vuln v0.0.0-20221122171214-05fb7250142c
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
 	gopkg.in/yaml.v2 v2.4.0
