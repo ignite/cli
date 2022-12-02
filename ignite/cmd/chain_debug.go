@@ -55,6 +55,14 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 		chainOptions = append(chainOptions, chain.CheckDependencies())
 	}
 
+	config, err := cmd.Flags().GetString(flagConfig)
+	if err != nil {
+		return err
+	}
+	if config != "" {
+		chainOptions = append(chainOptions, chain.ConfigFile(config))
+	}
+
 	c, err := newChainWithHomeFlags(cmd, chainOptions...)
 	if err != nil {
 		return err
