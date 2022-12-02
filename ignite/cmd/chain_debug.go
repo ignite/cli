@@ -110,7 +110,7 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	// Start debug server
-	if server, _ := cmd.Flags().GetBool(flagServer); server {
+	if serve, _ := cmd.Flags().GetBool(flagServer); serve {
 		addr, _ := cmd.Flags().GetString(flagServerAddress)
 		tcpAddr, err := xurl.TCP(addr)
 		if err != nil {
@@ -134,10 +134,12 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	// Launch a debugger client
-	debugOptions = append(debugOptions, debugger.ClientRunHook(func() {
-		// End session to allow debugger to gain control of stdout
-		session.End()
-	}))
+	debugOptions = append(debugOptions,
+		debugger.ClientRunHook(func() {
+			// End session to allow debugger to gain control of stdout
+			session.End()
+		}),
+	)
 
 	ev.Send("Launching debugger", events.ProgressUpdate())
 	return debugger.Run(ctx, binaryPath, debugOptions...)
