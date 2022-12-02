@@ -79,6 +79,10 @@ used in the development of distributed systems, such as blockchain networks. The
 protocol buffer files in the `proto/` directory define the data structures and
 messages that are used by the blockchain, and are used to generate code for
 various programming languages that can be used to interact with the blockchain.
+In the context of the Cosmos SDK, protocol buffer files are used to define the
+specific types of data that can be sent and received by the blockchain, as well
+as the specific RPC endpoints that can be used to access the blockchain's
+functionality.
 
 The `testutil/` directory contains helper functions that are used for testing.
 These functions provide a convenient way to perform common tasks that are needed
