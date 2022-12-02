@@ -3,6 +3,17 @@ package accountview
 import (
 	"fmt"
 	"strings"
+
+	"github.com/muesli/reflow/indent"
+	"github.com/muesli/reflow/wordwrap"
+
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+)
+
+var (
+	fmtExistingAccount = "%s %s's account address: %s\n"
+	fmtNewAccount      = "%s Added account %s with address %s and mnemonic:\n%s\n"
 )
 
 type Option func(*Account)
@@ -33,14 +44,17 @@ func NewAccount(name, address string, options ...Option) Account {
 }
 
 func (a Account) String() string {
-	b := strings.Builder{}
-	b.WriteString(fmt.Sprintf("🙂 Added account %s with address %s", a.Name, a.Address))
+	name := colors.Name(a.Name)
 
+	// The account is new when the mnemonic is available
 	if a.Mnemonic != "" {
-		b.WriteString(fmt.Sprintf(" and mnemonic: %s", a.Mnemonic))
+		m := wordwrap.String(a.Mnemonic, 80)
+		m = indent.String(m, 2)
+
+		return fmt.Sprintf(fmtNewAccount, icons.OK, name, a.Address, colors.Mnemonic(m))
 	}
 
-	return b.String()
+	return fmt.Sprintf(fmtExistingAccount, icons.User, name, a.Address)
 }
 
 type Accounts []Account
@@ -48,13 +62,21 @@ type Accounts []Account
 func (a Accounts) String() string {
 	b := strings.Builder{}
 
-	for i, account := range a {
-		if i > 0 {
+	for i, acc := range a {
+		// Make sure accounts are separated by an
+		// empty line when the mnemonic is available.
+		if i > 0 && acc.Mnemonic != "" {
 			b.WriteRune('\n')
 		}
 
-		b.WriteString(account.String())
+		b.WriteString(acc.String())
 	}
 
+	b.WriteRune('\n')
+
 	return b.String()
+}
+
+func (a Accounts) Append(acc Account) Accounts {
+	return append(a, acc)
 }
