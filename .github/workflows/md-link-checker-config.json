@@ -1,10 +1,16 @@
 {
   "ignorePatterns": [
     {
+      "pattern": "^https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/"
+    },
+    {
       "pattern": "^https://docs.cosmos.network/main/modules/"
     },
     {
       "pattern": "^http://localhost"
+    },
+    {
+      "pattern": "^index.md"
     },
     {
       "pattern": "^index.md"
