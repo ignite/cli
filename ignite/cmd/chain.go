@@ -90,6 +90,7 @@ chain.
 	c.AddCommand(NewChainInit())
 	c.AddCommand(NewChainFaucet())
 	c.AddCommand(NewChainSimulate())
+	c.AddCommand(NewChainDebug())
 
 	return c
 }
