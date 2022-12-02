@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	// DefaultAddress defines the default debugger server address.
+	// DefaultAddress defines the default debug server address.
 	DefaultAddress = "127.0.0.1:30500"
 
 	// DefaultWorkingDir defines the default directory to use as
@@ -23,19 +23,18 @@ const (
 	DefaultWorkingDir = "."
 )
 
-// Options configures the debugger server.
+// Options configures debugging.
 type Option func(*debuggerOptions)
 
 type debuggerOptions struct {
-	disconnectChan      chan struct{}
-	address, workingDir string
-	listener            net.Listener
-	binaryArgs          []string
-	clientRunHook       func()
-	serverStartHook     func(address string)
+	disconnectChan                 chan struct{}
+	address, workingDir            string
+	listener                       net.Listener
+	binaryArgs                     []string
+	clientRunHook, serverStartHook func()
 }
 
-// Address sets the address for the debugger server.
+// Address sets the address for the debug server.
 func Address(address string) Option {
 	return func(o *debuggerOptions) {
 		o.address = address
@@ -70,21 +69,21 @@ func BinaryArgs(args ...string) Option {
 	}
 }
 
-// ClientRunHook sets a function to be executed right before debugger client is run.
+// ClientRunHook sets a function to be executed right before debug client is run.
 func ClientRunHook(fn func()) Option {
 	return func(o *debuggerOptions) {
 		o.clientRunHook = fn
 	}
 }
 
-// ServerStartHook sets a function to be executed right before debugger server starts.
-func ServerStartHook(fn func(address string)) Option {
+// ServerStartHook sets a function to be executed right before debug server starts.
+func ServerStartHook(fn func()) Option {
 	return func(o *debuggerOptions) {
 		o.serverStartHook = fn
 	}
 }
 
-// Start starts a debugger server.
+// Start starts a debug server.
 func Start(ctx context.Context, binaryPath string, options ...Option) (err error) {
 	o := applyDebuggerOptions(options...)
 
@@ -123,11 +122,11 @@ func Start(ctx context.Context, binaryPath string, options ...Option) (err error
 	})
 
 	if o.serverStartHook != nil {
-		o.serverStartHook(o.address)
+		o.serverStartHook()
 	}
 
 	if err = server.Run(); err != nil {
-		return fmt.Errorf("failed to run debugger server: %w", err)
+		return fmt.Errorf("failed to run debug server: %w", err)
 	}
 
 	defer server.Stop()
@@ -141,7 +140,7 @@ func Start(ctx context.Context, binaryPath string, options ...Option) (err error
 	return nil
 }
 
-// Run runs a debugger client.
+// Run runs a debug client.
 func Run(ctx context.Context, binaryPath string, options ...Option) error {
 	listener, conn := service.ListenerPipe()
 	defer listener.Close()
@@ -156,7 +155,7 @@ func Run(ctx context.Context, binaryPath string, options ...Option) error {
 		return Start(ctx, binaryPath, options...)
 	})
 
-	// Start the debugger client
+	// Start the debug client
 	g.Go(func() error {
 		client := rpc2.NewClientFromConn(conn)
 		term := terminal.New(client, nil)
