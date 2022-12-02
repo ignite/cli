@@ -272,6 +272,17 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
+}
+
 // SetHome sets the chain home directory.
 func (c *Chain) SetHome(home string) {
 	c.options.homePath = home
@@ -380,14 +391,10 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return "", err
 	}
 
+	// 2nd.
 	if len(config.Validators) > 0 {
-		// 2nd.
 		validator := config.Validators[0]
-		if validator.KeyringBackend != "" {
-			return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
-		}
 
-		// 3rd.
 		if validator.Client != nil {
 			if backend, ok := validator.Client["keyring-backend"]; ok {
 				if backendStr, ok := backend.(string); ok {
@@ -397,7 +404,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		}
 	}
 
-	// 4th.
+	// 3rd.
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -413,7 +420,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 5th.
+	// 4th.
 	return chaincmd.KeyringBackendTest, nil
 }
 

@@ -149,7 +149,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 	// Get the context
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-  // highlight-start
+	// highlight-start
 	// Create variable of type Post
 	var post = types.Post{
 		Creator: msg.Creator,
@@ -162,7 +162,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 	// Return the ID of the post
 	return &types.MsgCreatePostResponse{Id: id}, nil
-  //highlight-end
+	//highlight-end
 }
 ```
 

@@ -12,8 +12,8 @@ import (
 var (
 	commitMsg  = "Initialized with Ignite CLI"
 	devXAuthor = &object.Signature{
-		Name:  "Developer Experience team at Tendermint",
-		Email: "hello@tendermint.com",
+		Name:  "Developer Experience team at Ignite",
+		Email: "hello@ignite.com",
 		When:  time.Now(),
 	}
 )
@@ -58,13 +58,15 @@ func InitAndCommit(path string) error {
 	return nil
 }
 
-func AreChangesCommitted(appPath string) (bool, error) {
-	appPath, err := filepath.Abs(appPath)
+// AreChangesCommitted returns true if dir is a clean git repository with no
+// pending changes. It returns also true if dir is NOT a git repository.
+func AreChangesCommitted(dir string) (bool, error) {
+	dir, err := filepath.Abs(dir)
 	if err != nil {
 		return false, err
 	}
 
-	repository, err := git.PlainOpen(appPath)
+	repository, err := git.PlainOpen(dir)
 	if err != nil {
 		if err == git.ErrRepositoryNotExists {
 			return true, nil

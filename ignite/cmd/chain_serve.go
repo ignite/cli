@@ -1,9 +1,17 @@
 package ignitecmd
 
 import (
+	"context"
+	"errors"
+
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
+	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
+	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -72,12 +80,47 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(
-		cliui.WithVerbosity(getVerbosity(cmd)),
-		cliui.StartSpinner(),
-	)
+	var options []cliui.Option
+
+	// Session must not handle events when the verbosity is the default
+	// to allow render of the UI and events using bubbletea. The custom
+	// UI is not used for other verbosity levels in which the session
+	// must handle the events to use custom output prefixes.
+	verbosity := getVerbosity(cmd)
+	if verbosity == uilog.VerbosityDefault {
+		options = append(options, cliui.IgnoreEvents())
+	} else {
+		options = append(options, cliui.WithVerbosity(verbosity))
+	}
+
+	session := cliui.New(options...)
 	defer session.End()
 
+	// Depending on the verbosity execute the serve command within
+	// a bubbletea context to display the custom UI.
+	if verbosity == uilog.VerbosityDefault {
+		bus := session.EventBus()
+		bus.Send("Initializing...", events.ProgressStart())
+
+		// Render UI
+		m := cmdmodel.NewChainServe(cmd, bus, chainServeCmd(cmd, session))
+		return tea.NewProgram(m).Start()
+	}
+
+	// Otherwise run the serve command directly
+	return chainServe(cmd, session)
+}
+
+func chainServeCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
+	return func() tea.Msg {
+		if err := chainServe(cmd, session); err != nil && !errors.Is(err, context.Canceled) {
+			return cliuimodel.ErrorMsg{Error: err}
+		}
+		return cliuimodel.QuitMsg{}
+	}
+}
+
+func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 	chainOption := []chain.Option{
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
@@ -107,6 +150,7 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// serve the chain
 	var serveOptions []chain.ServeOption
 
 	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)

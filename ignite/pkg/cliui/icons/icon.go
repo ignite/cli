@@ -6,6 +6,8 @@ import (
 
 var (
 	Earth = "🌍"
+	CD    = "💿"
+	User  = "👤"
 
 	// OK is an OK mark.
 	OK = colors.SprintFunc(colors.Green)("✔")

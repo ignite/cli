@@ -3,6 +3,7 @@ package relayer
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -11,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -25,6 +27,9 @@ const (
 	ibcSetupGas   int64 = 2256000
 	relayDuration       = time.Second * 5
 )
+
+// ErrLinkedPath indicates that an IBC path is already liked.
+var ErrLinkedPath = errors.New("path already linked")
 
 // Relayer is an IBC relayer.
 type Relayer struct {
@@ -53,6 +58,10 @@ func (r Relayer) LinkPaths(
 	for _, id := range pathIDs {
 		conf, err = r.Link(ctx, conf, id)
 		if err != nil {
+			// Continue with next path when current one is already linked
+			if errors.Is(err, ErrLinkedPath) {
+				continue
+			}
 			return err
 		}
 		if err := relayerconf.Save(conf); err != nil {
@@ -74,7 +83,7 @@ func (r Relayer) Link(
 	}
 
 	if path.Src.ChannelID != "" {
-		return conf, fmt.Errorf("path %s already linked", path.ID)
+		return conf, fmt.Errorf("%w: %s", ErrLinkedPath, path.ID)
 	}
 
 	if path, err = r.call(ctx, conf, path, "link"); err != nil {
@@ -91,19 +100,20 @@ func (r Relayer) StartPaths(ctx context.Context, pathIDs ...string) error {
 		return err
 	}
 
+	g, ctx := errgroup.WithContext(ctx)
+
 	var m sync.Mutex // protects relayerconf.Path.
 	for _, id := range pathIDs {
 		id := id
-		err := r.Start(ctx, conf, id, func(path relayerconf.Config) error {
-			m.Lock()
-			defer m.Unlock()
-			return relayerconf.Save(conf)
+		g.Go(func() error {
+			return r.Start(ctx, conf, id, func(path relayerconf.Config) error {
+				m.Lock()
+				defer m.Unlock()
+				return relayerconf.Save(conf)
+			})
 		})
-		if err != nil {
-			return err
-		}
 	}
-	return nil
+	return g.Wait()
 }
 
 // Start relays packets for linked path until ctx is canceled.
