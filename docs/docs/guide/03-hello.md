@@ -3,7 +3,75 @@ sidebar_position: 2
 description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module.
 ---
 
-# Hello, Ignite CLI
+# Hello, World!
+
+In this tutorial you will create a blockchain with only one custom feature: when
+queried it will respond with `"Hello, %s"`, where `%s` is a name provided in a
+query.
+
+By the end of the tutorial, you will have a better understanding of how to
+create a blockchain with very simple custom functionality.
+
+This tutorial is divided into two sections. In the first section, we will use
+Ignite's query scaffold command to generate most of the code and modify the
+query to return `"Hello, %s"`. In the second section, we will implement the same
+functionality manually to gain a better understanding of how queries work.
+
+First, create a new `hello` blockchain with Ignite CLI:
+
+```
+ignite scaffold chain hello
+```
+
+Let's add a query to the blockchain we just created.
+
+In the Cosmos SDK, a query is a request for information from the blockchain.
+Queries are used to retrieve data from the blockchain, such as the current state
+of the ledger or the details of a specific transaction. The Cosmos SDK provides
+a number of built-in query methods that can be used to retrieve data from the
+blockchain, and developers can also create custom queries to access specific
+data or perform complex operations. Queries are processed by the blockchain's
+nodes and the results are returned to the querying client.
+
+## Create a query with Ignite
+
+To add a query, run the following command:
+
+```
+ignite scaffold query say-hello name --response name
+```
+
+The `ignite scaffold query` command is a tool used to quickly create new
+queries. When you run this command, it makes changes to your source code to add
+the new query and make it available in your API. This command accepts a query
+name (`"say-hello"`) and a list of request fields (in our case only `name`). The
+optional `--reponse` flag specifies the return values of the query.
+
+This command made the following changes to the source code.
+
+The `proto/hello/hello/query.proto` file was modified to define the request and
+response for a query, as well as to add the `SayHello` query in the `Query`
+service. 
+
+The `x/hello/keeper/grpc_query_say_hello.go` file was created with a keeper
+method called `SayHello`. This method is responsible for handling the "say
+hello" query, which can be called by a client using the command-line interface
+(CLI) or an API. When the "say hello" query is executed, the `SayHello` method
+is called to perform the necessary actions and return a response to the client.
+The `SayHello` method may retrieve data from the application's database, process
+the data, and return a result to the client in a specific format, such as a
+string of text or a data structure.
+
+The `x/hello/client/cli/query.go file` was created and added to the project.
+This file contains a CLI command `CmdSayHello` that allows users to submit a
+"say hello" query to the blockchain. This command allows users to interact with
+the blockchain in a more user-friendly way, allowing them to easily submit
+queries and receive responses from the blockchain.
+
+The `x/hello/client/cli/query.go` was modified to add the `CmdSayHello` command
+to the CLI of the blockchain.
+
+<!-- 
 
 This tutorial is a great place to start your journey into the Cosmos ecosystem.
 Instead of wondering how to build a blockchain, follow these steps to build your
@@ -79,14 +147,18 @@ make up the structure of a Cosmos SDK blockchain. Most of the work in this
 tutorial happens in the `x` directory. Here is a quick overview of files and
 directories that are created by default:
 
-* `app/`: files that wire together the blockchain. The most important file is `app.go` that contains type definition of the blockchain and functions to create and initialize it.
+* `app/`: files that wire together the blockchain. The most important file is
+  `app.go` that contains type definition of the blockchain and functions to
+  create and initialize it.
 * `cmd/`: the main package responsible for the CLI of compiled binary.
-* `docs/`: directory for project documentation. By default, an OpenAPI spec is generated.
+* `docs/`: directory for project documentation. By default, an OpenAPI spec is
+  generated.
 * `proto/`: protocol buffer files describing the data structure.
 * `testutil/`: helper functions for testing.
 * `x/`: Cosmos SDK modules and custom modules.
 * `config.yml`: a configuration file for customizing a chain in development.
-* `readme.md`: a readme file for your sovereign application-specific blockchain project.
+* `readme.md`: a readme file for your sovereign application-specific blockchain
+  project.
 
 Now you can get your blockchain up and running locally on a single node.
 
@@ -307,4 +379,4 @@ hellod q hello hello
 
 Congratulations, you have built your first blockchain and your first Cosmos SDK
 module. Continue the journey to learn more about scaffolding Cosmos SDK
-messages, types in protocol buffer files, the keeper, and more.
+messages, types in protocol buffer files, the keeper, and more. -->
