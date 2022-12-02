@@ -96,11 +96,6 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	rpcAddr, err := xurl.TCP(servers.RPC.Address)
-	if err != nil {
-		return err
-	}
-
 	home, err := c.Home()
 	if err != nil {
 		return err
@@ -112,7 +107,7 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 		debugger.BinaryArgs(
 			"start",
 			"--pruning", "nothing",
-			"--grpc.address", rpcAddr,
+			"--grpc.address", servers.GRPC.Address,
 			"--home", home,
 		),
 	}
