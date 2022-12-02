@@ -15,7 +15,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-var (
+const (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
 	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
 	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
@@ -126,7 +126,10 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(msgMigrationCancel, config.LatestVersion)
+					return fmt.Errorf(
+						"stopping because config version v%d is required to run the command",
+						config.LatestVersion,
+					)
 				}
 
 				return err
