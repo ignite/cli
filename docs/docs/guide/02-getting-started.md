@@ -45,6 +45,12 @@ the chain's configuration, application logic, and tests, among others. It
 provides a starting point for developers to quickly set up a new Cosmos SDK
 blockchain and build their desired functionality on top of it.
 
+By default, Ignite creates a new empty custom module with the same name as the
+blockchain being created (in this case, `example`) in the `x/` directory. This
+module doesn't have any functionality by itself, but can serve as a starting
+point for building out the features of your application. If you don't want to
+create this module, you can use the `--no-module` flag to skip it.
+
 ## Directory structure
 
 In order to understand what the Ignite CLI has generated for your project, you
