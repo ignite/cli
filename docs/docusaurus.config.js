@@ -41,6 +41,14 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          versions: {
+            current: {
+              label: "nightly",
+              path: "nightly",
+              badge: true,
+              banner: "unreleased", // put 'none' to remove
+            },
+          },
           sidebarPath: require.resolve("./sidebars.js"),
           routeBasePath: "/",
         },
@@ -86,6 +94,11 @@ const config = {
             className: "ignt-backlink",
             label: `Back to Ignite`,
             position: "right",
+          },
+          {
+            type: "docsVersionDropdown",
+            position: "left",
+            dropdownActiveClassDisabled: true,
           },
         ],
       },
