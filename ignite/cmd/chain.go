@@ -126,7 +126,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
+					return fmt.Errorf("stopping because config version v%d is required to run the command", chainconfig.LatestVersion)
 				}
 
 				return err
