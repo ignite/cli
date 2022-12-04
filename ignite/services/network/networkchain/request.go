@@ -51,7 +51,7 @@ func (c Chain) CheckRequestChangeParam(
 
 	// ensure genesis has a valid format
 	if err := cmd.ValidateGenesis(ctx); err != nil {
-		return err
+		return fmt.Errorf("invalid parameter change requested: %w", err)
 	}
 
 	c.ev.Send("Param change verified", events.ProgressFinish())
