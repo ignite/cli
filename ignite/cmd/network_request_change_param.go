@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
@@ -48,6 +49,27 @@ func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// fetch chain information
+	chainLaunch, err := n.ChainLaunch(cmd.Context(), launchID)
+	if err != nil {
+		return err
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	if err != nil {
+		return err
+	}
+
+	// check validity of request
+	err = c.CheckRequestChangeParam(
+		module,
+		param,
+		value,
+		)
+	if err != nil {
+		return err
+	}
+
 	return n.SendParamChangeRequest(
 		cmd.Context(),
 		launchID,
@@ -56,3 +78,5 @@ func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 		value,
 	)
 }
+
+

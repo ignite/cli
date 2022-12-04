@@ -155,6 +155,8 @@ func (c Chain) buildGenesis(
 	return nil
 }
 
+
+
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
 func (c Chain) applyGenesisAccounts(
 	ctx context.Context,
