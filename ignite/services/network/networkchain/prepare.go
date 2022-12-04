@@ -268,7 +268,7 @@ func applyParamChanges(
 		); err != nil {
 			return fmt.Errorf("failed to apply param change to genesis: module: %v, param: %v, value: %v: %w",
 				pc.Module, pc.Param, pc.Value, err,
-				)
+			)
 		}
 	}
 
