@@ -212,7 +212,7 @@ func WithKeyValueByte(key string, value []byte) UpdateFileOption {
 	return func(update map[string][]byte) {
 		bz := []byte(`"`)
 		bz = append(bz, value...)
-		update[key] = append(bz, []byte(`"'`)...)
+		update[key] = append(bz, []byte(`"`)...)
 	}
 }
 
