@@ -210,7 +210,9 @@ func WithKeyValue(key, value string) UpdateFileOption {
 // WithKeyValueByte update a file byte value object by key
 func WithKeyValueByte(key string, value []byte) UpdateFileOption {
 	return func(update map[string][]byte) {
-		update[key] = bytes.Join([][]byte{[]byte(`"`), value, []byte(`"`)}, []byte(""))
+		bz := []byte(`"`)
+		bz = append(bz, value...)
+		update[key] = append(bz, []byte(`"'`)...)
 	}
 }
 
