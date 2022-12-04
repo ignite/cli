@@ -25,6 +25,8 @@ const (
 	FieldConsensusRootHash           = "app_state.monitoringp.params.consumerConsensusState.root.hash"
 	FieldConsumerUnbondingPeriod     = "app_state.monitoringp.params.consumerUnbondingPeriod"
 	FieldConsumerRevisionHeight      = "app_state.monitoringp.params.consumerRevisionHeight"
+
+	FieldParamFormatString =  "app_state.%s.params.%s"
 )
 
 type (
@@ -40,7 +42,7 @@ type (
 
 // ParamField returns the field name of a given module param pair
 func ParamField(module, param string) string {
-	return fmt.Sprintf("app_state.%s.params.%s", module, param)
+	return fmt.Sprintf(FieldParamFormatString, module, param)
 }
 
 // FromPath parse genesis object from path
