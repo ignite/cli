@@ -14,6 +14,7 @@
 - [#3105](https://github.com/ignite/cli/pull/3105) Addition of `ignite plugin describe <path>` command
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
+- [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
 
 ### Changes
 
@@ -36,6 +37,7 @@
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
+- [#3109](https://github.com/ignite/cli/pull/3109) Refactor scaffolding for proto files to not rely on placeholders.
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 
 ### Breaking Changes
@@ -50,6 +52,7 @@
 - [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error. 
 - [#3129](https://github.com/ignite/cli/issues/3129) Remove redundant `keyring-backend` config option.
 - [#3187](https://github.com/ignite/cli/issues/3187) Change prompt text to fit within 80 characters width.
+- [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 

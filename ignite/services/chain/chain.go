@@ -263,6 +263,17 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
+}
+
 // SetHome sets the chain home directory.
 func (c *Chain) SetHome(home string) {
 	c.options.homePath = home

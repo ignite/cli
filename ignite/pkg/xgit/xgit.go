@@ -12,8 +12,8 @@ import (
 var (
 	commitMsg  = "Initialized with Ignite CLI"
 	devXAuthor = &object.Signature{
-		Name:  "Developer Experience team at Tendermint",
-		Email: "hello@tendermint.com",
+		Name:  "Developer Experience team at Ignite",
+		Email: "hello@ignite.com",
 		When:  time.Now(),
 	}
 )
