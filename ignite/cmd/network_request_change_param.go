@@ -62,6 +62,7 @@ func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 
 	// check validity of request
 	err = c.CheckRequestChangeParam(
+		cmd.Context(),
 		module,
 		param,
 		value,
