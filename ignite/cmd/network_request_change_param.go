@@ -1,11 +1,11 @@
 package ignitecmd
 
 import (
-	"github.com/ignite/cli/ignite/services/network/networkchain"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 // NewNetworkRequestChangeParam creates a new command to send param change request
@@ -65,7 +65,7 @@ func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 		module,
 		param,
 		value,
-		)
+	)
 	if err != nil {
 		return err
 	}
@@ -78,5 +78,3 @@ func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 		value,
 	)
 }
-
-

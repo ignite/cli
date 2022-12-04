@@ -82,7 +82,7 @@ func TestNetworkRequestParam(t *testing.T) {
 
 	env.Must(spn.Serve("serve spn chain", envtest.ExecCtx(ctx)))
 
-	require.NoError(t, isBackendAliveErr,   "spn cannot get online in time")
+	require.NoError(t, isBackendAliveErr, "spn cannot get online in time")
 }
 
 func TestNetworkRequestParamJSON(t *testing.T) {

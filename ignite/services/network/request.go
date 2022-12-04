@@ -340,5 +340,3 @@ func (n Network) SendParamChangeRequest(
 	}
 	return nil
 }
-
-

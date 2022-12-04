@@ -2,6 +2,7 @@ package networkchain
 
 import (
 	"fmt"
+
 	"github.com/pkg/errors"
 
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
@@ -25,8 +26,8 @@ func (c Chain) CheckRequestChangeParam(
 	pc := []networktypes.ParamChange{
 		{
 			Module: module,
-			Param: param,
-			Value: value,
+			Param:  param,
+			Value:  value,
 		},
 	}
 
