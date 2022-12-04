@@ -266,7 +266,9 @@ func applyParamChanges(
 		if err := genesis.Update(
 			jsonfile.WithKeyValueByte(cosmosgenesis.ParamField(pc.Module, pc.Param), pc.Value),
 		); err != nil {
-			return fmt.Errorf("genesis cannot be updated: %w", err)
+			return fmt.Errorf("failed to apply param change to genesis: module: %v, param: %v, value: %v: %w",
+				pc.Module, pc.Param, pc.Value, err,
+				)
 		}
 	}
 
