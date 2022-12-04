@@ -153,6 +153,9 @@ func (p *Plugin) KillClient() {
 		}
 		DeletePluginConf(p.Path)
 		p.isHost = false
+		// if the sharedHost config parameter is set to false we shutdown normally.
+	} else if !p.Plugin.SharedHost {
+		DeletePluginConf(p.Path)
 	}
 }
 
@@ -238,7 +241,10 @@ func (p *Plugin) load(ctx context.Context) {
 			SyncStdout:      os.Stdout,
 		})
 
-		p.isHost = true
+		if p.Plugin.SharedHost {
+			p.isHost = true
+		}
+
 	}
 
 	// Connect via RPC

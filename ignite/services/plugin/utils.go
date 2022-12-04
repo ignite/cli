@@ -18,6 +18,11 @@ const (
 	cacheNamespace = "plugin.rpc.context"
 )
 
+var (
+	storage      *cache.Storage
+	storageCache *cache.Cache[ConfigContext]
+)
+
 func init() {
 	gob.Register(hplugin.ReattachConfig{})
 	gob.Register(net.UnixAddr{})
@@ -35,6 +40,8 @@ func WritePluginConfig(path string, conf hplugin.ReattachConfig) error {
 	fmt.Println("encoding config")
 	confCont := ConfigContext{}
 
+	// todo: figure out a better way of resolving the type of network connection is established between plugin server and host
+	// currently this will always be a unix network socket. but this might not be the case moving forward.
 	ua, err := net.ResolveUnixAddr(conf.Addr.Network(), conf.Addr.String())
 	if err != nil {
 		return err
@@ -112,12 +119,15 @@ func newCache() (*cache.Cache[ConfigContext], error) {
 	if err != nil {
 		return nil, err
 	}
-
-	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
-	if err != nil {
-		return nil, err
+	if storage == nil {
+		storageTmp, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+		if err != nil {
+			return nil, err
+		}
+		storage = &storageTmp
+		cacheTmp := cache.New[ConfigContext](*storage, cacheNamespace)
+		storageCache = &cacheTmp
 	}
-	store := cache.New[ConfigContext](storage, cacheNamespace)
 
-	return &store, nil
+	return storageCache, nil
 }
