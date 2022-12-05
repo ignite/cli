@@ -26,12 +26,33 @@ const (
 
 // NewChainDebug returns a new debug command to debug a blockchain app.
 func NewChainDebug() *cobra.Command {
-	// TODO: Add long description
 	c := &cobra.Command{
 		Use:   "debug",
 		Short: "Launch a debugger for a blockchain app",
-		Args:  cobra.NoArgs,
-		RunE:  chainDebugHandler,
+		Long: `The debug command starts a debug server and launches a debugger.
+
+Ignite uses the Delve debugger by default. Delve enables you to interact with
+your program by controlling the execution of the process, evaluating variables,
+and providing information of thread / goroutine state, CPU register state and
+more.
+
+A debug server can optionally be started in cases where default terminal client
+is not desirable. When the server starts it first runs the blockchain app,
+attaches to it and finally waits for a client connection. It accepts both
+JSON-RPC or DAP client connections.
+
+To start a debug server use the following flag:
+
+	ignite chain debug --server
+
+To start a debug server with a custom address use the following flags:
+
+	ignite chain debug --server --server-address 127.0.0.1:30500
+
+The debug server stops automatically when the client connection is closed.
+`,
+		Args: cobra.NoArgs,
+		RunE: chainDebugHandler,
 	}
 
 	flagSetPath(c)
