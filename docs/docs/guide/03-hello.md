@@ -48,11 +48,11 @@ The `proto/hello/hello/query.proto` file was modified to define the request and
 response for a query, as well as to add the `SayHello` query in the `Query`
 service. 
 
-The `x/hello/client/cli/query.go file` was created and added to the project.
-This file contains a CLI command `CmdSayHello` that allows users to submit a
-"say hello" query to the blockchain. This command allows users to interact with
-the blockchain in a more user-friendly way, allowing them to easily submit
-queries and receive responses from the blockchain.
+The `x/hello/client/cli/query_say_hello.go` file was created and added to the
+project. This file contains a CLI command `CmdSayHello` that allows users to
+submit a "say hello" query to the blockchain. This command allows users to
+interact with the blockchain in a more user-friendly way, allowing them to
+easily submit queries and receive responses from the blockchain.
 
 The `x/hello/client/cli/query.go` was modified to add the `CmdSayHello` command
 to the CLI of the blockchain.
