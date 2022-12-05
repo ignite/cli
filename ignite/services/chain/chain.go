@@ -429,11 +429,8 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	var servers chainconfigv1.Servers
-
-	if len(config.Validators) == 0 {
-		servers = chainconfigv1.DefaultServers()
-	} else {
+	servers := chainconfigv1.DefaultServers()
+	if len(config.Validators) > 0 {
 		validator := config.Validators[0]
 		servers, err = validator.GetServers()
 		if err != nil {
