@@ -15,20 +15,45 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
+type (
+	// InitArgs represents argument to add additional initialization for the chain
+	// InitAccounts initializes chain accounts from the Ignite config
+	// InitConfiguration initializes node configuration from the Ignite config
+	// InitGenesis initializes genesis state for the chain from Ignite config
+	InitArgs struct {
+		InitAccounts      bool
+		InitConfiguration bool
+		InitGenesis       bool
+	}
+)
+
 const (
 	moniker = "mynode"
 )
 
+var (
+	// InitArgsAll performs all initialization for the chain
+	InitArgsAll = InitArgs{
+		true,
+		true,
+		true,
+	}
+
+	// InitArgsNone performs minimal initialization for the chain by only initializating a node
+	InitArgsNone = InitArgs{
+		false,
+		false,
+		false,
+	}
+)
+
 // Init initializes the chain
-// initAccounts initializes chain accounts from the Ignite config
-// initConfiguration initializes node configuration from the Ignite config
-// initGenesis initializes genesis state for the chain from Ignite config
-func (c *Chain) Init(ctx context.Context, initAccounts, initConfiguration, initGenesis bool) error {
-	if err := c.InitChain(ctx, initConfiguration, initGenesis); err != nil {
+func (c *Chain) Init(ctx context.Context, initArgs InitArgs) error {
+	if err := c.InitChain(ctx, initArgs.InitConfiguration, initArgs.InitGenesis); err != nil {
 		return err
 	}
 
-	if initAccounts {
+	if initArgs.InitAccounts {
 		conf, err := c.Config()
 		if err != nil {
 			return &CannotBuildAppError{err}
