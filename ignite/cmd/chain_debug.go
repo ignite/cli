@@ -1,13 +1,18 @@
 package ignitecmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
+	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/debugger"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/xexec"
@@ -22,14 +27,16 @@ const (
 
 // NewChainDebug returns a new debug command to debug a blockchain app.
 func NewChainDebug() *cobra.Command {
+	// TODO: Add long description
 	c := &cobra.Command{
 		Use:   "debug",
-		Short: "Debug a blockchain app",
+		Short: "Launch a debugger for a blockchain app",
 		Args:  cobra.NoArgs,
 		RunE:  chainDebugHandler,
 	}
 
 	// TODO: Add --reset-once support
+	// TODO: Add --skip-build flag
 	flagSetPath(c)
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
@@ -41,9 +48,37 @@ func NewChainDebug() *cobra.Command {
 }
 
 func chainDebugHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText("Initializing..."))
+	// Prepare session options.
+	// Events are ignored by the session when the debug server UI is used.
+	options := []cliui.Option{cliui.StartSpinnerWithText("Initializing...")}
+	serve, _ := cmd.Flags().GetBool(flagServer)
+	if serve {
+		options = append(options, cliui.IgnoreEvents())
+	}
+
+	session := cliui.New(options...)
 	defer session.End()
 
+	// Start debug server
+	if serve {
+		bus := session.EventBus()
+		m := cmdmodel.NewChainDebug(cmd, bus, chainDebugCmd(cmd, session))
+		return tea.NewProgram(m).Start()
+	}
+
+	return chainDebug(cmd, session)
+}
+
+func chainDebugCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
+	return func() tea.Msg {
+		if err := chainDebug(cmd, session); err != nil && !errors.Is(err, context.Canceled) {
+			return cliuimodel.ErrorMsg{Error: err}
+		}
+		return cliuimodel.QuitMsg{}
+	}
+}
+
+func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 	ev := session.EventBus()
 	chainOptions := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
@@ -79,7 +114,7 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	binaryPath, err := xexec.ResolveAbsPath(binaryName)
+	binPath, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return err
 	}
@@ -131,9 +166,8 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 			}),
 		)
 
-		// TODO: Use bubbletea for the debug server UI
 		ev.Send("Launching debug server", events.ProgressUpdate())
-		return debugger.Start(ctx, binaryPath, debugOptions...)
+		return debugger.Start(ctx, binPath, debugOptions...)
 	}
 
 	// Launch a debugger client
@@ -145,5 +179,5 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	)
 
 	ev.Send("Launching debugger", events.ProgressUpdate())
-	return debugger.Run(ctx, binaryPath, debugOptions...)
+	return debugger.Run(ctx, binPath, debugOptions...)
 }
