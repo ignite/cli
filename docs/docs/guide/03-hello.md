@@ -57,7 +57,7 @@ easily submit queries and receive responses from the blockchain.
 The `x/hello/client/cli/query.go` was modified to add the `CmdSayHello` command
 to the CLI of the blockchain.
 
-The `x/hello/keeper/grpc_query_say_hello.go` file was created with a keeper
+The `x/hello/keeper/query_say_hello.go` file was created with a keeper
 method called `SayHello`. This method is responsible for handling the "say
 hello" query, which can be called by a client using the command-line interface
 (CLI) or an API. When the "say hello" query is executed, the `SayHello` method
@@ -67,10 +67,10 @@ the data, and return a result to the client in a specific format, such as a
 string of text or a data structure.
 
 To change the source code so that the query returns the `"Hello, %s!"` string,
-modify the return statement in `grpc_query_say_hello.go` to return
+modify the return statement in `query_say_hello.go` to return
 `fmt.Sprintf("hello %s", req.Name)`.
 
-```go title="x/hello/keeper/grpc_query_say_hello.go"
+```go title="x/hello/keeper/query_say_hello.go"
 func (k Keeper) SayHello(goCtx context.Context, req *types.QuerySayHelloRequest) (*types.QuerySayHelloResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -194,9 +194,9 @@ After defining the query, request, and response types in the `query.proto` file,
 you will need to implement the logic for the query in your code. This typically
 involves writing a function that processes the request and returns the
 appropriate response. For example, you could add the following code to the
-`grpc_query_say_hello.go` file:
+`query_say_hello.go` file:
 
-```go title="x/hello/keeper/grpc_query_say_hello.go"
+```go title="x/hello/keeper/query_say_hello.go"
 package keeper
 
 import (
