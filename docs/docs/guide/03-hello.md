@@ -193,8 +193,8 @@ protocol buffer files, without building and initializing the blockchain.
 After defining the query, request, and response types in the `query.proto` file,
 you will need to implement the logic for the query in your code. This typically
 involves writing a function that processes the request and returns the
-appropriate response. For example, you could add the following code to the
-`query_say_hello.go` file:
+appropriate response. Create a new file `query_say_hello.go` with the following
+contents:
 
 ```go title="x/hello/keeper/query_say_hello.go"
 package keeper
@@ -237,9 +237,9 @@ involves adding the query to the blockchain's application programming interface
 (API) and providing a command-line interface (CLI) command that allows users to
 easily submit the query and receive the response.
 
-To provide a CLI command for the query, you can modify the `query_say_hello.go`
-file to include a `CmdSayHello` command that calls the `SayHello` function and
-prints the response to the console.
+To provide a CLI command for the query, you can create the `query_say_hello.go`
+file and implement a `CmdSayHello` command that calls the `SayHello` function
+and prints the response to the console.
 
 ```go title="x/hello/client/cli/query_say_hello.go"
 package cli
