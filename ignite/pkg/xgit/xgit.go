@@ -1,11 +1,15 @@
 package xgit
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
@@ -84,4 +88,58 @@ func AreChangesCommitted(dir string) (bool, error) {
 		return false, err
 	}
 	return ws.IsClean(), nil
+}
+
+// Clone clones a git repository represented by urlref, into dir.
+// urlref is the URL of the repository, with an optional ref, suffixed to the
+// URL with a `@`. Ref can be a tag, a branch or a hash.
+// Valid examples of urlref: github.com/org/repo, github.com/org/repo@v1,
+// github.com/org/repo@develop, github.com/org/repo@ab88cdf.
+func Clone(ctx context.Context, urlref, dir string) error {
+	// Ensure dir is empty if it exists (if it doesn't exists, the call to
+	// git.PlainCloneContext below will create it).
+	files, _ := os.ReadDir(dir)
+	if len(files) > 0 {
+		return fmt.Errorf("clone: target directory %q is not empty", dir)
+	}
+	// Split urlref
+	var (
+		parts = strings.Split(urlref, "@")
+		url   = parts[0]
+		ref   string
+	)
+	if len(parts) > 1 {
+		ref = parts[1]
+	}
+	// First clone the repo
+	repo, err := git.PlainCloneContext(ctx, dir, false, &git.CloneOptions{
+		URL: url,
+	})
+	if err != nil {
+		return err
+	}
+	if ref == "" {
+		// if ref is not provided, job is done
+		return nil
+	}
+	// Reference provided, try to resolve
+	wt, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+	var h *plumbing.Hash
+	for _, ref := range []string{ref, "origin/" + ref} {
+		h, err = repo.ResolveRevision(plumbing.Revision(ref))
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		// Ref not found, clean up dir and return error
+		os.RemoveAll(dir)
+		return err
+	}
+	return wt.Checkout(&git.CheckoutOptions{
+		Hash: *h,
+	})
 }
