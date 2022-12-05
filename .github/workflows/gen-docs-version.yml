@@ -1,0 +1,43 @@
+name: Docusaurus add version
+on:
+  release:
+    types: [published]
+
+jobs:
+  gen-docs-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: docs/node_modules
+          key: node_modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: yarn
+          cache-dependency-path: docs/yarn.lock
+
+      - name: Install Dependencies
+        run: yarn install
+        working-directory: ./docs
+
+      - name: Generate docusaurus docs for ${{ github.ref_name }}
+        run: yarn run docusaurus docs:version ${{ github.ref_name }}
+        working-directory: ./docs
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: 'chore: docusaurus deploy version ${{ github.ref_name }}'
+          commit-message: 'chore(docs): deploy version ${{ github.ref_name }}'
+          body: ''
+          base: main
+          branch: chore/docs/new-version
+          add-paths: |
+            docs/
