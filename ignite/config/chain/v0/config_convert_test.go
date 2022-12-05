@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 func TestV0ToV1(t *testing.T) {
@@ -21,7 +21,7 @@ func TestV0ToV1(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.NotNilf(t, cfgV1, "expected *v1.Config, got %T", c)
-	require.Equal(t, chainconfig.Version(1), cfgV1.GetVersion())
+	require.Equal(t, version.Version(1), cfgV1.GetVersion())
 	require.Equal(t, cfgV0.Build, cfgV1.Build)
 	require.Equal(t, cfgV0.Accounts, cfgV1.Accounts)
 	require.Equal(t, cfgV0.Faucet, cfgV1.Faucet)
