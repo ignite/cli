@@ -283,6 +283,8 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		return
 	}
 	pluginCmdName := pluginCmd.Use
+	// pluginCmd.Use can be like `command [args]` so we need to remove those
+	// extra args if any.
 	if i := strings.Index(pluginCmdName, " "); i >= 0 {
 		pluginCmdName = pluginCmdName[:i]
 	}
