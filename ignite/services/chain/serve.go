@@ -388,7 +388,7 @@ func (c *Chain) serve(
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, cacheStorage, "", skipProto, generateClients, false); err != nil {
+		if err := c.build(ctx, cacheStorage, "", skipProto, generateClients, true); err != nil {
 			return err
 		}
 	}
