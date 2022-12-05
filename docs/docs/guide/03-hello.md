@@ -80,7 +80,7 @@ func (k Keeper) SayHello(goCtx context.Context, req *types.QuerySayHelloRequest)
 
 	// TODO: Process the query
 	_ = ctx
-  // highlight-next-line
+	// highlight-next-line
 	return &types.QuerySayHelloResponse{Name: fmt.Sprintf("Hello, %s!", req.Name)}, nil
 }
 ```
