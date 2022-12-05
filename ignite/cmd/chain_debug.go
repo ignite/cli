@@ -39,8 +39,6 @@ func NewChainDebug() *cobra.Command {
 	// TODO: Add --skip-build flag
 	flagSetPath(c)
 	flagSetClearCache(c)
-	c.Flags().AddFlagSet(flagSetCheckDependencies())
-	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().Bool(flagServer, false, "start a debug server")
 	c.Flags().String(flagServerAddress, debugger.DefaultAddress, "debug server address")
 
@@ -86,10 +84,6 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		chain.CollectEvents(ev),
 	}
 
-	if flagGetCheckDependencies(cmd) {
-		chainOptions = append(chainOptions, chain.CheckDependencies())
-	}
-
 	config, err := cmd.Flags().GetString(flagConfig)
 	if err != nil {
 		return err
@@ -109,7 +103,7 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	ctx := cmd.Context()
-	binaryName, err := c.Build(ctx, cache, "", flagGetSkipProto(cmd), true)
+	binaryName, err := c.Build(ctx, cache, "", true, true)
 	if err != nil {
 		return err
 	}
