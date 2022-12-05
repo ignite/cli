@@ -15,6 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -134,7 +135,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 		if _, err := os.Stat(c.options.ConfigFile); err != nil {
 			return err
 		}
-	} else if _, err := config.LocateDefault(c.app.Path); err != nil {
+	} else if _, err := chainconfig.LocateDefault(c.app.Path); err != nil {
 		return err
 	}
 
@@ -164,7 +165,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					serveCtx      context.Context
 					buildErr      *CannotBuildAppError
 					startErr      *CannotStartAppError
-					validationErr *config.ValidationError
+					validationErr *chainconfig.ValidationError
 				)
 
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
@@ -454,7 +455,7 @@ func (c *Chain) serve(
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
+func (c *Chain) start(ctx context.Context, cfg *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -512,7 +513,7 @@ func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
 	)
 
 	if isFaucetEnabled {
-		faucetAddr, _ := xurl.HTTP(config.FaucetHost(cfg))
+		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(cfg))
 
 		c.ev.Send(
 			fmt.Sprintf("Token faucet: %s", faucetAddr),
@@ -544,7 +545,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    config.FaucetHost(cfg),
+		Addr:    chainconfig.FaucetHost(cfg),
 		Handler: faucet,
 	})
 }
