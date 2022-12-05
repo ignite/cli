@@ -10,6 +10,12 @@ import (
 // of events that the bus can cache before they are handled.
 const DefaultBufferSize = 50
 
+// Provider defines an interface for event providers.
+type Provider interface {
+	// Events returns a read only channel to read the events.
+	Events() <-chan Event
+}
+
 type (
 	// Bus defines a bus to send and receive events.
 	Bus struct {

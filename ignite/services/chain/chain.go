@@ -8,7 +8,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -202,7 +202,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := config.LocateDefault(c.app.Path)
+	path, err := chainconfig.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -210,12 +210,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*config.ChainConfig, error) {
+func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return config.DefaultChainConfig(), nil
+		return chainconfig.DefaultChainConfig(), nil
 	}
-	return config.ParseFile(configPath)
+	return chainconfig.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -261,6 +261,17 @@ func (c *Chain) Binary() (string, error) {
 	}
 
 	return c.app.D(), nil
+}
+
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
 }
 
 // SetHome sets the chain home directory.
