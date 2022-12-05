@@ -14,8 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/go-hclog"
 	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
@@ -28,6 +26,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/pkg/xgit"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 // pluginsPath holds the plugin cache directory.
@@ -132,7 +132,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 		return p
 	}
 	p.repoPath = path.Join(parts[:3]...)
-	p.cloneURL = "https://" + p.repoPath
+	p.cloneURL, _ = xurl.HTTPS(p.repoPath)
 	if len(p.reference) > 0 {
 		p.repoPath += "@" + p.reference
 	}
@@ -238,30 +238,8 @@ func (p *Plugin) fetch() {
 	}
 	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Fetching plugin %q...", p.cloneURL))).End()
 
-	var err error
-	if p.reference == "" {
-		// No reference provided, just clone
-		_, err = git.PlainClone(p.cloneDir, false, &git.CloneOptions{
-			URL: p.cloneURL,
-		})
-	} else {
-		// Reference provided, clone using tag or branch reference, one of the two
-		// should work. SHA-1 aren't supported.
-		for _, ref := range []plumbing.ReferenceName{
-			plumbing.NewTagReferenceName(p.reference),
-			plumbing.NewBranchReferenceName(p.reference),
-		} {
-			_, err = git.PlainClone(p.cloneDir, false, &git.CloneOptions{
-				URL:           p.cloneURL,
-				ReferenceName: ref,
-				// Try to limit number of commits but this option doesn't seem to work well
-				Depth: 1,
-			})
-			if err == nil {
-				break
-			}
-		}
-	}
+	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
+	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "cloning %q", p.cloneURL)
 	}

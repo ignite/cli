@@ -112,14 +112,12 @@ func (r Runner) ImportAccount(ctx context.Context, name, keyFile, passphrase str
 	return r.ShowAccount(ctx, name)
 }
 
-// CheckAccountExist returns an error if the account already exists in the chain keyring
-func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
+// ListAccounts returns the list of accounts in the keyring.
+func (r Runner) ListAccounts(ctx context.Context) ([]Account, error) {
+	// Get a JSON string with all accounts in the keyring
 	b := newBuffer()
-
-	// get and decodes all accounts of the chains
-	var accounts []Account
 	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.ListKeysCommand()); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Make sure that the command output is not the empty keyring message.
@@ -128,23 +126,36 @@ func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 	// This behavior was added to Cosmos SDK v0.46.2. See the link
 	// https://github.com/cosmos/cosmos-sdk/blob/d01aa5b4a8/client/keys/list.go#L37
 	if strings.TrimSpace(b.String()) == msgEmptyKeyring {
-		return nil
+		return nil, nil
 	}
 
 	data, err := b.JSONEnsuredBytes()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	var accounts []Account
 	if err := json.Unmarshal(data, &accounts); err != nil {
+		return nil, err
+	}
+
+	return accounts, nil
+}
+
+// CheckAccountExist returns an error if the account already exists in the chain keyring
+func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
+	accounts, err := r.ListAccounts(ctx)
+	if err != nil {
 		return err
 	}
 
-	// search for the account name
+	// Search for the account name
 	for _, account := range accounts {
 		if account.Name == name {
 			return ErrAccountAlreadyExists
 		}
 	}
+
 	return nil
 }
 
