@@ -162,7 +162,7 @@ func renderRequestSummaries(
 				req.ParamChange.Module,
 				req.ParamChange.Param,
 				string(req.ParamChange.Value),
-				)
+			)
 		}
 
 		requestEntries = append(requestEntries, []string{
