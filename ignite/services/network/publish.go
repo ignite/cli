@@ -5,13 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
-	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
+	rewardtypes "github.com/tendermint/spn/x/reward/types"
 
+	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
@@ -185,7 +185,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, err
 		}
 
-		var coins []sdk.Coin
+		var coins sdk.Coins
 		for _, percentage := range o.sharePercentages {
 			coin, err := percentage.Share(totalSharesResp.TotalShares)
 			if err != nil {
@@ -193,6 +193,10 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			}
 			coins = append(coins, coin)
 		}
+		if err := coins.Validate(); err != nil {
+			return 0, 0, err
+		}
+
 		// TODO consider moving to UpdateCampaign, but not sure, may not be relevant.
 		// It is better to send multiple message in a single tx too.
 		// consider ways to refactor to accomplish a better API and efficiency.
@@ -205,9 +209,15 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			addr,
 			campaignID,
-			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
+			campaigntypes.NewSharesFromCoins(coins),
 		)
-		_, err = n.cosmos.BroadcastTx(ctx, n.account, msgMintVouchers)
+		msgSetRewards := rewardtypes.NewMsgSetRewards(
+			addr,
+			launchID,
+			0,
+			coins,
+		)
+		_, err = n.cosmos.BroadcastTx(ctx, n.account, msgMintVouchers, msgSetRewards)
 		if err != nil {
 			return 0, 0, err
 		}
