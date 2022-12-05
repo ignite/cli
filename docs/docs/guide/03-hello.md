@@ -247,11 +247,11 @@ package cli
 import (
 	"strconv"
 
-	"hello/x/hello/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
+	
+	"hello/x/hello/types"
 )
 
 var _ = strconv.Itoa(0)
