@@ -18,12 +18,12 @@ type Validator struct {
 }
 
 func (v Validator) ToProfile(
-	campaignID uint64,
+	projectID uint64,
 	vouchers sdk.Coins,
 	shares campaigntypes.Shares,
 ) Profile {
 	return Profile{
-		CampaignID:      campaignID,
+		CampaignID:      projectID,
 		Address:         v.Address,
 		Identity:        v.Identity,
 		Website:         v.Website,
@@ -96,7 +96,7 @@ type (
 	// Profile represents the address profile on SPN
 	Profile struct {
 		Address         string               `json:"Address"`
-		CampaignID      uint64               `json:"CampaignID,omitempty"`
+		CampaignID      uint64               `json:"ProjectID,omitempty"`
 		Identity        string               `json:"Identity,omitempty"`
 		Website         string               `json:"Website,omitempty"`
 		Details         string               `json:"Details,omitempty"`
