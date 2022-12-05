@@ -57,14 +57,14 @@ easily submit queries and receive responses from the blockchain.
 The `x/hello/client/cli/query.go` was modified to add the `CmdSayHello` command
 to the CLI of the blockchain.
 
-The `x/hello/keeper/query_say_hello.go` file was created with a keeper
-method called `SayHello`. This method is responsible for handling the "say
-hello" query, which can be called by a client using the command-line interface
-(CLI) or an API. When the "say hello" query is executed, the `SayHello` method
-is called to perform the necessary actions and return a response to the client.
-The `SayHello` method may retrieve data from the application's database, process
-the data, and return a result to the client in a specific format, such as a
-string of text or a data structure.
+The `x/hello/keeper/query_say_hello.go` file was created with a keeper method
+called `SayHello`. This method is responsible for handling the "say hello"
+query, which can be called by a client using the command-line interface (CLI) or
+an API. When the "say hello" query is executed, the `SayHello` method is called
+to perform the necessary actions and return a response to the client. The
+`SayHello` method may retrieve data from the application's database, process the
+data, and return a result to the client in a specific format, such as a string
+of text or a data structure.
 
 To change the source code so that the query returns the `"Hello, %s!"` string,
 modify the return statement in `query_say_hello.go` to return
@@ -335,8 +335,16 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 ```
 
 Once you have provided a CLI command, users will be able to call the `say-hello`
-query and receive the appropriate response. For example, they can use the
-following command to submit the query and receive the response:
+query and receive the appropriate response.
+
+Save all the changes you made to the source code of your project and run the
+following command to start a blockchain node:
+
+```
+ignite chain serve
+```
+
+Use the following command to submit the query and receive the response:
 
 ```
 hellod q hello say-hello bob
