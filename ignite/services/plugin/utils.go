@@ -13,8 +13,7 @@ import (
 )
 
 const (
-	EXT            = ".gob"
-	cacheFileName  = "ignite_cache.db"
+	cacheFileName  = "ignite_plugin_cache.db"
 	cacheNamespace = "plugin.rpc.context"
 )
 
@@ -40,7 +39,7 @@ func WritePluginConfig(path string, conf hplugin.ReattachConfig) error {
 	fmt.Println("encoding config")
 	confCont := ConfigContext{}
 
-	// todo: figure out a better way of resolving the type of network connection is established between plugin server and host
+	// TODO: figure out a better way of resolving the type of network connection is established between plugin server and host
 	// currently this will always be a unix network socket. but this might not be the case moving forward.
 	ua, err := net.ResolveUnixAddr(conf.Addr.Network(), conf.Addr.String())
 	if err != nil {
