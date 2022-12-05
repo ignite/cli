@@ -75,7 +75,7 @@ func (c *Chain) build(
 	}
 
 	if debug {
-		// Add flags to disable binary optimizations to allow debugging
+		// Add flags to disable binary optimizations and inlining to allow debugging
 		buildFlags = append(buildFlags, gocmd.FlagGcflags, gocmd.FlagGcflagsValueDebug)
 	}
 

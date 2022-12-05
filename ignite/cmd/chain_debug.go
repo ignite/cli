@@ -15,7 +15,6 @@ import (
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/debugger"
 	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -35,10 +34,7 @@ func NewChainDebug() *cobra.Command {
 		RunE:  chainDebugHandler,
 	}
 
-	// TODO: Add --reset-once support
-	// TODO: Add --skip-build flag
 	flagSetPath(c)
-	flagSetClearCache(c)
 	c.Flags().Bool(flagServer, false, "start a debug server")
 	c.Flags().String(flagServerAddress, debugger.DefaultAddress, "debug server address")
 
@@ -77,11 +73,8 @@ func chainDebugCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
 }
 
 func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
-	ev := session.EventBus()
 	chainOptions := []chain.Option{
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
-		chain.WithOutputer(session),
-		chain.CollectEvents(ev),
 	}
 
 	config, err := cmd.Flags().GetString(flagConfig)
@@ -93,22 +86,6 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	c, err := newChainWithHomeFlags(cmd, chainOptions...)
-	if err != nil {
-		return err
-	}
-
-	cache, err := newCache(cmd)
-	if err != nil {
-		return err
-	}
-
-	ctx := cmd.Context()
-	binaryName, err := c.Build(ctx, cache, "", true, true)
-	if err != nil {
-		return err
-	}
-
-	binPath, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return err
 	}
@@ -130,6 +107,11 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
+	binPath, err := c.AbsBinaryPath()
+	if err != nil {
+		return err
+	}
+
 	// Common debugger options
 	debugOptions := []debugger.Option{
 		debugger.WorkingDir(flagGetPath(cmd)),
@@ -142,6 +124,8 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	// Start debug server
+	ctx := cmd.Context()
+	bus := session.EventBus()
 	if serve, _ := cmd.Flags().GetBool(flagServer); serve {
 		addr, _ := cmd.Flags().GetString(flagServerAddress)
 		tcpAddr, err := xurl.TCP(addr)
@@ -152,7 +136,7 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		debugOptions = append(debugOptions,
 			debugger.Address(addr),
 			debugger.ServerStartHook(func() {
-				ev.Send(
+				bus.Send(
 					fmt.Sprintf("Debug server: %s", tcpAddr),
 					events.Icon(icons.Earth),
 					events.ProgressFinish(),
@@ -160,7 +144,7 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 			}),
 		)
 
-		ev.Send("Launching debug server", events.ProgressUpdate())
+		bus.Send("Launching debug server", events.ProgressUpdate())
 		return debugger.Start(ctx, binPath, debugOptions...)
 	}
 
@@ -172,6 +156,6 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		}),
 	)
 
-	ev.Send("Launching debugger", events.ProgressUpdate())
+	bus.Send("Launching debugger", events.ProgressUpdate())
 	return debugger.Run(ctx, binPath, debugOptions...)
 }
