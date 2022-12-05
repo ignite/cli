@@ -1,4 +1,4 @@
-package chain
+package version
 
 import (
 	"fmt"
