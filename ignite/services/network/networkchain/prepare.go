@@ -270,6 +270,16 @@ func applyParamChanges(
 				pc.Module, pc.Param, pc.Value, err,
 			)
 		}
+
+		var v []byte
+		err := genesis.Field(cosmosgenesis.ParamField(pc.Module, pc.Param), v)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println()
+		fmt.Println("Test")
+		fmt.Println(v)
+		fmt.Println(pc.Value)
 	}
 
 	return nil

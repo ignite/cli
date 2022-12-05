@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -162,7 +163,7 @@ func (f *JSONFile) Bytes() ([]byte, error) {
 	return file, nil
 }
 
-// Field return the param by key and the position into byte slice from the file reader.
+// Field returns the param by key and the position into byte slice from the file reader.
 // Key can be a path to a nested parameter eg: app_state.staking.accounts
 func (f *JSONFile) Field(key string, param interface{}) error {
 	file, err := f.Bytes()
@@ -176,6 +177,8 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	} else if err != nil {
 		return err
 	}
+
+	fmt.Println(key, value, dataType)
 
 	switch dataType {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
@@ -210,9 +213,7 @@ func WithKeyValue(key, value string) UpdateFileOption {
 // WithKeyValueByte update a file byte value object by key
 func WithKeyValueByte(key string, value []byte) UpdateFileOption {
 	return func(update map[string][]byte) {
-		bz := []byte(`"`)
-		bz = append(bz, value...)
-		update[key] = append(bz, []byte(`"`)...)
+		update[key] = value
 	}
 }
 
