@@ -7,7 +7,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -177,8 +176,6 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	} else if err != nil {
 		return err
 	}
-
-	fmt.Println(key, value, dataType)
 
 	switch dataType {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
