@@ -3,7 +3,7 @@
 
 ## prep the base image.
 #
-FROM golang:1.18.0-bullseye as base
+FROM golang:1.19 as base
 
 RUN apt update && \
     apt-get install -y \

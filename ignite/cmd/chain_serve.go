@@ -1,17 +1,26 @@
 package ignitecmd
 
 import (
+	"context"
+	"errors"
+
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
+	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
+	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
-	flagForceReset = "force-reset"
-	flagResetOnce  = "reset-once"
-	flagConfig     = "config"
-	flagQuitOnFail = "quit-on-fail"
+	flagConfig          = "config"
+	flagForceReset      = "force-reset"
+	flagGenerateClients = "generate-clients"
+	flagQuitOnFail      = "quit-on-fail"
+	flagResetOnce       = "reset-once"
 )
 
 // NewChainServe creates a new serve command to serve a blockchain.
@@ -34,19 +43,19 @@ exporting and importing the genesis file.
 To force Ignite to start from a clean slate even if a genesis file exists, use
 the following flag:
 
-  ignite chain serve --reset-once
+	ignite chain serve --reset-once
 
 To force Ignite to reset the state every time the source code is modified, use
 the following flag:
 
-  ignite chain serve --force-reset
+	ignite chain serve --force-reset
 
 With Ignite it's possible to start more than one blockchain from the same source
 code using different config files. This is handy if you're building
 inter-blockchain functionality and, for example, want to try sending packets
 from one blockchain to another. To start a node using a specific config file:
 
-  ignite chain serve --config mars.yml
+	ignite chain serve --config mars.yml
 
 The serve command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
 hood, it runs "appd start", where "appd" is the name of your chain's binary. For
@@ -59,28 +68,62 @@ production, you may want to run "appd start" manually.
 	flagSetPath(c)
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
-	c.Flags().BoolP("verbose", "v", false, "Verbose output")
-	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
-	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().Bool(flagQuitOnFail, false, "Quit program if the app fails to start")
+	c.Flags().BoolP("verbose", "v", false, "verbose output")
+	c.Flags().BoolP(flagForceReset, "f", false, "force reset of the app state on start and every source change")
+	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
+	c.Flags().Bool(flagGenerateClients, false, "generate code for the configured clients on reset or source code change")
+	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.WithVerbosity(getVerbosity(cmd)), cliui.StartSpinner())
+	var options []cliui.Option
+
+	// Session must not handle events when the verbosity is the default
+	// to allow render of the UI and events using bubbletea. The custom
+	// UI is not used for other verbosity levels in which the session
+	// must handle the events to use custom output prefixes.
+	verbosity := getVerbosity(cmd)
+	if verbosity == uilog.VerbosityDefault {
+		options = append(options, cliui.IgnoreEvents())
+	} else {
+		options = append(options, cliui.WithVerbosity(verbosity))
+	}
+
+	session := cliui.New(options...)
 	defer session.End()
 
+	// Depending on the verbosity execute the serve command within
+	// a bubbletea context to display the custom UI.
+	if verbosity == uilog.VerbosityDefault {
+		bus := session.EventBus()
+		bus.Send("Initializing...", events.ProgressStart())
+
+		// Render UI
+		m := cmdmodel.NewChainServe(cmd, bus, chainServeCmd(cmd, session))
+		return tea.NewProgram(m).Start()
+	}
+
+	// Otherwise run the serve command directly
+	return chainServe(cmd, session)
+}
+
+func chainServeCmd(cmd *cobra.Command, session *cliui.Session) tea.Cmd {
+	return func() tea.Msg {
+		if err := chainServe(cmd, session); err != nil && !errors.Is(err, context.Canceled) {
+			return cliuimodel.ErrorMsg{Error: err}
+		}
+		return cliuimodel.QuitMsg{}
+	}
+}
+
+func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 	chainOption := []chain.Option{
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
-	}
-
-	if flagGetProto3rdParty(cmd) {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
 	if flagGetCheckDependencies(cmd) {
@@ -109,26 +152,41 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 
 	// serve the chain
 	var serveOptions []chain.ServeOption
+
 	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
 	if err != nil {
 		return err
 	}
+
 	if forceUpdate {
 		serveOptions = append(serveOptions, chain.ServeForceReset())
 	}
+
 	resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
 	if err != nil {
 		return err
 	}
+
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
+
 	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
 	if err != nil {
 		return err
 	}
+
 	if quitOnFail {
 		serveOptions = append(serveOptions, chain.QuitOnFail())
+	}
+
+	generateClients, err := cmd.Flags().GetBool(flagGenerateClients)
+	if err != nil {
+		return err
+	}
+
+	if generateClients {
+		serveOptions = append(serveOptions, chain.GenerateClients())
 	}
 
 	if flagGetSkipProto(cmd) {

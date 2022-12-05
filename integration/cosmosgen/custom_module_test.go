@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
@@ -29,7 +29,7 @@ func TestCustomModule(t *testing.T) {
 	require.NoError(t, err)
 
 	// Accounts to be included in the genesis
-	accounts := []config.Account{
+	accounts := []base.Account{
 		{
 			Name:    "account1",
 			Address: "cosmos1j8hw8283hj80hhq8urxaj40syrzqp77dt8qwhm",

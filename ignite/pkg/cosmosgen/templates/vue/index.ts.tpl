@@ -117,7 +117,7 @@ export default {
 			try {
 				const key = params ?? {};
 				const client = initClient(rootGetters);
-				let value= (await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCaseSta $FullName -}}
+				let value= (await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCase $FullName -}}
 				{{- $n -}}(
 					{{- range $j,$a :=$rule.Params -}}
 						{{- if (gt $j 0) -}}, {{ end }} key.{{ $a -}}
@@ -134,7 +134,7 @@ export default {
 				
 					{{ if $rule.HasQuery }}
 				while (all && (<any> value).pagination && (<any> value).pagination.next_key!=null) {
-					let next_values=(await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCaseSta $FullName -}}
+					let next_values=(await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCase $FullName -}}
 					{{- $n -}}(
 						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query ?? {}, 'pagination.key':(<any> value).pagination.next_key} as any
 						{{- if $rule.HasBody -}}, {...key}
@@ -153,10 +153,11 @@ export default {
 		},
 		{{ end }}
 		{{ end }}
-		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = [], memo = '' }) {
+		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = {amount: [], gas: "200000"}, memo = '' }) {
 			try {
 				const client=await initClient(rootGetters)
-				const result = await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.tx.send{{ .Name }}({ value, fee: {amount: fee, gas: "200000"}, memo })
+				const fullFee = Array.isArray(fee)  ? {amount: fee, gas: "200000"} :fee;
+				const result = await client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.tx.send{{ .Name }}({ value, fee: fullFee, memo })
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

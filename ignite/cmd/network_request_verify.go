@@ -20,8 +20,13 @@ func NewNetworkRequestVerify() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "verify [launch-id] [number<,...>]",
 		Short: "Verify the request and simulate the chain genesis from them",
-		RunE:  networkRequestVerifyHandler,
-		Args:  cobra.ExactArgs(2),
+		Long: `The "verify" command applies selected requests to the genesis of a chain locally
+to verify that approving these requests will result in a valid genesis that
+allows a chain to launch without issues. This command does not approve requests,
+only checks them.
+`,
+		RunE: networkRequestVerifyHandler,
+		Args: cobra.ExactArgs(2),
 	}
 
 	flagSetClearCache(c)

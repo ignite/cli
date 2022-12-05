@@ -1,7 +1,7 @@
 package modulecreate
 
 import (
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/xgenny"
@@ -13,7 +13,7 @@ import (
 func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsGenesisTest, "genesistest/", appPath)
+		template = xgenny.NewEmbedWalker(fsGenesisTest, "files/genesistest/", appPath)
 	)
 
 	ctx := plush.NewContext()

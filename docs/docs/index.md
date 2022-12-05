@@ -5,11 +5,17 @@ slug: /
 
 # Ignite CLI
 
-[Ignite CLI](https://github.com/ignite/cli) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Ignite CLI is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Ignite CLI accelerates chain development by scaffolding everything you need so you can focus on business logic.
+[Ignite CLI](https://github.com/ignite/cli) offers everything you need to build, test, and launch your blockchain with a
+decentralized worldwide community. Ignite CLI is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s
+most popular blockchain framework. Ignite CLI accelerates chain development by scaffolding everything you need so you
+can focus on business logic.
 
 ## What is Ignite CLI?
 
-Ignite CLI is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Ignite CLI use Cosmos SDK and Tendermint. Ignite CLI and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Ignite CLI includes a command line interface that lets you manage keys, create validators, and send tokens.
+Ignite CLI is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains.
+Blockchains created with Ignite CLI use Cosmos SDK and Tendermint. Ignite CLI and the Cosmos SDK modules are written in
+the Go programming language. The scaffolded blockchain that is created with Ignite CLI includes a command line interface
+that lets you manage keys, create validators, and send tokens.
 
 With just a few commands, you can use Ignite CLI to:
 
@@ -17,7 +23,7 @@ With just a few commands, you can use Ignite CLI to:
 * Scaffold modules, messages, types with CRUD operations, IBC packets, and more
 * Start a blockchain node in development with live reloading
 * Connect to other blockchains with a built-in IBC relayer
-* Use automatically generated TypeScript/Vuex clients to interact with your blockchain
+* Use generated TypeScript/Vuex clients to interact with your blockchain
 * Use the Vue.js web app template with a set of components and Vuex modules
 
 ## Install Ignite CLI
@@ -25,7 +31,7 @@ With just a few commands, you can use Ignite CLI to:
 To install the `ignite` binary in `/usr/local/bin` run the following command:
 
 ```
-curl https://get.ignite.com/cli! | bash
+curl https://get.ignite.com/cli | bash
 ```
 
 ## Bounty program
@@ -34,7 +40,9 @@ Our [Ignite CLI bounty program](06-bounty.md) provides incentives for your parti
 
 ## Projects using Tendermint and Cosmos SDK
 
-Many projects already showcase the Tendermint BFT consensus engine and the Cosmos SDK. Explore the [Cosmos ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+Many projects already showcase the Tendermint BFT consensus engine and the Cosmos SDK. Explore
+the [Cosmos ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets,
+and explorers that are built in the Cosmos ecosystem.
 
 ## Projects building with Ignite CLI
 

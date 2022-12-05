@@ -8,10 +8,11 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 const (
@@ -67,7 +68,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// ovewrite app config files with the values defined in Ignite's config file
-	if err := c.plugin.Configure(home, conf); err != nil {
+	if err := c.Configure(home, conf); err != nil {
 		return err
 	}
 
@@ -77,7 +78,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}
 
 	// update genesis file with the genesis values defined in the config
-	if err := c.updateGenesisFile(conf.Genesis); err != nil {
+	if err := c.UpdateGenesisFile(conf.Genesis); err != nil {
 		return err
 	}
 
@@ -85,16 +86,18 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
 	}
 
+	c.ev.Send("Initializing accounts...", events.ProgressUpdate())
+
 	var accounts accountview.Accounts
 
 	// add accounts from config into genesis
-	for _, account := range conf.Accounts {
+	for _, account := range cfg.Accounts {
 		var generatedAccount chaincmdrunner.Account
 		accountAddress := account.Address
 
@@ -113,20 +116,22 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 
 		if account.Address == "" {
-			accounts = append(accounts, accountview.NewAccount(
+			accounts = accounts.Append(accountview.NewAccount(
 				generatedAccount.Name,
 				accountAddress,
 				accountview.WithMnemonic(generatedAccount.Mnemonic),
 			))
 		} else {
-			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
+			accounts = accounts.Append(accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
 
-	c.ev.Send("🗂  Initialize accounts...")
-	c.ev.SendView(accounts)
+	c.ev.SendView(accounts, events.ProgressFinish())
 
-	_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	// 0 length validator set when using network config
+	if len(cfg.Validators) != 0 {
+		_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+	}
 
 	return err
 }
@@ -139,7 +144,7 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 	}
 
 	// create the gentx from the validator from the config
-	gentxPath, err := c.plugin.Gentx(ctx, commands, v)
+	gentxPath, err := c.Gentx(ctx, commands, v)
 	if err != nil {
 		return "", err
 	}
@@ -168,7 +173,9 @@ func (c *Chain) IsInitialized() (bool, error) {
 	return true, nil
 }
 
-func (c Chain) updateGenesisFile(data map[string]interface{}) error {
+// UpdateGenesisFile updates the chain genesis with a generic map of data
+// updates are made using an override merge strategy
+func (c Chain) UpdateGenesisFile(data map[string]interface{}) error {
 	path, err := c.GenesisPath()
 	if err != nil {
 		return err

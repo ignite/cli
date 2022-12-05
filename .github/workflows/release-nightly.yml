@@ -3,7 +3,7 @@ name: Release nightly
 on:
   push:
     branches:
-      - develop
+      - main
       - chore/fix-nightly-builds
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       working-directory: go/src/github.com/ignite/cli
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Delete the nightly release
         uses: dev-drprasad/delete-tag-and-release@v0.2.0

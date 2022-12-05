@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
@@ -158,7 +158,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Scaffold
-	g, err = message.NewStargate(tracer, opts)
+	g, err = message.NewGenerator(tracer, opts)
 	if err != nil {
 		return sm, err
 	}

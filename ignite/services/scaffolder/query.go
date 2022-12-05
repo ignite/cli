@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
@@ -79,7 +79,7 @@ func (s Scaffolder) AddQuery(
 	)
 
 	// Scaffold
-	g, err = query.NewStargate(tracer, opts)
+	g, err = query.NewGenerator(tracer, opts)
 	if err != nil {
 		return sm, err
 	}

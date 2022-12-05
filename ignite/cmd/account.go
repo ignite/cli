@@ -23,10 +23,10 @@ const (
 func NewAccount() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "account [command]",
-		Short: "Commands for managing Ignite accounts",
+		Short: "Create, delete, and show Ignite accounts",
 		Long: `Commands for managing Ignite accounts. An Ignite account is a private/public
 keypair stored in a keyring. Currently Ignite accounts are used when interacting
-with Ignite relayer commands.
+with Ignite relayer commands and when using "ignite network" commands.
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
 you chain's binary to manage accounts from "config.yml". For example, if your
@@ -70,7 +70,7 @@ func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) error 
 
 func flagSetKeyringBackend() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagKeyringBackend, string(cosmosaccount.KeyringTest), "Keyring backend to store your account keys")
+	fs.String(flagKeyringBackend, string(cosmosaccount.KeyringTest), "keyring backend to store your account keys")
 	return fs
 }
 
@@ -81,7 +81,7 @@ func getKeyringBackend(cmd *cobra.Command) cosmosaccount.KeyringBackend {
 
 func flagSetKeyringDir() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagKeyringDir, cosmosaccount.KeyringHome, "The accounts keyring directory")
+	fs.String(flagKeyringDir, cosmosaccount.KeyringHome, "accounts keyring directory")
 	return fs
 }
 
@@ -92,7 +92,7 @@ func getKeyringDir(cmd *cobra.Command) string {
 
 func flagSetAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, cosmosaccount.AccountPrefixCosmos, "Account address prefix")
+	fs.String(flagAddressPrefix, cosmosaccount.AccountPrefixCosmos, "account address prefix")
 	return fs
 }
 
@@ -108,15 +108,15 @@ func getFrom(cmd *cobra.Command) string {
 
 func flagSetAccountImport() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagNonInteractive, false, "Do not enter into interactive mode")
-	fs.String(flagPassphrase, "", "Passphrase to decrypt the imported key (ignored when secret is a mnemonic)")
+	fs.Bool(flagNonInteractive, false, "do not enter into interactive mode")
+	fs.String(flagPassphrase, "", "passphrase to decrypt the imported key (ignored when secret is a mnemonic)")
 	return fs
 }
 
 func flagSetAccountExport() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagNonInteractive, false, "Do not enter into interactive mode")
-	fs.String(flagPassphrase, "", "Passphrase to encrypt the exported key")
+	fs.Bool(flagNonInteractive, false, "do not enter into interactive mode")
+	fs.String(flagPassphrase, "", "passphrase to encrypt the exported key")
 	return fs
 }
 

@@ -11,7 +11,7 @@ import (
 func NewGenerateGo() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "proto-go",
-		Short:   "Generate proto based Go code needed for the app's source code",
+		Short:   "Compile protocol buffer files to Go source code required by Cosmos SDK",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateGoHandler,
 	}
@@ -21,11 +21,9 @@ func NewGenerateGo() *cobra.Command {
 	return c
 }
 
-func generateGoHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+func generateGoHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
-
-	session.StartSpinner("Generating...")
 
 	c, err := newChainWithHomeFlags(
 		cmd,

@@ -11,26 +11,23 @@ import (
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "vuex",
-		Short:   "Generate Typescript client and Vuex stores for your chain's frontend from your `config.yml` file",
+		Short:   "*DEPRECATED* TypeScript frontend client and Vuex stores",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateVuexHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().StringP(flagOutput, "o", "", "Vuex store output path")
 
 	return c
 }
 
-func generateVuexHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+func generateVuexHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
-
-	session.StartSpinner("Generating...")
 
 	c, err := newChainWithHomeFlags(
 		cmd,
-		chain.EnableThirdPartyModuleCodegen(),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
 		chain.PrintGeneratedPaths(),
@@ -44,7 +41,12 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateVuex()); err != nil {
+	output, err := cmd.Flags().GetString(flagOutput)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateVuex(output)); err != nil {
 		return err
 	}
 

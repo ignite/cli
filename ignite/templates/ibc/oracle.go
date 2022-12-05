@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
@@ -18,7 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
-//go:embed oracle/* oracle/**/*
+//go:embed files/oracle/* files/oracle/**/*
 var fsOracle embed.FS
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
@@ -37,7 +37,7 @@ type OracleOptions struct {
 func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath)
+	template := xgenny.NewEmbedWalker(fsOracle, "files/oracle/", opts.AppPath)
 
 	g.RunFn(moduleOracleModify(replacer, opts))
 	g.RunFn(protoQueryOracleModify(replacer, opts))

@@ -16,7 +16,7 @@ const (
 func NewNode() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "node [command]",
-		Short: "Make calls to a live blockchain node",
+		Short: "Make requests to a live blockchain node",
 		Args:  cobra.ExactArgs(1),
 	}
 

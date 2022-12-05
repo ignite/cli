@@ -4,11 +4,9 @@ package scaffolder
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -54,10 +52,6 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, err
 	}
 
-	if !version.IsFamily(cosmosver.Stargate) {
-		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
-	}
-
 	s := Scaffolder{
 		Version: version,
 		path:    path,
@@ -97,14 +91,10 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	}
 
 	// Generate Typescript client code if it's enabled or when Vuex stores are generated
-	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" {
-		tsClientPath := chainconfig.TSClientPath(conf)
+	if conf.Client.Typescript.Path != "" || conf.Client.Vuex.Path != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
+		tsClientPath := chainconfig.TSClientPath(*conf)
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(projectPath, tsClientPath)
-		}
-
-		if err := os.MkdirAll(tsClientPath, 0o766); err != nil {
-			return err
 		}
 
 		options = append(options,
@@ -115,8 +105,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		)
 	}
 
-	if conf.Client.Vuex.Path != "" {
-		vuexPath := conf.Client.Vuex.Path
+	if vuexPath := conf.Client.Vuex.Path; vuexPath != "" { //nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		if filepath.IsAbs(vuexPath) {
 			vuexPath = filepath.Join(vuexPath, "generated")
 		} else {
@@ -125,7 +114,6 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
-				false,
 				cosmosgen.TypescriptModulePath(vuexPath),
 				vuexPath,
 			),

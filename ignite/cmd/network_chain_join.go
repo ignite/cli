@@ -47,7 +47,7 @@ The following command will send a request to join blockchain with launch ID 42
 as a validator and request to be added as an account with a token balance of
 95000000 STAKE.
 
-  ignite network chain join 42 --amount 95000000stake
+	ignite network chain join 42 --amount 95000000stake
 
 A request to join as a validator contains a gentx file. Ignite looks for gentx
 in a home directory used by "ignite network chain init" by default. To use a
@@ -61,10 +61,10 @@ automatically requests tokens from a faucet.`,
 		RunE: networkChainJoinHandler,
 	}
 
-	c.Flags().String(flagGentx, "", "Path to a gentx json file")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
-	c.Flags().String(flagPeerAddress, "", "Peer's address")
-	c.Flags().Bool(flagNoAccount, false, "Prevent sending a request for a genesis account")
+	c.Flags().String(flagGentx, "", "path to a gentx json file")
+	c.Flags().String(flagAmount, "", "amount of coins for account request (ignored if coordinator has fixed the account balances or if --no-acount flag is set)")
+	c.Flags().String(flagPeerAddress, "", "peer's address")
+	c.Flags().Bool(flagNoAccount, false, "prevent sending a request for a genesis account")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())

@@ -1,30 +1,15 @@
 package cosmosver
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/blang/semver"
-)
-
-// Family represents the family(named versions) of Cosmos-SDK.
-type Family string
-
-const (
-	// Launchpad represents the launchpad family of Cosmos-SDK.
-	Launchpad Family = "launchpad"
-
-	// Stargate represents the stargate family of Cosmos-SDK.
-	Stargate Family = "stargate"
+	"github.com/blang/semver/v4"
 )
 
 const prefix = "v"
 
 // Version represents a range of Cosmos SDK versions.
 type Version struct {
-	// Family of the version
-	Family Family
-
 	// Version is the exact sdk version string.
 	Version string
 
@@ -33,16 +18,14 @@ type Version struct {
 }
 
 var (
-	MaxLaunchpadVersion           = newVersion("0.39.99", Launchpad)
-	StargateFortyVersion          = newVersion("0.40.0", Stargate)
-	StargateFortyFourVersion      = newVersion("0.44.0-alpha", Stargate)
-	StargateFortyFiveThreeVersion = newVersion("0.45.3", Stargate)
+	StargateFortyVersion          = newVersion("0.40.0")
+	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
+	StargateFortyFiveThreeVersion = newVersion("0.45.3")
 )
 
 var (
 	// Versions is a list of known, sorted Cosmos-SDK versions.
 	Versions = []Version{
-		MaxLaunchpadVersion,
 		StargateFortyVersion,
 		StargateFortyFourVersion,
 	}
@@ -51,9 +34,8 @@ var (
 	Latest = Versions[len(Versions)-1]
 )
 
-func newVersion(version string, family Family) Version {
+func newVersion(version string) Version {
 	return Version{
-		Family:   family,
 		Version:  "v" + version,
 		Semantic: semver.MustParse(version),
 	}
@@ -65,11 +47,6 @@ func Parse(version string) (v Version, err error) {
 
 	if v.Semantic, err = semver.Parse(strings.TrimPrefix(version, prefix)); err != nil {
 		return v, err
-	}
-
-	v.Family = Stargate
-	if v.LTE(MaxLaunchpadVersion) {
-		v.Family = Launchpad
 	}
 
 	return
@@ -96,9 +73,5 @@ func (v Version) Is(version Version) bool {
 }
 
 func (v Version) String() string {
-	return fmt.Sprintf("%s - %s", v.Family, v.Version)
-}
-
-func (v Version) IsFamily(family Family) bool {
-	return v.Family == family
+	return v.Version
 }

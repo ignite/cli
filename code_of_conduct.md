@@ -21,20 +21,20 @@ community include:
 * Being respectful of differing opinions, viewpoints, and experiences
 * Giving and gracefully accepting constructive feedback
 * Accepting responsibility and apologizing to those affected by our mistakes,
-  and learning from the experience
+    and learning from the experience
 * Focusing on what is best not just for us as individuals, but for the
-  overall community
+    overall community
 
 Examples of unacceptable behavior include:
 
 * The use of sexualized language or imagery and sexual attention or
-  advances of any kind
+    advances of any kind
 * Trolling, insulting or derogatory comments, and personal or political attacks
 * Public or private harassment
 * Publishing others' private information, such as a physical or email
-  address, without their explicit permission
+    address, without their explicit permission
 * Other conduct that could reasonably be considered inappropriate in a
-  professional setting
+    professional setting
 
 ## Enforcement responsibilities
 
@@ -58,8 +58,9 @@ representative at an online or offline event.
 
 ## Enforcement
 
-Report instances of abusive, harassing, or otherwise unacceptable behavior to the community leaders responsible for enforcement at
-<conduct@tendermint.com>.
+Report instances of abusive, harassing, or otherwise unacceptable behavior to the community leaders responsible for
+enforcement at
+<conduct@ignite.com>.
 
 All complaints will be reviewed and investigated promptly and fairly.
 
@@ -106,7 +107,7 @@ Violating these terms may lead to a permanent ban.
 ### 4. Permanent ban
 
 **Community impact**: Demonstrating a pattern of violation of community
-standards, including sustained inappropriate behavior,  harassment of an
+standards, including sustained inappropriate behavior, harassment of an
 individual, or aggression toward or disparagement of classes of individuals.
 
 **Consequence**: A permanent ban from any sort of public interaction within
@@ -114,9 +115,11 @@ the community.
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
+This Code of Conduct is adapted from
+the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
 
 Community impact guidelines are inspired by [Mozilla's code of conduct
 enforcement ladder](https://github.com/mozilla/diversity).
 
-See the [FAQ](https://www.contributor-covenant.org/faq) for answers to common questions about this code of conduct. [Translations](https://www.contributor-covenant.org/translations) are also available.
+See the [FAQ](https://www.contributor-covenant.org/faq) for answers to common questions about this code of
+conduct. [Translations](https://www.contributor-covenant.org/translations) are also available.

@@ -19,9 +19,9 @@ import (
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
 	genesisURL       string
+	genesisConfig    string
 	chainID          string
 	campaignID       uint64
-	noCheck          bool
 	metadata         string
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
@@ -46,17 +46,17 @@ func WithChainID(chainID string) PublishOption {
 	}
 }
 
-// WithNoCheck disables checking integrity of the chain.
-func WithNoCheck() PublishOption {
+// WithCustomGenesisURL enables using a custom genesis during publish.
+func WithCustomGenesisURL(url string) PublishOption {
 	return func(o *publishOptions) {
-		o.noCheck = true
+		o.genesisURL = url
 	}
 }
 
-// WithCustomGenesis enables using a custom genesis during publish.
-func WithCustomGenesis(url string) PublishOption {
+// WithCustomGenesisConfig enables using a custom genesis during publish.
+func WithCustomGenesisConfig(configFile string) PublishOption {
 	return func(o *publishOptions) {
-		o.genesisURL = url
+		o.genesisConfig = configFile
 	}
 }
 
@@ -142,7 +142,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	}
 	campaignID = o.campaignID
 
-	n.ev.Send("Publishing the network", events.ProgressStarted())
+	n.ev.Send("Publishing the network", events.ProgressStart())
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one
@@ -227,10 +227,15 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 		// get initial genesis
 		initialGenesis := launchtypes.NewDefaultInitialGenesis()
-		if o.genesisURL != "" {
+		switch {
+		case o.genesisURL != "":
 			initialGenesis = launchtypes.NewGenesisURL(
 				o.genesisURL,
 				genesisHash,
+			)
+		case o.genesisConfig != "":
+			initialGenesis = launchtypes.NewConfigGenesis(
+				o.genesisConfig,
 			)
 		}
 

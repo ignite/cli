@@ -33,7 +33,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New()
 	defer session.End()
 
 	ca, err := cosmosaccount.New(

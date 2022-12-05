@@ -20,7 +20,10 @@ type sessionOptions struct {
 	stdout io.WriteCloser
 	stderr io.WriteCloser
 
-	startSpinner bool
+	spinnerStart bool
+	spinnerText  string
+
+	ignoreEvents bool
 	verbosity    uilog.Verbosity
 }
 
@@ -64,10 +67,29 @@ func WithVerbosity(v uilog.Verbosity) Option {
 	}
 }
 
+// IgnoreEvents configures the session to avoid displaying events.
+// This is a compatibility option to be able to use the session and
+// the events bus when models are used to manage CLI UI. The session
+// won't handle the events when this option is present.
+func IgnoreEvents() Option {
+	return func(s *Session) {
+		s.options.ignoreEvents = true
+	}
+}
+
 // StartSpinner forces spinner to be spinning right after creation.
 func StartSpinner() Option {
 	return func(s *Session) {
-		s.options.startSpinner = true
+		s.options.spinnerStart = true
+	}
+}
+
+// StartSpinnerWithText forces spinner to be spinning right after creation
+// with a custom status text.
+func StartSpinnerWithText(text string) Option {
+	return func(s *Session) {
+		s.options.spinnerStart = true
+		s.options.spinnerText = text
 	}
 }
 
@@ -77,9 +99,10 @@ func New(options ...Option) *Session {
 		ev: events.NewBus(),
 		wg: &sync.WaitGroup{},
 		options: sessionOptions{
-			stdin:  os.Stdin,
-			stdout: os.Stdout,
-			stderr: os.Stderr,
+			stdin:       os.Stdin,
+			stdout:      os.Stdout,
+			stderr:      os.Stderr,
+			spinnerText: clispinner.DefaultText,
 		},
 	}
 
@@ -98,14 +121,16 @@ func New(options ...Option) *Session {
 
 	session.out = uilog.NewOutput(logOptions...)
 
-	if session.options.startSpinner {
-		session.spinner = clispinner.New(clispinner.WithWriter(session.out.Stdout()))
+	if session.options.spinnerStart {
+		session.StartSpinner(session.options.spinnerText)
 	}
 
 	// The main loop that prints the events uses a wait group to block
 	// the session end until all the events are printed.
-	session.wg.Add(1)
-	go session.handleEvents()
+	if !session.options.ignoreEvents {
+		session.wg.Add(1)
+		go session.handleEvents()
+	}
 
 	return &session
 }
@@ -124,7 +149,7 @@ func (s Session) Verbosity() uilog.Verbosity {
 // The new output will use the session's verbosity, stderr and stdout.
 // Label and color arguments are used to prefix the output when the
 // session verbosity is verbose.
-func (s Session) NewOutput(label string, color uint8) uilog.Output {
+func (s Session) NewOutput(label, color string) uilog.Output {
 	options := []uilog.Option{
 		uilog.WithStdout(s.options.stdout),
 		uilog.WithStderr(s.options.stderr),
@@ -139,6 +164,20 @@ func (s Session) NewOutput(label string, color uint8) uilog.Output {
 
 // StartSpinner starts the spinner.
 func (s *Session) StartSpinner(text string) {
+	if s.options.ignoreEvents {
+		return
+	}
+
+	// Verbose mode must not render the spinner but instead
+	// it should just print the text to display next to the
+	// app label otherwise the verbose logs would be printed
+	// with an invalid format.
+	if s.options.verbosity == uilog.VerbosityVerbose {
+		fmt.Fprint(s.out.Stdout(), text)
+
+		return
+	}
+
 	if s.spinner == nil {
 		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
 	}
@@ -233,10 +272,19 @@ func (s *Session) handleEvents() {
 		switch e.ProgressIndication {
 		case events.IndicationStart:
 			s.StartSpinner(e.String())
+		case events.IndicationUpdate:
+			if s.spinner == nil {
+				// When the spinner is not initialized print the event
+				fmt.Fprintf(stdout, "%s\n", e)
+			} else {
+				// Otherwise update the spinner with a new text
+				s.spinner.SetText(e.String())
+			}
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 		default:
+			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 			resume()

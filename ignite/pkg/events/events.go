@@ -8,8 +8,13 @@ import "fmt"
 type ProgressIndication uint8
 
 const (
+	GroupError = "error"
+)
+
+const (
 	IndicationNone ProgressIndication = iota
 	IndicationStart
+	IndicationUpdate
 	IndicationFinish
 )
 
@@ -20,27 +25,35 @@ type (
 		Icon               string
 		Message            string
 		Verbose            bool
+		Group              string
 	}
 
-	// Option event options
+	// Option event options.
 	Option func(*Event)
 )
 
-// ProgressStarted sets ProgressIndication as started
-func ProgressStarted() Option {
+// ProgressStart indicates that a status event starts the progress indicator.
+func ProgressStart() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationStart
 	}
 }
 
-// ProgressFinished sets ProgressIndication as finished
-func ProgressFinished() Option {
+// ProgressUpdate indicates that a status event updated the current progress.
+func ProgressUpdate() Option {
+	return func(e *Event) {
+		e.ProgressIndication = IndicationUpdate
+	}
+}
+
+// ProgressFinish indicates that a status event finished the ongoing task.
+func ProgressFinish() Option {
 	return func(e *Event) {
 		e.ProgressIndication = IndicationFinish
 	}
 }
 
-// Verbose sets high verbosity for the Event
+// Verbose sets high verbosity for the Event.
 func Verbose() Option {
 	return func(e *Event) {
 		e.Verbose = true
@@ -51,6 +64,13 @@ func Verbose() Option {
 func Icon(icon string) Option {
 	return func(e *Event) {
 		e.Icon = icon
+	}
+}
+
+// Group sets a group name for the event.
+func Group(name string) Option {
+	return func(e *Event) {
+		e.Group = name
 	}
 }
 
@@ -75,5 +95,5 @@ func (e Event) String() string {
 
 // InProgress returns true when the event is in progress.
 func (e Event) InProgress() bool {
-	return e.ProgressIndication == IndicationStart
+	return e.ProgressIndication == IndicationStart || e.ProgressIndication == IndicationUpdate
 }

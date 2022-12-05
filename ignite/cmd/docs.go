@@ -18,7 +18,7 @@ func NewDocs() *cobra.Command {
 	return c
 }
 
-func docsHandler(cmd *cobra.Command, args []string) error {
+func docsHandler(*cobra.Command, []string) error {
 	path, cleanup, err := localfs.SaveTemp(docs.Docs)
 	if err != nil {
 		return err

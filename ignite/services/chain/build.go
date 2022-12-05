@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/docker/docker/pkg/archive"
+	"github.com/moby/moby/pkg/archive"
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
@@ -40,7 +41,7 @@ func (c *Chain) Build(
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto, false); err != nil {
 		return "", err
 	}
 
@@ -51,7 +52,7 @@ func (c *Chain) build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	output string,
-	skipProto bool,
+	skipProto, generateClients bool,
 ) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
@@ -61,9 +62,9 @@ func (c *Chain) build(
 		}
 	}()
 
-	// generate from proto files
 	if !skipProto {
-		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+		// Generate code from proto files
+		if err := c.generateFromConfig(ctx, cacheStorage, generateClients); err != nil {
 			return err
 		}
 	}
@@ -204,7 +205,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 
-	c.ev.Send("📦 Installing dependencies...")
+	c.ev.Send("Installing dependencies...", events.ProgressUpdate())
 
 	// We do mod tidy before checking for checksum changes, because go.mod gets modified often
 	// and the mod verify command is the expensive one anyway
@@ -232,7 +233,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		}
 	}
 
-	c.ev.Send("🛠  Building the blockchain...")
+	c.ev.Send("Building the blockchain...", events.ProgressUpdate())
 
 	return buildFlags, nil
 }

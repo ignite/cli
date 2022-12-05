@@ -11,7 +11,7 @@ import (
 func NewGenerateOpenAPI() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "openapi",
-		Short:   "Generate generates an OpenAPI spec for your chain from your config.yml",
+		Short:   "OpenAPI spec for your chain",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateOpenAPIHandler,
 	}
@@ -21,11 +21,9 @@ func NewGenerateOpenAPI() *cobra.Command {
 	return c
 }
 
-func generateOpenAPIHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinner())
+func generateOpenAPIHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
-
-	session.StartSpinner("Generating...")
 
 	c, err := newChainWithHomeFlags(
 		cmd,

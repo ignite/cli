@@ -6,13 +6,12 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	sperrors "github.com/ignite/cli/ignite/errors"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -44,14 +43,10 @@ type Chain struct {
 
 	Version cosmosver.Version
 
-	plugin         Plugin
 	sourceVersion  version
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
-
-	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
-	protoBuiltAtLeastOnce bool
 
 	ev          events.Bus
 	logOutputer uilog.Outputer
@@ -67,10 +62,6 @@ type chainOptions struct {
 
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
-
-	// isThirdPartyModuleCodegen indicates if proto code generation should be made
-	// for 3rd party modules. SDK modules are also considered as a 3rd party.
-	isThirdPartyModuleCodegenEnabled bool
 
 	// checkDependencies checks that cached Go dependencies of the chain have not
 	// been modified since they were downloaded.
@@ -111,14 +102,6 @@ func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 func ConfigFile(configFile string) Option {
 	return func(c *Chain) {
 		c.options.ConfigFile = configFile
-	}
-}
-
-// EnableThirdPartyModuleCodegen enables code generation for third party modules,
-// including the SDK.
-func EnableThirdPartyModuleCodegen() Option {
-	return func(c *Chain) {
-		c.options.isThirdPartyModuleCodegenEnabled = true
 	}
 }
 
@@ -179,13 +162,6 @@ func New(path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
-	if !c.Version.IsFamily(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
-	}
-
-	// initialize the plugin depending on the version of the chain
-	c.plugin = c.pickPlugin()
-
 	return c, nil
 }
 
@@ -237,7 +213,7 @@ func (c *Chain) ConfigPath() string {
 func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConfig(), nil
+		return chainconfig.DefaultChainConfig(), nil
 	}
 	return chainconfig.ParseFile(configPath)
 }
@@ -287,6 +263,17 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
+}
+
 // SetHome sets the chain home directory.
 func (c *Chain) SetHome(home string) {
 	c.options.homePath = home
@@ -324,7 +311,7 @@ func (c *Chain) DefaultHome() (string, error) {
 		return validator.Home, nil
 	}
 
-	return c.plugin.Home(), nil
+	return c.appHome(), nil
 }
 
 // DefaultGentxPath returns default gentx.json path of the app.
@@ -395,20 +382,15 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 
 	// 2nd.
 	validator := config.Validators[0]
-	if validator.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
-	}
-
-	// 3rd.
 	if validator.Client != nil {
-		if backend, ok := validator.Client["keyring-backend"]; ok {
-			if backendStr, ok := backend.(string); ok {
-				return chaincmd.KeyringBackendFromString(backendStr)
+		if v, ok := validator.Client["keyring-backend"]; ok {
+			if backend, ok := v.(string); ok {
+				return chaincmd.KeyringBackendFromString(backend)
 			}
 		}
 	}
 
-	// 4th.
+	// 3rd.
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -424,7 +406,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 5th.
+	// 4th.
 	return chaincmd.KeyringBackendTest, nil
 }
 
@@ -485,7 +467,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	// Enable command output only when CLI verbosity is enabled
 	if c.logOutputer != nil && c.logOutputer.Verbosity() == uilog.VerbosityVerbose {
-		out := c.logOutputer.NewOutput(c.app.D(), 96)
+		out := c.logOutputer.NewOutput(c.app.D(), colors.Cyan)
 		ccrOptions = append(
 			ccrOptions,
 			chaincmdrunner.Stdout(out.Stdout()),

@@ -20,13 +20,18 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+
+	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
+	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
+
+	statusScaffolding = "Scaffolding..."
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
 func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "scaffold [command]",
-		Short: "Scaffold a new blockchain, module, message, query, and more",
+		Short: "Create a new blockchain, module, message, query, and more",
 		Long: `Scaffolding is a quick way to generate code for major pieces of your
 application.
 
@@ -96,6 +101,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	c.AddCommand(NewScaffoldPacket())
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
+	c.AddCommand(NewScaffoldReact())
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
@@ -135,10 +141,8 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
-
-	session.StartSpinner("Scaffolding...")
 
 	sc, err := newApp(appPath)
 	if err != nil {
@@ -187,8 +191,8 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 	}
 
 	if !cleanState {
-		question := "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed without committing your saved changes"
-		if err := session.AskConfirm(question); err != nil {
+		session.Println(msgCommitPrefix)
+		if err := session.AskConfirm(msgCommitPrompt); err != nil {
 			if errors.Is(err, promptui.ErrAbort) {
 				return errors.New("No")
 			}
@@ -202,10 +206,10 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 
 func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
-	f.String(flagModule, "", "Module to add into. Default is app's main module")
-	f.Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
-	f.Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
-	f.String(flagSigner, "", "Label for the message signer (default: creator)")
+	f.String(flagModule, "", "specify which module to generate code in")
+	f.Bool(flagNoMessage, false, "skip generating message handling logic")
+	f.Bool(flagNoSimulation, false, "skip simulation logic")
+	f.String(flagSigner, "", "label for the message signer (default: creator)")
 	return f
 }
 

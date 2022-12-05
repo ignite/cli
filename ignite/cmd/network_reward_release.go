@@ -46,14 +46,14 @@ func NewNetworkRewardRelease() *cobra.Command {
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-	c.Flags().String(flagSPNGasPrice, defaultSPNGasPrice, "Gas price used for transactions on SPN")
-	c.Flags().String(flagTestnetGasPrice, defaultTestnetGasPrice, "Gas price used for transactions on testnet chain")
-	c.Flags().Int64(flagSPNGasLimit, defaultGasLimit, "Gas limit used for transactions on SPN")
-	c.Flags().Int64(flagTestnetGasLimit, defaultGasLimit, "Gas limit used for transactions on testnet chain")
-	c.Flags().String(flagTestnetAddressPrefix, cosmosaccount.AccountPrefixCosmos, "Address prefix of the testnet chain")
-	c.Flags().String(flagTestnetAccount, cosmosaccount.DefaultAccount, "testnet chain Account")
-	c.Flags().String(flagTestnetFaucet, "", "Faucet address of the testnet chain")
-	c.Flags().Bool(flagCreateClientOnly, false, "Only create the network client id")
+	c.Flags().String(flagSPNGasPrice, defaultSPNGasPrice, "gas price used for transactions on SPN")
+	c.Flags().String(flagTestnetGasPrice, defaultTestnetGasPrice, "gas price used for transactions on testnet chain")
+	c.Flags().Int64(flagSPNGasLimit, defaultGasLimit, "gas limit used for transactions on SPN")
+	c.Flags().Int64(flagTestnetGasLimit, defaultGasLimit, "gas limit used for transactions on testnet chain")
+	c.Flags().String(flagTestnetAddressPrefix, cosmosaccount.AccountPrefixCosmos, "address prefix of the testnet chain")
+	c.Flags().String(flagTestnetAccount, cosmosaccount.DefaultAccount, "testnet chain account")
+	c.Flags().String(flagTestnetFaucet, "", "faucet address of the testnet chain")
+	c.Flags().Bool(flagCreateClientOnly, false, "only create the network client id")
 
 	return c
 }
@@ -63,10 +63,8 @@ func networkRewardRelease(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	session := cliui.New(cliui.StartSpinner())
+	session := cliui.New(cliui.StartSpinnerWithText("Setting up chains..."))
 	defer session.End()
-
-	session.StartSpinner("Setting up chains...")
 
 	launchID, err := network.ParseID(args[0])
 	if err != nil {

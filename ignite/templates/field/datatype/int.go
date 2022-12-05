@@ -3,7 +3,10 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
 var (
@@ -34,6 +37,9 @@ var (
 		ToString: func(name string) string {
 			return fmt.Sprintf("strconv.Itoa(int(%s))", name)
 		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "int32", index)
+		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 	}
 
@@ -57,6 +63,9 @@ var (
 						}
 						%[1]v%[2]v[i] = value
 					}`, prefix, name.UpperCamel, argIndex)
+		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "int32", index, protoutil.Repeated())
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
 		NonIndex:     true,
