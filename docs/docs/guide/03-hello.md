@@ -206,7 +206,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	
+
 	"hello/x/hello/types"
 )
 
@@ -250,7 +250,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
-	
+
 	"hello/x/hello/types"
 )
 
