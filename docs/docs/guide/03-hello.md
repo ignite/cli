@@ -321,7 +321,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	cmd.AddCommand(CmdQueryParams())
-  // highlight-next-line
+	// highlight-next-line
 	cmd.AddCommand(CmdSayHello())
 	return cmd
 }
