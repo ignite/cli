@@ -37,7 +37,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		}
 	}
 
-	globalCfg, err := parseGlobalConfig(rootCmd)
+	globalCfg, err := parseGlobalConfig()
 	// if binary is run where there is no cfg, don't load
 	if err == nil {
 		globalPlugins, err := plugin.Load(ctx, globalCfg)
@@ -68,20 +68,13 @@ func parseLocalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err er
 	return pluginsconfig.ParseFile(pluginsPath)
 }
 
-func parseGlobalConfig(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+func parseGlobalConfig() (cfg *pluginsconfig.Config, err error) {
 	globalPath, err := plugin.PluginsPath()
 	if err != nil {
 		return cfg, err
 	}
 
-	pluginsPath := getPlugins(rootCmd)
-	if pluginsPath == "" {
-		if pluginsPath, err = pluginsconfig.LocateDefault(globalPath); err != nil {
-			return cfg, err
-		}
-	}
-
-	return pluginsconfig.ParseFile(pluginsPath)
+	return pluginsconfig.ParseFile(globalPath)
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
