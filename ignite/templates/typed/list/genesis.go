@@ -7,61 +7,60 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/templates/module"
 	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
-	g.RunFn(genesisProtoModify(replacer, opts))
+	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
 }
 
-func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+// Modifies the genesis.proto file to add a new field.
+//
+// What it depends on:
+//   - Existence of a message with name "GenesisState". Adds the field there.
+func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
+		path := opts.ProtoPath("genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-
-		templateProtoImport := `import "%[2]v/%[3]v/%[4]v.proto";
-%[1]v`
-		replacementProtoImport := fmt.Sprintf(
-			templateProtoImport,
-			typed.PlaceholderGenesisProtoImport,
-			opts.AppName,
-			opts.ModuleName,
-			opts.TypeName.Snake,
-		)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
-
-		// Add gogo.proto
-		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.PlaceholderGenesisProtoImport)
-		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
-
-		// Parse proto file to determine the field numbers
-		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		protoFile, err := protoutil.ParseProtoFile(f)
 		if err != nil {
 			return err
 		}
-
-		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
-  uint64 %[3]vCount = %[5]v;
-  %[1]v`
-		replacementProtoState := fmt.Sprintf(
-			templateProtoState,
-			typed.PlaceholderGenesisProtoState,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
-			highestNumber+1,
-			highestNumber+2,
+		// Add initial import for the new type
+		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
+			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+		}
+		// Get next available sequence number from GenesisState.
+		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
+		if err != nil {
+			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
+		}
+		seqNumber := protoutil.NextUniqueID(genesisState)
+		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
+		// Create option and List field.
+		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
+		typeList := protoutil.NewField(
+			typenameLower+"List",
+			typenameUpper,
+			seqNumber,
+			protoutil.Repeated(),
+			protoutil.WithFieldOptions(gogoOption),
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
+		// Create count field.
+		countFIeld := protoutil.NewField(typenameLower+"Count", "uint64", seqNumber+1)
+		protoutil.Append(genesisState, typeList, countFIeld)
 
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }

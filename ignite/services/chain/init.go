@@ -8,7 +8,7 @@ import (
 
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/confile"
@@ -86,7 +86,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 	var accounts accountview.Accounts
 
 	// add accounts from config into genesis
-	for _, account := range conf.Accounts {
+	for _, account := range cfg.Accounts {
 		var generatedAccount chaincmdrunner.Account
 		accountAddress := account.Address
 
@@ -116,21 +116,21 @@ func (c *Chain) InitAccounts(ctx context.Context, conf *chainconfig.Config) erro
 		}
 
 		if account.Address == "" {
-			accounts = append(accounts, accountview.NewAccount(
+			accounts = accounts.Append(accountview.NewAccount(
 				generatedAccount.Name,
 				accountAddress,
 				accountview.WithMnemonic(generatedAccount.Mnemonic),
 			))
 		} else {
-			accounts = append(accounts, accountview.NewAccount(account.Name, accountAddress))
+			accounts = accounts.Append(accountview.NewAccount(account.Name, accountAddress))
 		}
 	}
 
-	c.ev.SendView(accounts)
+	c.ev.SendView(accounts, events.ProgressFinish())
 
 	// 0 length validator set when using network config
-	if len(conf.Validators) != 0 {
-		_, err = c.IssueGentx(ctx, createValidatorFromConfig(conf))
+	if len(cfg.Validators) != 0 {
+		_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
 	}
 
 	return err

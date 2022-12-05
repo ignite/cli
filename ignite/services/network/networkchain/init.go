@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -105,7 +105,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 	case c.genesisConfig != "":
-		c.ev.Send("Fetching custom Genesis from Config", events.ProgressUpdate())
+		c.ev.Send("Fetching custom genesis from chain config", events.ProgressUpdate())
 
 		// first, initialize with default genesis
 		cmd, err := c.chain.Commands(ctx)

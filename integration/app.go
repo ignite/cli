@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"

@@ -11,7 +11,7 @@ import (
 	"github.com/imdario/mergo"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )

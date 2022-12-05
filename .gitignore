@@ -7,3 +7,4 @@ apps/
 .vscode
 docs/.vuepress/dist
 build/
+*coverage.*

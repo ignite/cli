@@ -46,7 +46,7 @@ func ResolveAbsPath(filePath string) (path string, err error) {
 		return path, nil
 	}
 
-	return "", err
+	return path, err
 }
 
 // TryResolveAbsPath searches for an executable file in the current

@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -213,7 +213,7 @@ func (c *Chain) ConfigPath() string {
 func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConfig(), nil
+		return chainconfig.DefaultChainConfig(), nil
 	}
 	return chainconfig.ParseFile(configPath)
 }
@@ -261,6 +261,17 @@ func (c *Chain) Binary() (string, error) {
 	}
 
 	return c.app.D(), nil
+}
+
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
 }
 
 // SetHome sets the chain home directory.
@@ -371,20 +382,15 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 
 	// 2nd.
 	validator := config.Validators[0]
-	if validator.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
-	}
-
-	// 3rd.
 	if validator.Client != nil {
-		if backend, ok := validator.Client["keyring-backend"]; ok {
-			if backendStr, ok := backend.(string); ok {
-				return chaincmd.KeyringBackendFromString(backendStr)
+		if v, ok := validator.Client["keyring-backend"]; ok {
+			if backend, ok := v.(string); ok {
+				return chaincmd.KeyringBackendFromString(backend)
 			}
 		}
 	}
 
-	// 4th.
+	// 3rd.
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -400,7 +406,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 5th.
+	// 4th.
 	return chaincmd.KeyringBackendTest, nil
 }
 
@@ -461,7 +467,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	// Enable command output only when CLI verbosity is enabled
 	if c.logOutputer != nil && c.logOutputer.Verbosity() == uilog.VerbosityVerbose {
-		out := c.logOutputer.NewOutput(c.app.D(), 96)
+		out := c.logOutputer.NewOutput(c.app.D(), colors.Cyan)
 		ccrOptions = append(
 			ccrOptions,
 			chaincmdrunner.Stdout(out.Stdout()),

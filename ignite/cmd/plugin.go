@@ -10,6 +10,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -26,17 +28,33 @@ const (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	// NOTE(tb) Not sure if it's the right place to load this.
-	chain, err := newChainWithHomeFlags(rootCmd)
+	cfg, err := parseLocalPlugins(rootCmd)
 	if err != nil {
-		// Binary is run outside of an chain app, plugins can't be loaded
+		// if binary is run where there is no plugins.yml, don't load
 		return nil
 	}
-	plugins, err = plugin.Load(ctx, chain)
+
+	// TODO: parse global config
+
+	plugins, err = plugin.Load(ctx, cfg)
 	if err != nil {
 		return err
 	}
 	return loadPlugins(rootCmd, plugins)
+}
+
+func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
+	appPath := flagGetPath(rootCmd)
+	pluginsPath := getPlugins(rootCmd)
+	if pluginsPath == "" {
+		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
+			return cfg, err
+		}
+	}
+
+	cfg, err = pluginsconfig.ParseFile(pluginsPath)
+
+	return cfg, err
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
@@ -241,23 +259,22 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			execCmd := plugin.ExecutedCommand{
-				Use:  cmd.Use,
-				Path: cmd.CommandPath(),
-				Args: args,
-				With: p.With,
-			}
-			execCmd.SetFlags(cmd.Flags())
-			// Call the plugin Execute
-			err := p.Interface.Execute(execCmd)
-			// NOTE(tb): This pause gives enough time for go-plugin to sync the
-			// output from stdout/stderr of the plugin. Without that pause, this
-			// output can be discarded and not printed in the user console.
-			time.Sleep(100 * time.Millisecond)
-			if err != nil {
-				return fmt.Errorf("plugin %q Execute() error : %w", p.Path, err)
-			}
-			return nil
+			return clictx.Do(cmd.Context(), func() error {
+				execCmd := plugin.ExecutedCommand{
+					Use:  cmd.Use,
+					Path: cmd.CommandPath(),
+					Args: args,
+					With: p.With,
+				}
+				execCmd.SetFlags(cmd.Flags())
+				// Call the plugin Execute
+				err := p.Interface.Execute(execCmd)
+				// NOTE(tb): This pause gives enough time for go-plugin to sync the
+				// output from stdout/stderr of the plugin. Without that pause, this
+				// output can be discarded and not printed in the user console.
+				time.Sleep(100 * time.Millisecond)
+				return err
+			})
 		}
 	} else {
 		for _, pluginCmd := range pluginCmd.Commands {

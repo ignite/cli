@@ -6,7 +6,7 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"

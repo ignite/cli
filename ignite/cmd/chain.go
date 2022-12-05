@@ -9,16 +9,17 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-var (
+const (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
 	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
-	msgMigrationPrompt = "Your blockchain config version is v%[1]d and the latest is v%[2]d. Would you like to upgrade your config file to v%[2]d?"
+	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -26,7 +27,7 @@ var (
 func NewChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain [command]",
-		Short: "Build, initialize and start a blockchain node or perform other actions on the blockchain",
+		Short: "Build, init and start a blockchain node",
 		Long: `Commands in this namespace let you to build, initialize, and start your
 blockchain node locally for development purposes.
 
@@ -118,11 +119,14 @@ func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error)
 	// Config files with older versions must be migrated to the latest before executing the command
 	if version != chainconfig.LatestVersion {
 		if !getYes(cmd) {
-			// Confirm before overwritting the config file
-			question := fmt.Sprintf(msgMigrationPrompt, version, chainconfig.LatestVersion)
+			prefix := fmt.Sprintf(msgMigrationPrefix, version, chainconfig.LatestVersion)
+			question := fmt.Sprintf(msgMigrationPrompt, chainconfig.LatestVersion)
+
+			// Confirm before overwriting the config file
+			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf(msgMigrationCancel, chainconfig.LatestVersion)
+					return fmt.Errorf("stopping because config version v%d is required to run the command", chainconfig.LatestVersion)
 				}
 
 				return err

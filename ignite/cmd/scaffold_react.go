@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
@@ -12,7 +12,7 @@ import (
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "react",
-		Short:   "Generate React web app template",
+		Short:   "React web app template",
 		Args:    cobra.NoArgs,
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    scaffoldReactHandler,

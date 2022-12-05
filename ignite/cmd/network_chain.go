@@ -9,7 +9,7 @@ import (
 func NewNetworkChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain",
-		Short: "Commands to launch chains",
+		Short: "Publish a chain, join as a validator and prepare node for launch",
 		Long: `The "chain" namespace features the most commonly used commands for launching
 blockchains with Ignite.
 
