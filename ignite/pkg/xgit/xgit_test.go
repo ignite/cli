@@ -1,16 +1,20 @@
 package xgit_test
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"path"
 	"testing"
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 )
 
@@ -227,6 +231,159 @@ func TestAreChangesCommitted(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedResult, res)
+		})
+	}
+}
+
+func TestClone(t *testing.T) {
+	// Create a folder with content
+	notEmptyDir := t.TempDir()
+	err := os.WriteFile(path.Join(notEmptyDir, ".foo"), []byte("hello"), 0o755)
+	require.NoError(t, err)
+	// Create a local git repo for all the test cases
+	repoDir := t.TempDir()
+	repo, err := git.PlainInit(repoDir, false)
+	require.NoError(t, err)
+	err = os.WriteFile(path.Join(repoDir, "foo"), []byte("hello"), 0o755)
+	require.NoError(t, err)
+	// Add a first commit
+	w, err := repo.Worktree()
+	require.NoError(t, err)
+	_, err = w.Add(".")
+	require.NoError(t, err)
+	commit1, err := w.Commit("commit1", &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "bob",
+			Email: "bob@example.com",
+			When:  time.Now(),
+		},
+	})
+	// Add a branch on commit1
+	require.NoError(t, err)
+	err = w.Checkout(&git.CheckoutOptions{
+		Branch: plumbing.NewBranchReferenceName("my-branch"),
+		Create: true,
+	})
+	require.NoError(t, err)
+	// Back to master
+	err = w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName("master")})
+	require.NoError(t, err)
+	// Add a tag on commit1
+	_, err = repo.CreateTag("v1", commit1, &git.CreateTagOptions{
+		Tagger:  &object.Signature{Name: "me"},
+		Message: "v1",
+	})
+	require.NoError(t, err)
+	// Add a second commit
+	err = os.WriteFile(path.Join(repoDir, "bar"), []byte("hello"), 0o755)
+	require.NoError(t, err)
+	_, err = w.Add(".")
+	require.NoError(t, err)
+	commit2, err := w.Commit("commit2", &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "bob",
+			Email: "bob@example.com",
+			When:  time.Now(),
+		},
+	})
+	require.NoError(t, err)
+
+	tests := []struct {
+		name          string
+		dir           string
+		urlRef        string
+		expectedError string
+		expectedRef   plumbing.Hash
+	}{
+		{
+			name:          "fail: repo doesn't exist",
+			dir:           t.TempDir(),
+			urlRef:        "/tmp/not/exists",
+			expectedError: "repository not found",
+		},
+		{
+			name:          "fail: target dir isn't empty",
+			dir:           notEmptyDir,
+			urlRef:        repoDir,
+			expectedError: fmt.Sprintf(`clone: target directory "%s" is not empty`, notEmptyDir),
+		},
+		{
+			name:        "ok: target dir doesn't exists",
+			dir:         "/tmp/not/exists/" + randstr.Runes(6),
+			urlRef:      repoDir,
+			expectedRef: commit2,
+		},
+		{
+			name:        "ok: no ref",
+			dir:         t.TempDir(),
+			urlRef:      repoDir,
+			expectedRef: commit2,
+		},
+		{
+			name:        "ok: empty ref",
+			dir:         t.TempDir(),
+			urlRef:      repoDir + "@",
+			expectedRef: commit2,
+		},
+		{
+			name:        "ok: with tag ref",
+			dir:         t.TempDir(),
+			urlRef:      repoDir + "@v1",
+			expectedRef: commit1,
+		},
+		{
+			name:        "ok: with branch ref",
+			dir:         t.TempDir(),
+			urlRef:      repoDir + "@my-branch",
+			expectedRef: commit1,
+		},
+		{
+			name:        "ok: with commit1 hash ref",
+			dir:         t.TempDir(),
+			urlRef:      repoDir + "@" + commit1.String(),
+			expectedRef: commit1,
+		},
+		{
+			name:        "ok: with commit2 hash ref",
+			dir:         t.TempDir(),
+			urlRef:      repoDir + "@" + commit2.String(),
+			expectedRef: commit2,
+		},
+		{
+			name:          "fail: ref not found",
+			dir:           t.TempDir(),
+			urlRef:        repoDir + "@what",
+			expectedError: "reference not found",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				require     = require.New(t)
+				assert      = assert.New(t)
+				files, _    = os.ReadDir(tt.dir)
+				dirWasEmpty = len(files) == 0
+			)
+
+			err := xgit.Clone(context.Background(), tt.urlRef, tt.dir)
+
+			if tt.expectedError != "" {
+				require.EqualError(err, tt.expectedError)
+				if dirWasEmpty {
+					// If it was empty, ensure target dir is still clean
+					files, _ := os.ReadDir(tt.dir)
+					assert.Empty(files, "target dir should be empty in case of error")
+				}
+				return
+			}
+			require.NoError(err)
+			_, err = os.Stat(tt.dir)
+			require.False(os.IsNotExist(err), "dir %s should exist", tt.dir)
+			repo, err := git.PlainOpen(tt.dir)
+			require.NoError(err)
+			h, err := repo.Head()
+			require.NoError(err)
+			assert.Equal(tt.expectedRef, h.Hash())
 		})
 	}
 }

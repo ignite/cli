@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -41,7 +41,7 @@ func TestCustomModule(t *testing.T) {
 		},
 	}
 
-	app.EditConfig(func(cfg *config.ChainConfig) {
+	app.EditConfig(func(cfg *chainconfig.Config) {
 		cfg.Accounts = append(cfg.Accounts, accounts...)
 	})
 

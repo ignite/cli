@@ -11,7 +11,7 @@ import (
 	"github.com/imdario/mergo"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
@@ -26,7 +26,7 @@ func newVuexGenerator(g *generator) *vuexGenerator {
 
 func (g *generator) updateVueDependencies() error {
 	// Init the path to the "vue" folders inside the app
-	vuePath := filepath.Join(g.appPath, config.DefaultVuePath)
+	vuePath := filepath.Join(g.appPath, chainconfig.DefaultVuePath)
 	packagesPath := filepath.Join(vuePath, "package.json")
 	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
 		return nil

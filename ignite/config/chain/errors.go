@@ -1,10 +1,10 @@
-package config
+package chain
 
 import (
 	"errors"
 	"fmt"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 // ErrConfigNotFound indicates that the config.yml can't be found.
@@ -21,7 +21,7 @@ func (e ValidationError) Error() string {
 
 // UnsupportedVersionError is returned when the version of the config is not supported.
 type UnsupportedVersionError struct {
-	Version chainconfig.Version
+	Version version.Version
 }
 
 func (e UnsupportedVersionError) Error() string {
@@ -30,7 +30,7 @@ func (e UnsupportedVersionError) Error() string {
 
 // VersionError is returned when config version doesn't match with the version CLI supports.
 type VersionError struct {
-	Version chainconfig.Version
+	Version version.Version
 }
 
 func (e VersionError) Error() string {

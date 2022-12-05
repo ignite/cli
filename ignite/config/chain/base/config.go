@@ -3,7 +3,7 @@ package base
 import (
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/version"
 	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 )
 
@@ -136,16 +136,16 @@ type Host struct {
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
-	Version  chain.Version `yaml:"version"`
-	Build    Build         `yaml:"build,omitempty"`
-	Accounts []Account     `yaml:"accounts"`
-	Faucet   Faucet        `yaml:"faucet,omitempty"`
-	Client   Client        `yaml:"client,omitempty"`
-	Genesis  xyaml.Map     `yaml:"genesis,omitempty"`
+	Version  version.Version `yaml:"version"`
+	Build    Build           `yaml:"build,omitempty"`
+	Accounts []Account       `yaml:"accounts"`
+	Faucet   Faucet          `yaml:"faucet,omitempty"`
+	Client   Client          `yaml:"client,omitempty"`
+	Genesis  xyaml.Map       `yaml:"genesis,omitempty"`
 }
 
 // GetVersion returns the config version.
-func (c Config) GetVersion() chain.Version {
+func (c Config) GetVersion() version.Version {
 	return c.Version
 }
 
