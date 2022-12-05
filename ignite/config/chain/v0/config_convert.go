@@ -1,12 +1,12 @@
 package v0
 
 import (
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	v1 "github.com/ignite/cli/ignite/config/chain/v1"
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 // ConvertNext converts the current config version to the next one.
-func (c *Config) ConvertNext() (chainconfig.Converter, error) {
+func (c *Config) ConvertNext() (version.Converter, error) {
 	targetCfg := v1.DefaultConfig()
 
 	// All the fields in the base config remain the same
