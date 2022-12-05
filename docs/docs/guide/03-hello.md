@@ -159,11 +159,11 @@ the following code to the `query.proto` file of your module:
 
 ```protobuf title="proto/hello/hello/query.proto"
 service Query {
-  // highlight-start
+	// highlight-start
 	rpc SayHello(QuerySayHelloRequest) returns (QuerySayHelloResponse) {
 		option (google.api.http).get = "/hello/hello/say_hello/{name}";
 	}
-  // highlight-end
+	// highlight-end
 }
 ```
 
