@@ -60,7 +60,7 @@ func TestNetworkRequestParam(t *testing.T) {
 					step.Exec(
 						envtest.IgniteApp,
 						"network", "request", "change-param",
-						"1", "mint", "mint_denom", "bar",
+						"1", "mint", "mint_denom", "\"bar\"",
 						"--local",
 					),
 					step.Stdout(&b),
