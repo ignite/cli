@@ -1,4 +1,4 @@
-package config
+package chain
 
 import (
 	"bytes"
@@ -9,13 +9,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/version"
 )
 
 // Parse reads a config file.
 // When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
-func Parse(configFile io.Reader) (*ChainConfig, error) {
+func Parse(configFile io.Reader) (*Config, error) {
 	cfg, err := parse(configFile)
 	if err != nil {
 		return cfg, fmt.Errorf("error parsing config file: %w", err)
@@ -27,7 +27,7 @@ func Parse(configFile io.Reader) (*ChainConfig, error) {
 // ParseNetwork reads a config file for Ignite Network genesis.
 // When the version of the file being read is not the latest
 // it is automatically migrated to the latest version.
-func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
+func ParseNetwork(configFile io.Reader) (*Config, error) {
 	cfg, err := parse(configFile)
 	if err != nil {
 		return cfg, err
@@ -36,7 +36,7 @@ func ParseNetwork(configFile io.Reader) (*ChainConfig, error) {
 	return cfg, validateNetworkConfig(cfg)
 }
 
-func parse(configFile io.Reader) (*ChainConfig, error) {
+func parse(configFile io.Reader) (*Config, error) {
 	var buf bytes.Buffer
 
 	// Read the config file version first to know how to decode it
@@ -68,7 +68,7 @@ func parse(configFile io.Reader) (*ChainConfig, error) {
 }
 
 // ParseFile parses a config from a file path.
-func ParseFile(path string) (*ChainConfig, error) {
+func ParseFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return DefaultChainConfig(), err
@@ -80,7 +80,7 @@ func ParseFile(path string) (*ChainConfig, error) {
 }
 
 // ParseNetworkFile parses a config for Ignite Network genesis from a file path.
-func ParseNetworkFile(path string) (*ChainConfig, error) {
+func ParseNetworkFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return DefaultChainConfig(), err
@@ -92,9 +92,9 @@ func ParseNetworkFile(path string) (*ChainConfig, error) {
 }
 
 // ReadConfigVersion reads the config version.
-func ReadConfigVersion(configFile io.Reader) (chainconfig.Version, error) {
+func ReadConfigVersion(configFile io.Reader) (version.Version, error) {
 	c := struct {
-		Version chainconfig.Version `yaml:"version"`
+		Version version.Version `yaml:"version"`
 	}{}
 
 	err := yaml.NewDecoder(configFile).Decode(&c)
@@ -102,7 +102,7 @@ func ReadConfigVersion(configFile io.Reader) (chainconfig.Version, error) {
 	return c.Version, err
 }
 
-func decodeConfig(r io.Reader, version chainconfig.Version) (chainconfig.Converter, error) {
+func decodeConfig(r io.Reader, version version.Version) (version.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
 		return nil, &UnsupportedVersionError{version}
@@ -120,7 +120,7 @@ func decodeConfig(r io.Reader, version chainconfig.Version) (chainconfig.Convert
 	return cfg, nil
 }
 
-func validateConfig(c *ChainConfig) error {
+func validateConfig(c *Config) error {
 	if len(c.Accounts) == 0 {
 		return &ValidationError{"at least one account is required"}
 	}
@@ -142,7 +142,7 @@ func validateConfig(c *ChainConfig) error {
 	return nil
 }
 
-func validateNetworkConfig(c *ChainConfig) error {
+func validateNetworkConfig(c *Config) error {
 	if len(c.Validators) != 0 {
 		return &ValidationError{"no validators can be used in config for network genesis"}
 	}
