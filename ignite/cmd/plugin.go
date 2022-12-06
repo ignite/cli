@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
@@ -258,23 +259,22 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			execCmd := plugin.ExecutedCommand{
-				Use:  cmd.Use,
-				Path: cmd.CommandPath(),
-				Args: args,
-				With: p.With,
-			}
-			execCmd.SetFlags(cmd.Flags())
-			// Call the plugin Execute
-			err := p.Interface.Execute(execCmd)
-			// NOTE(tb): This pause gives enough time for go-plugin to sync the
-			// output from stdout/stderr of the plugin. Without that pause, this
-			// output can be discarded and not printed in the user console.
-			time.Sleep(100 * time.Millisecond)
-			if err != nil {
-				return fmt.Errorf("plugin %q Execute() error : %w", p.Path, err)
-			}
-			return nil
+			return clictx.Do(cmd.Context(), func() error {
+				execCmd := plugin.ExecutedCommand{
+					Use:  cmd.Use,
+					Path: cmd.CommandPath(),
+					Args: args,
+					With: p.With,
+				}
+				execCmd.SetFlags(cmd.Flags())
+				// Call the plugin Execute
+				err := p.Interface.Execute(execCmd)
+				// NOTE(tb): This pause gives enough time for go-plugin to sync the
+				// output from stdout/stderr of the plugin. Without that pause, this
+				// output can be discarded and not printed in the user console.
+				time.Sleep(100 * time.Millisecond)
+				return err
+			})
 		}
 	} else {
 		for _, pluginCmd := range pluginCmd.Commands {
