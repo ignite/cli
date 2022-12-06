@@ -4,8 +4,8 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
+	"path"
 	"path/filepath"
-	"strings"
 
 	hplugin "github.com/hashicorp/go-plugin"
 	chainconfig "github.com/ignite/cli/ignite/config"
@@ -32,9 +32,12 @@ type ConfigContext struct {
 	Addr   net.UnixAddr
 }
 
-func WritePluginConfig(path string, conf hplugin.ReattachConfig) error {
-	paths := strings.Split(path, "/")
-	name := paths[len(paths)-1]
+func WritePluginConfig(pluginPath string, conf hplugin.ReattachConfig) error {
+	name := path.Base(pluginPath)
+
+	if name == "" {
+		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+	}
 
 	fmt.Println("encoding config")
 	confCont := ConfigContext{}
@@ -42,6 +45,7 @@ func WritePluginConfig(path string, conf hplugin.ReattachConfig) error {
 	// TODO: figure out a better way of resolving the type of network connection is established between plugin server and host
 	// currently this will always be a unix network socket. but this might not be the case moving forward.
 	ua, err := net.ResolveUnixAddr(conf.Addr.Network(), conf.Addr.String())
+
 	if err != nil {
 		return err
 	}
@@ -61,9 +65,13 @@ func WritePluginConfig(path string, conf hplugin.ReattachConfig) error {
 	return err
 }
 
-func ReadPluginConfig(path string, ref *hplugin.ReattachConfig) error {
-	paths := strings.Split(path, "/")
-	name := paths[len(paths)-1]
+func ReadPluginConfig(pluginPath string, ref *hplugin.ReattachConfig) error {
+	name := path.Base(pluginPath)
+
+	if name == "" {
+		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+	}
+
 	cache, err := newCache()
 	if err != nil {
 		return err
@@ -80,9 +88,12 @@ func ReadPluginConfig(path string, ref *hplugin.ReattachConfig) error {
 	return nil
 }
 
-func CheckPluginConf(path string) bool {
-	paths := strings.Split(path, "/")
-	name := paths[len(paths)-1]
+func CheckPluginConf(pluginPath string) bool {
+	name := path.Base(pluginPath)
+
+	if name == "" {
+		return false
+	}
 
 	cache, err := newCache()
 
@@ -95,10 +106,12 @@ func CheckPluginConf(path string) bool {
 	return true
 }
 
-func DeletePluginConf(path string) error {
-	paths := strings.Split(path, "/")
-	name := paths[len(paths)-1]
+func DeletePluginConf(pluginPath string) error {
+	name := path.Base(pluginPath)
 
+	if name == "" {
+		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+	}
 	cache, err := newCache()
 
 	if err != nil {
