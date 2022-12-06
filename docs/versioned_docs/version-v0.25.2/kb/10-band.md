@@ -82,12 +82,12 @@ In the `x/consuming/types/keys.go` file, update the `Version` variable in the `c
 
 ```go
 const (
-    // ...
+	// ...
 
-    // Version defines the current version the IBC module supports
-    Version = "bandchain-1"
+	// Version defines the current version the IBC module supports
+	Version = "bandchain-1"
 
-    // ...
+	// ...
 )
 ```
 
