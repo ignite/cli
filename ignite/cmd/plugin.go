@@ -13,6 +13,7 @@ import (
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -82,9 +83,9 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 		}
 	}
 	if len(loadErrors) > 0 {
+		printPlugins(cliui.New(cliui.WithStdout(os.Stdout)))
 		// unload any plugin that could have been loaded
 		UnloadPlugins()
-		printPlugins(cliui.New(cliui.WithStdout(os.Stdout)))
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
@@ -321,7 +322,8 @@ func NewPluginList() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			return printPlugins(s)
+			printPlugins(s)
+			return nil
 		},
 	}
 
@@ -426,30 +428,26 @@ func NewPluginDescribe() *cobra.Command {
 	}
 }
 
-func printPlugins(session *cliui.Session) error {
+func printPlugins(session *cliui.Session) {
 	var entries [][]string
-	for _, p := range plugins {
-		var status string
+	buildStatus := func(p *plugin.Plugin) string {
 		if p.Error != nil {
-			status = fmt.Sprintf("❌ Error: %v", p.Error)
-		} else {
-			manifest, err := p.Interface.Manifest()
-			if err != nil {
-				return fmt.Errorf("error while loading plugin manifest: %w", err)
-			}
-
-			var (
-				hookCount = len(manifest.Hooks)
-				cmdCount  = len(manifest.Commands)
-			)
-			status = fmt.Sprintf("✅ Loaded 🪝 %d 💻 %d", hookCount, cmdCount)
+			return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
 		}
-		entries = append(entries, []string{p.Path, status})
+		manifest, err := p.Interface.Manifest()
+		if err != nil {
+			return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
+		}
+		var (
+			hookCount = len(manifest.Hooks)
+			cmdCount  = len(manifest.Commands)
+		)
+		return fmt.Sprintf("%s Loaded 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
 	}
-
+	for _, p := range plugins {
+		entries = append(entries, []string{p.Path, buildStatus(p)})
+	}
 	session.PrintTable([]string{"Path", "Status"}, entries...)
-
-	return nil
 }
 
 func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
