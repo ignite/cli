@@ -183,7 +183,7 @@ func TestPublish(t *testing.T) {
 			Once()
 		suite.CampaignQueryMock.
 			On(
-				"Project",
+				"Campaign",
 				context.Background(),
 				&campaigntypes.QueryGetCampaignRequest{
 					CampaignID: testutil.ProjectID,
@@ -248,7 +248,7 @@ func TestPublish(t *testing.T) {
 			Once()
 		suite.CampaignQueryMock.
 			On(
-				"Project",
+				"Campaign",
 				context.Background(),
 				&campaigntypes.QueryGetCampaignRequest{
 					CampaignID: testutil.ProjectID,
@@ -831,7 +831,7 @@ func TestPublish(t *testing.T) {
 			}, nil).
 			Once()
 		suite.CampaignQueryMock.
-			On("Project", mock.Anything, &campaigntypes.QueryGetCampaignRequest{
+			On("Campaign", mock.Anything, &campaigntypes.QueryGetCampaignRequest{
 				CampaignID: testutil.ProjectID,
 			}).
 			Return(nil, cosmoserror.ErrNotFound).

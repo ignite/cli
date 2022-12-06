@@ -47,14 +47,14 @@ func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 
 // ProjectChains represents the chains of a project on SPN
 type ProjectChains struct {
-	CampaignID uint64   `json:"ProjectID"`
-	Chains     []uint64 `json:"Chains"`
+	ProjectID uint64   `json:"ProjectID"`
+	Chains    []uint64 `json:"Chains"`
 }
 
 // ToProjectChains converts a project chains data from SPN and returns a ProjectChains object
 func ToProjectChains(c campaigntypes.CampaignChains) ProjectChains {
 	return ProjectChains{
-		CampaignID: c.CampaignID,
-		Chains:     c.Chains,
+		ProjectID: c.CampaignID,
+		Chains:    c.Chains,
 	}
 }
