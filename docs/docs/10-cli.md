@@ -24,7 +24,8 @@ To get started, create a blockchain:
 **Options**
 
 ```
-  -h, --help   help for ignite
+  -h, --help             help for ignite
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -67,6 +68,12 @@ chain.
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
@@ -97,6 +104,7 @@ ignite account create [name] [flags]
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -123,6 +131,7 @@ ignite account delete [name] [flags]
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -152,6 +161,7 @@ ignite account export [name] [flags]
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -181,6 +191,7 @@ ignite account import [name] [flags]
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -208,6 +219,7 @@ ignite account list [flags]
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -235,6 +247,7 @@ ignite account show [name] [flags]
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -300,9 +313,15 @@ chain.
 **Options**
 
 ```
-  -c, --config string   Ignite config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -h, --help            help for chain
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -396,8 +415,9 @@ ignite chain build [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   Ignite config file (default: ./config.yml)
-  -y, --yes             answers interactive yes/no questions with yes
+  -c, --config string    path to Ignite config file (default: ./config.yml)
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+  -y, --yes              answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -425,8 +445,9 @@ ignite chain faucet [address] [coin<,...>] [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   Ignite config file (default: ./config.yml)
-  -y, --yes             answers interactive yes/no questions with yes
+  -c, --config string    path to Ignite config file (default: ./config.yml)
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+  -y, --yes              answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -524,8 +545,9 @@ ignite chain init [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   Ignite config file (default: ./config.yml)
-  -y, --yes             answers interactive yes/no questions with yes
+  -c, --config string    path to Ignite config file (default: ./config.yml)
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+  -y, --yes              answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -596,8 +618,9 @@ ignite chain serve [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   Ignite config file (default: ./config.yml)
-  -y, --yes             answers interactive yes/no questions with yes
+  -c, --config string    path to Ignite config file (default: ./config.yml)
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+  -y, --yes              answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -642,8 +665,9 @@ ignite chain simulate [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   Ignite config file (default: ./config.yml)
-  -y, --yes             answers interactive yes/no questions with yes
+  -c, --config string    path to Ignite config file (default: ./config.yml)
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+  -y, --yes              answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -665,6 +689,12 @@ See each sub-command's help for details on how to use the generated script.
 
 ```
   -h, --help   help for completion
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -715,6 +745,12 @@ ignite completion bash
       --no-descriptions   disable completion descriptions
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
@@ -750,6 +786,12 @@ ignite completion fish [flags]
       --no-descriptions   disable completion descriptions
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
@@ -780,6 +822,12 @@ ignite completion powershell [flags]
 ```
   -h, --help              help for powershell
       --no-descriptions   disable completion descriptions
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -828,6 +876,12 @@ ignite completion zsh [flags]
       --no-descriptions   disable completion descriptions
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
@@ -845,6 +899,12 @@ ignite docs [flags]
 
 ```
   -h, --help   help for docs
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -873,6 +933,12 @@ meant to be edited by hand.
       --clear-cache   clear the build cache (advanced)
   -h, --help          help for generate
   -p, --path string   path of the app (default ".")
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -905,8 +971,9 @@ ignite generate composables [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache      clear the build cache (advanced)
+  -p, --path string      path of the app (default ".")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -933,8 +1000,9 @@ ignite generate hooks [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache      clear the build cache (advanced)
+  -p, --path string      path of the app (default ".")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -960,8 +1028,9 @@ ignite generate openapi [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache      clear the build cache (advanced)
+  -p, --path string      path of the app (default ".")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -987,8 +1056,9 @@ ignite generate proto-go [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache      clear the build cache (advanced)
+  -p, --path string      path of the app (default ".")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -1015,8 +1085,9 @@ ignite generate ts-client [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache      clear the build cache (advanced)
+  -p, --path string      path of the app (default ".")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -1043,8 +1114,9 @@ ignite generate vuex [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache      clear the build cache (advanced)
+  -p, --path string      path of the app (default ".")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -1116,6 +1188,12 @@ validators launch their nodes, a blockchain will be live.
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
@@ -1164,6 +1242,7 @@ All chains published to Ignite can be listed by using the "list" command.
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1243,6 +1322,7 @@ ignite network chain init [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1274,6 +1354,7 @@ ignite network chain install [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1339,6 +1420,7 @@ ignite network chain join [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1400,6 +1482,7 @@ ignite network chain launch [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1431,6 +1514,7 @@ ignite network chain list [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1489,6 +1573,7 @@ ignite network chain prepare [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1579,6 +1664,7 @@ ignite network chain publish [source-url] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1610,6 +1696,7 @@ ignite network chain revert-launch [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1634,6 +1721,7 @@ Show details of a chain
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1668,6 +1756,7 @@ ignite network chain show accounts [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1698,6 +1787,7 @@ ignite network chain show genesis [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1726,6 +1816,7 @@ ignite network chain show info [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1755,6 +1846,7 @@ ignite network chain show peers [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1784,6 +1876,7 @@ ignite network chain show validators [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1808,6 +1901,7 @@ Show and update a coordinator profile
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1852,6 +1946,7 @@ ignite network coordinator set details|identity|website [value] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1880,6 +1975,7 @@ ignite network coordinator show [address] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1921,6 +2017,7 @@ Each request has a status:
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -1977,6 +2074,7 @@ ignite network request add-account [launch-id] [address] [coins] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2032,6 +2130,7 @@ ignite network request approve [launch-id] [number<,...>] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2061,6 +2160,7 @@ ignite network request list [launch-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2102,6 +2202,7 @@ ignite network request reject [launch-id] [number<,...>] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2135,6 +2236,7 @@ ignite network request remove-account [launch-id] [address] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2168,6 +2270,7 @@ ignite network request remove-validator [launch-id] [address] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2196,6 +2299,7 @@ ignite network request show [launch-id] [request-id] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2237,6 +2341,7 @@ ignite network request verify [launch-id] [number<,...>] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2261,6 +2366,7 @@ Show and update a validator profile
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2306,6 +2412,7 @@ ignite network validator set details|identity|website|security [value] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2334,6 +2441,7 @@ ignite network validator show [address] [flags]
 ```
       --local                       use Ignite chain running locally
       --nightly                     use Ignite chain - nightly version
+  -x, --plugins string              path to Ignite plugins config file (default: ./plugins.yml)
       --spn-faucet-address string   set Ignite chain faucet address (default "http://178.128.251.28:4500")
       --spn-node-address string     set Ignite chain RPC address (default "http://178.128.251.28:26657")
 ```
@@ -2352,6 +2460,12 @@ Make requests to a live blockchain node
 ```
   -h, --help          help for node
       --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2374,7 +2488,8 @@ Querying subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string      <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2397,7 +2512,8 @@ Querying commands for the bank module
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string      <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2433,7 +2549,8 @@ ignite node query bank balances [from_account_or_address] [flags]
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string      <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2458,7 +2575,8 @@ ignite node query tx [hash] [flags]
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string      <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2487,7 +2605,8 @@ Transactions subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string      <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2518,6 +2637,7 @@ Bank transaction subcommands
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
       --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2552,6 +2672,7 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
       --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+  -x, --plugins string           path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2567,6 +2688,12 @@ Handle plugins
 
 ```
   -h, --help   help for plugin
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2596,6 +2723,12 @@ ignite plugin describe [path] [flags]
   -h, --help   help for describe
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite plugin](#ignite-plugin)	 - Handle plugins
@@ -2617,6 +2750,12 @@ ignite plugin list [flags]
 
 ```
   -h, --help   help for list
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2642,6 +2781,12 @@ ignite plugin scaffold [github.com/org/repo] [flags]
   -h, --help   help for scaffold
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite plugin](#ignite-plugin)	 - Handle plugins
@@ -2665,6 +2810,12 @@ ignite plugin update [path] [flags]
   -h, --help   help for update
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite plugin](#ignite-plugin)	 - Handle plugins
@@ -2678,6 +2829,12 @@ Connect blockchains with an IBC relayer
 
 ```
   -h, --help   help for relayer
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2724,6 +2881,12 @@ ignite relayer configure [flags]
       --target-version string     module version on the target chain
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
@@ -2743,6 +2906,12 @@ ignite relayer connect [<path>,...] [flags]
   -h, --help                     help for connect
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2815,6 +2984,12 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 ```
   -h, --help   help for scaffold
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -2893,6 +3068,12 @@ ignite scaffold chain [name] [flags]
   -h, --help                    help for chain
       --no-module               create a project without a default module
   -p, --path string             create a project in a specific path (default ".")
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -3019,6 +3200,12 @@ ignite scaffold list NAME [field]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3087,6 +3274,12 @@ ignite scaffold map NAME [field]... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -3161,6 +3354,12 @@ ignite scaffold message [name] [field1] [field2] ... [flags]
   -r, --response strings   response fields
       --signer string      label for the message signer (default: creator)
   -y, --yes                answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -3252,6 +3451,12 @@ ignite scaffold module [name] [flags]
   -y, --yes                    answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3282,6 +3487,12 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3308,6 +3519,12 @@ ignite scaffold query [name] [request_field1] [request_field2] ... [flags]
   -y, --yes                answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3327,6 +3544,12 @@ ignite scaffold react [flags]
   -h, --help          help for react
   -p, --path string   path to scaffold content of the React app (default "./react")
   -y, --yes           answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -3355,6 +3578,12 @@ ignite scaffold single NAME [field]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3381,6 +3610,12 @@ ignite scaffold type NAME [field]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3402,6 +3637,12 @@ ignite scaffold vue [flags]
   -y, --yes           answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -3415,6 +3656,12 @@ Tools for advanced users
 
 ```
   -h, --help   help for tools
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -3445,6 +3692,12 @@ ignite tools ibc-relayer -- -h
   -h, --help   help for ibc-relayer
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite tools](#ignite-tools)	 - Tools for advanced users
@@ -3469,6 +3722,12 @@ ignite tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 
 ```
   -h, --help   help for ibc-setup
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
@@ -3500,6 +3759,12 @@ ignite tools protoc -- --version
   -h, --help   help for protoc
 ```
 
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
+```
+
 **SEE ALSO**
 
 * [ignite tools](#ignite-tools)	 - Tools for advanced users
@@ -3517,6 +3782,12 @@ ignite version [flags]
 
 ```
   -h, --help   help for version
+```
+
+**Options inherited from parent commands**
+
+```
+  -x, --plugins string   path to Ignite plugins config file (default: ./plugins.yml)
 ```
 
 **SEE ALSO**
