@@ -4,6 +4,8 @@ package field
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
@@ -124,6 +126,16 @@ func (f Field) ToString(name string) string {
 		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
 	}
 	return dt.ToString(name)
+}
+
+// ToProtoField returns the Datatype as a *proto.Field node.
+func (f Field) ToProtoField(index int) *proto.NormalField {
+	// TODO: Do we can if if it's an index type?
+	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return dt.ToProtoField(f.Datatype, f.Name.LowerCamel, index)
 }
 
 // GoCLIImports returns the Datatype imports for CLI package

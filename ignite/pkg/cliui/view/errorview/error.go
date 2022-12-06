@@ -3,6 +3,8 @@ package errorview
 import (
 	"strings"
 
+	"github.com/muesli/reflow/wordwrap"
+
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 )
 
@@ -15,11 +17,12 @@ type Error struct {
 }
 
 func (e Error) String() string {
-	b := strings.Builder{}
+	s := strings.TrimSpace(e.Err.Error())
 
-	b.WriteString(colors.Error(e.Err.Error()))
-	b.WriteRune('\n')
-	b.WriteString(colors.Info("Waiting for a fix before retrying...\n"))
+	w := wordwrap.NewWriter(80)
+	w.Breakpoints = []rune{' '}
+	w.Write([]byte(s))
+	w.Close()
 
-	return b.String()
+	return colors.Error(w.String())
 }

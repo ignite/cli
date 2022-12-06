@@ -14,6 +14,7 @@
 - [#3105](https://github.com/ignite/cli/pull/3105) Addition of `ignite plugin describe <path>` command
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
+- [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
 
 ### Changes
 
@@ -36,7 +37,9 @@
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
+- [#3109](https://github.com/ignite/cli/pull/3109) Refactor scaffolding for proto files to not rely on placeholders.
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
+- [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
 
 ### Breaking Changes
 

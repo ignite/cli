@@ -4,13 +4,16 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
-	"strings"
+
+	"github.com/emicklei/proto"
 
 	"github.com/gobuffalo/genny/v2"
+
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/ignite/templates/testutil"
@@ -53,8 +56,8 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(protoTxRPCModify(replacer, opts))
-	g.RunFn(protoTxMessageModify(replacer, opts))
+	g.RunFn(protoTxRPCModify(opts))
+	g.RunFn(protoTxMessageModify(opts))
 	g.RunFn(typesCodecModify(replacer, opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
 
@@ -78,76 +81,74 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 	return g, Box(template, opts, g)
 }
 
-func protoTxRPCModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+// protoTxRPCModify modifies the tx.proto file to add the required RPCs and messages.
+//
+// What it expects:
+//   - A service named "Msg" to exist in the proto file, it appends the RPCs inside it.
+func protoTxRPCModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `  rpc %[2]v(Msg%[2]v) returns (Msg%[2]vResponse);
-%[1]v`
-		replacement := fmt.Sprintf(template, PlaceholderProtoTxRPC,
-			opts.MsgName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), PlaceholderProtoTxRPC, replacement)
-		newFile := genny.NewFileS(path, content)
+		protoFile, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
+		// = Add new rpc to Msg.
+		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
+		if err != nil {
+			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+		}
+		typenameUpper := opts.MsgName.UpperCamel
+		protoutil.Append(serviceMsg, protoutil.NewRPC(typenameUpper, "Msg"+typenameUpper, "Msg"+typenameUpper+"Response"))
+
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
 
-func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func protoTxMessageModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-
-		var msgFields string
+		protoFile, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
+		// Prepare the fields and create the messages.
+		msgFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
 		for i, field := range opts.Fields {
-			msgFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+2))
+			msgFields = append(msgFields, field.ToProtoField(i+2))
 		}
-		var resFields string
+		var resFields []*proto.NormalField
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
+			resFields = append(resFields, field.ToProtoField(i+1))
 		}
 
-		template := `message Msg%[2]v {
-  string %[5]v = 1;
-%[3]v}
-
-message Msg%[2]vResponse {
-%[4]v}
-
-%[1]v`
-		replacement := fmt.Sprintf(template,
-			PlaceholderProtoTxMessage,
-			opts.MsgName.UpperCamel,
-			msgFields,
-			resFields,
-			opts.MsgSigner.LowerCamel,
-		)
-		content := replacer.Replace(f.String(), PlaceholderProtoTxMessage, replacement)
+		typenameUpper := opts.MsgName.UpperCamel
+		msg := protoutil.NewMessage("Msg"+typenameUpper, protoutil.WithFields(msgFields...))
+		msgResp := protoutil.NewMessage("Msg"+typenameUpper+"Response", protoutil.WithFields(resFields...))
+		protoutil.Append(protoFile, msg, msgResp)
 
 		// Ensure custom types are imported
-		protoImports := append(opts.ResFields.ProtoImports(), opts.Fields.ProtoImports()...)
-		customFields := append(opts.ResFields.Custom(), opts.Fields.Custom()...)
-		for _, f := range customFields {
-			protoImports = append(protoImports,
-				fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f),
-			)
+		var protoImports []*proto.Import
+		for _, imp := range append(opts.ResFields.ProtoImports(), opts.Fields.ProtoImports()...) {
+			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
-		for _, f := range protoImports {
-			importModule := fmt.Sprintf(`
-import "%[1]v";`, f)
-			content = strings.ReplaceAll(content, importModule, "")
-
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
-			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
+		for _, f := range append(opts.ResFields.Custom(), opts.Fields.Custom()...) {
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoImports = append(protoImports, protoutil.NewImport(protoPath))
+		}
+		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
+			return fmt.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)
 	}
 }
