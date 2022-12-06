@@ -51,11 +51,11 @@ In a Cosmos SDK blockchain, application-specific logic is implemented in separat
 
 Your nameservice app requires the following Cosmos SDK modules:
 
-- [auth](https://docs.cosmos.network/main/modules/auth/): Specifies the base transaction and account types for an application. For your nameservice app, it defines accounts and fees and gives access to these functionalities to the rest of your app.
-- [bank](https://docs.cosmos.network/main/modules/bank/): Enables the app to create and manage tokens and token balances.
-- [distribution](https://docs.cosmos.network/main/modules/distribution/): Passively distributes rewards between validators and delegators.
-- [slashing](https://docs.cosmos.network/main/modules/slashing/): Enables punishing misbehavior of validators when evidence of validator fraud is reported.
-- [staking](https://docs.cosmos.network/main/modules/staking/): Enables the app to have validators that users can delegate to.
+- [auth](https://docs.cosmos.network/main/modules/auth): Specifies the base transaction and account types for an application. For your nameservice app, it defines accounts and fees and gives access to these functionalities to the rest of your app.
+- [bank](https://docs.cosmos.network/main/modules/bank): Enables the app to create and manage tokens and token balances.
+- [distribution](https://docs.cosmos.network/main/modules/distribution): Passively distributes rewards between validators and delegators.
+- [slashing](https://docs.cosmos.network/main/modules/slashing): Enables punishing misbehavior of validators when evidence of validator fraud is reported.
+- [staking](https://docs.cosmos.network/main/modules/staking): Enables the app to have validators that users can delegate to.
 - nameservice: This module does not exist yet! You will build this module to handle the core logic for your new `nameservice` app. The `nameservice` module is the main piece of software you develop to build your app.
 
 Now, take a look at the two main parts of your app: the state and the message types.

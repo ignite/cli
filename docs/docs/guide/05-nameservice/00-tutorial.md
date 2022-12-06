@@ -68,11 +68,11 @@ responsible for routing each message to its respective module.
 
 Your nameservice app requires the following Cosmos SDK modules:
 
-- [auth](https://docs.cosmos.network/main/modules/auth/): Specifies the base
+- [auth](https://docs.cosmos.network/main/modules/auth): Specifies the base
   transaction and account types for an application. For your nameservice app, it
   defines accounts and fees and gives access to these functionalities to the
   rest of your app.
-- [bank](https://docs.cosmos.network/main/modules/bank/): Enables the app to
+- [bank](https://docs.cosmos.network/main/modules/bank): Enables the app to
   create and manage tokens and token balances.
 - nameservice: This module does not exist yet! You will build this module to
   handle the core logic for your new `nameservice` app. The `nameservice` module

@@ -33,10 +33,10 @@ This command creates a Cosmos SDK blockchain called hello in a `hello` directory
 
 This new blockchain imports standard Cosmos SDK modules, including:
 
-- [`staking`](https://docs.cosmos.network/main/modules/staking/) for delegated Proof-of-Stake (PoS) consensus mechanism
-- [`bank`](https://docs.cosmos.network/main/modules/bank/) for fungible token transfers between accounts
-- [`gov`](https://docs.cosmos.network/main/modules/gov/) for on-chain governance
-- And other Cosmos SDK [modules](https://docs.cosmos.network/main/modules/) that provide the benefits of the extensive Cosmos SDK framework 
+- [`staking`](https://docs.cosmos.network/main/modules/staking) for delegated Proof-of-Stake (PoS) consensus mechanism
+- [`bank`](https://docs.cosmos.network/main/modules/bank) for fungible token transfers between accounts
+- [`gov`](https://docs.cosmos.network/main/modules/gov) for on-chain governance
+- And other Cosmos SDK [modules](https://docs.cosmos.network/main/modules) that provide the benefits of the extensive Cosmos SDK framework 
 
 You can get help on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
 
