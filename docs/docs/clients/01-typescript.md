@@ -45,8 +45,8 @@ ignite chain serve -r
 
 ## Setting up a TypeScript frontend client
 
-The best way to get started building with the TypeScript client is by using a
-[Vite](https://vitejs.dev/) boilerplate. Vite provides boilerplate code for
+The best way to get started building with the TypeScript client is by using 
+[Vite](https://vitejs.dev/). Vite provides boilerplate code for
 vanilla TS projects as well as React, Vue, Lit, Svelte and Preact frameworks.
 You can find additional information at the [Vite Getting Started
 guide](https://vitejs.dev/guide/).
