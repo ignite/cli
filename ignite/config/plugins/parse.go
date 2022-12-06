@@ -28,6 +28,10 @@ func parse(configFile io.Reader) (*Config, error) {
 	var c Config
 
 	err := yaml.NewDecoder(configFile).Decode(&c)
+	// if the error is end of file we have an empty configuration, return the default config
+	if err == io.EOF {
+		return DefaultConfig(), nil
+	}
 
 	return &c, err
 }
