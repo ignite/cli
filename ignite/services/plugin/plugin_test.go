@@ -290,6 +290,24 @@ func TestPluginLoad(t *testing.T) {
 			},
 		},
 		{
+			name: "ok: from git repo with hash",
+			buildPlugin: func(t *testing.T) Plugin {
+				repoDir, repo := makeGitRepo(t, "remote-hash")
+				h, err := repo.Head()
+				require.NoError(t, err)
+
+				cloneDir := t.TempDir()
+
+				return Plugin{
+					cloneURL:   repoDir,
+					reference:  h.Hash().String(),
+					cloneDir:   cloneDir,
+					srcPath:    path.Join(cloneDir, "remote-hash"),
+					binaryName: "remote-hash",
+				}
+			},
+		},
+		{
 			name: "fail: git ref not found",
 			buildPlugin: func(t *testing.T) Plugin {
 				repoDir, _ := makeGitRepo(t, "remote-no-ref")
