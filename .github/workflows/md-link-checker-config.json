@@ -4,6 +4,9 @@
       "pattern": "^https://docs.github.com/en/"
     },
     {
+      "pattern": "^https://docs.cosmos.network/main/modules/"
+    },
+    {
       "pattern": "^http://localhost"
     },
     {
