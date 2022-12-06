@@ -56,7 +56,6 @@ and explorers that are built in the Cosmos ecosystem.
 * [Rook](https://github.com/cmwaters/rook)
 * [PI Bridge](https://github.com/pchain-org/pi-bridge)
 * [Polynetwork](https://github.com/Switcheo/polynetwork-cosmos)
-* [Lotus](https://github.com/BabyBlockchains/Lotus)
 * [OmniFlix Hub](https://github.com/OmniFlix/omniflixhub)
 * [Cudos](https://github.com/CudoVentures/cudos-node)
 * [Zenchain](https://github.com/zenchainprotocol/zenchain)

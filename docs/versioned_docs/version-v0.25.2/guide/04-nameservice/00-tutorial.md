@@ -27,9 +27,9 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 ## Prerequisites 
 
 - A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../01-install.md). 
-* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
+* A text editor like [Visual Studio Code](https://code.visualstudio.com/download). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
-- Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/master/building-modules/intro.html) 
+- Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/main/building-modules/intro.html) 
 
 ## Nameservice App Goals
 
@@ -43,7 +43,7 @@ A blockchain app is a [replicated deterministic state machine](https://en.wikipe
 
 - [Ignite CLI](https://docs.ignite.com/) is built on top of Cosmos SDK and accelerates chain development by scaffolding everything you need. 
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework allows developers like you to create custom blockchains that can natively interact with other blockchains. 
-- [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) software securely and consistently replicates an app on many machines. The Tendermint app-agnostic engine handles the networking and consensus layers of your blockchain. 
+- [Tendermint](https://docs.tendermint.com/main/introduction/what-is-tendermint.html) software securely and consistently replicates an app on many machines. The Tendermint app-agnostic engine handles the networking and consensus layers of your blockchain. 
 
 ## Cosmos SDK Modules 
 
@@ -51,11 +51,11 @@ In a Cosmos SDK blockchain, application-specific logic is implemented in separat
 
 Your nameservice app requires the following Cosmos SDK modules:
 
-- [auth](https://docs.cosmos.network/master/modules/auth/): Specifies the base transaction and account types for an application. For your nameservice app, it defines accounts and fees and gives access to these functionalities to the rest of your app.
-- [bank](https://docs.cosmos.network/master/modules/bank/): Enables the app to create and manage tokens and token balances.
-- [distribution](https://docs.cosmos.network/master/modules/distribution/): Passively distributes rewards between validators and delegators.
-- [slashing](https://docs.cosmos.network/master/modules/slashing/): Enables punishing misbehavior of validators when evidence of validator fraud is reported.
-- [staking](https://docs.cosmos.network/master/modules/staking/): Enables the app to have validators that users can delegate to.
+- [auth](https://docs.cosmos.network/main/modules/auth): Specifies the base transaction and account types for an application. For your nameservice app, it defines accounts and fees and gives access to these functionalities to the rest of your app.
+- [bank](https://docs.cosmos.network/main/modules/bank): Enables the app to create and manage tokens and token balances.
+- [distribution](https://docs.cosmos.network/main/modules/distribution): Passively distributes rewards between validators and delegators.
+- [slashing](https://docs.cosmos.network/main/modules/slashing): Enables punishing misbehavior of validators when evidence of validator fraud is reported.
+- [staking](https://docs.cosmos.network/main/modules/staking): Enables the app to have validators that users can delegate to.
 - nameservice: This module does not exist yet! You will build this module to handle the core logic for your new `nameservice` app. The `nameservice` module is the main piece of software you develop to build your app.
 
 Now, take a look at the two main parts of your app: the state and the message types.
@@ -72,11 +72,11 @@ For your nameservice app, use one store to map a `name` key to its respective `w
 
 ## Messages
 
-In the Cosmos SDK, [messages](https://docs.cosmos.network/master/building-modules/messages-and-queries.html#messages) are objects that are contained in transactions to trigger state transitions. Each Cosmos SDK module defines a list of messages and how to handle them. 
+In the Cosmos SDK, [messages](https://docs.cosmos.network/main/building-modules/messages-and-queries.html#messages) are objects that are contained in transactions to trigger state transitions. Each Cosmos SDK module defines a list of messages and how to handle them. 
 
 You must create [messages for the nameservice module](./02-messages.md) that support this functionality:
 
-- When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the Application Blockchain Interface [(ABCI)](https://docs.cosmos.network/master/intro/sdk-app-architecture.html#abci) between Tendermint and your app. 
+- When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the Application Blockchain Interface [(ABCI)](https://docs.cosmos.network/main/intro/sdk-app-architecture.html#abci) between Tendermint and your app. 
 - The transaction is decoded to get the message. 
 - The message is then routed to the appropriate module and handled according to the logic defined in the corresponding `Handler`. 
 - If the state needs to be updated, the `Handler` calls the `Keeper` to perform the update. 
