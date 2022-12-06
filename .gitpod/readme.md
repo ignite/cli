@@ -20,7 +20,7 @@ ignite chain serve
 
 📺 **[Introduction to Ignite CLI](https://www.youtube.com/watch?v=5RqAIE0b8Kw)**: Watch an introductory video to learn about Ignite CLI.
 
-🧑‍🏫 **[Developer Guide](https://docs.ignite.com/guide/)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
+🧑‍🏫 **[Developer Guide](https://docs.ignite.com/guide)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
 
 📕 **Ignite CLI Documentation](<https://docs.ignite.com>)**: Explore the features of Ignite CLI.
 
