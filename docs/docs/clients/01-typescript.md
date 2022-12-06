@@ -86,7 +86,7 @@ export default defineConfig({
 ```
 
 You are then ready to use the generated client code inside this project directly
-or by publishing the client and installing it as any other `npm` package.
+or by publishing the client and installing it like any other `npm` package.
 
 After the chain starts, you will see Frank's address is
 `cosmos13xkhcx2dquhqdml0k37sr7yndquwteuvt2cml7`. We'll be using Frank's account
