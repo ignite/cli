@@ -29,7 +29,7 @@ following command:
 ignite scaffold chain example
 ```
 
-The [`ignite scaffold chain`](/cli#ignite-scaffold-chain) command will create a
+The [`ignite scaffold chain`](https://docs.ignite.com/cli#ignite-scaffold-chain) command will create a
 new blockchain in a new directory `example`.
 
 The new blockchain is built using the Cosmos SDK framework and imports several
@@ -132,7 +132,7 @@ To start a blockchain node in development, you can run the following command:
 ignite chain serve
 ```
 
-The [`ignite chain serve`](/cli#ignite-scaffold-chain) command is used to start
+The [`ignite chain serve`](https://docs.ignite.com/cli#ignite-scaffold-chain) command is used to start
 a blockchain node in development mode. It first compiles and installs the binary
 using the `ignite chain build` command, then initializes the blockchain's data
 directory for a single validator using the `ignite chain init` command. After

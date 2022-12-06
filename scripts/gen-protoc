@@ -67,7 +67,7 @@ mkdir protobuf # Where we will build
 wget -c "$download_url" -O - | tar xzC protobuf --strip-components=1 #skipping first folder
 
 # Ok, let's build!
-# Build instructions taken from: https://github.com/protocolbuffers/protobuf/blob/master/src/README.md
+# Build instructions taken from: https://github.com/protocolbuffers/protobuf/blob/main/src/README.md
 cd protobuf
 ./configure CXXFLAGS="-DNDEBUG" --prefix="$outputdir" --disable-shared # Static linked libraries so it works on all machines
 make clean
