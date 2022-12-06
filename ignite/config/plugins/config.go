@@ -34,7 +34,7 @@ func LocateDefault(root string) (path string, err error) {
 }
 
 type Config struct {
-	Plugins []Plugin `yaml:"plugins,omitempty"`
+	Plugins []Plugin `yaml:"plugins"`
 }
 
 // Plugin keeps plugin name and location.
@@ -72,5 +72,15 @@ func (c *Config) Clone() (*Config, error) {
 
 // Decode decodes the config file values from YAML.
 func (c *Config) Decode(r io.Reader) error {
-	return yaml.NewDecoder(r).Decode(c)
+	// if the error is end of file meaning an empty file on read return nil
+	if err := yaml.NewDecoder(r).Decode(c); err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// Save persists a config yaml to a specified path on disk must be writable
+func (c *Config) Save(path string) error {
+	return persist(c, path)
 }
