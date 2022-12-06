@@ -213,7 +213,6 @@ func (p *Plugin) load(ctx context.Context) {
 	if p.Plugin.SharedHost && CheckPluginConf(p.Path) {
 		rconf := hplugin.ReattachConfig{}
 		err := ReadPluginConfig(p.Path, &rconf)
-		fmt.Printf("%v\n", rconf)
 
 		if err != nil {
 			p.Error = err
