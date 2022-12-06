@@ -205,7 +205,7 @@ oracled query consuming coin-rates-result 101276
 
 You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters in the proto file `moduleName.proto` and then adapt the request in the  `cli/client/tx_module_name.go` file.
 
-To create an example for the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge) bridge:
+To create an example for the [gold price](https://laozi-testnet6.cosmoscan.io/oracle-script/33#bridge) bridge:
 
 ```bash
 ignite scaffold band goldPrice --module consuming
