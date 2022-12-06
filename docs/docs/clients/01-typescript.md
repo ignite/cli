@@ -52,7 +52,7 @@ You can find additional information at the [Vite Getting Started
 guide](https://vitejs.dev/guide/).
 
 You will also need to [polyfill](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill) the client's dependencies. The following is an
-example of setting up a vanilla TS project with the necessary polyfills.
+example of setting up a vanilla TS project with the necessary polyfills:
 
 ```bash
 npm create vite@latest my-frontend-app -- --template vanilla-ts
