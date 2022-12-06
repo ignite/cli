@@ -268,7 +268,6 @@ func (p *Plugin) load(ctx context.Context) {
 	// writing it to cache as lost operation within load to assure rpc client's reattach config
 	// is hydrated.
 	if !CheckPluginConf(p.Path) && p.isHost {
-		fmt.Printf("%v\n", *p.client.ReattachConfig())
 		WritePluginConfig(p.Path, *p.client.ReattachConfig())
 	}
 
