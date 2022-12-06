@@ -43,7 +43,7 @@ The Google guidelines include more material than is listed here and are used as 
 Other useful resources:
 
 - [Google Technical Writing Courses](https://developers.google.com/tech-writing)
-- [GitHub Guides Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
+- [GitHub Guides Mastering Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
 ## Where can I find the tutorials and docs?
 

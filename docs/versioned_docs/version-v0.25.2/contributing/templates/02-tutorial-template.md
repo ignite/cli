@@ -23,7 +23,7 @@ Our users must be able to follow the tutorial from beginning to end on their own
 
 <!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
 
-<!-- Use GitHub flavored Markdown, see [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)  -->
+<!-- Use GitHub flavored Markdown, see [Mastering Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)  -->
 
 <!-- Our articles have a specific structure. How-To tutorials follow this structure:
 
