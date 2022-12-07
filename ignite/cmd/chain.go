@@ -85,11 +85,6 @@ chain.
 	c.PersistentFlags().AddFlagSet(flagSetConfig())
 	c.PersistentFlags().AddFlagSet(flagSetYes())
 
-	c.AddCommand(NewChainServe())
-	c.AddCommand(NewChainBuild())
-	c.AddCommand(NewChainInit())
-	c.AddCommand(NewChainFaucet())
-	c.AddCommand(NewChainSimulate())
 	c.AddCommand(
 		NewChainServe(),
 		NewChainBuild(),
