@@ -93,9 +93,8 @@ validators launch their nodes, a blockchain will be live.
 	// configure flags.
 	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
 	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
-	c.PersistentFlags().AddFlagSet(flagSetSpnNodeAddress())
-	c.PersistentFlags().AddFlagSet(flagSetSpnFaucetAddress())
-	
+	// Includes Flags for Node and Faucet Address
+	c.PersistentFlags().AddFlagSet(flagSetSpnAddresses())
 
 	// add sub commands.
 	c.AddCommand(
@@ -232,14 +231,9 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	return *cosmos, nil
 }
 
-func flagSetSpnNodeAddress() *flag.FlagSet {
+func flagSetSpnAddresses() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagSPNNodeAddress, spnNodeAddressNightly, "SPN node address")
-	return fs
-}
-
-func flagSetSpnFaucetAddress() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagSPNFaucetAddress, spnFaucetAddressNightly, "SPN faucet address")
 	return fs
 }
@@ -255,7 +249,7 @@ func getSpnAddresses(cmd *cobra.Command) (NetworkAddresses, error) {
 	if local {
 		return NetworkAddresses{spnNodeAddressLocal, spnFaucetAddressLocal}, nil
 	}
-	
+
 	spnNodeAddress, err := cmd.Flags().GetString(flagSPNNodeAddress)
 	if err != nil {
 		return NetworkAddresses{}, err
@@ -267,5 +261,3 @@ func getSpnAddresses(cmd *cobra.Command) (NetworkAddresses, error) {
 	}
 	return NetworkAddresses{spnNodeAddress, spnFaucetAddress}, nil
 }
-
-
