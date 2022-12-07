@@ -262,14 +262,15 @@ func applyParamChanges(
 	genesis *cosmosgenesis.Genesis,
 	paramChanges []networktypes.ParamChange,
 ) error {
-	for _, pc := range paramChanges {
-		if err := genesis.Update(
-			jsonfile.WithKeyValueByte(cosmosgenesis.ModuleParamField(pc.Module, pc.Param), pc.Value),
-		); err != nil {
-			return fmt.Errorf("failed to apply param change to genesis: module: %v, param: %v, value: %v: %w",
-				pc.Module, pc.Param, pc.Value, err,
-			)
-		}
+
+	changes := make([]jsonfile.UpdateFileOption, len(paramChanges))
+
+	for i, pc := range paramChanges {
+		changes[i] = jsonfile.WithKeyValueByte(cosmosgenesis.ModuleParamField(pc.Module, pc.Param), pc.Value)
+	}
+
+	if err := genesis.Update(changes...); err != nil {
+		return errors.Wrap(err, "failed to apply param change to genesis")
 	}
 
 	return nil

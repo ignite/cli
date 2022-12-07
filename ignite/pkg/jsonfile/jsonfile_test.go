@@ -187,7 +187,7 @@ func TestJSONFile_Update(t *testing.T) {
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValueByte(
-					"app_state.crisis.params.constant_fee ",
+					"app_state.crisis.params.constant_fee",
 					jsonCoins,
 				),
 			},
