@@ -17,13 +17,6 @@ jobs:
           go-version: 1.19
           cache: true
           cache-dependency-path: go.sum
-      - uses: technote-space/get-diff-action@v6.1.1
-          id: git_diff
-          with:
-            PATTERNS: |
-              **/*.go
-              go.mod
-               go.sum
 
       - run: ./scripts/test-coverage
         if: env.GIT_DIFF
