@@ -90,7 +90,14 @@ chain.
 	c.AddCommand(NewChainInit())
 	c.AddCommand(NewChainFaucet())
 	c.AddCommand(NewChainSimulate())
-	c.AddCommand(NewChainDebug())
+	c.AddCommand(
+		NewChainServe(),
+		NewChainBuild(),
+		NewChainInit(),
+		NewChainFaucet(),
+		NewChainSimulate(),
+		NewChainDebug(),
+	)
 
 	return c
 }
