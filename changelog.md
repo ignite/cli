@@ -2,6 +2,7 @@
 
 ### Features
 
+- [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
 - [#3184](https://github.com/ignite/cli/pull/3184) Separate `plugins.yml` config file.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
