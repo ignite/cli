@@ -83,9 +83,13 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 		}
 	}
 	if len(loadErrors) > 0 {
-		printPlugins(cliui.New(cliui.WithStdout(os.Stdout)))
 		// unload any plugin that could have been loaded
-		UnloadPlugins()
+		defer UnloadPlugins()
+		if err := printPlugins(cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
+			// content of loadErrors is more important than a print error, so we don't
+			// return here, just print the error.
+			fmt.Printf("fail to print: %v\n", err)
+		}
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
@@ -324,9 +328,7 @@ func NewPluginList() *cobra.Command {
 		Long:  "Prints status and information of declared plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
-
-			printPlugins(s)
-			return nil
+			return printPlugins(s)
 		},
 	}
 
@@ -532,8 +534,12 @@ func NewPluginDescribe() *cobra.Command {
 						return fmt.Errorf("error while loading plugin manifest: %w", err)
 					}
 
-					printPluginCommands(manifest.Commands, s)
-					printPluginHooks(manifest.Hooks, s)
+					if err := printPluginCommands(manifest.Commands, s); err != nil {
+						return err
+					}
+					if err := printPluginHooks(manifest.Hooks, s); err != nil {
+						return err
+					}
 					break
 				}
 			}
@@ -543,7 +549,7 @@ func NewPluginDescribe() *cobra.Command {
 	}
 }
 
-func printPlugins(session *cliui.Session) {
+func printPlugins(session *cliui.Session) error {
 	var entries [][]string
 	buildStatus := func(p *plugin.Plugin) string {
 		if p.Error != nil {
@@ -562,10 +568,13 @@ func printPlugins(session *cliui.Session) {
 	for _, p := range plugins {
 		entries = append(entries, []string{p.Path, buildStatus(p)})
 	}
-	session.PrintTable([]string{"Path", "Status"}, entries...)
+	if err := session.PrintTable([]string{"Path", "Status"}, entries...); err != nil {
+		return fmt.Errorf("error while printing plugins: %w", err)
+	}
+	return nil
 }
 
-func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
+func printPluginCommands(cmds []plugin.Command, session *cliui.Session) error {
 	var entries [][]string
 	// Processes command graph
 	traverse := func(cmd plugin.Command) {
@@ -597,15 +606,21 @@ func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
 		traverse(c)
 	}
 
-	session.PrintTable([]string{"command use", "under"}, entries...)
+	if err := session.PrintTable([]string{"command use", "under"}, entries...); err != nil {
+		return fmt.Errorf("error while printing plugin commands: %w", err)
+	}
+	return nil
 }
 
-func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) {
+func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) error {
 	var entries [][]string
 
 	for _, h := range hooks {
 		entries = append(entries, []string{h.Name, h.PlaceHookOn})
 	}
 
-	session.PrintTable([]string{"hook name", "on"}, entries...)
+	if err := session.PrintTable([]string{"hook name", "on"}, entries...); err != nil {
+		return fmt.Errorf("error while printing plugin hooks: %w", err)
+	}
+	return nil
 }
