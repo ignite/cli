@@ -54,7 +54,7 @@ make it all possible!
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework
   allows developers like you to create custom blockchains that can natively
   interact with other blockchains.
-- [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html)
+- [Tendermint](https://docs.tendermint.com/main/introduction/what-is-tendermint.html)
   software securely and consistently replicates an app on many machines. The
   Tendermint app-agnostic engine handles the networking and consensus layers of
   your blockchain.
@@ -68,11 +68,11 @@ responsible for routing each message to its respective module.
 
 Your nameservice app requires the following Cosmos SDK modules:
 
-- [auth](https://docs.cosmos.network/main/modules/auth/): Specifies the base
+- [auth](https://docs.cosmos.network/main/modules/auth): Specifies the base
   transaction and account types for an application. For your nameservice app, it
   defines accounts and fees and gives access to these functionalities to the
   rest of your app.
-- [bank](https://docs.cosmos.network/main/modules/bank/): Enables the app to
+- [bank](https://docs.cosmos.network/main/modules/bank): Enables the app to
   create and manage tokens and token balances.
 - nameservice: This module does not exist yet! You will build this module to
   handle the core logic for your new `nameservice` app. The `nameservice` module

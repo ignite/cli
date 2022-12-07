@@ -59,7 +59,7 @@ func supportGenesisTests(
 
 // supportMsgServer checks if the module supports the MsgServer convention
 // appends the generator to support it if it doesn't
-// https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
+// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-031-msg-service.md
 func supportMsgServer(
 	gens []*genny.Generator,
 	replacer placeholder.Replacer,
