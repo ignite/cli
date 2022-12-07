@@ -26,7 +26,7 @@ const (
 	FieldConsumerUnbondingPeriod     = "app_state.monitoringp.params.consumerUnbondingPeriod"
 	FieldConsumerRevisionHeight      = "app_state.monitoringp.params.consumerRevisionHeight"
 
-	fieldParamFormatString = "app_state.%s.params.%s"
+	fieldModuleParamFormatString = "app_state.%s.params.%s"
 )
 
 type (
@@ -40,9 +40,9 @@ type (
 	gentxs []struct{}
 )
 
-// ParamField returns the field name of a given module param pair
-func ParamField(module, param string) string {
-	return fmt.Sprintf(FieldParamFormatString, module, param)
+// ModuleParamField returns the field name of a given module param pair
+func ModuleParamField(module, param string) string {
+	return fmt.Sprintf(fieldModuleParamFormatString, module, param)
 }
 
 // FromPath parse genesis object from path
