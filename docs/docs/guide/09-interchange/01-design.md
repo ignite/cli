@@ -12,7 +12,7 @@ sell orders.
 - After an order book exists, you can create buy and sell orders for this pair of token.
 
 The module uses the Inter-Blockchain Communication
-protocol [IBC](https://github.com/cosmos/ics/blob/master/ibc/2_IBC_ARCHITECTURE.md).
+protocol [IBC](https://github.com/cosmos/ibc/blob/old/ibc/2_IBC_ARCHITECTURE.md).
 By using IBC, the module can create order books so that multiple blockchains can interact and exchange their token.
 
 You create an order book pair with a token from one blockchain and another token from another blockchain. In this
@@ -70,7 +70,7 @@ Using the blockchain's API you can get a denom trace from that hash. The denom t
 For a single-hop transfer, the `path` is identified by `transfer/channel-0`.
 
 Learn more about token paths
-in [ICS 20 Fungible Token Transfer](https://github.com/cosmos/ibc/tree/master/spec/app/ics-020-fungible-token-transfer).
+in [ICS 20 Fungible Token Transfer](https://github.com/cosmos/ibc/tree/main/spec/app/ics-020-fungible-token-transfer).
 
 **Note:** This token `ibc/Venus/marscoin` cannot be sold back using the same order book. If you want to "reverse" the
 exchange and receive the Mars token back, you must create and use a new order book for the `ibc/Venus/marscoin` to
