@@ -2,6 +2,7 @@
 
 ### Features
 
+- [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
 - [#3184](https://github.com/ignite/cli/pull/3184) Separate `plugins.yml` config file.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
@@ -40,6 +41,7 @@
 - [#3109](https://github.com/ignite/cli/pull/3109) Refactor scaffolding for proto files to not rely on placeholders.
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 - [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
+- [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
 
 ### Breaking Changes
 

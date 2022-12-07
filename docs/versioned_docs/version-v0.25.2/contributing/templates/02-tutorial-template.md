@@ -23,7 +23,7 @@ Our users must be able to follow the tutorial from beginning to end on their own
 
 <!-- Use sentence case for all headings and titles, see https://capitalizemytitle.com/ -->
 
-<!-- Use GitHub flavored Markdown, see [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)  -->
+<!-- Use GitHub flavored Markdown, see [Mastering Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)  -->
 
 <!-- Our articles have a specific structure. How-To tutorials follow this structure:
 
@@ -63,7 +63,7 @@ To complete this tutorial, you will need:
 <!-- Example - uncomment to use
 
 - A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../../guide/01-install.md). 
-* A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/).
+* A text editor like [Visual Studio Code](https://code.visualstudio.com/download).
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
 -->
