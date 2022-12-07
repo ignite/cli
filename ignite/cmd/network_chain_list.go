@@ -22,7 +22,7 @@ var LaunchSummaryHeader = []string{
 }
 
 var LaunchSummaryAdvancedHeader = []string{
-	"campaign ID",
+	"project ID",
 	"network",
 	"reward",
 }
@@ -80,7 +80,7 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session *cliui.Session, advanced bool) error {
 	header := LaunchSummaryHeader
 	if advanced {
-		// advanced information show the campaign ID, type of network and rewards for incentivized testnet
+		// advanced information show the project ID, type of network and rewards for incentivized testnet
 		header = append(header, LaunchSummaryAdvancedHeader...)
 	}
 
@@ -109,9 +109,9 @@ func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session *cl
 
 		// add advanced information
 		if advanced {
-			campaign := "no campaign"
-			if c.CampaignID > 0 {
-				campaign = fmt.Sprintf("%d", c.CampaignID)
+			project := "no project"
+			if c.ProjectID > 0 {
+				project = fmt.Sprintf("%d", c.ProjectID)
 			}
 
 			reward := entrywriter.None
@@ -120,7 +120,7 @@ func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session *cl
 			}
 
 			entry = append(entry,
-				campaign,
+				project,
 				c.Network.String(),
 				reward)
 		}

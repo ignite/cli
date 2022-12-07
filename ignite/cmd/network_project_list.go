@@ -10,25 +10,25 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-var CampaignSummaryHeader = []string{
+var ProjectSummaryHeader = []string{
 	"id",
 	"name",
 	"coordinator id",
 	"mainnet id",
 }
 
-// NewNetworkCampaignList returns a new command to list all published campaigns on Ignite.
-func NewNetworkCampaignList() *cobra.Command {
+// NewNetworkProjectList returns a new command to list all published Projects on Ignite.
+func NewNetworkProjectList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",
-		Short: "List published campaigns",
+		Short: "List published projects",
 		Args:  cobra.NoArgs,
-		RunE:  networkCampaignListHandler,
+		RunE:  networkProjectListHandler,
 	}
 	return c
 }
 
-func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
+func networkProjectListHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinner())
 
 	defer session.End()
@@ -42,25 +42,25 @@ func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-	campaigns, err := n.Campaigns(cmd.Context())
+	projects, err := n.Projects(cmd.Context())
 	if err != nil {
 		return err
 	}
 
-	return renderCampaignSummaries(campaigns, session)
+	return renderProjectSummaries(projects, session)
 }
 
-// renderCampaignSummaries writes into the provided out, the list of summarized campaigns
-func renderCampaignSummaries(campaigns []networktypes.Campaign, session *cliui.Session) error {
-	var campaignEntries [][]string
+// renderProjectSummaries writes into the provided out, the list of summarized projects
+func renderProjectSummaries(projects []networktypes.Project, session *cliui.Session) error {
+	var projectEntries [][]string
 
-	for _, c := range campaigns {
+	for _, c := range projects {
 		mainnetID := entrywriter.None
 		if c.MainnetInitialized {
 			mainnetID = fmt.Sprintf("%d", c.MainnetID)
 		}
 
-		campaignEntries = append(campaignEntries, []string{
+		projectEntries = append(projectEntries, []string{
 			fmt.Sprintf("%d", c.ID),
 			c.Name,
 			fmt.Sprintf("%d", c.CoordinatorID),
@@ -68,5 +68,5 @@ func renderCampaignSummaries(campaigns []networktypes.Campaign, session *cliui.S
 		})
 	}
 
-	return session.PrintTable(CampaignSummaryHeader, campaignEntries...)
+	return session.PrintTable(ProjectSummaryHeader, projectEntries...)
 }
