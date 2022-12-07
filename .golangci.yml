@@ -33,6 +33,7 @@ linters:
     - nolintlint
     - exportloopref
     - staticcheck
+    - reassign
     - stylecheck
     - typecheck
     - unconvert
