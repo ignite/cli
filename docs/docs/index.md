@@ -3,6 +3,8 @@ sidebar_position: 1
 slug: /
 ---
 
+import ProjectsTable from '@site/src/components/ProjectsTable';
+
 # Ignite CLI
 
 [Ignite CLI](https://github.com/ignite/cli) offers everything you need to build, test, and launch your blockchain with a
@@ -19,12 +21,12 @@ that lets you manage keys, create validators, and send tokens.
 
 With just a few commands, you can use Ignite CLI to:
 
-* Create a modular blockchain written in Go
-* Scaffold modules, messages, types with CRUD operations, IBC packets, and more
-* Start a blockchain node in development with live reloading
-* Connect to other blockchains with a built-in IBC relayer
-* Use generated TypeScript/Vuex clients to interact with your blockchain
-* Use the Vue.js web app template with a set of components and Vuex modules
+- Create a modular blockchain written in Go
+- Scaffold modules, messages, types with CRUD operations, IBC packets, and more
+- Start a blockchain node in development with live reloading
+- Connect to other blockchains with a built-in IBC relayer
+- Use generated TypeScript/Vuex clients to interact with your blockchain
+- Use the Vue.js web app template with a set of components and Vuex modules
 
 ## Install Ignite CLI
 
@@ -46,26 +48,20 @@ and explorers that are built in the Cosmos ecosystem.
 
 ## Projects building with Ignite CLI
 
-* [Sifchain: omni-chain solution for DEXs](https://github.com/Sifchain/sifnode)
-* [Kyve](https://www.kyve.network/)
-* [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Ignite CLI](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
-* [Cronos](https://github.com/crypto-org-chain/cronos)
-* [Plugchain](https://github.com/oracleNetworkProtocol/plugchain)
-* [BitCanna](https://github.com/BitCannaGlobal/bcna)
-* [Panacea Core](https://github.com/medibloc/panacea-core)
-* [Rook](https://github.com/cmwaters/rook)
-* [PI Bridge](https://github.com/pchain-org/pi-bridge)
-* [Polynetwork](https://github.com/Switcheo/polynetwork-cosmos)
-* [OmniFlix Hub](https://github.com/OmniFlix/omniflixhub)
-* [Cudos](https://github.com/CudoVentures/cudos-node)
-* [Zenchain](https://github.com/zenchainprotocol/zenchain)
-* [Onomy Protocol](https://github.com/onomyprotocol/ochain)
-* [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
-* [Celestia](https://github.com/celestiaorg/celestia-app)
-* [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
-* [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
-* [Affondra](https://github.com/EG-easy/affondra)
-* [Finding Imposter](https://github.com/chantmk/Finding-imposter)
-* [Flares payment network](https://github.com/wangfeiping/flares)
-* [FirmaChain](https://github.com/firmachain/firmachain)
-* [Sonr](https://github.com/sonr-io/sonr)
+<ProjectsTable data={[
+  { name: "Stride Labs", logo: "img/logo/stride.svg"},
+  { name: "KYVE Network", logo: "img/logo/kyve.svg"},
+  { name: "Umee", logo: "img/logo/umee.svg"},
+  { name: "MediBloc Core", logo: "img/logo/medibloc.svg"},
+  { name: "Cudos", logo: "img/logo/cudos.svg"},
+  { name: "Firma Chain", logo: "img/logo/firmachain.svg"},
+  { name: "BitCanna", logo: "img/logo/bitcanna.svg"},
+  { name: "OKP4 Blockchain", logo: "img/logo/okp4.svg"},
+  { name: "Dymension Hub", logo: "img/logo/dymension.svg"},
+  { name: "Electra Blockchain", logo: "img/logo/electra.svg"},
+  { name: "Source Protocol", logo: "img/logo/source.svg"},
+  { name: "Sonr", logo: "img/logo/sonr.svg"},
+  { name: "OLLO Station", logo: "img/logo/ollostation.svg"},
+  { name: "Mun", logo: "img/logo/mun.svg"},
+  { name: "Aura Network", logo: "img/logo/aura.svg"},
+]}/>
