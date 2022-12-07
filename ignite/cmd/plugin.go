@@ -46,15 +46,12 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 
 func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, path string, err error) {
 	appPath := flagGetPath(rootCmd)
-	pluginsPath := getPlugins(rootCmd)
-	if pluginsPath == "" {
-		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
-			return cfg, appPath, err
-		}
+	pluginsPath, err := pluginsconfig.LocateDefault(appPath)
+	if err != nil {
+		return cfg, appPath, err
 	}
 
 	cfg, err = pluginsconfig.ParseFile(pluginsPath)
-
 	return cfg, pluginsPath, err
 }
 

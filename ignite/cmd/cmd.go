@@ -81,7 +81,6 @@ To get started, create a blockchain:
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
-	c.PersistentFlags().AddFlagSet(flagSetPlugins())
 
 	return c
 }
@@ -128,17 +127,6 @@ func flagSetConfig() *flag.FlagSet {
 
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
-	return
-}
-
-func flagSetPlugins() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagPlugins, "x", "", "path to Ignite plugins config file (default: ./plugins.yml)")
-	return fs
-}
-
-func getPlugins(cmd *cobra.Command) (config string) {
-	config, _ = cmd.Flags().GetString(flagPlugins)
 	return
 }
 
