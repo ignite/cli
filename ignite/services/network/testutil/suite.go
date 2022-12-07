@@ -23,6 +23,7 @@ type Suite struct {
 
 // AssertAllMocks asserts all suite mocks expectations.
 func (s *Suite) AssertAllMocks(t *testing.T) {
+	t.Helper()
 	s.ChainMock.AssertExpectations(t)
 	s.ProfileQueryMock.AssertExpectations(t)
 	s.LaunchQueryMock.AssertExpectations(t)

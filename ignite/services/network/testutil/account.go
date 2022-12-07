@@ -14,6 +14,7 @@ const (
 
 // NewTestAccount creates an account for test purposes using in-memory keyring backend.
 func NewTestAccount(t *testing.T, name string) cosmosaccount.Account {
+	t.Helper()
 	r, err := cosmosaccount.NewInMemory()
 	assert.NoError(t, err)
 	account, _, err := r.Create(name)

@@ -37,6 +37,8 @@ linters:
     - stylecheck
     - typecheck
     - unconvert
+    - tenv
+    - thelper
     - unused
     - unparam
     - misspell

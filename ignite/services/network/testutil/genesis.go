@@ -50,6 +50,7 @@ func (g *Genesis) AddAccount(address string) *Genesis {
 
 // SaveTo saves genesis json representation to the specified directory and returns full path.
 func (g *Genesis) SaveTo(t *testing.T, dir string) string {
+	t.Helper()
 	encoded, err := json.Marshal(g)
 	assert.NoError(t, err)
 	savePath := filepath.Join(dir, "genesis.json")

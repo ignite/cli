@@ -52,6 +52,7 @@ func NewGentx(address, denom, amount, pubkey, memo string) *Gentx {
 
 // SaveTo saves gentx json representation to the specified directory and returns full path.
 func (g *Gentx) SaveTo(t *testing.T, dir string) string {
+	t.Helper()
 	encoded, err := json.Marshal(g)
 	assert.NoError(t, err)
 	savePath := filepath.Join(dir, "gentx0.json")
@@ -62,6 +63,7 @@ func (g *Gentx) SaveTo(t *testing.T, dir string) string {
 
 // JSON returns json representation of the gentx.
 func (g *Gentx) JSON(t *testing.T) []byte {
+	t.Helper()
 	data, err := json.Marshal(g)
 	assert.NoError(t, err)
 	return data
