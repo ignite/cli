@@ -37,10 +37,10 @@ runs:
           should_release=false
         fi
 
-        echo ::set-output name=should_release::$should_release
-        echo ::set-output name=is_release_type_latest::$is_release_type_latest
-        echo ::set-output name=tag_name::$tag_name
-        echo ::set-output name=tarball_prefix::"$repo_name"_$tag_name
+        echo "should_release=$should_release" >> $GITHUB_OUTPUT
+        echo "is_release_type_latest=$is_release_type_latest" >> $GITHUB_OUTPUT
+        echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+        echo "tarball_prefix='$repo_name'_$tag_name" >> $GITHUB_OUTPUT
       shell: bash
     - run: |
         echo "- should_release: ${{ steps.vars.outputs.should_release }}"
