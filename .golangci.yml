@@ -42,9 +42,8 @@ linters:
     - unused
     - unparam
     - misspell
-   #  - wrapcheck
+    # - wrapcheck
     # - wsl
-    # - nolintlint
 
 issues:
   max-issues-per-linter: 0
