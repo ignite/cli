@@ -5,8 +5,8 @@ import (
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
-// Campaign represents the campaign of a chain on SPN
-type Campaign struct {
+// Project represents the project of a chain on SPN
+type Project struct {
 	ID                 uint64    `json:"ID"`
 	Name               string    `json:"Name"`
 	CoordinatorID      uint64    `json:"CoordinatorID"`
@@ -17,9 +17,9 @@ type Campaign struct {
 	Metadata           string    `json:"Metadata"`
 }
 
-// ToCampaign converts a campaign data from SPN and returns a Campaign object
-func ToCampaign(campaign campaigntypes.Campaign) Campaign {
-	return Campaign{
+// ToProject converts a project data from SPN and returns a Project object
+func ToProject(campaign campaigntypes.Campaign) Project {
+	return Project{
 		ID:                 campaign.CampaignID,
 		Name:               campaign.CampaignName,
 		CoordinatorID:      campaign.CoordinatorID,
@@ -31,7 +31,7 @@ func ToCampaign(campaign campaigntypes.Campaign) Campaign {
 	}
 }
 
-// MainnetAccount represents the campaign mainnet account of a chain on SPN
+// MainnetAccount represents the project mainnet account of a chain on SPN
 type MainnetAccount struct {
 	Address string               `json:"Address"`
 	Shares  campaigntypes.Shares `json:"Shares"`
@@ -45,16 +45,16 @@ func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 	}
 }
 
-// CampaignChains represents the chains of a campaign on SPN
-type CampaignChains struct {
-	CampaignID uint64   `json:"CampaignID"`
-	Chains     []uint64 `json:"Chains"`
+// ProjectChains represents the chains of a project on SPN
+type ProjectChains struct {
+	ProjectID uint64   `json:"ProjectID"`
+	Chains    []uint64 `json:"Chains"`
 }
 
-// ToCampaignChains converts a campaign chains data from SPN and returns a CampaignChains object
-func ToCampaignChains(c campaigntypes.CampaignChains) CampaignChains {
-	return CampaignChains{
-		CampaignID: c.CampaignID,
-		Chains:     c.Chains,
+// ToProjectChains converts a project chains data from SPN and returns a ProjectChains object
+func ToProjectChains(c campaigntypes.CampaignChains) ProjectChains {
+	return ProjectChains{
+		ProjectID: c.CampaignID,
+		Chains:    c.Chains,
 	}
 }
