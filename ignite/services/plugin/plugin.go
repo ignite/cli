@@ -253,7 +253,7 @@ func (p *Plugin) fetch() {
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
 	if err != nil {
-		p.Error = errors.Wrapf(err, "cloning %q", p.cloneURL)
+		p.Error = errors.Wrapf(err, "cloning %q", p.repoPath)
 	}
 }
 
