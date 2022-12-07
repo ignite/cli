@@ -262,7 +262,6 @@ func applyParamChanges(
 	genesis *cosmosgenesis.Genesis,
 	paramChanges []networktypes.ParamChange,
 ) error {
-
 	changes := make([]jsonfile.UpdateFileOption, len(paramChanges))
 
 	for i, pc := range paramChanges {
