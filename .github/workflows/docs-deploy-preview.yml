@@ -12,16 +12,23 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
+
+      - uses: technote-space/get-diff-action@v6.1.1
+        with:
+          PATTERNS: |
+            ./docs/**.md
 
       - name: Cache node_modules
         uses: actions/cache@v3
+        if: env.GIT_DIFF
         with:
           path: docs/node_modules
           key: node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Setup node
         uses: actions/setup-node@v3
+        if: env.GIT_DIFF
         with:
           node-version: 16.x
           cache: yarn
@@ -29,6 +36,7 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install
+        if: env.GIT_DIFF
         working-directory: ./docs
 
       - name: Build
@@ -37,6 +45,7 @@ jobs:
 
       - name: Deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
+        if: env.GIT_DIFF
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGNTSERVICES }}"
