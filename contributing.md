@@ -68,7 +68,7 @@ used as the commit message.
 
 When you open a PR for the Ignite CLI codebase, you must also update the relevant documentation. For changes to:
 
-* [Developer Guide](https://docs.ignite.network/guide/) tutorials, update content in the `/docs/guide` folder.
+* [Developer Guide](https://docs.ignite.com/guide) tutorials, update content in the `/docs/guide` folder.
 * [Knowledge Base](https://docs.ignite.com/kb/), update content in the `/docs/kb` folder.
 * [Ignite CLI reference](https://docs.ignite.com/cli), navigate to the `./ignite/cmd` package and update the
   documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do
