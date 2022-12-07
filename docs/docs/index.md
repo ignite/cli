@@ -64,5 +64,4 @@ and explorers that are built in the Cosmos ecosystem.
   { name: "OLLO Station", logo: "img/logo/ollostation.svg"},
   { name: "Mun", logo: "img/logo/mun.svg"},
   { name: "Aura Network", logo: "img/logo/aura.svg"},
-  { name: "Terra: Alliance", logo: "img/logo/terra.svg"},
 ]}/>
