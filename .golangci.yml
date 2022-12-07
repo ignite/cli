@@ -15,6 +15,7 @@ linters:
     - dupword
     # - errcheck
     - errchkjson
+    - errorlint
     - goconst
     - gocritic
     - gofumpt

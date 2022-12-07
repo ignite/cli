@@ -328,7 +328,7 @@ func (r Registry) List() ([]Account, error) {
 // DeleteByName deletes an account by name.
 func (r Registry) DeleteByName(name string) error {
 	err := r.Keyring.Delete(name)
-	if err == dkeyring.ErrKeyNotFound {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) {
 		return &AccountDoesNotExistError{name}
 	}
 	return err

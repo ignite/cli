@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -153,7 +154,7 @@ func New(path string, options ...Option) (*Chain, error) {
 	}
 
 	c.sourceVersion, err = c.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
+	if err != nil && !errors.Is(err, git.ErrRepositoryNotExists) {
 		return nil, err
 	}
 

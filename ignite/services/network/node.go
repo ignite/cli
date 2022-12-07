@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
@@ -69,17 +70,17 @@ func (n Node) RewardsInfo(ctx context.Context) (
 // RewardIBCInfo returns IBC info to relay packets to claim rewards for the chain.
 func (n Node) RewardIBCInfo(ctx context.Context) (networktypes.RewardIBCInfo, error) {
 	clientID, err := n.consumerClientID(ctx)
-	if err != nil && err != ErrObjectNotFound {
+	if err != nil && !errors.Is(err, ErrObjectNotFound) {
 		return networktypes.RewardIBCInfo{}, err
 	}
 
 	channelID, err := n.connectionChannelID(ctx)
-	if err != nil && err != ErrObjectNotFound {
+	if err != nil && !errors.Is(err, ErrObjectNotFound) {
 		return networktypes.RewardIBCInfo{}, err
 	}
 
 	connections, err := n.clientConnections(ctx, clientID)
-	if err != nil && err != ErrObjectNotFound {
+	if err != nil && !errors.Is(err, ErrObjectNotFound) {
 		return networktypes.RewardIBCInfo{}, err
 	}
 
@@ -131,7 +132,7 @@ func (n Node) connectionChannels(ctx context.Context, connectionID string) (chan
 	res, err := n.ibcChannelQuery.ConnectionChannels(ctx, &ibcchanneltypes.QueryConnectionChannelsRequest{
 		Connection: connectionID,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return channels, nil
 	} else if err != nil {
 		return nil, err
@@ -147,7 +148,7 @@ func (n Node) clientConnections(ctx context.Context, clientID string) ([]string,
 	res, err := n.ibcConnQuery.ClientConnections(ctx, &ibcconntypes.QueryClientConnectionsRequest{
 		ClientId: clientID,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return []string{}, nil
 	} else if err != nil {
 		return nil, err
@@ -169,7 +170,7 @@ func (n Node) consumerClientID(ctx context.Context) (string, error) {
 	res, err := n.monitoringProviderQuery.ConsumerClientID(
 		ctx, &monitoringptypes.QueryGetConsumerClientIDRequest{},
 	)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return "", ErrObjectNotFound
 	} else if err != nil {
 		return "", err
@@ -182,7 +183,7 @@ func (n Node) connectionChannelID(ctx context.Context) (string, error) {
 	res, err := n.monitoringProviderQuery.ConnectionChannelID(
 		ctx, &monitoringptypes.QueryGetConnectionChannelIDRequest{},
 	)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return "", ErrObjectNotFound
 	} else if err != nil {
 		return "", err

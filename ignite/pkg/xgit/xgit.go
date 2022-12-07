@@ -2,6 +2,7 @@ package xgit
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,7 +30,7 @@ func InitAndCommit(path string) error {
 		DetectDotGit: true,
 	})
 	if err != nil {
-		if err != git.ErrRepositoryNotExists {
+		if !errors.Is(err, git.ErrRepositoryNotExists) {
 			return fmt.Errorf("open git repo %s: %w", path, err)
 		}
 		// not a git repo, creates a new one
@@ -72,7 +73,7 @@ func AreChangesCommitted(dir string) (bool, error) {
 
 	repository, err := git.PlainOpen(dir)
 	if err != nil {
-		if err == git.ErrRepositoryNotExists {
+		if errors.Is(err, git.ErrRepositoryNotExists) {
 			return true, nil
 		}
 		return false, err

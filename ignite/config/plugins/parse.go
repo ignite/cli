@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"errors"
 	"io"
 	"os"
 
@@ -29,7 +30,7 @@ func parse(configFile io.Reader) (*Config, error) {
 
 	err := yaml.NewDecoder(configFile).Decode(&c)
 	// if the error is end of file we have an empty configuration, return the default config
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return DefaultConfig(), nil
 	}
 

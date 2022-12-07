@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -73,7 +74,7 @@ func (c *Config) Clone() (*Config, error) {
 // Decode decodes the config file values from YAML.
 func (c *Config) Decode(r io.Reader) error {
 	// if the error is end of file meaning an empty file on read return nil
-	if err := yaml.NewDecoder(r).Decode(c); err != io.EOF {
+	if err := yaml.NewDecoder(r).Decode(c); !errors.Is(err, io.EOF) {
 		return err
 	}
 

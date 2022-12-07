@@ -468,10 +468,10 @@ func (c *Chain) start(ctx context.Context, cfg *chainconfig.Config) error {
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
-	isFaucetEnabled := err != ErrFaucetIsNotEnabled
+	isFaucetEnabled := !errors.Is(err, ErrFaucetIsNotEnabled)
 
 	if isFaucetEnabled {
-		if err == ErrFaucetAccountDoesNotExist {
+		if errors.Is(err, ErrFaucetAccountDoesNotExist) {
 			return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
 		}
 		if err != nil {

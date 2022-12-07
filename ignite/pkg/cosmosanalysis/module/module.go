@@ -2,6 +2,7 @@ package module
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -94,7 +95,7 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
-		if err == gomodule.ErrGoModNotFound {
+		if errors.Is(err, gomodule.ErrGoModNotFound) {
 			return []Module{}, nil
 		}
 		return nil, err

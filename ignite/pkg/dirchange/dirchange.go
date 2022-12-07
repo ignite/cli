@@ -31,7 +31,7 @@ func SaveDirChecksum(checksumCache cache.Cache[[]byte], cacheKey string, workdir
 // paths are relative to workdir, if workdir is empty string paths are absolute
 func HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) (bool, error) {
 	savedChecksum, err := checksumCache.Get(cacheKey)
-	if err == cache.ErrorNotFound {
+	if errors.Is(err, cache.ErrorNotFound) {
 		return true, nil
 	}
 	if err != nil {

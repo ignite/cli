@@ -3,6 +3,7 @@ package cosmosfaucet
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -132,7 +133,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	// import the account if mnemonic is provided.
 	if f.accountMnemonic != "" {
 		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic, f.coinType)
-		if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {
+		if err != nil && !errors.Is(err, chaincmdrunner.ErrAccountAlreadyExists) {
 			return Faucet{}, err
 		}
 	}

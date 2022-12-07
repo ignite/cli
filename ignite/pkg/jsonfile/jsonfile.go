@@ -122,7 +122,7 @@ func FromURL(ctx context.Context, url, destPath, tarballFileName string) (*JSONF
 	// Check if the downloaded file is a tarball and extract only the necessary JSON file
 	var ext bytes.Buffer
 	tarballPath, err := tarball.ExtractFile(&buf, &ext, tarballFileName)
-	if err != nil && err != tarball.ErrNotGzipType && err != tarball.ErrInvalidFileName {
+	if err != nil && !errors.Is(err, tarball.ErrNotGzipType) && !errors.Is(err, tarball.ErrInvalidFileName) {
 		return nil, err
 	} else if err == nil {
 		// Erase the tarball bite code from the file and copy the correct one
@@ -171,7 +171,7 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	}
 
 	value, dataType, _, err := jsonparser.Get(file, strings.Split(key, keySeparator)...)
-	if err == jsonparser.KeyPathNotFoundError {
+	if errors.Is(err, jsonparser.KeyPathNotFoundError) {
 		return ErrFieldNotFound
 	} else if err != nil {
 		return err
@@ -180,7 +180,7 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	switch dataType {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
 		err := json.Unmarshal(value, param)
-		if _, ok := err.(*json.UnmarshalTypeError); ok {
+		if _, ok := err.(*json.UnmarshalTypeError); ok { // nolint:errorlint
 			return ErrInvalidValueType
 		} else if err != nil {
 			return err

@@ -52,7 +52,7 @@ func (n Network) verifiedClientIDs(ctx context.Context, launchID uint64) ([]stri
 			},
 		)
 
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return nil, ErrObjectNotFound
 	} else if err != nil {
 		return nil, err

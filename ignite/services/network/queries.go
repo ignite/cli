@@ -62,7 +62,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.
 		g.Go(func() error {
 			chainLaunch := networktypes.ToChainLaunch(chain)
 			reward, err := n.ChainReward(ctx, chain.LaunchID)
-			if err != nil && err != ErrObjectNotFound {
+			if err != nil && !errors.Is(err, ErrObjectNotFound) {
 				return err
 			}
 			chainLaunch.Reward = reward.RemainingCoins.String()
@@ -184,7 +184,7 @@ func (n Network) MainnetAccount(
 				Address:    address,
 			},
 		)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.MainnetAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return acc, err
@@ -219,7 +219,7 @@ func (n Network) GenesisAccount(ctx context.Context, launchID uint64, address st
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.GenesisAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.GenesisAccount{}, err
@@ -233,7 +233,7 @@ func (n Network) VestingAccount(ctx context.Context, launchID uint64, address st
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.VestingAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.VestingAccount{}, err
@@ -247,7 +247,7 @@ func (n Network) GenesisValidator(ctx context.Context, launchID uint64, address 
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.GenesisValidator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.GenesisValidator{}, err
@@ -264,7 +264,7 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 			},
 		)
 
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return rewardtypes.RewardPool{}, ErrObjectNotFound
 	} else if err != nil {
 		return rewardtypes.RewardPool{}, err
