@@ -266,7 +266,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 			}
 		}
 
-		// do not use if used as a request/return type type of an RPC.
+		// do not use if used as a request/return type of RPC.
 		for _, s := range pkg.Services {
 			for i, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {

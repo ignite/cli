@@ -101,7 +101,7 @@ func ChainID(id string) Option {
 	}
 }
 
-// OpenAPI configures how to serve Open API page and and spec.
+// OpenAPI configures how to serve Open API page and spec.
 func OpenAPI(apiAddress string) Option {
 	return func(f *Faucet) {
 		f.openAPIData.APIAddress = apiAddress

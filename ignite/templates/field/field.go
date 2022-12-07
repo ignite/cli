@@ -130,7 +130,7 @@ func (f Field) ToString(name string) string {
 
 // ToProtoField returns the Datatype as a *proto.Field node.
 func (f Field) ToProtoField(index int) *proto.NormalField {
-	// TODO: Do we can if if it's an index type?
+	// TODO: Do we can if it's an index type?
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))

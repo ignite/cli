@@ -58,7 +58,7 @@ func HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, w
 }
 
 // ChecksumFromPaths computes the md5 checksum from the provided paths
-// paths are relative to workdir, if workdir is empty string paths are absolute
+// relative paths to the workdir are used, if workdir is empty string paths are absolute
 func ChecksumFromPaths(workdir string, paths ...string) ([]byte, error) {
 	hash := md5.New()
 
