@@ -34,26 +34,26 @@ const (
 var (
 	// InitArgsAll performs all initialization for the chain
 	InitArgsAll = InitArgs{
-		true,
-		true,
-		true,
+		InitAccounts:      true,
+		InitConfiguration: true,
+		InitGenesis:       true,
 	}
 
 	// InitArgsNone performs minimal initialization for the chain by only initializating a node
 	InitArgsNone = InitArgs{
-		false,
-		false,
-		false,
+		InitAccounts:      false,
+		InitConfiguration: false,
+		InitGenesis:       false,
 	}
 )
 
 // Init initializes the chain
-func (c *Chain) Init(ctx context.Context, initArgs InitArgs) error {
-	if err := c.InitChain(ctx, initArgs.InitConfiguration, initArgs.InitGenesis); err != nil {
+func (c *Chain) Init(ctx context.Context, args InitArgs) error {
+	if err := c.InitChain(ctx, args.InitConfiguration, args.InitGenesis); err != nil {
 		return err
 	}
 
-	if initArgs.InitAccounts {
+	if args.InitAccounts {
 		conf, err := c.Config()
 		if err != nil {
 			return &CannotBuildAppError{err}
