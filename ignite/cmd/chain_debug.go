@@ -66,8 +66,8 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	// Prepare session options.
 	// Events are ignored by the session when the debug server UI is used.
 	options := []cliui.Option{cliui.StartSpinnerWithText("Initializing...")}
-	serve, _ := cmd.Flags().GetBool(flagServer)
-	if serve {
+	server, _ := cmd.Flags().GetBool(flagServer)
+	if server {
 		options = append(options, cliui.IgnoreEvents())
 	}
 
@@ -75,7 +75,7 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	defer session.End()
 
 	// Start debug server
-	if serve {
+	if server {
 		bus := session.EventBus()
 		m := cmdmodel.NewChainDebug(cmd, bus, chainDebugCmd(cmd, session))
 		return tea.NewProgram(m).Start()
@@ -147,7 +147,7 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 	// Start debug server
 	ctx := cmd.Context()
 	bus := session.EventBus()
-	if serve, _ := cmd.Flags().GetBool(flagServer); serve {
+	if server, _ := cmd.Flags().GetBool(flagServer); server {
 		addr, _ := cmd.Flags().GetString(flagServerAddress)
 		tcpAddr, err := xurl.TCP(addr)
 		if err != nil {
