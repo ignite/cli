@@ -194,6 +194,9 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 		if err != nil {
 			return err
 		}
+	case jsonparser.NotExist:
+	case jsonparser.Null:
+	case jsonparser.Unknown:
 	default:
 		return ErrInvalidValueType
 	}

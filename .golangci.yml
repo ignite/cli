@@ -16,6 +16,7 @@ linters:
     # - errcheck
     - errchkjson
     - errorlint
+    - exhaustive
     - goconst
     - gocritic
     - gofumpt
