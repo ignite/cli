@@ -22,9 +22,6 @@ const Grid = styled.div`
   ${GridItem}:nth-last-child(1) {
     box-shadow: 1px 0px #efefef;
   }
-  ${GridItem}:nth-last-child(2) {
-    box-shadow: 1px 0px #efefef;
-  }
   @media (max-width: 500px) {
     grid-template-columns: 1fr 1fr;
     ${GridItem}:nth-child(3n) {
@@ -35,6 +32,9 @@ const Grid = styled.div`
     }
     ${GridItem}:nth-last-child(1) {
       box-shadow: 0px 0px #efefef;
+    }
+    ${GridItem}:nth-last-child(2) {
+      box-shadow: 1px 0px #efefef;
     }
   }
 `;
