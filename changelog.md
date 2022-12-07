@@ -42,6 +42,7 @@
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 - [#3194](https://github.com/ignite/cli/issues/3194) Move config validators check to validate only when required.
 - [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
+- [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
 
 ### Breaking Changes
 
