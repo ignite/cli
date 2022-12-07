@@ -15,10 +15,12 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
@@ -31,6 +33,9 @@ import (
 )
 
 const (
+	// EvtGroupPath is the group to use for path related events.
+	EvtGroupPath = "path"
+
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
@@ -130,7 +135,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 		if _, err := os.Stat(c.options.ConfigFile); err != nil {
 			return err
 		}
-	} else if _, err := config.LocateDefault(c.app.Path); err != nil {
+	} else if _, err := chainconfig.LocateDefault(c.app.Path); err != nil {
 		return err
 	}
 
@@ -160,7 +165,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					serveCtx      context.Context
 					buildErr      *CannotBuildAppError
 					startErr      *CannotStartAppError
-					validationErr *config.ValidationError
+					validationErr *chainconfig.ValidationError
 				)
 
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
@@ -185,11 +190,11 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					if c.served {
 						c.served = false
 
-						c.ev.Send("Saving genesis state...", events.ProgressUpdate())
+						c.ev.Send("Saving genesis state...", events.ProgressStart())
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							c.ev.SendError(err)
+							c.ev.SendError(err, events.ProgressFinish())
 							return err
 						}
 
@@ -198,21 +203,28 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 							return err
 						}
 
-						c.ev.Sendf("💿 Genesis state saved in %s", genesisPath)
+						// Inform where the genesis file is saved without using
+						// progress update to keep the event text in the terminal.
+						c.ev.Send(
+							fmt.Sprintf("Genesis state saved in %s", genesisPath),
+							events.Icon(icons.CD),
+						)
 					}
 				case errors.As(err, &validationErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
+
 					// Change error message to add a link to the configuration docs
 					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &buildErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
-					c.ev.SendView(errorview.NewError(err), events.ProgressFinish())
+
+					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &startErr):
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
@@ -383,8 +395,10 @@ func (c *Chain) serve(
 	}
 
 	// init phase
+	initApp := !isInit || (appModified && !exportGenesisExists)
+
 	// nolint:gocritic
-	if !isInit || (appModified && !exportGenesisExists) {
+	if initApp {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
 		if err := c.Init(ctx, true); err != nil {
@@ -412,22 +426,36 @@ func (c *Chain) serve(
 			return err
 		}
 	}
+
 	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
 		return err
 	}
-	binaryPath, err = xexec.ResolveAbsPath(binaryName)
-	if err != nil {
-		return err
-	}
+
 	if err := dirchange.SaveDirChecksum(dirCache, binaryChecksumKey, "", binaryPath); err != nil {
 		return err
+	}
+
+	// Display existing accounts if they were not initialized.
+	// Note that chain init displays accounts when the app is initialized.
+	if !initApp {
+		accounts, err := commands.ListAccounts(ctx)
+		if err != nil {
+			return err
+		}
+
+		var view accountview.Accounts
+		for _, a := range accounts {
+			view = view.Append(accountview.NewAccount(a.Name, a.Address))
+		}
+
+		c.ev.SendView(view, events.ProgressFinish())
 	}
 
 	// start the blockchain
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
+func (c *Chain) start(ctx context.Context, cfg *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -461,7 +489,7 @@ func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
 	// set the app as being served
 	c.served = true
 
-	validator, err := config.FirstValidator(cfg)
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
@@ -488,13 +516,27 @@ func (c *Chain) start(ctx context.Context, cfg *config.ChainConfig) error {
 	)
 
 	if isFaucetEnabled {
-		faucetAddr, _ := xurl.HTTP(config.FaucetHost(cfg))
+		faucetAddr, _ := xurl.HTTP(chainconfig.FaucetHost(cfg))
 
 		c.ev.Send(
 			fmt.Sprintf("Token faucet: %s", faucetAddr),
 			events.Icon(icons.Earth),
 		)
 	}
+
+	appHome, _ := c.Home()
+	appBin, _ := c.AbsBinaryPath()
+
+	c.ev.Send(
+		fmt.Sprintf("Data directory: %s", colors.Faint(appHome)),
+		events.Icon(icons.Bullet),
+		events.Group(EvtGroupPath),
+	)
+	c.ev.Send(
+		fmt.Sprintf("App binary: %s", colors.Faint(appBin)),
+		events.Icon(icons.Bullet),
+		events.Group(EvtGroupPath),
+	)
 
 	return g.Wait()
 }
@@ -506,7 +548,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    config.FaucetHost(cfg),
+		Addr:    chainconfig.FaucetHost(cfg),
 		Handler: faucet,
 	})
 }
@@ -572,7 +614,13 @@ type CannotBuildAppError struct {
 }
 
 func (e *CannotBuildAppError) Error() string {
-	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
+	// TODO: Find at which point the error is wrapped twice
+	var buildErr *CannotBuildAppError
+	if errors.As(e.Err, &buildErr) {
+		return buildErr.Error()
+	}
+
+	return fmt.Sprintf("cannot build app:\n\n%s", e.Err)
 }
 
 func (e *CannotBuildAppError) Unwrap() error {

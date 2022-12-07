@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -66,7 +66,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(c *config.ChainConfig) {
+	app.EditConfig(func(c *chainconfig.Config) {
 		c.Accounts = []base.Account{
 			{
 				Name:     alice,

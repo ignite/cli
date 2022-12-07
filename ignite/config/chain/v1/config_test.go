@@ -73,15 +73,6 @@ func TestConfigDecode(t *testing.T) {
 				},
 			},
 		}},
-		Plugins: []v1.Plugin{
-			{
-				Path: "/path/to/plugin1",
-			},
-			{
-				Path: "/path/to/plugin2",
-				With: map[string]string{"foo": "bar", "bar": "baz"},
-			},
-		},
 	}
 	assert.Equal(expected, cfg)
 }

@@ -8,6 +8,8 @@ import (
 )
 
 // View starts the Markdown viewer at path that .md files are located at.
+//
+//nolint:staticcheck //ignore SA1019 until glow fixes the deprecation warnings
 func View(path string) error {
 	conf, err := config(path)
 	if err != nil {

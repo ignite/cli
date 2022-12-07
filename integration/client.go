@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 )
@@ -68,7 +68,7 @@ func (a App) RunClientTests(options ...ClientOption) bool {
 			// Absolute path to the blockchain app directory
 			"TEST_CHAIN_PATH": a.path,
 			// Absolute path to the TS client directory
-			"TEST_TSCLIENT_DIR": filepath.Join(a.path, config.DefaultTSClientPath),
+			"TEST_TSCLIENT_DIR": filepath.Join(a.path, chainconfig.DefaultTSClientPath),
 		},
 	}
 	for _, o := range options {
@@ -83,7 +83,7 @@ func (a App) RunClientTests(options ...ClientOption) bool {
 	//  Install the dependencies needed to run TS client tests
 	ok = a.env.Exec("install client dependencies", step.NewSteps(
 		step.New(
-			step.Workdir(filepath.Join(a.path, config.DefaultTSClientPath)),
+			step.Workdir(filepath.Join(a.path, chainconfig.DefaultTSClientPath)),
 			step.Stdout(&output),
 			step.Exec(npm, "install"),
 			step.PostExec(func(err error) error {

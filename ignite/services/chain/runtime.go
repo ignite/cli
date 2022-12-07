@@ -9,7 +9,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pelletier/go-toml"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -36,8 +36,8 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 }
 
 // Start wraps the "appd start" command to begin running a chain from the daemon
-func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *config.ChainConfig) error {
-	validator, err := config.FirstValidator(cfg)
+func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *con
 }
 
 // Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml)
-func (c Chain) Configure(homePath string, cfg *config.ChainConfig) error {
+func (c Chain) Configure(homePath string, cfg *chainconfig.Config) error {
 	if err := c.appTOML(homePath, cfg); err != nil {
 		return err
 	}
@@ -63,8 +63,8 @@ func (c Chain) Configure(homePath string, cfg *config.ChainConfig) error {
 	return c.configTOML(homePath, cfg)
 }
 
-func (c Chain) appTOML(homePath string, cfg *config.ChainConfig) error {
-	validator, err := config.FirstValidator(cfg)
+func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
@@ -114,8 +114,8 @@ func (c Chain) appTOML(homePath string, cfg *config.ChainConfig) error {
 	return err
 }
 
-func (c Chain) configTOML(homePath string, cfg *config.ChainConfig) error {
-	validator, err := config.FirstValidator(cfg)
+func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
@@ -165,8 +165,8 @@ func (c Chain) configTOML(homePath string, cfg *config.ChainConfig) error {
 	return err
 }
 
-func (c Chain) clientTOML(homePath string, cfg *config.ChainConfig) error {
-	validator, err := config.FirstValidator(cfg)
+func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}

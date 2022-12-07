@@ -6,8 +6,8 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/config/chain/base"
+	"github.com/ignite/cli/ignite/config/chain/version"
 	"github.com/ignite/cli/ignite/pkg/xnet"
 )
 
@@ -23,30 +23,6 @@ type Config struct {
 	base.Config `yaml:",inline"`
 
 	Validators []Validator `yaml:"validators"`
-	Plugins    []Plugin    `yaml:"plugins,omitempty"`
-}
-
-// Plugin keeps plugin name and location.
-type Plugin struct {
-	// Path holds the location of the plugin.
-	// A path can be local, in that case it must start with a `/`.
-	// A remote path on the other hand, is an URL to a public remote git
-	// repository. For example:
-	//
-	// path: github.com/foo/bar
-	//
-	// It can contain a path inside that repository, if for instance the repo
-	// contains multiple plugins, For example:
-	//
-	// path: github.com/foo/bar/plugin1
-	//
-	// It can also specify a tag or a branch, by adding a `@` and the branch/tag
-	// name at the end of the path. For example:
-	//
-	// path: github.com/foo/bar/plugin1@v42
-	Path string `yaml:"path"`
-	// With holds arguments passed to the plugin interface
-	With map[string]string `yaml:"with"`
 }
 
 func (c *Config) SetDefaults() error {
@@ -63,7 +39,7 @@ func (c *Config) SetDefaults() error {
 }
 
 // Clone returns an identical copy of the instance
-func (c *Config) Clone() (chainconfig.Converter, error) {
+func (c *Config) Clone() (version.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
 		return nil, err

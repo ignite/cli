@@ -1,5 +1,5 @@
 // Package plugin implements ignite plugin management.
-// A ignite plugin is a binary which communicates with the ignite binary
+// An ignite plugin is a binary which communicates with the ignite binary
 // via RPC thanks to the github.com/hashicorp/go-plugin library.
 package plugin
 
@@ -14,20 +14,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/go-hclog"
 	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/config"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/pkg/xgit"
+	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 // pluginsPath holds the plugin cache directory.
@@ -39,7 +39,7 @@ var pluginsPath = xfilepath.Join(
 // Plugin represents a ignite plugin.
 type Plugin struct {
 	// Embed the plugin configuration
-	config.Plugin
+	pluginsconfig.Plugin
 	// Interface allows to communicate with the plugin via net/rpc.
 	Interface Interface
 	// If any error occurred during the plugin load, it's stored here
@@ -67,22 +67,32 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(ctx context.Context, c *chain.Chain) ([]*Plugin, error) {
-	conf, err := c.Config()
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
+func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
 	pluginsDir, err := pluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	var plugins []*Plugin
-	for _, cp := range conf.Plugins {
+	for _, cp := range cfg.Plugins {
 		p := newPlugin(pluginsDir, cp)
 		p.load(ctx)
+
+		// TODO: override global plugins with locally defined ones
 		plugins = append(plugins, p)
 	}
 	return plugins, nil
+}
+
+func LoadSingle(ctx context.Context, pluginCfg *pluginsconfig.Plugin) (*Plugin, error) {
+	pluginsDir, err := pluginsPath()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	p := newPlugin(pluginsDir, *pluginCfg)
+	p.load(ctx)
+
+	return p, nil
 }
 
 // Update removes the cache directory of plugins and fetch them again.
@@ -98,7 +108,7 @@ func Update(plugins ...*Plugin) error {
 }
 
 // newPlugin creates a Plugin from configuration.
-func newPlugin(pluginsDir string, cp config.Plugin) *Plugin {
+func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	var (
 		p          = &Plugin{Plugin: cp}
 		pluginPath = cp.Path
@@ -134,7 +144,7 @@ func newPlugin(pluginsDir string, cp config.Plugin) *Plugin {
 		return p
 	}
 	p.repoPath = path.Join(parts[:3]...)
-	p.cloneURL = "https://" + p.repoPath
+	p.cloneURL, _ = xurl.HTTPS(p.repoPath)
 	if len(p.reference) > 0 {
 		p.repoPath += "@" + p.reference
 	}
@@ -240,30 +250,8 @@ func (p *Plugin) fetch() {
 	}
 	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Fetching plugin %q...", p.cloneURL))).End()
 
-	var err error
-	if p.reference == "" {
-		// No reference provided, just clone
-		_, err = git.PlainClone(p.cloneDir, false, &git.CloneOptions{
-			URL: p.cloneURL,
-		})
-	} else {
-		// Reference provided, clone using tag or branch reference, one of the two
-		// should work. SHA-1 aren't supported.
-		for _, ref := range []plumbing.ReferenceName{
-			plumbing.NewTagReferenceName(p.reference),
-			plumbing.NewBranchReferenceName(p.reference),
-		} {
-			_, err = git.PlainClone(p.cloneDir, false, &git.CloneOptions{
-				URL:           p.cloneURL,
-				ReferenceName: ref,
-				// Try to limit number of commits but this option doesn't seem to work well
-				Depth: 1,
-			})
-			if err == nil {
-				break
-			}
-		}
-	}
+	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
+	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "cloning %q", p.cloneURL)
 	}

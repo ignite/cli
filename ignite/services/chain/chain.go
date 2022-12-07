@@ -8,7 +8,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	baseconfig "github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
@@ -188,7 +188,7 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 			return "", err
 		}
 
-		validator, err := config.FirstValidator(conf)
+		validator, err := chainconfig.FirstValidator(conf)
 		if err != nil {
 			// When there are no validators return the default RPC address
 			return baseconfig.DefaultRPCAddress, err
@@ -209,7 +209,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := config.LocateDefault(c.app.Path)
+	path, err := chainconfig.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -217,12 +217,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (*config.ChainConfig, error) {
+func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return config.DefaultChainConfig(), nil
+		return chainconfig.DefaultChainConfig(), nil
 	}
-	return config.ParseFile(configPath)
+	return chainconfig.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -270,6 +270,17 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
+}
+
 // SetHome sets the chain home directory.
 func (c *Chain) SetHome(home string) {
 	c.options.homePath = home
@@ -303,7 +314,7 @@ func (c *Chain) DefaultHome() (string, error) {
 		return "", err
 	}
 
-	validator, err := config.FirstValidator(cfg)
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return "", err
 	}
@@ -382,7 +393,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return "", err
 	}
 
-	validator, _ := config.FirstValidator(cfg)
+	validator, _ := chainconfig.FirstValidator(cfg)
 	if validator.Client != nil {
 		if v, ok := validator.Client["keyring-backend"]; ok {
 			if backend, ok := v.(string); ok {
@@ -443,7 +454,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	validator, err := config.FirstValidator(cfg)
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
