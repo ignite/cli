@@ -33,7 +33,6 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
-	flagPlugins    = "plugins"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
