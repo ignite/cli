@@ -11,7 +11,7 @@ jobs:
       - uses: technote-space/get-diff-action@v6.1.1
         with:
           PATTERNS: |
-            **/**.md
+            **/*.md
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
           folder-path: "docs"
