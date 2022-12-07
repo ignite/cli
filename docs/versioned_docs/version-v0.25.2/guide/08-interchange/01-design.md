@@ -10,7 +10,7 @@ In this chapter, you learn how the interchain exchange module is designed. The m
 - First, create an order book for a pair of token. 
 - After an order book exists, you can create buy and sell orders for this pair of token.
 
-The module uses the Inter-Blockchain Communication protocol [IBC](https://github.com/cosmos/ics/blob/master/ibc/2_IBC_ARCHITECTURE.md). By using IBC, the module can create order books so that multiple blockchains can interact and exchange their token.
+The module uses the Inter-Blockchain Communication protocol [IBC](https://github.com/cosmos/ics/blob/old/ibc/2_IBC_ARCHITECTURE.md). By using IBC, the module can create order books so that multiple blockchains can interact and exchange their token.
 
 You create an order book pair with a token from one blockchain and another token from another blockchain. In this tutorial, call the module you create the `dex` module.
 

@@ -33,10 +33,10 @@ This command creates a Cosmos SDK blockchain called hello in a `hello` directory
 
 This new blockchain imports standard Cosmos SDK modules, including:
 
-- [`staking`](https://docs.cosmos.network/master/modules/staking/) for delegated Proof-of-Stake (PoS) consensus mechanism
-- [`bank`](https://docs.cosmos.network/master/modules/bank/) for fungible token transfers between accounts
-- [`gov`](https://docs.cosmos.network/master/modules/gov/) for on-chain governance
-- And other Cosmos SDK [modules](https://docs.cosmos.network/master/modules/) that provide the benefits of the extensive Cosmos SDK framework 
+- [`staking`](https://docs.cosmos.network/main/modules/staking) for delegated Proof-of-Stake (PoS) consensus mechanism
+- [`bank`](https://docs.cosmos.network/main/modules/bank) for fungible token transfers between accounts
+- [`gov`](https://docs.cosmos.network/main/modules/gov) for on-chain governance
+- And other Cosmos SDK [modules](https://docs.cosmos.network/main/modules) that provide the benefits of the extensive Cosmos SDK framework 
 
 You can get help on any command. Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command.  
 
@@ -109,12 +109,12 @@ To get your blockchain to say `Hello! Ignite CLI`, you need to make these change
 
 Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. The rpc calls are also responsible for exposing an HTTP API.
 
-For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/master/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
+For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/main/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
 
 A typical blockchain developer workflow looks something like this:
 
-- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/master/building-modules/msg-services.html)
-- Define and register [queries](https://docs.cosmos.network/master/building-modules/query-services.html)
+- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/main/building-modules/msg-services.html)
+- Define and register [queries](https://docs.cosmos.network/main/building-modules/query-services.html)
 - Define message handler logic
 - Finally, implement the logic of these queries and message handlers in keeper functions
 
