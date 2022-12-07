@@ -167,20 +167,20 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	return genVals, nil
 }
 
-// MainnetAccount returns the campaign mainnet account for a launch from SPN
+// MainnetAccount returns the project mainnet account for a launch from SPN
 func (n Network) MainnetAccount(
 	ctx context.Context,
-	campaignID uint64,
+	projectID uint64,
 	address string,
 ) (acc networktypes.MainnetAccount, err error) {
 	n.ev.Send(
-		fmt.Sprintf("Fetching campaign %d mainnet account %s", campaignID, address),
+		fmt.Sprintf("Fetching project %d mainnet account %s", projectID, address),
 		events.ProgressStart(),
 	)
 	res, err := n.campaignQuery.
 		MainnetAccount(ctx,
 			&campaigntypes.QueryGetMainnetAccountRequest{
-				CampaignID: campaignID,
+				CampaignID: projectID,
 				Address:    address,
 			},
 		)
@@ -193,13 +193,13 @@ func (n Network) MainnetAccount(
 	return networktypes.ToMainnetAccount(res.MainnetAccount), nil
 }
 
-// MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN
-func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetAccount, err error) {
-	n.ev.Send("Fetching campaign mainnet accounts", events.ProgressStart())
+// MainnetAccounts returns the list of project mainnet accounts for a launch from SPN
+func (n Network) MainnetAccounts(ctx context.Context, projectID uint64) (genAccs []networktypes.MainnetAccount, err error) {
+	n.ev.Send("Fetching project mainnet accounts", events.ProgressStart())
 	res, err := n.campaignQuery.
 		MainnetAccountAll(ctx,
 			&campaigntypes.QueryAllMainnetAccountRequest{
-				CampaignID: campaignID,
+				CampaignID: projectID,
 			},
 		)
 	if err != nil {

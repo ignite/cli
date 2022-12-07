@@ -12,13 +12,13 @@ const (
 	flagMetadata = "metadata"
 )
 
-// NewNetworkCampaignPublish returns a new command to publish a new campaigns on Ignite.
-func NewNetworkCampaignPublish() *cobra.Command {
+// NewNetworkProjectPublish returns a new command to publish a new projects on Ignite.
+func NewNetworkProjectPublish() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [name] [total-supply]",
-		Short: "Create a campaign",
+		Short: "Create a project",
 		Args:  cobra.ExactArgs(2),
-		RunE:  networkCampaignPublishHandler,
+		RunE:  networkProjectPublishHandler,
 	}
 	c.Flags().String(flagMetadata, "", "Add a metadata to the chain")
 	c.Flags().AddFlagSet(flagNetworkFrom())
@@ -28,7 +28,7 @@ func NewNetworkCampaignPublish() *cobra.Command {
 	return c
 }
 
-func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
+func networkProjectPublishHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
@@ -48,10 +48,10 @@ func networkCampaignPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	metadata, _ := cmd.Flags().GetString(flagMetadata)
-	campaignID, err := n.CreateCampaign(cmd.Context(), args[0], metadata, totalSupply)
+	projectID, err := n.CreateProject(cmd.Context(), args[0], metadata, totalSupply)
 	if err != nil {
 		return err
 	}
 
-	return session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
+	return session.Printf("%s Project ID: %d \n", icons.Bullet, projectID)
 }
