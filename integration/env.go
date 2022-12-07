@@ -114,7 +114,7 @@ func (e Env) IsAppServed(ctx context.Context, apiAddr string) error {
 	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
 
-// IsFaucetServed checks that faucet of the app is served properly
+// IsFaucetServed checks that faucet of the app is served properly.
 func (e Env) IsFaucetServed(ctx context.Context, faucetClient cosmosfaucet.HTTPClient) error {
 	checkAlive := func() error {
 		_, err := faucetClient.FaucetInfo(ctx)

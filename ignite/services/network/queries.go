@@ -39,7 +39,7 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 	return networktypes.ToChainLaunch(res.Chain), nil
 }
 
-// ChainLaunchesWithReward fetches the chain launches with rewards from Network
+// ChainLaunchesWithReward fetches the chain launches with rewards from Network.
 func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.PageRequest) ([]networktypes.ChainLaunch, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -82,7 +82,7 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.
 	return chainLaunches, nil
 }
 
-// GenesisInformation returns all the information to construct the genesis from a chain ID
+// GenesisInformation returns all the information to construct the genesis from a chain ID.
 func (n Network) GenesisInformation(ctx context.Context, launchID uint64) (gi networktypes.GenesisInformation, err error) {
 	genAccs, err := n.GenesisAccounts(ctx, launchID)
 	if err != nil {
@@ -102,7 +102,7 @@ func (n Network) GenesisInformation(ctx context.Context, launchID uint64) (gi ne
 	return networktypes.NewGenesisInformation(genAccs, vestingAccs, genVals), nil
 }
 
-// GenesisAccounts returns the list of approved genesis accounts for a launch from SPN
+// GenesisAccounts returns the list of approved genesis accounts for a launch from SPN.
 func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs []networktypes.GenesisAccount, err error) {
 	n.ev.Send("Fetching genesis accounts", events.ProgressStart())
 	res, err := n.launchQuery.
@@ -122,7 +122,7 @@ func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs 
 	return genAccs, nil
 }
 
-// VestingAccounts returns the list of approved genesis vesting accounts for a launch from SPN
+// VestingAccounts returns the list of approved genesis vesting accounts for a launch from SPN.
 func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingAccs []networktypes.VestingAccount, err error) {
 	n.ev.Send("Fetching genesis vesting accounts", events.ProgressStart())
 	res, err := n.launchQuery.
@@ -147,7 +147,7 @@ func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingA
 	return vestingAccs, nil
 }
 
-// GenesisValidators returns the list of approved genesis validators for a launch from SPN
+// GenesisValidators returns the list of approved genesis validators for a launch from SPN.
 func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVals []networktypes.GenesisValidator, err error) {
 	n.ev.Send("Fetching genesis validators", events.ProgressStart())
 	res, err := n.launchQuery.
@@ -167,7 +167,7 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	return genVals, nil
 }
 
-// MainnetAccount returns the campaign mainnet account for a launch from SPN
+// MainnetAccount returns the campaign mainnet account for a launch from SPN.
 func (n Network) MainnetAccount(
 	ctx context.Context,
 	campaignID uint64,
@@ -193,7 +193,7 @@ func (n Network) MainnetAccount(
 	return networktypes.ToMainnetAccount(res.MainnetAccount), nil
 }
 
-// MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN
+// MainnetAccounts returns the list of campaign mainnet accounts for a launch from SPN.
 func (n Network) MainnetAccounts(ctx context.Context, campaignID uint64) (genAccs []networktypes.MainnetAccount, err error) {
 	n.ev.Send("Fetching campaign mainnet accounts", events.ProgressStart())
 	res, err := n.campaignQuery.
@@ -255,7 +255,7 @@ func (n Network) GenesisValidator(ctx context.Context, launchID uint64, address 
 	return networktypes.ToGenesisValidator(res.GenesisValidator), nil
 }
 
-// ChainReward fetches the chain reward from SPN by launch id
+// ChainReward fetches the chain reward from SPN by launch id.
 func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.RewardPool, error) {
 	res, err := n.rewardQuery.
 		RewardPool(ctx,
@@ -272,7 +272,7 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 	return res.RewardPool, nil
 }
 
-// ChainID fetches the network chain id
+// ChainID fetches the network chain id.
 func (n Network) ChainID(ctx context.Context) (string, error) {
 	status, err := n.cosmos.Status(ctx)
 	if err != nil {

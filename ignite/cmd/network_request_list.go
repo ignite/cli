@@ -15,7 +15,7 @@ import (
 var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
 
 // NewNetworkRequestList creates a new request list command to list
-// requests for a chain
+// requests for a chain.
 func NewNetworkRequestList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list [launch-id]",
@@ -59,7 +59,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	return renderRequestSummaries(requests, session, addressPrefix)
 }
 
-// renderRequestSummaries writes into the provided out, the list of summarized requests
+// renderRequestSummaries writes into the provided out, the list of summarized requests.
 func renderRequestSummaries(
 	requests []networktypes.Request,
 	session *cliui.Session,

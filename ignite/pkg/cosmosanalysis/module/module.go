@@ -88,9 +88,9 @@ type moduleDiscoverer struct {
 //
 // Discovery algorithm make use of registered modules and proto definitions to find relevant
 // registered modules. It does so by:
-// 1. Getting all the registered Go modules from the app
-// 2. Parsing the proto files to find services and messages
-// 3. Check if the proto services are implemented in any of the registered modules
+// 1. Getting all the registered Go modules from the app.
+// 2. Parsing the proto files to find services and messages.
+// 3. Check if the proto services are implemented in any of the registered modules.
 func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)

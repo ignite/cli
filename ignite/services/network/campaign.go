@@ -14,10 +14,10 @@ import (
 )
 
 type (
-	// Prop update campaign proposal
+	// Prop update campaign proposal.
 	Prop func(*updateProp)
 
-	// updateProp represents the update campaign proposal
+	// updateProp represents the update campaign proposal.
 	updateProp struct {
 		name        string
 		metadata    []byte
@@ -46,7 +46,7 @@ func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
 	}
 }
 
-// Campaign fetches the campaign from Network
+// Campaign fetches the campaign from Network.
 func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
 	n.ev.Send("Fetching campaign information", events.ProgressStart())
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
@@ -60,7 +60,7 @@ func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.
 	return networktypes.ToCampaign(res.Campaign), nil
 }
 
-// Campaigns fetches the campaigns from Network
+// Campaigns fetches the campaigns from Network.
 func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
 	var campaigns []networktypes.Campaign
 
@@ -78,7 +78,7 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	return campaigns, nil
 }
 
-// CreateCampaign creates a campaign in Network
+// CreateCampaign creates a campaign in Network.
 func (n Network) CreateCampaign(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(fmt.Sprintf("Creating campaign %s", name), events.ProgressStart())
 	addr, err := n.account.Address(networktypes.SPN)
@@ -142,7 +142,7 @@ func (n Network) InitializeMainnet(
 	return initMainnetRes.MainnetID, nil
 }
 
-// UpdateCampaign updates the campaign name or metadata
+// UpdateCampaign updates the campaign name or metadata.
 func (n Network) UpdateCampaign(
 	ctx context.Context,
 	id uint64,

@@ -7,10 +7,10 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
-// Fields represents a Field slice
+// Fields represents a Field slice.
 type Fields []Field
 
-// GoCLIImports return all go CLI imports
+// GoCLIImports returns all go CLI imports.
 func (f Fields) GoCLIImports() []datatype.GoImport {
 	allImports := make([]datatype.GoImport, 0)
 	exist := make(map[string]struct{})
@@ -26,7 +26,7 @@ func (f Fields) GoCLIImports() []datatype.GoImport {
 	return allImports
 }
 
-// ProtoImports return all proto imports
+// ProtoImports returns all proto imports.
 func (f Fields) ProtoImports() []string {
 	allImports := make([]string, 0)
 	exist := make(map[string]struct{})
@@ -42,7 +42,7 @@ func (f Fields) ProtoImports() []string {
 	return allImports
 }
 
-// String return all inline fields args for command usage
+// String returns all inline fields args for command usage.
 func (f Fields) String() string {
 	args := ""
 	for _, field := range f {
@@ -51,7 +51,7 @@ func (f Fields) String() string {
 	return args
 }
 
-// Custom return a list of custom fields
+// Custom return a list of custom fields.
 func (f Fields) Custom() []string {
 	fields := make([]string, 0)
 	for _, field := range f {

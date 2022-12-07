@@ -19,9 +19,11 @@ linters:
     - exhaustive
     - goconst
     - gocritic
+    - godot
     - gofumpt
     - revive
     # - gosec
+    - gomnd
     - gosimple
     - govet
     - ineffassign

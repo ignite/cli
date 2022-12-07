@@ -50,7 +50,7 @@ func networkCampaignListHandler(cmd *cobra.Command, _ []string) error {
 	return renderCampaignSummaries(campaigns, session)
 }
 
-// renderCampaignSummaries writes into the provided out, the list of summarized campaigns
+// renderCampaignSummaries writes into the provided out, the list of summarized campaigns.
 func renderCampaignSummaries(campaigns []networktypes.Campaign, session *cliui.Session) error {
 	var campaignEntries [][]string
 

@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 )
 
-// ProtoGenesisStateMessage is the name of the proto message that represents the genesis state
+// ProtoGenesisStateMessage is the name of the proto message that represents the genesis state.
 const ProtoGenesisStateMessage = "GenesisState"
 
 // PatchGenesisTypeImport patches types/genesis.go content from the issue:
@@ -27,8 +27,8 @@ func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) strin
 	return content
 }
 
-// GenesisStateHighestFieldNumber returns the highest field number in the genesis state proto message
-// This allows to determine next the field numbers
+// GenesisStateHighestFieldNumber returns the highest field number in the genesis state proto message.
+// This allows to determine next the field numbers.
 func GenesisStateHighestFieldNumber(path string) (int, error) {
 	pkgs, err := protoanalysis.Parse(context.Background(), nil, path)
 	if err != nil {

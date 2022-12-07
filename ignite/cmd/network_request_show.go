@@ -12,7 +12,7 @@ import (
 )
 
 // NewNetworkRequestShow creates a new request show command to show
-// requests details for a chain
+// requests details for a chain.
 func NewNetworkRequestShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [launch-id] [request-id]",

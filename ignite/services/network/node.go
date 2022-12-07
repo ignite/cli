@@ -26,7 +26,7 @@ type Node struct {
 	monitoringProviderQuery monitoringptypes.QueryClient
 }
 
-// NewNode creates a new client for node API
+// NewNode creates a new client for node API.
 func NewNode(cosmos CosmosClient) Node {
 	return Node{
 		cosmos:                  cosmos,
@@ -38,7 +38,7 @@ func NewNode(cosmos CosmosClient) Node {
 	}
 }
 
-// RewardsInfo Fetches the consensus state with the validator set and the unbounding time
+// RewardsInfo Fetches the consensus state with the validator set and the unbounding time.
 func (n Node) RewardsInfo(ctx context.Context) (
 	reward networktypes.Reward,
 	chainID string,
@@ -96,7 +96,7 @@ func (n Node) RewardIBCInfo(ctx context.Context) (networktypes.RewardIBCInfo, er
 	return info, nil
 }
 
-// consensus Fetches the consensus state with the validator set
+// consensus Fetches the consensus state with the validator set.
 func (n Node) consensus(ctx context.Context, client CosmosClient, height int64) (networktypes.Reward, error) {
 	consensusState, err := client.ConsensusInfo(ctx, height)
 	if err != nil {
@@ -127,7 +127,7 @@ func (n Node) consensus(ctx context.Context, client CosmosClient, height int64) 
 	return reward, nil
 }
 
-// connectionChannels fetches the chain connection channels by connection id
+// connectionChannels fetches the chain connection channels by connection id.
 func (n Node) connectionChannels(ctx context.Context, connectionID string) (channels []string, err error) {
 	res, err := n.ibcChannelQuery.ConnectionChannels(ctx, &ibcchanneltypes.QueryConnectionChannelsRequest{
 		Connection: connectionID,
@@ -143,7 +143,7 @@ func (n Node) connectionChannels(ctx context.Context, connectionID string) (chan
 	return
 }
 
-// clientConnections fetches the chain client connections by client id
+// clientConnections fetches the chain client connections by client id.
 func (n Node) clientConnections(ctx context.Context, clientID string) ([]string, error) {
 	res, err := n.ibcConnQuery.ClientConnections(ctx, &ibcconntypes.QueryClientConnectionsRequest{
 		ClientId: clientID,
@@ -156,7 +156,7 @@ func (n Node) clientConnections(ctx context.Context, clientID string) ([]string,
 	return res.ConnectionPaths, err
 }
 
-// stakingParams fetches the staking module params
+// stakingParams fetches the staking module params.
 func (n Node) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	res, err := n.stakingQuery.Params(ctx, &stakingtypes.QueryParamsRequest{})
 	if err != nil {
@@ -165,7 +165,7 @@ func (n Node) stakingParams(ctx context.Context) (stakingtypes.Params, error) {
 	return res.Params, nil
 }
 
-// consumerClientID fetches the consumer client id from the monitoring provider
+// consumerClientID fetches the consumer client id from the monitoring provider.
 func (n Node) consumerClientID(ctx context.Context) (string, error) {
 	res, err := n.monitoringProviderQuery.ConsumerClientID(
 		ctx, &monitoringptypes.QueryGetConsumerClientIDRequest{},
@@ -178,7 +178,7 @@ func (n Node) consumerClientID(ctx context.Context) (string, error) {
 	return res.ConsumerClientID.ClientID, nil
 }
 
-// connectionChannelID fetches the consumer connection chnnael id from the monitoring provider
+// connectionChannelID fetches the consumer connection chnnael id from the monitoring provider.
 func (n Node) connectionChannelID(ctx context.Context) (string, error) {
 	res, err := n.monitoringProviderQuery.ConnectionChannelID(
 		ctx, &monitoringptypes.QueryGetConnectionChannelIDRequest{},

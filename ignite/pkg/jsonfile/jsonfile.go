@@ -25,19 +25,19 @@ const (
 )
 
 var (
-	// ErrFieldNotFound parameter not found into json
+	// ErrFieldNotFound parameter not found into json.
 	ErrFieldNotFound = errors.New("JSON field not found")
 
-	// ErrInvalidValueType invalid value type
+	// ErrInvalidValueType invalid value type.
 	ErrInvalidValueType = errors.New("invalid value type")
 
-	// ErrInvalidURL invalid file URL
+	// ErrInvalidURL invalid file URL.
 	ErrInvalidURL = errors.New("invalid file URL")
 )
 
 type (
-	// JSONFile represents the JSON file and also implements the io.write interface
-	// saving directly to the file
+	// JSONFile represents the JSON file and also implements the io.write interface,
+	// saving directly to the file.
 	JSONFile struct {
 		file        ReadWriteSeeker
 		tarballPath string
@@ -46,17 +46,17 @@ type (
 		cache       []byte
 	}
 
-	// UpdateFileOption configures file update function with key and value
+	// UpdateFileOption configures file update function with key and value.
 	UpdateFileOption func(map[string][]byte)
 )
 
 type (
-	// writeTruncate represents the truncate method from io.WriteSeeker interface
+	// writeTruncate represents the truncate method from io.WriteSeeker interface.
 	writeTruncate interface {
 		Truncate(size int64) error
 	}
 
-	// ReadWriteSeeker represents the owns ReadWriteSeeker interface inherit from io.ReadWriteSeeker
+	// ReadWriteSeeker represents the owns ReadWriteSeeker interface inherit from io.ReadWriteSeeker.
 	ReadWriteSeeker interface {
 		io.ReadWriteSeeker
 		Close() error
@@ -64,7 +64,7 @@ type (
 	}
 )
 
-// New creates a new JSONFile
+// New creates a new JSONFile.
 func New(file ReadWriteSeeker) *JSONFile {
 	return &JSONFile{
 		updates: make(map[string][]byte),
@@ -72,7 +72,7 @@ func New(file ReadWriteSeeker) *JSONFile {
 	}
 }
 
-// FromPath parse JSONFile object from path
+// FromPath parses a JSONFile object from path.
 func FromPath(path string) (*JSONFile, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0o600)
 	if err != nil {
@@ -162,8 +162,8 @@ func (f *JSONFile) Bytes() ([]byte, error) {
 	return file, nil
 }
 
-// Field return the param by key and the position into byte slice from the file reader.
-// Key can be a path to a nested parameter eg: app_state.staking.accounts
+// Field returns the param by key and the position into byte slice from the file reader.
+// Key can be a path to a nested parameter eg: app_state.staking.accounts.
 func (f *JSONFile) Field(key string, param interface{}) error {
 	file, err := f.Bytes()
 	if err != nil {
@@ -203,14 +203,14 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	return nil
 }
 
-// WithKeyValue update a file value object by key
+// WithKeyValue updates a file value object by key.
 func WithKeyValue(key string, value string) UpdateFileOption {
 	return func(update map[string][]byte) {
 		update[key] = []byte(`"` + value + `"`)
 	}
 }
 
-// WithKeyValueTimestamp update a time value
+// WithKeyValueTimestamp update a time value.
 func WithKeyValueTimestamp(key string, t int64) UpdateFileOption {
 	return func(update map[string][]byte) {
 		formatted := time.Unix(t, 0).UTC().Format(time.RFC3339Nano)
@@ -218,19 +218,19 @@ func WithKeyValueTimestamp(key string, t int64) UpdateFileOption {
 	}
 }
 
-// WithKeyValueInt update a file int value object by key
+// WithKeyValueInt updates a file int value object by key.
 func WithKeyValueInt(key string, value int64) UpdateFileOption {
 	return func(update map[string][]byte) {
 		update[key] = []byte(strconv.FormatInt(value, 10))
 	}
 }
 
-// WithKeyValueUint update a file uint value object by key
+// WithKeyValueUint updates a file uint value object by key.
 func WithKeyValueUint(key string, value uint64) UpdateFileOption {
 	return WithKeyValueInt(key, int64(value))
 }
 
-// Update updates the file with the new parameters by key
+// Update updates the file with the new parameters by key.
 func (f *JSONFile) Update(opts ...UpdateFileOption) error {
 	for _, opt := range opts {
 		opt(f.updates)
@@ -242,7 +242,7 @@ func (f *JSONFile) Update(opts ...UpdateFileOption) error {
 	return err
 }
 
-// Write implement the write method for io.Writer interface
+// Write implement the write method for io.Writer interface.
 func (f *JSONFile) Write(p []byte) (int, error) {
 	var err error
 	length := len(p)
@@ -275,7 +275,7 @@ func (f *JSONFile) Write(p []byte) (int, error) {
 	return length, nil
 }
 
-// truncate remove the current file content
+// truncate removes the current file content.
 func truncate(rws io.WriteSeeker, size int) error {
 	t, ok := rws.(writeTruncate)
 	if !ok {
@@ -285,22 +285,22 @@ func truncate(rws io.WriteSeeker, size int) error {
 	return t.Truncate(int64(size))
 }
 
-// Close the file
+// Close the file.
 func (f *JSONFile) Close() error {
 	return f.file.Close()
 }
 
-// URL returns the genesis URL
+// URL returns the genesis URL.
 func (f *JSONFile) URL() string {
 	return f.url
 }
 
-// TarballPath returns the tarball path
+// TarballPath returns the tarball path.
 func (f *JSONFile) TarballPath() string {
 	return f.tarballPath
 }
 
-// Hash returns the hash of the file
+// Hash returns the hash of the file.
 func (f *JSONFile) Hash() (string, error) {
 	if err := f.Reset(); err != nil {
 		return "", err
@@ -314,7 +314,7 @@ func (f *JSONFile) Hash() (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// String returns the file string
+// String returns the file string.
 func (f *JSONFile) String() (string, error) {
 	if err := f.Reset(); err != nil {
 		return "", err
@@ -324,7 +324,7 @@ func (f *JSONFile) String() (string, error) {
 	return string(data), err
 }
 
-// Reset sets the offset for the next Read or Write to 0
+// Reset sets the offset for the next Read or Write to 0.
 func (f *JSONFile) Reset() error {
 	// TODO find a better way to reset or create a
 	// read of copy the writer with io.TeeReader

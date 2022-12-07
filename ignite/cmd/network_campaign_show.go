@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network"
 )
 
-// NewNetworkCampaignShow returns a new command to show published campaign on Ignite
+// NewNetworkCampaignShow returns a new command to show published campaign on Ignite.
 func NewNetworkCampaignShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [campaign-id]",

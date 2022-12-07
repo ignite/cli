@@ -18,7 +18,7 @@ Make sure to update the keys.go file accordingly.
 const Version = "bandchain-1"
 `
 
-// NewScaffoldBandchain creates a new BandChain oracle in the module
+// NewScaffoldBandchain creates a new BandChain oracle in the module.
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "band [queryName] --module [moduleName]",

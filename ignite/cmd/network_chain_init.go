@@ -33,7 +33,7 @@ const (
 	defaultCommissionMaxChangeRate = "0.01"
 )
 
-// NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
+// NewNetworkChainInit returns a new command to initialize a chain from a published chain ID.
 func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init [launch-id]",
@@ -189,7 +189,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	return session.Printf("%s Gentx generated: %s\n", icons.Bullet, gentxPath)
 }
 
-// askValidatorInfo prompts to the user questions to query validator information
+// askValidatorInfo prompts to the user questions to query validator information.
 func askValidatorInfo(
 	cmd *cobra.Command,
 	session *cliui.Session,

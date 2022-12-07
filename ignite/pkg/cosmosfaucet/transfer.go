@@ -12,7 +12,7 @@ import (
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
-// transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic
+// transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic.
 var transferMutex = &sync.Mutex{}
 
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.

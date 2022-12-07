@@ -20,7 +20,7 @@ func ParseFile(path string) (*Config, error) {
 	return Parse(file)
 }
 
-// Parse reads a config file for ignite binary plugins
+// Parse reads a config file for ignite binary plugins.
 func Parse(configFile io.Reader) (*Config, error) {
 	return parse(configFile)
 }

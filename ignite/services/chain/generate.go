@@ -81,7 +81,7 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-// generateFromConfig makes code generation from proto files from the given config
+// generateFromConfig makes code generation from proto files from the given config.
 func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
 	conf, err := c.Config()
 	if err != nil {

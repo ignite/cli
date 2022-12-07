@@ -17,7 +17,7 @@ func (sp SharePercents) Empty() bool {
 
 var rePercentageRequired = regexp.MustCompile(`^[0-9]+.[0-9]*%`)
 
-// SharePercent represent percent of total share
+// SharePercent represent percent of total share.
 type SharePercent struct {
 	denom string
 	// in order to avoid using numbers with floating point
@@ -25,7 +25,7 @@ type SharePercent struct {
 	nominator, denominator uint64
 }
 
-// NewSharePercent creates new share percent representation
+// NewSharePercent creates new share percent representation.
 func NewSharePercent(denom string, nominator, denominator uint64) (SharePercent, error) {
 	if denominator < nominator {
 		return SharePercent{}, fmt.Errorf("%q can not be bigger than 100", denom)
@@ -37,7 +37,7 @@ func NewSharePercent(denom string, nominator, denominator uint64) (SharePercent,
 	}, nil
 }
 
-// Share returns coin share of total according to underlying percent
+// Share returns coin share of total according to underlying percent.
 func (p SharePercent) Share(total uint64) (sdk.Coin, error) {
 	resultNominator := total * p.nominator
 	if resultNominator%p.denominator != 0 {

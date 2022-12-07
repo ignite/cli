@@ -46,7 +46,7 @@ func WithStdout(stdout io.WriteCloser) Option {
 	}
 }
 
-// WithStderr sets base stderr for a Session
+// WithStderr sets base stderr for a Session.
 func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
 		s.options.stderr = stderr
@@ -222,7 +222,7 @@ func (s Session) Println(messages ...interface{}) error {
 	return err
 }
 
-// Println prints arbitrary message
+// Print prints arbitrary message.
 func (s Session) Print(messages ...interface{}) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprint(s.out.Stdout(), messages...)

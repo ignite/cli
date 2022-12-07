@@ -5,7 +5,7 @@ import (
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
-// Campaign represents the campaign of a chain on SPN
+// Campaign represents the campaign of a chain on SPN.
 type Campaign struct {
 	ID                 uint64    `json:"ID"`
 	Name               string    `json:"Name"`
@@ -17,7 +17,7 @@ type Campaign struct {
 	Metadata           string    `json:"Metadata"`
 }
 
-// ToCampaign converts a campaign data from SPN and returns a Campaign object
+// ToCampaign converts a campaign data from SPN and returns a Campaign object.
 func ToCampaign(campaign campaigntypes.Campaign) Campaign {
 	return Campaign{
 		ID:                 campaign.CampaignID,
@@ -31,13 +31,13 @@ func ToCampaign(campaign campaigntypes.Campaign) Campaign {
 	}
 }
 
-// MainnetAccount represents the campaign mainnet account of a chain on SPN
+// MainnetAccount represents the campaign mainnet account of a chain on SPN.
 type MainnetAccount struct {
 	Address string               `json:"Address"`
 	Shares  campaigntypes.Shares `json:"Shares"`
 }
 
-// ToMainnetAccount converts a mainnet account data from SPN and returns a MainnetAccount object
+// ToMainnetAccount converts a mainnet account data from SPN and returns a MainnetAccount object.
 func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 	return MainnetAccount{
 		Address: acc.Address,
@@ -45,13 +45,13 @@ func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 	}
 }
 
-// CampaignChains represents the chains of a campaign on SPN
+// CampaignChains represents the chains of a campaign on SPN.
 type CampaignChains struct {
 	CampaignID uint64   `json:"CampaignID"`
 	Chains     []uint64 `json:"Chains"`
 }
 
-// ToCampaignChains converts a campaign chains data from SPN and returns a CampaignChains object
+// ToCampaignChains converts a campaign chains data from SPN and returns a CampaignChains object.
 func ToCampaignChains(c campaigntypes.CampaignChains) CampaignChains {
 	return CampaignChains{
 		CampaignID: c.CampaignID,

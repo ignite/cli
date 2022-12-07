@@ -22,7 +22,7 @@ var appImplementation = []string{
 	"RegisterTendermintService",
 }
 
-// CheckKeeper checks for the existence of the keeper with the provided name in the app structure
+// CheckKeeper checks for the existence of the keeper with the provided name in the app structure.
 func CheckKeeper(path, keeperName string) error {
 	// find app type
 	appImpl, err := cosmosanalysis.FindImplementation(path, appImplementation)
@@ -81,7 +81,7 @@ func CheckKeeper(path, keeperName string) error {
 // It does so by:
 // 1. Mapping out all the imports and named imports
 // 2. Looking for the call to module.NewBasicManager and finds the modules registered there
-// 3. Looking for the implementation of RegisterAPIRoutes and find the modules that call their RegisterGRPCGatewayRoutes
+// 3. Looking for the implementation of RegisterAPIRoutes and find the modules that call their RegisterGRPCGatewayRoutes.
 func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 	// Assumption: modules are registered in the app package
 	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)

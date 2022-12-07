@@ -85,7 +85,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	return nil
 }
 
-// InitAccounts initializes the chain accounts and creates validator gentxs
+// InitAccounts initializes the chain accounts and creates validator gentxs.
 func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
@@ -136,7 +136,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	return err
 }
 
-// IssueGentx generates a gentx from the validator information in chain config and import it in the chain genesis
+// IssueGentx generates a gentx from the validator information in chain config and imports it in the chain genesis.
 func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 	commands, err := c.Commands(ctx)
 	if err != nil {
@@ -153,8 +153,8 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 	return gentxPath, commands.CollectGentxs(ctx)
 }
 
-// IsInitialized checks if the chain is initialized
-// the check is performed by checking if the gentx dir exist in the config
+// IsInitialized checks if the chain is initialized.
+// The check is performed by checking if the gentx dir exists in the config.
 func (c *Chain) IsInitialized() (bool, error) {
 	home, err := c.Home()
 	if err != nil {
@@ -173,8 +173,8 @@ func (c *Chain) IsInitialized() (bool, error) {
 	return true, nil
 }
 
-// UpdateGenesisFile updates the chain genesis with a generic map of data
-// updates are made using an override merge strategy
+// UpdateGenesisFile updates the chain genesis with a generic map of data.
+// Updates are made using an override merge strategy.
 func (c Chain) UpdateGenesisFile(data map[string]interface{}) error {
 	path, err := c.GenesisPath()
 	if err != nil {

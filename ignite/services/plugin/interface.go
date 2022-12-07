@@ -80,7 +80,7 @@ type Command struct {
 	Commands []Command
 }
 
-// Hook represents a user defined action within a plugin
+// Hook represents a user defined action within a plugin.
 type Hook struct {
 	// Name identifies the hook for the client to invoke the correct hook
 	// must be unique
@@ -257,16 +257,16 @@ func HandshakeConfig() plugin.HandshakeConfig {
 	return handshakeConfig
 }
 
-// Here is an implementation that talks over RPC
+// InterfaceRPC is an implementation that talks over RPC.
 type InterfaceRPC struct{ client *rpc.Client }
 
-// Manifest implements Interface.Manifest
+// Manifest implements Interface.Manifest.
 func (g *InterfaceRPC) Manifest() (Manifest, error) {
 	var resp Manifest
 	return resp, g.client.Call("Plugin.Manifest", new(interface{}), &resp)
 }
 
-// Execute implements Interface.Commands
+// Execute implements Interface.Commands.
 func (g *InterfaceRPC) Execute(c ExecutedCommand) error {
 	var resp interface{}
 	return g.client.Call("Plugin.Execute", map[string]interface{}{
@@ -295,8 +295,8 @@ func (g *InterfaceRPC) ExecuteHookCleanUp(hook ExecutedHook) error {
 	}, &resp)
 }
 
-// Here is the RPC server that InterfaceRPC talks to, conforming to
-// the requirements of net/rpc
+// InterfaceRPCServer is the RPC server that InterfaceRPC talks to, conforming to
+// the requirements of net/rpc.
 type InterfaceRPCServer struct {
 	// This is the real implementation
 	Impl Interface

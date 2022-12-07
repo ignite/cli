@@ -82,14 +82,14 @@ func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	}
 }
 
-// WithAccountBalance set a balance used for all genesis account of the chain
+// WithAccountBalance set a balance used for all genesis account of the chain.
 func WithAccountBalance(accountBalance sdk.Coins) PublishOption {
 	return func(c *publishOptions) {
 		c.accountBalance = accountBalance
 	}
 }
 
-// Mainnet initialize a published chain into the mainnet
+// Mainnet initialize a published chain into the mainnet.
 func Mainnet() PublishOption {
 	return func(o *publishOptions) {
 		o.mainnet = true

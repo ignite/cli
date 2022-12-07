@@ -27,8 +27,8 @@ const (
 	// account in all times.
 	DefaultMaxAmount = 100000000
 
-	// DefaultLimitRefreshWindow specifies the time after which the max amount limit
-	// is refreshed for an account [1 year]
+	// DefaultRefreshWindow specifies the time after which the max amount limit
+	// is refreshed for an account [1 year].
 	DefaultRefreshWindow = time.Hour * 24 * 365
 )
 
@@ -88,7 +88,7 @@ func Coin(amount, maxAmount uint64, denom string) Option {
 	}
 }
 
-// RefreshWindow adds the duration to refresh the transfer limit to the faucet
+// RefreshWindow adds the duration to refresh the transfer limit to the faucet.
 func RefreshWindow(refreshWindow time.Duration) Option {
 	return func(f *Faucet) {
 		f.limitRefreshWindow = refreshWindow
