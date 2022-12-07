@@ -30,7 +30,15 @@ jobs:
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v3.1.0
+      - uses: technote-space/get-diff-action@v6.1.1
+        with:
+          PATTERNS: |
+            **/*.go
+            go.mod
+            go.sum
+
       - uses: actions/cache@v3
+        if: env.GIT_DIFF
         with:
           path: |
             ~/.cache/go-build
@@ -39,11 +47,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - uses: actions/setup-go@v3
+        if: env.GIT_DIFF
         with:
           go-version: 1.19
       - name: Run Integration Tests
-        run: GOSUMDB=off go test -v -timeout 60m ./integration/${{ matrix.test-path }}
         if: env.GIT_DIFF
+        run: GOSUMDB=off go test -v -timeout 60m ./integration/${{ matrix.test-path }}
 
   status:
     runs-on: ubuntu-latest
