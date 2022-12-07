@@ -1,13 +1,21 @@
 name: Check Markdown links
-on: push
+on:
+  push:
+    branches:
+      - main
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.1.0
+      - used: technote-space/get-diff-action@v6
+        with:
+          PATTERNS: |
+            **/**.md
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
           folder-path: "docs"
           use-quiet-mode: 'yes'
           use-verbose-mode: 'yes'
           config-file: '.github/workflows/md-link-checker-config.json'
+        if: env.GIT_DIFF
