@@ -26,7 +26,7 @@ const (
 	FieldConsumerUnbondingPeriod     = "app_state.monitoringp.params.consumerUnbondingPeriod"
 	FieldConsumerRevisionHeight      = "app_state.monitoringp.params.consumerRevisionHeight"
 
-	FieldParamFormatString = "app_state.%s.params.%s"
+	fieldParamFormatString = "app_state.%s.params.%s"
 )
 
 type (
