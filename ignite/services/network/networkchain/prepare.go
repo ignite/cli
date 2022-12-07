@@ -104,13 +104,13 @@ func (c Chain) buildGenesis(
 
 	// apply genesis information to the genesis
 	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts, addressPrefix); err != nil {
-		return fmt.Errorf("error applying genesis accounts to genesis: %w", err)
+		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
 	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts, addressPrefix); err != nil {
-		return fmt.Errorf("error applying vesting accounts to genesis: %w", err)
+		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
 	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
-		return fmt.Errorf("error applying genesis validators to genesis: %w", err)
+		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
 	genesisPath, err := c.chain.GenesisPath()

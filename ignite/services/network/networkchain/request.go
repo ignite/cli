@@ -14,7 +14,9 @@ import (
 // CheckRequestChangeParam builds the genesis for the chain from the launch approved requests
 func (c Chain) CheckRequestChangeParam(
 	ctx context.Context,
-	module, param string, value []byte,
+	module,
+	param string,
+	value []byte,
 ) error {
 	c.ev.Send("Checking the param change", events.ProgressStart())
 
