@@ -9,9 +9,12 @@ linters:
   disable-all: true
   enable:
     - bodyclose
+    - decorder
     - depguard
     - dogsled
+    - dupword
     # - errcheck
+    - errchkjson
     - goconst
     - gocritic
     - gofumpt
@@ -32,6 +35,7 @@ linters:
     - unused
     - unparam
     - misspell
+   #  - wrapcheck
     # - wsl
     # - nolintlint
 
