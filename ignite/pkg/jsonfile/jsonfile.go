@@ -180,7 +180,7 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	switch dataType {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
 		err := json.Unmarshal(value, param)
-		if _, ok := err.(*json.UnmarshalTypeError); ok { // nolint:errorlint
+		if _, ok := err.(*json.UnmarshalTypeError); ok { //nolint:errorlint
 			return ErrInvalidValueType
 		} else if err != nil {
 			return err

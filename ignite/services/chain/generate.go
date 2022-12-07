@@ -182,7 +182,6 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
-		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
 			vuexPath = chainconfig.VuexPath(conf)

@@ -65,7 +65,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	var options []scaffolder.OracleOption
 	if signer != "" {
-		options = append(options, scaffolder.OracleWithSigner(signer)) // nolint: staticcheck
+		options = append(options, scaffolder.OracleWithSigner(signer)) //nolint: staticcheck
 	}
 
 	sc, err := newApp(appPath)
@@ -73,7 +73,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// nolint: staticcheck
+	//nolint: staticcheck
 	sm, err := sc.AddOracle(cmd.Context(), cacheStorage, placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err

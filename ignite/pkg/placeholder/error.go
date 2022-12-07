@@ -18,7 +18,7 @@ type MissingPlaceholdersError struct {
 
 // Is true if both errors have the same list of missing placeholders.
 func (e *MissingPlaceholdersError) Is(err error) bool {
-	other, ok := err.(*MissingPlaceholdersError) // nolint:errorlint
+	other, ok := err.(*MissingPlaceholdersError) //nolint:errorlint
 	if !ok {
 		return false
 	}

@@ -23,14 +23,14 @@ linters:
     - gofumpt
     - revive
     # - gosec
-    - gomnd
     - gosimple
     - govet
+    - grouper
     - ineffassign
     # - interfacer
-    # - maligned
     - misspell
     - nakedret
+    - nolintlint
     - exportloopref
     - staticcheck
     - stylecheck

@@ -64,7 +64,7 @@ func RunWithValidation(
 			fileName := file.Name()
 			_, err := os.Stat(fileName)
 
-			// nolint:gocritic
+			//nolint:gocritic
 			if os.IsNotExist(err) {
 				// if the file doesn't exist in the source, it means it has been created by the runner
 				sm.AppendCreatedFiles(fileName)

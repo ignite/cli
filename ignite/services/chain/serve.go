@@ -397,7 +397,7 @@ func (c *Chain) serve(
 	// init phase
 	initApp := !isInit || (appModified && !exportGenesisExists)
 
-	// nolint:gocritic
+	//nolint:gocritic
 	if initApp {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 

@@ -469,7 +469,6 @@ type Response struct {
 	*sdktypes.TxResponse
 }
 
-// nolint:godot
 // Decode decodes the proto func response defined in your Msg service into your message type.
 // message needs to be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
 //
@@ -482,6 +481,8 @@ type Response struct {
 //	}
 //
 // ```
+//
+//nolint:godot,nolintlint
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
 	if err != nil {
