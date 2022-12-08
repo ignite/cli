@@ -148,7 +148,6 @@ func (gi GenesisInformation) ContainsParamChange(module, param string) (bool, in
 		}
 	}
 	return false, -1
-
 }
 
 func (gi *GenesisInformation) AddGenesisAccount(acc GenesisAccount) {

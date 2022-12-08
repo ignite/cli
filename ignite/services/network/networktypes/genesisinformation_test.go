@@ -114,7 +114,8 @@ func TestToParamChange(t *testing.T) {
 		fetched  launchtypes.ParamChange
 		expected networktypes.ParamChange
 	}{
-		{name: "param change",
+		{
+			name: "param change",
 			fetched: launchtypes.ParamChange{
 				LaunchID: 0,
 				Module:   "foo",
