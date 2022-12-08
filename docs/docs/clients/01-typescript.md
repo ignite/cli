@@ -46,10 +46,10 @@ ignite chain serve -r
 ## Setting up a TypeScript frontend client
 
 The best way to get started building with the TypeScript client is by using 
-[Vite](https://vitejs.dev/). Vite provides boilerplate code for
+[Vite](https://vitejs.dev). Vite provides boilerplate code for
 vanilla TS projects as well as React, Vue, Lit, Svelte and Preact frameworks.
 You can find additional information at the [Vite Getting Started
-guide](https://vitejs.dev/guide/).
+guide](https://vitejs.dev/guide).
 
 You will also need to [polyfill](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill) the client's dependencies. The following is an
 example of setting up a vanilla TS project with the necessary polyfills:
