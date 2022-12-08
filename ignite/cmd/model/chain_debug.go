@@ -44,10 +44,14 @@ type ChainDebug struct {
 	model cliuimodel.Events
 }
 
+// Init is the first function that will be called.
+// It returns a batch command that listen events and also runs the debug server.
 func (m ChainDebug) Init() tea.Cmd {
 	return tea.Batch(m.model.WaitEvent, m.cmd)
 }
 
+// Update is called when a message is received.
+// It handles messages and executes the logic that updates the model.
 func (m ChainDebug) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case cliuimodel.QuitMsg:
@@ -63,6 +67,7 @@ func (m ChainDebug) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m.updateModel(msg)
 }
 
+// View renders the UI after every update.
 func (m ChainDebug) View() string {
 	if m.error != nil {
 		// Make sure that the error is displayed in the same way
