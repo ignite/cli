@@ -12,7 +12,7 @@ const (
 )
 
 const (
-	LaunchID   = uint64(1)
-	CampaignID = uint64(1)
-	MainnetID  = uint64(1)
+	LaunchID  = uint64(1)
+	ProjectID = uint64(1)
+	MainnetID = uint64(1)
 )
