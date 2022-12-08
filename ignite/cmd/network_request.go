@@ -33,6 +33,7 @@ Each request has a status:
 		NewNetworkRequestAddAccount(),
 		NewNetworkRequestRemoveAccount(),
 		NewNetworkRequestRemoveValidator(),
+		NewNetworkRequestChangeParam(),
 	)
 
 	return c

@@ -59,6 +59,7 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	requestYaml, err := yaml.Marshal(cmd.Context(), request,
 		"$.Content.content.genesisValidator.genTx",
 		"$.Content.content.genesisValidator.consPubKey",
+		"$.Content.content.paramChange.value",
 	)
 	if err != nil {
 		return err
