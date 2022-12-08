@@ -16,9 +16,10 @@
   "replacementPatterns": [
     {
       "pattern": "^/",
-      "replacement": "https://docs.ignite.com/"
+      "replacement": "{{BASEURL}}/"
     }
   ],
+  "baseUrl": "https://docs.ignite.com",
   "projectBaseUrl": "https://docs.ignite.com",
   "timeout": "20s",
   "retryOn429": true,
