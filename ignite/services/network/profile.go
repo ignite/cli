@@ -158,7 +158,7 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 }
 
 // Profile returns the address profile info
-func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.Profile, error) {
+func (n Network) Profile(ctx context.Context, projectID uint64) (networktypes.Profile, error) {
 	address, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return networktypes.Profile{}, err
@@ -181,9 +181,9 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 
 	var shares campaigntypes.Shares
 
-	// if a campaign ID is specified, fetches the shares of the campaign
-	if campaignID > 0 {
-		acc, err := n.MainnetAccount(ctx, campaignID, address)
+	// if a project ID is specified, fetches the shares of the project
+	if projectID > 0 {
+		acc, err := n.MainnetAccount(ctx, projectID, address)
 		if err != nil && err != ErrObjectNotFound {
 			return networktypes.Profile{}, err
 		}
@@ -202,5 +202,5 @@ func (n Network) Profile(ctx context.Context, campaignID uint64) (networktypes.P
 	} else if err != nil {
 		return networktypes.Profile{}, err
 	}
-	return p.ToProfile(campaignID, vouchers, shares), nil
+	return p.ToProfile(projectID, vouchers, shares), nil
 }
