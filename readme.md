@@ -11,7 +11,7 @@ Ignite CLI generates boilerplate code for you, so you can focus on writing busin
 
 Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or
 open [nightly version](https://gitpod.io/#https://github.com/ignite/cli/)),
-or [install the latest release](https://docs.igniteaeffefae.com/guide/install).
+or [install the latest release](https://docs.ignite.com/guide/install).
 
 To create and start a blockchain:
 
@@ -76,10 +76,10 @@ plugins:
   // the directory must contain go code under a main package.
   // For repositories you can specify a suffix @branch or @tag to target a
   // specific git reference.
-- path: github.com/org/repo/my-plugin
-  // Additional parameters can be passed to the plugin
-  with:
-    key: value
+  - path: github.com/org/repo/my-plugin
+    // Additional parameters can be passed to the plugin
+    with:
+      key: value
 ```
 
 Once declared, the next time the ignite binary will be executed under this
@@ -111,7 +111,7 @@ instance:
 
 ```yaml
 plugins:
-- path: /home/user/src/bar
+  - path: /home/user/src/bar
 ```
 
 Then run `ignite`, the plugin will compile and should be listed among the
@@ -126,7 +126,7 @@ We welcome contributions from everyone. The `develop` branch contains the develo
 create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull
 request.
 
-Our [Ignite CLI bounty program](docs/bounty/index.md) provides incentives for your participation and pays rewards. Track
+Our [Ignite CLI bounty program](/bounty) provides incentives for your participation and pays rewards. Track
 new, in-progress, and completed bounties on the [Bounty board](https://github.com/ignite/cli/projects/5) in GitHub.
 
 **Important** Before you start implementing a new Ignite CLI feature, the first step is to create an issue on GitHub
@@ -144,6 +144,6 @@ Stay in touch.
 * [@ignite\_dev on Twitter](https://twitter.com/ignite_dev)
 * [ignite.com/blog](https://ignite.com/blog/)
 * [Ignite Discord](https://discord.com/invite/ignite)
-* [Ignite YouTube](https://www.youtube.com/ignitehq)
+* [Ignite YouTube](https://www.youtube.com/@ignitehq)
 * [Ignite docs](https://docs.ignite.com/)
 * [Ignite jobs](https://ignite.com/careers)
