@@ -16,7 +16,7 @@
   "replacementPatterns": [
     {
       "pattern": "^/",
-      "replacement": "{{BASEURL}}/"
+      "replacement": "https://docs.ignite.com/"
     }
   ],
   "baseUrl": "https://docs.ignite.com",
