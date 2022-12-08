@@ -18,6 +18,8 @@ jobs:
             **/*.go
             go.mod
             go.sum
+            **/testdata/**
+
       - uses: actions/setup-go@v3
         if: env.GIT_DIFF
         with:

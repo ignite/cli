@@ -36,6 +36,7 @@ jobs:
             **/*.go
             go.mod
             go.sum
+            **/testdata/**
 
       - uses: actions/cache@v3
         if: env.GIT_DIFF
