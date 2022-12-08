@@ -32,7 +32,7 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 	return resCoordByAddr.CoordinatorByAddress.CoordinatorID, nil
 }
 
-// SetCoordinatorDescription set the description of a coordindator
+// SetCoordinatorDescription set the description of a coordinator
 // or creates the coordinator if it doesn't exist yet for the sender address.
 func (n Network) SetCoordinatorDescription(ctx context.Context, description profiletypes.CoordinatorDescription) error {
 	n.ev.Send("Setting coordinator description", events.ProgressStart())
