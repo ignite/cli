@@ -49,7 +49,7 @@ blockchain app developer, you have to define the state machine with a starting
 state and messages that trigger state transitions. These software components
 make it all possible!
 
-- [Ignite CLI](https://docs.ignite.com/) is built on top of Cosmos SDK and
+- [Ignite CLI](/) is built on top of Cosmos SDK and
   accelerates chain development by scaffolding everything you need.
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework
   allows developers like you to create custom blockchains that can natively

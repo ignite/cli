@@ -11,7 +11,7 @@ Ignite CLI generates boilerplate code for you, so you can focus on writing busin
 
 Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or
 open [nightly version](https://gitpod.io/#https://github.com/ignite/cli/)),
-or [install the latest release](https://docs.ignite.com/guide/install.html).
+or [install the latest release](https://docs.ignite.com/guide/install).
 
 To create and start a blockchain:
 
@@ -29,7 +29,7 @@ To learn how to use Ignite CLI, check out the [Ignite CLI docs](https://docs.ign
 build blockchain apps with Ignite CLI, see the [Ignite CLI Developer Tutorials](https://docs.ignite.com/guide).
 
 To install Ignite CLI locally on GNU, Linux, or macOS,
-see [Install Ignite CLI](https://docs.ignite.com/guide/install.html).
+see [Install Ignite CLI](https://docs.ignite.com/guide/install).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain,
 see [ignite/web](https://github.com/ignite/web).

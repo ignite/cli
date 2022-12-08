@@ -81,7 +81,7 @@ Use the `ignite scaffold message` command to scaffold new messages for your
 module.
 
 - The [`ignite scaffold
-  message`](https://docs.ignite.com/#ignite-scaffold-message) command accepts
+  message`](/cli#ignite-scaffold-message) command accepts
   the message name as the first argument and a list of fields for the message.
 - By default, a message is scaffolded in a module with a name that matches the
   name of the project, in this case `nameservice`.

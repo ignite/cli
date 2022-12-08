@@ -11,6 +11,9 @@
     },
     {
       "pattern": "^index.md"
+    },
+    {
+      "pattern": "^/"
     }
   ],
   "timeout": "20s",
