@@ -236,6 +236,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					repoPath: "/xxxx/yyyy",
 					cloneURL: "/xxxx/yyyy",
 					cloneDir: cloneDir,
 					srcPath:  path.Join(cloneDir, "plugin"),

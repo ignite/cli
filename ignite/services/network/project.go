@@ -13,10 +13,10 @@ import (
 )
 
 type (
-	// Prop update campaign proposal
+	// Prop update project proposal
 	Prop func(*updateProp)
 
-	// updateProp represents the update campaign proposal
+	// updateProp represents the update project proposal
 	updateProp struct {
 		name        string
 		metadata    []byte
@@ -24,62 +24,62 @@ type (
 	}
 )
 
-// WithCampaignName provides a name proposal to update the campaign.
-func WithCampaignName(name string) Prop {
+// WithProjectName provides a name proposal to update the project.
+func WithProjectName(name string) Prop {
 	return func(c *updateProp) {
 		c.name = name
 	}
 }
 
-// WithCampaignMetadata provides a meta data proposal to update the campaign.
-func WithCampaignMetadata(metadata string) Prop {
+// WithProjectMetadata provides a meta data proposal to update the project.
+func WithProjectMetadata(metadata string) Prop {
 	return func(c *updateProp) {
 		c.metadata = []byte(metadata)
 	}
 }
 
-// WithCampaignTotalSupply provides a total supply proposal to update the campaign.
-func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
+// WithProjectTotalSupply provides a total supply proposal to update the project.
+func WithProjectTotalSupply(totalSupply sdk.Coins) Prop {
 	return func(c *updateProp) {
 		c.totalSupply = totalSupply
 	}
 }
 
-// Campaign fetches the campaign from Network
-func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
-	n.ev.Send("Fetching campaign information", events.ProgressStart())
+// Project fetches the project from Network
+func (n Network) Project(ctx context.Context, projectID uint64) (networktypes.Project, error) {
+	n.ev.Send("Fetching project information", events.ProgressStart())
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
-		CampaignID: campaignID,
+		CampaignID: projectID,
 	})
 	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
-		return networktypes.Campaign{}, ErrObjectNotFound
+		return networktypes.Project{}, ErrObjectNotFound
 	} else if err != nil {
-		return networktypes.Campaign{}, err
+		return networktypes.Project{}, err
 	}
-	return networktypes.ToCampaign(res.Campaign), nil
+	return networktypes.ToProject(res.Campaign), nil
 }
 
-// Campaigns fetches the campaigns from Network
-func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
-	var campaigns []networktypes.Campaign
+// Projects fetches the projects from Network
+func (n Network) Projects(ctx context.Context) ([]networktypes.Project, error) {
+	var projects []networktypes.Project
 
-	n.ev.Send("Fetching campaigns information", events.ProgressStart())
+	n.ev.Send("Fetching projects information", events.ProgressStart())
 	res, err := n.campaignQuery.CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
-		return campaigns, err
+		return projects, err
 	}
 
-	// Parse fetched campaigns
-	for _, campaign := range res.Campaign {
-		campaigns = append(campaigns, networktypes.ToCampaign(campaign))
+	// Parse fetched projects
+	for _, project := range res.Campaign {
+		projects = append(projects, networktypes.ToProject(project))
 	}
 
-	return campaigns, nil
+	return projects, nil
 }
 
-// CreateCampaign creates a campaign in Network
-func (n Network) CreateCampaign(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
-	n.ev.Send(fmt.Sprintf("Creating campaign %s", name), events.ProgressStart())
+// CreateProject creates a project in Network
+func (n Network) CreateProject(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
+	n.ev.Send(fmt.Sprintf("Creating project %s", name), events.ProgressStart())
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return 0, err
@@ -104,15 +104,15 @@ func (n Network) CreateCampaign(ctx context.Context, name, metadata string, tota
 	return createCampaignRes.CampaignID, nil
 }
 
-// InitializeMainnet Initialize the mainnet of the campaign.
+// InitializeMainnet Initialize the mainnet of the project.
 func (n Network) InitializeMainnet(
 	ctx context.Context,
-	campaignID uint64,
+	projectID uint64,
 	sourceURL,
 	sourceHash string,
 	mainnetChainID string,
 ) (uint64, error) {
-	n.ev.Send("Initializing the mainnet campaign", events.ProgressStart())
+	n.ev.Send("Initializing the mainnet project", events.ProgressStart())
 	addr, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return 0, err
@@ -120,7 +120,7 @@ func (n Network) InitializeMainnet(
 
 	msg := campaigntypes.NewMsgInitializeMainnet(
 		addr,
-		campaignID,
+		projectID,
 		sourceURL,
 		sourceHash,
 		mainnetChainID,
@@ -136,13 +136,13 @@ func (n Network) InitializeMainnet(
 		return 0, err
 	}
 
-	n.ev.Send(fmt.Sprintf("Campaign %d initialized on mainnet", campaignID), events.ProgressFinish())
+	n.ev.Send(fmt.Sprintf("Project %d initialized on mainnet", projectID), events.ProgressFinish())
 
 	return initMainnetRes.MainnetID, nil
 }
 
-// UpdateCampaign updates the campaign name or metadata
-func (n Network) UpdateCampaign(
+// UpdateProject updates the project name or metadata
+func (n Network) UpdateProject(
 	ctx context.Context,
 	id uint64,
 	props ...Prop,
@@ -153,7 +153,7 @@ func (n Network) UpdateCampaign(
 		apply(&p)
 	}
 
-	n.ev.Send(fmt.Sprintf("Updating the campaign %d", id), events.ProgressStart())
+	n.ev.Send(fmt.Sprintf("Updating the project %d", id), events.ProgressStart())
 	account, err := n.account.Address(networktypes.SPN)
 	if err != nil {
 		return err
@@ -179,6 +179,6 @@ func (n Network) UpdateCampaign(
 	if _, err := n.cosmos.BroadcastTx(ctx, n.account, msgs...); err != nil {
 		return err
 	}
-	n.ev.Send(fmt.Sprintf("Campaign %d updated", id), events.ProgressFinish())
+	n.ev.Send(fmt.Sprintf("Project %d updated", id), events.ProgressFinish())
 	return nil
 }
