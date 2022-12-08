@@ -146,6 +146,10 @@ func (c Chain) buildGenesis(
 		}
 	}
 
+	if err := applyParamChanges(genesis, gi.ParamChanges); err != nil {
+		return fmt.Errorf("error applying param changes to genesis: %w", err)
+	}
+
 	c.ev.Send("Genesis built", events.ProgressFinish())
 
 	return nil
@@ -251,6 +255,24 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	}
 
 	return c.updateConfigFromGenesisValidators(genesisVals)
+}
+
+// applyParamChanges applies the param changes into the genesis
+func applyParamChanges(
+	genesis *cosmosgenesis.Genesis,
+	paramChanges []networktypes.ParamChange,
+) error {
+	changes := make([]jsonfile.UpdateFileOption, len(paramChanges))
+
+	for i, pc := range paramChanges {
+		changes[i] = jsonfile.WithKeyValueByte(cosmosgenesis.ModuleParamField(pc.Module, pc.Param), pc.Value)
+	}
+
+	if err := genesis.Update(changes...); err != nil {
+		return errors.Wrap(err, "failed to apply param change to genesis")
+	}
+
+	return nil
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
