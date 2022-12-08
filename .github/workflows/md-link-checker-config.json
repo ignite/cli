@@ -1,11 +1,4 @@
 {
-  "replacementPatterns": [
-    {
-      "pattern": "^/",
-      "replacement": "{{BASEURL}}/"
-    }
-  ],
-  "projectBaseUrl": "https://docs.ignite.com",
   "ignorePatterns": [
     {
       "pattern": "^https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request"
@@ -20,6 +13,13 @@
       "pattern": "^index.md"
     }
   ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "https://docs.ignite.com/"
+    }
+  ],
+  "projectBaseUrl": "https://docs.ignite.com",
   "timeout": "20s",
   "retryOn429": true,
   "retryCount": 5,
