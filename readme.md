@@ -10,7 +10,7 @@ Ignite CLI generates boilerplate code for you, so you can focus on writing busin
 ## Quick start
 
 Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or
-open [nightly version](https://gitpod.io/#https://github.com/ignite/cli/)),
+open [nightly version](https://gitpod.io/#https://github.com/ignite/cli)),
 or [install the latest release](https://docs.ignite.com/guide/install).
 
 To create and start a blockchain:
@@ -41,7 +41,7 @@ repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK compatibility
 
-Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the
+Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) framework. To ensure the
 best possible experience, use the version of Ignite CLI that corresponds to the version of Cosmos SDK that your
 blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
@@ -142,8 +142,8 @@ Stay in touch.
 
 * [ignite.com website](https://ignite.com)
 * [@ignite\_dev on Twitter](https://twitter.com/ignite_dev)
-* [ignite.com/blog](https://ignite.com/blog/)
+* [ignite.com/blog](https://ignite.com/blog)
 * [Ignite Discord](https://discord.com/invite/ignite)
 * [Ignite YouTube](https://www.youtube.com/@ignitehq)
-* [Ignite docs](https://docs.ignite.com/)
+* [Ignite docs](https://docs.ignite.com)
 * [Ignite jobs](https://ignite.com/careers)

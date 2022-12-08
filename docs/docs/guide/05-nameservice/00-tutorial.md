@@ -51,7 +51,7 @@ make it all possible!
 
 - [Ignite CLI](/) is built on top of Cosmos SDK and
   accelerates chain development by scaffolding everything you need.
-- The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework
+- The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) modular framework
   allows developers like you to create custom blockchains that can natively
   interact with other blockchains.
 - [Tendermint](https://docs.tendermint.com/main/introduction/what-is-tendermint.html)
