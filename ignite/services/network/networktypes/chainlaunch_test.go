@@ -35,12 +35,12 @@ func TestToChainLaunch(t *testing.T) {
 				GenesisURL:      "",
 				GenesisHash:     "",
 				LaunchTriggered: false,
-				CampaignID:      1,
+				ProjectID:       1,
 				Network:         "testnet",
 			},
 		},
 		{
-			name: "launched chain with custom genesis url and no campaign",
+			name: "launched chain with custom genesis url and no project",
 			fetched: launchtypes.Chain{
 				LaunchID:        1,
 				GenesisChainID:  "bar-1",
@@ -62,7 +62,7 @@ func TestToChainLaunch(t *testing.T) {
 				GenesisHash:     "0xccc",
 				LaunchTriggered: true,
 				LaunchTime:      time.Unix(100, 100).UTC(),
-				CampaignID:      0,
+				ProjectID:       0,
 				Network:         "testnet",
 			},
 		},
