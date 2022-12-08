@@ -25,7 +25,7 @@ service MsgApi {
       external_docs: {
         //        url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
         //        description: "Find out more message spec and response events here";
-        url: "https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md";
+        url: "https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/migrations/00-intro.md";
         description: "According to migrating-to-new-rest-endpoints, the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast txs temporarily";
       }
 //      responses: {
@@ -53,7 +53,7 @@ service MsgApi {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
       tags: "Tx";
       external_docs: {
-        url: "https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md";
+        url: "https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/migrations/00-intro.md";
         description: "According to migrating-to-new-rest-endpoints, the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast txs temporarily";
       }
     };
@@ -69,7 +69,7 @@ service MsgApi {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
       tags: "Tx";
       external_docs: {
-        url: "https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md";
+        url: "https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/migrations/00-intro.md";
         description: "According to migrating-to-new-rest-endpoints, the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast txs temporarily";
       }
     };
@@ -85,7 +85,7 @@ service MsgApi {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
       tags: "Tx";
       external_docs: {
-        url: "https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md";
+        url: "https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/migrations/00-intro.md";
         description: "According to migrating-to-new-rest-endpoints, the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast txs temporarily";
       }
     };

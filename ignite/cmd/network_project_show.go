@@ -8,23 +8,23 @@ import (
 	"github.com/ignite/cli/ignite/services/network"
 )
 
-// NewNetworkCampaignShow returns a new command to show published campaign on Ignite
-func NewNetworkCampaignShow() *cobra.Command {
+// NewNetworkProjectShow returns a new command to show published project on Ignite
+func NewNetworkProjectShow() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "show [campaign-id]",
-		Short: "Show published campaign",
+		Use:   "show [project-id]",
+		Short: "Show published project",
 		Args:  cobra.ExactArgs(1),
-		RunE:  networkCampaignShowHandler,
+		RunE:  networkProjectShowHandler,
 	}
 	return c
 }
 
-func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
+func networkProjectShowHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinner())
 	defer session.End()
 
-	// parse campaign ID
-	campaignID, err := network.ParseID(args[0])
+	// parse project ID
+	projectID, err := network.ParseID(args[0])
 	if err != nil {
 		return err
 	}
@@ -39,12 +39,12 @@ func networkCampaignShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	campaign, err := n.Campaign(cmd.Context(), campaignID)
+	project, err := n.Project(cmd.Context(), projectID)
 	if err != nil {
 		return err
 	}
 
-	info, err := yaml.Marshal(cmd.Context(), campaign)
+	info, err := yaml.Marshal(cmd.Context(), project)
 	if err != nil {
 		return err
 	}
