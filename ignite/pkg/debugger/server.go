@@ -103,17 +103,12 @@ func Start(ctx context.Context, binaryPath string, options ...Option) (err error
 		return err
 	}
 
-	dc := o.disconnectChan
-	if dc == nil {
-		dc = make(chan struct{})
-	}
-
 	server := rpccommon.NewServer(&service.Config{
 		Listener:           listener,
 		AcceptMulti:        false,
 		APIVersion:         2,
 		CheckLocalConnUser: true,
-		DisconnectChan:     dc,
+		DisconnectChan:     o.disconnectChan,
 		ProcessArgs:        append([]string{binaryPath}, o.binaryArgs...),
 		Debugger: debugger.Config{
 			WorkingDir: o.workingDir,
@@ -134,7 +129,7 @@ func Start(ctx context.Context, binaryPath string, options ...Option) (err error
 	// Wait until the context is done or the connected client disconnects
 	select {
 	case <-ctx.Done():
-	case <-dc:
+	case <-o.disconnectChan:
 	}
 
 	return nil
@@ -173,8 +168,9 @@ func Run(ctx context.Context, binaryPath string, options ...Option) error {
 
 func applyDebuggerOptions(options ...Option) debuggerOptions {
 	o := debuggerOptions{
-		address:    DefaultAddress,
-		workingDir: DefaultWorkingDir,
+		address:        DefaultAddress,
+		workingDir:     DefaultWorkingDir,
+		disconnectChan: make(chan struct{}),
 	}
 	for _, apply := range options {
 		apply(&o)
