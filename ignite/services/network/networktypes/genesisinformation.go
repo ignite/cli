@@ -106,31 +106,49 @@ func NewGenesisInformation(
 	}
 }
 
-func (gi GenesisInformation) ContainsGenesisAccount(address string) bool {
-	for _, account := range gi.GenesisAccounts {
+// ContainsGenesisAccount returns true if GenesisInformation contains given address.
+// Returns index if true, -1 if false.
+func (gi GenesisInformation) ContainsGenesisAccount(address string) (bool, int) {
+	for i, account := range gi.GenesisAccounts {
 		if account.Address == address {
-			return true
+			return true, i
 		}
 	}
-	return false
+	return false, -1
 }
 
-func (gi GenesisInformation) ContainsVestingAccount(address string) bool {
-	for _, account := range gi.VestingAccounts {
+// ContainsVestingAccount returns true if GenesisInformation contains given address.
+// Returns index if true, -1 if false.
+func (gi GenesisInformation) ContainsVestingAccount(address string) (bool, int) {
+	for i, account := range gi.VestingAccounts {
 		if account.Address == address {
-			return true
+			return true, i
 		}
 	}
-	return false
+	return false, -1
 }
 
-func (gi GenesisInformation) ContainsGenesisValidator(address string) bool {
-	for _, account := range gi.GenesisValidators {
+// ContainsGenesisValidator returns true if GenesisInformation contains given address.
+// Returns index if true, -1 if false.
+func (gi GenesisInformation) ContainsGenesisValidator(address string) (bool, int) {
+	for i, account := range gi.GenesisValidators {
 		if account.Address == address {
-			return true
+			return true, i
 		}
 	}
-	return false
+	return false, -1
+}
+
+// ContainsParamChange returns true if GenesisInformation contains given module-param pair.
+// Returns index if true, -1 if false.
+func (gi GenesisInformation) ContainsParamChange(module, param string) (bool, int) {
+	for i, paramChange := range gi.ParamChanges {
+		if paramChange.Module == module && paramChange.Param == param {
+			return true, i
+		}
+	}
+	return false, -1
+
 }
 
 func (gi *GenesisInformation) AddGenesisAccount(acc GenesisAccount) {
@@ -170,6 +188,11 @@ func (gi *GenesisInformation) RemoveGenesisValidator(address string) {
 }
 
 func (gi *GenesisInformation) AddParamChange(pc ParamChange) {
+	contains, index := gi.ContainsParamChange(pc.Module, pc.Param)
+	if contains {
+		gi.ParamChanges[index] = pc
+		return
+	}
 	gi.ParamChanges = append(gi.ParamChanges, pc)
 }
 
@@ -179,8 +202,8 @@ func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, 
 	case *launchtypes.RequestContent_GenesisAccount:
 		// new genesis account in the genesis
 		ga := ToGenesisAccount(*requestContent.GenesisAccount)
-		genExist := gi.ContainsGenesisAccount(ga.Address)
-		vestingExist := gi.ContainsVestingAccount(ga.Address)
+		genExist, _ := gi.ContainsGenesisAccount(ga.Address)
+		vestingExist, _ := gi.ContainsVestingAccount(ga.Address)
 		if genExist || vestingExist {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis account already in genesis")
 		}
@@ -196,8 +219,8 @@ func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, 
 			return gi, err
 		}
 
-		genExist := gi.ContainsGenesisAccount(va.Address)
-		vestingExist := gi.ContainsVestingAccount(va.Address)
+		genExist, _ := gi.ContainsGenesisAccount(va.Address)
+		vestingExist, _ := gi.ContainsVestingAccount(va.Address)
 		if genExist || vestingExist {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "vesting account already in genesis")
 		}
@@ -206,8 +229,8 @@ func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, 
 	case *launchtypes.RequestContent_AccountRemoval:
 		// account removed from the genesis
 		ar := requestContent.AccountRemoval
-		genExist := gi.ContainsGenesisAccount(ar.Address)
-		vestingExist := gi.ContainsVestingAccount(ar.Address)
+		genExist, _ := gi.ContainsGenesisAccount(ar.Address)
+		vestingExist, _ := gi.ContainsVestingAccount(ar.Address)
 		if !genExist && !vestingExist {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "account can't be removed because it doesn't exist")
 		}
@@ -217,7 +240,7 @@ func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, 
 	case *launchtypes.RequestContent_GenesisValidator:
 		// new genesis validator in the genesis
 		gv := ToGenesisValidator(*requestContent.GenesisValidator)
-		if gi.ContainsGenesisValidator(gv.Address) {
+		if contains, _ := gi.ContainsGenesisValidator(gv.Address); contains {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis validator already in genesis")
 		}
 		gi.AddGenesisValidator(gv)
@@ -225,7 +248,7 @@ func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, 
 	case *launchtypes.RequestContent_ValidatorRemoval:
 		// validator removed from the genesis
 		vr := requestContent.ValidatorRemoval
-		if !gi.ContainsGenesisValidator(vr.ValAddress) {
+		if contains, _ := gi.ContainsGenesisValidator(vr.ValAddress); !contains {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis validator can't be removed because it doesn't exist")
 		}
 
