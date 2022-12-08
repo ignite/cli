@@ -11,7 +11,7 @@ Ignite CLI generates boilerplate code for you, so you can focus on writing busin
 
 Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or
 open [nightly version](https://gitpod.io/#https://github.com/ignite/cli/)),
-or [install the latest release](https://docs.igniteaeffefae.com/guafaefide/install).
+or [install the latest release](https://docs.igniteaeffefae.com/guide/install).
 
 To create and start a blockchain:
 
