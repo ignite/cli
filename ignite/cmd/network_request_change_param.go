@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/network"
+	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
 // NewNetworkRequestChangeParam creates a new command to send param change request
@@ -44,6 +45,28 @@ func networkRequestChangeParamHandler(cmd *cobra.Command, args []string) error {
 	value := []byte(args[3])
 
 	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
+	// fetch chain information
+	chainLaunch, err := n.ChainLaunch(cmd.Context(), launchID)
+	if err != nil {
+		return err
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	if err != nil {
+		return err
+	}
+
+	// check validity of request
+	err = c.CheckRequestChangeParam(
+		cmd.Context(),
+		module,
+		param,
+		value,
+	)
 	if err != nil {
 		return err
 	}

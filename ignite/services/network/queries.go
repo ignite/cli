@@ -86,20 +86,25 @@ func (n Network) ChainLaunchesWithReward(ctx context.Context, pagination *query.
 func (n Network) GenesisInformation(ctx context.Context, launchID uint64) (gi networktypes.GenesisInformation, err error) {
 	genAccs, err := n.GenesisAccounts(ctx, launchID)
 	if err != nil {
-		return gi, errors.Wrap(err, "error querying genesis accounts")
+		return gi, fmt.Errorf("error querying genesis accounts: %w", err)
 	}
 
 	vestingAccs, err := n.VestingAccounts(ctx, launchID)
 	if err != nil {
-		return gi, errors.Wrap(err, "error querying vesting accounts")
+		return gi, fmt.Errorf("error querying vesting accounts: %w", err)
 	}
 
 	genVals, err := n.GenesisValidators(ctx, launchID)
 	if err != nil {
-		return gi, errors.Wrap(err, "error querying genesis validators")
+		return gi, fmt.Errorf("error querying genesis validators: %w", err)
 	}
 
-	return networktypes.NewGenesisInformation(genAccs, vestingAccs, genVals), nil
+	paramChanges, err := n.ParamChanges(ctx, launchID)
+	if err != nil {
+		return gi, fmt.Errorf("error querying param changes: %w", err)
+	}
+
+	return networktypes.NewGenesisInformation(genAccs, vestingAccs, genVals, paramChanges), nil
 }
 
 // GenesisAccounts returns the list of approved genesis accounts for a launch from SPN
@@ -165,6 +170,26 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	}
 
 	return genVals, nil
+}
+
+// ParamChanges returns the list of approved param changes for a launch from SPN
+func (n Network) ParamChanges(ctx context.Context, launchID uint64) (paramChanges []networktypes.ParamChange, err error) {
+	n.ev.Send("Fetching param changes", events.ProgressStart())
+	res, err := n.launchQuery.
+		ParamChangeAll(ctx,
+			&launchtypes.QueryAllParamChangeRequest{
+				LaunchID: launchID,
+			},
+		)
+	if err != nil {
+		return paramChanges, err
+	}
+
+	for _, pc := range res.ParamChanges {
+		paramChanges = append(paramChanges, networktypes.ToParamChange(pc))
+	}
+
+	return paramChanges, nil
 }
 
 // MainnetAccount returns the project mainnet account for a launch from SPN

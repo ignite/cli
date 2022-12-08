@@ -17,6 +17,7 @@ type GenesisInformation struct {
 	GenesisAccounts   []GenesisAccount
 	VestingAccounts   []VestingAccount
 	GenesisValidators []GenesisValidator
+	ParamChanges      []ParamChange
 }
 
 // GenesisAccount represents an account with initial coin allocation for the chain for the chain genesis
@@ -40,6 +41,12 @@ type GenesisValidator struct {
 	Gentx          []byte           `json:"Gentx,omitempty"`
 	Peer           launchtypes.Peer `json:"Peer,omitempty"`
 	SelfDelegation sdk.Coin         `json:"SelfDelegation,omitempty"`
+}
+
+type ParamChange struct {
+	Module string `json:"Module,omitempty"`
+	Param  string `json:"Param,omitempty"`
+	Value  []byte `json:"Value,omitempty"`
 }
 
 // ToGenesisAccount converts genesis account from SPN
@@ -75,16 +82,27 @@ func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	}
 }
 
+// ToParamChange converts param change from SPN
+func ToParamChange(pc launchtypes.ParamChange) ParamChange {
+	return ParamChange{
+		Param:  pc.Param,
+		Module: pc.Module,
+		Value:  pc.Value,
+	}
+}
+
 // NewGenesisInformation initializes a new GenesisInformation
 func NewGenesisInformation(
 	genAccs []GenesisAccount,
 	vestingAccs []VestingAccount,
 	genVals []GenesisValidator,
+	paramChanges []ParamChange,
 ) (gi GenesisInformation) {
 	return GenesisInformation{
 		GenesisAccounts:   genAccs,
 		VestingAccounts:   vestingAccs,
 		GenesisValidators: genVals,
+		ParamChanges:      paramChanges,
 	}
 }
 
@@ -151,6 +169,10 @@ func (gi *GenesisInformation) RemoveGenesisValidator(address string) {
 	}
 }
 
+func (gi *GenesisInformation) AddParamChange(pc ParamChange) {
+	gi.ParamChanges = append(gi.ParamChanges, pc)
+}
+
 // ApplyRequest applies to the genesisInformation the changes implied by the approval of a request
 func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, error) {
 	switch requestContent := request.Content.Content.(type) {
@@ -206,6 +228,11 @@ func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, 
 		if !gi.ContainsGenesisValidator(vr.ValAddress) {
 			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis validator can't be removed because it doesn't exist")
 		}
+
+	case *launchtypes.RequestContent_ParamChange:
+		// param changed in genesis file
+		pc := ToParamChange(*requestContent.ParamChange)
+		gi.AddParamChange(pc)
 	}
 
 	return gi, nil
