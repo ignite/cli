@@ -59,7 +59,7 @@ blockchain is built with. Unless noted otherwise, a row refers to a minor versio
 | v0.17       | v0.42       | Same with Cosmos SDK |                                                               |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see
-the [Migration guide](https://docs.ignite.com/migration/).
+the [Migration guide](https://docs.ignite.com/migration/v0.18).
 
 ## Plugin system
 
