@@ -14,7 +14,32 @@ import (
 
 var sampleCoins = sdk.NewCoins(sdk.NewCoin("bar", sdkmath.NewInt(1000)), sdk.NewCoin("foo", sdkmath.NewInt(2000)))
 
-// TODO add param-change tests
+func TestToParamChange(t *testing.T) {
+	tests := []struct {
+		name     string
+		fetched  launchtypes.ParamChange
+		expected networktypes.ParamChange
+	}{
+		{name: "param change",
+			fetched: launchtypes.ParamChange{
+				LaunchID: 0,
+				Module:   "foo",
+				Param:    "bar",
+				Value:    []byte("value"),
+			},
+			expected: networktypes.ParamChange{
+				Module: "foo",
+				Param:  "bar",
+				Value:  []byte("value"),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.EqualValues(t, tt.expected, networktypes.ToParamChange(tt.fetched))
+		})
+	}
+}
 
 func TestToGenesisAccount(t *testing.T) {
 	tests := []struct {
