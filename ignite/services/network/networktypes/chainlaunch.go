@@ -22,7 +22,7 @@ type (
 		GenesisHash            string      `json:"GenesisHash"`
 		GenesisConfig          string      `json:"GenesisConfig"`
 		LaunchTime             time.Time   `json:"LaunchTime"`
-		CampaignID             uint64      `json:"CampaignID"`
+		ProjectID              uint64      `json:"ProjectID"`
 		LaunchTriggered        bool        `json:"LaunchTriggered"`
 		Network                NetworkType `json:"Network"`
 		Reward                 string      `json:"Reward,omitempty"`
@@ -59,7 +59,7 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		SourceURL:              chain.SourceURL,
 		SourceHash:             chain.SourceHash,
 		LaunchTime:             launchTime,
-		CampaignID:             chain.CampaignID,
+		ProjectID:              chain.CampaignID,
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,
 		AccountBalance:         chain.AccountBalance,
