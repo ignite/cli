@@ -103,7 +103,7 @@ strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-wo
   what issues we plan to work on.
 
 Contributors, check the **To Do** column on the project board <https://github.com/ignite/cli/projects/4> to find an
-issue to work on. See the [Ignite CLI bounty program](docs/docs/06-bounty.md) to learn how your participation can earn
+issue to work on. See the [Ignite CLI bounty program](docs/docs/09-bounty.md) to learn how your participation can earn
 rewards.
 
 We appreciate your contribution!
