@@ -105,7 +105,7 @@ Use the `--dep` flag to specify that this module depends on and is going to inte
 
 ## Scaffold a list
 
-Use the [scaffold list](https://docs.ignite.com/cli#ignite-scaffold-list) command to scaffold code necessary to store
+Use the [scaffold list](/cli#ignite-scaffold-list) command to scaffold code necessary to store
 loans in an array-like data structure:
 
 ```bash
