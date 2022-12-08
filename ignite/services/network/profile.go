@@ -24,7 +24,7 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 			},
 		)
 
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return 0, ErrObjectNotFound
 	} else if err != nil {
 		return 0, err
@@ -89,7 +89,7 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 				CoordinatorID: coordinatorID,
 			},
 		)
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return networktypes.Coordinator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Coordinator{}, err
@@ -133,7 +133,7 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 				Address: address,
 			},
 		)
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return networktypes.Validator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Validator{}, err
@@ -149,7 +149,7 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 			Address: address,
 		},
 	)
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return sdk.Coins{}, ErrObjectNotFound
 	} else if err != nil {
 		return sdk.Coins{}, err

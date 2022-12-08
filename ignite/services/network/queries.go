@@ -184,7 +184,7 @@ func (n Network) MainnetAccount(
 				Address:    address,
 			},
 		)
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return networktypes.MainnetAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return acc, err
@@ -219,7 +219,7 @@ func (n Network) GenesisAccount(ctx context.Context, launchID uint64, address st
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return networktypes.GenesisAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.GenesisAccount{}, err
@@ -233,7 +233,7 @@ func (n Network) VestingAccount(ctx context.Context, launchID uint64, address st
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return networktypes.VestingAccount{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.VestingAccount{}, err
@@ -247,7 +247,7 @@ func (n Network) GenesisValidator(ctx context.Context, launchID uint64, address 
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return networktypes.GenesisValidator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.GenesisValidator{}, err
@@ -264,7 +264,7 @@ func (n Network) ChainReward(ctx context.Context, launchID uint64) (rewardtypes.
 			},
 		)
 
-	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
+	if errors.Is(err, cosmoserror.ErrNotFound) {
 		return rewardtypes.RewardPool{}, ErrObjectNotFound
 	} else if err != nil {
 		return rewardtypes.RewardPool{}, err
