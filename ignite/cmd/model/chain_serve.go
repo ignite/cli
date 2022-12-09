@@ -71,11 +71,15 @@ type ChainServe struct {
 	quitModel    cliuimodel.Events
 }
 
+// Init is the first function that will be called.
+// It returns a batch command that listen events and also runs the blockchain app.
 func (m ChainServe) Init() tea.Cmd {
 	// On initialization wait for status events and start serving the blockchain
 	return tea.Batch(m.startModel.WaitEvent, m.cmd)
 }
 
+// Update is called when a message is received.
+// It handles messages and executes the logic that updates the model.
 func (m ChainServe) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if checkQuitKeyMsg(msg) {
 		m.state = stateChainServeQuitting
@@ -95,6 +99,7 @@ func (m ChainServe) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
+// View renders the UI after every update.
 func (m ChainServe) View() string {
 	if m.error != nil {
 		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(m.error.Error()))

@@ -10,8 +10,27 @@ import (
 
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "ts-client",
-		Short:   "TypeScript frontend client",
+		Use:   "ts-client",
+		Short: "TypeScript frontend client",
+		Long: `Generate a framework agnostic TypeScript client for your blockchain project.
+
+To generate all clients for custom and standard Cosmos SDK modules, run this
+command:
+
+	ignite generate ts-client --clear-cache
+
+By default the TypeScript client is generated in the "ts-client/" directory. You
+can customize the output directory in config.yml:
+
+	client:
+	  typescript:
+	    path: new-path
+
+TypeScript client code can be automatically regenerated on reset or source code
+changes when the blockchain is started with with a flag:
+
+	ignite chain serve --generate-clients
+`,
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateTSClientHandler,
 	}

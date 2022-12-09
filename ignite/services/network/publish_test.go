@@ -468,7 +468,7 @@ func TestPublish(t *testing.T) {
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					InitialGenesis: launchtypes.NewConfigGenesis(
+					InitialGenesis: launchtypes.NewGenesisConfig(
 						testutil.ChainConfigYML,
 					),
 					HasCampaign: false,

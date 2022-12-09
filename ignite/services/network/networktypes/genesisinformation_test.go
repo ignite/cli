@@ -108,6 +108,34 @@ func TestToGenesisValidator(t *testing.T) {
 	}
 }
 
+func TestToParamChange(t *testing.T) {
+	tests := []struct {
+		name     string
+		fetched  launchtypes.ParamChange
+		expected networktypes.ParamChange
+	}{
+		{
+			name: "param change",
+			fetched: launchtypes.ParamChange{
+				LaunchID: 0,
+				Module:   "foo",
+				Param:    "bar",
+				Value:    []byte("value"),
+			},
+			expected: networktypes.ParamChange{
+				Module: "foo",
+				Param:  "bar",
+				Value:  []byte("value"),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.EqualValues(t, tt.expected, networktypes.ToParamChange(tt.fetched))
+		})
+	}
+}
+
 func TestGenesisInformation_ApplyRequest(t *testing.T) {
 	newCoin := func(str string) sdk.Coin {
 		c, err := sdk.ParseCoinNormalized(str)
@@ -141,6 +169,13 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 				Address: "spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6",
 				Gentx:   []byte("aaa"),
 				Peer:    launchtypes.NewPeerConn("foo", "foo"),
+			},
+		},
+		[]networktypes.ParamChange{
+			{
+				Module: "mint",
+				Param:  "mint_denom",
+				Value:  []byte("\"bar\""),
 			},
 		},
 	)
@@ -299,6 +334,13 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			},
 			invalidRequest: true,
 		},
+		{
+			name: "change param",
+			gi:   genesisInformation,
+			r: networktypes.Request{
+				Content: launchtypes.NewParamChange(0, "mint", "mint_denom", []byte("\"foo\"")),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -312,38 +354,38 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			switch rc := tt.r.Content.Content.(type) {
 			case *launchtypes.RequestContent_GenesisAccount:
 				ga := networktypes.ToGenesisAccount(*rc.GenesisAccount)
-				require.True(t, newGi.ContainsGenesisAccount(ga.Address))
-				for _, account := range newGi.GenesisAccounts {
-					if account.Address == ga.Address {
-						require.EqualValues(t, ga, account)
-					}
-				}
+				contains, index := newGi.ContainsGenesisAccount(ga.Address)
+				require.True(t, contains)
+				require.EqualValues(t, ga, newGi.GenesisAccounts[index])
 
 			case *launchtypes.RequestContent_VestingAccount:
 				va, err := networktypes.ToVestingAccount(*rc.VestingAccount)
 				require.NoError(t, err)
-				require.True(t, newGi.ContainsVestingAccount(va.Address))
-				for _, account := range newGi.VestingAccounts {
-					if account.Address == va.Address {
-						require.EqualValues(t, va, account)
-					}
-				}
+				contains, index := newGi.ContainsVestingAccount(va.Address)
+				require.True(t, contains)
+				require.EqualValues(t, va, newGi.VestingAccounts[index])
 
 			case *launchtypes.RequestContent_AccountRemoval:
-				require.False(t, newGi.ContainsGenesisAccount(rc.AccountRemoval.Address))
-				require.False(t, newGi.ContainsVestingAccount(rc.AccountRemoval.Address))
+				contains, _ := newGi.ContainsGenesisAccount(rc.AccountRemoval.Address)
+				require.False(t, contains)
+				contains, _ = newGi.ContainsVestingAccount(rc.AccountRemoval.Address)
+				require.False(t, contains)
 
 			case *launchtypes.RequestContent_GenesisValidator:
 				gv := networktypes.ToGenesisValidator(*rc.GenesisValidator)
-				require.True(t, newGi.ContainsGenesisValidator(gv.Address))
-				for _, val := range newGi.GenesisValidators {
-					if val.Address == gv.Address {
-						require.EqualValues(t, gv, val)
-					}
-				}
+				contains, index := newGi.ContainsGenesisValidator(gv.Address)
+				require.True(t, contains)
+				require.EqualValues(t, gv, newGi.GenesisValidators[index])
 
 			case *launchtypes.RequestContent_ValidatorRemoval:
-				require.False(t, newGi.ContainsGenesisAccount(rc.ValidatorRemoval.ValAddress))
+				contains, _ := newGi.ContainsGenesisAccount(rc.ValidatorRemoval.ValAddress)
+				require.False(t, contains)
+
+			case *launchtypes.RequestContent_ParamChange:
+				pc := networktypes.ToParamChange(*rc.ParamChange)
+				contains, index := newGi.ContainsParamChange(pc.Module, pc.Param)
+				require.True(t, contains)
+				require.EqualValues(t, pc, newGi.ParamChanges[index])
 			}
 		})
 	}
