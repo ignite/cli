@@ -22,7 +22,7 @@ require (
 	github.com/emicklei/proto v1.11.0
 	github.com/emicklei/proto-contrib v0.12.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-git/go-git/v5 v5.5.0
+	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gobuffalo/genny/v2 v2.1.0
 	github.com/gobuffalo/logger v1.0.7
 	github.com/gobuffalo/packd v1.0.2
@@ -292,7 +292,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d // indirect
-	github.com/pjbgf/sha1cd v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.0.5 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect
@@ -325,7 +324,6 @@ require (
 	github.com/sivchari/containedctx v1.0.2 // indirect
 	github.com/sivchari/nosnakecase v1.7.0 // indirect
 	github.com/sivchari/tenv v1.7.0 // indirect
-	github.com/skeema/knownhosts v1.1.0 // indirect
 	github.com/sonatard/noctx v0.0.1 // indirect
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/go-diff v0.6.1 // indirect
