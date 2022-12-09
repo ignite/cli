@@ -124,7 +124,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Init(ctx, true); err != nil {
+	if err := c.Init(ctx, chain.InitArgsAll); err != nil {
 		return err
 	}
 
