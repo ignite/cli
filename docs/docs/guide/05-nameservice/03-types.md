@@ -16,7 +16,7 @@ For the nameservice blockchain, define a `whois` type and the create and delete
 methods.
 
 Because Ignite CLI does the heavy lifting for you, choose from several [ignite
-scaffold](https://docs.ignite.com/cli#ignite-scaffold) commands to create CRUD
+scaffold](/cli#ignite-scaffold) commands to create CRUD
 functionality code for data stored in different ways:
 
 - Array, a list-like data structure
@@ -25,7 +25,7 @@ functionality code for data stored in different ways:
 
 ## Add the whois Type
 
-Use the [`ignite scaffold map`](https://docs.ignite.com/cli#ignite-scaffold-map)
+Use the [`ignite scaffold map`](/cli#ignite-scaffold-map)
 command to scaffold the `whois` type and create the code that implements CRUD
 functionality to create, read, update, and delete information about names.
 

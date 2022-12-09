@@ -303,7 +303,7 @@ func (c Chain) CheckConfigVersion() error {
 // Build builds chain sources, also checks if source was already built
 func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
 	// Check that the config version is the latest before building the binary
-	if err = c.CheckConfigVersion(); err != nil {
+	if err = c.CheckConfigVersion(); err != nil && err != chainconfig.ErrConfigNotFound {
 		return
 	}
 

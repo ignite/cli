@@ -7,7 +7,7 @@ To ensure you have a successful experience working with our Developer Tutorials 
 
 ## Setting up Visual Studio Code
 
-1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup/).
+1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup).
 1. Click **Extensions** in the sidebar.
 1. Install this extension:
     - Go for VS Code The official Go extension for Visual Studio Code
@@ -35,7 +35,7 @@ Master your terminal to be happy.
 
 ### iTerm2 terminal emulator
 
-On macOS, install the [iTerm2](https://iterm2.com/) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 as a replacement for Terminal provides an updated version of the Bash shell that supports useful features like programmable completion.
+On macOS, install the [iTerm2](https://iterm2.com) OSS terminal emulator as a replacement for the default Terminal app. Installing iTerm2 as a replacement for Terminal provides an updated version of the Bash shell that supports useful features like programmable completion.
 
 ### Using ZSH as your default shell
 

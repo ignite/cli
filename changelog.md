@@ -2,6 +2,7 @@
 
 ### Features
 
+- [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
 - [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
 - [#3184](https://github.com/ignite/cli/pull/3184) Separate `plugins.yml` config file.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
@@ -41,6 +42,7 @@
 - [#3109](https://github.com/ignite/cli/pull/3109) Refactor scaffolding for proto files to not rely on placeholders.
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 - [#3194](https://github.com/ignite/cli/issues/3194) Move config validators check to validate only when required.
+- [#3183](https://github.com/ignite/cli/pull/3183/) Make config optional for init phase.
 - [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
 - [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands
 - [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message

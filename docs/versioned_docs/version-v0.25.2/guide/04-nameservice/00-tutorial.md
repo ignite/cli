@@ -26,9 +26,9 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 
 ## Prerequisites 
 
-- A supported version of [Ignite CLI](https://docs.ignite.com/). To install Ignite CLI, see [Install Ignite CLI](../01-install.md). 
+- A supported version of [Ignite CLI](/). To install Ignite CLI, see [Install Ignite CLI](../01-install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download). 
-* A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
+* A web browser like [Chrome](https://www.google.com/chrome) or [Firefox](https://www.mozilla.org/en-US/firefox/new).
 - Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/main/building-modules/intro.html) 
 
 ## Nameservice App Goals
@@ -41,8 +41,8 @@ First, see how these simple requirements translate to app design.
 
 A blockchain app is a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). As a blockchain app developer, you have to define the state machine with a starting state and messages that trigger state transitions. These software components make it all possible! 
 
-- [Ignite CLI](https://docs.ignite.com/) is built on top of Cosmos SDK and accelerates chain development by scaffolding everything you need. 
-- The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework allows developers like you to create custom blockchains that can natively interact with other blockchains. 
+- [Ignite CLI](/) is built on top of Cosmos SDK and accelerates chain development by scaffolding everything you need. 
+- The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) modular framework allows developers like you to create custom blockchains that can natively interact with other blockchains. 
 - [Tendermint](https://docs.tendermint.com/main/introduction/what-is-tendermint.html) software securely and consistently replicates an app on many machines. The Tendermint app-agnostic engine handles the networking and consensus layers of your blockchain. 
 
 ## Cosmos SDK Modules 
