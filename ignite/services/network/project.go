@@ -52,7 +52,7 @@ func (n Network) Project(ctx context.Context, projectID uint64) (networktypes.Pr
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: projectID,
 	})
-	if errors.Is(err, cosmoserror.ErrNotFound) {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.Project{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Project{}, err

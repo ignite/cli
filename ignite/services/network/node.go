@@ -132,7 +132,7 @@ func (n Node) connectionChannels(ctx context.Context, connectionID string) (chan
 	res, err := n.ibcChannelQuery.ConnectionChannels(ctx, &ibcchanneltypes.QueryConnectionChannelsRequest{
 		Connection: connectionID,
 	})
-	if errors.Is(err, cosmoserror.ErrNotFound) {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return channels, nil
 	} else if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func (n Node) clientConnections(ctx context.Context, clientID string) ([]string,
 	res, err := n.ibcConnQuery.ClientConnections(ctx, &ibcconntypes.QueryClientConnectionsRequest{
 		ClientId: clientID,
 	})
-	if errors.Is(err, cosmoserror.ErrNotFound) {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return []string{}, nil
 	} else if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (n Node) consumerClientID(ctx context.Context) (string, error) {
 	res, err := n.monitoringProviderQuery.ConsumerClientID(
 		ctx, &monitoringptypes.QueryGetConsumerClientIDRequest{},
 	)
-	if errors.Is(err, cosmoserror.ErrNotFound) {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return "", ErrObjectNotFound
 	} else if err != nil {
 		return "", err
@@ -183,7 +183,7 @@ func (n Node) connectionChannelID(ctx context.Context) (string, error) {
 	res, err := n.monitoringProviderQuery.ConnectionChannelID(
 		ctx, &monitoringptypes.QueryGetConnectionChannelIDRequest{},
 	)
-	if errors.Is(err, cosmoserror.ErrNotFound) {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return "", ErrObjectNotFound
 	} else if err != nil {
 		return "", err
