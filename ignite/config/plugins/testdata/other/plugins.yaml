@@ -1,0 +1,8 @@
+plugins:
+  - name: plugin1
+    path: /path/to/plugin1
+  - name: plugin2
+    path: /path/to/plugin2
+    with:
+      foo: bar
+      bar: baz
