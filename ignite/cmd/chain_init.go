@@ -87,6 +87,7 @@ commands manually to ensure a production-level node initialization.
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
+	c.Flags().AddFlagSet(flagSetDebug())
 
 	return c
 }
@@ -118,11 +119,12 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if _, err := c.Build(cmd.Context(), cacheStorage, "", flagGetSkipProto(cmd)); err != nil {
+	ctx := cmd.Context()
+	if _, err = c.Build(ctx, cacheStorage, "", flagGetSkipProto(cmd), flagGetDebug(cmd)); err != nil {
 		return err
 	}
 
-	if err := c.Init(cmd.Context(), chain.InitArgsAll); err != nil {
+	if err := c.Init(ctx, chain.InitArgsAll); err != nil {
 		return err
 	}
 

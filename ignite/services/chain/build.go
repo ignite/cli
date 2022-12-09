@@ -35,13 +35,13 @@ func (c *Chain) Build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	output string,
-	skipProto bool,
+	skipProto, debug bool,
 ) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output, skipProto, false); err != nil {
+	if err := c.build(ctx, cacheStorage, output, skipProto, false, debug); err != nil {
 		return "", err
 	}
 
@@ -52,7 +52,7 @@ func (c *Chain) build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	output string,
-	skipProto, generateClients bool,
+	skipProto, generateClients, debug bool,
 ) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
@@ -72,6 +72,11 @@ func (c *Chain) build(
 	buildFlags, err := c.preBuild(ctx, cacheStorage)
 	if err != nil {
 		return err
+	}
+
+	if debug {
+		// Add flags to disable binary optimizations and inlining to allow debugging
+		buildFlags = append(buildFlags, gocmd.FlagGcflags, gocmd.FlagGcflagsValueDebug)
 	}
 
 	binary, err := c.Binary()
