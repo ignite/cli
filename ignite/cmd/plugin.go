@@ -372,13 +372,13 @@ func NewPluginUpdate() *cobra.Command {
 
 func NewPluginAdd() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
-		Use:   "add [path] [key:value]...",
+		Use:   "add [path] [key=value]...",
 		Short: "Adds a plugin declaration to a chain's plugin configuration",
 		Long: `Adds a plugin declaration to a chain's plugin configuration.
 Respects key value pairs declared after the plugin path to be added to the
 generated configuration definition.
 Example:
-  ignite plugin add github.com/org/my-plugin/ foo:bar baz:qux`,
+  ignite plugin add github.com/org/my-plugin/ foo=bar baz=qux`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.WithStdout(os.Stdout))
@@ -406,9 +406,9 @@ Example:
 			}
 
 			for _, pa := range pluginArgs {
-				kv := strings.Split(pa, ":")
+				kv := strings.Split(pa, "=")
 				if len(kv) != 2 {
-					return fmt.Errorf("malformed key:value arg: %s", pa)
+					return fmt.Errorf("malformed key=value arg: %s", pa)
 				}
 				p.With[kv[0]] = kv[1]
 			}
