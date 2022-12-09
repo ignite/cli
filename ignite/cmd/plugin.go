@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -29,7 +30,7 @@ const (
 // LoadPlugins tries to load all the plugins found in configuration.
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	cfg, _, err := parseLocalPlugins(rootCmd)
+	cfg, err := parseLocalPlugins(rootCmd)
 	if err != nil {
 		// if binary is run where there is no plugins.yml, don't load
 		return nil
@@ -44,15 +45,21 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	return loadPlugins(rootCmd, plugins)
 }
 
-func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, path string, err error) {
-	appPath := flagGetPath(rootCmd)
-	pluginsPath, err := pluginsconfig.LocateDefault(appPath)
+func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
+	// FIXME(tb): like other commands that works on a chain directory,
+	// parseLocalPlugins should rely on `-p` flag to guess that chain directory.
+	// Unfortunately parseLocalPlugins is invoked before flags are parsed, so
+	// we cannot rely on `-p` flag. As a workaround, we use the working dir.
+	// The drawback is we cannot load chain's plugin when using `-p`.
+	_ = cmd
+	wd, err := os.Getwd()
 	if err != nil {
-		return cfg, appPath, err
+		return nil, fmt.Errorf("parse local plugins: %w", err)
 	}
-
-	cfg, err = pluginsconfig.ParseFile(pluginsPath)
-	return cfg, pluginsPath, err
+	if err := cosmosanalysis.IsChainPath(wd); err != nil {
+		return nil, err
+	}
+	return pluginsconfig.ParseDir(wd)
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
@@ -328,7 +335,6 @@ func NewPluginList() *cobra.Command {
 			return printPlugins(s)
 		},
 	}
-
 	return lstCmd
 }
 
@@ -366,18 +372,19 @@ func NewPluginUpdate() *cobra.Command {
 
 func NewPluginAdd() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
-		Use:   "add [path] [args]",
+		Use:   "add [path] [key=value]...",
 		Short: "Adds a plugin declaration to a chain's plugin configuration",
 		Long: `Adds a plugin declaration to a chain's plugin configuration.
-				Respects key value pairs declared after the plugin path to be added to the generated configurationdefinition
-				example:
-					ignite plugin add /path/to/plugin/ foo:bar
-		`,
+Respects key value pairs declared after the plugin path to be added to the
+generated configuration definition.
+Example:
+  ignite plugin add github.com/org/my-plugin/ foo=bar baz=qux`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			s := cliui.New(cliui.WithStdout(os.Stdout))
+			session := cliui.New(cliui.WithStdout(os.Stdout))
+			defer session.End()
 
-			conf, persistPath, err := parseLocalPlugins(cmd)
+			conf, err := parseLocalPlugins(cmd)
 			if err != nil {
 				return err
 			}
@@ -399,57 +406,45 @@ func NewPluginAdd() *cobra.Command {
 			}
 
 			for _, pa := range pluginArgs {
-				kv := strings.Split(pa, ":")
+				kv := strings.Split(pa, "=")
 				if len(kv) != 2 {
-					continue
+					return fmt.Errorf("malformed key=value arg: %s", pa)
 				}
 				p.With[kv[0]] = kv[1]
 			}
 
-			ctx := context.Background()
-			s.StartSpinner("Loading plugin")
-			pluginInstance, err := plugin.LoadSingle(ctx, &p)
-			s.StopSpinner()
-
+			session.StartSpinner("Loading plugin")
+			pluginInstance, err := plugin.LoadSingle(cmd.Context(), &p)
 			if err != nil {
 				return err
 			}
-
 			if pluginInstance.Error != nil {
-				return errors.Wrapf(pluginInstance.Error, fmt.Sprintf("Error while attempting to load plugin: %s\n", args[0]))
+				return fmt.Errorf("error while loading plugin %q: %w", args[0], pluginInstance.Error)
 			}
-			s.Println("Done loading plugin")
-
+			session.Println("Done loading plugin")
 			conf.Plugins = append(conf.Plugins, p)
 
-			if err != nil {
+			if err := conf.Save(); err != nil {
 				return err
 			}
 
-			err = conf.Save(persistPath)
-
-			if err != nil {
-				return err
-			}
-
-			s.Printf("🎉 %s added \n", args[0])
-
+			session.Printf("🎉 %s added \n", args[0])
 			return nil
 		},
 	}
-
 	return cmdPluginAdd
 }
 
 func NewPluginRemove() *cobra.Command {
 	cmdPluginRemove := &cobra.Command{
-		Use:   "remove [path]",
-		Short: "Removes a plugin declaration from a chain's plugin configuration",
-		Args:  cobra.ExactArgs(1),
+		Use:     "remove [path]",
+		Aliases: []string{"rm"},
+		Short:   "Removes a plugin declaration from a chain's plugin configuration",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			conf, persistPath, err := parseLocalPlugins(cmd)
+			conf, err := parseLocalPlugins(cmd)
 			if err != nil {
 				return err
 			}
@@ -461,9 +456,7 @@ func NewPluginRemove() *cobra.Command {
 				}
 			}
 
-			err = conf.Save(persistPath)
-
-			if err != nil {
+			if err := conf.Save(); err != nil {
 				return err
 			}
 
@@ -472,7 +465,6 @@ func NewPluginRemove() *cobra.Command {
 			return nil
 		},
 	}
-
 	return cmdPluginRemove
 }
 
