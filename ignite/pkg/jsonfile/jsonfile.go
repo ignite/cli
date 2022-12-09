@@ -162,7 +162,7 @@ func (f *JSONFile) Bytes() ([]byte, error) {
 	return file, nil
 }
 
-// Field return the param by key and the position into byte slice from the file reader.
+// Field returns the param by key and the position into byte slice from the file reader.
 // Key can be a path to a nested parameter eg: app_state.staking.accounts
 func (f *JSONFile) Field(key string, param interface{}) error {
 	file, err := f.Bytes()
@@ -201,9 +201,16 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 }
 
 // WithKeyValue update a file value object by key
-func WithKeyValue(key string, value string) UpdateFileOption {
+func WithKeyValue(key, value string) UpdateFileOption {
 	return func(update map[string][]byte) {
 		update[key] = []byte(`"` + value + `"`)
+	}
+}
+
+// WithKeyValueByte update a file byte value object by key
+func WithKeyValueByte(key string, value []byte) UpdateFileOption {
+	return func(update map[string][]byte) {
+		update[key] = value
 	}
 }
 

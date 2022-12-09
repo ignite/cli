@@ -234,7 +234,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				genesisHash,
 			)
 		case o.genesisConfig != "":
-			initialGenesis = launchtypes.NewConfigGenesis(
+			initialGenesis = launchtypes.NewGenesisConfig(
 				o.genesisConfig,
 			)
 		}

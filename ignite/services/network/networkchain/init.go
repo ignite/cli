@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	cosmosgenesis "github.com/ignite/cli/ignite/pkg/cosmosutil/genesis"
 	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 // Init initializes blockchain by building the binaries and running the init command and
@@ -33,7 +34,7 @@ func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 
 	c.ev.Send("Initializing the blockchain", events.ProgressStart())
 
-	if err = c.chain.Init(ctx, false); err != nil {
+	if err = c.chain.Init(ctx, chain.InitArgsNone); err != nil {
 		return err
 	}
 
