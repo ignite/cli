@@ -13,6 +13,7 @@ import (
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/ignite/config"
+	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -23,6 +24,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/plugin"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 	"github.com/ignite/cli/ignite/version"
 )
@@ -72,7 +74,6 @@ To get started, create a blockchain:
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
-	// c.AddCommand(NewNetwork())
 	c.AddCommand(NewNode())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
@@ -81,8 +82,26 @@ To get started, create a blockchain:
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
+	c.AddCommand(pluginCommand("network", "Launch a blockchain in production", []string{"n"}))
 
 	return c
+}
+
+func pluginCommand(use, short string, aliases []string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     use,
+		Short:   short,
+		Aliases: aliases,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			_, err := plugin.Load(cmd.Context(), &pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{{
+					Path: "github.com/ignite/cli-plugin-network@feat/import-from-cli",
+				}},
+			})
+			return err
+		},
+	}
+	return cmd
 }
 
 func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
