@@ -401,7 +401,7 @@ func (c *Chain) serve(
 	if initApp {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
-		if err := c.Init(ctx, true); err != nil {
+		if err := c.Init(ctx, InitArgsAll); err != nil {
 			return err
 		}
 	} else if appModified {

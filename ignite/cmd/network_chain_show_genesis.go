@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/xos"
@@ -51,7 +52,11 @@ func networkChainShowGenesisHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	networkOptions := []networkchain.Option{
+		networkchain.WithKeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkOptions...)
 	if err != nil {
 		return err
 	}
