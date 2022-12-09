@@ -389,7 +389,7 @@ func (c *Chain) serve(
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, cacheStorage, "", skipProto, generateClients); err != nil {
+		if err := c.build(ctx, cacheStorage, "", skipProto, generateClients, true); err != nil {
 			return err
 		}
 	}
@@ -401,7 +401,7 @@ func (c *Chain) serve(
 	if initApp {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
-		if err := c.Init(ctx, true); err != nil {
+		if err := c.Init(ctx, InitArgsAll); err != nil {
 			return err
 		}
 	} else if appModified {

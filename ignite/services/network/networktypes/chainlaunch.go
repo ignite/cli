@@ -79,7 +79,7 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	}
 
 	// check if custom config genesis if provided.
-	if customGenesisConfig := chain.InitialGenesis.GetConfigGenesis(); customGenesisConfig != nil {
+	if customGenesisConfig := chain.InitialGenesis.GetGenesisConfig(); customGenesisConfig != nil {
 		launch.GenesisConfig = customGenesisConfig.File
 	}
 

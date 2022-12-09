@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -98,7 +99,9 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("chain %d launch has not been triggered yet. use --force to prepare anyway", launchID)
 	}
 
-	var networkOptions []networkchain.Option
+	networkOptions := []networkchain.Option{
+		networkchain.WithKeyringBackend(chaincmd.KeyringBackendTest),
+	}
 
 	if flagGetCheckDependencies(cmd) {
 		networkOptions = append(networkOptions, networkchain.CheckDependencies())

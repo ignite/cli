@@ -12,7 +12,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 )
 
@@ -39,11 +38,7 @@ func App(path string) (Scaffolder, error) {
 	if err != nil {
 		return Scaffolder{}, err
 	}
-	modfile, err := gomodule.ParseAt(path)
-	if err != nil {
-		return Scaffolder{}, err
-	}
-	if err := cosmosanalysis.ValidateGoMod(modfile); err != nil {
+	if err := cosmosanalysis.IsChainPath(path); err != nil {
 		return Scaffolder{}, err
 	}
 

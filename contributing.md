@@ -40,7 +40,7 @@ Review the issues and discussions before you open a PR.
 
 Avoid long names in your PR titles. Make sure your title has fewer than 60 characters.
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines and keywords to find the best
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0) guidelines and keywords to find the best
 title.
 
 Use parentheses to identify the package or feature that you worked on. For example:  `feat(services/chain)`
@@ -69,7 +69,7 @@ used as the commit message.
 When you open a PR for the Ignite CLI codebase, you must also update the relevant documentation. For changes to:
 
 * [Developer Guide](https://docs.ignite.com/guide) tutorials, update content in the `/docs/guide` folder.
-* [Knowledge Base](https://docs.ignite.com/kb/), update content in the `/docs/kb` folder.
+* [Knowledge Base](https://docs.ignite.com/kb), update content in the `/docs/kb` folder.
 * [Ignite CLI reference](https://docs.ignite.com/cli), navigate to the `./ignite/cmd` package and update the
   documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do
   not make changes to  `docs/cli/index.md`.

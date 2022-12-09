@@ -7,6 +7,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -141,7 +142,9 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var networkOptions []networkchain.Option
+	networkOptions := []networkchain.Option{
+		networkchain.WithKeyringBackend(chaincmd.KeyringBackendTest),
+	}
 
 	if flagGetCheckDependencies(cmd) {
 		networkOptions = append(networkOptions, networkchain.CheckDependencies())
