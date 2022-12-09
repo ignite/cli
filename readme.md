@@ -10,8 +10,8 @@ Ignite CLI generates boilerplate code for you, so you can focus on writing busin
 ## Quick start
 
 Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or
-open [nightly version](https://gitpod.io/#https://github.com/ignite/cli/)),
-or [install the latest release](https://docs.ignite.com/guide/install.html).
+open [nightly version](https://gitpod.io/#https://github.com/ignite/cli)),
+or [install the latest release](https://docs.ignite.com/guide/install).
 
 To create and start a blockchain:
 
@@ -29,7 +29,7 @@ To learn how to use Ignite CLI, check out the [Ignite CLI docs](https://docs.ign
 build blockchain apps with Ignite CLI, see the [Ignite CLI Developer Tutorials](https://docs.ignite.com/guide).
 
 To install Ignite CLI locally on GNU, Linux, or macOS,
-see [Install Ignite CLI](https://docs.ignite.com/guide/install.html).
+see [Install Ignite CLI](https://docs.ignite.com/guide/install).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain,
 see [ignite/web](https://github.com/ignite/web).
@@ -41,7 +41,7 @@ repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK compatibility
 
-Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the
+Blockchains created with Ignite CLI use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) framework. To ensure the
 best possible experience, use the version of Ignite CLI that corresponds to the version of Cosmos SDK that your
 blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
 
@@ -59,7 +59,7 @@ blockchain is built with. Unless noted otherwise, a row refers to a minor versio
 | v0.17       | v0.42       | Same with Cosmos SDK |                                                               |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see
-the [Migration guide](https://docs.ignite.com/migration/).
+the [Migration guide](https://docs.ignite.com/migration/v0.18).
 
 ## Plugin system
 
@@ -76,10 +76,10 @@ plugins:
   // the directory must contain go code under a main package.
   // For repositories you can specify a suffix @branch or @tag to target a
   // specific git reference.
-- path: github.com/org/repo/my-plugin
-  // Additional parameters can be passed to the plugin
-  with:
-    key: value
+  - path: github.com/org/repo/my-plugin
+    // Additional parameters can be passed to the plugin
+    with:
+      key: value
 ```
 
 Once declared, the next time the ignite binary will be executed under this
@@ -111,7 +111,7 @@ instance:
 
 ```yaml
 plugins:
-- path: /home/user/src/bar
+  - path: /home/user/src/bar
 ```
 
 Then run `ignite`, the plugin will compile and should be listed among the
@@ -126,7 +126,7 @@ We welcome contributions from everyone. The `develop` branch contains the develo
 create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull
 request.
 
-Our [Ignite CLI bounty program](docs/bounty/index.md) provides incentives for your participation and pays rewards. Track
+Our [Ignite CLI bounty program](https://docs.ignite.com/bounty) provides incentives for your participation and pays rewards. Track
 new, in-progress, and completed bounties on the [Bounty board](https://github.com/ignite/cli/projects/5) in GitHub.
 
 **Important** Before you start implementing a new Ignite CLI feature, the first step is to create an issue on GitHub
@@ -142,8 +142,8 @@ Stay in touch.
 
 * [ignite.com website](https://ignite.com)
 * [@ignite\_dev on Twitter](https://twitter.com/ignite_dev)
-* [ignite.com/blog](https://ignite.com/blog/)
+* [ignite.com/blog](https://ignite.com/blog)
 * [Ignite Discord](https://discord.com/invite/ignite)
-* [Ignite YouTube](https://www.youtube.com/ignitehq)
-* [Ignite docs](https://docs.ignite.com/)
+* [Ignite YouTube](https://www.youtube.com/@ignitehq)
+* [Ignite docs](https://docs.ignite.com)
 * [Ignite jobs](https://ignite.com/careers)
