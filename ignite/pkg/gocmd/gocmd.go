@@ -39,12 +39,12 @@ const (
 	// CommandEnv represents go "env" command.
 	CommandEnv = "env"
 
-	// Go environment variable names
+	// Go environment variable names.
 	EnvGOARCH = "GOARCH"
 	EnvGOMOD  = "GOMOD"
 	EnvGOOS   = "GOOS"
 
-	// Go command flags and values
+	// Go command flags and values.
 	FlagGcflags           = "-gcflags"
 	FlagGcflagsValueDebug = "all=-N -l"
 	FlagLdflags           = "-ldflags"

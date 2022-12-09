@@ -50,7 +50,7 @@ type ParamChange struct {
 	Value  []byte `json:"Value,omitempty"`
 }
 
-// ToGenesisAccount converts genesis account from SPN
+// ToGenesisAccount converts genesis account from SPN.
 func ToGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.Address,

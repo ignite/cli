@@ -292,7 +292,7 @@ func (n Network) SendAccountRemoveRequest(
 	return nil
 }
 
-// SendParamChangeRequest creates the RequestParamChange message to SPN
+// SendParamChangeRequest creates the RequestParamChange message to SPN.
 func (n Network) SendParamChangeRequest(
 	ctx context.Context,
 	launchID uint64,

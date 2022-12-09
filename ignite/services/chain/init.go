@@ -16,10 +16,10 @@ import (
 )
 
 type (
-	// InitArgs represents argument to add additional initialization for the chain
-	// InitAccounts initializes chain accounts from the Ignite config
-	// InitConfiguration initializes node configuration from the Ignite config
-	// InitGenesis initializes genesis state for the chain from Ignite config
+	// InitArgs represents argument to add additional initialization for the chain.
+	// InitAccounts initializes chain accounts from the Ignite config.
+	// InitConfiguration initializes node configuration from the Ignite config.
+	// InitGenesis initializes genesis state for the chain from Ignite config.
 	InitArgs struct {
 		InitAccounts      bool
 		InitConfiguration bool
@@ -32,14 +32,14 @@ const (
 )
 
 var (
-	// InitArgsAll performs all initialization for the chain
+	// InitArgsAll performs all initialization for the chain.
 	InitArgsAll = InitArgs{
 		InitAccounts:      true,
 		InitConfiguration: true,
 		InitGenesis:       true,
 	}
 
-	// InitArgsNone performs minimal initialization for the chain by only initializating a node
+	// InitArgsNone performs minimal initialization for the chain by only initializing a node.
 	InitArgsNone = InitArgs{
 		InitAccounts:      false,
 		InitConfiguration: false,
@@ -47,7 +47,7 @@ var (
 	}
 )
 
-// Init initializes the chain
+// Init initializes the chain and accounts.
 func (c *Chain) Init(ctx context.Context, args InitArgs) error {
 	if err := c.InitChain(ctx, args.InitConfiguration, args.InitGenesis); err != nil {
 		return err
