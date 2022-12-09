@@ -166,7 +166,7 @@ func Save(c Config, path string) error {
 }
 
 // FirstValidator returns the first validator from the validators list.
-// An error is returned when there are not validators defined in the config.
+// An error is returned when there are no validators defined in the config.
 func FirstValidator(conf *Config) (Validator, error) {
 	if len(conf.Validators) == 0 {
 		return Validator{}, &ValidationError{"at least one validator is required"}
