@@ -2,6 +2,7 @@ package genesis
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/ignite/cli/ignite/pkg/jsonfile"
@@ -24,6 +25,8 @@ const (
 	FieldConsensusRootHash           = "app_state.monitoringp.params.consumerConsensusState.root.hash"
 	FieldConsumerUnbondingPeriod     = "app_state.monitoringp.params.consumerUnbondingPeriod"
 	FieldConsumerRevisionHeight      = "app_state.monitoringp.params.consumerRevisionHeight"
+
+	fieldModuleParamFormatString = "app_state.%s.params.%s"
 )
 
 type (
@@ -36,6 +39,11 @@ type (
 	}
 	gentxs []struct{}
 )
+
+// ModuleParamField returns the field name of a given module param pair
+func ModuleParamField(module, param string) string {
+	return fmt.Sprintf(fieldModuleParamFormatString, module, param)
+}
 
 // FromPath parse genesis object from path
 func FromPath(path string) (*Genesis, error) {

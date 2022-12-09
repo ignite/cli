@@ -12,7 +12,7 @@ so that end users can buy names and set a value to the names.
 ## Create a Blockchain
 
 Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command.
-The [`ignite scaffold chain`](https://docs.ignite.com/cli#ignite-scaffold-chain)
+The [`ignite scaffold chain`](/cli#ignite-scaffold-chain)
 command accepts one argument: the Go module path that is used for the project.
 
 By default, a chain is scaffolded with a new empty Cosmos SDK module. You want
@@ -52,7 +52,7 @@ ignite scaffold module nameservice --dep bank
 
 ## Results
 
-The [`ignite scaffold module`](https://docs.ignite.com/cli#ignite-scaffold-module) command has done all the work for you!
+The [`ignite scaffold module`](/cli#ignite-scaffold-module) command has done all the work for you!
 
 - The `nameservice` module was created in the `x/nameservice` directory.
 - The `nameservice` module was imported into the blockchain in the `app/app.go`

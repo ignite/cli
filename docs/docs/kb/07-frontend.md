@@ -24,7 +24,7 @@ client:
     path: vue/src/store
 ```
 
-When using this configuration a TS client is generated in the `ts-client` directory (see: [TypeScript client information](https://docs.ignite.com/clients/typescript))
+When using this configuration a TS client is generated in the `ts-client` directory (see: [TypeScript client information](/clients/typescript))
 and Vuex store modules making use of this client are generated in the `vue/src/store` directory.
 
 ## Client code generation

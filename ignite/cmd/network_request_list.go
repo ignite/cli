@@ -154,6 +154,15 @@ func renderRequestSummaries(
 			}
 
 			content = address
+
+		case *launchtypes.RequestContent_ParamChange:
+			requestType = "Change Param"
+			content = fmt.Sprintf(
+				"module: %s param: %s, value: %s",
+				req.ParamChange.Module,
+				req.ParamChange.Param,
+				string(req.ParamChange.Value),
+			)
 		}
 
 		requestEntries = append(requestEntries, []string{
