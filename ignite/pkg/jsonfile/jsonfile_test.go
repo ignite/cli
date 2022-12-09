@@ -115,6 +115,9 @@ func TestJSONFile_Field(t *testing.T) {
 }
 
 func TestJSONFile_Update(t *testing.T) {
+	jsonCoins, err := json.Marshal(sdk.NewCoin("bar", sdk.NewInt(500)))
+	require.NoError(t, err)
+
 	tests := []struct {
 		name     string
 		filepath string
@@ -176,6 +179,16 @@ func TestJSONFile_Update(t *testing.T) {
 				WithKeyValueTimestamp(
 					"genesis_time",
 					999999999,
+				),
+			},
+		},
+		{
+			name:     "update bytes",
+			filepath: "testdata/jsonfile.json",
+			opts: []UpdateFileOption{
+				WithKeyValueByte(
+					"app_state.crisis.params.constant_fee",
+					jsonCoins,
 				),
 			},
 		},

@@ -7,12 +7,23 @@
       "pattern": "^https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
     },
     {
+      "pattern": "^https://docs.starport.network"
+    },
+    {
       "pattern": "^http://localhost"
     },
     {
       "pattern": "^index.md"
     }
   ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "https://docs.ignite.com/"
+    }
+  ],
+  "baseUrl": "https://docs.ignite.com",
+  "projectBaseUrl": "https://docs.ignite.com",
   "timeout": "20s",
   "retryOn429": true,
   "retryCount": 5,

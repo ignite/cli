@@ -32,9 +32,9 @@ ignite generate ts-client
 
 ## Setup
 
-The best way to get started building with the TypeScript client is by using a [Vite](https://vitejs.dev/) boilerplate.
+The best way to get started building with the TypeScript client is by using a [Vite](https://vitejs.dev) boilerplate.
 Vite provides boilerplate code for vanilla TS projects as well as react, vue, lit, svelte and preact frameworks.
-You can find additional information at the [Vite Getting Started guide](https://vitejs.dev/guide/).
+You can find additional information at the [Vite Getting Started guide](https://vitejs.dev/guide).
 
 You will also need to polyfill the client's dependencies. The following is an example of setting up a vanilla TS
 project with the necessary polyfills.
