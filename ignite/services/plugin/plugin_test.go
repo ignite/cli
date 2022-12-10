@@ -217,6 +217,16 @@ func TestPluginLoad(t *testing.T) {
 			},
 		},
 		{
+			name: "ok: from local sharedhost is on",
+			buildPlugin: func(t *testing.T) Plugin {
+				return Plugin{
+					Plugin:     pluginsconfig.Plugin{SharedHost: true},
+					srcPath:    scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar"),
+					binaryName: "bar",
+				}
+			},
+		},
+		{
 			name: "ok: from git repo",
 			buildPlugin: func(t *testing.T) Plugin {
 				repoDir, _ := makeGitRepo(t, "remote")
@@ -340,6 +350,11 @@ func TestPluginLoad(t *testing.T) {
 				require.Regexp(tt.expectedError, p.Error.Error())
 				return
 			}
+
+			if p.Plugin.SharedHost {
+				assert.Equal(p.isHost, true)
+			}
+
 			require.NoError(p.Error)
 			require.NotNil(p.Interface)
 			manifest, err := p.Interface.Manifest()
