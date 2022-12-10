@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	chainconfigv1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -177,25 +178,6 @@ func (c *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
-// other chains for relayer related actions.
-func (c *Chain) RPCPublicAddress() (string, error) {
-	rpcAddress := os.Getenv("RPC_ADDRESS")
-	if rpcAddress == "" {
-		conf, err := c.Config()
-		if err != nil {
-			return "", err
-		}
-		validator := conf.Validators[0]
-		servers, err := validator.GetServers()
-		if err != nil {
-			return "", err
-		}
-		rpcAddress = servers.RPC.Address
-	}
-	return rpcAddress, nil
-}
-
 // ConfigPath returns the config path of the chain
 // Empty string means that the chain has no defined config
 func (c *Chain) ConfigPath() string {
@@ -306,9 +288,11 @@ func (c *Chain) DefaultHome() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	validator := config.Validators[0]
-	if validator.Home != "" {
-		return validator.Home, nil
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+		if validator.Home != "" {
+			return validator.Home, nil
+		}
 	}
 
 	return c.appHome(), nil
@@ -381,11 +365,14 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 2nd.
-	validator := config.Validators[0]
-	if validator.Client != nil {
-		if v, ok := validator.Client["keyring-backend"]; ok {
-			if backend, ok := v.(string); ok {
-				return chaincmd.KeyringBackendFromString(backend)
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+
+		if validator.Client != nil {
+			if backend, ok := validator.Client["keyring-backend"]; ok {
+				if backendStr, ok := backend.(string); ok {
+					return chaincmd.KeyringBackendFromString(backendStr)
+				}
 			}
 		}
 	}
@@ -442,10 +429,13 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	validator := config.Validators[0]
-	servers, err := validator.GetServers()
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
+	servers := chainconfigv1.DefaultServers()
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+		servers, err = validator.GetServers()
+		if err != nil {
+			return chaincmdrunner.Runner{}, err
+		}
 	}
 
 	nodeAddr, err := xurl.TCP(servers.RPC.Address)

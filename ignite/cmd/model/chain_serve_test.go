@@ -18,7 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 )
 
-var actions = colors.Faint("Press the 'q' key to stop serve")
+var chainServeActions = colors.Faint("Press the 'q' key to stop serve")
 
 func TestChainServeErrorView(t *testing.T) {
 	// Arrange
@@ -53,7 +53,7 @@ func TestChainServeStartView(t *testing.T) {
 		icons.OK,
 		strings.TrimSuffix(queue[0], "..."),
 		colors.Faint("0s"),
-		actions,
+		chainServeActions,
 	)
 	want = cliuimodel.FormatView(want)
 
@@ -79,7 +79,7 @@ func TestChainServeRunView(t *testing.T) {
 	queue := []string{"Event 1", "Event 2"}
 	model = cmdmodel.NewChainServe(testdata.ModelContext{}, testdata.DummyEventsProvider{}, testdata.FooCmd)
 
-	want := fmt.Sprintf("Blockchain is running\n\n%s\n%s\n\n%s\n", queue[0], queue[1], actions)
+	want := fmt.Sprintf("Blockchain is running\n\n%s\n%s\n\n%s\n", queue[0], queue[1], chainServeActions)
 	want = cliuimodel.FormatView(want)
 
 	// Arrange: Update model with events
@@ -104,7 +104,7 @@ func TestChainServeRunBrokenView(t *testing.T) {
 	traceback := "Error traceback\nFoo"
 	waitingFix := colors.Info("Waiting for a fix before retrying...")
 
-	want := fmt.Sprintf("%s\n\n%s\n\n%s\n", traceback, waitingFix, actions)
+	want := fmt.Sprintf("%s\n\n%s\n\n%s\n", traceback, waitingFix, chainServeActions)
 	want = cliuimodel.FormatView(want)
 
 	// Arrange: Update model to display the run view
@@ -142,7 +142,7 @@ func TestChainServeRebuildView(t *testing.T) {
 		duration,
 		icons.OK,
 		duration,
-		actions,
+		chainServeActions,
 	)
 	want = cliuimodel.FormatView(want)
 

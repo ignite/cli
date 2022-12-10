@@ -14,6 +14,7 @@ import (
 
 const (
 	flagCheckDependencies = "check-dependencies"
+	flagDebug             = "debug"
 	flagOutput            = "output"
 	flagRelease           = "release"
 	flagReleasePrefix     = "release.prefix"
@@ -85,6 +86,7 @@ for your current environment.
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
+	c.Flags().AddFlagSet(flagSetDebug())
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
@@ -127,8 +129,9 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	ctx := cmd.Context()
 	if isRelease {
-		releasePath, err := c.BuildRelease(cmd.Context(), cacheStorage, output, releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(ctx, cacheStorage, output, releasePrefix, releaseTargets...)
 		if err != nil {
 			return err
 		}
@@ -136,7 +139,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return session.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 	}
 
-	binaryName, err := c.Build(cmd.Context(), cacheStorage, output, flagGetSkipProto(cmd))
+	binaryName, err := c.Build(ctx, cacheStorage, output, flagGetSkipProto(cmd), flagGetDebug(cmd))
 	if err != nil {
 		return err
 	}
@@ -158,5 +161,16 @@ func flagSetCheckDependencies() *flag.FlagSet {
 
 func flagGetCheckDependencies(cmd *cobra.Command) (check bool) {
 	check, _ = cmd.Flags().GetBool(flagCheckDependencies)
+	return
+}
+
+func flagSetDebug() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagDebug, false, "build a debug binary")
+	return fs
+}
+
+func flagGetDebug(cmd *cobra.Command) (debug bool) {
+	debug, _ = cmd.Flags().GetBool(flagDebug)
 	return
 }

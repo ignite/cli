@@ -18,12 +18,12 @@ type Validator struct {
 }
 
 func (v Validator) ToProfile(
-	campaignID uint64,
+	projectID uint64,
 	vouchers sdk.Coins,
 	shares campaigntypes.Shares,
 ) Profile {
 	return Profile{
-		CampaignID:      campaignID,
+		ProjectID:       projectID,
 		Address:         v.Address,
 		Identity:        v.Identity,
 		Website:         v.Website,
@@ -59,18 +59,18 @@ type Coordinator struct {
 }
 
 func (c Coordinator) ToProfile(
-	campaignID uint64,
+	projectID uint64,
 	vouchers sdk.Coins,
 	shares campaigntypes.Shares,
 ) Profile {
 	return Profile{
-		CampaignID: campaignID,
-		Address:    c.Address,
-		Identity:   c.Identity,
-		Website:    c.Website,
-		Details:    c.Details,
-		Vouchers:   vouchers,
-		Shares:     shares,
+		ProjectID: projectID,
+		Address:   c.Address,
+		Identity:  c.Identity,
+		Website:   c.Website,
+		Details:   c.Details,
+		Vouchers:  vouchers,
+		Shares:    shares,
 	}
 }
 
@@ -96,7 +96,7 @@ type (
 	// Profile represents the address profile on SPN
 	Profile struct {
 		Address         string               `json:"Address"`
-		CampaignID      uint64               `json:"CampaignID,omitempty"`
+		ProjectID       uint64               `json:"ProjectID,omitempty"`
 		Identity        string               `json:"Identity,omitempty"`
 		Website         string               `json:"Website,omitempty"`
 		Details         string               `json:"Details,omitempty"`
@@ -109,7 +109,7 @@ type (
 	// ProfileAcc represents the address profile method interface
 	ProfileAcc interface {
 		ToProfile(
-			campaignID uint64,
+			projectID uint64,
 			vouchers sdk.Coins,
 			shares campaigntypes.Shares,
 		) Profile

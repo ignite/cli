@@ -87,6 +87,18 @@ func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
 	return plugins, nil
 }
 
+func LoadSingle(ctx context.Context, pluginCfg *pluginsconfig.Plugin) (*Plugin, error) {
+	pluginsDir, err := pluginsPath()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	p := newPlugin(pluginsDir, *pluginCfg)
+	p.load(ctx)
+
+	return p, nil
+}
+
 // Update removes the cache directory of plugins and fetch them again.
 func Update(plugins ...*Plugin) error {
 	for _, p := range plugins {
@@ -286,7 +298,7 @@ func (p *Plugin) fetch() {
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
 	if err != nil {
-		p.Error = errors.Wrapf(err, "cloning %q", p.cloneURL)
+		p.Error = errors.Wrapf(err, "cloning %q", p.repoPath)
 	}
 }
 

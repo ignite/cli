@@ -11,16 +11,30 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.1.0
+      - uses: technote-space/get-diff-action@v6.1.1
+        with:
+          PATTERNS: |
+            **/*.go
+            go.mod
+            go.sum
+            **/testdata/**
 
       - uses: actions/setup-go@v3
+        if: env.GIT_DIFF
         with:
           go-version: 1.19
+          cache: true
+          cache-dependency-path: go.sum
+
       - run: ./scripts/test-coverage
+        if: env.GIT_DIFF
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3.1.1
+        if: env.GIT_DIFF
         with:
           file: ./coverage.txt
           fail_ci_if_error: true
           verbose: true
+

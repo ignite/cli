@@ -12,6 +12,8 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/mod/modfile"
+
+	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
 
 const (
@@ -160,6 +162,31 @@ func checkImplementation(r implementation) bool {
 		}
 	}
 	return true
+}
+
+// ErrPathNotChain is returned by IsChainPath() when path is not a chain path.
+type ErrPathNotChain struct {
+	path string
+	err  error
+}
+
+func (e ErrPathNotChain) Error() string {
+	return fmt.Sprintf("%s not a chain path: %v", e.path, e.err)
+}
+
+// IsChainPath returns nil if path contains a cosmos chain.
+func IsChainPath(path string) error {
+	errf := func(err error) error {
+		return ErrPathNotChain{path: path, err: err}
+	}
+	modfile, err := gomodule.ParseAt(path)
+	if err != nil {
+		return errf(err)
+	}
+	if err := ValidateGoMod(modfile); err != nil {
+		return errf(err)
+	}
+	return nil
 }
 
 // ValidateGoMod check if the cosmos-sdk and the tendermint packages are imported.
