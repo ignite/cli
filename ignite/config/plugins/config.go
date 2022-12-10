@@ -35,8 +35,9 @@ type Plugin struct {
 	// path: github.com/foo/bar/plugin1@v42
 	Path string `yaml:"path"`
 	// With holds arguments passed to the plugin interface
-	With       map[string]string `yaml:"with"`
-	SharedHost bool              `yaml:"sharedHost"`
+	With map[string]string `yaml:"with"`
+	// SharedHost enables sharing a single plugin server across all running instances
+	SharedHost bool `yaml:"sharedHost"`
 }
 
 // Path return the path of the config file.
