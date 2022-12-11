@@ -36,7 +36,7 @@ on these posts. This will allow users to create new posts, read existing posts,
 update the contents of existing posts, and delete posts that are no longer
 needed.
 
-One of the features of the ignite CLI is the ability to generate code that
+One of the features of the Ignite CLI is the ability to generate code that
 implements basic CRUD functionality. This is accomplished through the use of
 scaffolding commands, which can be used to quickly generate the necessary code
 for creating, reading, updating, and deleting data in your application.
@@ -109,3 +109,67 @@ Overall, these files provide the necessary implementation for the CRUD
 functionality of your blog application. They handle the specific logic for each
 of the CRUD operations, as well as the underlying functions that these
 operations depend on.
+
+Files were created and modified in the `x/blog/types` directory.
+
+* `messages_post.go`: This new file contains Cosmos SDK message constructors and
+  associated methods such as `Route()`, `Type()`, `GetSigners()`,
+  `GetSignBytes()`, and `ValidateBasic()`.
+* `keys.go`: This file was modified to include key prefixes for storing blog
+  posts. By using key prefixes, we can ensure that the data for our blog posts
+  is kept separate from other types of data in the database, and that it can be
+  easily accessed when needed.
+* `genesis.go`: This file was modified to define the initial (genesis) state of
+  the blog module, as well as the `Validate()` function for validating this
+  initial state. This is an important step in setting up our blockchain, as it
+  defines the initial data and ensures that it is valid according to the rules
+  of our application.
+* `codec.go`: This file was modified to register our message types with the
+  encoder, allowing them to be properly serialized and deserialized when
+  transmitted over the network.
+
+Additionally, `*.pb.go` files were generated from `*.proto` files, and they
+contain type definitions for messages, RPCs, and queries used by our
+application. These files are automatically generated from the `*.proto` files
+using the Protocol Buffers (protobuf) tool, which allows us to define the
+structure of our data in a language-agnostic way.
+
+The Ignite CLI has added functionality to the `x/blog/client/cli` directory by
+creating and modifying several files.
+* `tx_post.go`: This file was created to implement CLI commands for broadcasting
+  transactions containing messages for the blog module. These commands allow
+  users to easily send messages to the blockchain using the Ignite CLI.
+* `query_post.go`: This file was created to implement CLI commands for querying
+  the blog module. These commands allow users to retrieve information from the
+  blockchain, such as a list of blog posts.
+* `tx.go`: This file was modified to add the CLI commands for broadcasting
+  transactions to the chain's binary.
+* `query.go`: This file was also modified to add the CLI commands for querying
+  the chain to the chain's binary.
+
+As you can see, the `ignite scaffold list` command has generated and modified a
+number of source code files. These files define the types of messages, logic
+that gets executed when a message is processed, and the wiring that connects
+everything together. This includes the logic for creating, updating, and
+deleting blog posts, as well as the queries needed to retrieve this information.
+
+To see the generated code in action, we will need to start the blockchain. We
+can do this by using the `ignite chain serve` command, which will build,
+initialize, and start the blockchain for us:
+
+```
+ignite chain serve
+```
+
+Once the blockchain is running, we can use the binary to interact with it and
+see how the code handles creating, updating, and deleting blog posts. We can
+also see how it processes and responds to queries. This will give us a better
+understanding of how our application works and allow us to test its
+functionality.
+
+Here is an example of how to use the binary to create a new blog post on the
+blockchain:
+
+```
+blogd tx blog create-post "Hello, World!" "This is a blog post" --from alice
+```
