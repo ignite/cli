@@ -39,7 +39,6 @@ func WritePluginConfig(pluginPath string, conf hplugin.ReattachConfig) error {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 
-	fmt.Println("encoding config")
 	confCont := ConfigContext{}
 
 	// TODO: figure out a better way of resolving the type of network connection is established between plugin server and host
