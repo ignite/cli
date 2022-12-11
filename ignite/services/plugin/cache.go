@@ -89,7 +89,7 @@ func ReadPluginConfig(pluginPath string, ref *hplugin.ReattachConfig) error {
 func CheckPluginConf(pluginPath string) bool {
 	name := path.Base(pluginPath)
 
-	if name == "" {
+	if name == "." {
 		return false
 	}
 

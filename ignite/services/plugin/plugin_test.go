@@ -217,16 +217,6 @@ func TestPluginLoad(t *testing.T) {
 			},
 		},
 		{
-			name: "ok: from local sharedhost is on",
-			buildPlugin: func(t *testing.T) Plugin {
-				return Plugin{
-					Plugin:     pluginsconfig.Plugin{SharedHost: true},
-					srcPath:    scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar"),
-					binaryName: "bar",
-				}
-			},
-		},
-		{
 			name: "ok: from git repo",
 			buildPlugin: func(t *testing.T) Plugin {
 				repoDir, _ := makeGitRepo(t, "remote")
@@ -351,10 +341,6 @@ func TestPluginLoad(t *testing.T) {
 				return
 			}
 
-			if p.Plugin.SharedHost {
-				assert.Equal(p.isHost, true)
-			}
-
 			require.NoError(p.Error)
 			require.NotNil(p.Interface)
 			manifest, err := p.Interface.Manifest()
@@ -364,6 +350,105 @@ func TestPluginLoad(t *testing.T) {
 			assert.NoError(p.Interface.ExecuteHookPre(ExecutedHook{}))
 			assert.NoError(p.Interface.ExecuteHookPost(ExecutedHook{}))
 			assert.NoError(p.Interface.ExecuteHookCleanUp(ExecutedHook{}))
+		})
+	}
+}
+
+func TestPluginLoadSharedHost(t *testing.T) {
+	// wd, err := os.Getwd()
+	// require.NoError(t, err)
+
+	// scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
+	// current ignite/cli sources.
+	scaffoldPlugin := func(t *testing.T, dir, name string) string {
+		require := require.New(t)
+		path, err := Scaffold(dir, name)
+		require.NoError(err)
+		// We want the scaffolded plugin to use the current version of ignite/cli,
+		// for that we need to update the plugin go.mod and add a replace to target
+		// current ignite/cli
+		gomod, err := gomodule.ParseAt(path)
+		require.NoError(err)
+		// use GOMOD env to get current directory module path
+		modpath, err := gocmd.Env(gocmd.EnvGOMOD)
+		require.NoError(err)
+		modpath = filepath.Dir(modpath)
+		gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
+		// Save go.mod
+		data, err := gomod.Format()
+		require.NoError(err)
+		err = os.WriteFile(filepath.Join(path, "go.mod"), data, 0o644)
+		require.NoError(err)
+		return path
+	}
+
+	tests := []struct {
+		name          string
+		buildPlugin   func(t *testing.T) Plugin
+		expectedError string
+		instances     int
+	}{
+		{
+			name: "ok: from local sharedhost is on",
+			buildPlugin: func(t *testing.T) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
+				return Plugin{
+					Plugin:     pluginsconfig.Plugin{SharedHost: true, Path: path},
+					srcPath:    path,
+					binaryName: "bar",
+				}
+			},
+			instances: 1,
+		},
+		{
+			name: "ok: from local sharedhost is on",
+			buildPlugin: func(t *testing.T) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
+				return Plugin{
+					Plugin:     pluginsconfig.Plugin{SharedHost: true, Path: path},
+					srcPath:    path,
+					binaryName: "bar",
+				}
+			},
+			instances: 2,
+		},
+		{
+			name: "ok: from local sharedhost is on",
+			buildPlugin: func(t *testing.T) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
+				return Plugin{
+					Plugin:     pluginsconfig.Plugin{SharedHost: true, Path: path},
+					srcPath:    path,
+					binaryName: "bar",
+				}
+			},
+			instances: 4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			// assert := assert.New(t)
+			var plugins []*Plugin
+			for i := 0; i < tt.instances; i++ {
+				p := tt.buildPlugin(t)
+				p.load(context.Background())
+				plugins = append(plugins, &p)
+			}
+
+			require.Equal(true, CheckPluginConf(plugins[0].Path))
+
+			for i := len(plugins) - 1; i >= 0; i-- {
+				plugins[i].KillClient()
+				if i != 0 {
+					require.Equal(true, plugins[0].isHost)
+					rconf := plugins[i].client.ReattachConfig()
+					require.Equal(rconf.Addr.String(), plugins[i].client.ReattachConfig().Addr.String())
+				} else {
+					require.Equal(false, plugins[0].isHost)
+				}
+			}
 		})
 	}
 }
