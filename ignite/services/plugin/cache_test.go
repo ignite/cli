@@ -5,15 +5,16 @@ import (
 	"testing"
 
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/ignite/cli/ignite/services/plugin"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/services/plugin"
 )
 
 func TestNewPlugin(t *testing.T) {
 	const path = "/path/to/awesome/plugin"
 	unixFD, _ := net.ResolveUnixAddr("unix", "/var/folders/5k/sv4bxrs102n_6rr7430jc7j80000gn/T/plugin193424090")
 
-	var rc = hplugin.ReattachConfig{
+	rc := hplugin.ReattachConfig{
 		Protocol:        hplugin.ProtocolNetRPC,
 		ProtocolVersion: hplugin.CoreProtocolVersion,
 		Addr:            unixFD,

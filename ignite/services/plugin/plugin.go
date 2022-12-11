@@ -225,7 +225,6 @@ func (p *Plugin) load(ctx context.Context) {
 	if p.Plugin.SharedHost && CheckPluginConf(p.Path) {
 		rconf := hplugin.ReattachConfig{}
 		err := ReadPluginConfig(p.Path, &rconf)
-
 		if err != nil {
 			p.Error = err
 			return
@@ -282,7 +281,6 @@ func (p *Plugin) load(ctx context.Context) {
 	if !CheckPluginConf(p.Path) && p.isHost {
 		WritePluginConfig(p.Path, *p.client.ReattachConfig())
 	}
-
 }
 
 // fetch clones the plugin repository at the expected reference.

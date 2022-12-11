@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	hplugin "github.com/hashicorp/go-plugin"
+
 	chainconfig "github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 )
@@ -44,7 +45,6 @@ func WritePluginConfig(pluginPath string, conf hplugin.ReattachConfig) error {
 	// TODO: figure out a better way of resolving the type of network connection is established between plugin server and host
 	// currently this will always be a unix network socket. but this might not be the case moving forward.
 	ua, err := net.ResolveUnixAddr(conf.Addr.Network(), conf.Addr.String())
-
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,6 @@ func WritePluginConfig(pluginPath string, conf hplugin.ReattachConfig) error {
 	confCont.Plugin = conf
 
 	cache, err := newCache()
-
 	if err != nil {
 		return err
 	}
@@ -95,7 +94,6 @@ func CheckPluginConf(pluginPath string) bool {
 	}
 
 	cache, err := newCache()
-
 	if err != nil {
 		return false
 	}
@@ -112,7 +110,6 @@ func DeletePluginConf(pluginPath string) error {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
-
 	if err != nil {
 		return err
 	}
@@ -126,7 +123,6 @@ func DeletePluginConf(pluginPath string) error {
 
 func newCache() (*cache.Cache[ConfigContext], error) {
 	cacheRootDir, err := chainconfig.DirPath()
-
 	if err != nil {
 		return nil, err
 	}
