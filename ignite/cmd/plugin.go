@@ -27,8 +27,8 @@ const (
 // A global variable is used so the list is accessible to the plugin commands.
 var plugins []*plugin.Plugin
 
-// LoadPlugins tries to load all the plugins found in configuration.
-// If no configuration found, it returns w/o error.
+// LoadPlugins tries to load all the plugins found in configurations.
+// If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	localCfg, err := parseLocalPlugins(rootCmd)
 	if err != pluginsconfig.ErrNotFound {
@@ -40,18 +40,18 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		return nil
 	}
 
-	pluginsConfigs := append(localCfg.Plugins, globalCfg.Plugins...)
+	// build list of all plugins
+	pluginsConfigs := globalCfg.Plugins
+	pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
 	if len(pluginsConfigs) == 0 {
 		return nil
 	}
 
 	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
 	plugins, err = plugin.Load(ctx, uniquePlugins)
-	if len(plugins) == 0 {
+	if err != nil || len(plugins) == 0 {
 		return nil
 	}
-
-	// TODO: sort duplicates
 
 	return loadPlugins(rootCmd, plugins)
 }
