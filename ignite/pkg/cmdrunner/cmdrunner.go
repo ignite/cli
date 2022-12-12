@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/goenv"
 )
 
@@ -80,6 +81,7 @@ func EnableDebug() Option {
 func New(options ...Option) *Runner {
 	runner := &Runner{
 		endSignal: os.Interrupt,
+		debug:     env.DebugEnabled(),
 	}
 	for _, apply := range options {
 		apply(runner)
