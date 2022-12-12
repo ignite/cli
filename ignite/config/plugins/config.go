@@ -35,9 +35,17 @@ type Plugin struct {
 	// path: github.com/foo/bar/plugin1@v42
 	Path string `yaml:"path"`
 	// With holds arguments passed to the plugin interface
-	With map[string]string `yaml:"with"`
+	With map[string]string `yaml:"with,omitempty"`
 	// SharedHost enables sharing a single plugin server across all running instances
-	SharedHost bool `yaml:"sharedHost"`
+	// of a plugin. Useful if a plugin adds or extends long running commands
+	//
+	// example: `ignite chain serve`
+	//
+	// When enabled, all plugins of the same `Path` loaded from the same configuration will
+	// attach it's rpc client to a an existing rpc server.
+	//
+	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
+	SharedHost bool `yaml:"shared_host"`
 }
 
 // Path return the path of the config file.

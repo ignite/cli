@@ -33,7 +33,7 @@ type ConfigContext struct {
 	Addr   net.UnixAddr
 }
 
-func WritePluginConfig(pluginPath string, conf hplugin.ReattachConfig) error {
+func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 	name := path.Base(pluginPath)
 
 	if name == "" {
@@ -63,7 +63,7 @@ func WritePluginConfig(pluginPath string, conf hplugin.ReattachConfig) error {
 	return err
 }
 
-func ReadPluginConfig(pluginPath string, ref *hplugin.ReattachConfig) error {
+func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error {
 	name := path.Base(pluginPath)
 
 	if name == "" {
@@ -86,7 +86,7 @@ func ReadPluginConfig(pluginPath string, ref *hplugin.ReattachConfig) error {
 	return nil
 }
 
-func CheckPluginConf(pluginPath string) bool {
+func CheckPluginConfCache(pluginPath string) bool {
 	name := path.Base(pluginPath)
 
 	if name == "." {
@@ -103,7 +103,7 @@ func CheckPluginConf(pluginPath string) bool {
 	return true
 }
 
-func DeletePluginConf(pluginPath string) error {
+func DeletePluginConfCache(pluginPath string) error {
 	name := path.Base(pluginPath)
 
 	if name == "" {

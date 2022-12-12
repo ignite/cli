@@ -437,7 +437,7 @@ func TestPluginLoadSharedHost(t *testing.T) {
 				plugins = append(plugins, &p)
 			}
 
-			require.Equal(true, CheckPluginConf(plugins[0].Path))
+			require.Equal(true, CheckPluginConfCache(plugins[0].Path))
 
 			for i := len(plugins) - 1; i >= 0; i-- {
 				plugins[i].KillClient()

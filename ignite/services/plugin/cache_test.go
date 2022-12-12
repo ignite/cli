@@ -21,11 +21,11 @@ func TestPluginCacheAdd(t *testing.T) {
 		Pid:             24464,
 	}
 
-	err := plugin.WritePluginConfig(path, rc)
+	err := plugin.WritePluginConfigCache(path, rc)
 	require.NoError(t, err)
 
 	c := hplugin.ReattachConfig{}
-	err = plugin.ReadPluginConfig(path, &c)
+	err = plugin.ReadPluginConfigCache(path, &c)
 	require.NoError(t, err)
 }
 
@@ -40,15 +40,15 @@ func TestPluginCacheDelete(t *testing.T) {
 		Pid:             24464,
 	}
 
-	err := plugin.WritePluginConfig(path, rc)
+	err := plugin.WritePluginConfigCache(path, rc)
 	require.NoError(t, err)
 
-	err = plugin.DeletePluginConf(path)
+	err = plugin.DeletePluginConfCache(path)
 	require.NoError(t, err)
 
 	c := hplugin.ReattachConfig{}
 	// there should be an error after deleting the config from the cache
-	err = plugin.ReadPluginConfig(path, &c)
+	err = plugin.ReadPluginConfigCache(path, &c)
 	require.Error(t, err)
 }
 
@@ -64,13 +64,13 @@ func TestPluginCacheCheck(t *testing.T) {
 	}
 
 	t.Run("Cache should be hydrated", func(t *testing.T) {
-		err := plugin.WritePluginConfig(path, rc)
+		err := plugin.WritePluginConfigCache(path, rc)
 		require.NoError(t, err)
-		require.Equal(t, true, plugin.CheckPluginConf(path))
+		require.Equal(t, true, plugin.CheckPluginConfCache(path))
 	})
 
 	t.Run("Cache should be empty", func(t *testing.T) {
-		_ = plugin.DeletePluginConf(path)
-		require.Equal(t, false, plugin.CheckPluginConf(path))
+		_ = plugin.DeletePluginConfCache(path)
+		require.Equal(t, false, plugin.CheckPluginConfCache(path))
 	})
 }

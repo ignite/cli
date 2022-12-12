@@ -163,11 +163,11 @@ func (p *Plugin) KillClient() {
 		if p.client != nil {
 			p.client.Kill()
 		}
-		DeletePluginConf(p.Path)
+		DeletePluginConfCache(p.Path)
 		p.isHost = false
 		// if the sharedHost config parameter is set to false we shutdown normally.
 	} else if !p.Plugin.SharedHost {
-		DeletePluginConf(p.Path)
+		DeletePluginConfCache(p.Path)
 	}
 }
 
@@ -222,9 +222,9 @@ func (p *Plugin) load(ctx context.Context) {
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
-	if p.Plugin.SharedHost && CheckPluginConf(p.Path) {
+	if p.Plugin.SharedHost && CheckPluginConfCache(p.Path) {
 		rconf := hplugin.ReattachConfig{}
-		err := ReadPluginConfig(p.Path, &rconf)
+		err := ReadPluginConfigCache(p.Path, &rconf)
 		if err != nil {
 			p.Error = err
 			return
@@ -278,8 +278,12 @@ func (p *Plugin) load(ctx context.Context) {
 	// write the rpc context to cache if the plugin is declared as host.
 	// writing it to cache as lost operation within load to assure rpc client's reattach config
 	// is hydrated.
-	if !CheckPluginConf(p.Path) && p.isHost {
-		WritePluginConfig(p.Path, *p.client.ReattachConfig())
+	if !CheckPluginConfCache(p.Path) && p.isHost {
+		err := WritePluginConfigCache(p.Path, *p.client.ReattachConfig())
+		if err != nil {
+			p.Error = err
+			return
+		}
 	}
 }
 
