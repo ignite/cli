@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -92,14 +93,14 @@ func HomePath(path string) Option {
 	}
 }
 
-// KeyringBackend specifies the keyring backend to use for the chain command
+// KeyringBackend specifies the keyring backend to use for the chain command.
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
 	}
 }
 
-// ConfigFile specifies a custom config file to use
+// ConfigFile specifies a custom config file to use.
 func ConfigFile(configFile string) Option {
 	return func(c *Chain) {
 		c.options.ConfigFile = configFile
@@ -154,7 +155,7 @@ func New(path string, options ...Option) (*Chain, error) {
 	}
 
 	c.sourceVersion, err = c.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
+	if err != nil && !errors.Is(err, git.ErrRepositoryNotExists) {
 		return nil, err
 	}
 
@@ -178,8 +179,27 @@ func (c *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// ConfigPath returns the config path of the chain
-// Empty string means that the chain has no defined config
+// RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
+// other chains for relayer related actions.
+func (c *Chain) RPCPublicAddress() (string, error) {
+	rpcAddress := os.Getenv("RPC_ADDRESS")
+	if rpcAddress == "" {
+		conf, err := c.Config()
+		if err != nil {
+			return "", err
+		}
+		validator := conf.Validators[0]
+		servers, err := validator.GetServers()
+		if err != nil {
+			return "", err
+		}
+		rpcAddress = servers.RPC.Address
+	}
+	return rpcAddress, nil
+}
+
+// ConfigPath returns the config path of the chain.
+// Empty string means that the chain has no defined config.
 func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
@@ -191,7 +211,7 @@ func (c *Chain) ConfigPath() string {
 	return path
 }
 
-// Config returns the config of the chain
+// Config returns the config of the chain.
 func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
@@ -226,7 +246,7 @@ func (c *Chain) ChainID() (string, error) {
 	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
-// Name returns the chain's name
+// Name returns the chain's name.
 func (c *Chain) Name() string {
 	return c.app.N()
 }
@@ -281,7 +301,7 @@ func (c *Chain) Home() (string, error) {
 	return home, nil
 }
 
-// DefaultHome returns the blockchain node's default home dir when not specified in the app
+// DefaultHome returns the blockchain node's default home dir when not specified in the app.
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
 	config, err := c.Config()
@@ -397,7 +417,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	return chaincmd.KeyringBackendTest, nil
 }
 
-// Commands returns the runner execute commands on the chain's binary
+// Commands returns the runner execute commands on the chain's binary.
 func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
 	if err != nil {

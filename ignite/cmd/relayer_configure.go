@@ -455,7 +455,7 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	return session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 }
 
-// initChain initializes chain information for the relayer connection
+// initChain initializes chain information for the relayer connection.
 func initChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,

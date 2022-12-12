@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewNetworkReward creates a new chain reward command
+// NewNetworkReward creates a new chain reward command.
 func NewNetworkReward() *cobra.Command {
 	c := &cobra.Command{
 		Use:    "reward",

@@ -36,7 +36,7 @@ func RejectRequest(requestID uint64) Reviewal {
 	}
 }
 
-// Requests fetches all the chain requests from SPN by launch id
+// Requests fetches all the chain requests from SPN by launch id.
 func (n Network) Requests(ctx context.Context, launchID uint64) ([]networktypes.Request, error) {
 	res, err := n.launchQuery.RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
 		LaunchID: launchID,
@@ -51,7 +51,7 @@ func (n Network) Requests(ctx context.Context, launchID uint64) ([]networktypes.
 	return requests, nil
 }
 
-// Request fetches the chain request from SPN by launch and request id
+// Request fetches the chain request from SPN by launch and request id.
 func (n Network) Request(ctx context.Context, launchID, requestID uint64) (networktypes.Request, error) {
 	res, err := n.launchQuery.Request(ctx, &launchtypes.QueryGetRequestRequest{
 		LaunchID:  launchID,
@@ -154,7 +154,7 @@ func (n Network) SendAccountRequest(
 	return nil
 }
 
-// SendValidatorRequest creates the RequestAddValidator message into the SPN
+// SendValidatorRequest creates the RequestAddValidator message into the SPN.
 func (n Network) SendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
@@ -204,7 +204,7 @@ func (n Network) SendValidatorRequest(
 	return nil
 }
 
-// SendValidatorRemoveRequest creates the RequestRemoveValidator message to SPN
+// SendValidatorRemoveRequest creates the RequestRemoveValidator message to SPN.
 func (n Network) SendValidatorRemoveRequest(
 	ctx context.Context,
 	launchID uint64,
@@ -248,7 +248,7 @@ func (n Network) SendValidatorRemoveRequest(
 	return nil
 }
 
-// SendAccountRemoveRequest creates the RequestRemoveAccount message to SPN
+// SendAccountRemoveRequest creates the RequestRemoveAccount message to SPN.
 func (n Network) SendAccountRemoveRequest(
 	ctx context.Context,
 	launchID uint64,
@@ -292,7 +292,7 @@ func (n Network) SendAccountRemoveRequest(
 	return nil
 }
 
-// SendParamChangeRequest creates the RequestParamChange message to SPN
+// SendParamChangeRequest creates the RequestParamChange message to SPN.
 func (n Network) SendParamChangeRequest(
 	ctx context.Context,
 	launchID uint64,

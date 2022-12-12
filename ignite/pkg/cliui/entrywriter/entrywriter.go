@@ -16,7 +16,7 @@ const (
 
 var ErrInvalidFormat = errors.New("invalid entry format")
 
-// MustWrite writes into out the tabulated entries and panic if the entry format is invalid
+// MustWrite writes into out the tabulated entries and panic if the entry format is invalid.
 func MustWrite(out io.Writer, header []string, entries ...[]string) error {
 	err := Write(out, header, entries...)
 	if errors.Is(err, ErrInvalidFormat) {
@@ -25,7 +25,7 @@ func MustWrite(out io.Writer, header []string, entries ...[]string) error {
 	return err
 }
 
-// Write writes into out the tabulated entries
+// Write writes into out the tabulated entries.
 func Write(out io.Writer, header []string, entries ...[]string) error {
 	w := &tabwriter.Writer{}
 	w.Init(out, 0, 8, 0, '\t', 0)

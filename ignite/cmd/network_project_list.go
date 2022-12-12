@@ -50,7 +50,7 @@ func networkProjectListHandler(cmd *cobra.Command, _ []string) error {
 	return renderProjectSummaries(projects, session)
 }
 
-// renderProjectSummaries writes into the provided out, the list of summarized projects
+// renderProjectSummaries writes into the provided out, the list of summarized projects.
 func renderProjectSummaries(projects []networktypes.Project, session *cliui.Session) error {
 	var projectEntries [][]string
 

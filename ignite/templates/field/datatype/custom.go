@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
-// DataCustom custom data type definition
+// DataCustom is a custom data type definition.
 var DataCustom = DataType{
 	DataType:         func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
 	DefaultTestValue: "null",

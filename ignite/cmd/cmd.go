@@ -236,7 +236,7 @@ func deprecated() []*cobra.Command {
 	}
 }
 
-// relativePath return the relative app path from the current directory
+// relativePath return the relative app path from the current directory.
 func relativePath(appPath string) (string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -272,7 +272,7 @@ func checkNewVersion(ctx context.Context) {
 `, next)
 }
 
-// newApp create a new scaffold app
+// newApp create a new scaffold app.
 func newApp(appPath string) (scaffolder.Scaffolder, error) {
 	sc, err := scaffolder.App(appPath)
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// CoordinatorIDByAddress returns the CoordinatorByAddress from SPN
+// CoordinatorIDByAddress returns the CoordinatorByAddress from SPN.
 func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (uint64, error) {
 	n.ev.Send("Fetching coordinator by address", events.ProgressStart())
 	resCoordByAddr, err := n.profileQuery.
@@ -24,7 +24,7 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 			},
 		)
 
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return 0, ErrObjectNotFound
 	} else if err != nil {
 		return 0, err
@@ -32,8 +32,8 @@ func (n Network) CoordinatorIDByAddress(ctx context.Context, address string) (ui
 	return resCoordByAddr.CoordinatorByAddress.CoordinatorID, nil
 }
 
-// SetCoordinatorDescription set the description of a coordindator
-// or creates the coordinator if it doesn't exist yet for the sender address
+// SetCoordinatorDescription set the description of a coordinator
+// or creates the coordinator if it doesn't exist yet for the sender address.
 func (n Network) SetCoordinatorDescription(ctx context.Context, description profiletypes.CoordinatorDescription) error {
 	n.ev.Send("Setting coordinator description", events.ProgressStart())
 
@@ -44,7 +44,7 @@ func (n Network) SetCoordinatorDescription(ctx context.Context, description prof
 
 	// check if coordinator exists
 	_, err = n.CoordinatorIDByAddress(ctx, addr)
-	if err == ErrObjectNotFound {
+	if errors.Is(err, ErrObjectNotFound) {
 		// create a new coordinator
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			addr,
@@ -76,7 +76,7 @@ func (n Network) SetCoordinatorDescription(ctx context.Context, description prof
 	return err
 }
 
-// Coordinator returns the Coordinator by address from SPN
+// Coordinator returns the Coordinator by address from SPN.
 func (n Network) Coordinator(ctx context.Context, address string) (networktypes.Coordinator, error) {
 	n.ev.Send("Fetching coordinator details", events.ProgressStart())
 	coordinatorID, err := n.CoordinatorIDByAddress(ctx, address)
@@ -89,7 +89,7 @@ func (n Network) Coordinator(ctx context.Context, address string) (networktypes.
 				CoordinatorID: coordinatorID,
 			},
 		)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.Coordinator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Coordinator{}, err
@@ -124,7 +124,7 @@ func (n Network) SetValidatorDescription(ctx context.Context, validator profilet
 	return res.Decode(&requestRes)
 }
 
-// Validator returns the Validator by address from SPN
+// Validator returns the Validator by address from SPN.
 func (n Network) Validator(ctx context.Context, address string) (networktypes.Validator, error) {
 	n.ev.Send("Fetching validator description", events.ProgressStart())
 	res, err := n.profileQuery.
@@ -133,7 +133,7 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 				Address: address,
 			},
 		)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.Validator{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Validator{}, err
@@ -141,7 +141,7 @@ func (n Network) Validator(ctx context.Context, address string) (networktypes.Va
 	return networktypes.ToValidator(res.Validator), nil
 }
 
-// Balances returns the all balances by address from SPN
+// Balances returns the all balances by address from SPN.
 func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error) {
 	n.ev.Send("Fetching address balances", events.ProgressStart())
 	res, err := banktypes.NewQueryClient(n.cosmos.Context()).AllBalances(ctx,
@@ -149,7 +149,7 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 			Address: address,
 		},
 	)
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return sdk.Coins{}, ErrObjectNotFound
 	} else if err != nil {
 		return sdk.Coins{}, err
@@ -157,7 +157,7 @@ func (n Network) Balances(ctx context.Context, address string) (sdk.Coins, error
 	return res.Balances, nil
 }
 
-// Profile returns the address profile info
+// Profile returns the address profile info.
 func (n Network) Profile(ctx context.Context, projectID uint64) (networktypes.Profile, error) {
 	address, err := n.account.Address(networktypes.SPN)
 	if err != nil {
@@ -184,7 +184,7 @@ func (n Network) Profile(ctx context.Context, projectID uint64) (networktypes.Pr
 	// if a project ID is specified, fetches the shares of the project
 	if projectID > 0 {
 		acc, err := n.MainnetAccount(ctx, projectID, address)
-		if err != nil && err != ErrObjectNotFound {
+		if err != nil && !errors.Is(err, ErrObjectNotFound) {
 			return networktypes.Profile{}, err
 		}
 		shares = acc.Shares

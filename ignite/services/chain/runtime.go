@@ -35,7 +35,7 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 	)
 }
 
-// Start wraps the "appd start" command to begin running a chain from the daemon
+// Start wraps the "appd start" command to begin running a chain from the daemon.
 func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
 	validator := cfg.Validators[0]
 	servers, err := validator.GetServers()
@@ -48,7 +48,7 @@ func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *cha
 	return &CannotStartAppError{runner.Cmd().Name(), err}
 }
 
-// Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml)
+// Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml).
 func (c Chain) Configure(homePath string, cfg *chainconfig.Config) error {
 	if err := c.appTOML(homePath, cfg); err != nil {
 		return err

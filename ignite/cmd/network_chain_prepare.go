@@ -22,7 +22,7 @@ const (
 	flagForce = "force"
 )
 
-// NewNetworkChainPrepare returns a new command to prepare the chain for launch
+// NewNetworkChainPrepare returns a new command to prepare the chain for launch.
 func NewNetworkChainPrepare() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "prepare [launch-id]",
@@ -145,7 +145,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// prepareFromGenesisInformation prepares the genesis of the chain from the queried genesis information from the launch ID of the chain
+// prepareFromGenesisInformation prepares the genesis of the chain from the queried genesis information from the launch ID of the chain.
 func prepareFromGenesisInformation(
 	cmd *cobra.Command,
 	cacheStorage cache.Storage,
