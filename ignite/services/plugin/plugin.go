@@ -67,19 +67,19 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
+func Load(ctx context.Context, plugins []pluginsconfig.Plugin) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	var plugins []*Plugin
-	for _, cp := range cfg.Plugins {
+	var loaded []*Plugin
+	for _, cp := range plugins {
 		p := newPlugin(pluginsDir, cp)
 		p.load(ctx)
 
-		plugins = append(plugins, p)
+		loaded = append(loaded, p)
 	}
-	return plugins, nil
+	return loaded, nil
 }
 
 func LoadSingle(ctx context.Context, pluginCfg *pluginsconfig.Plugin) (*Plugin, error) {
@@ -151,6 +151,18 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	p.srcPath = path.Join(pluginsDir, p.repoPath, path.Join(parts[3:]...))
 	p.binaryName = path.Base(pluginPath)
 	return p
+}
+
+// RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values
+func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Plugin) {
+	keys := make(map[string]bool)
+	for _, plugin := range plugins {
+		if _, value := keys[plugin.Path]; !value {
+			keys[plugin.Path] = true
+			unique = append(unique, plugin)
+		}
+	}
+	return unique
 }
 
 func (p *Plugin) KillClient() {

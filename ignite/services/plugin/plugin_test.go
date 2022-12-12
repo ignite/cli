@@ -394,6 +394,68 @@ func TestPluginClean(t *testing.T) {
 	}
 }
 
+func TestRemoveDuplicates(t *testing.T) {
+	tests := []struct {
+		name     string
+		configs  []pluginsconfig.Plugin
+		expected []pluginsconfig.Plugin
+	}{
+		{
+			name:     "do nothing for empty list",
+			configs:  []pluginsconfig.Plugin(nil),
+			expected: []pluginsconfig.Plugin(nil),
+		},
+		{
+			name: "remove duplicates",
+			configs: []pluginsconfig.Plugin{
+				pluginsconfig.Plugin{
+					Path: "foo/bar",
+				},
+				pluginsconfig.Plugin{
+					Path: "foo/bar",
+				},
+				pluginsconfig.Plugin{
+					Path: "bar/foo",
+				},
+			},
+			expected: []pluginsconfig.Plugin{
+				pluginsconfig.Plugin{
+					Path: "foo/bar",
+				},
+				pluginsconfig.Plugin{
+					Path: "bar/foo",
+				},
+			},
+		},
+		{
+			name: "do nothing for no duplicates",
+			configs: []pluginsconfig.Plugin{
+				pluginsconfig.Plugin{
+					Path: "foo/bar",
+				},
+				pluginsconfig.Plugin{
+					Path: "bar/foo",
+				},
+			},
+			expected: []pluginsconfig.Plugin{
+				pluginsconfig.Plugin{
+					Path: "foo/bar",
+				},
+				pluginsconfig.Plugin{
+					Path: "bar/foo",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			unique := RemoveDuplicates(tt.configs)
+			require.EqualValues(t, tt.expected, unique)
+
+		})
+	}
+}
+
 func assertPlugin(t *testing.T, want, have Plugin) {
 	if want.Error != nil {
 		require.Error(t, have.Error)

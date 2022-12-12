@@ -31,24 +31,22 @@ var plugins []*plugin.Plugin
 // If no configuration found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	localCfg, err := parseLocalPlugins(rootCmd)
-	// if binary is run where there is no cfg, don't load
-	if err == nil {
-		plugins, err = plugin.Load(ctx, localCfg)
-		if err != nil {
-			return err
-		}
+	if err != pluginsconfig.ErrNotFound {
+		return nil
 	}
 
 	globalCfg, err := parseGlobalPlugins()
-	// if no global cfg, don't load
-	if err == nil {
-		globalPlugins, err := plugin.Load(ctx, globalCfg)
-		if err != nil {
-			return err
-		}
-		plugins = append(plugins, globalPlugins...)
+	if err != pluginsconfig.ErrNotFound {
+		return nil
 	}
 
+	pluginsConfigs := append(localCfg.Plugins, globalCfg.Plugins...)
+	if len(pluginsConfigs) == 0 {
+		return nil
+	}
+
+	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
+	plugins, err = plugin.Load(ctx, uniquePlugins)
 	if len(plugins) == 0 {
 		return nil
 	}
