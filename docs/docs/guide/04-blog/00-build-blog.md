@@ -174,6 +174,20 @@ blockchain:
 blogd tx blog create-post 'Hello, World!' 'This is a blog post' --from alice
 ```
 
+When using the `--from` flag to specify the account that will be used to sign a
+transaction, it's important to ensure that the specified account is available
+for use. In a development environment, you can see a list of available accounts
+in the output of the `ignite chain serve` command, or in the `config.yml` file.
+
+It's also worth noting that the `--from` flag is required when broadcasting
+transactions. This flag specifies the account that will be used to sign the
+transaction, which is a crucial step in the transaction process. Without a valid
+signature, the transaction will not be accepted by the blockchain. Therefore,
+it's important to ensure that the account specified with the `--from` flag is
+available.
+
+After the transaction has been broadcasted successfully, you can query the blockchain for the list of blog posts. To do this, you can use the `blogd q blog list-post` command, which will return a paginated list of all the blog posts that have been added to the blockchain.
+
 ```
 blogd q blog list-post
 
@@ -187,9 +201,16 @@ pagination:
   total: "0"
 ```
 
+By querying the blockchain, you can verify that your transaction was processed successfully and that the blog post has been added to the chain. Additionally, you can use other query commands to retrieve information about other data on the blockchain, such as accounts, balances, and governance proposals.
+
+Let's modify the blog post that we just created by changing the `body` content. To do this, we can use the `blogd tx blog update-post` command, which allows us to update an existing blog post on the blockchain. When running this command, we will need to specify the ID of the blog post that we want to modify, as well as the new body content that we want to use. After running this command, the transaction will be broadcasted to the blockchain and the blog post will be updated with the new body content.
+
 ```
 blogd tx blog update-post 0 'Hello, World!' 'This is a blog post from Alice' --from alice
 ```
+
+Now that we have updated the blog post with new content, let's query the blockchain again to see the changes. To do this, we can use the `blogd q blog list-post` command, which will return a list of all the blog posts on the blockchain. By running this command again, we can see the updated blog post in the list, and we can verify that the changes we made have been successfully applied to the blockchain.
+
 
 ```
 blogd q blog list-post
@@ -204,15 +225,25 @@ pagination:
   total: "0"
 ```
 
+Let's try to delete one of the blog posts using Bob's account. However, since the blog post was created using Alice's account, we can expect the blockchain to check whether the user is authorized to delete the post. In this case, since Bob is not the author of the post, his transaction should be rejected by the blockchain.
+
+To delete a blog post, we can use the `blogd tx blog delete-post` command, which allows us to delete an existing blog post on the blockchain. When running this command, we will need to specify the ID of the blog post that we want to delete, as well as the account that we want to use for signing the transaction. In this case, we will use Bob's account to sign the transaction.
+
+After running this command, the transaction will be broadcasted to the blockchain. However, since Bob is not the author of the post, the blockchain should reject his transaction and the blog post will not be deleted. This is an example of how the blockchain can enforce rules and permissions, and it shows that only authorized users are able to make changes to the blockchain.
+
 ```
 blogd tx blog delete-post 0 --from bob
 
 raw_log: 'failed to execute message; message index: 0: incorrect owner: unauthorized'
 ```
 
+Now, let's try to delete the blog post again, but this time using Alice's account. Since Alice is the author of the blog post, she should be authorized to delete it.
+
 ```
 blogd tx blog delete-post 0 --from alice
 ```
+
+To check whether the blog post has been successfully deleted by Alice, we can query the blockchain for a list of posts again.
 
 ```
 blogd q blog list-post
