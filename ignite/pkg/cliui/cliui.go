@@ -34,6 +34,7 @@ type Session struct {
 	spinner *clispinner.Spinner
 	out     uilog.Output
 	wg      *sync.WaitGroup
+	ended   bool
 }
 
 // Option configures session options.
@@ -257,10 +258,15 @@ func (s Session) PrintTable(header []string, entries ...[]string) error {
 
 // End finishes the session by stopping the spinner and the event bus.
 // Once the session is ended it should not be used anymore.
-func (s Session) End() {
+func (s *Session) End() {
+	if s.ended {
+		return
+	}
+
 	s.StopSpinner()
 	s.ev.Stop()
 	s.wg.Wait()
+	s.ended = true
 }
 
 func (s *Session) handleEvents() {

@@ -38,7 +38,7 @@ curl https://get.ignite.com/cli | bash
 
 ## Bounty program
 
-Our [Ignite CLI bounty program](06-bounty.md) provides incentives for your participation and pays rewards.
+Our [Ignite CLI bounty program](09-bounty.md) provides incentives for your participation and pays rewards.
 
 ## Projects using Tendermint and Cosmos SDK
 
@@ -56,11 +56,12 @@ and explorers that are built in the Cosmos ecosystem.
   { name: "Cudos", logo: "img/logo/cudos.svg"},
   { name: "Firma Chain", logo: "img/logo/firmachain.svg"},
   { name: "BitCanna", logo: "img/logo/bitcanna.svg"},
+  { name: "Source Protocol", logo: "img/logo/source.svg"},
+  { name: "Sonr", logo: "img/logo/sonr.svg"},
+  { name: "Neutron", logo: "img/logo/neutron.svg"},
   { name: "OKP4 Blockchain", logo: "img/logo/okp4.svg"},
   { name: "Dymension Hub", logo: "img/logo/dymension.svg"},
   { name: "Electra Blockchain", logo: "img/logo/electra.svg"},
-  { name: "Source Protocol", logo: "img/logo/source.svg"},
-  { name: "Sonr", logo: "img/logo/sonr.svg"},
   { name: "OLLO Station", logo: "img/logo/ollostation.svg"},
   { name: "Mun", logo: "img/logo/mun.svg"},
   { name: "Aura Network", logo: "img/logo/aura.svg"},
