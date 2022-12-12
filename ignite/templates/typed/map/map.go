@@ -133,7 +133,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
@@ -269,7 +269,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
