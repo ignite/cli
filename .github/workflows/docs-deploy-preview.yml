@@ -41,6 +41,7 @@ jobs:
 
       - name: Build
         run: yarn run build
+        if: env.GIT_DIFF
         working-directory: ./docs
 
       - name: Deploy
