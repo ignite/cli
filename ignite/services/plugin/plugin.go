@@ -153,7 +153,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	return p
 }
 
-// RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values
+// RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values.
 func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Plugin) {
 	keys := make(map[string]bool)
 	for _, plugin := range plugins {

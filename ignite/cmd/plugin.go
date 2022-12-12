@@ -31,12 +31,12 @@ var plugins []*plugin.Plugin
 // If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	localCfg, err := parseLocalPlugins(rootCmd)
-	if err != pluginsconfig.ErrNotFound {
+	if err != nil && !errors.Is(err, pluginsconfig.ErrNotFound) {
 		return nil
 	}
 
 	globalCfg, err := parseGlobalPlugins()
-	if err != pluginsconfig.ErrNotFound {
+	if err != nil && !errors.Is(err, pluginsconfig.ErrNotFound) {
 		return nil
 	}
 

@@ -408,21 +408,21 @@ func TestRemoveDuplicates(t *testing.T) {
 		{
 			name: "remove duplicates",
 			configs: []pluginsconfig.Plugin{
-				pluginsconfig.Plugin{
+				{
 					Path: "foo/bar",
 				},
-				pluginsconfig.Plugin{
+				{
 					Path: "foo/bar",
 				},
-				pluginsconfig.Plugin{
+				{
 					Path: "bar/foo",
 				},
 			},
 			expected: []pluginsconfig.Plugin{
-				pluginsconfig.Plugin{
+				{
 					Path: "foo/bar",
 				},
-				pluginsconfig.Plugin{
+				{
 					Path: "bar/foo",
 				},
 			},
@@ -430,18 +430,18 @@ func TestRemoveDuplicates(t *testing.T) {
 		{
 			name: "do nothing for no duplicates",
 			configs: []pluginsconfig.Plugin{
-				pluginsconfig.Plugin{
+				{
 					Path: "foo/bar",
 				},
-				pluginsconfig.Plugin{
+				{
 					Path: "bar/foo",
 				},
 			},
 			expected: []pluginsconfig.Plugin{
-				pluginsconfig.Plugin{
+				{
 					Path: "foo/bar",
 				},
-				pluginsconfig.Plugin{
+				{
 					Path: "bar/foo",
 				},
 			},
@@ -451,7 +451,6 @@ func TestRemoveDuplicates(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			unique := RemoveDuplicates(tt.configs)
 			require.EqualValues(t, tt.expected, unique)
-
 		})
 	}
 }
