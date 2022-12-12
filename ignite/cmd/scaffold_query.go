@@ -13,7 +13,7 @@ const (
 	flagPaginated = "paginated"
 )
 
-// NewScaffoldQuery command creates a new type command to scaffold queries
+// NewScaffoldQuery command creates a new type command to scaffold queries.
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "query [name] [request_field1] [request_field2] ...",

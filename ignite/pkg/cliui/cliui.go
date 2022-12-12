@@ -47,7 +47,7 @@ func WithStdout(stdout io.WriteCloser) Option {
 	}
 }
 
-// WithStderr sets base stderr for a Session
+// WithStderr sets base stderr for a Session.
 func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
 		s.options.stderr = stderr
@@ -223,7 +223,7 @@ func (s Session) Println(messages ...interface{}) error {
 	return err
 }
 
-// Println prints arbitrary message
+// Print prints arbitrary message.
 func (s Session) Print(messages ...interface{}) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprint(s.out.Stdout(), messages...)
@@ -289,6 +289,7 @@ func (s *Session) handleEvents() {
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
+		case events.IndicationNone:
 		default:
 			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()

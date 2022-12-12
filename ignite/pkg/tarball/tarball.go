@@ -9,22 +9,22 @@ import (
 )
 
 var (
-	// ErrGzipFileNotFound the file not found in the gzip
+	// ErrGzipFileNotFound the file not found in the gzip.
 	ErrGzipFileNotFound = errors.New("file not found in the gzip")
-	// ErrNotGzipType the file is not a gzip
+	// ErrNotGzipType the file is not a gzip.
 	ErrNotGzipType = errors.New("file is not a gzip type")
-	// ErrInvalidFileName the file name is invalid
+	// ErrInvalidFileName the file name is invalid.
 	ErrInvalidFileName = errors.New("invalid file name")
 )
 
-// ExtractFile founds and reads a specific file into a gzip file and folders recursively
+// ExtractFile founds and reads a specific file into a gzip file and folders recursively.
 func ExtractFile(reader io.Reader, out io.Writer, fileName string) (string, error) {
 	if fileName == "" {
 		return "", ErrInvalidFileName
 	}
 	archive, err := gzip.NewReader(reader)
 	// Verify if is a GZIP file
-	if err == io.EOF || err == gzip.ErrHeader {
+	if errors.Is(err, io.EOF) || errors.Is(err, gzip.ErrHeader) {
 		return "", ErrNotGzipType
 	} else if err != nil {
 		return "", err
@@ -35,7 +35,7 @@ func ExtractFile(reader io.Reader, out io.Writer, fileName string) (string, erro
 	// Read the tarball files and find only the necessary file
 	for {
 		header, err := tarReader.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return "", ErrGzipFileNotFound
 		} else if err != nil {
 			return header.Name, err

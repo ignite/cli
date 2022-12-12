@@ -30,7 +30,7 @@ const (
 )
 
 type (
-	// Genesis represents the genesis reader
+	// Genesis represents the genesis reader.
 	Genesis struct {
 		*jsonfile.JSONFile
 	}
@@ -40,12 +40,12 @@ type (
 	gentxs []struct{}
 )
 
-// ModuleParamField returns the field name of a given module param pair
+// ModuleParamField returns the field name of a given module param pair.
 func ModuleParamField(module, param string) string {
 	return fmt.Sprintf(fieldModuleParamFormatString, module, param)
 }
 
-// FromPath parse genesis object from path
+// FromPath parses genesis object from path.
 func FromPath(path string) (*Genesis, error) {
 	file, err := jsonfile.FromPath(path)
 	return &Genesis{
@@ -61,7 +61,7 @@ func FromURL(ctx context.Context, url, path string) (*Genesis, error) {
 	}, err
 }
 
-// CheckGenesisContainsAddress returns true if the address exist into the genesis file
+// CheckGenesisContainsAddress returns true if the address exist into the genesis file.
 func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 	_, err := os.Stat(genesisPath)
 	if os.IsNotExist(err) {
@@ -77,7 +77,7 @@ func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 	return genesis.HasAccount(addr), nil
 }
 
-// HasAccount check if account exist into the genesis account
+// HasAccount check if account exist into the genesis account.
 func (g Genesis) HasAccount(address string) bool {
 	accounts, err := g.Accounts()
 	if err != nil {
@@ -91,19 +91,19 @@ func (g Genesis) HasAccount(address string) bool {
 	return false
 }
 
-// StakeDenom returns the stake denom from the genesis
+// StakeDenom returns the stake denom from the genesis.
 func (g *Genesis) StakeDenom() (denom string, err error) {
 	err = g.Field(fieldPathStakeDenom, &denom)
 	return
 }
 
-// ChainID returns the chain id from the genesis
+// ChainID returns the chain id from the genesis.
 func (g *Genesis) ChainID() (chainID string, err error) {
 	err = g.Field(fieldPathChainID, &chainID)
 	return
 }
 
-// Accounts returns the auth accounts from the genesis
+// Accounts returns the auth accounts from the genesis.
 func (g *Genesis) Accounts() ([]string, error) {
 	var accs accounts
 	err := g.Field(fieldPathAccounts, &accs)
@@ -114,7 +114,7 @@ func (g *Genesis) Accounts() ([]string, error) {
 	return accountList, err
 }
 
-// GentxCount returns the number of gentx in the genesis
+// GentxCount returns the number of gentx in the genesis.
 func (g *Genesis) GentxCount() (int, error) {
 	var gentxs gentxs
 	err := g.Field(fieldPathGentxs, &gentxs)

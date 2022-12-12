@@ -10,7 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// CreateClient send create client message to SPN
+// CreateClient send create client message to SPN.
 func (n Network) CreateClient(
 	ctx context.Context,
 	launchID uint64,
@@ -43,7 +43,7 @@ func (n Network) CreateClient(
 	return createClientRes.ClientID, nil
 }
 
-// verifiedClientIDs fetches the verified client ids from SPN by launch id
+// verifiedClientIDs fetches the verified client ids from SPN by launch id.
 func (n Network) verifiedClientIDs(ctx context.Context, launchID uint64) ([]string, error) {
 	res, err := n.monitoringConsumerQuery.
 		VerifiedClientIds(ctx,
@@ -52,7 +52,7 @@ func (n Network) verifiedClientIDs(ctx context.Context, launchID uint64) ([]stri
 			},
 		)
 
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return nil, ErrObjectNotFound
 	} else if err != nil {
 		return nil, err

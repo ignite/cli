@@ -50,12 +50,12 @@ func List(n int, do func(i int) string) []string {
 	return list
 }
 
-// FormatUsername formats a username to make it usable as a variable
+// FormatUsername formats a username to make it usable as a variable.
 func FormatUsername(s string) string {
 	return NoDash(NoNumberPrefix(s))
 }
 
-// NoDash removes dash from the string
+// NoDash removes dash from the string.
 func NoDash(s string) string {
 	return strings.ReplaceAll(s, "-", "")
 }

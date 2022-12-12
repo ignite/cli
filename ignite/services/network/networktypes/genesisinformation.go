@@ -8,7 +8,7 @@ import (
 )
 
 // GenesisInformation represents all information for a chain to construct the genesis.
-// This structure indexes accounts and validators by their address for better performance
+// This structure indexes accounts and validators by their address for better performance.
 type GenesisInformation struct {
 	// make sure to use slices for the following because slices are ordered.
 	// they later used to create a Genesis so, having them ordered is important to
@@ -20,14 +20,14 @@ type GenesisInformation struct {
 	ParamChanges      []ParamChange
 }
 
-// GenesisAccount represents an account with initial coin allocation for the chain for the chain genesis
+// GenesisAccount represents an account with initial coin allocation for the chain for the chain genesis.
 type GenesisAccount struct {
 	Address string    `json:"Address,omitempty"`
 	Coins   sdk.Coins `json:"Coins,omitempty"`
 }
 
-// VestingAccount represents a vesting account with initial coin allocation  and vesting option for the chain genesis
-// VestingAccount supports currently only delayed vesting option
+// VestingAccount represents a vesting account with initial coin allocation  and vesting option for the chain genesis.
+// VestingAccount supports currently only delayed vesting option.
 type VestingAccount struct {
 	Address      string    `json:"Address,omitempty"`
 	TotalBalance sdk.Coins `json:"TotalBalance,omitempty"`
@@ -35,7 +35,7 @@ type VestingAccount struct {
 	EndTime      int64     `json:"EndTime,omitempty"`
 }
 
-// GenesisValidator represents a genesis validator associated with a gentx in the chain genesis
+// GenesisValidator represents a genesis validator associated with a gentx in the chain genesis.
 type GenesisValidator struct {
 	Address        string           `json:"Address,omitempty"`
 	Gentx          []byte           `json:"Gentx,omitempty"`
@@ -43,13 +43,14 @@ type GenesisValidator struct {
 	SelfDelegation sdk.Coin         `json:"SelfDelegation,omitempty"`
 }
 
+// ParamChange represents a parameter change to be applied to the chain genesis.
 type ParamChange struct {
 	Module string `json:"Module,omitempty"`
 	Param  string `json:"Param,omitempty"`
 	Value  []byte `json:"Value,omitempty"`
 }
 
-// ToGenesisAccount converts genesis account from SPN
+// ToGenesisAccount converts genesis account from SPN.
 func ToGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.Address,
@@ -57,7 +58,7 @@ func ToGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
 	}
 }
 
-// ToVestingAccount converts vesting account from SPN
+// ToVestingAccount converts vesting account from SPN.
 func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 	delayedVesting := acc.VestingOptions.GetDelayedVesting()
 	if delayedVesting == nil {
@@ -72,7 +73,7 @@ func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 	}, nil
 }
 
-// ToGenesisValidator converts genesis validator from SPN
+// ToGenesisValidator converts genesis validator from SPN.
 func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	return GenesisValidator{
 		Address:        val.Address,
@@ -82,7 +83,7 @@ func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	}
 }
 
-// ToParamChange converts param change from SPN
+// ToParamChange converts param change from SPN.
 func ToParamChange(pc launchtypes.ParamChange) ParamChange {
 	return ParamChange{
 		Param:  pc.Param,
@@ -91,7 +92,7 @@ func ToParamChange(pc launchtypes.ParamChange) ParamChange {
 	}
 }
 
-// NewGenesisInformation initializes a new GenesisInformation
+// NewGenesisInformation initializes  new GenesisInformation.
 func NewGenesisInformation(
 	genAccs []GenesisAccount,
 	vestingAccs []VestingAccount,
@@ -186,6 +187,8 @@ func (gi *GenesisInformation) RemoveGenesisValidator(address string) {
 	}
 }
 
+// AddParamChange adds a ParamChange to the GenesisInformation.
+// Appends if entry does not exist.  Updates if it already exists.
 func (gi *GenesisInformation) AddParamChange(pc ParamChange) {
 	contains, index := gi.ContainsParamChange(pc.Module, pc.Param)
 	if contains {
@@ -195,7 +198,7 @@ func (gi *GenesisInformation) AddParamChange(pc ParamChange) {
 	gi.ParamChanges = append(gi.ParamChanges, pc)
 }
 
-// ApplyRequest applies to the genesisInformation the changes implied by the approval of a request
+// ApplyRequest applies to the genesisInformation the changes implied by the approval of a request.
 func (gi GenesisInformation) ApplyRequest(request Request) (GenesisInformation, error) {
 	switch requestContent := request.Content.Content.(type) {
 	case *launchtypes.RequestContent_GenesisAccount:

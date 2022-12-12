@@ -29,7 +29,7 @@ var (
 	fsSimapp embed.FS
 )
 
-// NewGenerator returns the generator to scaffold a new type in a module
+// NewGenerator returns the generator to scaffold a new type in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g = genny.New()

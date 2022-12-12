@@ -17,7 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/typed"
 )
 
-// NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
+// NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g        = genny.New()

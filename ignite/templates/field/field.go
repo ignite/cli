@@ -18,7 +18,7 @@ type Field struct {
 	Datatype     string
 }
 
-// DataType returns the field Datatype
+// DataType returns the field Datatype.
 func (f Field) DataType() string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -27,12 +27,12 @@ func (f Field) DataType() string {
 	return dt.DataType(f.Datatype)
 }
 
-// ProtoFieldName returns the field name used in proto
+// ProtoFieldName returns the field name used in proto.
 func (f Field) ProtoFieldName() string {
 	return f.Name.LowerCamel
 }
 
-// ProtoType returns the field proto Datatype
+// ProtoType returns the field proto Datatype.
 func (f Field) ProtoType(index int) string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -41,7 +41,7 @@ func (f Field) ProtoType(index int) string {
 	return dt.ProtoType(f.Datatype, f.ProtoFieldName(), index)
 }
 
-// DefaultTestValue returns the Datatype value default
+// DefaultTestValue returns the Datatype value default.
 func (f Field) DefaultTestValue() string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -50,7 +50,7 @@ func (f Field) DefaultTestValue() string {
 	return dt.DefaultTestValue
 }
 
-// ValueLoop returns the Datatype value for loop iteration
+// ValueLoop returns the Datatype value for loop iteration.
 func (f Field) ValueLoop() string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -62,7 +62,7 @@ func (f Field) ValueLoop() string {
 	return dt.ValueLoop
 }
 
-// ValueIndex returns the Datatype value for indexes
+// ValueIndex returns the Datatype value for indexes.
 func (f Field) ValueIndex() string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -74,7 +74,7 @@ func (f Field) ValueIndex() string {
 	return dt.ValueIndex
 }
 
-// ValueInvalidIndex returns the Datatype value for invalid indexes
+// ValueInvalidIndex returns the Datatype value for invalid indexes.
 func (f Field) ValueInvalidIndex() string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -86,7 +86,7 @@ func (f Field) ValueInvalidIndex() string {
 	return dt.ValueInvalidIndex
 }
 
-// GenesisArgs returns the Datatype genesis args
+// GenesisArgs returns the Datatype genesis args.
 func (f Field) GenesisArgs(value int) string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -95,7 +95,7 @@ func (f Field) GenesisArgs(value int) string {
 	return dt.GenesisArgs(f.Name, value)
 }
 
-// CLIArgs returns the Datatype CLI args
+// CLIArgs returns the Datatype CLI args.
 func (f Field) CLIArgs(prefix string, argIndex int) string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -104,7 +104,7 @@ func (f Field) CLIArgs(prefix string, argIndex int) string {
 	return dt.CLIArgs(f.Name, f.Datatype, prefix, argIndex)
 }
 
-// ToBytes returns the Datatype byte array cast
+// ToBytes returns the Datatype byte array cast.
 func (f Field) ToBytes(name string) string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -116,7 +116,7 @@ func (f Field) ToBytes(name string) string {
 	return dt.ToBytes(name)
 }
 
-// ToString returns the Datatype byte array cast
+// ToString returns the Datatype byte array cast.
 func (f Field) ToString(name string) string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -130,7 +130,7 @@ func (f Field) ToString(name string) string {
 
 // ToProtoField returns the Datatype as a *proto.Field node.
 func (f Field) ToProtoField(index int) *proto.NormalField {
-	// TODO: Do we can if if it's an index type?
+	// TODO: Do we can if it's an index type?
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
@@ -138,7 +138,7 @@ func (f Field) ToProtoField(index int) *proto.NormalField {
 	return dt.ToProtoField(f.Datatype, f.Name.LowerCamel, index)
 }
 
-// GoCLIImports returns the Datatype imports for CLI package
+// GoCLIImports returns the Datatype imports for CLI package.
 func (f Field) GoCLIImports() []datatype.GoImport {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -147,7 +147,7 @@ func (f Field) GoCLIImports() []datatype.GoImport {
 	return dt.GoCLIImports
 }
 
-// ProtoImports return the Datatype imports for proto files
+// ProtoImports returns the Datatype imports for proto files.
 func (f Field) ProtoImports() []string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {

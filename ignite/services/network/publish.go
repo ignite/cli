@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -81,14 +82,14 @@ func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	}
 }
 
-// WithAccountBalance set a balance used for all genesis account of the chain
+// WithAccountBalance set a balance used for all genesis account of the chain.
 func WithAccountBalance(accountBalance sdk.Coins) PublishOption {
 	return func(c *publishOptions) {
 		c.accountBalance = accountBalance
 	}
 }
 
-// Mainnet initialize a published chain into the mainnet
+// Mainnet initialize a published chain into the mainnet.
 func Mainnet() PublishOption {
 	return func(o *publishOptions) {
 		o.mainnet = true
@@ -146,7 +147,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one
-	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); err == ErrObjectNotFound {
+	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); errors.Is(err, ErrObjectNotFound) {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",

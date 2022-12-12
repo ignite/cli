@@ -63,7 +63,7 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 	return nil
 }
 
-// Transformer will plushify any file that has a ".plush" extension
+// Transformer will plush-ify any file that has a ".plush" extension.
 func Transformer(ctx *plush.Context) genny.Transformer {
 	t := genny.NewTransformer(".plush", func(f genny.File) (genny.File, error) {
 		s, err := plush.RenderR(f, ctx)

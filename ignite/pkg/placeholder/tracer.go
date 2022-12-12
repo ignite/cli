@@ -81,7 +81,7 @@ func (t *Tracer) ReplaceOnce(content, placeholder, replacement string) string {
 	return content
 }
 
-// AppendMiscError allows to track errors not related to missing placeholders during file modification
+// AppendMiscError allows to track errors not related to missing placeholders during file modification.
 func (t *Tracer) AppendMiscError(miscError string) {
 	t.miscErrors = append(t.miscErrors, miscError)
 }

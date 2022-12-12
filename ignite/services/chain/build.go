@@ -254,7 +254,7 @@ func (c *Chain) discoverMain(path string) (pkgPath string, err error) {
 	}
 
 	path, err = goanalysis.DiscoverOneMain(path)
-	if err == goanalysis.ErrMultipleMainPackagesFound {
+	if errors.Is(err, goanalysis.ErrMultipleMainPackagesFound) {
 		return "", errors.Wrap(err, "specify the path to your chain's main package in your config.yml>build.main")
 	}
 	return path, err

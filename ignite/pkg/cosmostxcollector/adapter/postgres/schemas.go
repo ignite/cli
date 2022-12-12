@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// SchemasDir defines the name for the embedded schema directory
+// SchemasDir defines the name for the embedded schema directory.
 const SchemasDir = "schemas"
 
 const (

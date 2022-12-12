@@ -9,31 +9,41 @@ linters:
   disable-all: true
   enable:
     - bodyclose
+    - decorder
     - depguard
     - dogsled
+    - dupword
     # - errcheck
+    - errchkjson
+    - errorlint
+    - exhaustive
     - goconst
     - gocritic
+    - godot
     - gofumpt
     - revive
     # - gosec
     - gosimple
     - govet
+    - grouper
     - ineffassign
     # - interfacer
-    # - maligned
     - misspell
     - nakedret
+    - nolintlint
     - exportloopref
     - staticcheck
+    - reassign
     - stylecheck
     - typecheck
     - unconvert
+    - tenv
+    - thelper
     - unused
     - unparam
     - misspell
+    # - wrapcheck
     # - wsl
-    # - nolintlint
 
 issues:
   max-issues-per-linter: 0

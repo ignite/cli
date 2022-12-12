@@ -48,7 +48,7 @@ func ParseDir(dir string) (*Config, error) {
 	defer f.Close()
 
 	// if the error is end of file meaning an empty file on read return nil
-	if err := yaml.NewDecoder(f).Decode(&c); err != nil && err != io.EOF {
+	if err := yaml.NewDecoder(f).Decode(&c); err != nil && !errors.Is(err, io.EOF) {
 		return errf(err)
 	}
 	return &c, nil
