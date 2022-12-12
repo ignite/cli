@@ -14,8 +14,8 @@ import (
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
-// Init initializes blockchain by building the binaries and running the init command and
-// create the initial genesis of the chain, and set up a validator key
+// Init initializes blockchain by building the binaries and running the init command,
+// creates the initial genesis of the chain, and sets up a validator key.
 func (c *Chain) Init(ctx context.Context, cacheStorage cache.Storage) error {
 	chainHome, err := c.chain.Home()
 	if err != nil {
@@ -170,7 +170,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 	return nil
 }
 
-// checkGenesis checks the stored genesis is valid
+// checkGenesis checks the stored genesis is valid.
 func (c *Chain) checkInitialGenesis(ctx context.Context) error {
 	// perform static analysis of the chain with the validate-genesis command.
 	chainCmd, err := c.chain.Commands(ctx)

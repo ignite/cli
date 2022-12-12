@@ -19,17 +19,17 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// listeningTimeout is the maximum time to wait for the chain start
+// listeningTimeout is the maximum time to wait for the chain start.
 const listeningTimeout = time.Minute * 1
 
 // validatorSetNilErrorMessages contains variation for SDK validator set empty error message/
-// to detect if the chain fails to start because the validator set is nil
+// to detect if the chain fails to start because the validator set is nil.
 var validatorSetNilErrorMessages = []string{
 	"validator set is nil in genesis and still empty after InitChain",
 	"validator set is empty after InitGenesis",
 }
 
-// SimulateRequests simulates the genesis creation and the start of the network from the provided requests
+// SimulateRequests simulates the genesis creation and the start of the network from the provided requests.
 func (c Chain) SimulateRequests(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -74,7 +74,7 @@ func (c Chain) SimulateRequests(
 }
 
 // SimulateChainStart simulates and verify the chain start by starting it with a simulation config
-// and checking if the gentxs execution is successful
+// and checking if the gentxs execution is successful.
 func (c Chain) simulateChainStart(ctx context.Context) error {
 	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
@@ -125,7 +125,7 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 	return <-exit
 }
 
-// setSimulationConfig sets in the config random available ports to allow check if the chain network can start
+// setSimulationConfig sets in the config random available ports to allow check if the chain network can start.
 func (c Chain) setSimulationConfig() (string, error) {
 	// generate random server ports and servers list
 	ports, err := availableport.Find(5)
@@ -205,7 +205,7 @@ func (c Chain) setSimulationConfig() (string, error) {
 	return genAddr(ports[2]), err
 }
 
-// isChainListening checks if the chain is listening for RPC queries on the specified address
+// isChainListening checks if the chain is listening for RPC queries on the specified address.
 func isChainListening(ctx context.Context, rpcAddr string) error {
 	checkAlive := func() error {
 		addr, err := xurl.HTTP(rpcAddr)

@@ -18,7 +18,7 @@ const (
 	sampleAccount    = "alice"
 )
 
-// InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
+// InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json.
 func (c Chain) InitAccount(ctx context.Context, v chain.Validator, accountName string) (string, error) {
 	if !c.isInitialized {
 		return "", errors.New("the blockchain must be initialized to initialize an account")
@@ -86,7 +86,7 @@ func (c *Chain) ImportAccount(ctx context.Context, name string) (string, error) 
 }
 
 // detectPrefix detects the account address prefix for the chain
-// the method create a sample account and parse the address prefix from it
+// the method, creates a sample account and parses the address prefix from it.
 func (c Chain) detectPrefix(ctx context.Context) (string, error) {
 	chainCmd, err := c.chain.Commands(ctx)
 	if err != nil {

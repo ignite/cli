@@ -27,7 +27,7 @@ var LaunchSummaryAdvancedHeader = []string{
 	"reward",
 }
 
-// NewNetworkChainList returns a new command to list all published chains on Ignite
+// NewNetworkChainList returns a new command to list all published chains on Ignite.
 func NewNetworkChainList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",
@@ -76,7 +76,7 @@ func networkChainListHandler(cmd *cobra.Command, _ []string) error {
 	return renderLaunchSummaries(chainLaunches, session, advanced)
 }
 
-// renderLaunchSummaries writes into the provided out, the list of summarized launches
+// renderLaunchSummaries writes into the provided out, the list of summarized launches.
 func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, session *cliui.Session, advanced bool) error {
 	header := LaunchSummaryHeader
 	if advanced {

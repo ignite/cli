@@ -13,6 +13,7 @@ var (
 	ErrNotFound       = errors.New("not found")
 )
 
+//nolint:exhaustive
 func Unwrap(err error) error {
 	s, ok := status.FromError(err)
 	if ok {

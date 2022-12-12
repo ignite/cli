@@ -43,7 +43,8 @@ func (c Config) Path() string {
 	return c.path
 }
 
-// Save persists a config yaml to a specified path on disk must be writable
+// Save persists a config yaml to a specified path on disk.
+// Must be writable.
 func (c *Config) Save() error {
 	errf := func(err error) error {
 		return fmt.Errorf("plugin config save: %w", err)

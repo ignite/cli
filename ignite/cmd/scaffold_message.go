@@ -10,7 +10,7 @@ import (
 
 const flagSigner = "signer"
 
-// NewScaffoldMessage returns the command to scaffold messages
+// NewScaffoldMessage returns the command to scaffold messages.
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "message [name] [field1] [field2] ...",

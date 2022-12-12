@@ -31,7 +31,7 @@ app.GovKeeper = ...
 `
 )
 
-// NewScaffoldModule returns the command to scaffold a Cosmos SDK module
+// NewScaffoldModule returns the command to scaffold a Cosmos SDK module.
 func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "module [name]",

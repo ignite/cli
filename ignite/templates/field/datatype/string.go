@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// DataString string data type definition
+	// DataString is a string data type definition.
 	DataString = DataType{
 		DataType:          func(string) string { return "string" },
 		DefaultTestValue:  "xyz",
@@ -37,7 +37,7 @@ var (
 		},
 	}
 
-	// DataStringSlice string array data type definition
+	// DataStringSlice is a string array data type definition.
 	DataStringSlice = DataType{
 		DataType:         func(string) string { return "[]string" },
 		DefaultTestValue: "abc,xyz",

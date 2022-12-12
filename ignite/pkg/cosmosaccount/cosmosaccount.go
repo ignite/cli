@@ -42,10 +42,10 @@ type KeyringBackend string
 
 const (
 	// KeyringTest is the test keyring backend. With this backend, your keys will be
-	// stored under your app's data dir,
+	// stored under your app's data dir.
 	KeyringTest KeyringBackend = "test"
 
-	// KeyringOS is the OS keyring backend. with this backend, your keys will be
+	// KeyringOS is the OS keyring backend. With this backend, your keys will be
 	// stored in your operating system's secured keyring.
 	KeyringOS KeyringBackend = "os"
 
@@ -328,7 +328,7 @@ func (r Registry) List() ([]Account, error) {
 // DeleteByName deletes an account by name.
 func (r Registry) DeleteByName(name string) error {
 	err := r.Keyring.Delete(name)
-	if err == dkeyring.ErrKeyNotFound {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) {
 		return &AccountDoesNotExistError{name}
 	}
 	return err

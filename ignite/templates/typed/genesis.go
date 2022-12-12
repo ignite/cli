@@ -7,7 +7,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 )
 
-// ProtoGenesisStateMessage is the name of the proto message that represents the genesis state
+// ProtoGenesisStateMessage is the name of the proto message that represents the genesis state.
 const ProtoGenesisStateMessage = "GenesisState"
 
 // PatchGenesisTypeImport patches types/genesis.go content from the issue:

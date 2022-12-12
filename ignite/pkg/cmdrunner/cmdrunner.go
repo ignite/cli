@@ -15,7 +15,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/goenv"
 )
 
-// Runner is an object to run commands
+// Runner is an object to run commands.
 type Runner struct {
 	endSignal   os.Signal
 	stdout      io.Writer
@@ -26,38 +26,38 @@ type Runner struct {
 	debug       bool
 }
 
-// Option defines option to run commands
+// Option defines option to run commands.
 type Option func(*Runner)
 
-// DefaultStdout provides the default stdout for the commands to run
+// DefaultStdout provides the default stdout for the commands to run.
 func DefaultStdout(writer io.Writer) Option {
 	return func(r *Runner) {
 		r.stdout = writer
 	}
 }
 
-// DefaultStderr provides the default stderr for the commands to run
+// DefaultStderr provides the default stderr for the commands to run.
 func DefaultStderr(writer io.Writer) Option {
 	return func(r *Runner) {
 		r.stderr = writer
 	}
 }
 
-// DefaultStdin provides the default stdin for the commands to run
+// DefaultStdin provides the default stdin for the commands to run.
 func DefaultStdin(reader io.Reader) Option {
 	return func(r *Runner) {
 		r.stdin = reader
 	}
 }
 
-// DefaultWorkdir provides the default working directory for the commands to run
+// DefaultWorkdir provides the default working directory for the commands to run.
 func DefaultWorkdir(path string) Option {
 	return func(r *Runner) {
 		r.workdir = path
 	}
 }
 
-// RunParallel allows the commands to run concurrently
+// RunParallel allows commands to run concurrently.
 func RunParallel() Option {
 	return func(r *Runner) {
 		r.runParallel = true
@@ -77,7 +77,7 @@ func EnableDebug() Option {
 	}
 }
 
-// New returns a new commands runner
+// New returns a new commands runner.
 func New(options ...Option) *Runner {
 	runner := &Runner{
 		endSignal: os.Interrupt,
@@ -165,7 +165,7 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	return g.Wait()
 }
 
-// Executor represents a command to execute
+// Executor represents a command to execute.
 type Executor interface {
 	Wait() error
 	Start() error
@@ -173,7 +173,7 @@ type Executor interface {
 	Write(data []byte) (n int, err error)
 }
 
-// dummyExecutor is an executor that does nothing
+// dummyExecutor is an executor that does nothing.
 type dummyExecutor struct{}
 
 func (e *dummyExecutor) Start() error { return nil }
@@ -184,7 +184,7 @@ func (e *dummyExecutor) Signal(os.Signal) {}
 
 func (e *dummyExecutor) Write([]byte) (int, error) { return 0, nil }
 
-// cmdSignal is an executor with signal processing
+// cmdSignal is an executor with signal processing.
 type cmdSignal struct {
 	*exec.Cmd
 }
@@ -193,7 +193,7 @@ func (e *cmdSignal) Signal(s os.Signal) { e.Cmd.Process.Signal(s) }
 
 func (e *cmdSignal) Write(data []byte) (n int, err error) { return 0, nil }
 
-// cmdSignalWithWriter is an executor with signal processing and that can write into stdin
+// cmdSignalWithWriter is an executor with signal processing and that can write into stdin.
 type cmdSignalWithWriter struct {
 	*exec.Cmd
 	w io.WriteCloser
@@ -206,7 +206,7 @@ func (e *cmdSignalWithWriter) Write(data []byte) (n int, err error) {
 	return e.w.Write(data)
 }
 
-// newCommand returns a new command to execute
+// newCommand returns a new command to execute.
 func (r *Runner) newCommand(step *step.Step) Executor {
 	// Return a dummy executor in case of an empty command
 	if step.Exec.Command == "" {

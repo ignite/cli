@@ -9,7 +9,7 @@ import (
 
 var _ validation.Error = (*MissingPlaceholdersError)(nil)
 
-// MissingPlaceholdersError is used as an error when a source file is missing placeholder
+// MissingPlaceholdersError is used as an error when a source file is missing placeholder.
 type MissingPlaceholdersError struct {
 	missing          iterableStringSet
 	additionalInfo   string
@@ -18,7 +18,7 @@ type MissingPlaceholdersError struct {
 
 // Is true if both errors have the same list of missing placeholders.
 func (e *MissingPlaceholdersError) Is(err error) bool {
-	other, ok := err.(*MissingPlaceholdersError)
+	other, ok := err.(*MissingPlaceholdersError) //nolint:errorlint
 	if !ok {
 		return false
 	}
@@ -33,7 +33,7 @@ func (e *MissingPlaceholdersError) Is(err error) bool {
 	return true
 }
 
-// Error implements error interface
+// Error implements error interface.
 func (e *MissingPlaceholdersError) Error() string {
 	var b strings.Builder
 	b.WriteString("missing placeholders: ")
@@ -47,7 +47,7 @@ func (e *MissingPlaceholdersError) Error() string {
 	return b.String()
 }
 
-// ValidationInfo implements validation.Error interface
+// ValidationInfo implements validation.Error interface.
 func (e *MissingPlaceholdersError) ValidationInfo() string {
 	var b strings.Builder
 	b.WriteString("Missing placeholders:\n\n")
@@ -71,17 +71,17 @@ func (e *MissingPlaceholdersError) ValidationInfo() string {
 
 var _ validation.Error = (*ValidationMiscError)(nil)
 
-// ValidationMiscError is used as a miscellaneous error related to validation
+// ValidationMiscError is used as a miscellaneous error related to validation.
 type ValidationMiscError struct {
 	errors []string
 }
 
-// Error implements error interface
+// Error implements error interface.
 func (e *ValidationMiscError) Error() string {
 	return fmt.Sprintf("validation errors: %v", e.errors)
 }
 
-// ValidationInfo implements validation.Error interface
+// ValidationInfo implements validation.Error interface.
 func (e *ValidationMiscError) ValidationInfo() string {
 	return fmt.Sprintf("Validation errors:\n\n%v", strings.Join(e.errors, "\n"))
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
-// validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI
+// validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI.
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
 	fieldSplit := strings.Split(field, datatype.Separator)
 	if len(fieldSplit) > 2 {
@@ -35,7 +35,7 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 }
 
 // ParseFields parses the provided fields, analyses the types
-// and checks there is no duplicated field
+// and checks there is no duplicated field.
 func ParseFields(
 	fields []string,
 	isForbiddenField func(string) error,

@@ -1,6 +1,6 @@
 package xgenny
 
-// SourceModification describes modified and created files in the source code after a run
+// SourceModification describes modified and created files in the source code after a run.
 type SourceModification struct {
 	modified map[string]struct{}
 	created  map[string]struct{}
@@ -13,7 +13,7 @@ func NewSourceModification() SourceModification {
 	}
 }
 
-// ModifiedFiles returns the modified files of the source modification
+// ModifiedFiles returns the modified files of the source modification.
 func (sm SourceModification) ModifiedFiles() (modifiedFiles []string) {
 	for modified := range sm.modified {
 		modifiedFiles = append(modifiedFiles, modified)
@@ -21,7 +21,7 @@ func (sm SourceModification) ModifiedFiles() (modifiedFiles []string) {
 	return
 }
 
-// CreatedFiles returns the created files of the source modification
+// CreatedFiles returns the created files of the source modification.
 func (sm SourceModification) CreatedFiles() (createdFiles []string) {
 	for created := range sm.created {
 		createdFiles = append(createdFiles, created)
@@ -29,7 +29,7 @@ func (sm SourceModification) CreatedFiles() (createdFiles []string) {
 	return
 }
 
-// AppendModifiedFiles appends modified files in the source modification that are not already documented
+// AppendModifiedFiles appends modified files in the source modification that are not already documented.
 func (sm *SourceModification) AppendModifiedFiles(modifiedFiles ...string) {
 	for _, modifiedFile := range modifiedFiles {
 		_, alreadyModified := sm.modified[modifiedFile]
@@ -40,7 +40,7 @@ func (sm *SourceModification) AppendModifiedFiles(modifiedFiles ...string) {
 	}
 }
 
-// AppendCreatedFiles appends a created files in the source modification that are not already documented
+// AppendCreatedFiles appends a created files in the source modification that are not already documented.
 func (sm *SourceModification) AppendCreatedFiles(createdFiles ...string) {
 	for _, createdFile := range createdFiles {
 		_, alreadyModified := sm.modified[createdFile]
@@ -51,7 +51,7 @@ func (sm *SourceModification) AppendCreatedFiles(createdFiles ...string) {
 	}
 }
 
-// Merge merges new source modification to an existing one
+// Merge merges new source modification to an existing one.
 func (sm *SourceModification) Merge(newSm SourceModification) {
 	sm.AppendModifiedFiles(newSm.ModifiedFiles()...)
 	sm.AppendCreatedFiles(newSm.CreatedFiles()...)

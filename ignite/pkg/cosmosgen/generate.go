@@ -87,20 +87,20 @@ func (g *generator) setup() (err error) {
 	// this is fine, we can still generate TS clients for those non modules, it is up to user to use (import in typescript)
 	// not use generated modules.
 	//
-	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
+	// TODO: we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
 	// at some point, it is a nice to have.
 	moduleCache := cache.New[ModulesInPath](g.cacheStorage, moduleCacheNamespace)
 	for _, dep := range g.deps {
 		// Try to get the cached list of modules for the current dependency package
 		cacheKey := cache.Key(dep.Path, dep.Version)
 		modulesInPath, err := moduleCache.Get(cacheKey)
-		if err != nil && err != cache.ErrorNotFound {
+		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
 			return err
 		}
 
-		// Discover the modules of the dependecy package when they are not cached
-		if err == cache.ErrorNotFound {
-			// Get the absolute path to the packages's directory
+		// Discover the modules of the dependency package when they are not cached
+		if errors.Is(err, cache.ErrorNotFound) {
+			// Get the absolute path to the package's directory
 			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
 			if err != nil {
 				return err

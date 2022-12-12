@@ -48,7 +48,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	if _, err := commands.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
-		if err == chaincmdrunner.ErrAccountDoesNotExist {
+		if errors.Is(err, chaincmdrunner.ErrAccountDoesNotExist) {
 			return cosmosfaucet.Faucet{}, ErrFaucetAccountDoesNotExist
 		}
 		return cosmosfaucet.Faucet{}, err
