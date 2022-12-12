@@ -171,5 +171,54 @@ Here is an example of how to use the binary to create a new blog post on the
 blockchain:
 
 ```
-blogd tx blog create-post "Hello, World!" "This is a blog post" --from alice
+blogd tx blog create-post 'Hello, World!' 'This is a blog post' --from alice
+```
+
+```
+blogd q blog list-post
+
+Post:
+- body: This is a blog post
+  creator: cosmos1xz770h6g55rrj8vc9ll9krv6mr964tzhqmsu2v
+  id: "0"
+  title: Hello, World!
+pagination:
+  next_key: null
+  total: "0"
+```
+
+```
+blogd tx blog update-post 0 'Hello, World!' 'This is a blog post from Alice' --from alice
+```
+
+```
+blogd q blog list-post
+
+Post:
+- body: This is a blog post from Alice
+  creator: cosmos1xz770h6g55rrj8vc9ll9krv6mr964tzhqmsu2v
+  id: "0"
+  title: Hello, World!
+pagination:
+  next_key: null
+  total: "0"
+```
+
+```
+blogd tx blog delete-post 0 --from bob
+
+raw_log: 'failed to execute message; message index: 0: incorrect owner: unauthorized'
+```
+
+```
+blogd tx blog delete-post 0 --from alice
+```
+
+```
+blogd q blog list-post
+
+Post: []
+pagination:
+  next_key: null
+  total: "0"
 ```
