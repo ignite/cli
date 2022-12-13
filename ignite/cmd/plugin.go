@@ -439,7 +439,6 @@ Example:
 				}
 			}
 
-			fmt.Println(global)
 			p := pluginsconfig.Plugin{
 				Path:   args[0],
 				With:   make(map[string]string),
