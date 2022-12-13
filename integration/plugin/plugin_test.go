@@ -13,30 +13,32 @@ func TestAddPlugin(t *testing.T) {
 		app = env.Scaffold("github.com/test/blog")
 	)
 
+	// TODO use network plugin once finalized
+
 	env.Must(env.Exec("add network plugin locally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "plugin", "add", "github.com/ignite/cli-plugin-network@feb7a963661612ae1a6c1f9ccdbe3ea9f7cb8dd3"),
+			step.Exec(envtest.IgniteApp, "plugin", "add", "github.com/aljo242/test-plugin"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("remove network plugin locally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "plugin", "remove", "github.com/ignite/cli-plugin-network"),
+			step.Exec(envtest.IgniteApp, "plugin", "remove", "github.com/aljo242/test-plugin"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("add network plugin globally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "plugin", "add", "github.com/ignite/cli-plugin-network@feb7a963661612ae1a6c1f9ccdbe3ea9f7cb8dd3", "-g"),
+			step.Exec(envtest.IgniteApp, "plugin", "add", "github.com/aljo242/test-plugin", "-g"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("remove network plugin globally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "plugin", "remove", "github.com/ignite/cli-plugin-network", "-g"),
+			step.Exec(envtest.IgniteApp, "plugin", "remove", "github.com/aljo242/test-plugin", "-g"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
