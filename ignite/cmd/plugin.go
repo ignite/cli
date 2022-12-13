@@ -89,8 +89,8 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 		return &pluginsconfig.Config{}, nil
 	}
 
-	for _, p := range cfg.Plugins {
-		p.Global = true
+	for i := range cfg.Plugins {
+		cfg.Plugins[i].Global = true
 	}
 	return
 }
