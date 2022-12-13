@@ -54,7 +54,7 @@ type Plugin struct {
 
 	client *hplugin.Client
 
-	// if a plugin's ShareHost flag is set to true, isHost is used to decern if a
+	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
 	isHost bool
 }
