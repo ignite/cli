@@ -36,8 +36,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 
 	localCfg, err := parseLocalPlugins(rootCmd)
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
-		fmt.Printf("error parsing local chain plugins config: %s", err.Error())
-		return nil
+		return err
 
 	} else if err == nil {
 		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
