@@ -120,7 +120,7 @@ func ask(q Question) error {
 // Ask asks questions and collect answers.
 func Ask(question ...Question) (err error) {
 	defer func() {
-		if err == terminal.InterruptErr {
+		if errors.Is(err, terminal.InterruptErr) {
 			err = context.Canceled
 		}
 	}()

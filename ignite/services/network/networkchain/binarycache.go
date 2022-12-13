@@ -17,7 +17,7 @@ type BinaryCacheList struct {
 	CachedBinaries []Binary `yaml:"cached_binaries"`
 }
 
-// Binary associates launch id with build hash where build hash is sha256(binary, source)
+// Binary associates launch id with build hash where build hash is sha256(binary, source)..
 type Binary struct {
 	LaunchID  uint64
 	BuildHash string
@@ -45,7 +45,7 @@ func (l *BinaryCacheList) Get(launchID uint64) (string, bool) {
 	return "", false
 }
 
-// cacheBinaryForLaunchID caches hash sha256(sha256(binary) + sourcehash) for launch id
+// cacheBinaryForLaunchID caches hash sha256(sha256(binary) + sourcehash) for launch id.
 func cacheBinaryForLaunchID(launchID uint64, binaryHash, sourceHash string) error {
 	cachePath, err := getBinaryCacheFilepath()
 	if err != nil {
@@ -61,7 +61,7 @@ func cacheBinaryForLaunchID(launchID uint64, binaryHash, sourceHash string) erro
 	return confile.New(confile.DefaultYAMLEncodingCreator, cachePath).Save(cacheList)
 }
 
-// checkBinaryCacheForLaunchID checks if binary for the given launch was already built
+// checkBinaryCacheForLaunchID checks if binary for the given launch was already built.
 func checkBinaryCacheForLaunchID(launchID uint64, binaryHash, sourceHash string) (bool, error) {
 	cachePath, err := getBinaryCacheFilepath()
 	if err != nil {

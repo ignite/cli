@@ -29,7 +29,7 @@ var (
 	fsSimapp embed.FS
 )
 
-// NewGenerator returns the generator to scaffold a new type in a module
+// NewGenerator returns the generator to scaffold a new type in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	var (
 		g = genny.New()
@@ -174,7 +174,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Imports for the new type and gogoImport.
-		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}

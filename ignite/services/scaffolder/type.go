@@ -42,7 +42,7 @@ type addTypeOptions struct {
 	signer            string
 }
 
-// newAddTypeOptions returns a addTypeOptions with default options
+// newAddTypeOptions returns a addTypeOptions with default options.
 func newAddTypeOptions(moduleName string) addTypeOptions {
 	return addTypeOptions{
 		moduleName: moduleName,
@@ -106,7 +106,7 @@ func TypeWithoutSimulation() AddTypeOption {
 	}
 }
 
-// TypeWithSigner provides a custom signer name for the message
+// TypeWithSigner provides a custom signer name for the message.
 func TypeWithSigner(signer string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.signer = signer
@@ -248,7 +248,7 @@ func (s Scaffolder) AddType(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// checkForbiddenTypeIndex returns true if the name is forbidden as a field name
+// checkForbiddenTypeIndex returns true if the name is forbidden as a field name.
 func checkForbiddenTypeIndex(name string) error {
 	fieldSplit := strings.Split(name, datatype.Separator)
 	if len(fieldSplit) > 1 {
@@ -261,7 +261,7 @@ func checkForbiddenTypeIndex(name string) error {
 	return checkForbiddenTypeField(name)
 }
 
-// checkForbiddenTypeField returns true if the name is forbidden as a field name
+// checkForbiddenTypeField returns true if the name is forbidden as a field name.
 func checkForbiddenTypeField(name string) error {
 	mfName, err := multiformatname.NewName(name)
 	if err != nil {
@@ -280,7 +280,7 @@ func checkForbiddenTypeField(name string) error {
 	return checkGoReservedWord(name)
 }
 
-// mapGenerator returns the template generator for a map
+// mapGenerator returns the template generator for a map.
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
 	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeIndex)

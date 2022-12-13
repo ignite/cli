@@ -3,16 +3,21 @@ package xhttp
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
 // ResponseJSON writes a JSON response to w by using status as http status and data
 // as payload.
 func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
+	var errMarhsal error
 	bdata, err := json.Marshal(data)
 	if err != nil {
 		status = http.StatusInternalServerError
-		bdata, _ = json.Marshal(NewErrorResponse(errors.New(http.StatusText(status))))
+		bdata, errMarhsal = json.Marshal(NewErrorResponse(errors.New(http.StatusText(status))))
+
+		// wrap error
+		err = fmt.Errorf("%s: %w", errMarhsal.Error(), err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

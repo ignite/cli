@@ -11,7 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// CheckRequestChangeParam builds the genesis for the chain from the launch approved requests
+// CheckRequestChangeParam builds the genesis for the chain from the launch approved requests.
 func (c Chain) CheckRequestChangeParam(
 	ctx context.Context,
 	module,

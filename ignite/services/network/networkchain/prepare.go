@@ -20,7 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// Prepare prepares the chain to be launched from genesis information
+// Prepare prepares the chain to be launched from genesis information.
 func (c Chain) Prepare(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -86,7 +86,7 @@ func (c Chain) Prepare(
 	return nil
 }
 
-// buildGenesis builds the genesis for the chain from the launch approved requests
+// buildGenesis builds the genesis for the chain from the launch approved requests.
 func (c Chain) buildGenesis(
 	ctx context.Context,
 	gi networktypes.GenesisInformation,
@@ -155,7 +155,7 @@ func (c Chain) buildGenesis(
 	return nil
 }
 
-// applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
+// applyGenesisAccounts adds the genesis account into the genesis using the chain CLI.
 func (c Chain) applyGenesisAccounts(
 	ctx context.Context,
 	genesisAccs []networktypes.GenesisAccount,
@@ -185,7 +185,7 @@ func (c Chain) applyGenesisAccounts(
 	return nil
 }
 
-// applyVestingAccounts adds the genesis vesting account into the genesis using the chain CLI
+// applyVestingAccounts adds the genesis vesting account into the genesis using the chain CLI.
 func (c Chain) applyVestingAccounts(
 	ctx context.Context,
 	vestingAccs []networktypes.VestingAccount,
@@ -218,7 +218,7 @@ func (c Chain) applyVestingAccounts(
 	return nil
 }
 
-// applyGenesisValidators gathers the validator gentxs into the genesis and adds peers in config
+// applyGenesisValidators gathers the validator gentxs into the genesis and adds peers in config.
 func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []networktypes.GenesisValidator) error {
 	// no validator
 	if len(genesisVals) == 0 {
@@ -257,7 +257,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 	return c.updateConfigFromGenesisValidators(genesisVals)
 }
 
-// applyParamChanges applies the param changes into the genesis
+// applyParamChanges applies the param changes into the genesis.
 func applyParamChanges(
 	genesis *cosmosgenesis.Genesis,
 	paramChanges []networktypes.ParamChange,
@@ -275,7 +275,7 @@ func applyParamChanges(
 	return nil
 }
 
-// updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
+// updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain.
 func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
 	var (
 		p2pAddresses    []string

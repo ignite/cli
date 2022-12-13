@@ -12,7 +12,7 @@ import (
 )
 
 // NewResponse creates cosmosclient.Response object from proto struct
-// for using as a return result for a cosmosclient mock
+// for using as a return result for a cosmosclient mock.
 func NewResponse(data protoiface.MessageV1) cosmosclient.Response {
 	marshaler := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 	anyEncoded, _ := codectypes.NewAnyWithValue(data)

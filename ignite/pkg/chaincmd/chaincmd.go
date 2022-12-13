@@ -78,7 +78,7 @@ type ChainCmd struct {
 	sdkVersion cosmosver.Version
 }
 
-// New creates a new ChainCmd to launch command with the chain app
+// New creates a new ChainCmd to launch command with the chain app.
 func New(appCmd string, options ...Option) ChainCmd {
 	chainCmd := ChainCmd{
 		appCmd:     appCmd,
@@ -114,14 +114,14 @@ func WithVersion(v cosmosver.Version) Option {
 	}
 }
 
-// WithHome replaces the default home used by the chain
+// WithHome replaces the default home used by the chain.
 func WithHome(home string) Option {
 	return func(c *ChainCmd) {
 		c.homeDir = home
 	}
 }
 
-// WithChainID provides a specific chain ID for the commands that accept this option
+// WithChainID provides a specific chain ID for the commands that accept this option.
 func WithChainID(chainID string) Option {
 	return func(c *ChainCmd) {
 		c.chainID = chainID
@@ -135,14 +135,14 @@ func WithAutoChainIDDetection() Option {
 	}
 }
 
-// WithKeyringBackend provides a specific keyring backend for the commands that accept this option
+// WithKeyringBackend provides a specific keyring backend for the commands that accept this option.
 func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
 	}
 }
 
-// WithKeyringPassword provides a password to unlock keyring
+// WithKeyringPassword provides a password to unlock keyring.
 func WithKeyringPassword(password string) Option {
 	return func(c *ChainCmd) {
 		c.keyringPassword = password
@@ -157,12 +157,12 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
-// Name returns the app name (prefix of the chain daemon)
+// Name returns the app name (prefix of the chain daemon).
 func (c ChainCmd) Name() string {
 	return c.appCmd
 }
 
-// StartCommand returns the command to start the daemon of the chain
+// StartCommand returns the command to start the daemon of the chain.
 func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
 		commandStart,
@@ -170,7 +170,7 @@ func (c ChainCmd) StartCommand(options ...string) step.Option {
 	return c.daemonCommand(command)
 }
 
-// InitCommand returns the command to initialize the chain
+// InitCommand returns the command to initialize the chain.
 func (c ChainCmd) InitCommand(moniker string) step.Option {
 	command := []string{
 		commandInit,
@@ -180,7 +180,7 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 	return c.daemonCommand(command)
 }
 
-// AddKeyCommand returns the command to add a new key in the chain keyring
+// AddKeyCommand returns the command to add a new key in the chain keyring.
 func (c ChainCmd) AddKeyCommand(accountName, coinType string) step.Option {
 	command := []string{
 		commandKeys,
@@ -197,7 +197,7 @@ func (c ChainCmd) AddKeyCommand(accountName, coinType string) step.Option {
 	return c.cliCommand(command)
 }
 
-// RecoverKeyCommand returns the command to recover a key into the chain keyring from a mnemonic
+// RecoverKeyCommand returns the command to recover a key into the chain keyring from a mnemonic.
 func (c ChainCmd) RecoverKeyCommand(accountName, coinType string) step.Option {
 	command := []string{
 		commandKeys,
@@ -213,7 +213,7 @@ func (c ChainCmd) RecoverKeyCommand(accountName, coinType string) step.Option {
 	return c.cliCommand(command)
 }
 
-// ImportKeyCommand returns the command to import a key into the chain keyring from a key file
+// ImportKeyCommand returns the command to import a key into the chain keyring from a key file.
 func (c ChainCmd) ImportKeyCommand(accountName, keyFile string) step.Option {
 	command := []string{
 		commandKeys,
@@ -226,7 +226,7 @@ func (c ChainCmd) ImportKeyCommand(accountName, keyFile string) step.Option {
 	return c.cliCommand(command)
 }
 
-// ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
+// ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring.
 func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
@@ -239,7 +239,7 @@ func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	return c.cliCommand(command)
 }
 
-// ListKeysCommand returns the command to print the list of a keys in the chain keyring
+// ListKeysCommand returns the command to print the list of a keys in the chain keyring.
 func (c ChainCmd) ListKeysCommand() step.Option {
 	command := []string{
 		commandKeys,
@@ -252,7 +252,7 @@ func (c ChainCmd) ListKeysCommand() step.Option {
 	return c.cliCommand(command)
 }
 
-// AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
+// AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain.
 func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 	command := []string{
 		commandAddGenesisAccount,
@@ -263,7 +263,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 	return c.daemonCommand(command)
 }
 
-// AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain
+// AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain.
 func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins string, vestingEndTime int64) step.Option {
 	command := []string{
 		commandAddGenesisAccount,
@@ -278,10 +278,10 @@ func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins 
 	return c.daemonCommand(command)
 }
 
-// GentxOption for the GentxCommand
+// GentxOption for the GentxCommand.
 type GentxOption func([]string) []string
 
-// GentxWithMoniker provides moniker option for the gentx command
+// GentxWithMoniker provides moniker option for the gentx command.
 func GentxWithMoniker(moniker string) GentxOption {
 	return func(command []string) []string {
 		if len(moniker) > 0 {
@@ -291,7 +291,7 @@ func GentxWithMoniker(moniker string) GentxOption {
 	}
 }
 
-// GentxWithCommissionRate provides commission rate option for the gentx command
+// GentxWithCommissionRate provides commission rate option for the gentx command.
 func GentxWithCommissionRate(commissionRate string) GentxOption {
 	return func(command []string) []string {
 		if len(commissionRate) > 0 {
@@ -301,7 +301,7 @@ func GentxWithCommissionRate(commissionRate string) GentxOption {
 	}
 }
 
-// GentxWithCommissionMaxRate provides commission max rate option for the gentx command
+// GentxWithCommissionMaxRate provides commission max rate option for the gentx command.
 func GentxWithCommissionMaxRate(commissionMaxRate string) GentxOption {
 	return func(command []string) []string {
 		if len(commissionMaxRate) > 0 {
@@ -311,7 +311,7 @@ func GentxWithCommissionMaxRate(commissionMaxRate string) GentxOption {
 	}
 }
 
-// GentxWithCommissionMaxChangeRate provides commission max change rate option for the gentx command
+// GentxWithCommissionMaxChangeRate provides commission max change rate option for the gentx command.
 func GentxWithCommissionMaxChangeRate(commissionMaxChangeRate string) GentxOption {
 	return func(command []string) []string {
 		if len(commissionMaxChangeRate) > 0 {
@@ -321,7 +321,7 @@ func GentxWithCommissionMaxChangeRate(commissionMaxChangeRate string) GentxOptio
 	}
 }
 
-// GentxWithMinSelfDelegation provides minimum self delegation option for the gentx command
+// GentxWithMinSelfDelegation provides minimum self delegation option for the gentx command.
 func GentxWithMinSelfDelegation(minSelfDelegation string) GentxOption {
 	return func(command []string) []string {
 		if len(minSelfDelegation) > 0 {
@@ -331,7 +331,7 @@ func GentxWithMinSelfDelegation(minSelfDelegation string) GentxOption {
 	}
 }
 
-// GentxWithGasPrices provides gas price option for the gentx command
+// GentxWithGasPrices provides gas price option for the gentx command.
 func GentxWithGasPrices(gasPrices string) GentxOption {
 	return func(command []string) []string {
 		if len(gasPrices) > 0 {
@@ -341,7 +341,7 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	}
 }
 
-// GentxWithDetails provides validator details option for the gentx command
+// GentxWithDetails provides validator details option for the gentx command.
 func GentxWithDetails(details string) GentxOption {
 	return func(command []string) []string {
 		if len(details) > 0 {
@@ -351,7 +351,7 @@ func GentxWithDetails(details string) GentxOption {
 	}
 }
 
-// GentxWithIdentity provides validator identity option for the gentx command
+// GentxWithIdentity provides validator identity option for the gentx command.
 func GentxWithIdentity(identity string) GentxOption {
 	return func(command []string) []string {
 		if len(identity) > 0 {
@@ -361,7 +361,7 @@ func GentxWithIdentity(identity string) GentxOption {
 	}
 }
 
-// GentxWithWebsite provides validator website option for the gentx command
+// GentxWithWebsite provides validator website option for the gentx command.
 func GentxWithWebsite(website string) GentxOption {
 	return func(command []string) []string {
 		if len(website) > 0 {
@@ -371,7 +371,7 @@ func GentxWithWebsite(website string) GentxOption {
 	}
 }
 
-// GentxWithSecurityContact provides validator security contact option for the gentx command
+// GentxWithSecurityContact provides validator security contact option for the gentx command.
 func GentxWithSecurityContact(securityContact string) GentxOption {
 	return func(command []string) []string {
 		if len(securityContact) > 0 {
@@ -389,7 +389,7 @@ func (c ChainCmd) SDKVersion() cosmosver.Version {
 	return c.sdkVersion
 }
 
-// GentxCommand returns the command to generate a gentx for the chain
+// GentxCommand returns the command to generate a gentx for the chain.
 func (c ChainCmd) GentxCommand(
 	validatorName string,
 	selfDelegation string,
@@ -424,7 +424,7 @@ func (c ChainCmd) GentxCommand(
 	return c.daemonCommand(command)
 }
 
-// CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain
+// CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain.
 func (c ChainCmd) CollectGentxsCommand() step.Option {
 	command := []string{
 		commandCollectGentxs,
@@ -432,7 +432,7 @@ func (c ChainCmd) CollectGentxsCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
-// ValidateGenesisCommand returns the command to check the validity of the chain genesis
+// ValidateGenesisCommand returns the command to check the validity of the chain genesis.
 func (c ChainCmd) ValidateGenesisCommand() step.Option {
 	command := []string{
 		commandValidateGenesis,
@@ -440,7 +440,7 @@ func (c ChainCmd) ValidateGenesisCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
-// ShowNodeIDCommand returns the command to print the node ID of the node for the chain
+// ShowNodeIDCommand returns the command to print the node ID of the node for the chain.
 func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	command := []string{
 		constTendermint,
@@ -449,7 +449,7 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
-// UnsafeResetCommand returns the command to reset the blockchain database
+// UnsafeResetCommand returns the command to reset the blockchain database.
 func (c ChainCmd) UnsafeResetCommand() step.Option {
 	var command []string
 
@@ -462,7 +462,7 @@ func (c ChainCmd) UnsafeResetCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
-// ExportCommand returns the command to export the state of the blockchain into a genesis file
+// ExportCommand returns the command to export the state of the blockchain into a genesis file.
 func (c ChainCmd) ExportCommand() step.Option {
 	command := []string{
 		commandExport,
@@ -493,7 +493,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 	return c.cliCommand(command)
 }
 
-// QueryTxCommand returns the command to query tx
+// QueryTxCommand returns the command to query tx.
 func (c ChainCmd) QueryTxCommand(txHash string) step.Option {
 	command := []string{
 		commandQuery,
@@ -540,7 +540,7 @@ func (c ChainCmd) KeyringPassword() string {
 	return c.keyringPassword
 }
 
-// attachChainID appends the chain ID flag to the provided command
+// attachChainID appends the chain ID flag to the provided command.
 func (c ChainCmd) attachChainID(command []string) []string {
 	if c.chainID != "" {
 		command = append(command, []string{optionChainID, c.chainID}...)
@@ -548,7 +548,7 @@ func (c ChainCmd) attachChainID(command []string) []string {
 	return command
 }
 
-// attachKeyringBackend appends the keyring backend flag to the provided command
+// attachKeyringBackend appends the keyring backend flag to the provided command.
 func (c ChainCmd) attachKeyringBackend(command []string) []string {
 	if c.keyringBackend != "" {
 		command = append(command, []string{optionKeyringBackend, string(c.keyringBackend)}...)
@@ -556,7 +556,7 @@ func (c ChainCmd) attachKeyringBackend(command []string) []string {
 	return command
 }
 
-// attachHome appends the home flag to the provided command
+// attachHome appends the home flag to the provided command.
 func (c ChainCmd) attachHome(command []string) []string {
 	if c.homeDir != "" {
 		command = append(command, []string{optionHome, c.homeDir}...)
@@ -564,7 +564,7 @@ func (c ChainCmd) attachHome(command []string) []string {
 	return command
 }
 
-// attachNode appends the node flag to the provided command
+// attachNode appends the node flag to the provided command.
 func (c ChainCmd) attachNode(command []string) []string {
 	if c.nodeAddress != "" {
 		command = append(command, []string{optionNode, c.nodeAddress}...)
@@ -572,17 +572,17 @@ func (c ChainCmd) attachNode(command []string) []string {
 	return command
 }
 
-// daemonCommand returns the daemon command from the provided command
+// daemonCommand returns the daemon command from the provided command.
 func (c ChainCmd) daemonCommand(command []string) step.Option {
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
-// cliCommand returns the cli command from the provided command
+// cliCommand returns the cli command from the provided command.
 func (c ChainCmd) cliCommand(command []string) step.Option {
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
-// KeyringBackendFromString returns the keyring backend from its string
+// KeyringBackendFromString returns the keyring backend from its string.
 func KeyringBackendFromString(kb string) (KeyringBackend, error) {
 	existingKeyringBackend := map[KeyringBackend]bool{
 		KeyringBackendUnspecified: true,

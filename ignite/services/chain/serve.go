@@ -36,19 +36,19 @@ const (
 	// EvtGroupPath is the group to use for path related events.
 	EvtGroupPath = "path"
 
-	// exportedGenesis is the name of the exported genesis file for a chain
+	// exportedGenesis is the name of the exported genesis file for a chain.
 	exportedGenesis = "exported_genesis.json"
 
-	// sourceChecksumKey is the cache key for the checksum to detect source modification
+	// sourceChecksumKey is the cache key for the checksum to detect source modification.
 	sourceChecksumKey = "source_checksum"
 
-	// binaryChecksumKey is the cache key for the checksum to detect binary modification
+	// binaryChecksumKey is the cache key for the checksum to detect binary modification.
 	binaryChecksumKey = "binary_checksum"
 
-	// configChecksumKey is the cache key for containing the checksum to detect config modification
+	// configChecksumKey is the cache key for containing the checksum to detect config modification.
 	configChecksumKey = "config_checksum"
 
-	// serveDirchangeCacheNamespace is the name of the cache namespace for detecting changes in directories
+	// serveDirchangeCacheNamespace is the name of the cache namespace for detecting changes in directories.
 	serveDirchangeCacheNamespace = "serve.dirchange"
 )
 
@@ -56,7 +56,7 @@ var (
 	// ignoredExts holds a list of ignored files from watching.
 	ignoredExts = []string{"pb.go", "pb.gw.go"}
 
-	// starportSavePath is the place where chain exported genesis are saved
+	// starportSavePath is the place where chain exported genesis are saved.
 	starportSavePath = xfilepath.Join(
 		config.DirPath,
 		xfilepath.Path("local-chains"),
@@ -78,17 +78,17 @@ func newServeOption() serveOptions {
 	}
 }
 
-// ServeOption provides options for the serve command
+// ServeOption provides options for the serve command.
 type ServeOption func(*serveOptions)
 
-// ServeForceReset allows to force reset of the state when the chain is served and on every source change
+// ServeForceReset allows to force reset of the state when the chain is served and on every source change.
 func ServeForceReset() ServeOption {
 	return func(c *serveOptions) {
 		c.forceReset = true
 	}
 }
 
-// ServeResetOnce allows to reset of the state when the chain is served once
+// ServeResetOnce allows to reset of the state when the chain is served once.
 func ServeResetOnce() ServeOption {
 	return func(c *serveOptions) {
 		c.resetOnce = true
@@ -109,7 +109,7 @@ func GenerateClients() ServeOption {
 	}
 }
 
-// ServeSkipProto allows to serve the app without generate Go from proto
+// ServeSkipProto allows to serve the app without generate Go from proto.
 func ServeSkipProto() ServeOption {
 	return func(c *serveOptions) {
 		c.skipProto = true
@@ -301,9 +301,9 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 	)
 }
 
-// serve performs the operations to serve the blockchain: build, init and start
-// if the chain is already initialized and the file didn't changed, the app is directly started
-// if the files changed, the state is imported
+// serve performs the operations to serve the blockchain: build, init and start.
+// If the chain is already initialized and the file weren't changed, the app is directly started.
+// If the files changed, the state is imported.
 func (c *Chain) serve(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -397,7 +397,7 @@ func (c *Chain) serve(
 	// init phase
 	initApp := !isInit || (appModified && !exportGenesisExists)
 
-	// nolint:gocritic
+	//nolint:gocritic
 	if initApp {
 		c.ev.Send("Initializing the app...", events.ProgressUpdate())
 
@@ -468,10 +468,10 @@ func (c *Chain) start(ctx context.Context, cfg *chainconfig.Config) error {
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
-	isFaucetEnabled := err != ErrFaucetIsNotEnabled
+	isFaucetEnabled := !errors.Is(err, ErrFaucetIsNotEnabled)
 
 	if isFaucetEnabled {
-		if err == ErrFaucetAccountDoesNotExist {
+		if errors.Is(err, ErrFaucetAccountDoesNotExist) {
 			return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
 		}
 		if err != nil {
@@ -550,7 +550,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	})
 }
 
-// saveChainState runs the export command of the chain and store the exported genesis in the chain saved config
+// saveChainState runs the export command of the chain and store the exported genesis in the chain saved config.
 func (c *Chain) saveChainState(ctx context.Context, commands chaincmdrunner.Runner) error {
 	genesisPath, err := c.exportedGenesisPath()
 	if err != nil {
@@ -560,7 +560,7 @@ func (c *Chain) saveChainState(ctx context.Context, commands chaincmdrunner.Runn
 	return commands.Export(ctx, genesisPath)
 }
 
-// importChainState imports the saved genesis in chain config to use it as the genesis
+// importChainState imports the saved genesis in chain config to use it as the genesis.
 func (c *Chain) importChainState() error {
 	exportGenesisPath, err := c.exportedGenesisPath()
 	if err != nil {
@@ -574,8 +574,8 @@ func (c *Chain) importChainState() error {
 	return copy.Copy(exportGenesisPath, genesisPath)
 }
 
-// chainSavePath returns the path where the chain state is saved
-// create the path if it doesn't exist
+// chainSavePath returns the path where the chain state is saved.
+// Creates the path if it doesn't exist.
 func (c *Chain) chainSavePath() (string, error) {
 	savePath, err := starportSavePath()
 	if err != nil {
@@ -596,7 +596,7 @@ func (c *Chain) chainSavePath() (string, error) {
 	return chainSavePath, nil
 }
 
-// exportedGenesisPath returns the path of the exported genesis file
+// exportedGenesisPath returns the path of the exported genesis file.
 func (c *Chain) exportedGenesisPath() (string, error) {
 	savePath, err := c.chainSavePath()
 	if err != nil {
@@ -637,9 +637,9 @@ func (e *CannotStartAppError) Unwrap() error {
 	return e.Err
 }
 
-// ParseStartError parses the error into a clear error string
-// The error logs from Cosmos SDK application are too extensive to be directly printed
-// If the error is not recognized, returns an empty string
+// ParseStartError parses the error into a clear error string.
+// The error logs from Cosmos SDK application are too extensive to be directly printed.
+// If the error is not recognized, returns an empty string.
 func (e *CannotStartAppError) ParseStartError() string {
 	errorLogs := errors.Unwrap(e.Err).Error()
 	switch {

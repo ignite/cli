@@ -10,7 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-// NewNetworkValidatorSet creates a command to set an information in a validator profile
+// NewNetworkValidatorSet creates a command to set an information in a validator profile.
 func NewNetworkValidatorSet() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "set details|identity|website|security [value]",

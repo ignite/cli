@@ -7,7 +7,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/yaml"
 )
 
-// NewNetworkCoordinatorShow creates a command to show coordinator information
+// NewNetworkCoordinatorShow creates a command to show coordinator information.
 func NewNetworkCoordinatorShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [address]",

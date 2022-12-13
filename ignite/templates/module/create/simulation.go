@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
 
-// AddSimulation returns the generator to generate module_simulation.go file
+// AddSimulation returns the generator to generate module_simulation.go file.
 func AddSimulation(appPath, modulePath, moduleName string, params ...field.Field) (*genny.Generator, error) {
 	var (
 		g        = genny.New()

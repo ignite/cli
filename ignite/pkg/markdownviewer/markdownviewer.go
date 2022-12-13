@@ -8,8 +8,6 @@ import (
 )
 
 // View starts the Markdown viewer at path that .md files are located at.
-//
-//nolint:staticcheck //ignore SA1019 until glow fixes the deprecation warnings
 func View(path string) error {
 	conf, err := config(path)
 	if err != nil {
@@ -18,10 +16,15 @@ func View(path string) error {
 
 	p := ui.NewProgram(conf)
 
+	// TODO: refactor to remove deprecated function calls
+	//nolint:staticcheck,nolintlint
 	p.EnterAltScreen()
+	//nolint:staticcheck,nolintlint
 	defer p.ExitAltScreen()
 
+	//nolint:staticcheck,nolintlint
 	p.EnableMouseCellMotion()
+	//nolint:staticcheck,nolintlint
 	defer p.DisableMouseCellMotion()
 
 	return p.Start()

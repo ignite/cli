@@ -81,7 +81,7 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-// generateFromConfig makes code generation from proto files from the given config
+// generateFromConfig makes code generation from proto files from the given config.
 func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
 	conf, err := c.Config()
 	if err != nil {
@@ -182,7 +182,6 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
-		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
 			vuexPath = chainconfig.VuexPath(conf)

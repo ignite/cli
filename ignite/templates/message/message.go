@@ -52,7 +52,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	return testutil.Register(g, opts.AppPath)
 }
 
-// NewGenerator returns the generator to scaffold a empty message in a module
+// NewGenerator returns the generator to scaffold a empty message in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 

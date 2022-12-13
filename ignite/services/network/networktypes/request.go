@@ -11,7 +11,7 @@ import (
 )
 
 type (
-	// Request represents the launch Request of a chain on SPN
+	// Request represents the launch Request of a chain on SPN.
 	Request struct {
 		LaunchID  uint64                     `json:"LaunchID"`
 		RequestID uint64                     `json:"RequestID"`
@@ -22,7 +22,7 @@ type (
 	}
 )
 
-// ToRequest converts a request data from SPN and returns a Request object
+// ToRequest converts a request data from SPN and returns a Request object.
 func ToRequest(request launchtypes.Request) Request {
 	return Request{
 		LaunchID:  request.LaunchID,
@@ -34,7 +34,7 @@ func ToRequest(request launchtypes.Request) Request {
 	}
 }
 
-// VerifyRequest verifies the validity of the request from its content (static check)
+// VerifyRequest verifies the validity of the request from its content (static check).
 func VerifyRequest(request Request) error {
 	req, ok := request.Content.Content.(*launchtypes.RequestContent_GenesisValidator)
 	if ok {
@@ -47,7 +47,7 @@ func VerifyRequest(request Request) error {
 	return nil
 }
 
-// VerifyAddValidatorRequest verify the validator request parameters
+// VerifyAddValidatorRequest verifies the validator request parameters.
 func VerifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator) error {
 	// If this is an add validator request
 	var (

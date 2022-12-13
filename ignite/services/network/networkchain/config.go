@@ -17,7 +17,7 @@ type Config struct {
 	TunneledPeers []TunneledPeer `json:"tunneled_peers" yaml:"tunneled_peers"`
 }
 
-// TunneledPeer represents http tunnel to a peer which can't be reached via regular tcp connection
+// TunneledPeer represents http tunnel to a peer which can't be reached via regular tcp connection.
 type TunneledPeer struct {
 	// Name represents tunnel type e.g. "chisel"
 	Name string `json:"name" yaml:"name"`

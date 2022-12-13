@@ -12,7 +12,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/module"
 )
 
-// NewGenerator returns the generator to scaffold code to import wasm module inside an app
+// NewGenerator returns the generator to scaffold code to import wasm module inside an app.
 func NewGenerator(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModify(replacer, opts))
@@ -25,7 +25,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Ge
 	return g, nil
 }
 
-// app.go modification when importing wasm
+// app.go modification when importing wasm.
 func appModify(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, module.PathAppGo)
@@ -145,7 +145,7 @@ func appModify(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	}
 }
 
-// main.go modification when importing wasm
+// main.go modification when importing wasm.
 func cmdModify(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "cmd", opts.BinaryNamePrefix+"d/cmd/root.go")
