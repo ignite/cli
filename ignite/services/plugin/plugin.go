@@ -230,7 +230,7 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 
-		// We're a host! Start by launching the plugin process.
+		// We're attaching to an existing server, supply attachment configuration
 		p.client = hplugin.NewClient(&hplugin.ClientConfig{
 			HandshakeConfig: handshakeConfig,
 			Plugins:         pluginMap,
