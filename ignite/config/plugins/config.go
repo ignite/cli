@@ -38,7 +38,7 @@ type Plugin struct {
 	With map[string]string `yaml:"with,omitempty"`
 	// Global holds whether the plugin is installed globally
 	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
-	Global bool `yaml:"global,omitempty"`
+	Global bool `yaml:"-"`
 }
 
 // Path return the path of the config file.
