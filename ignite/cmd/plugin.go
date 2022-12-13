@@ -30,21 +30,24 @@ var plugins []*plugin.Plugin
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
+	pluginsConfigs := make([]pluginsconfig.Plugin, 0)
+
 	localCfg, err := parseLocalPlugins(rootCmd)
-	if err != nil && !errors.Is(err, cosmosanalysis.ErrPathNotChain{}) {
-		fmt.Println("error parsing local chain plugins config: %w", err)
+	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
+		fmt.Printf("error parsing local chain plugins config: %s", err.Error())
 		return nil
+
+	} else if err == nil {
+		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
 	}
 
 	globalCfg, err := parseGlobalPlugins()
 	if err != nil {
-		fmt.Println("error parsing global plugins config: %w", err)
+		fmt.Printf("error parsing global plugins config: %s", err.Error())
 		return nil
 	}
 
-	// build list of all plugins
-	pluginsConfigs := globalCfg.Plugins
-	pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
+	pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
 	if len(pluginsConfigs) == 0 {
 		return nil
 	}
