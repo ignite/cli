@@ -38,7 +38,7 @@ func TestAddRemovePlugin(t *testing.T) {
 
 	env.Must(env.Exec("add plugin locally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "plugin", "add", pluginRepo),
+			step.Exec(envtest.IgniteApp, "plugin", "add", pluginRepo, "k1=v1", "k2=v2"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -48,6 +48,10 @@ func TestAddRemovePlugin(t *testing.T) {
 		[]pluginsconfig.Plugin{
 			{
 				Path: pluginRepo,
+				With: map[string]string{
+					"k1": "v1",
+					"k2": "v2",
+				},
 			},
 		},
 		nil,
