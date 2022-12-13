@@ -36,12 +36,15 @@ type ConfigContext struct {
 func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 	name := path.Base(pluginPath)
 
-	if name == "" {
+	if name == "." {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 
-	confCont := ConfigContext{}
+	if conf.Addr == nil {
+		return fmt.Errorf("plugin Address info cannot be empty")
+	}
 
+	confCont := ConfigContext{}
 	// TODO: figure out a better way of resolving the type of network connection is established between plugin server and host
 	// currently this will always be a unix network socket. but this might not be the case moving forward.
 	ua, err := net.ResolveUnixAddr(conf.Addr.Network(), conf.Addr.String())
@@ -66,7 +69,7 @@ func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) erro
 func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error {
 	name := path.Base(pluginPath)
 
-	if name == "" {
+	if name == "." {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 
@@ -106,7 +109,7 @@ func CheckPluginConfCache(pluginPath string) bool {
 func DeletePluginConfCache(pluginPath string) error {
 	name := path.Base(pluginPath)
 
-	if name == "" {
+	if name == "." {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
