@@ -125,10 +125,6 @@ func validateConfig(c *Config) error {
 		return &ValidationError{"at least one account is required"}
 	}
 
-	if len(c.Validators) == 0 {
-		return &ValidationError{"at least one validator is required"}
-	}
-
 	for _, validator := range c.Validators {
 		if validator.Name == "" {
 			return &ValidationError{"validator 'name' is required"}
