@@ -12,6 +12,8 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/mod/modfile"
+
+	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
 
 const (
@@ -27,11 +29,11 @@ var appImplementation = []string{
 	"EndBlocker",
 }
 
-// implementation tracks the implementation of an interface for a given struct
+// implementation tracks the implementation of an interface for a given struct.
 type implementation map[string]bool
 
-// DeepFindImplementation does the same as FindImplementation, but walks recursively through the folder structure
-// Useful if implementations might be in sub folders
+// DeepFindImplementation functions the same as FindImplementation, but walks recursively through the folder structure
+// Useful if implementations might be in sub folders.
 func DeepFindImplementation(modulePath string, interfaceList []string) (found []string, err error) {
 	err = filepath.Walk(modulePath,
 		func(path string, info os.FileInfo, err error) error {
@@ -58,7 +60,7 @@ func DeepFindImplementation(modulePath string, interfaceList []string) (found []
 	return found, nil
 }
 
-// FindImplementation finds the name of all types that implement the provided interface
+// FindImplementation finds the name of all types that implement the provided interface.
 func FindImplementation(modulePath string, interfaceList []string) (found []string, err error) {
 	// parse go packages/files under path
 	fset := token.NewFileSet()
@@ -143,7 +145,7 @@ func findImplementationInFiles(files []*ast.File, interfaceList []string) (found
 	return found
 }
 
-// newImplementation returns a new object to parse implementation of an interface
+// newImplementation returns a new object to parse implementation of an interface.
 func newImplementation(interfaceList []string) implementation {
 	impl := make(implementation)
 	for _, m := range interfaceList {
@@ -152,7 +154,7 @@ func newImplementation(interfaceList []string) implementation {
 	return impl
 }
 
-// checkImplementation checks if the entire implementation is satisfied
+// checkImplementation checks if the entire implementation is satisfied.
 func checkImplementation(r implementation) bool {
 	for _, ok := range r {
 		if !ok {
@@ -160,6 +162,31 @@ func checkImplementation(r implementation) bool {
 		}
 	}
 	return true
+}
+
+// ErrPathNotChain is returned by IsChainPath() when path is not a chain path.
+type ErrPathNotChain struct {
+	path string
+	err  error
+}
+
+func (e ErrPathNotChain) Error() string {
+	return fmt.Sprintf("%s not a chain path: %v", e.path, e.err)
+}
+
+// IsChainPath returns nil if path contains a cosmos chain.
+func IsChainPath(path string) error {
+	errf := func(err error) error {
+		return ErrPathNotChain{path: path, err: err}
+	}
+	modfile, err := gomodule.ParseAt(path)
+	if err != nil {
+		return errf(err)
+	}
+	if err := ValidateGoMod(modfile); err != nil {
+		return errf(err)
+	}
+	return nil
 }
 
 // ValidateGoMod check if the cosmos-sdk and the tendermint packages are imported.
@@ -177,7 +204,7 @@ func ValidateGoMod(module *modfile.File) error {
 	return nil
 }
 
-// FindAppFilePath looks for the app file that implements the interfaces listed in appImplementation
+// FindAppFilePath looks for the app file that implements the interfaces listed in appImplementation.
 func FindAppFilePath(chainRoot string) (path string, err error) {
 	var found []string
 

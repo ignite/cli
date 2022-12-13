@@ -11,8 +11,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
-// Name represents a name with multiple naming convention representations
-// Supported naming convention are: camel, pascal, and kebab cases
+// Name represents a name with multiple naming convention representations.
+// Supported naming convention are: camel, pascal, and kebab cases.
 type Name struct {
 	Original   string
 	LowerCamel string
@@ -25,7 +25,7 @@ type Name struct {
 
 type Checker func(name string) error
 
-// NewName returns a new multi-format name from a name
+// NewName returns a new multi-format name from a name.
 func NewName(name string, additionalChecks ...Checker) (Name, error) {
 	checks := append([]Checker{basicCheckName}, additionalChecks...)
 
@@ -46,7 +46,7 @@ func NewName(name string, additionalChecks ...Checker) (Name, error) {
 	}, nil
 }
 
-// NoNumber prevents using number in a name
+// NoNumber prevents using number in a name.
 func NoNumber(name string) error {
 	for _, c := range name {
 		if '0' <= c && c <= '9' {
@@ -57,7 +57,7 @@ func NoNumber(name string) error {
 	return nil
 }
 
-// basicCheckName performs basic checks common for all names
+// basicCheckName performs basic checks common for all names.
 func basicCheckName(name string) error {
 	if name == "" {
 		return errors.New("name cannot be empty")
@@ -81,7 +81,7 @@ func basicCheckName(name string) error {
 	return nil
 }
 
-// lowercase returns the name with lower case and no special character
+// lowercase returns the name with lower case and no special character.
 func lowercase(name string) string {
 	return strings.ToLower(
 		strings.ReplaceAll(

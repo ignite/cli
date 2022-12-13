@@ -13,7 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// SetReward set a chain reward
+// SetReward set a chain reward.
 func (n Network) SetReward(ctx context.Context, launchID uint64, lastRewardHeight int64, coins sdk.Coins) error {
 	n.ev.Send(
 		fmt.Sprintf("Setting reward %s to the chain %d at height %d", coins, launchID, lastRewardHeight),

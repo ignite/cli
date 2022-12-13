@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -21,7 +22,7 @@ type publishOptions struct {
 	genesisURL       string
 	genesisConfig    string
 	chainID          string
-	campaignID       uint64
+	projectID        uint64
 	metadata         string
 	totalSupply      sdk.Coins
 	sharePercentages SharePercents
@@ -32,10 +33,10 @@ type publishOptions struct {
 // PublishOption configures chain creation.
 type PublishOption func(*publishOptions)
 
-// WithCampaign add a campaign id.
-func WithCampaign(id uint64) PublishOption {
+// WithProject add a project id.
+func WithProject(id uint64) PublishOption {
 	return func(o *publishOptions) {
-		o.campaignID = id
+		o.projectID = id
 	}
 }
 
@@ -60,14 +61,14 @@ func WithCustomGenesisConfig(configFile string) PublishOption {
 	}
 }
 
-// WithMetadata provides a meta data proposal to update the campaign.
+// WithMetadata provides a meta data proposal to update the project.
 func WithMetadata(metadata string) PublishOption {
 	return func(c *publishOptions) {
 		c.metadata = metadata
 	}
 }
 
-// WithTotalSupply provides a total supply proposal to update the campaign.
+// WithTotalSupply provides a total supply proposal to update the project.
 func WithTotalSupply(totalSupply sdk.Coins) PublishOption {
 	return func(c *publishOptions) {
 		c.totalSupply = totalSupply
@@ -81,14 +82,14 @@ func WithPercentageShares(sharePercentages []SharePercent) PublishOption {
 	}
 }
 
-// WithAccountBalance set a balance used for all genesis account of the chain
+// WithAccountBalance set a balance used for all genesis account of the chain.
 func WithAccountBalance(accountBalance sdk.Coins) PublishOption {
 	return func(c *publishOptions) {
 		c.accountBalance = accountBalance
 	}
 }
 
-// Mainnet initialize a published chain into the mainnet
+// Mainnet initialize a published chain into the mainnet.
 func Mainnet() PublishOption {
 	return func(o *publishOptions) {
 		o.mainnet = true
@@ -96,7 +97,7 @@ func Mainnet() PublishOption {
 }
 
 // Publish submits Genesis to SPN to announce a new network.
-func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, campaignID uint64, err error) {
+func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption) (launchID, projectID uint64, err error) {
 	o := publishOptions{}
 	for _, apply := range options {
 		apply(&o)
@@ -140,13 +141,13 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	if err != nil {
 		return 0, 0, err
 	}
-	campaignID = o.campaignID
+	projectID = o.projectID
 
 	n.ev.Send("Publishing the network", events.ProgressStart())
 
 	// a coordinator profile is necessary to publish a chain
 	// if the user doesn't have an associated coordinator profile, we create one
-	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); err == ErrObjectNotFound {
+	if _, err := n.CoordinatorIDByAddress(ctx, coordinatorAddress); errors.Is(err, ErrObjectNotFound) {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -160,26 +161,26 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		return 0, 0, err
 	}
 
-	// check if a campaign associated to the chain is provided
-	if campaignID != 0 {
+	// check if a project associated to the chain is provided
+	if projectID != 0 {
 		_, err = n.campaignQuery.
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
-				CampaignID: o.campaignID,
+				CampaignID: o.projectID,
 			})
 		if err != nil {
 			return 0, 0, err
 		}
 	} else if o.mainnet {
-		// a mainnet is always associated to a campaign
-		// if no campaign is provided, we create one, and we directly initialize the mainnet
-		campaignID, err = n.CreateCampaign(ctx, c.Name(), o.metadata, o.totalSupply)
+		// a mainnet is always associated to a project
+		// if no project is provided, we create one, and we directly initialize the mainnet
+		projectID, err = n.CreateProject(ctx, c.Name(), o.metadata, o.totalSupply)
 		if err != nil {
 			return 0, 0, err
 		}
 	}
 
 	// mint vouchers
-	if campaignID != 0 && !o.sharePercentages.Empty() {
+	if projectID != 0 && !o.sharePercentages.Empty() {
 		totalSharesResp, err := n.campaignQuery.TotalShares(ctx, &campaigntypes.QueryTotalSharesRequest{})
 		if err != nil {
 			return 0, 0, err
@@ -204,7 +205,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 		msgMintVouchers := campaigntypes.NewMsgMintVouchers(
 			addr,
-			campaignID,
+			projectID,
 			campaigntypes.NewSharesFromCoins(sdk.NewCoins(coins...)),
 		)
 		_, err = n.cosmos.BroadcastTx(ctx, n.account, msgMintVouchers)
@@ -215,7 +216,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 
 	// depending on mainnet flag initialize mainnet or testnet
 	if o.mainnet {
-		launchID, err = n.InitializeMainnet(ctx, campaignID, c.SourceURL(), c.SourceHash(), chainID)
+		launchID, err = n.InitializeMainnet(ctx, projectID, c.SourceURL(), c.SourceHash(), chainID)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -234,7 +235,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				genesisHash,
 			)
 		case o.genesisConfig != "":
-			initialGenesis = launchtypes.NewConfigGenesis(
+			initialGenesis = launchtypes.NewGenesisConfig(
 				o.genesisConfig,
 			)
 		}
@@ -245,8 +246,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			c.SourceURL(),
 			c.SourceHash(),
 			initialGenesis,
-			campaignID != 0,
-			campaignID,
+			projectID != 0,
+			projectID,
 			o.accountBalance,
 			nil,
 		)
@@ -264,5 +265,5 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		return 0, 0, err
 	}
 
-	return launchID, campaignID, nil
+	return launchID, projectID, nil
 }

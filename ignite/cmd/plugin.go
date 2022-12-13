@@ -13,6 +13,8 @@ import (
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -43,18 +45,21 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	return loadPlugins(rootCmd, plugins)
 }
 
-func parseLocalPlugins(rootCmd *cobra.Command) (cfg *pluginsconfig.Config, err error) {
-	appPath := flagGetPath(rootCmd)
-	pluginsPath := getPlugins(rootCmd)
-	if pluginsPath == "" {
-		if pluginsPath, err = pluginsconfig.LocateDefault(appPath); err != nil {
-			return cfg, err
-		}
+func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
+	// FIXME(tb): like other commands that works on a chain directory,
+	// parseLocalPlugins should rely on `-p` flag to guess that chain directory.
+	// Unfortunately parseLocalPlugins is invoked before flags are parsed, so
+	// we cannot rely on `-p` flag. As a workaround, we use the working dir.
+	// The drawback is we cannot load chain's plugin when using `-p`.
+	_ = cmd
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("parse local plugins: %w", err)
 	}
-
-	cfg, err = pluginsconfig.ParseFile(pluginsPath)
-
-	return cfg, err
+	if err := cosmosanalysis.IsChainPath(wd); err != nil {
+		return nil, err
+	}
+	return pluginsconfig.ParseDir(wd)
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
@@ -83,8 +88,12 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	}
 	if len(loadErrors) > 0 {
 		// unload any plugin that could have been loaded
-		UnloadPlugins()
-		printPlugins(cliui.New(cliui.WithStdout(os.Stdout)))
+		defer UnloadPlugins()
+		if err := printPlugins(cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
+			// content of loadErrors is more important than a print error, so we don't
+			// return here, just print the error.
+			fmt.Printf("fail to print: %v\n", err)
+		}
 		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
 	}
 	return nil
@@ -310,6 +319,9 @@ func NewPlugin() *cobra.Command {
 	c.AddCommand(NewPluginUpdate())
 	c.AddCommand(NewPluginScaffold())
 	c.AddCommand(NewPluginDescribe())
+	c.AddCommand(NewPluginAdd())
+	c.AddCommand(NewPluginRemove())
+
 	return c
 }
 
@@ -320,11 +332,9 @@ func NewPluginList() *cobra.Command {
 		Long:  "Prints status and information of declared plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
-
 			return printPlugins(s)
 		},
 	}
-
 	return lstCmd
 }
 
@@ -358,6 +368,104 @@ func NewPluginUpdate() *cobra.Command {
 			return errors.Errorf("Plugin %q not found", args[0])
 		},
 	}
+}
+
+func NewPluginAdd() *cobra.Command {
+	cmdPluginAdd := &cobra.Command{
+		Use:   "add [path] [key=value]...",
+		Short: "Adds a plugin declaration to a chain's plugin configuration",
+		Long: `Adds a plugin declaration to a chain's plugin configuration.
+Respects key value pairs declared after the plugin path to be added to the
+generated configuration definition.
+Example:
+  ignite plugin add github.com/org/my-plugin/ foo=bar baz=qux`,
+		Args: cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			session := cliui.New(cliui.WithStdout(os.Stdout))
+			defer session.End()
+
+			conf, err := parseLocalPlugins(cmd)
+			if err != nil {
+				return err
+			}
+
+			for _, p := range conf.Plugins {
+				if p.Path == args[0] {
+					return fmt.Errorf("cannot add duplicate plugin %s", args[0])
+				}
+			}
+
+			p := pluginsconfig.Plugin{
+				Path: args[0],
+				With: make(map[string]string),
+			}
+
+			var pluginArgs []string
+			if len(args) > 1 {
+				pluginArgs = args[1:]
+			}
+
+			for _, pa := range pluginArgs {
+				kv := strings.Split(pa, "=")
+				if len(kv) != 2 {
+					return fmt.Errorf("malformed key=value arg: %s", pa)
+				}
+				p.With[kv[0]] = kv[1]
+			}
+
+			session.StartSpinner("Loading plugin")
+			pluginInstance, err := plugin.LoadSingle(cmd.Context(), &p)
+			if err != nil {
+				return err
+			}
+			if pluginInstance.Error != nil {
+				return fmt.Errorf("error while loading plugin %q: %w", args[0], pluginInstance.Error)
+			}
+			session.Println("Done loading plugin")
+			conf.Plugins = append(conf.Plugins, p)
+
+			if err := conf.Save(); err != nil {
+				return err
+			}
+
+			session.Printf("🎉 %s added \n", args[0])
+			return nil
+		},
+	}
+	return cmdPluginAdd
+}
+
+func NewPluginRemove() *cobra.Command {
+	cmdPluginRemove := &cobra.Command{
+		Use:     "remove [path]",
+		Aliases: []string{"rm"},
+		Short:   "Removes a plugin declaration from a chain's plugin configuration",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			s := cliui.New(cliui.WithStdout(os.Stdout))
+
+			conf, err := parseLocalPlugins(cmd)
+			if err != nil {
+				return err
+			}
+
+			for i, cp := range conf.Plugins {
+				if cp.Path == args[0] {
+					conf.Plugins = append(conf.Plugins[:i], conf.Plugins[i+1:]...)
+					break
+				}
+			}
+
+			if err := conf.Save(); err != nil {
+				return err
+			}
+
+			s.Printf("%s %s removed\n", icons.OK, args[0])
+
+			return nil
+		},
+	}
+	return cmdPluginRemove
 }
 
 func NewPluginScaffold() *cobra.Command {
@@ -415,8 +523,12 @@ func NewPluginDescribe() *cobra.Command {
 						return fmt.Errorf("error while loading plugin manifest: %w", err)
 					}
 
-					printPluginCommands(manifest.Commands, s)
-					printPluginHooks(manifest.Hooks, s)
+					if err := printPluginCommands(manifest.Commands, s); err != nil {
+						return err
+					}
+					if err := printPluginHooks(manifest.Hooks, s); err != nil {
+						return err
+					}
 					break
 				}
 			}
@@ -428,31 +540,30 @@ func NewPluginDescribe() *cobra.Command {
 
 func printPlugins(session *cliui.Session) error {
 	var entries [][]string
-	for _, p := range plugins {
-		var status string
+	buildStatus := func(p *plugin.Plugin) string {
 		if p.Error != nil {
-			status = fmt.Sprintf("❌ Error: %v", p.Error)
-		} else {
-			manifest, err := p.Interface.Manifest()
-			if err != nil {
-				return fmt.Errorf("error while loading plugin manifest: %w", err)
-			}
-
-			var (
-				hookCount = len(manifest.Hooks)
-				cmdCount  = len(manifest.Commands)
-			)
-			status = fmt.Sprintf("✅ Loaded 🪝 %d 💻 %d", hookCount, cmdCount)
+			return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
 		}
-		entries = append(entries, []string{p.Path, status})
+		manifest, err := p.Interface.Manifest()
+		if err != nil {
+			return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
+		}
+		var (
+			hookCount = len(manifest.Hooks)
+			cmdCount  = len(manifest.Commands)
+		)
+		return fmt.Sprintf("%s Loaded 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
 	}
-
-	session.PrintTable([]string{"Path", "Status"}, entries...)
-
+	for _, p := range plugins {
+		entries = append(entries, []string{p.Path, buildStatus(p)})
+	}
+	if err := session.PrintTable([]string{"Path", "Status"}, entries...); err != nil {
+		return fmt.Errorf("error while printing plugins: %w", err)
+	}
 	return nil
 }
 
-func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
+func printPluginCommands(cmds []plugin.Command, session *cliui.Session) error {
 	var entries [][]string
 	// Processes command graph
 	traverse := func(cmd plugin.Command) {
@@ -484,15 +595,21 @@ func printPluginCommands(cmds []plugin.Command, session *cliui.Session) {
 		traverse(c)
 	}
 
-	session.PrintTable([]string{"command use", "under"}, entries...)
+	if err := session.PrintTable([]string{"command use", "under"}, entries...); err != nil {
+		return fmt.Errorf("error while printing plugin commands: %w", err)
+	}
+	return nil
 }
 
-func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) {
+func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) error {
 	var entries [][]string
 
 	for _, h := range hooks {
 		entries = append(entries, []string{h.Name, h.PlaceHookOn})
 	}
 
-	session.PrintTable([]string{"hook name", "on"}, entries...)
+	if err := session.PrintTable([]string{"hook name", "on"}, entries...); err != nil {
+		return fmt.Errorf("error while printing plugin hooks: %w", err)
+	}
+	return nil
 }

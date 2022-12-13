@@ -11,7 +11,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-// ConsensusInfo is the validator consensus info
+// ConsensusInfo is the validator consensus info.
 type ConsensusInfo struct {
 	Timestamp          string                `json:"Timestamp"`
 	Root               string                `json:"Root"`
@@ -20,7 +20,7 @@ type ConsensusInfo struct {
 }
 
 // ConsensusInfo returns the appropriate tendermint consensus state by given height
-// and the validator set for the next height
+// and the validator set for the next height.
 func (c Client) ConsensusInfo(ctx context.Context, height int64) (ConsensusInfo, error) {
 	node, err := c.Context().GetNode()
 	if err != nil {

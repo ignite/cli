@@ -284,7 +284,7 @@ func (a *application) applyList(parent proto.Visitee, name string) {
 //
 // Append panics if `n` is not a node that can accept elements or if the type
 // of the elements provided is not compatible with the type of the elements
-// contained by `n`. (Basically, this applies to NormalFields and OneOfFields,)
+// contained by `n`. (Basically, this applies to NormalFields and OneOfFields,).
 func Append(n proto.Visitee, elems ...proto.Visitee) {
 	// return early if the slice is empty.
 	if len(elems) == 0 {

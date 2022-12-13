@@ -4,7 +4,7 @@ package events
 
 import "fmt"
 
-// ProgressIndication enumerates possible states of progress indication for an Event
+// ProgressIndication enumerates possible states of progress indication for an Event.
 type ProgressIndication uint8
 
 const (

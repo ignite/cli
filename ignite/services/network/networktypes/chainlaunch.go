@@ -11,7 +11,7 @@ import (
 type (
 	NetworkType string
 
-	// ChainLaunch represents the launch of a chain on SPN
+	// ChainLaunch represents the launch of a chain on SPN.
 	ChainLaunch struct {
 		ID                     uint64      `json:"ID"`
 		ConsumerRevisionHeight int64       `json:"ConsumerRevisionHeight"`
@@ -22,7 +22,7 @@ type (
 		GenesisHash            string      `json:"GenesisHash"`
 		GenesisConfig          string      `json:"GenesisConfig"`
 		LaunchTime             time.Time   `json:"LaunchTime"`
-		CampaignID             uint64      `json:"CampaignID"`
+		ProjectID              uint64      `json:"ProjectID"`
 		LaunchTriggered        bool        `json:"LaunchTriggered"`
 		Network                NetworkType `json:"Network"`
 		Reward                 string      `json:"Reward,omitempty"`
@@ -40,7 +40,7 @@ func (n NetworkType) String() string {
 	return string(n)
 }
 
-// ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
+// ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object.
 func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	var launchTime time.Time
 	if chain.LaunchTriggered {
@@ -59,7 +59,7 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 		SourceURL:              chain.SourceURL,
 		SourceHash:             chain.SourceHash,
 		LaunchTime:             launchTime,
-		CampaignID:             chain.CampaignID,
+		ProjectID:              chain.CampaignID,
 		LaunchTriggered:        chain.LaunchTriggered,
 		Network:                network,
 		AccountBalance:         chain.AccountBalance,
@@ -79,7 +79,7 @@ func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	}
 
 	// check if custom config genesis if provided.
-	if customGenesisConfig := chain.InitialGenesis.GetConfigGenesis(); customGenesisConfig != nil {
+	if customGenesisConfig := chain.InitialGenesis.GetGenesisConfig(); customGenesisConfig != nil {
 		launch.GenesisConfig = customGenesisConfig.File
 	}
 

@@ -35,7 +35,7 @@ const (
 )
 
 // NewNetworkRewardRelease connects the monitoring modules of launched
-// chains with SPN and distribute rewards with chain Relayer
+// chains with SPN and distribute rewards with chain Relayer.
 func NewNetworkRewardRelease() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "release [launch-id] [chain-rpc]",

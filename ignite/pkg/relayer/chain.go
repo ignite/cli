@@ -90,7 +90,7 @@ func WithAddressPrefix(addressPrefix string) Option {
 	}
 }
 
-// WithClientID configures the chain client id
+// WithClientID configures the chain client id.
 func WithClientID(clientID string) Option {
 	return func(c *Chain) {
 		c.clientID = clientID
@@ -150,7 +150,7 @@ func (c *Chain) Config() relayerconfig.Chain {
 	}
 }
 
-// channelOptions represents options for configuring the IBC channel between two chains
+// channelOptions represents options for configuring the IBC channel between two chains.
 type channelOptions struct {
 	sourcePort    string
 	sourceVersion string
@@ -159,7 +159,7 @@ type channelOptions struct {
 	ordering      string
 }
 
-// newChannelOptions returns default channel options
+// newChannelOptions returns default channel options.
 func newChannelOptions() channelOptions {
 	return channelOptions{
 		sourcePort:    TransferPort,
@@ -170,38 +170,38 @@ func newChannelOptions() channelOptions {
 	}
 }
 
-// ChannelOption is used to configure relayer IBC connection
+// ChannelOption is used to configure relayer IBC connection.
 type ChannelOption func(*channelOptions)
 
-// SourcePort configures the source port of the new channel
+// SourcePort configures the source port of the new channel.
 func SourcePort(port string) ChannelOption {
 	return func(c *channelOptions) {
 		c.sourcePort = port
 	}
 }
 
-// TargetPort configures the target port of the new channel
+// TargetPort configures the target port of the new channel.
 func TargetPort(port string) ChannelOption {
 	return func(c *channelOptions) {
 		c.targetPort = port
 	}
 }
 
-// SourceVersion configures the source version of the new channel
+// SourceVersion configures the source version of the new channel.
 func SourceVersion(version string) ChannelOption {
 	return func(c *channelOptions) {
 		c.sourceVersion = version
 	}
 }
 
-// TargetVersion configures the target version of the new channel
+// TargetVersion configures the target version of the new channel.
 func TargetVersion(version string) ChannelOption {
 	return func(c *channelOptions) {
 		c.targetVersion = version
 	}
 }
 
-// Ordered sets the new channel as ordered
+// Ordered sets the new channel as ordered.
 func Ordered() ChannelOption {
 	return func(c *channelOptions) {
 		c.ordering = OrderingOrdered
@@ -304,7 +304,7 @@ func (c *Chain) EnsureChainSetup(ctx context.Context) error {
 	return relayerconfig.Save(conf)
 }
 
-// PathID creates path name from chain ids
+// PathID creates path name from chain ids.
 func PathID(srcChainID, dstChainID string) string {
 	return fmt.Sprintf("%s-%s", srcChainID, dstChainID)
 }

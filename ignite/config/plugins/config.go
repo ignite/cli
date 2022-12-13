@@ -1,40 +1,18 @@
 package plugins
 
 import (
-	"io"
+	"errors"
+	"fmt"
 	"os"
-	"path/filepath"
 
-	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 )
 
-// PluginsConfigFilenames is a list of recognized names as Ignite's plugins config file.
-var PluginsConfigFilenames = []string{"plugins.yml", "plugins.yaml"}
-
-// DefaultConfig returns a config with default values.
-func DefaultConfig() *Config {
-	c := Config{}
-	return &c
-}
-
-// LocateDefault locates the default path for the config file.
-// Returns ErrConfigNotFound when no config file found.
-func LocateDefault(root string) (path string, err error) {
-	for _, name := range PluginsConfigFilenames {
-		path = filepath.Join(root, name)
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		} else if !os.IsNotExist(err) {
-			return "", err
-		}
-	}
-
-	return "", ErrConfigNotFound
-}
-
 type Config struct {
-	Plugins []Plugin `yaml:"plugins,omitempty"`
+	// path to the config file
+	path string
+
+	Plugins []Plugin `yaml:"plugins"`
 }
 
 // Plugin keeps plugin name and location.
@@ -47,7 +25,7 @@ type Plugin struct {
 	// path: github.com/foo/bar
 	//
 	// It can contain a path inside that repository, if for instance the repo
-	// contains multiple plugins, For example:
+	// contains multiple plugins, for example:
 	//
 	// path: github.com/foo/bar/plugin1
 	//
@@ -57,20 +35,30 @@ type Plugin struct {
 	// path: github.com/foo/bar/plugin1@v42
 	Path string `yaml:"path"`
 	// With holds arguments passed to the plugin interface
-	With map[string]string `yaml:"with"`
+	With map[string]string `yaml:"with,omitempty"`
 }
 
-// Clone returns an identical copy of the instance
-func (c *Config) Clone() (*Config, error) {
-	copy := Config{}
-	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
-		return nil, err
+// Path return the path of the config file.
+func (c Config) Path() string {
+	return c.path
+}
+
+// Save persists a config yaml to a specified path on disk.
+// Must be writable.
+func (c *Config) Save() error {
+	errf := func(err error) error {
+		return fmt.Errorf("plugin config save: %w", err)
 	}
-
-	return &copy, nil
-}
-
-// Decode decodes the config file values from YAML.
-func (c *Config) Decode(r io.Reader) error {
-	return yaml.NewDecoder(r).Decode(c)
+	if c.path == "" {
+		return errf(errors.New("empty path"))
+	}
+	file, err := os.Create(c.path)
+	if err != nil {
+		return errf(err)
+	}
+	defer file.Close()
+	if err := yaml.NewEncoder(file).Encode(c); err != nil {
+		return errf(err)
+	}
+	return nil
 }

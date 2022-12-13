@@ -40,7 +40,7 @@ Review the issues and discussions before you open a PR.
 
 Avoid long names in your PR titles. Make sure your title has fewer than 60 characters.
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines and keywords to find the best
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0) guidelines and keywords to find the best
 title.
 
 Use parentheses to identify the package or feature that you worked on. For example:  `feat(services/chain)`
@@ -68,8 +68,8 @@ used as the commit message.
 
 When you open a PR for the Ignite CLI codebase, you must also update the relevant documentation. For changes to:
 
-* [Developer Guide](https://docs.ignite.network/guide/) tutorials, update content in the `/docs/guide` folder.
-* [Knowledge Base](https://docs.ignite.com/kb/), update content in the `/docs/kb` folder.
+* [Developer Guide](https://docs.ignite.com/guide) tutorials, update content in the `/docs/guide` folder.
+* [Knowledge Base](https://docs.ignite.com/kb), update content in the `/docs/kb` folder.
 * [Ignite CLI reference](https://docs.ignite.com/cli), navigate to the `./ignite/cmd` package and update the
   documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do
   not make changes to  `docs/cli/index.md`.
@@ -103,7 +103,7 @@ strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-wo
   what issues we plan to work on.
 
 Contributors, check the **To Do** column on the project board <https://github.com/ignite/cli/projects/4> to find an
-issue to work on. See the [Ignite CLI bounty program](docs/docs/06-bounty.md) to learn how your participation can earn
+issue to work on. See the [Ignite CLI bounty program](docs/docs/09-bounty.md) to learn how your participation can earn
 rewards.
 
 We appreciate your contribution!

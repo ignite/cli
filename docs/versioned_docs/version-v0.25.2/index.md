@@ -39,7 +39,7 @@ Many projects already showcase the Tendermint BFT consensus engine and the Cosmo
 ## Projects building with Ignite CLI
 
 * [Sifchain: omni-chain solution for DEXs](https://github.com/Sifchain/sifnode)
-* [Kyve](https://www.kyve.network/)
+* [Kyve](https://www.kyve.network)
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Ignite CLI](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
 * [Cronos](https://github.com/crypto-org-chain/cronos)
 * [Plugchain](https://github.com/oracleNetworkProtocol/plugchain)
@@ -48,7 +48,6 @@ Many projects already showcase the Tendermint BFT consensus engine and the Cosmo
 * [Rook](https://github.com/cmwaters/rook)
 * [PI Bridge](https://github.com/pchain-org/pi-bridge)
 * [Polynetwork](https://github.com/Switcheo/polynetwork-cosmos)
-* [Lotus](https://github.com/BabyBlockchains/Lotus)
 * [OmniFlix Hub](https://github.com/OmniFlix/omniflixhub)
 * [Cudos](https://github.com/CudoVentures/cudos-node)
 * [Zenchain](https://github.com/zenchainprotocol/zenchain)

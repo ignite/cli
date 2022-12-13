@@ -37,7 +37,7 @@ import (
 )
 
 type (
-	// AppBuilder is a method that allows to build an app
+	// AppBuilder is a method that allows to build an app.
 	AppBuilder func(
 		logger log.Logger,
 		db dbm.DB,
@@ -51,13 +51,13 @@ type (
 		baseAppOptions ...func(*baseapp.BaseApp),
 	) App
 
-	// App represents a Cosmos SDK application that can be run as a server and with an exportable state
+	// App represents a Cosmos SDK application that can be run as a server and with an exportable state.
 	App interface {
 		servertypes.Application
 		ExportableApp
 	}
 
-	// ExportableApp represents an app with an exportable state
+	// ExportableApp represents an app with an exportable state.
 	ExportableApp interface {
 		ExportAppStateAndValidators(
 			forZeroHeight bool,
@@ -66,7 +66,7 @@ type (
 		LoadHeight(height int64) error
 	}
 
-	// appCreator is an app creator
+	// appCreator is an app creator.
 	appCreator struct {
 		encodingConfig EncodingConfig
 		buildApp       AppBuilder
@@ -116,7 +116,7 @@ func WithEnvPrefix(envPrefix string) Option {
 	}
 }
 
-// NewRootCmd creates a new root command for a Cosmos SDK application
+// NewRootCmd creates a new root command for a Cosmos SDK application.
 func NewRootCmd(
 	appName,
 	accountAddressPrefix,
@@ -252,7 +252,7 @@ func initRootCmd(
 	}
 }
 
-// queryCommand returns the sub-command to send queries to the app
+// queryCommand returns the sub-command to send queries to the app.
 func queryCommand(moduleBasics module.BasicManager) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "query",
@@ -277,7 +277,7 @@ func queryCommand(moduleBasics module.BasicManager) *cobra.Command {
 	return cmd
 }
 
-// txCommand returns the sub-command to send transactions to the app
+// txCommand returns the sub-command to send transactions to the app.
 func txCommand(moduleBasics module.BasicManager) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
@@ -324,7 +324,7 @@ func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
 	}
 }
 
-// newApp creates a new Cosmos SDK app
+// newApp creates a new Cosmos SDK app.
 func (a appCreator) newApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -386,7 +386,7 @@ func (a appCreator) newApp(
 	)
 }
 
-// appExport creates a new simapp (optionally at a given height)
+// appExport creates a new simapp (optionally at a given height).
 func (a appCreator) appExport(
 	logger log.Logger,
 	db dbm.DB,

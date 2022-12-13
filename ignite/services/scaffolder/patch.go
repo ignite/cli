@@ -10,8 +10,8 @@ import (
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
-// supportSimulation checks if module_simulation.go exists
-// appends the generator to create the file if it doesn't
+// supportSimulation checks if module_simulation.go exists,
+// appends the generator to create the file if it doesn't.
 func supportSimulation(
 	gens []*genny.Generator,
 	appPath,
@@ -31,7 +31,7 @@ func supportSimulation(
 }
 
 // supportGenesisTests checks if types/genesis_test.go exists
-// appends the generator to create the file if it doesn't
+// appends the generator to create the file if it doesn't.
 func supportGenesisTests(
 	gens []*genny.Generator,
 	appPath,
@@ -59,7 +59,7 @@ func supportGenesisTests(
 
 // supportMsgServer checks if the module supports the MsgServer convention
 // appends the generator to support it if it doesn't
-// https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
+// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-031-msg-service.md
 func supportMsgServer(
 	gens []*genny.Generator,
 	replacer placeholder.Replacer,
@@ -83,7 +83,7 @@ func supportMsgServer(
 }
 
 // isMsgServerDefined checks if the module uses the MsgServer convention for transactions
-// this is checked by verifying the existence of the tx.proto file
+// this is checked by verifying the existence of the tx.proto file.
 func isMsgServerDefined(appPath, appName, moduleName string) (bool, error) {
 	txProto, err := filepath.Abs(filepath.Join(appPath, "proto", appName, moduleName, "tx.proto"))
 	if err != nil {

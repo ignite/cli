@@ -39,7 +39,7 @@ func startInvalidJSONServer() *httptest.Server {
 }
 
 func TestPublish(t *testing.T) {
-	t.Run("publish chain without campaign", func(t *testing.T) {
+	t.Run("publish chain without project", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
@@ -87,10 +87,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock)
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -146,18 +146,18 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(
+		launchID, projectID, publishError := network.Publish(
 			context.Background(),
 			suite.ChainMock,
 			WithAccountBalance(accountBalance),
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
-	t.Run("publish chain with pre created campaign", func(t *testing.T) {
+	t.Run("publish chain with pre created project", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
@@ -186,7 +186,7 @@ func TestPublish(t *testing.T) {
 				"Campaign",
 				context.Background(),
 				&campaigntypes.QueryGetCampaignRequest{
-					CampaignID: testutil.CampaignID,
+					CampaignID: testutil.ProjectID,
 				},
 			).
 			Return(nil, nil).
@@ -203,7 +203,7 @@ func TestPublish(t *testing.T) {
 					SourceHash:     testutil.ChainSourceHash,
 					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    true,
-					CampaignID:     testutil.CampaignID,
+					CampaignID:     testutil.ProjectID,
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -215,14 +215,14 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithCampaign(testutil.CampaignID))
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock, WithProject(testutil.ProjectID))
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
+		require.Equal(t, testutil.ProjectID, projectID)
 		suite.AssertAllMocks(t)
 	})
 
-	t.Run("publish chain with a pre created campaign with shares", func(t *testing.T) {
+	t.Run("publish chain with a pre created project with shares", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
@@ -251,7 +251,7 @@ func TestPublish(t *testing.T) {
 				"Campaign",
 				context.Background(),
 				&campaigntypes.QueryGetCampaignRequest{
-					CampaignID: testutil.CampaignID,
+					CampaignID: testutil.ProjectID,
 				},
 			).
 			Return(nil, nil).
@@ -273,7 +273,7 @@ func TestPublish(t *testing.T) {
 				account,
 				campaigntypes.NewMsgMintVouchers(
 					addr,
-					testutil.CampaignID,
+					testutil.ProjectID,
 					campaigntypes.NewSharesFromCoins(sdk.NewCoins(sdk.NewInt64Coin("foo", 2000), sdk.NewInt64Coin("staking", 50000))),
 				),
 			).
@@ -291,7 +291,7 @@ func TestPublish(t *testing.T) {
 					SourceHash:     testutil.ChainSourceHash,
 					InitialGenesis: launchtypes.NewDefaultInitialGenesis(),
 					HasCampaign:    true,
-					CampaignID:     testutil.CampaignID,
+					CampaignID:     testutil.ProjectID,
 				},
 			).
 			Return(testutil.NewResponse(&launchtypes.MsgCreateChainResponse{
@@ -303,7 +303,7 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithCampaign(testutil.CampaignID),
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock, WithProject(testutil.ProjectID),
 			WithPercentageShares([]SharePercent{
 				SampleSharePercent(t, "foo", 2, 100),
 				SampleSharePercent(t, "staking", 50, 100),
@@ -311,7 +311,7 @@ func TestPublish(t *testing.T) {
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
+		require.Equal(t, testutil.ProjectID, projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -369,14 +369,14 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(
+		launchID, projectID, publishError := network.Publish(
 			context.Background(),
 			suite.ChainMock,
 			WithCustomGenesisURL(gts.URL),
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -427,10 +427,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithChainID(testutil.ChainID))
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock, WithChainID(testutil.ChainID))
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -468,7 +468,7 @@ func TestPublish(t *testing.T) {
 					GenesisChainID: testutil.ChainID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
-					InitialGenesis: launchtypes.NewConfigGenesis(
+					InitialGenesis: launchtypes.NewGenesisConfig(
 						testutil.ChainConfigYML,
 					),
 					HasCampaign: false,
@@ -484,14 +484,14 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(
+		launchID, projectID, publishError := network.Publish(
 			context.Background(),
 			suite.ChainMock,
 			WithCustomGenesisConfig(testutil.ChainConfigYML),
 		)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -542,10 +542,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("SourceURL").Return(testutil.ChainSourceURL).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, WithChainID(testutil.ChainID))
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock, WithChainID(testutil.ChainID))
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -587,7 +587,7 @@ func TestPublish(t *testing.T) {
 				},
 			).
 			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-				CampaignID: testutil.CampaignID,
+				CampaignID: testutil.ProjectID,
 			}), nil).
 			Once()
 		suite.CosmosClientMock.
@@ -597,7 +597,7 @@ func TestPublish(t *testing.T) {
 				account,
 				&campaigntypes.MsgInitializeMainnet{
 					Coordinator:    addr,
-					CampaignID:     testutil.CampaignID,
+					CampaignID:     testutil.ProjectID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
 					MainnetChainID: testutil.ChainID,
@@ -613,10 +613,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock, Mainnet())
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock, Mainnet())
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, testutil.CampaignID, campaignID)
+		require.Equal(t, testutil.ProjectID, projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -657,7 +657,7 @@ func TestPublish(t *testing.T) {
 				},
 			).
 			Return(testutil.NewResponse(&campaigntypes.MsgCreateCampaignResponse{
-				CampaignID: testutil.CampaignID,
+				CampaignID: testutil.ProjectID,
 			}), nil).
 			Once()
 		suite.CosmosClientMock.
@@ -667,7 +667,7 @@ func TestPublish(t *testing.T) {
 				account,
 				&campaigntypes.MsgInitializeMainnet{
 					Coordinator:    addr,
-					CampaignID:     testutil.CampaignID,
+					CampaignID:     testutil.ProjectID,
 					SourceURL:      testutil.ChainSourceURL,
 					SourceHash:     testutil.ChainSourceHash,
 					MainnetChainID: testutil.ChainID,
@@ -757,10 +757,10 @@ func TestPublish(t *testing.T) {
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 		suite.ChainMock.On("CacheBinary", testutil.LaunchID).Return(nil).Once()
 
-		launchID, campaignID, publishError := network.Publish(context.Background(), suite.ChainMock)
+		launchID, projectID, publishError := network.Publish(context.Background(), suite.ChainMock)
 		require.NoError(t, publishError)
 		require.Equal(t, testutil.LaunchID, launchID)
-		require.Equal(t, uint64(0), campaignID)
+		require.Equal(t, uint64(0), projectID)
 		suite.AssertAllMocks(t)
 	})
 
@@ -806,7 +806,7 @@ func TestPublish(t *testing.T) {
 		suite.AssertAllMocks(t)
 	})
 
-	t.Run("failed to publish chain, failed to fetch existed campaign", func(t *testing.T) {
+	t.Run("failed to publish chain, failed to fetch existed project", func(t *testing.T) {
 		var (
 			account        = testutil.NewTestAccount(t, testutil.TestAccountName)
 			suite, network = newSuite(account)
@@ -832,13 +832,13 @@ func TestPublish(t *testing.T) {
 			Once()
 		suite.CampaignQueryMock.
 			On("Campaign", mock.Anything, &campaigntypes.QueryGetCampaignRequest{
-				CampaignID: testutil.CampaignID,
+				CampaignID: testutil.ProjectID,
 			}).
 			Return(nil, cosmoserror.ErrNotFound).
 			Once()
 		suite.ChainMock.On("ChainID").Return(testutil.ChainID, nil).Once()
 
-		_, _, publishError := network.Publish(context.Background(), suite.ChainMock, WithCampaign(testutil.CampaignID))
+		_, _, publishError := network.Publish(context.Background(), suite.ChainMock, WithProject(testutil.ProjectID))
 		require.Error(t, publishError)
 		require.ErrorIs(t, publishError, cosmoserror.ErrNotFound)
 		suite.AssertAllMocks(t)

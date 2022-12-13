@@ -26,31 +26,31 @@ func newSimappOptions() simappOptions {
 	}
 }
 
-// SimappOption provides options for the simapp command
+// SimappOption provides options for the simapp command.
 type SimappOption func(*simappOptions)
 
-// SimappWithVerbose enable the verbose mode
+// SimappWithVerbose enable the verbose mode.
 func SimappWithVerbose(verbose bool) SimappOption {
 	return func(c *simappOptions) {
 		c.verbose = verbose
 	}
 }
 
-// SimappWithPeriod allows running slow invariants only once every period assertions
+// SimappWithPeriod allows running slow invariants only once every period assertions.
 func SimappWithPeriod(period uint) SimappOption {
 	return func(c *simappOptions) {
 		c.period = period
 	}
 }
 
-// SimappWithGenesisTime allows overriding genesis UNIX time instead of using a random UNIX time
+// SimappWithGenesisTime allows overriding genesis UNIX time instead of using a random UNIX time.
 func SimappWithGenesisTime(genesisTime int64) SimappOption {
 	return func(c *simappOptions) {
 		c.genesisTime = genesisTime
 	}
 }
 
-// SimappWithConfig allows to add a simulation config
+// SimappWithConfig allows to add a simulation config.
 func SimappWithConfig(config simulation.Config) SimappOption {
 	return func(c *simappOptions) {
 		c.config = config
