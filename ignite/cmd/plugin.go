@@ -42,12 +42,10 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	}
 
 	globalCfg, err := parseGlobalPlugins()
-	if err != nil {
-		fmt.Printf("error parsing global plugins config: %s", err.Error())
-		return nil
+	if err == nil {
+		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
 	}
 
-	pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
 	if len(pluginsConfigs) == 0 {
 		return nil
 	}
