@@ -37,7 +37,11 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 
 // Start wraps the "appd start" command to begin running a chain from the daemon.
 func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
-	validator := cfg.Validators[0]
+	validator, err := chainconfig.FirstValidator(cfg)
+	if err != nil {
+		return err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
@@ -60,14 +64,18 @@ func (c Chain) Configure(homePath string, cfg *chainconfig.Config) error {
 }
 
 func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
-	// TODO find a better way in order to not delete comments in the toml.yml
-	path := filepath.Join(homePath, "config/app.toml")
-	config, err := toml.LoadFile(path)
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
 
-	validator := cfg.Validators[0]
+	// TODO find a better way in order to not delete comments in the toml.yml
+	path := filepath.Join(homePath, "config/app.toml")
+	appConfig, err := toml.LoadFile(path)
+	if err != nil {
+		return err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
@@ -79,22 +87,22 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 
 	// Set default config values
-	config.Set("api.enable", true)
-	config.Set("api.enabled-unsafe-cors", true)
-	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	appConfig.Set("api.enable", true)
+	appConfig.Set("api.enabled-unsafe-cors", true)
+	appConfig.Set("rpc.cors_allowed_origins", []string{"*"})
 
 	// Update config values with the validator's Cosmos SDK app config
-	updateTomlTreeValues(config, validator.App)
+	updateTomlTreeValues(appConfig, validator.App)
 
 	// Make sure the API address have the protocol prefix
-	config.Set("api.address", apiAddr)
+	appConfig.Set("api.address", apiAddr)
 
 	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
 	if err != nil {
 		return err
 	}
 	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
-	config.Set("minimum-gas-prices", gas.String())
+	appConfig.Set("minimum-gas-prices", gas.String())
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -102,19 +110,23 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 	defer file.Close()
 
-	_, err = config.WriteTo(file)
+	_, err = appConfig.WriteTo(file)
 	return err
 }
 
 func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
-	// TODO find a better way in order to not delete comments in the toml.yml
-	path := filepath.Join(homePath, "config/config.toml")
-	config, err := toml.LoadFile(path)
+	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
 
-	validator := cfg.Validators[0]
+	// TODO find a better way in order to not delete comments in the toml.yml
+	path := filepath.Join(homePath, "config/config.toml")
+	tmConfig, err := toml.LoadFile(path)
+	if err != nil {
+		return err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
@@ -131,17 +143,17 @@ func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 
 	// Set default config values
-	config.Set("mode", "validator")
-	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("consensus.timeout_commit", "1s")
-	config.Set("consensus.timeout_propose", "1s")
+	tmConfig.Set("mode", "validator")
+	tmConfig.Set("rpc.cors_allowed_origins", []string{"*"})
+	tmConfig.Set("consensus.timeout_commit", "1s")
+	tmConfig.Set("consensus.timeout_propose", "1s")
 
 	// Update config values with the validator's Tendermint config
-	updateTomlTreeValues(config, validator.Config)
+	updateTomlTreeValues(tmConfig, validator.Config)
 
 	// Make sure the addresses have the protocol prefix
-	config.Set("rpc.laddr", rpcAddr)
-	config.Set("p2p.laddr", p2pAddr)
+	tmConfig.Set("rpc.laddr", rpcAddr)
+	tmConfig.Set("p2p.laddr", p2pAddr)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -149,13 +161,18 @@ func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 	defer file.Close()
 
-	_, err = config.WriteTo(file)
+	_, err = tmConfig.WriteTo(file)
 	return err
 }
 
 func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
+	validator, err := chainconfig.FirstValidator(cfg)
+	if err != nil {
+		return err
+	}
+
 	path := filepath.Join(homePath, "config/client.toml")
-	config, err := toml.LoadFile(path)
+	tmConfig, err := toml.LoadFile(path)
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -165,11 +182,11 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 
 	// Set default config values
-	config.Set("keyring-backend", "test")
-	config.Set("broadcast-mode", "block")
+	tmConfig.Set("keyring-backend", "test")
+	tmConfig.Set("broadcast-mode", "block")
 
 	// Update config values with the validator's client config
-	updateTomlTreeValues(config, cfg.Validators[0].Client)
+	updateTomlTreeValues(tmConfig, validator.Client)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -177,7 +194,7 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 	defer file.Close()
 
-	_, err = config.WriteTo(file)
+	_, err = tmConfig.WriteTo(file)
 	return err
 }
 
