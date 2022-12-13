@@ -489,8 +489,11 @@ func (c *Chain) start(ctx context.Context, cfg *chainconfig.Config) error {
 	// set the app as being served
 	c.served = true
 
-	// Get the first validator
-	validator := cfg.Validators[0]
+	validator, err := chainconfig.FirstValidator(cfg)
+	if err != nil {
+		return err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err

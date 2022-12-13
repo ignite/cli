@@ -87,43 +87,43 @@ func (c *Config) updateValidatorAddresses() (err error) {
 func incrementDefaultServerPortsBy(s Servers, inc uint64) (Servers, error) {
 	var err error
 
-	if s.GRPC.Address == DefaultGRPCAddress {
-		s.GRPC.Address, err = xnet.IncreasePortBy(DefaultGRPCAddress, inc)
+	if s.GRPC.Address == base.DefaultGRPCAddress {
+		s.GRPC.Address, err = xnet.IncreasePortBy(base.DefaultGRPCAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.GRPCWeb.Address == DefaultGRPCWebAddress {
-		s.GRPCWeb.Address, err = xnet.IncreasePortBy(DefaultGRPCWebAddress, inc)
+	if s.GRPCWeb.Address == base.DefaultGRPCWebAddress {
+		s.GRPCWeb.Address, err = xnet.IncreasePortBy(base.DefaultGRPCWebAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.API.Address == DefaultAPIAddress {
-		s.API.Address, err = xnet.IncreasePortBy(DefaultAPIAddress, inc)
+	if s.API.Address == base.DefaultAPIAddress {
+		s.API.Address, err = xnet.IncreasePortBy(base.DefaultAPIAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.P2P.Address == DefaultP2PAddress {
-		s.P2P.Address, err = xnet.IncreasePortBy(DefaultP2PAddress, inc)
+	if s.P2P.Address == base.DefaultP2PAddress {
+		s.P2P.Address, err = xnet.IncreasePortBy(base.DefaultP2PAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.RPC.Address == DefaultRPCAddress {
-		s.RPC.Address, err = xnet.IncreasePortBy(DefaultRPCAddress, inc)
+	if s.RPC.Address == base.DefaultRPCAddress {
+		s.RPC.Address, err = xnet.IncreasePortBy(base.DefaultRPCAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}
 	}
 
-	if s.RPC.PProfAddress == DefaultPProfAddress {
-		s.RPC.PProfAddress, err = xnet.IncreasePortBy(DefaultPProfAddress, inc)
+	if s.RPC.PProfAddress == base.DefaultPProfAddress {
+		s.RPC.PProfAddress, err = xnet.IncreasePortBy(base.DefaultPProfAddress, inc)
 		if err != nil {
 			return Servers{}, err
 		}

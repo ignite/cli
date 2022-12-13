@@ -304,15 +304,13 @@ func (c *Chain) Home() (string, error) {
 // DefaultHome returns the blockchain node's default home dir when not specified in the app.
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return "", err
 	}
-	if len(config.Validators) > 0 {
-		validator := config.Validators[0]
-		if validator.Home != "" {
-			return validator.Home, nil
-		}
+	validator, _ := chainconfig.FirstValidator(cfg)
+	if validator.Home != "" {
+		return validator.Home, nil
 	}
 
 	return c.appHome(), nil
@@ -374,30 +372,28 @@ func (c *Chain) ClientTOMLPath() (string, error) {
 
 // KeyringBackend returns the keyring backend chosen for the chain.
 func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
-	// 1st.
+	// When keyring backend is initialized as a chain
+	// option it overrides any configured backends.
 	if c.options.keyringBackend != "" {
 		return c.options.keyringBackend, nil
 	}
 
-	config, err := c.Config()
+	// Try to get keyring backend from the first configured validator
+	cfg, err := c.Config()
 	if err != nil {
 		return "", err
 	}
 
-	// 2nd.
-	if len(config.Validators) > 0 {
-		validator := config.Validators[0]
-
-		if validator.Client != nil {
-			if backend, ok := validator.Client["keyring-backend"]; ok {
-				if backendStr, ok := backend.(string); ok {
-					return chaincmd.KeyringBackendFromString(backendStr)
-				}
+	validator, _ := chainconfig.FirstValidator(cfg)
+	if validator.Client != nil {
+		if v, ok := validator.Client["keyring-backend"]; ok {
+			if backend, ok := v.(string); ok {
+				return chaincmd.KeyringBackendFromString(backend)
 			}
 		}
 	}
 
-	// 3rd.
+	// Try to get keyring backend from client.toml config file
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -413,7 +409,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 4th.
+	// Use test backend as default when none is configured
 	return chaincmd.KeyringBackendTest, nil
 }
 
@@ -444,14 +440,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
 
 	servers := chainconfigv1.DefaultServers()
-	if len(config.Validators) > 0 {
-		validator := config.Validators[0]
+	if len(cfg.Validators) > 0 {
+		validator, _ := chainconfig.FirstValidator(cfg)
 		servers, err = validator.GetServers()
 		if err != nil {
 			return chaincmdrunner.Runner{}, err
