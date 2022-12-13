@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/clictx"
@@ -20,7 +21,8 @@ import (
 )
 
 const (
-	igniteCmdPrefix = "ignite "
+	igniteCmdPrefix   = "ignite "
+	flagPluginsGlobal = "global"
 )
 
 // plugins hold the list of plugin declared in the config.
@@ -684,4 +686,16 @@ func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) error {
 		return fmt.Errorf("error while printing plugin hooks: %w", err)
 	}
 	return nil
+}
+
+func flagSetPluginsGlobal() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration"+
+		" ($HOME/.ignite/plugins/plugins.yml)")
+	return fs
+}
+
+func flagGetPluginsGlobal(cmd *cobra.Command) bool {
+	global, _ := cmd.Flags().GetBool(flagPluginsGlobal)
+	return global
 }
