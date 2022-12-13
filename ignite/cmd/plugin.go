@@ -394,8 +394,8 @@ func NewPluginUpdate() *cobra.Command {
 func NewPluginAdd() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
 		Use:   "add [path] [key=value]...",
-		Short: "Adds a plugin declaration to a chain's plugin configuration",
-		Long: `Adds a plugin declaration to a chain's plugin configuration.
+		Short: "Adds a plugin declaration to a plugin configuration",
+		Long: `Adds a plugin declaration to a plugin configuration.
 Respects key value pairs declared after the plugin path to be added to the
 generated configuration definition.
 Example:
@@ -453,6 +453,9 @@ Example:
 			return nil
 		},
 	}
+
+	cmdPluginAdd.Flags().AddFlagSet(flagSetPluginsGlobal())
+
 	return cmdPluginAdd
 }
 
@@ -486,6 +489,9 @@ func NewPluginRemove() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmdPluginRemove.Flags().AddFlagSet(flagSetPluginsGlobal())
+
 	return cmdPluginRemove
 }
 

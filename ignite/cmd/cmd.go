@@ -28,11 +28,12 @@ import (
 )
 
 const (
-	flagPath       = "path"
-	flagHome       = "home"
-	flagYes        = "yes"
-	flagClearCache = "clear-cache"
-	flagSkipProto  = "skip-proto"
+	flagPath          = "path"
+	flagHome          = "home"
+	flagYes           = "yes"
+	flagClearCache    = "clear-cache"
+	flagSkipProto     = "skip-proto"
+	flagPluginsGlobal = "global"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -159,6 +160,18 @@ func flagSetClearCache(cmd *cobra.Command) {
 func flagGetClearCache(cmd *cobra.Command) bool {
 	clearCache, _ := cmd.Flags().GetBool(flagClearCache)
 	return clearCache
+}
+
+func flagSetPluginsGlobal() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration"+
+		" ($HOME/.ignite/plugins/plugins.yml)")
+	return fs
+}
+
+func flagGetPluginsGlobal(cmd *cobra.Command) bool {
+	global, _ := cmd.Flags().GetBool(flagPluginsGlobal)
+	return global
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
