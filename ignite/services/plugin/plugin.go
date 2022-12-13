@@ -51,7 +51,6 @@ type Plugin struct {
 	reference  string
 	srcPath    string
 	binaryName string
-	global     bool
 
 	client *hplugin.Client
 }
@@ -110,7 +109,9 @@ func Update(plugins ...*Plugin) error {
 // newPlugin creates a Plugin from configuration.
 func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	var (
-		p          = &Plugin{Plugin: cp}
+		p = &Plugin{
+			Plugin: cp,
+		}
 		pluginPath = cp.Path
 	)
 	if pluginPath == "" {
@@ -151,6 +152,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	p.srcPath = path.Join(pluginsDir, p.repoPath, path.Join(parts[3:]...))
 	p.binaryName = path.Base(pluginPath)
+
 	return p
 }
 
@@ -175,7 +177,7 @@ func (p *Plugin) KillClient() {
 
 // IsGlobal returns whether the plugin is installed globally or locally for a chain.
 func (p *Plugin) IsGlobal() bool {
-	return p.global
+	return p.Plugin.Global
 }
 
 func (p *Plugin) isLocal() bool {

@@ -47,9 +47,7 @@ func TestAddPlugin(t *testing.T) {
 // TODO install network plugin test
 
 func TestPluginScaffold(t *testing.T) {
-	var (
-		env = envtest.New(t)
-	)
+	env := envtest.New(t)
 
 	env.Must(env.Exec("add a plugin",
 		step.NewSteps(step.New(
