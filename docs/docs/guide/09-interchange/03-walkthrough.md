@@ -59,7 +59,8 @@ sellOrderBook:
   priceDenom: venuscoin
 ```
 
-On the target blockchain, the same `send-createPair` command creates a buy order book:
+On the target blockchain, the same `send-createPair` command creates a buy order
+book:
 
 ```
 interchanged q dex list-buy-order-book --node tcp://localhost:26659
@@ -94,8 +95,8 @@ After an order book is created, the next step is to create a sell order:
 interchanged tx dex send-sell-order dex channel-0 marscoin 10 venuscoin 15  --from alice --chain-id mars --home ~/.mars
 ```
 
-The `send-sell-order` command broadcasts a message that locks token on the source
-blockchain and creates a sell order on the source blockchain.
+The `send-sell-order` command broadcasts a message that locks token on the
+source blockchain and creates a sell order on the source blockchain.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars)
@@ -225,7 +226,8 @@ balances:
   denom: token
 ```
 
-The counterparty (the sender of the buy marscoin order) receives 5 marscoin vouchers:
+The counterparty (the sender of the buy marscoin order) receives 5 marscoin
+vouchers:
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.venus) --node tcp://localhost:26659
