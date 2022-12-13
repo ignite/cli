@@ -37,7 +37,6 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	localCfg, err := parseLocalPlugins(rootCmd)
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
-
 	} else if err == nil {
 		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
 	}
