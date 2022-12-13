@@ -33,7 +33,7 @@ func makeEncodingConfig() EncodingConfig {
 	}
 }
 
-// MakeEncodingConfig creates an EncodingConfig for testing
+// MakeEncodingConfig creates an EncodingConfig for testing.
 func MakeEncodingConfig(moduleBasics module.BasicManager) EncodingConfig {
 	encodingConfig := makeEncodingConfig()
 	std.RegisterLegacyAminoCodec(encodingConfig.Amino)

@@ -14,6 +14,7 @@ import (
 
 // NewTendermintClientMock creates a new Tendermint RPC client mock.
 func NewTendermintClientMock(t *testing.T) *TendermintClientMock {
+	t.Helper()
 	m := TendermintClientMock{}
 	m.Test(t)
 

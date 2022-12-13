@@ -33,7 +33,6 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
-	flagPlugins    = "plugins"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -82,7 +81,6 @@ To get started, create a blockchain:
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
-	c.PersistentFlags().AddFlagSet(flagSetPlugins())
 
 	return c
 }
@@ -129,17 +127,6 @@ func flagSetConfig() *flag.FlagSet {
 
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
-	return
-}
-
-func flagSetPlugins() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagPlugins, "x", "", "path to Ignite plugins config file (default: ./plugins.yml)")
-	return fs
-}
-
-func getPlugins(cmd *cobra.Command) (config string) {
-	config, _ = cmd.Flags().GetString(flagPlugins)
 	return
 }
 
@@ -249,7 +236,7 @@ func deprecated() []*cobra.Command {
 	}
 }
 
-// relativePath return the relative app path from the current directory
+// relativePath return the relative app path from the current directory.
 func relativePath(appPath string) (string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -278,14 +265,14 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Ignite CLI %s is available!
 ·
-· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install.html#upgrading-your-ignite-cli-installation
+· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install#upgrading-your-ignite-cli-installation
 ·
 ··
 
 `, next)
 }
 
-// newApp create a new scaffold app
+// newApp create a new scaffold app.
 func newApp(appPath string) (scaffolder.Scaffolder, error) {
 	sc, err := scaffolder.App(appPath)
 	if err != nil {

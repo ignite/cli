@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/tendermint/spn/pkg/chainid"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	chainconfigv1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -91,14 +93,14 @@ func HomePath(path string) Option {
 	}
 }
 
-// KeyringBackend specifies the keyring backend to use for the chain command
+// KeyringBackend specifies the keyring backend to use for the chain command.
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
 	}
 }
 
-// ConfigFile specifies a custom config file to use
+// ConfigFile specifies a custom config file to use.
 func ConfigFile(configFile string) Option {
 	return func(c *Chain) {
 		c.options.ConfigFile = configFile
@@ -153,7 +155,7 @@ func New(path string, options ...Option) (*Chain, error) {
 	}
 
 	c.sourceVersion, err = c.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
+	if err != nil && !errors.Is(err, git.ErrRepositoryNotExists) {
 		return nil, err
 	}
 
@@ -196,8 +198,8 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-// ConfigPath returns the config path of the chain
-// Empty string means that the chain has no defined config
+// ConfigPath returns the config path of the chain.
+// Empty string means that the chain has no defined config.
 func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
@@ -209,7 +211,7 @@ func (c *Chain) ConfigPath() string {
 	return path
 }
 
-// Config returns the config of the chain
+// Config returns the config of the chain.
 func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
@@ -244,7 +246,7 @@ func (c *Chain) ChainID() (string, error) {
 	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
-// Name returns the chain's name
+// Name returns the chain's name.
 func (c *Chain) Name() string {
 	return c.app.N()
 }
@@ -299,16 +301,18 @@ func (c *Chain) Home() (string, error) {
 	return home, nil
 }
 
-// DefaultHome returns the blockchain node's default home dir when not specified in the app
+// DefaultHome returns the blockchain node's default home dir when not specified in the app.
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
 	config, err := c.Config()
 	if err != nil {
 		return "", err
 	}
-	validator := config.Validators[0]
-	if validator.Home != "" {
-		return validator.Home, nil
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+		if validator.Home != "" {
+			return validator.Home, nil
+		}
 	}
 
 	return c.appHome(), nil
@@ -381,11 +385,14 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 2nd.
-	validator := config.Validators[0]
-	if validator.Client != nil {
-		if v, ok := validator.Client["keyring-backend"]; ok {
-			if backend, ok := v.(string); ok {
-				return chaincmd.KeyringBackendFromString(backend)
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+
+		if validator.Client != nil {
+			if backend, ok := validator.Client["keyring-backend"]; ok {
+				if backendStr, ok := backend.(string); ok {
+					return chaincmd.KeyringBackendFromString(backendStr)
+				}
 			}
 		}
 	}
@@ -410,7 +417,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	return chaincmd.KeyringBackendTest, nil
 }
 
-// Commands returns the runner execute commands on the chain's binary
+// Commands returns the runner execute commands on the chain's binary.
 func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
 	if err != nil {
@@ -442,10 +449,13 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	validator := config.Validators[0]
-	servers, err := validator.GetServers()
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
+	servers := chainconfigv1.DefaultServers()
+	if len(config.Validators) > 0 {
+		validator := config.Validators[0]
+		servers, err = validator.GetServers()
+		if err != nil {
+			return chaincmdrunner.Runner{}, err
+		}
 	}
 
 	nodeAddr, err := xurl.TCP(servers.RPC.Address)

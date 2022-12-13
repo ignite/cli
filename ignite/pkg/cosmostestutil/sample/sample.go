@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// AccAddress returns a sample account address
+// AccAddress returns a sample account address.
 func AccAddress() string {
 	pk := ed25519.GenPrivKey().PubKey()
 	addr := pk.Address()

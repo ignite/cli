@@ -3,6 +3,7 @@ package envtest
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -86,7 +87,7 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 	err := cmdrunner.
 		New(copts...).
 		Run(opts.ctx, steps...)
-	if err == context.Canceled {
+	if errors.Is(err, context.Canceled) {
 		err = nil
 	}
 	if err != nil {

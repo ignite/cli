@@ -1,6 +1,7 @@
 package cosmosgen
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -58,11 +59,11 @@ func generateOpenAPISpec(g *generator) error {
 		}
 		cacheKey := fmt.Sprintf("%x", checksum)
 		existingSpec, err := specCache.Get(cacheKey)
-		if err != nil && err != cache.ErrorNotFound {
+		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
 			return err
 		}
 
-		if err != cache.ErrorNotFound {
+		if !errors.Is(err, cache.ErrorNotFound) {
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}

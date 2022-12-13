@@ -34,6 +34,7 @@ type Session struct {
 	spinner *clispinner.Spinner
 	out     uilog.Output
 	wg      *sync.WaitGroup
+	ended   bool
 }
 
 // Option configures session options.
@@ -46,7 +47,7 @@ func WithStdout(stdout io.WriteCloser) Option {
 	}
 }
 
-// WithStderr sets base stderr for a Session
+// WithStderr sets base stderr for a Session.
 func WithStderr(stderr io.WriteCloser) Option {
 	return func(s *Session) {
 		s.options.stderr = stderr
@@ -222,7 +223,7 @@ func (s Session) Println(messages ...interface{}) error {
 	return err
 }
 
-// Println prints arbitrary message
+// Print prints arbitrary message.
 func (s Session) Print(messages ...interface{}) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprint(s.out.Stdout(), messages...)
@@ -257,10 +258,15 @@ func (s Session) PrintTable(header []string, entries ...[]string) error {
 
 // End finishes the session by stopping the spinner and the event bus.
 // Once the session is ended it should not be used anymore.
-func (s Session) End() {
+func (s *Session) End() {
+	if s.ended {
+		return
+	}
+
 	s.StopSpinner()
 	s.ev.Stop()
 	s.wg.Wait()
+	s.ended = true
 }
 
 func (s *Session) handleEvents() {
@@ -283,6 +289,7 @@ func (s *Session) handleEvents() {
 		case events.IndicationFinish:
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
+		case events.IndicationNone:
 		default:
 			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()
