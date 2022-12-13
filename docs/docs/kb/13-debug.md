@@ -90,7 +90,7 @@ The debug server stops automatically when the client connection is closed.
 [Gdlv](https://github.com/aarzilli/gdlv) is a graphical frontend to Delve for
 Linux, Windows and macOS.
 
-Using it as debugging client is straight forward as it doesn't require any
+Using it as debugging client is straightforward as it doesn't require any
 configuration. Once the debug server is running and listening for client
 requests connect to it by running:
 
@@ -104,7 +104,7 @@ by using the `break` and `continue` commands.
 ### Visual Studio Code
 
 Using [Visual Studio Code](https://code.visualstudio.com/) as debugging client
-requires an initial configuration to make it connect to the debug server.
+requires an initial configuration to allow it to connect to the debug server.
 
 Make sure that the [Go](https://code.visualstudio.com/docs/languages/go)
 extension is installed.
@@ -148,7 +148,7 @@ ignite scaffold chain hello
 ignite scaffold query say-hello name --response name
 ```
 
-The next step initializes the blobkchain's data directory and compiles a debug
+The next step initializes the blockchain's data directory and compiles a debug
 binary:
 
 ```bash
