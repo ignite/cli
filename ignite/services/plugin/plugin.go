@@ -31,10 +31,10 @@ import (
 )
 
 // PluginsPath holds the plugin cache directory.
-var PluginsPath = xfilepath.Join(
+var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 	config.DirPath,
 	xfilepath.Path("plugins"),
-)
+))
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
