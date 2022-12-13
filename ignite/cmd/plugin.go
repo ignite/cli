@@ -81,8 +81,7 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 		return cfg, err
 	}
 
-	cfg, err = pluginsconfig.ParseDir(globalDir)
-	return cfg, err
+	return pluginsconfig.ParseDir(globalDir)
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
