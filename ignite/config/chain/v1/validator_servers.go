@@ -4,36 +4,18 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
-)
 
-var (
-	// DefaultGRPCAddress is the default GRPC address.
-	DefaultGRPCAddress = "0.0.0.0:9090"
-
-	// DefaultGRPCWebAddress is the default GRPC-Web address.
-	DefaultGRPCWebAddress = "0.0.0.0:9091"
-
-	// DefaultAPIAddress is the default API address.
-	DefaultAPIAddress = "0.0.0.0:1317"
-
-	// DefaultRPCAddress is the default RPC address.
-	DefaultRPCAddress = "0.0.0.0:26657"
-
-	// DefaultP2PAddress is the default P2P address.
-	DefaultP2PAddress = "0.0.0.0:26656"
-
-	// DefaultPProfAddress is the default Prof address.
-	DefaultPProfAddress = "0.0.0.0:6060"
+	baseconfig "github.com/ignite/cli/ignite/config/chain/base"
 )
 
 func DefaultServers() Servers {
 	s := Servers{}
-	s.GRPC.Address = DefaultGRPCAddress
-	s.GRPCWeb.Address = DefaultGRPCWebAddress
-	s.API.Address = DefaultAPIAddress
-	s.P2P.Address = DefaultP2PAddress
-	s.RPC.Address = DefaultRPCAddress
-	s.RPC.PProfAddress = DefaultPProfAddress
+	s.GRPC.Address = baseconfig.DefaultGRPCAddress
+	s.GRPCWeb.Address = baseconfig.DefaultGRPCWebAddress
+	s.API.Address = baseconfig.DefaultAPIAddress
+	s.P2P.Address = baseconfig.DefaultP2PAddress
+	s.RPC.Address = baseconfig.DefaultRPCAddress
+	s.RPC.PProfAddress = baseconfig.DefaultPProfAddress
 
 	return s
 }
