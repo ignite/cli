@@ -56,9 +56,9 @@ In addition to the data structure you choose, the Ignite CLI also requires you
 to provide the name of the type of data that it will generate code for, as well
 as fields that describe the type of data. For example, if you are creating a
 blog application, you may want to create a type called "Post" that has fields
-for the title and body of the post. The Ignite CLI will use this information to
-generate the necessary code for creating, reading, updating, and deleting data
-of this type in your application.
+for the "title" and "body" of the post. The Ignite CLI will use this information
+to generate the necessary code for creating, reading, updating, and deleting
+data of this type in your application.
 
 ```
 ignite scaffold list post title body
@@ -186,7 +186,10 @@ signature, the transaction will not be accepted by the blockchain. Therefore,
 it's important to ensure that the account specified with the `--from` flag is
 available.
 
-After the transaction has been broadcasted successfully, you can query the blockchain for the list of blog posts. To do this, you can use the `blogd q blog list-post` command, which will return a paginated list of all the blog posts that have been added to the blockchain.
+After the transaction has been broadcasted successfully, you can query the
+blockchain for the list of blog posts. To do this, you can use the `blogd q blog
+list-post` command, which will return a paginated list of all the blog posts
+that have been added to the blockchain.
 
 ```
 blogd q blog list-post
@@ -201,15 +204,29 @@ pagination:
   total: "0"
 ```
 
-By querying the blockchain, you can verify that your transaction was processed successfully and that the blog post has been added to the chain. Additionally, you can use other query commands to retrieve information about other data on the blockchain, such as accounts, balances, and governance proposals.
+By querying the blockchain, you can verify that your transaction was processed
+successfully and that the blog post has been added to the chain. Additionally,
+you can use other query commands to retrieve information about other data on the
+blockchain, such as accounts, balances, and governance proposals.
 
-Let's modify the blog post that we just created by changing the `body` content. To do this, we can use the `blogd tx blog update-post` command, which allows us to update an existing blog post on the blockchain. When running this command, we will need to specify the ID of the blog post that we want to modify, as well as the new body content that we want to use. After running this command, the transaction will be broadcasted to the blockchain and the blog post will be updated with the new body content.
+Let's modify the blog post that we just created by changing the `body` content.
+To do this, we can use the `blogd tx blog update-post` command, which allows us
+to update an existing blog post on the blockchain. When running this command, we
+will need to specify the ID of the blog post that we want to modify, as well as
+the new body content that we want to use. After running this command, the
+transaction will be broadcasted to the blockchain and the blog post will be
+updated with the new body content.
 
 ```
 blogd tx blog update-post 0 'Hello, World!' 'This is a blog post from Alice' --from alice
 ```
 
-Now that we have updated the blog post with new content, let's query the blockchain again to see the changes. To do this, we can use the `blogd q blog list-post` command, which will return a list of all the blog posts on the blockchain. By running this command again, we can see the updated blog post in the list, and we can verify that the changes we made have been successfully applied to the blockchain.
+Now that we have updated the blog post with new content, let's query the
+blockchain again to see the changes. To do this, we can use the `blogd q blog
+list-post` command, which will return a list of all the blog posts on the
+blockchain. By running this command again, we can see the updated blog post in
+the list, and we can verify that the changes we made have been successfully
+applied to the blockchain.
 
 
 ```
@@ -225,11 +242,23 @@ pagination:
   total: "0"
 ```
 
-Let's try to delete one of the blog posts using Bob's account. However, since the blog post was created using Alice's account, we can expect the blockchain to check whether the user is authorized to delete the post. In this case, since Bob is not the author of the post, his transaction should be rejected by the blockchain.
+Let's try to delete one of the blog posts using Bob's account. However, since
+the blog post was created using Alice's account, we can expect the blockchain to
+check whether the user is authorized to delete the post. In this case, since Bob
+is not the author of the post, his transaction should be rejected by the
+blockchain.
 
-To delete a blog post, we can use the `blogd tx blog delete-post` command, which allows us to delete an existing blog post on the blockchain. When running this command, we will need to specify the ID of the blog post that we want to delete, as well as the account that we want to use for signing the transaction. In this case, we will use Bob's account to sign the transaction.
+To delete a blog post, we can use the `blogd tx blog delete-post` command, which
+allows us to delete an existing blog post on the blockchain. When running this
+command, we will need to specify the ID of the blog post that we want to delete,
+as well as the account that we want to use for signing the transaction. In this
+case, we will use Bob's account to sign the transaction.
 
-After running this command, the transaction will be broadcasted to the blockchain. However, since Bob is not the author of the post, the blockchain should reject his transaction and the blog post will not be deleted. This is an example of how the blockchain can enforce rules and permissions, and it shows that only authorized users are able to make changes to the blockchain.
+After running this command, the transaction will be broadcasted to the
+blockchain. However, since Bob is not the author of the post, the blockchain
+should reject his transaction and the blog post will not be deleted. This is an
+example of how the blockchain can enforce rules and permissions, and it shows
+that only authorized users are able to make changes to the blockchain.
 
 ```
 blogd tx blog delete-post 0 --from bob
@@ -237,13 +266,16 @@ blogd tx blog delete-post 0 --from bob
 raw_log: 'failed to execute message; message index: 0: incorrect owner: unauthorized'
 ```
 
-Now, let's try to delete the blog post again, but this time using Alice's account. Since Alice is the author of the blog post, she should be authorized to delete it.
+Now, let's try to delete the blog post again, but this time using Alice's
+account. Since Alice is the author of the blog post, she should be authorized to
+delete it.
 
 ```
 blogd tx blog delete-post 0 --from alice
 ```
 
-To check whether the blog post has been successfully deleted by Alice, we can query the blockchain for a list of posts again.
+To check whether the blog post has been successfully deleted by Alice, we can
+query the blockchain for a list of posts again.
 
 ```
 blogd q blog list-post
@@ -253,3 +285,23 @@ pagination:
   next_key: null
   total: "0"
 ```
+
+Congratulations on successfully completing the tutorial on building a blog with
+Ignite CLI! By following the instructions, you have learned how to create a new
+blockchain, generate code for a "post" type with CRUD functionality, start a
+local blockchain, and test out the functionality of your blog.
+
+Now that you have a working example of a simple application, you can experiment
+with the code generated by Ignite and see how changes affect the behavior of the
+application. This is a valuable skill to have, as it will allow you to customize
+your application to fit your specific needs and improve the functionality of
+your application. You can try making changes to the data structure or data type,
+or add additional fields or functionality to the code.
+
+In the following tutorials, we will take a closer look at the code that Ignite
+generates in order to better understand how to build blockchains. By writing
+some of the code ourselves, we can gain a deeper understanding of how Ignite
+works and how it can be used to create applications on a blockchain. This will
+help us learn more about the capabilities of Ignite CLI and how it can be used
+to build robust and powerful applications. Keep an eye out for these tutorials
+and get ready to dive deeper into the world of blockchains with Ignite!
