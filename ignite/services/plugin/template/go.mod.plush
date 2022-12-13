@@ -1,6 +1,6 @@
 module <%= ModuleName %>
 
-go 1.18
+go 1.19
 
 require (
 	github.com/hashicorp/go-plugin v1.4.4
