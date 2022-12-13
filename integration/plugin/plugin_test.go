@@ -46,7 +46,9 @@ func TestAddRemovePlugin(t *testing.T) {
 	// one local plugin expected
 	assertPlugins(
 		[]pluginsconfig.Plugin{
-			{Path: pluginRepo},
+			{
+				Path: pluginRepo,
+			},
 		},
 		nil,
 	)
@@ -73,8 +75,7 @@ func TestAddRemovePlugin(t *testing.T) {
 		nil,
 		[]pluginsconfig.Plugin{
 			{
-				Path:   pluginRepo,
-				Global: true,
+				Path: pluginRepo,
 			},
 		},
 	)
