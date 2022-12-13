@@ -352,12 +352,13 @@ func (c *Chain) ClientTOMLPath() (string, error) {
 
 // KeyringBackend returns the keyring backend chosen for the chain.
 func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
-	// 1st.
+	// When keyring backend is initialized as a chain
+	// option it overrides any configured backends.
 	if c.options.keyringBackend != "" {
 		return c.options.keyringBackend, nil
 	}
 
-	// 2nd.
+	// Try to get keyring backend from the first configured validator
 	cfg, err := c.Config()
 	if err != nil {
 		return "", err
@@ -372,7 +373,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		}
 	}
 
-	// 3rd.
+	// Try to get keyring backend from client.toml config file
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -388,7 +389,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 4th.
+	// Use test backend as default when none is configured
 	return chaincmd.KeyringBackendTest, nil
 }
 
@@ -426,7 +427,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	servers := chainconfigv1.DefaultServers()
 	if len(cfg.Validators) > 0 {
-		validator := cfg.Validators[0]
+		validator, _ := chainconfig.FirstValidator(cfg)
 		servers, err = validator.GetServers()
 		if err != nil {
 			return chaincmdrunner.Runner{}, err
