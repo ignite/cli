@@ -39,12 +39,12 @@ const (
 	// CommandEnv represents go "env" command.
 	CommandEnv = "env"
 
-	// Go environment variable names
+	// Go environment variable names.
 	EnvGOARCH = "GOARCH"
 	EnvGOMOD  = "GOMOD"
 	EnvGOOS   = "GOOS"
 
-	// Go command flags and values
+	// Go command flags and values.
 	FlagGcflags           = "-gcflags"
 	FlagGcflagsValueDebug = "all=-N -l"
 	FlagLdflags           = "-ldflags"
@@ -53,7 +53,7 @@ const (
 	FlagOut               = "-o"
 )
 
-// Env returns the value of `go env name`
+// Env returns the value of `go env name`.
 func Env(name string) (string, error) {
 	var b bytes.Buffer
 	err := exec.Exec(context.Background(), []string{Name(), CommandEnv, name}, exec.StepOption(step.Stdout(&b)))
@@ -69,7 +69,7 @@ func Name() string {
 	return "go"
 }
 
-// Fmt runs go fmt on path
+// Fmt runs go fmt on path.
 func Fmt(ctx context.Context, path string, options ...exec.Option) error {
 	return exec.Exec(ctx, []string{Name(), CommandFmt, "./..."}, append(options, exec.StepOption(step.Workdir(path)))...)
 }

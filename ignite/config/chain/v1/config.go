@@ -38,7 +38,7 @@ func (c *Config) SetDefaults() error {
 	return nil
 }
 
-// Clone returns an identical copy of the instance
+// Clone returns an identical copy of the instance.
 func (c *Config) Clone() (version.Converter, error) {
 	copy := Config{}
 	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {

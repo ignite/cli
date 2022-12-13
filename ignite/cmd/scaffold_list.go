@@ -69,7 +69,7 @@ Supported types:
 | coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
 | array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
 
-"Index" indicates whether the type can be used an an index in
+"Index" indicates whether the type can be used as an index in
 "ignite scaffold map".
 
 Ignite also supports custom types:

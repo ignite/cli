@@ -13,7 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
-// flags related to component scaffolding
+// flags related to component scaffolding.
 const (
 	flagModule       = "module"
 	flagNoMessage    = "no-message"

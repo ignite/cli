@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/mocks"
 )
 
-// Suite is a mocks container, used to write less code for tests setup
+// Suite is a mocks container, used to write less code for tests setup.
 type Suite struct {
 	ChainMock                *mocks.Chain
 	CosmosClientMock         *mocks.CosmosClient
@@ -21,8 +21,9 @@ type Suite struct {
 	MonitoringConsumerClient *mocks.MonitoringcClient
 }
 
-// AssertAllMocks asserts all suite mocks expectations
+// AssertAllMocks asserts all suite mocks expectations.
 func (s *Suite) AssertAllMocks(t *testing.T) {
+	t.Helper()
 	s.ChainMock.AssertExpectations(t)
 	s.ProfileQueryMock.AssertExpectations(t)
 	s.LaunchQueryMock.AssertExpectations(t)
@@ -34,7 +35,7 @@ func (s *Suite) AssertAllMocks(t *testing.T) {
 	s.BankClient.AssertExpectations(t)
 }
 
-// NewSuite creates new suite with mocks
+// NewSuite creates new suite with mocks.
 func NewSuite() Suite {
 	cosmos := new(mocks.CosmosClient)
 	cosmos.On("Context").Return(client.Context{})

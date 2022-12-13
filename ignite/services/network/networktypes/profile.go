@@ -6,7 +6,7 @@ import (
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 )
 
-// Validator represents the Validator profile on SPN
+// Validator represents the Validator profile on SPN.
 type Validator struct {
 	Address           string   `json:"Address"`
 	OperatorAddresses []string `json:"OperatorAddresses"`
@@ -35,7 +35,7 @@ func (v Validator) ToProfile(
 	}
 }
 
-// ToValidator converts a Validator data from SPN and returns a Validator object
+// ToValidator converts a Validator data from SPN and returns a Validator object.
 func ToValidator(val profiletypes.Validator) Validator {
 	return Validator{
 		Address:           val.Address,
@@ -48,7 +48,7 @@ func ToValidator(val profiletypes.Validator) Validator {
 	}
 }
 
-// Coordinator represents the Coordinator profile on SPN
+// Coordinator represents the Coordinator profile on SPN.
 type Coordinator struct {
 	CoordinatorID uint64 `json:"ID"`
 	Address       string `json:"Address"`
@@ -74,7 +74,7 @@ func (c Coordinator) ToProfile(
 	}
 }
 
-// ToCoordinator converts a Coordinator data from SPN and returns a Coordinator object
+// ToCoordinator converts a Coordinator data from SPN and returns a Coordinator object.
 func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 	return Coordinator{
 		CoordinatorID: coord.CoordinatorID,
@@ -87,13 +87,13 @@ func ToCoordinator(coord profiletypes.Coordinator) Coordinator {
 }
 
 type (
-	// ChainShare represents the share of a chain on SPN
+	// ChainShare represents the share of a chain on SPN.
 	ChainShare struct {
 		LaunchID uint64    `json:"LaunchID"`
 		Shares   sdk.Coins `json:"Shares"`
 	}
 
-	// Profile represents the address profile on SPN
+	// Profile represents the address profile on SPN.
 	Profile struct {
 		Address         string               `json:"Address"`
 		ProjectID       uint64               `json:"ProjectID,omitempty"`
@@ -106,7 +106,7 @@ type (
 		Shares          campaigntypes.Shares `json:"Shares,omitempty"`
 	}
 
-	// ProfileAcc represents the address profile method interface
+	// ProfileAcc represents the address profile method interface.
 	ProfileAcc interface {
 		ToProfile(
 			projectID uint64,

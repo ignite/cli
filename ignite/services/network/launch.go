@@ -14,10 +14,10 @@ import (
 // MinLaunchTimeOffset represents an offset used when minimum launch time is used
 // minimum launch time will be block time + minimum launch time duration param
 // block time when tx is executed is not predicable, therefore we add few seconds
-// to ensure the minimum duration is reached
+// to ensure the minimum duration is reached.
 const MinLaunchTimeOffset = time.Second * 30
 
-// LaunchParams fetches the chain launch module params from SPN
+// LaunchParams fetches the chain launch module params from SPN.
 func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 	res, err := n.launchQuery.Params(ctx, &launchtypes.QueryParamsRequest{})
 	if err != nil {
@@ -26,7 +26,7 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 	return res.GetParams(), nil
 }
 
-// TriggerLaunch launches a chain as a coordinator
+// TriggerLaunch launches a chain as a coordinator.
 func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime time.Time) error {
 	n.ev.Send(fmt.Sprintf("Launching chain %d", launchID), events.ProgressStart())
 	params, err := n.LaunchParams(ctx)
@@ -75,7 +75,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, launchTime 
 	return nil
 }
 
-// RevertLaunch reverts a launched chain as a coordinator
+// RevertLaunch reverts a launched chain as a coordinator.
 func (n Network) RevertLaunch(ctx context.Context, launchID uint64, chain Chain) error {
 	n.ev.Send(fmt.Sprintf("Reverting launched chain %d", launchID), events.ProgressStart())
 

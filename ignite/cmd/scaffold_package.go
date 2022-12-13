@@ -14,7 +14,7 @@ const (
 	flagAck = "ack"
 )
 
-// NewScaffoldPacket creates a new packet in the module
+// NewScaffoldPacket creates a new packet in the module.
 func NewScaffoldPacket() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "packet [packetName] [field1] [field2] ... --module [moduleName]",

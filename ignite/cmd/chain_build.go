@@ -50,7 +50,7 @@ checking (essentially, running "go mod verify") use a flag:
 
 Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
-scaffolded project and "d" stands for daemon. If your your project contains more
+scaffolded project and "d" stands for daemon. If your project contains more
 than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 

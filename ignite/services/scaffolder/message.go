@@ -16,14 +16,14 @@ import (
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
-// messageOptions represents configuration for the message scaffolding
+// messageOptions represents configuration for the message scaffolding.
 type messageOptions struct {
 	description       string
 	signer            string
 	withoutSimulation bool
 }
 
-// newMessageOptions returns a messageOptions with default options
+// newMessageOptions returns a messageOptions with default options.
 func newMessageOptions(messageName string) messageOptions {
 	return messageOptions{
 		description: fmt.Sprintf("Broadcast message %s", messageName),
@@ -31,31 +31,31 @@ func newMessageOptions(messageName string) messageOptions {
 	}
 }
 
-// MessageOption configures the message scaffolding
+// MessageOption configures the message scaffolding.
 type MessageOption func(*messageOptions)
 
-// WithDescription provides a custom description for the message CLI command
+// WithDescription provides a custom description for the message CLI command.
 func WithDescription(desc string) MessageOption {
 	return func(m *messageOptions) {
 		m.description = desc
 	}
 }
 
-// WithSigner provides a custom signer name for the message
+// WithSigner provides a custom signer name for the message.
 func WithSigner(signer string) MessageOption {
 	return func(m *messageOptions) {
 		m.signer = signer
 	}
 }
 
-// WithoutSimulation disables generating messages simulation
+// WithoutSimulation disables generating messages simulation.
 func WithoutSimulation() MessageOption {
 	return func(m *messageOptions) {
 		m.withoutSimulation = true
 	}
 }
 
-// AddMessage adds a new message to scaffolded app
+// AddMessage adds a new message to scaffolded app.
 func (s Scaffolder) AddMessage(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -170,7 +170,7 @@ func (s Scaffolder) AddMessage(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// checkForbiddenMessageField returns true if the name is forbidden as a message name
+// checkForbiddenMessageField returns true if the name is forbidden as a message name.
 func checkForbiddenMessageField(name string) error {
 	mfName, err := multiformatname.NewName(name)
 	if err != nil {

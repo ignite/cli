@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network"
 )
 
-// NewNetworkProjectShow returns a new command to show published project on Ignite
+// NewNetworkProjectShow returns a new command to show published project on Ignite.
 func NewNetworkProjectShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [project-id]",

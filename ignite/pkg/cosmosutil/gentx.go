@@ -15,7 +15,7 @@ import (
 const GentxFilename = "gentx.json"
 
 type (
-	// GentxInfo represents the basic info about gentx file
+	// GentxInfo represents the basic info about gentx file.
 	GentxInfo struct {
 		DelegatorAddress string
 		PubKey           ed25519.PubKey
@@ -23,7 +23,7 @@ type (
 		Memo             string
 	}
 
-	// Gentx represents the gentx file
+	// Gentx represents the gentx file.
 	Gentx struct {
 		Body struct {
 			Messages []struct {
@@ -43,7 +43,7 @@ type (
 	}
 )
 
-// GentxFromPath returns GentxInfo from the json file
+// GentxFromPath returns GentxInfo from the json file.
 func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return info, gentx, errors.New("chain home folder is not initialized yet: " + path)
@@ -58,7 +58,7 @@ func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
 	return info, gentx, err
 }
 
-// ParseGentx returns GentxInfo and the gentx file in bytes
+// ParseGentx returns GentxInfo and the gentx file in bytes.
 func ParseGentx(gentxBz []byte) (info GentxInfo, err error) {
 	// Try parsing gentx
 	var gentx Gentx

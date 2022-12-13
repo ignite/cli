@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,10 +14,10 @@ import (
 )
 
 type (
-	// Prop update project proposal
+	// Prop updates project proposal.
 	Prop func(*updateProp)
 
-	// updateProp represents the update project proposal
+	// updateProp represents the update project proposal.
 	updateProp struct {
 		name        string
 		metadata    []byte
@@ -45,13 +46,13 @@ func WithProjectTotalSupply(totalSupply sdk.Coins) Prop {
 	}
 }
 
-// Project fetches the project from Network
+// Project fetches the project from Network.
 func (n Network) Project(ctx context.Context, projectID uint64) (networktypes.Project, error) {
 	n.ev.Send("Fetching project information", events.ProgressStart())
 	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: projectID,
 	})
-	if cosmoserror.Unwrap(err) == cosmoserror.ErrNotFound {
+	if errors.Is(cosmoserror.Unwrap(err), cosmoserror.ErrNotFound) {
 		return networktypes.Project{}, ErrObjectNotFound
 	} else if err != nil {
 		return networktypes.Project{}, err
@@ -59,7 +60,7 @@ func (n Network) Project(ctx context.Context, projectID uint64) (networktypes.Pr
 	return networktypes.ToProject(res.Campaign), nil
 }
 
-// Projects fetches the projects from Network
+// Projects fetches the projects from Network.
 func (n Network) Projects(ctx context.Context) ([]networktypes.Project, error) {
 	var projects []networktypes.Project
 
@@ -77,7 +78,7 @@ func (n Network) Projects(ctx context.Context) ([]networktypes.Project, error) {
 	return projects, nil
 }
 
-// CreateProject creates a project in Network
+// CreateProject creates a project in Network.
 func (n Network) CreateProject(ctx context.Context, name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(fmt.Sprintf("Creating project %s", name), events.ProgressStart())
 	addr, err := n.account.Address(networktypes.SPN)
@@ -141,7 +142,7 @@ func (n Network) InitializeMainnet(
 	return initMainnetRes.MainnetID, nil
 }
 
-// UpdateProject updates the project name or metadata
+// UpdateProject updates the project name or metadata.
 func (n Network) UpdateProject(
 	ctx context.Context,
 	id uint64,

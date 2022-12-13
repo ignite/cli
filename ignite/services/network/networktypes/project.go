@@ -5,7 +5,7 @@ import (
 	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 )
 
-// Project represents the project of a chain on SPN
+// Project represents the project of a chain on SPN.
 type Project struct {
 	ID                 uint64    `json:"ID"`
 	Name               string    `json:"Name"`
@@ -17,7 +17,7 @@ type Project struct {
 	Metadata           string    `json:"Metadata"`
 }
 
-// ToProject converts a project data from SPN and returns a Project object
+// ToProject converts a project data from SPN and returns a Project object.
 func ToProject(campaign campaigntypes.Campaign) Project {
 	return Project{
 		ID:                 campaign.CampaignID,
@@ -31,13 +31,13 @@ func ToProject(campaign campaigntypes.Campaign) Project {
 	}
 }
 
-// MainnetAccount represents the project mainnet account of a chain on SPN
+// MainnetAccount represents the project mainnet account of a chain on SPN.
 type MainnetAccount struct {
 	Address string               `json:"Address"`
 	Shares  campaigntypes.Shares `json:"Shares"`
 }
 
-// ToMainnetAccount converts a mainnet account data from SPN and returns a MainnetAccount object
+// ToMainnetAccount converts a mainnet account data from SPN and returns a MainnetAccount object.
 func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 	return MainnetAccount{
 		Address: acc.Address,
@@ -45,13 +45,13 @@ func ToMainnetAccount(acc campaigntypes.MainnetAccount) MainnetAccount {
 	}
 }
 
-// ProjectChains represents the chains of a project on SPN
+// ProjectChains represents the chains of a project on SPN.
 type ProjectChains struct {
 	ProjectID uint64   `json:"ProjectID"`
 	Chains    []uint64 `json:"Chains"`
 }
 
-// ToProjectChains converts a project chains data from SPN and returns a ProjectChains object
+// ToProjectChains converts a project chains data from SPN and returns a ProjectChains object.
 func ToProjectChains(c campaigntypes.CampaignChains) ProjectChains {
 	return ProjectChains{
 		ProjectID: c.CampaignID,

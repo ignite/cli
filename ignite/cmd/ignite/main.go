@@ -35,7 +35,7 @@ func run() int {
 
 	err := cmd.ExecuteContext(ctx)
 
-	if ctx.Err() == context.Canceled || err == context.Canceled {
+	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
 		fmt.Println("aborted")
 		return exitCodeOK
 	}

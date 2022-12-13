@@ -177,7 +177,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	return txResult.TxHash, nil
 }
 
-// WaitTx waits until a tx is successfully added to a block and can be queried
+// WaitTx waits until a tx is successfully added to a block and can be queried.
 func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Duration, maxRetry int) error {
 	retry := 0
 
@@ -210,7 +210,7 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 	return backoff.Retry(checkTx, backoff.WithContext(backoff.NewConstantBackOff(retryDelay), ctx))
 }
 
-// Export exports the state of the chain into the specified file
+// Export exports the state of the chain into the specified file.
 func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	// Make sure the path exists
 	dir := filepath.Dir(exportedFile)

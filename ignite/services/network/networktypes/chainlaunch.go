@@ -11,7 +11,7 @@ import (
 type (
 	NetworkType string
 
-	// ChainLaunch represents the launch of a chain on SPN
+	// ChainLaunch represents the launch of a chain on SPN.
 	ChainLaunch struct {
 		ID                     uint64      `json:"ID"`
 		ConsumerRevisionHeight int64       `json:"ConsumerRevisionHeight"`
@@ -40,7 +40,7 @@ func (n NetworkType) String() string {
 	return string(n)
 }
 
-// ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
+// ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object.
 func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	var launchTime time.Time
 	if chain.LaunchTriggered {
