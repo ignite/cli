@@ -87,6 +87,8 @@ func TestAddRemovePlugin(t *testing.T) {
 	assertPlugins(nil, nil)
 }
 
+// TODO install network plugin test
+
 func TestPluginScaffold(t *testing.T) {
 	env := envtest.New(t)
 
