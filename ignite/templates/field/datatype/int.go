@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// DataInt int data type definition
+	// DataInt is an int data type definition.
 	DataInt = DataType{
 		DataType:          func(string) string { return "int32" },
 		DefaultTestValue:  "111",
@@ -43,7 +43,7 @@ var (
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 	}
 
-	// DataIntSlice int array data type definition
+	// DataIntSlice is an int array data type definition.
 	DataIntSlice = DataType{
 		DataType:         func(string) string { return "[]int32" },
 		DefaultTestValue: "1,2,3,4,5",

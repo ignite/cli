@@ -7,7 +7,7 @@ import (
 	gogogrpc "github.com/gogo/protobuf/grpc"
 )
 
-// gasometer implements the Gasometer interface
+// gasometer implements the Gasometer interface.
 type gasometer struct{}
 
 func (gasometer) CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error) {

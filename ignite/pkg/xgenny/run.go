@@ -20,19 +20,19 @@ type dryRunError struct {
 	error
 }
 
-// ValidationInfo returns validation info
+// ValidationInfo returns validation info.
 func (d *dryRunError) ValidationInfo() string {
 	return d.Error()
 }
 
-// DryRunner is a genny DryRunner with a logger
+// DryRunner is a genny DryRunner with a logger.
 func DryRunner(ctx context.Context) *genny.Runner {
 	runner := genny.DryRunner(ctx)
 	runner.Logger = logger.New(genny.DefaultLogLvl)
 	return runner
 }
 
-// RunWithValidation checks the generators with a dry run and then execute the wet runner to the generators
+// RunWithValidation checks the generators with a dry run and then execute the wet runner to the generators.
 func RunWithValidation(
 	tracer *placeholder.Tracer,
 	gens ...*genny.Generator,
@@ -64,7 +64,7 @@ func RunWithValidation(
 			fileName := file.Name()
 			_, err := os.Stat(fileName)
 
-			// nolint:gocritic
+			//nolint:gocritic
 			if os.IsNotExist(err) {
 				// if the file doesn't exist in the source, it means it has been created by the runner
 				sm.AppendCreatedFiles(fileName)
@@ -84,7 +84,7 @@ func RunWithValidation(
 	return sm, nil
 }
 
-// Box will mount each file in the Box and wrap it, already existing files are ignored
+// Box will mount each file in the Box and wrap it, already existing files are ignored.
 func Box(g *genny.Generator, box packd.Walker) error {
 	return box.Walk(func(path string, bf packd.File) error {
 		f := genny.NewFile(path, bf)

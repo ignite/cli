@@ -92,10 +92,10 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 	pathCache := cache.New[string](cacheStorage, pathCacheNamespace)
 	cacheKey := cache.Key(pkg.Path, pkg.Version)
 	path, err = pathCache.Get(cacheKey)
-	if err != nil && err != cache.ErrorNotFound {
+	if err != nil && !errors.Is(err, cache.ErrorNotFound) {
 		return "", err
 	}
-	if err != cache.ErrorNotFound {
+	if !errors.Is(err, cache.ErrorNotFound) {
 		return path, nil
 	}
 
@@ -119,7 +119,7 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 			Path, Version, Dir string
 		}
 		if err := d.Decode(&module); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 			return "", err

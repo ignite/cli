@@ -74,7 +74,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 }
 
 // verifyRequest initialize the chain from the launch ID in a temporary directory
-// and simulate the launch of the chain from genesis with the request IDs
+// and simulate the launch of the chain from genesis with the request IDs.
 func verifyRequest(
 	ctx context.Context,
 	cacheStorage cache.Storage,

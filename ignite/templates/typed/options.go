@@ -26,7 +26,7 @@ type Options struct {
 	IsIBC        bool
 }
 
-// Validate that options are usable
+// Validate that options are usable.
 func (opts *Options) Validate() error {
 	return nil
 }

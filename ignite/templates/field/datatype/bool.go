@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
-// DataBool bool data type definition
+// DataBool bool data type definition.
 var DataBool = DataType{
 	DataType:          func(string) string { return "bool" },
 	DefaultTestValue:  "false",

@@ -2,6 +2,7 @@ package module
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -87,14 +88,14 @@ type moduleDiscoverer struct {
 //
 // Discovery algorithm make use of registered modules and proto definitions to find relevant
 // registered modules. It does so by:
-// 1. Getting all the registered Go modules from the app
-// 2. Parsing the proto files to find services and messages
-// 3. Check if the proto services are implemented in any of the registered modules
+// 1. Getting all the registered Go modules from the app.
+// 2. Parsing the proto files to find services and messages.
+// 3. Check if the proto services are implemented in any of the registered modules.
 func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
-		if err == gomodule.ErrGoModNotFound {
+		if errors.Is(err, gomodule.ErrGoModNotFound) {
 			return []Module{}, nil
 		}
 		return nil, err
@@ -266,7 +267,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 			}
 		}
 
-		// do not use if used as a request/return type type of an RPC.
+		// do not use if used as a request/return type of RPC.
 		for _, s := range pkg.Services {
 			for i, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {

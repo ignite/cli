@@ -43,7 +43,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	return nil
 }
 
-// NewGenerator returns the generator to scaffold a empty query in a module
+// NewGenerator returns the generator to scaffold a empty query in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()

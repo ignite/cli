@@ -38,9 +38,9 @@ const (
 )
 
 var (
-	// reservedNames are either names from the default modules defined in a Cosmos-SDK app or names used in the default query and tx CLI namespace
-	// A new module's name can't be equal to a reserved name
-	// A map is used for direct comparing
+	// reservedNames are either names from the default modules defined in a Cosmos-SDK app or names used in the default query and tx CLI namespace.
+	// A new module's name can't be equal to a reserved name.
+	// A map is used for direct comparing.
 	reservedNames = map[string]struct{}{
 		"account":      {},
 		"auth":         {},
@@ -71,8 +71,8 @@ var (
 		"vesting":      {},
 	}
 
-	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app
-	// A new module's name can't have a defined store key in its prefix because of potential store key collision
+	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
+	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
 		"acc",
 		"bank",
@@ -91,7 +91,7 @@ var (
 	}
 )
 
-// moduleCreationOptions holds options for creating a new module
+// moduleCreationOptions holds options for creating a new module.
 type moduleCreationOptions struct {
 	// ibc true if the module is an ibc module
 	ibc bool
@@ -109,21 +109,21 @@ type moduleCreationOptions struct {
 // ModuleCreationOption configures Chain.
 type ModuleCreationOption func(*moduleCreationOptions)
 
-// WithIBC scaffolds a module with IBC enabled
+// WithIBC scaffolds a module with IBC enabled.
 func WithIBC() ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.ibc = true
 	}
 }
 
-// WithParams scaffolds a module with params
+// WithParams scaffolds a module with params.
 func WithParams(params []string) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.params = params
 	}
 }
 
-// WithIBCChannelOrdering configures channel ordering of the IBC module
+// WithIBCChannelOrdering configures channel ordering of the IBC module.
 func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		switch ordering {
@@ -137,14 +137,14 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 	}
 }
 
-// WithDependencies specifies the name of the modules that the module depends on
+// WithDependencies specifies the name of the modules that the module depends on.
 func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.dependencies = dependencies
 	}
 }
 
-// CreateModule creates a new empty module in the scaffolded app
+// CreateModule creates a new empty module in the scaffolded app.
 func (s Scaffolder) CreateModule(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -280,7 +280,7 @@ func (s Scaffolder) ImportModule(
 	return sm, finish(ctx, cacheStorage, s.path, s.modpath.RawPath)
 }
 
-// moduleExists checks if the module exists in the app
+// moduleExists checks if the module exists in the app.
 func moduleExists(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
 	if err != nil {
@@ -296,7 +296,7 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 	return err == nil, err
 }
 
-// checkModuleName checks if the name can be used as a module name
+// checkModuleName checks if the name can be used as a module name.
 func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
@@ -376,7 +376,7 @@ func (s Scaffolder) installWasm() error {
 	}
 }
 
-// checkDependencies perform checks on the dependencies
+// checkDependencies perform checks on the dependencies.
 func checkDependencies(dependencies []modulecreate.Dependency, appPath string) error {
 	depMap := make(map[string]struct{})
 	for _, dep := range dependencies {

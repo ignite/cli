@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
-// VerifyPeerFormat checks if the peer address format is valid
+// VerifyPeerFormat checks if the peer address format is valid.
 func VerifyPeerFormat(peer launchtypes.Peer) bool {
 	// Check the format of the peer
 	switch conn := peer.Connection.(type) {

@@ -42,6 +42,7 @@
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
 - [#3109](https://github.com/ignite/cli/pull/3109) Refactor scaffolding for proto files to not rely on placeholders.
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
+- [#3194](https://github.com/ignite/cli/issues/3194) Move config validators check to validate only when required.
 - [#3183](https://github.com/ignite/cli/pull/3183/) Make config optional for init phase.
 - [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
 - [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands

@@ -30,7 +30,7 @@ type oracleOptions struct {
 
 // newOracleOptions returns a oracleOptions with default options
 //
-// Deprecated: This function is no longer maintained
+// Deprecated: This function is no longer maintained.
 func newOracleOptions() oracleOptions {
 	return oracleOptions{
 		signer: "creator",
@@ -39,7 +39,7 @@ func newOracleOptions() oracleOptions {
 
 // OracleWithSigner provides a custom signer name for the message
 //
-// Deprecated: This function is no longer maintained
+// Deprecated: This function is no longer maintained.
 func OracleWithSigner(signer string) OracleOption {
 	return func(m *oracleOptions) {
 		m.signer = signer
@@ -48,7 +48,7 @@ func OracleWithSigner(signer string) OracleOption {
 
 // AddOracle adds a new BandChain oracle envtest.
 //
-// Deprecated: This function is no longer maintained
+// Deprecated: This function is no longer maintained.
 func (s *Scaffolder) AddOracle(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -118,7 +118,7 @@ func (s *Scaffolder) AddOracle(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// Deprecated: This function is no longer maintained
+// Deprecated: This function is no longer maintained.
 func (s Scaffolder) installBandPacket() error {
 	return cmdrunner.New().
 		Run(context.Background(),

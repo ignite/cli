@@ -15,7 +15,7 @@ import (
 //go:embed files/* files/**/*
 var fs embed.FS
 
-// New returns the generator to scaffold a new Cosmos SDK app
+// New returns the generator to scaffold a new Cosmos SDK app.
 func New(opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
