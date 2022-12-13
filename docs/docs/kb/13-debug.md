@@ -65,8 +65,9 @@ the blockchain app and exit the debugger.
 
 A debug server can optionally be started in cases where the default terminal
 client is not desirable. When the server starts it first runs the blockchain
-app, attaches to it and finally waits for a client connection. It accepts both
-JSON-RPC or DAP client connections.
+app, attaches to it and finally waits for a client connection. The default
+server address is *tcp://127.0.0.1:30500* and it accepts both JSON-RPC or DAP
+client connections.
 
 To start a debug server use the following flag:
 
@@ -91,8 +92,7 @@ Linux, Windows and macOS.
 
 Using it as debugging client is straight forward as it doesn't require any
 configuration. Once the debug server is running and listening for client
-requests, for example at the default `tcp://127.0.0.1:30500` address, connect to
-it by running:
+requests connect to it by running:
 
 ```bash
 gdlv connect 127.0.0.1:30500
