@@ -10,8 +10,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var ErrNotFound = errors.New("plugins.yml file not found")
-
 // ParseDir expects to find a plugin config file in dir. If dir is not a folder,
 // an error is returned.
 // The plugin config file format can be `plugins.yml` or `plugins.yaml`. If

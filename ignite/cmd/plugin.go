@@ -31,12 +31,14 @@ var plugins []*plugin.Plugin
 // If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	localCfg, err := parseLocalPlugins(rootCmd)
-	if err != nil && !errors.Is(err, pluginsconfig.ErrNotFound) {
+	if err != nil && !errors.Is(err, cosmosanalysis.ErrPathNotChain{}) {
+		fmt.Println("error parsing local chain plugins config: %w", err)
 		return nil
 	}
 
 	globalCfg, err := parseGlobalPlugins()
-	if err != nil && !errors.Is(err, pluginsconfig.ErrNotFound) {
+	if err != nil {
+		fmt.Println("error parsing global plugins config: %w", err)
 		return nil
 	}
 
@@ -505,6 +507,7 @@ func NewPluginRemove() *cobra.Command {
 			}
 
 			s.Printf("%s %s removed\n", icons.OK, args[0])
+			s.Printf("\t%s updated\n", conf.Path())
 
 			return nil
 		},
