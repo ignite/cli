@@ -72,7 +72,10 @@ func TestAddRemovePlugin(t *testing.T) {
 	assertPlugins(
 		nil,
 		[]pluginsconfig.Plugin{
-			{Path: pluginRepo},
+			{
+				Path:   pluginRepo,
+				Global: true,
+			},
 		},
 	)
 
