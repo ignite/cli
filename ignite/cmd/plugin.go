@@ -405,7 +405,17 @@ Example:
 			session := cliui.New(cliui.WithStdout(os.Stdout))
 			defer session.End()
 
-			conf, err := parseLocalPlugins(cmd)
+			var (
+				conf *pluginsconfig.Config
+				err  error
+			)
+
+			global := flagGetPluginsGlobal(cmd)
+			if global {
+				conf, err = parseGlobalPlugins()
+			} else {
+				conf, err = parseLocalPlugins(cmd)
+			}
 			if err != nil {
 				return err
 			}
@@ -468,7 +478,17 @@ func NewPluginRemove() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			conf, err := parseLocalPlugins(cmd)
+			var (
+				conf *pluginsconfig.Config
+				err  error
+			)
+
+			global := flagGetPluginsGlobal(cmd)
+			if global {
+				conf, err = parseGlobalPlugins()
+			} else {
+				conf, err = parseLocalPlugins(cmd)
+			}
 			if err != nil {
 				return err
 			}
@@ -579,12 +599,22 @@ func printPlugins(session *cliui.Session) error {
 			hookCount = len(manifest.Hooks)
 			cmdCount  = len(manifest.Commands)
 		)
-		return fmt.Sprintf("%s Loaded 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
+
+		return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
 	}
+
+	installedStatus := func(p *plugin.Plugin) string {
+		installed := "local"
+		if p.IsGlobal() {
+			installed = "global"
+		}
+		return installed
+	}
+
 	for _, p := range plugins {
-		entries = append(entries, []string{p.Path, buildStatus(p)})
+		entries = append(entries, []string{p.Path, buildStatus(p), installedStatus(p)})
 	}
-	if err := session.PrintTable([]string{"Path", "Status"}, entries...); err != nil {
+	if err := session.PrintTable([]string{"Path", "Status", "Config"}, entries...); err != nil {
 		return fmt.Errorf("error while printing plugins: %w", err)
 	}
 	return nil

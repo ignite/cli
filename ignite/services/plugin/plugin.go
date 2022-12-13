@@ -51,6 +51,7 @@ type Plugin struct {
 	reference  string
 	srcPath    string
 	binaryName string
+	global     bool
 
 	client *hplugin.Client
 }
@@ -165,10 +166,16 @@ func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Pl
 	return unique
 }
 
+// KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
 	if p.client != nil {
 		p.client.Kill()
 	}
+}
+
+// IsGlobal returns whether the plugin is installed globally or locally for a chain.
+func (p *Plugin) IsGlobal() bool {
+	return p.global
 }
 
 func (p *Plugin) isLocal() bool {
