@@ -3,11 +3,14 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
 var (
-	// DataInt int data type definition
+	// DataInt is an int data type definition.
 	DataInt = DataType{
 		DataType:          func(string) string { return "int32" },
 		DefaultTestValue:  "111",
@@ -34,10 +37,13 @@ var (
 		ToString: func(name string) string {
 			return fmt.Sprintf("strconv.Itoa(int(%s))", name)
 		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "int32", index)
+		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 	}
 
-	// DataIntSlice int array data type definition
+	// DataIntSlice is an int array data type definition.
 	DataIntSlice = DataType{
 		DataType:         func(string) string { return "[]int32" },
 		DefaultTestValue: "1,2,3,4,5",
@@ -57,6 +63,9 @@ var (
 						}
 						%[1]v%[2]v[i] = value
 					}`, prefix, name.UpperCamel, argIndex)
+		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "int32", index, protoutil.Repeated())
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
 		NonIndex:     true,

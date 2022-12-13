@@ -3,7 +3,7 @@ package app
 import (
 	"embed"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -15,7 +15,7 @@ import (
 //go:embed files/* files/**/*
 var fs embed.FS
 
-// New returns the generator to scaffold a new Cosmos SDK app
+// New returns the generator to scaffold a new Cosmos SDK app.
 func New(opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()

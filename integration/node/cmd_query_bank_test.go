@@ -12,14 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/integration"
 )
 
@@ -66,15 +67,17 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	require.NoError(t, err)
 
 	app.EditConfig(func(c *chainconfig.Config) {
-		c.Accounts = []config.Account{
+		c.Accounts = []base.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
 				Coins:    []string{"5600atoken", "1200btoken", "100000000stake"},
 			},
 		}
-		c.Faucet = config.Faucet{}
-		c.Validators[0].KeyringBackend = keyring.BackendTest
+		c.Faucet = base.Faucet{}
+		c.Validators[0].Client = xyaml.Map{
+			"keyring-backend": keyring.BackendTest,
+		}
 	})
 
 	env.Must(env.Exec("import alice",

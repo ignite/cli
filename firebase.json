@@ -6,6 +6,38 @@
     }
   },
   "hosting": {
+    "redirects": [
+      {
+        "source": "/kb/types",
+        "destination": "/cli#ignite-scaffold-list",
+        "type": 301
+      },
+      {
+        "source": "/kb/scaffold-chain",
+        "destination": "/cli#ignite-scaffold-chain",
+        "type": 301
+      },
+      {
+        "source": "/kb/serve",
+        "destination": "/cli#ignite-chain-serve",
+        "type": 301
+      },
+      {
+        "source": "/kb/genesis",
+        "destination": "/kb/config",
+        "type": 301
+      },
+      {
+        "source": "/kb/params",
+        "destination": "/cli#ignite-scaffold-module",
+        "type": 301
+      },
+      {
+        "source": "/kb/proto",
+        "destination": "/kb/config",
+        "type": 301
+      }
+    ],
     "target": "docs.ignite.com",
     "public": "docs/build",
     "cleanUrls": true

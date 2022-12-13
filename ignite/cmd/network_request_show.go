@@ -12,11 +12,11 @@ import (
 )
 
 // NewNetworkRequestShow creates a new request show command to show
-// requests details for a chain
+// requests details for a chain.
 func NewNetworkRequestShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [launch-id] [request-id]",
-		Short: "Show pending requests details",
+		Short: "Show detailed information about a request",
 		RunE:  networkRequestShowHandler,
 		Args:  cobra.ExactArgs(2),
 	}
@@ -59,6 +59,7 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	requestYaml, err := yaml.Marshal(cmd.Context(), request,
 		"$.Content.content.genesisValidator.genTx",
 		"$.Content.content.genesisValidator.consPubKey",
+		"$.Content.content.paramChange.value",
 	)
 	if err != nil {
 		return err

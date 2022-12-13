@@ -11,7 +11,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/checksum"
@@ -88,7 +88,7 @@ func SourceRemoteHash(url, hash string) SourceOption {
 	}
 }
 
-// SourceLaunch returns a source option for initializing a chain from a launch
+// SourceLaunch returns a source option for initializing a chain from a launch.
 func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 	return func(c *Chain) {
 		c.id = launch.ChainID
@@ -111,21 +111,21 @@ func WithHome(path string) Option {
 	}
 }
 
-// WithKeyringBackend provides the keyring backend to use to initialize the blockchain
+// WithKeyringBackend provides the keyring backend to use to initialize the blockchain.
 func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.keyringBackend = keyringBackend
 	}
 }
 
-// WithGenesisFromURL provides a genesis url for the initial genesis of the chain blockchain
+// WithGenesisFromURL provides a genesis url for the initial genesis of the chain blockchain.
 func WithGenesisFromURL(genesisURL string) Option {
 	return func(c *Chain) {
 		c.genesisURL = genesisURL
 	}
 }
 
-// WithGenesisFromConfig provides a config file for the initial genesis of the chain blockchain
+// WithGenesisFromConfig provides a config file for the initial genesis of the chain blockchain.
 func WithGenesisFromConfig(genesisConfig string) Option {
 	return func(c *Chain) {
 		c.genesisConfig = genesisConfig
@@ -269,7 +269,7 @@ func (c Chain) IsHomeDirExist() (ok bool, err error) {
 	return err == nil, err
 }
 
-// NodeID returns the chain node id
+// NodeID returns the chain node id.
 func (c Chain) NodeID(ctx context.Context) (string, error) {
 	chainCmd, err := c.chain.Commands(ctx)
 	if err != nil {
@@ -300,10 +300,10 @@ func (c Chain) CheckConfigVersion() error {
 	return chainconfig.CheckVersion(file)
 }
 
-// Build builds chain sources, also checks if source was already built
+// Build builds chain sources, also checks if source was already built.
 func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryName string, err error) {
 	// Check that the config version is the latest before building the binary
-	if err = c.CheckConfigVersion(); err != nil {
+	if err = c.CheckConfigVersion(); err != nil && !errors.Is(err, chainconfig.ErrConfigNotFound) {
 		return
 	}
 
@@ -328,7 +328,7 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 	c.ev.Send("Building the chain's binary", events.ProgressStart())
 
 	// build binary
-	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true); err != nil {
+	if binaryName, err = c.chain.Build(ctx, cacheStorage, "", true, false); err != nil {
 		return "", err
 	}
 
@@ -344,7 +344,7 @@ func (c *Chain) Build(ctx context.Context, cacheStorage cache.Storage) (binaryNa
 	return binaryName, nil
 }
 
-// CacheBinary caches last built chain binary associated with launch id
+// CacheBinary caches last built chain binary associated with launch id.
 func (c *Chain) CacheBinary(launchID uint64) error {
 	binaryName, err := c.chain.Binary()
 	if err != nil {
@@ -357,7 +357,7 @@ func (c *Chain) CacheBinary(launchID uint64) error {
 	return cacheBinaryForLaunchID(launchID, binaryChecksum, c.hash)
 }
 
-// fetchSource fetches the chain source from url and returns a temporary path where source is saved
+// fetchSource fetches the chain source from url and returns a temporary path where source is saved.
 func fetchSource(
 	ctx context.Context,
 	url string,

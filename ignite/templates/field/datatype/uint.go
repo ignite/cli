@@ -3,11 +3,14 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
 var (
-	// DataUint uint data type definition
+	// DataUint uint data type definition.
 	DataUint = DataType{
 		DataType:          func(string) string { return "uint64" },
 		DefaultTestValue:  "111",
@@ -34,10 +37,13 @@ var (
 		ToString: func(name string) string {
 			return fmt.Sprintf("strconv.Itoa(int(%s))", name)
 		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "uint64", index)
+		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 	}
 
-	// DataUintSlice uint array data type definition
+	// DataUintSlice uint array data type definition.
 	DataUintSlice = DataType{
 		DataType:         func(string) string { return "[]uint64" },
 		DefaultTestValue: "1,2,3,4,5",
@@ -58,6 +64,9 @@ var (
 						%[1]v%[2]v[i] = value
 					}`,
 				prefix, name.UpperCamel, argIndex)
+		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "uint64", index, protoutil.Repeated())
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
 		NonIndex:     true,

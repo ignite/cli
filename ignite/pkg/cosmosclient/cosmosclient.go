@@ -52,6 +52,9 @@ var (
 )
 
 const (
+	// GasAuto allows to calculate gas automatically when sending transaction.
+	GasAuto = "auto"
+
 	defaultNodeAddress   = "http://localhost:26657"
 	defaultGasAdjustment = 1.0
 	defaultGasLimit      = 300000
@@ -157,7 +160,7 @@ func WithKeyringBackend(backend cosmosaccount.KeyringBackend) Option {
 	}
 }
 
-// WithKeyringDir sets the directory of the keyring. By default, it uses cosmosaccount.KeyringHome
+// WithKeyringDir sets the directory of the keyring. By default, it uses cosmosaccount.KeyringHome.
 func WithKeyringDir(keyringDir string) Option {
 	return func(c *Client) {
 		c.keyringDir = keyringDir
@@ -192,21 +195,21 @@ func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 }
 
 // WithGas sets an explicit gas-limit on transactions.
-// Set to "auto" to calculate automatically
+// Set to "auto" to calculate automatically.
 func WithGas(gas string) Option {
 	return func(c *Client) {
 		c.gas = gas
 	}
 }
 
-// WithGasPrices sets the price per gas (e.g. 0.1uatom)
+// WithGasPrices sets the price per gas (e.g. 0.1uatom).
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
 	}
 }
 
-// WithFees sets the fees (e.g. 10uatom)
+// WithFees sets the fees (e.g. 10uatom).
 func WithFees(fees string) Option {
 	return func(c *Client) {
 		c.fees = fees
@@ -443,12 +446,12 @@ func (c Client) Address(accountName string) (string, error) {
 	return a.Address(c.addressPrefix)
 }
 
-// Context returns client context
+// Context returns client context.
 func (c Client) Context() client.Context {
 	return c.context
 }
 
-// SetConfigAddressPrefix sets the account prefix in the SDK global config
+// SetConfigAddressPrefix sets the account prefix in the SDK global config.
 func (c Client) SetConfigAddressPrefix() {
 	// TODO find a better way if possible.
 	// https://github.com/ignite/cli/issues/2744
@@ -478,6 +481,8 @@ type Response struct {
 //	}
 //
 // ```
+//
+//nolint:godot,nolintlint
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
 	if err != nil {
@@ -508,7 +513,7 @@ func (r Response) Decode(message proto.Message) error {
 	}, message)
 }
 
-// Status returns the node status
+// Status returns the node status.
 func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
 	return c.RPC.Status(ctx)
 }
@@ -560,7 +565,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 	}
 
 	var gas uint64
-	if c.gas != "" && c.gas != "auto" {
+	if c.gas != "" && c.gas != GasAuto {
 		gas, err = strconv.ParseUint(c.gas, 10, 64)
 		if err != nil {
 			return TxService{}, errors.WithStack(err)
@@ -571,7 +576,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 			return TxService{}, errors.WithStack(err)
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an additional amount to ensure sufficient gas is provided
+		// we add an amount to ensure sufficient gas is provided
 		gas += 20000
 	}
 	txf = txf.WithGas(gas)
@@ -683,8 +688,8 @@ func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX
 	return nil
 }
 
-// makeSureAccountHasTokens makes sure the address has a positive balance
-// it requests funds from the faucet if the address has an empty balance
+// makeSureAccountHasTokens makes sure the address has a positive balance.
+// It requests funds from the faucet if the address has an empty balance.
 func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
 	if err := c.checkAccountBalance(ctx, address); err == nil {
 		return nil
@@ -724,7 +729,7 @@ func (c *Client) checkAccountBalance(ctx context.Context, address string) error 
 	return fmt.Errorf("account has not enough %q balance, min. required amount: %d", c.faucetDenom, c.faucetMinAmount)
 }
 
-// handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
+// handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred.
 func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {

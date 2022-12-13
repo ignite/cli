@@ -20,7 +20,7 @@ func NewChainFaucet() *cobra.Command {
 
 	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+	c.Flags().BoolP("verbose", "v", false, "verbose output")
 
 	return c
 }
@@ -42,7 +42,7 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		chain.CollectEvents(session.EventBus()),
 	}
 
-	c, err := NewChainWithHomeFlags(cmd, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}

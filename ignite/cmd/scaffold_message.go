@@ -10,7 +10,7 @@ import (
 
 const flagSigner = "signer"
 
-// NewScaffoldMessage returns the command to scaffold messages
+// NewScaffoldMessage returns the command to scaffold messages.
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "message [name] [field1] [field2] ...",
@@ -68,11 +68,11 @@ for details.
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
-	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
-	c.Flags().Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
-	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
-	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
+	c.Flags().String(flagModule, "", "module to add the message into. Default: app's main module")
+	c.Flags().StringSliceP(flagResponse, "r", []string{}, "response fields")
+	c.Flags().Bool(flagNoSimulation, false, "disable CRUD simulation scaffolding")
+	c.Flags().StringP(flagDescription, "d", "", "description of the command")
+	c.Flags().String(flagSigner, "", "label for the message signer (default: creator)")
 
 	return c
 }

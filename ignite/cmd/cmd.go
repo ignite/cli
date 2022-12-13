@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	"github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
@@ -54,7 +54,8 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-ignite scaffold chain github.com/username/mars`,
+	ignite scaffold chain example
+`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -103,7 +104,7 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagHome, "", "home directory used for blockchains")
+	fs.String(flagHome, "", "directory where the blockchain node is initialized")
 	return fs
 }
 
@@ -120,7 +121,7 @@ func getHome(cmd *cobra.Command) (home string) {
 
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringP(flagConfig, "c", "", "ignite config file (default: ./config.yml)")
+	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
 	return fs
 }
 
@@ -160,7 +161,7 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
+func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
@@ -235,7 +236,7 @@ func deprecated() []*cobra.Command {
 	}
 }
 
-// relativePath return the relative app path from the current directory
+// relativePath return the relative app path from the current directory.
 func relativePath(appPath string) (string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -264,14 +265,14 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Ignite CLI %s is available!
 ·
-· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install.html#upgrading-your-ignite-cli-installation
+· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install#upgrading-your-ignite-cli-installation
 ·
 ··
 
 `, next)
 }
 
-// newApp create a new scaffold app
+// newApp create a new scaffold app.
 func newApp(appPath string) (scaffolder.Scaffolder, error) {
 	sc, err := scaffolder.App(appPath)
 	if err != nil {
@@ -294,7 +295,7 @@ func printSection(session *cliui.Session, title string) error {
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
-	cacheRootDir, err := chainconfig.ConfigDirPath()
+	cacheRootDir, err := config.DirPath()
 	if err != nil {
 		return cache.Storage{}, err
 	}

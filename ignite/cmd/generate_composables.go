@@ -11,7 +11,7 @@ import (
 func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "composables",
-		Short:   "Generate Typescript client and Vue 3 composables for your chain's frontend",
+		Short:   "TypeScript frontend client and Vue 3 composables",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateComposablesHandler,
 	}
@@ -26,7 +26,7 @@ func generateComposablesHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(
+	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),

@@ -1,7 +1,7 @@
 package modulecreate
 
 import (
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/xgenny"
@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
 
-// AddGenesisTest returns the generator to generate genesis_test.go files
+// AddGenesisTest returns the generator to generate genesis_test.go files.
 func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool) (*genny.Generator, error) {
 	var (
 		g        = genny.New()

@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	"github.com/ignite/cli/ignite/chainconfig/config"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
@@ -81,7 +81,7 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
-// generateFromConfig makes code generation from proto files from the given config
+// generateFromConfig makes code generation from proto files from the given config.
 func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
 	conf, err := c.Config()
 	if err != nil {
@@ -182,7 +182,6 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isVuexEnabled {
-		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
 		vuexPath = targetOptions.vuexPath
 		if vuexPath == "" {
 			vuexPath = chainconfig.VuexPath(conf)
@@ -334,7 +333,7 @@ func (c Chain) joinGeneratedPath(rootPath string) string {
 	return filepath.Join(c.app.Path, rootPath, "generated")
 }
 
-func (c Chain) saveClientConfig(client config.Client) error {
+func (c Chain) saveClientConfig(client base.Client) error {
 	path := c.ConfigPath()
 	file, err := os.Open(path)
 	if err != nil {

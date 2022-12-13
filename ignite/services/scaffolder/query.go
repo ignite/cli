@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
@@ -14,7 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/query"
 )
 
-// AddQuery adds a new query to scaffolded app
+// AddQuery adds a new query to scaffolded app.
 func (s Scaffolder) AddQuery(
 	ctx context.Context,
 	cacheStorage cache.Storage,

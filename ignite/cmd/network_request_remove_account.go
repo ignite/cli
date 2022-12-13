@@ -9,11 +9,11 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networktypes"
 )
 
-// NewNetworkRequestRemoveAccount creates a new command to send remove account request
+// NewNetworkRequestRemoveAccount creates a new command to send remove account request.
 func NewNetworkRequestRemoveAccount() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "remove-account [launch-id] [address]",
-		Short: "Send request to remove account",
+		Short: "Send request to remove a genesis account",
 		RunE:  networkRequestRemoveAccountHandler,
 		Args:  cobra.ExactArgs(2),
 	}

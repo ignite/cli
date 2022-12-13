@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/chainconfig"
-	v1 "github.com/ignite/cli/ignite/chainconfig/v1"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	v1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
@@ -148,7 +148,7 @@ func (a App) Serve(msg string, options ...ExecOption) (ok bool) {
 	)
 }
 
-// Simulate runs the simulation test for the app
+// Simulate runs the simulation test for the app.
 func (a App) Simulate(numBlocks, blockSize int) {
 	a.env.Exec("running the simulation tests",
 		step.NewSteps(step.New(
@@ -236,8 +236,8 @@ func (a App) RandomizeServerPorts() Hosts {
 	return hosts
 }
 
-// UseRandomHomeDir sets in the blockchain config files generated temporary directories for home directories
-// Returns the random home directory
+// UseRandomHomeDir sets in the blockchain config files generated temporary directories for home directories.
+// Returns the random home directory.
 func (a App) UseRandomHomeDir() (homeDirPath string) {
 	dir := a.env.TmpDir()
 

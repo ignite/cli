@@ -3,10 +3,13 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
-// DataCustom custom data type definition
+// DataCustom is a custom data type definition.
 var DataCustom = DataType{
 	DataType:         func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
 	DefaultTestValue: "null",
@@ -22,6 +25,9 @@ var DataCustom = DataType{
     				if err != nil {
                 		return err
             		}`, prefix, name.UpperCamel, datatype, argIndex)
+	},
+	ToProtoField: func(datatype, name string, index int) *proto.NormalField {
+		return protoutil.NewField(name, datatype, index)
 	},
 	GoCLIImports: []GoImport{{Name: "encoding/json"}},
 	NonIndex:     true,

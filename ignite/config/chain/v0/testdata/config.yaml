@@ -1,0 +1,45 @@
+accounts:
+  - name: alice
+    coins: ["100000000uatom", "100000000000000000000aevmos"]
+    mnemonic: "ozone unfold device pave lemon potato omit insect column wise cover hint narrow large provide kidney episode clay notable milk mention dizzy muffin crazy"
+  - name: bob
+    coins: ["5000000000000aevmos"]
+    address: "cosmos1adn9gxjmrc3hrsdx5zpc9sj2ra7kgqkmphf8yw"
+validator:
+  name: alice
+  staked: "100000000000000000000aevmos"
+faucet:
+  name: bob
+  coins: ["10aevmos"]
+  host: 0.0.0.0:4600
+  port: 4600
+build:
+  binary: "evmosd"
+init:
+  home: "$HOME/.evmosd"
+  client:
+    keyring-backend: "os"
+  app:
+    evm-rpc:
+      address: "0.0.0.0:8545"
+      ws-address: "0.0.0.0:8546"
+genesis:
+  chain_id: "evmosd_9000-1"
+  app_state:
+    staking:
+      params:
+        bond_denom: "aevmos"
+    mint:
+      params:
+        mint_denom: "aevmos"
+    crisis:
+      constant_fee:
+        denom: "aevmos"
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "10000000"
+            denom: "aevmos"
+    evm:
+      params:
+        evm_denom: "aevmos"

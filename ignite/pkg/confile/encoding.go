@@ -30,7 +30,7 @@ type Decoder interface {
 	Decode(v interface{}) error
 }
 
-// Encoding implements EncodeDecoder
+// Encoding implements EncodeDecoder.
 type Encoding struct {
 	Encoder
 	Decoder

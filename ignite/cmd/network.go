@@ -26,8 +26,8 @@ const (
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
-	spnNodeAddressNightly   = "http://178.128.251.28:26657"
-	spnFaucetAddressNightly = "http://178.128.251.28:4500"
+	spnNodeAddressNightly   = "https://rpc.devnet.ignite.com:443"
+	spnFaucetAddressNightly = "https://faucet.devnet.ignite.com:443"
 
 	spnNodeAddressLocal   = "http://0.0.0.0:26661"
 	spnFaucetAddressLocal = "http://0.0.0.0:4502"
@@ -96,10 +96,11 @@ validators launch their nodes, a blockchain will be live.
 	// Includes Flags for Node and Faucet Address
 	c.PersistentFlags().AddFlagSet(flagSetSpnAddresses())
 
+
 	// add sub commands.
 	c.AddCommand(
 		NewNetworkChain(),
-		NewNetworkCampaign(),
+		NewNetworkProject(),
 		NewNetworkRequest(),
 		NewNetworkReward(),
 		NewNetworkValidator(),
@@ -137,7 +138,7 @@ func CollectEvents(ev events.Bus) NetworkBuilderOption {
 
 func flagSetSPNAccountPrefixes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagAddressPrefix, networktypes.SPN, "Account address prefix")
+	fs.String(flagAddressPrefix, networktypes.SPN, "account address prefix")
 	return fs
 }
 
@@ -200,6 +201,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithUseFaucet(spn.FaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 		cosmosclient.WithKeyringDir(getKeyringDir(cmd)),
+		cosmosclient.WithGas(cosmosclient.GasAuto),
 	}
 
 	keyringBackend := getKeyringBackend(cmd)

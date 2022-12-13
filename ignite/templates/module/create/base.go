@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 	"github.com/iancoleman/strcase"
 
@@ -16,7 +16,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/module"
 )
 
-// NewGenerator returns the generator to scaffold a module inside an app
+// NewGenerator returns the generator to scaffold a module inside an app.
 func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g = genny.New()
@@ -85,7 +85,7 @@ func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Gen
 	return g
 }
 
-// app.go modification when creating a module
+// app.go modification when creating a module.
 func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, module.PathAppGo)

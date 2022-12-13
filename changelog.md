@@ -1,9 +1,10 @@
-# Changelog
-
 ## Unreleased
 
 ### Features
 
+- [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
+- [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
+- [#3184](https://github.com/ignite/cli/pull/3184) Separate `plugins.yml` config file.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite scaffold react` command.
@@ -11,8 +12,12 @@
 - [#2892](https://github.com/ignite/cli/pull/2982/) Add `ignite generate hooks` command.
 - [#2955](https://github.com/ignite/cli/pull/2955/) Add `ignite network request add-account` command.
 - [#2877](https://github.com/ignite/cli/pull/2877) Plugin system
+- [#3060](https://github.com/ignite/cli/pull/3060) Plugin system flag support
+- [#3105](https://github.com/ignite/cli/pull/3105) Addition of `ignite plugin describe <path>` command
 - [#2995](https://github.com/ignite/cli/pull/2995/) Add `ignite network request remove-validator` command.
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
+- [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
+- [#2992](https://github.com/ignite/cli/issues/2992) Add `ignite chain debug` command.
 
 ### Changes
 
@@ -35,6 +40,13 @@
 - [#3030](https://github.com/ignite/cli/issues/3030) Remove colon syntax from module scaffolding `--dep` flag.
 - [#3025](https://github.com/ignite/cli/issues/3025) Improve config version error handling.
 - [#3084](https://github.com/ignite/cli/pull/3084) Add Ignite Chain documentation.
+- [#3109](https://github.com/ignite/cli/pull/3109) Refactor scaffolding for proto files to not rely on placeholders.
+- [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
+- [#3194](https://github.com/ignite/cli/issues/3194) Move config validators check to validate only when required.
+- [#3183](https://github.com/ignite/cli/pull/3183/) Make config optional for init phase.
+- [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
+- [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands
+- [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
 
 ### Breaking Changes
 
@@ -42,10 +54,20 @@
 
 ### Fixes
 
-
+- [#3114](https://github.com/ignite/cli/pull/3114) Fix out of gas issue when approving many requests
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
-- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go`
-  template.
+- [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` template.
+- [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error. 
+- [#3129](https://github.com/ignite/cli/issues/3129) Remove redundant `keyring-backend` config option.
+- [#3187](https://github.com/ignite/cli/issues/3187) Change prompt text to fit within 80 characters width.
+- [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
+
+## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
+
+### Changes
+
+- [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
+# Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 

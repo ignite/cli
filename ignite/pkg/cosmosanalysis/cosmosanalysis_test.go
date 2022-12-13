@@ -202,3 +202,11 @@ func TestFindAppFilePath(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, filepath.Join(appFolder, "app.go"), pathFound)
 }
+
+func TestIsChainPath(t *testing.T) {
+	err := cosmosanalysis.IsChainPath(".")
+	require.ErrorAs(t, err, &cosmosanalysis.ErrPathNotChain{})
+
+	err = cosmosanalysis.IsChainPath("testdata/chain")
+	require.NoError(t, err)
+}

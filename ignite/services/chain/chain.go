@@ -2,16 +2,18 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-
 	"github.com/tendermint/spn/pkg/chainid"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	chainconfigv1 "github.com/ignite/cli/ignite/config/chain/v1"
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
@@ -91,14 +93,14 @@ func HomePath(path string) Option {
 	}
 }
 
-// KeyringBackend specifies the keyring backend to use for the chain command
+// KeyringBackend specifies the keyring backend to use for the chain command.
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
 	}
 }
 
-// ConfigFile specifies a custom config file to use
+// ConfigFile specifies a custom config file to use.
 func ConfigFile(configFile string) Option {
 	return func(c *Chain) {
 		c.options.ConfigFile = configFile
@@ -153,7 +155,7 @@ func New(path string, options ...Option) (*Chain, error) {
 	}
 
 	c.sourceVersion, err = c.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
+	if err != nil && !errors.Is(err, git.ErrRepositoryNotExists) {
 		return nil, err
 	}
 
@@ -196,8 +198,8 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-// ConfigPath returns the config path of the chain
-// Empty string means that the chain has no defined config
+// ConfigPath returns the config path of the chain.
+// Empty string means that the chain has no defined config.
 func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
@@ -209,11 +211,11 @@ func (c *Chain) ConfigPath() string {
 	return path
 }
 
-// Config returns the config of the chain
+// Config returns the config of the chain.
 func (c *Chain) Config() (*chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return chainconfig.DefaultConfig(), nil
+		return chainconfig.DefaultChainConfig(), nil
 	}
 	return chainconfig.ParseFile(configPath)
 }
@@ -244,7 +246,7 @@ func (c *Chain) ChainID() (string, error) {
 	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
-// Name returns the chain's name
+// Name returns the chain's name.
 func (c *Chain) Name() string {
 	return c.app.N()
 }
@@ -261,6 +263,17 @@ func (c *Chain) Binary() (string, error) {
 	}
 
 	return c.app.D(), nil
+}
+
+// AbsBinaryPath returns the absolute path to the app's binary.
+// Returned path includes the binary name.
+func (c *Chain) AbsBinaryPath() (string, error) {
+	bin, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	return xexec.ResolveAbsPath(bin)
 }
 
 // SetHome sets the chain home directory.
@@ -288,14 +301,14 @@ func (c *Chain) Home() (string, error) {
 	return home, nil
 }
 
-// DefaultHome returns the blockchain node's default home dir when not specified in the app
+// DefaultHome returns the blockchain node's default home dir when not specified in the app.
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return "", err
 	}
-	validator := config.Validators[0]
+	validator, _ := chainconfig.FirstValidator(cfg)
 	if validator.Home != "" {
 		return validator.Home, nil
 	}
@@ -359,32 +372,28 @@ func (c *Chain) ClientTOMLPath() (string, error) {
 
 // KeyringBackend returns the keyring backend chosen for the chain.
 func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
-	// 1st.
+	// When keyring backend is initialized as a chain
+	// option it overrides any configured backends.
 	if c.options.keyringBackend != "" {
 		return c.options.keyringBackend, nil
 	}
 
-	config, err := c.Config()
+	// Try to get keyring backend from the first configured validator
+	cfg, err := c.Config()
 	if err != nil {
 		return "", err
 	}
 
-	// 2nd.
-	validator := config.Validators[0]
-	if validator.KeyringBackend != "" {
-		return chaincmd.KeyringBackendFromString(validator.KeyringBackend)
-	}
-
-	// 3rd.
+	validator, _ := chainconfig.FirstValidator(cfg)
 	if validator.Client != nil {
-		if backend, ok := validator.Client["keyring-backend"]; ok {
-			if backendStr, ok := backend.(string); ok {
-				return chaincmd.KeyringBackendFromString(backendStr)
+		if v, ok := validator.Client["keyring-backend"]; ok {
+			if backend, ok := v.(string); ok {
+				return chaincmd.KeyringBackendFromString(backend)
 			}
 		}
 	}
 
-	// 4th.
+	// Try to get keyring backend from client.toml config file
 	configTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return "", err
@@ -400,11 +409,11 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
 	}
 
-	// 5th.
+	// Use test backend as default when none is configured
 	return chaincmd.KeyringBackendTest, nil
 }
 
-// Commands returns the runner execute commands on the chain's binary
+// Commands returns the runner execute commands on the chain's binary.
 func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
 	if err != nil {
@@ -431,15 +440,18 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	config, err := c.Config()
+	cfg, err := c.Config()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	validator := config.Validators[0]
-	servers, err := validator.GetServers()
-	if err != nil {
-		return chaincmdrunner.Runner{}, err
+	servers := chainconfigv1.DefaultServers()
+	if len(cfg.Validators) > 0 {
+		validator, _ := chainconfig.FirstValidator(cfg)
+		servers, err = validator.GetServers()
+		if err != nil {
+			return chaincmdrunner.Runner{}, err
+		}
 	}
 
 	nodeAddr, err := xurl.TCP(servers.RPC.Address)
@@ -461,7 +473,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	// Enable command output only when CLI verbosity is enabled
 	if c.logOutputer != nil && c.logOutputer.Verbosity() == uilog.VerbosityVerbose {
-		out := c.logOutputer.NewOutput(c.app.D(), 96)
+		out := c.logOutputer.NewOutput(c.app.D(), colors.Cyan)
 		ccrOptions = append(
 			ccrOptions,
 			chaincmdrunner.Stdout(out.Stdout()),

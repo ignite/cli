@@ -11,7 +11,7 @@ import (
 func NewGenerateHooks() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "hooks",
-		Short:   "Generate Typescript client and React hooks for your chain's frontend",
+		Short:   "TypeScript frontend client and React hooks",
 		PreRunE: gitChangesConfirmPreRunHandler,
 		RunE:    generateHooksHandler,
 	}
@@ -26,7 +26,7 @@ func generateHooksHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := NewChainWithHomeFlags(
+	c, err := newChainWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),

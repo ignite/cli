@@ -16,10 +16,15 @@ func View(path string) error {
 
 	p := ui.NewProgram(conf)
 
+	// TODO: refactor to remove deprecated function calls
+	//nolint:staticcheck,nolintlint
 	p.EnterAltScreen()
+	//nolint:staticcheck,nolintlint
 	defer p.ExitAltScreen()
 
+	//nolint:staticcheck,nolintlint
 	p.EnableMouseCellMotion()
+	//nolint:staticcheck,nolintlint
 	defer p.DisableMouseCellMotion()
 
 	return p.Start()

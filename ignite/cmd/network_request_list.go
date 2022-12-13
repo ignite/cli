@@ -15,11 +15,11 @@ import (
 var requestSummaryHeader = []string{"ID", "Status", "Type", "Content"}
 
 // NewNetworkRequestList creates a new request list command to list
-// requests for a chain
+// requests for a chain.
 func NewNetworkRequestList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list [launch-id]",
-		Short: "List all pending requests",
+		Short: "List all requests for a chain",
 		RunE:  networkRequestListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
@@ -59,7 +59,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	return renderRequestSummaries(requests, session, addressPrefix)
 }
 
-// renderRequestSummaries writes into the provided out, the list of summarized requests
+// renderRequestSummaries writes into the provided out, the list of summarized requests.
 func renderRequestSummaries(
 	requests []networktypes.Request,
 	session *cliui.Session,
@@ -154,6 +154,15 @@ func renderRequestSummaries(
 			}
 
 			content = address
+
+		case *launchtypes.RequestContent_ParamChange:
+			requestType = "Change Param"
+			content = fmt.Sprintf(
+				"module: %s param: %s, value: %s",
+				req.ParamChange.Module,
+				req.ParamChange.Param,
+				string(req.ParamChange.Value),
+			)
 		}
 
 		requestEntries = append(requestEntries, []string{

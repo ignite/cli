@@ -11,7 +11,7 @@ import (
 // NewNetworkProfile returns a new command to show the address profile info on Starport Network.
 func NewNetworkProfile() *cobra.Command {
 	c := &cobra.Command{
-		Use:    "profile [campaign-id]",
+		Use:    "profile [project-id]",
 		Short:  "Show the address profile info",
 		Args:   cobra.RangeArgs(0, 1),
 		RunE:   networkProfileHandler,
@@ -37,15 +37,15 @@ func networkProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var campaignID uint64
+	var projectID uint64
 	if len(args) > 0 {
-		campaignID, err = network.ParseID(args[0])
+		projectID, err = network.ParseID(args[0])
 		if err != nil {
 			return err
 		}
 	}
 
-	profile, err := n.Profile(cmd.Context(), campaignID)
+	profile, err := n.Profile(cmd.Context(), projectID)
 	if err != nil {
 		return err
 	}

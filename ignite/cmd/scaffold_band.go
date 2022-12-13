@@ -18,7 +18,7 @@ Make sure to update the keys.go file accordingly.
 const Version = "bandchain-1"
 `
 
-// NewScaffoldBandchain creates a new BandChain oracle in the module
+// NewScaffoldBandchain creates a new BandChain oracle in the module.
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "band [queryName] --module [moduleName]",
@@ -34,8 +34,8 @@ func NewScaffoldBandchain() *cobra.Command {
 	flagSetClearCache(c)
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
-	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
+	c.Flags().String(flagModule, "", "IBC module to add the packet into")
+	c.Flags().String(flagSigner, "", "label for the message signer (default: creator)")
 
 	return c
 }
@@ -65,7 +65,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	var options []scaffolder.OracleOption
 	if signer != "" {
-		options = append(options, scaffolder.OracleWithSigner(signer)) // nolint: staticcheck
+		options = append(options, scaffolder.OracleWithSigner(signer)) //nolint: staticcheck
 	}
 
 	sc, err := newApp(appPath)
@@ -73,7 +73,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// nolint: staticcheck
+	//nolint: staticcheck
 	sm, err := sc.AddOracle(cmd.Context(), cacheStorage, placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err

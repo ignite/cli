@@ -14,7 +14,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	envtest "github.com/ignite/cli/integration"
@@ -143,7 +143,7 @@ func TestNetworkPublish(t *testing.T) {
 	require.NoError(t, isBackendAliveErr, "spn cannot get online in time")
 }
 
-func TestNetworkPublishConfigGenesis(t *testing.T) {
+func TestNetworkPublishGenesisConfig(t *testing.T) {
 	var (
 		spnPath = cloneSPN(t)
 		env     = envtest.New(t)

@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
@@ -37,7 +39,7 @@ func networkChainShowInfoHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	reward, err := n.ChainReward(cmd.Context(), launchID)
-	if err != nil && err != network.ErrObjectNotFound {
+	if err != nil && !errors.Is(err, network.ErrObjectNotFound) {
 		return err
 	}
 	chainLaunch.Reward = reward.RemainingCoins.String()

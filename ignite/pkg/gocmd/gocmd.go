@@ -1,6 +1,7 @@
 package gocmd
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -34,19 +35,30 @@ const (
 
 	// CommandFmt represents go "fmt" command.
 	CommandFmt = "fmt"
-)
 
-const (
-	FlagMod              = "-mod"
-	FlagModValueReadOnly = "readonly"
-	FlagLdflags          = "-ldflags"
-	FlagOut              = "-o"
-)
+	// CommandEnv represents go "env" command.
+	CommandEnv = "env"
 
-const (
-	EnvGOOS   = "GOOS"
+	// Go environment variable names.
 	EnvGOARCH = "GOARCH"
+	EnvGOMOD  = "GOMOD"
+	EnvGOOS   = "GOOS"
+
+	// Go command flags and values.
+	FlagGcflags           = "-gcflags"
+	FlagGcflagsValueDebug = "all=-N -l"
+	FlagLdflags           = "-ldflags"
+	FlagMod               = "-mod"
+	FlagModValueReadOnly  = "readonly"
+	FlagOut               = "-o"
 )
+
+// Env returns the value of `go env name`.
+func Env(name string) (string, error) {
+	var b bytes.Buffer
+	err := exec.Exec(context.Background(), []string{Name(), CommandEnv, name}, exec.StepOption(step.Stdout(&b)))
+	return b.String(), err
+}
 
 // Name returns the name of Go binary to use.
 func Name() string {
@@ -57,7 +69,7 @@ func Name() string {
 	return "go"
 }
 
-// Fmt runs go fmt on path
+// Fmt runs go fmt on path.
 func Fmt(ctx context.Context, path string, options ...exec.Option) error {
 	return exec.Exec(ctx, []string{Name(), CommandFmt, "./..."}, append(options, exec.StepOption(step.Workdir(path)))...)
 }

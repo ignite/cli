@@ -1,7 +1,7 @@
 package modulecreate
 
 import (
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/xgenny"
@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 )
 
-// AddSimulation returns the generator to generate module_simulation.go file
+// AddSimulation returns the generator to generate module_simulation.go file.
 func AddSimulation(appPath, modulePath, moduleName string, params ...field.Field) (*genny.Generator, error) {
 	var (
 		g        = genny.New()

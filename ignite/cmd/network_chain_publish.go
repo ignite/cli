@@ -22,7 +22,7 @@ const (
 	flagHash           = "hash"
 	flagGenesisURL     = "genesis-url"
 	flagGenesisConfig  = "genesis-config"
-	flagCampaign       = "campaign"
+	flagProject        = "project"
 	flagShares         = "shares"
 	flagNoCheck        = "no-check"
 	flagChainID        = "chain-id"
@@ -43,17 +43,35 @@ information is the URL of the source code of the blockchain.
 
 The following command publishes the information about an example blockchain:
 
-  ignite network chain publish github.com/ignite/example
+	ignite network chain publish github.com/ignite/example
 
 This command fetches the source code of the blockchain, compiles the binary,
 verifies that a blockchain can be started with the binary, and publishes the
-information about the blockchain to Ignite. The command returns an integer number
-that acts as an identifier of the chain on Ignite.
+information about the blockchain to Ignite. Currently, only public repositories
+are supported. The command returns an integer number that acts as an identifier
+of the chain on Ignite.
 
 By publishing a blockchain on Ignite you become the "coordinator" of this
 blockchain. A coordinator is an account that has the authority to approve and
 reject validator requests, set parameters of the blockchain and trigger the
 launch of the chain.
+
+The default Git branch is used when publishing a chain. If you want to use a
+specific branch, tag or a commit hash, use "--branch", "--tag", or "--hash"
+flags respectively.
+
+The repository name is used as the default chain ID. Ignite does not ensure that
+chain IDs are unique, but they have to have a valid format: [string]-[integer].
+To set a custom chain ID use the "--chain-id" flag.
+
+	ignite network chain publish github.com/ignite/example --chain-id foo-1
+
+Once the chain is published users can request accounts with coin balances to be
+added to the chain's genesis. By default, users are free to request any number
+of tokens. If you want all users requesting tokens to get the same amount, use
+the "--account-balance" flag with a list of coins.
+
+	ignite network chain publish github.com/ignite/example --account-balance 2000foocoin
 `,
 		Args: cobra.ExactArgs(1),
 		RunE: networkChainPublishHandler,
@@ -64,18 +82,18 @@ launch of the chain.
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesisURL, "", "URL to a custom Genesis")
-	c.Flags().String(flagGenesisConfig, "", "Name of an Ignite config file in the repo for custom Genesis")
-	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
-	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
-	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
-	c.Flags().String(flagCampaignMetadata, "", "Add a campaign metadata")
-	c.Flags().String(flagCampaignTotalSupply, "", "Add a total of the mainnet of a campaign")
-	c.Flags().String(flagShares, "", "Add shares for the campaign")
-	c.Flags().Bool(flagMainnet, false, "Initialize a mainnet campaign")
-	c.Flags().String(flagAccountBalance, "", "Balance for each approved genesis account for the chain")
-	c.Flags().String(flagRewardCoins, "", "Reward coins")
-	c.Flags().Int64(flagRewardHeight, 0, "Last reward height")
-	c.Flags().String(flagAmount, "", "Amount of coins for account request")
+	c.Flags().String(flagGenesisConfig, "", "name of an Ignite config file in the repo for custom Genesis")
+	c.Flags().String(flagChainID, "", "chain ID to use for this network")
+	c.Flags().Uint64(flagProject, 0, "project ID to use for this network")
+	c.Flags().Bool(flagNoCheck, false, "skip verifying chain's integrity")
+	c.Flags().String(flagProjectMetadata, "", "add a project metadata")
+	c.Flags().String(flagProjectTotalSupply, "", "add a total of the mainnet of a project")
+	c.Flags().String(flagShares, "", "add shares for the project")
+	c.Flags().Bool(flagMainnet, false, "initialize a mainnet project")
+	c.Flags().String(flagAccountBalance, "", "balance for each approved genesis account for the chain")
+	c.Flags().String(flagRewardCoins, "", "reward coins")
+	c.Flags().Int64(flagRewardHeight, 0, "last reward height")
+	c.Flags().String(flagAmount, "", "amount of coins for account request")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
@@ -91,22 +109,22 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	var (
-		tag, _                    = cmd.Flags().GetString(flagTag)
-		branch, _                 = cmd.Flags().GetString(flagBranch)
-		hash, _                   = cmd.Flags().GetString(flagHash)
-		genesisURL, _             = cmd.Flags().GetString(flagGenesisURL)
-		genesisConfig, _          = cmd.Flags().GetString(flagGenesisConfig)
-		chainID, _                = cmd.Flags().GetString(flagChainID)
-		campaign, _               = cmd.Flags().GetUint64(flagCampaign)
-		noCheck, _                = cmd.Flags().GetBool(flagNoCheck)
-		campaignMetadata, _       = cmd.Flags().GetString(flagCampaignMetadata)
-		campaignTotalSupplyStr, _ = cmd.Flags().GetString(flagCampaignTotalSupply)
-		sharesStr, _              = cmd.Flags().GetString(flagShares)
-		isMainnet, _              = cmd.Flags().GetBool(flagMainnet)
-		accountBalance, _         = cmd.Flags().GetString(flagAccountBalance)
-		rewardCoinsStr, _         = cmd.Flags().GetString(flagRewardCoins)
-		rewardDuration, _         = cmd.Flags().GetInt64(flagRewardHeight)
-		amount, _                 = cmd.Flags().GetString(flagAmount)
+		tag, _                   = cmd.Flags().GetString(flagTag)
+		branch, _                = cmd.Flags().GetString(flagBranch)
+		hash, _                  = cmd.Flags().GetString(flagHash)
+		genesisURL, _            = cmd.Flags().GetString(flagGenesisURL)
+		genesisConfig, _         = cmd.Flags().GetString(flagGenesisConfig)
+		chainID, _               = cmd.Flags().GetString(flagChainID)
+		project, _               = cmd.Flags().GetUint64(flagProject)
+		noCheck, _               = cmd.Flags().GetBool(flagNoCheck)
+		projectMetadata, _       = cmd.Flags().GetString(flagProjectMetadata)
+		projectTotalSupplyStr, _ = cmd.Flags().GetString(flagProjectTotalSupply)
+		sharesStr, _             = cmd.Flags().GetString(flagShares)
+		isMainnet, _             = cmd.Flags().GetBool(flagMainnet)
+		accountBalance, _        = cmd.Flags().GetString(flagAccountBalance)
+		rewardCoinsStr, _        = cmd.Flags().GetString(flagRewardCoins)
+		rewardDuration, _        = cmd.Flags().GetInt64(flagRewardHeight)
+		amount, _                = cmd.Flags().GetString(flagAmount)
 	)
 
 	// parse the amount.
@@ -130,16 +148,16 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if campaign != 0 && campaignTotalSupplyStr != "" {
-		return fmt.Errorf("%s and %s flags cannot be set together", flagCampaign, flagCampaignTotalSupply)
+	if project != 0 && projectTotalSupplyStr != "" {
+		return fmt.Errorf("%s and %s flags cannot be set together", flagProject, flagProjectTotalSupply)
 	}
 	if isMainnet {
-		if campaign == 0 && campaignTotalSupplyStr == "" {
+		if project == 0 && projectTotalSupplyStr == "" {
 			return fmt.Errorf(
 				"%s flag requires one of the %s or %s flags to be set",
 				flagMainnet,
-				flagCampaign,
-				flagCampaignTotalSupply,
+				flagProject,
+				flagProjectTotalSupply,
 			)
 		}
 		if chainID == "" {
@@ -157,7 +175,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
+	totalSupply, err := sdk.ParseCoinsNormalized(projectTotalSupplyStr)
 	if err != nil {
 		return err
 	}
@@ -219,7 +237,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	initOptions = append(initOptions, networkchain.WithHome(homeDir))
 
 	// prepare publish options
-	publishOptions := []network.PublishOption{network.WithMetadata(campaignMetadata)}
+	publishOptions := []network.PublishOption{network.WithMetadata(projectMetadata)}
 
 	switch {
 	case genesisURL != "":
@@ -229,10 +247,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	}
 
-	if campaign != 0 {
-		publishOptions = append(publishOptions, network.WithCampaign(campaign))
-	} else if campaignTotalSupplyStr != "" {
-		totalSupply, err := sdk.ParseCoinsNormalized(campaignTotalSupplyStr)
+	if project != 0 {
+		publishOptions = append(publishOptions, network.WithProject(project))
+	} else if projectTotalSupplyStr != "" {
+		totalSupply, err := sdk.ParseCoinsNormalized(projectTotalSupplyStr)
 		if err != nil {
 			return err
 		}
@@ -293,7 +311,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	launchID, projectID, err := n.Publish(cmd.Context(), c, publishOptions...)
 	if err != nil {
 		return err
 	}
@@ -316,8 +334,8 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	} else {
 		session.Printf("%s Launch ID: %d \n", icons.Bullet, launchID)
 	}
-	if campaignID != 0 {
-		session.Printf("%s Campaign ID: %d \n", icons.Bullet, campaignID)
+	if projectID != 0 {
+		session.Printf("%s Project ID: %d \n", icons.Bullet, projectID)
 	}
 
 	return nil

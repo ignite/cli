@@ -16,8 +16,14 @@ func NewNetworkRequestReject() *cobra.Command {
 		Use:     "reject [launch-id] [number<,...>]",
 		Aliases: []string{"accept"},
 		Short:   "Reject requests",
-		RunE:    networkRequestRejectHandler,
-		Args:    cobra.ExactArgs(2),
+		Long: `The "reject" command is used by a chain's coordinator to reject requests.
+
+	ignite network request reject 42 1,2,3-6,7,8
+
+The syntax of the "reject" command is similar to that of the "approve" command.
+`,
+		RunE: networkRequestRejectHandler,
+		Args: cobra.ExactArgs(2),
 	}
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())

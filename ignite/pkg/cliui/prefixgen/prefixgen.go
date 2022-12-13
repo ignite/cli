@@ -12,7 +12,7 @@ import (
 // Prefixer generates prefixes.
 type Prefixer struct {
 	format           string
-	color            uint8
+	color            string
 	left, right      string
 	convertUppercase bool
 }
@@ -21,7 +21,7 @@ type Prefixer struct {
 type Option func(p *Prefixer)
 
 // Color sets color to the prefix.
-func Color(color uint8) Option {
+func Color(color string) Option {
 	return func(p *Prefixer) {
 		p.color = color
 	}
@@ -81,8 +81,8 @@ func (p *Prefixer) Gen(s ...interface{}) string {
 	if p.convertUppercase {
 		prefix = strings.ToUpper(prefix)
 	}
-	if p.color != 0 {
-		return colors.SprintFunc(int(p.color))(prefix)
+	if p.color != "" {
+		return colors.SprintFunc(p.color)(prefix)
 	}
 	return prefix
 }

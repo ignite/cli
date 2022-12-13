@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -21,17 +22,37 @@ const (
 	flagForce = "force"
 )
 
-// NewNetworkChainPrepare returns a new command to prepare the chain for launch
+// NewNetworkChainPrepare returns a new command to prepare the chain for launch.
 func NewNetworkChainPrepare() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "prepare [launch-id]",
 		Short: "Prepare the chain for launch",
-		Args:  cobra.ExactArgs(1),
-		RunE:  networkChainPrepareHandler,
+		Long: `The prepare command prepares a validator node for the chain launch by generating
+the final genesis and adding IP addresses of peers to the validator's
+configuration file.
+
+	ignite network chain prepare 42
+
+By default, Ignite uses "$HOME/spn/LAUNCH_ID" as the data directory. If you used
+a different data directory when initializing the node, use the "--home" flag and
+set the correct path to the data directory.
+
+Ignite generates the genesis file in "config/genesis.json" and adds peer IPs by
+modifying "config/config.toml".
+
+The prepare command should be executed after the coordinator has triggered the
+chain launch and finalized the genesis with "ignite network chain launch". You
+can force Ignite to run the prepare command without checking if the launch has
+been triggered with the "--force" flag (this is not recommended).
+
+After the prepare command is executed the node is ready to be started.
+`,
+		Args: cobra.ExactArgs(1),
+		RunE: networkChainPrepareHandler,
 	}
 
 	flagSetClearCache(c)
-	c.Flags().BoolP(flagForce, "f", false, "Force the prepare command to run even if the chain is not launched")
+	c.Flags().BoolP(flagForce, "f", false, "force the prepare command to run even if the chain is not launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetKeyringDir())
@@ -78,7 +99,9 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("chain %d launch has not been triggered yet. use --force to prepare anyway", launchID)
 	}
 
-	var networkOptions []networkchain.Option
+	networkOptions := []networkchain.Option{
+		networkchain.WithKeyringBackend(chaincmd.KeyringBackendTest),
+	}
 
 	if flagGetCheckDependencies(cmd) {
 		networkOptions = append(networkOptions, networkchain.CheckDependencies())
@@ -122,7 +145,7 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// prepareFromGenesisInformation prepares the genesis of the chain from the queried genesis information from the launch ID of the chain
+// prepareFromGenesisInformation prepares the genesis of the chain from the queried genesis information from the launch ID of the chain.
 func prepareFromGenesisInformation(
 	cmd *cobra.Command,
 	cacheStorage cache.Storage,
