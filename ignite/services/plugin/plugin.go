@@ -174,15 +174,17 @@ func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Pl
 
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
+	if p.Plugin.SharedHost && !p.isHost {
+		// Don't send kill signal to a shared-host plugin when this process isn't
+		// the one who initiated it.
+		return
+	}
+	if p.client != nil {
+		p.client.Kill()
+	}
 	if p.isHost {
-		if p.client != nil {
-			p.client.Kill()
-		}
 		DeletePluginConfCache(p.Path)
 		p.isHost = false
-		// if the sharedHost config parameter is set to false we shutdown normally.
-	} else if !p.Plugin.SharedHost {
-		DeletePluginConfCache(p.Path)
 	}
 }
 
