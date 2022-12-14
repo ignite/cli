@@ -508,7 +508,11 @@ func NewPluginRemove() *cobra.Command {
 				return err
 			}
 
-
+			if len(conf.Plugins) == 0 {
+				// return if no plugins
+				s.Printf("plugin %s not found\n", args[0])
+				return nil
+			}
 
 			for i, cp := range conf.Plugins {
 				if cp.Path == args[0] {
