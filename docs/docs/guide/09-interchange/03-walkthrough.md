@@ -5,26 +5,74 @@ description: Walkthrough of commands to use the interchain exchange module.
 
 # Use the Interchain Exchange
 
-In this chapter, you learn details about the order book and commands to:
+In this chapter, you will learn about the exchange and how it will function once
+it is implemented. This will give you a better understanding of what you will be
+building in the coming chapters.
 
-- Create an exchange order book for a token pair between two chains
-- Send sell orders on source chain
-- Send buy orders on the Venus chain
-- Cancel sell or buy orders
+To achieve this, we will perform the following tasks:
 
-The next chapter contains the code for the implementation.
+* Start two local blockchains
+* Set up an IBC relayer between the two chains
+* Create an exchange order book for a token pair on the two chains
+* Submit sell orders on the source chain
+* Submit buy orders on the Venus chain
+* Cancel sell or buy orders
+
+Starting the two local blockchains and setting up the IBC relayer will allow us
+to create an exchange order book between the two chains. This order book will
+allow us to submit sell and buy orders, as well as cancel any orders that we no
+longer want to maintain.
+
+It is important to note that the commands in this chapter will only work
+properly if you have completed all the following chapters in this tutorial. By
+the end of this chapter, you should have a good understanding of how the
+exchange will operate.
+
+## Start blockchain nodes
+
+To start using the interchain exchange, you will need to start two separate
+blockchains. This can be done by running the `ignite chain serve` command,
+followed by the `-c` flag and the path to the configuration file for each
+blockchain. For example, to start the `mars` blockchain, you would run:
+
+```
+ignite chain serve -c mars.yml
+```
+
+To start the `venus` blockchain, you would run a similar command, but with the
+path to the `venus.yml` configuration file:
+
+```
+ignite chain serve -c venus.yml
+```
+
+Once both blockchains are running, you can proceed with configuring the relayer
+to enable interchain exchange between the two chains.
 
 ## Relayer
 
-Set up a relayer.
+To set up an IBC relayer between two chains, you can use the `ignite relayer
+configure` command. This command allows you to specify the source and target
+chains, along with their respective RPC endpoints, faucet URLs, port numbers,
+versions, gas prices, and gas limits.
 
 ```
-ignite relayer configure -a  --source-rpc "http://0.0.0.0:26657"  --source-faucet "http://0.0.0.0:4500"  --source-port "dex"  --source-version "dex-1"  --source-gasprice "0.0000025stake"  --source-prefix "cosmos"  --source-gaslimit 300000  --target-rpc "http://0.0.0.0:26659"  --target-faucet "http://0.0.0.0:4501"  --target-port "dex"  --target-version "dex-1"  --target-gasprice "0.0000025stake"  --target-prefix "cosmos"  --target-gaslimit 300000
+ignite relayer configure -a --source-rpc "http://0.0.0.0:26657" --source-faucet "http://0.0.0.0:4500" --source-port "dex" --source-version "dex-1" --source-gasprice "0.0000025stake" --source-prefix "cosmos" --source-gaslimit 300000 --target-rpc "http://0.0.0.0:26659" --target-faucet "http://0.0.0.0:4501" --target-port "dex" --target-version "dex-1" --target-gasprice "0.0000025stake" --target-prefix "cosmos" --target-gaslimit 300000
 ```
+
+To create a connection between the two chains, you can use the ignite relayer
+connect command. This command will establish a connection between the source and
+target chains, allowing you to transfer data and assets between them
 
 ```
 ignite relayer connect
 ```
+
+Now that we have two separate blockchain networks up and running, and a relayer
+connection established to facilitate communication between them, we are ready to
+begin using the interchain exchange binary to interact with these networks. This
+will allow us to create order books and buy/sell orders, enabling us to trade
+assets between the two chains.
 
 ## Order Book
 
