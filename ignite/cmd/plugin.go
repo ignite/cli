@@ -519,8 +519,7 @@ func NewPluginRemove() *cobra.Command {
 
 			if !removed {
 				// return if no matching plugin path found
-				s.Printf("plugin %s not found\n", args[0])
-				return nil
+				return fmt.Errorf("plugin %s not found", args[0])
 			}
 
 			if err := conf.Save(); err != nil {
