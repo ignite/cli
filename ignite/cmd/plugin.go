@@ -31,7 +31,7 @@ var plugins []*plugin.Plugin
 
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
-func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
+func LoadPlugins(ctx context.Context, rootCmd *cobra.Command, options ...plugin.Option) error {
 	pluginsConfigs := make([]pluginsconfig.Plugin, 0)
 
 	localCfg, err := parseLocalPlugins(rootCmd)
@@ -51,7 +51,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	}
 
 	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
-	plugins, err = plugin.Load(ctx, uniquePlugins)
+	plugins, err = plugin.Load(ctx, uniquePlugins, options...)
 	if err != nil {
 		return err
 	} else if len(plugins) == 0 {
@@ -446,6 +446,10 @@ Example:
 				Global: global,
 			}
 
+			pluginsOptions := []plugin.Option{
+				plugin.CollectEvents(session.EventBus()),
+			}
+
 			var pluginArgs []string
 			if len(args) > 1 {
 				pluginArgs = args[1:]
@@ -460,7 +464,7 @@ Example:
 			}
 
 			session.StartSpinner("Loading plugin")
-			pluginInstance, err := plugin.LoadSingle(cmd.Context(), &p)
+			pluginInstance, err := plugin.LoadSingle(cmd.Context(), p, pluginsOptions...)
 			if err != nil {
 				return err
 			}
