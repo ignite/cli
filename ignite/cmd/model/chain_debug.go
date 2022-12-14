@@ -71,11 +71,8 @@ func (m ChainDebug) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the UI after every update.
 func (m ChainDebug) View() string {
 	if m.error != nil {
-		// Make sure that the error is displayed in the same way
-		// that the output used by non UI based commands to keep
-		// consistency on error when the debug command is run
-		// without the `--server` flag.
-		return fmt.Sprintf("%s %s\n", icons.NotOK, xstrings.ToUpperFirst(m.error.Error()))
+		s := xstrings.ToUpperFirst(m.error.Error())
+		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(s))
 	}
 
 	var view strings.Builder
