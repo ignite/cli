@@ -158,11 +158,24 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 
 // RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values.
 func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Plugin) {
-	keys := make(map[string]bool)
-	for _, plugin := range plugins {
-		if _, value := keys[plugin.Path]; !value {
-			keys[plugin.Path] = true
+	type check struct {
+		exists bool
+		global bool
+		prevIndex int
+	}
+
+	keys := make(map[string]check)
+	for i, plugin := range plugins {
+		c := keys[plugin.Path]
+		if !c.exists {
+			keys[plugin.Path] = check{
+				exists: true,
+				global: plugin.Global,
+				prevIndex: i,
+			}
 			unique = append(unique, plugin)
+		} else if c.exists && !plugin.Global && c.global { // overwrite if local plugin duplicate
+			unique[c.prevIndex] = plugin
 		}
 	}
 	return unique
