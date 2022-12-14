@@ -8,7 +8,7 @@ type ImportOptions struct {
 	BinaryNamePrefix string
 }
 
-// Validate that options are usable
+// Validate that options are usable.
 func (opts *ImportOptions) Validate() error {
 	return nil
 }

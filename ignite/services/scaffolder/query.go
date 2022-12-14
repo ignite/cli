@@ -14,7 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/query"
 )
 
-// AddQuery adds a new query to scaffolded app
+// AddQuery adds a new query to scaffolded app.
 func (s Scaffolder) AddQuery(
 	ctx context.Context,
 	cacheStorage cache.Storage,

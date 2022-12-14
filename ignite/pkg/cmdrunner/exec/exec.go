@@ -14,7 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 )
 
-// ExitError is an alias to exec.ExitError
+// ExitError is an alias to exec.ExitError.
 type ExitError = exec.ExitError
 
 type execConfig struct {

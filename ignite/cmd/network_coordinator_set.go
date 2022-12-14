@@ -10,7 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
 
-// NewNetworkCoordinatorSet creates a command to set an information in a coordinator profile
+// NewNetworkCoordinatorSet creates a command to set an information in a coordinator profile.
 func NewNetworkCoordinatorSet() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "set details|identity|website [value]",

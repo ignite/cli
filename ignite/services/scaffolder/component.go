@@ -25,7 +25,7 @@ const (
 	protoFolder = "proto"
 )
 
-// checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
+// checkComponentValidity performs various checks common to all components to verify if it can be scaffolded.
 func checkComponentValidity(appPath, moduleName string, compName multiformatname.Name, noMessage bool) error {
 	ok, err := moduleExists(appPath, moduleName)
 	if err != nil {
@@ -44,7 +44,7 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 	return checkComponentCreated(appPath, moduleName, compName, noMessage)
 }
 
-// checkForbiddenComponentName returns true if the name is forbidden as a component name
+// checkForbiddenComponentName returns true if the name is forbidden as a component name.
 func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
 	switch name.LowerCase {
@@ -67,7 +67,7 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 	return checkGoReservedWord(name.LowerCamel)
 }
 
-// checkGoReservedWord checks if the name can't be used because it is a go reserved keyword
+// checkGoReservedWord checks if the name can't be used because it is a go reserved keyword.
 func checkGoReservedWord(name string) error {
 	// Check keyword or literal
 	if token.Lookup(name).IsKeyword() {
@@ -118,7 +118,7 @@ func checkGoReservedWord(name string) error {
 	return nil
 }
 
-// checkComponentCreated checks if the component has been already created with Starport in the project
+// checkComponentCreated checks if the component has been already created with Starport in the project.
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
@@ -182,7 +182,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 	return err
 }
 
-// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name
+// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name.
 func checkForbiddenOracleFieldName(name string) error {
 	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
 	if err != nil {
@@ -206,7 +206,7 @@ func checkForbiddenOracleFieldName(name string) error {
 	return nil
 }
 
-// checkCustomTypes returns error if one of the types is invalid
+// checkCustomTypes returns error if one of the types is invalid.
 func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
 	protoPath := filepath.Join(path, protoFolder, appName, module)
 	customFields := make([]string, 0)
@@ -223,7 +223,7 @@ func checkCustomTypes(ctx context.Context, path, appName, module string, fields 
 	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
 }
 
-// containCustomTypes returns true if the list of fields contains at least one custom type
+// containCustomTypes returns true if the list of fields contains at least one custom type.
 func containCustomTypes(fields []string) bool {
 	for _, name := range fields {
 		fieldSplit := strings.Split(name, datatype.Separator)

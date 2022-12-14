@@ -29,7 +29,7 @@ var (
 	fsPacketMessages embed.FS
 )
 
-// PacketOptions are options to scaffold a packet in a IBC module
+// PacketOptions are options to scaffold a packet in a IBC module.
 type PacketOptions struct {
 	AppName    string
 	AppPath    string
@@ -42,7 +42,7 @@ type PacketOptions struct {
 	NoMessage  bool
 }
 
-// NewPacket returns the generator to scaffold a packet in an IBC module
+// NewPacket returns the generator to scaffold a packet in an IBC module.
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
 	var (
 		g = genny.New()

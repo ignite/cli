@@ -19,14 +19,14 @@ type joinOptions struct {
 
 type JoinOption func(*joinOptions)
 
-// WithAccountRequest allows to join the chain by requesting a genesis account with the specified amount of tokens
+// WithAccountRequest allows to join the chain by requesting a genesis account with the specified amount of tokens.
 func WithAccountRequest(amount sdk.Coins) JoinOption {
 	return func(o *joinOptions) {
 		o.accountAmount = amount
 	}
 }
 
-// WithPublicAddress allows to specify a peer public address for the node
+// WithPublicAddress allows to specify a peer public address for the node.
 func WithPublicAddress(addr string) JoinOption {
 	return func(o *joinOptions) {
 		o.publicAddress = addr

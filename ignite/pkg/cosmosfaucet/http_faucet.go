@@ -3,6 +3,7 @@ package cosmosfaucet
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,7 +49,7 @@ func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 
 	// try performing the transfer
 	if err := f.Transfer(r.Context(), req.AccountAddress, coins); err != nil {
-		if err == context.Canceled {
+		if errors.Is(err, context.Canceled) {
 			return
 		}
 		responseError(w, http.StatusInternalServerError, err)

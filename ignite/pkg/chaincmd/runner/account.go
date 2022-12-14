@@ -89,7 +89,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 	return account, nil
 }
 
-// ImportAccount import an account from a key file
+// ImportAccount import an account from a key file.
 func (r Runner) ImportAccount(ctx context.Context, name, keyFile, passphrase string) (Account, error) {
 	if err := r.CheckAccountExist(ctx, name); err != nil {
 		return Account{}, err
@@ -142,7 +142,7 @@ func (r Runner) ListAccounts(ctx context.Context) ([]Account, error) {
 	return accounts, nil
 }
 
-// CheckAccountExist returns an error if the account already exists in the chain keyring
+// CheckAccountExist returns an error if the account already exists in the chain keyring.
 func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 	accounts, err := r.ListAccounts(ctx)
 	if err != nil {

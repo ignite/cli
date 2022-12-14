@@ -36,7 +36,7 @@ var (
 	fsSimapp embed.FS
 )
 
-// NewGenerator returns the generator to scaffold a new map type in a module
+// NewGenerator returns the generator to scaffold a new map type in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because we can't generate reliable tests for this type
@@ -133,7 +133,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
@@ -269,7 +269,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		// Add initial import for the new type
-		gogoImport := protoutil.NewImport("gogoproto/gogo.proto")
+		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}

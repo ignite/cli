@@ -10,7 +10,7 @@ type Options struct {
 	AddressPrefix    string
 }
 
-// Validate that options are usuable
+// Validate that options are usable.
 func (opts *Options) Validate() error {
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/services/network/networkchain"
 )
 
-// NewNetworkRequestChangeParam creates a new command to send param change request
+// NewNetworkRequestChangeParam creates a new command to send param change request.
 func NewNetworkRequestChangeParam() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "change-param [launch-id] [module-name] [param-name] [value (json, string, number)]",

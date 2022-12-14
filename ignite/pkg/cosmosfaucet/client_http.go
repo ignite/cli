@@ -8,12 +8,12 @@ import (
 	"net/http"
 )
 
-// ErrTransferRequest is a error that occurs when a transfer request fails
+// ErrTransferRequest is an error that occurs when a transfer request fails.
 type ErrTransferRequest struct {
 	StatusCode int
 }
 
-// Error implement error
+// Error implements error.
 func (err ErrTransferRequest) Error() string {
 	return http.StatusText(err.StatusCode)
 }

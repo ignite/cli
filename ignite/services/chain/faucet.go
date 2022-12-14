@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -48,14 +49,18 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	if _, err := commands.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
-		if err == chaincmdrunner.ErrAccountDoesNotExist {
+		if errors.Is(err, chaincmdrunner.ErrAccountDoesNotExist) {
 			return cosmosfaucet.Faucet{}, ErrFaucetAccountDoesNotExist
 		}
 		return cosmosfaucet.Faucet{}, err
 	}
 
 	// construct faucet options.
-	validator := conf.Validators[0]
+	validator, err := chainconfig.FirstValidator(conf)
+	if err != nil {
+		return cosmosfaucet.Faucet{}, err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return cosmosfaucet.Faucet{}, err
