@@ -85,6 +85,8 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 	}
 
 	cfg, err = pluginsconfig.ParseDir(globalDir)
+	// if there is error parsing, return empty config and continue execution to load
+	// local plugins if they exist.
 	if err != nil {
 		return &pluginsconfig.Config{}, nil
 	}
