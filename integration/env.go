@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
@@ -53,6 +54,11 @@ func New(t *testing.T) Env {
 		t:   t,
 		ctx: ctx,
 	}
+	// To avoid conflicts with the default config folder located in $HOME, we
+	// set an other one thanks to env var.
+	cfgDir := path.Join(t.TempDir(), ".ignite")
+	env.SetConfigDir(cfgDir)
+
 	t.Cleanup(cancel)
 	compileBinaryOnce.Do(func() {
 		compileBinary(ctx)

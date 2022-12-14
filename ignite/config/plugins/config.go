@@ -46,6 +46,9 @@ type Plugin struct {
 	//
 	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
 	SharedHost bool `yaml:"shared_host"`
+	// Global holds whether the plugin is installed globally
+	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
+	Global bool `yaml:"-"`
 }
 
 // Path return the path of the config file.

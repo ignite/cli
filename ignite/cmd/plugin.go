@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/clictx"
@@ -19,29 +20,44 @@ import (
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
+const (
+	igniteCmdPrefix   = "ignite "
+	flagPluginsGlobal = "global"
+)
+
 // plugins hold the list of plugin declared in the config.
 // A global variable is used so the list is accessible to the plugin commands.
 var plugins []*plugin.Plugin
 
-const (
-	igniteCmdPrefix = "ignite "
-)
-
-// LoadPlugins tries to load all the plugins found in configuration.
-// If no configuration found, it returns w/o error.
+// LoadPlugins tries to load all the plugins found in configurations.
+// If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	cfg, err := parseLocalPlugins(rootCmd)
-	if err != nil {
-		// if binary is run where there is no plugins.yml, don't load
+	pluginsConfigs := make([]pluginsconfig.Plugin, 0)
+
+	localCfg, err := parseLocalPlugins(rootCmd)
+	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
+		return err
+	} else if err == nil {
+		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
+	}
+
+	globalCfg, err := parseGlobalPlugins()
+	if err == nil {
+		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
+	}
+
+	if len(pluginsConfigs) == 0 {
 		return nil
 	}
 
-	// TODO: parse global config
-
-	plugins, err = plugin.Load(ctx, cfg)
+	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
+	plugins, err = plugin.Load(ctx, uniquePlugins)
 	if err != nil {
 		return err
+	} else if len(plugins) == 0 {
+		return nil
 	}
+
 	return loadPlugins(rootCmd, plugins)
 }
 
@@ -60,6 +76,25 @@ func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
 		return nil, err
 	}
 	return pluginsconfig.ParseDir(wd)
+}
+
+func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
+	globalDir, err := plugin.PluginsPath()
+	if err != nil {
+		return cfg, err
+	}
+
+	cfg, err = pluginsconfig.ParseDir(globalDir)
+	// if there is error parsing, return empty config and continue execution to load
+	// local plugins if they exist.
+	if err != nil {
+		return &pluginsconfig.Config{}, nil
+	}
+
+	for i := range cfg.Plugins {
+		cfg.Plugins[i].Global = true
+	}
+	return
 }
 
 func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
@@ -373,8 +408,8 @@ func NewPluginUpdate() *cobra.Command {
 func NewPluginAdd() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
 		Use:   "add [path] [key=value]...",
-		Short: "Adds a plugin declaration to a chain's plugin configuration",
-		Long: `Adds a plugin declaration to a chain's plugin configuration.
+		Short: "Adds a plugin declaration to a plugin configuration",
+		Long: `Adds a plugin declaration to a plugin configuration.
 Respects key value pairs declared after the plugin path to be added to the
 generated configuration definition.
 Example:
@@ -384,7 +419,17 @@ Example:
 			session := cliui.New(cliui.WithStdout(os.Stdout))
 			defer session.End()
 
-			conf, err := parseLocalPlugins(cmd)
+			var (
+				conf *pluginsconfig.Config
+				err  error
+			)
+
+			global := flagGetPluginsGlobal(cmd)
+			if global {
+				conf, err = parseGlobalPlugins()
+			} else {
+				conf, err = parseLocalPlugins(cmd)
+			}
 			if err != nil {
 				return err
 			}
@@ -396,8 +441,9 @@ Example:
 			}
 
 			p := pluginsconfig.Plugin{
-				Path: args[0],
-				With: make(map[string]string),
+				Path:   args[0],
+				With:   make(map[string]string),
+				Global: global,
 			}
 
 			var pluginArgs []string
@@ -432,6 +478,9 @@ Example:
 			return nil
 		},
 	}
+
+	cmdPluginAdd.Flags().AddFlagSet(flagSetPluginsGlobal())
+
 	return cmdPluginAdd
 }
 
@@ -444,7 +493,17 @@ func NewPluginRemove() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
-			conf, err := parseLocalPlugins(cmd)
+			var (
+				conf *pluginsconfig.Config
+				err  error
+			)
+
+			global := flagGetPluginsGlobal(cmd)
+			if global {
+				conf, err = parseGlobalPlugins()
+			} else {
+				conf, err = parseLocalPlugins(cmd)
+			}
 			if err != nil {
 				return err
 			}
@@ -461,10 +520,14 @@ func NewPluginRemove() *cobra.Command {
 			}
 
 			s.Printf("%s %s removed\n", icons.OK, args[0])
+			s.Printf("\t%s updated\n", conf.Path())
 
 			return nil
 		},
 	}
+
+	cmdPluginRemove.Flags().AddFlagSet(flagSetPluginsGlobal())
+
 	return cmdPluginRemove
 }
 
@@ -552,12 +615,22 @@ func printPlugins(session *cliui.Session) error {
 			hookCount = len(manifest.Hooks)
 			cmdCount  = len(manifest.Commands)
 		)
-		return fmt.Sprintf("%s Loaded 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
+
+		return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
 	}
+
+	installedStatus := func(p *plugin.Plugin) string {
+		installed := "local"
+		if p.IsGlobal() {
+			installed = "global"
+		}
+		return installed
+	}
+
 	for _, p := range plugins {
-		entries = append(entries, []string{p.Path, buildStatus(p)})
+		entries = append(entries, []string{p.Path, buildStatus(p), installedStatus(p)})
 	}
-	if err := session.PrintTable([]string{"Path", "Status"}, entries...); err != nil {
+	if err := session.PrintTable([]string{"Path", "Status", "Config"}, entries...); err != nil {
 		return fmt.Errorf("error while printing plugins: %w", err)
 	}
 	return nil
@@ -612,4 +685,16 @@ func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) error {
 		return fmt.Errorf("error while printing plugin hooks: %w", err)
 	}
 	return nil
+}
+
+func flagSetPluginsGlobal() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration"+
+		" ($HOME/.ignite/plugins/plugins.yml)")
+	return fs
+}
+
+func flagGetPluginsGlobal(cmd *cobra.Command) bool {
+	global, _ := cmd.Flags().GetBool(flagPluginsGlobal)
+	return global
 }
