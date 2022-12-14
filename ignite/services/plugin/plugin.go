@@ -30,11 +30,11 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
-// pluginsPath holds the plugin cache directory.
-var pluginsPath = xfilepath.Join(
+// PluginsPath holds the plugin cache directory.
+var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 	config.DirPath,
 	xfilepath.Path("plugins"),
-)
+))
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
@@ -67,24 +67,23 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(ctx context.Context, cfg *pluginsconfig.Config) ([]*Plugin, error) {
-	pluginsDir, err := pluginsPath()
+func Load(ctx context.Context, plugins []pluginsconfig.Plugin) ([]*Plugin, error) {
+	pluginsDir, err := PluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	var plugins []*Plugin
-	for _, cp := range cfg.Plugins {
+	var loaded []*Plugin
+	for _, cp := range plugins {
 		p := newPlugin(pluginsDir, cp)
 		p.load(ctx)
 
-		// TODO: override global plugins with locally defined ones
-		plugins = append(plugins, p)
+		loaded = append(loaded, p)
 	}
-	return plugins, nil
+	return loaded, nil
 }
 
 func LoadSingle(ctx context.Context, pluginCfg *pluginsconfig.Plugin) (*Plugin, error) {
-	pluginsDir, err := pluginsPath()
+	pluginsDir, err := PluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -110,7 +109,9 @@ func Update(plugins ...*Plugin) error {
 // newPlugin creates a Plugin from configuration.
 func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	var (
-		p          = &Plugin{Plugin: cp}
+		p = &Plugin{
+			Plugin: cp,
+		}
 		pluginPath = cp.Path
 	)
 	if pluginPath == "" {
@@ -151,13 +152,32 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	p.srcPath = path.Join(pluginsDir, p.repoPath, path.Join(parts[3:]...))
 	p.binaryName = path.Base(pluginPath)
+
 	return p
 }
 
+// RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values.
+func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Plugin) {
+	keys := make(map[string]bool)
+	for _, plugin := range plugins {
+		if _, value := keys[plugin.Path]; !value {
+			keys[plugin.Path] = true
+			unique = append(unique, plugin)
+		}
+	}
+	return unique
+}
+
+// KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
 	if p.client != nil {
 		p.client.Kill()
 	}
+}
+
+// IsGlobal returns whether the plugin is installed globally or locally for a chain.
+func (p *Plugin) IsGlobal() bool {
+	return p.Plugin.Global
 }
 
 func (p *Plugin) isLocal() bool {
