@@ -93,11 +93,9 @@ func pluginCommand(use, short string, aliases []string) *cobra.Command {
 		Short:   short,
 		Aliases: aliases,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			_, err := plugin.Load(cmd.Context(), &pluginsconfig.Config{
-				Plugins: []pluginsconfig.Plugin{{
-					Path: "github.com/ignite/cli-plugin-network@feat/import-from-cli",
-				}},
-			})
+			_, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{{
+				Path: "github.com/ignite/cli-plugin-network@feat/import-from-cli",
+			}})
 			return err
 		},
 	}
