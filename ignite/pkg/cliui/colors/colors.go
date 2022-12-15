@@ -22,7 +22,7 @@ var (
 	error    = lipgloss.NewStyle().Foreground(lipgloss.Color(Red))
 	success  = lipgloss.NewStyle().Foreground(lipgloss.Color(Green))
 	modified = lipgloss.NewStyle().Foreground(lipgloss.Color(Magenta))
-	name     = lipgloss.NewStyle().Foreground(lipgloss.Color(White)).Bold(true)
+	name     = lipgloss.NewStyle().Bold(true)
 	mnemonic = lipgloss.NewStyle().Foreground(lipgloss.Color(HiBlue))
 	faint    = lipgloss.NewStyle().Faint(true)
 )
