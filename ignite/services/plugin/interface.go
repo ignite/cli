@@ -62,6 +62,7 @@ type Manifest struct {
 	Hooks []Hook
 }
 
+// ImportCobraCommand allows to hydrate m with a standard root cobra commands.
 func (m *Manifest) ImportCobraCommand(c *cobra.Command, placeCommandUnder string) {
 	m.Commands = append(m.Commands, convertCobraCommand(c, placeCommandUnder))
 }
