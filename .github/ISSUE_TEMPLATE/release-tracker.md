@@ -37,8 +37,8 @@ versions of cli to guarantee that no regression is introduced -->
 
 ## Post-release checklist
 
-- [ ] Update [`CHANGELOG.md`](https://github.com/ignite/cli/blob/main/changelog.md)
-- [ ] Update [version matrix](https://github.com/ignite/cli/blob/main/readme.md) in `README.md`.
+- [ ] Update [`changelog.md`](https://github.com/ignite/cli/blob/main/changelog.md)
+- [ ] Update [version matrix](https://github.com/ignite/cli/blob/main/readme.md) in `readme.md`.
 - [ ] Update docs site:
   - [ ] Add new release tag to [`docs/versioned_docs`](https://github.com/ignite/cli/tree/main/docs/versioned_docs).
 - [ ] After changes to docs site are deployed, check [docs.ignite.com/](https://docs.ignite.com/) is updated.
