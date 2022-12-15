@@ -70,6 +70,9 @@ func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 	return unique
 }
 
+// HasPath verifies if a plugin has the given path regardless of version.
+// Example:
+// github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true" will be returned.
 func (p Plugin) HasPath(path string) bool {
 	if path == "" {
 		return false
