@@ -142,3 +142,42 @@ func TestConfigSave(t *testing.T) {
 		})
 	}
 }
+
+func TestConfigHasPlugin(t *testing.T) {
+	tests := []struct {
+		name          string
+		cfg           pluginsconfig.Config
+		expectedFound bool
+	}{
+		{
+			name:          "empty config",
+			expectedFound: false,
+		},
+		{
+			name: "not found in config",
+			cfg: pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{
+					{Path: "github.com/ignite/example2"},
+				},
+			},
+			expectedFound: false,
+		},
+		{
+			name: "found in config",
+			cfg: pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{
+					{Path: "github.com/ignite/example2"},
+					{Path: "github.com/ignite/example@master"},
+				},
+			},
+			expectedFound: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			found := tt.cfg.HasPlugin("github.com/ignite/example@v42")
+
+			assert.Equal(t, tt.expectedFound, found)
+		})
+	}
+}
