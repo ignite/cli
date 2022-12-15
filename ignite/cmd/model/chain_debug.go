@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
@@ -70,11 +71,8 @@ func (m ChainDebug) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the UI after every update.
 func (m ChainDebug) View() string {
 	if m.error != nil {
-		// Make sure that the error is displayed in the same way
-		// that the output used by non UI based commands to keep
-		// consistency on error when the debug command is run
-		// without the `--server` flag.
-		return fmt.Sprintln(xstrings.ToUpperFirst(m.error.Error()))
+		s := xstrings.ToUpperFirst(m.error.Error())
+		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(s))
 	}
 
 	var view strings.Builder
