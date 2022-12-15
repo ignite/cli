@@ -9,6 +9,8 @@ import (
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/clictx"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
@@ -54,7 +56,9 @@ func run() int {
 		}
 
 		// Make sure the error message starts with an upper case character
-		fmt.Println(xstrings.ToUpperFirst(msg))
+		msg = xstrings.ToUpperFirst(msg)
+
+		fmt.Printf("%s %s\n", icons.NotOK, colors.Error(msg))
 
 		if errors.As(err, &versionErr) {
 			fmt.Println("Use a more recent CLI version or upgrade blockchain app's config")
