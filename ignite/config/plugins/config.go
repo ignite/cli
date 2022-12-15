@@ -48,31 +48,33 @@ type Plugin struct {
 func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 	// struct to track plugin configs
 	type check struct {
-		exists    bool
+		hasPath    bool
 		global    bool
 		prevIndex int
 	}
 
 	keys := make(map[string]check)
 	for i, plugin := range plugins {
-		c := keys[plugin.Path]
-		if !c.exists {
-			keys[plugin.Path] = check{
-				exists:    true,
+		c := keys[plugin.SubPath()]
+		if !c.hasPath {
+			keys[plugin.SubPath()] = check{
+				hasPath:    true,
 				global:    plugin.Global,
 				prevIndex: i,
 			}
 			unique = append(unique, plugin)
-		} else if c.exists && !plugin.Global && c.global { // overwrite global plugin if local duplicate exists
+		} else if c.hasPath && !plugin.Global && c.global { // overwrite global plugin if local duplicate exists
 			unique[c.prevIndex] = plugin
 		}
 	}
+
 	return unique
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.
 // Example:
-// github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true" will be returned.
+// github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true"
+// will be returned.
 func (p Plugin) HasPath(path string) bool {
 	if path == "" {
 		return false
@@ -80,9 +82,13 @@ func (p Plugin) HasPath(path string) bool {
 	if p.Path == path {
 		return true
 	}
-	pluginPath := strings.Split(p.Path, "@")[0]
+	pluginPath := p.SubPath()
 	path = strings.Split(path, "@")[0]
 	return pluginPath == path
+}
+
+func (p Plugin) SubPath() string {
+	return strings.Split(p.Path, "@")[0]
 }
 
 // Path return the path of the config file.

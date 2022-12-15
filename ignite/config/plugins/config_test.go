@@ -5,7 +5,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
@@ -58,11 +57,56 @@ func TestPluginHasPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert := assert.New(t)
-
 			res := tt.plugin.HasPath(tt.path)
+			require.Equal(t, tt.expectedRes, res)
+		})
+	}
+}
 
-			assert.Equal(tt.expectedRes, res)
+func TestPluginSubPath(t *testing.T) {
+	tests := []struct {
+		name        string
+		plugin      pluginsconfig.Plugin
+		expectedPath string
+	}{
+		{
+			name:        "empty both path",
+			plugin:      pluginsconfig.Plugin{},
+			expectedPath: "",
+		},
+		{
+			name: "simple path",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example",
+			},
+			expectedPath: "github.com/ignite/example",
+		},
+		{
+			name: "plugin path with ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@v1",
+			},
+			expectedPath: "github.com/ignite/example",
+		},
+		{
+			name: "plugin path with empty ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@",
+			},
+			expectedPath: "github.com/ignite/example",
+		},
+		{
+			name: "plugin local directory path",
+			plugin: pluginsconfig.Plugin{
+				Path: "/home/user/go/foo/bar",
+			},
+			expectedPath: "/home/user/go/foo/bar",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := tt.plugin.SubPath()
+			require.Equal(t, tt.expectedPath, res)
 		})
 	}
 }
@@ -123,7 +167,7 @@ func TestRemoveDuplicates(t *testing.T) {
 			name: "prioritize local plugins",
 			configs: []pluginsconfig.Plugin{
 				{
-					Path:   "foo/bar@",
+					Path:   "foo/bar",
 					Global: true,
 				},
 				{
@@ -141,7 +185,7 @@ func TestRemoveDuplicates(t *testing.T) {
 			},
 			expected: []pluginsconfig.Plugin{
 				{
-					Path:   "foo/bar@v2",
+					Path:   "foo/bar",
 					Global: false,
 				},
 				{

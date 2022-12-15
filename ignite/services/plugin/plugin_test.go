@@ -394,8 +394,6 @@ func TestPluginClean(t *testing.T) {
 	}
 }
 
-
-
 func assertPlugin(t *testing.T, want, have Plugin) {
 	if want.Error != nil {
 		require.Error(t, have.Error)
