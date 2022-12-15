@@ -63,7 +63,7 @@ func TestPluginHasPath(t *testing.T) {
 	}
 }
 
-func TestPluginSubPath(t *testing.T) {
+func TestPluginCanonicalPath(t *testing.T) {
 	tests := []struct {
 		name         string
 		plugin       pluginsconfig.Plugin
@@ -105,7 +105,7 @@ func TestPluginSubPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res := tt.plugin.SubPath()
+			res := tt.plugin.CanonicalPath()
 			require.Equal(t, tt.expectedPath, res)
 		})
 	}

@@ -55,9 +55,9 @@ func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 
 	keys := make(map[string]check)
 	for i, plugin := range plugins {
-		c := keys[plugin.SubPath()]
+		c := keys[plugin.CanonicalPath()]
 		if !c.hasPath {
-			keys[plugin.SubPath()] = check{
+			keys[plugin.CanonicalPath()] = check{
 				hasPath:   true,
 				global:    plugin.Global,
 				prevIndex: i,
@@ -82,12 +82,13 @@ func (p Plugin) HasPath(path string) bool {
 	if p.Path == path {
 		return true
 	}
-	pluginPath := p.SubPath()
+	pluginPath := p.CanonicalPath()
 	path = strings.Split(path, "@")[0]
 	return pluginPath == path
 }
 
-func (p Plugin) SubPath() string {
+// CanonicalPath returns the canonical path of a plugin (excludes version ref).
+func (p Plugin) CanonicalPath() string {
 	return strings.Split(p.Path, "@")[0]
 }
 
