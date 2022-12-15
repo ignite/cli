@@ -14,7 +14,7 @@ To achieve this, we will perform the following tasks:
 * Start two local blockchains
 * Set up an IBC relayer between the two chains
 * Create an exchange order book for a token pair on the two chains
-* Submit sell orders on the source chain
+* Submit sell orders on the Mars chain
 * Submit buy orders on the Venus chain
 * Cancel sell or buy orders
 
@@ -76,21 +76,21 @@ assets between the two chains.
 
 ## Order Book
 
-To use the exchange, start by creating an order book for a pair of tokens:
+To create an order book for a pair of tokens, you can use the following command:
 
 ```
 interchanged tx dex send-create-pair dex channel-0 marscoin venuscoin --from alice --chain-id mars --home ~/.mars
 ```
 
-Define a pair of token with two denominations:
+This command will create an order book for the pair of tokens `marscoin` and
+`venuscoin`. The command will be executed by the user `alice` on the Mars
+blockchain. The `--home` parameter specifies the location of the configuration
+directory for the Mars blockchain.
 
-- Source denom (in this example, `marscoin`)
-- Target denom (`venuscoin`)
+Creating an order book affects state on the Mars blockchain to which the
+transaction was broadcast and the Venus blockchain.
 
-Creating an order book affects state on the source blockchain to which the
-transaction was broadcast and the target blockchain.
-
-On the source blockchain, the `send-create-pair` command creates an empty sell
+On the Mars blockchain, the `send-create-pair` command creates an empty sell
 order book.
 
 ```
@@ -107,7 +107,7 @@ sellOrderBook:
   priceDenom: venuscoin
 ```
 
-On the target blockchain, the same `send-createPair` command creates a buy order
+On the Venus blockchain, the same `send-createPair` command creates a buy order
 book:
 
 ```
@@ -124,27 +124,21 @@ buyOrderBook:
   priceDenom: venuscoin
 ```
 
-To make an exchange possible, the `create-pair` transaction sends an IBC packet
-to the target chain.
+In the `create-pair` command on the Mars blockchain, an IBC packet is sent to the Venus chain. This packet contains information that is used to create a buy order book on the Venus chain.
 
-- When the target chain receives a packet, the target chain creates a buy order
-  book and sends an acknowledgement back to the source chain.
-- When the source chain receives an acknowledgement, the source chain creates a
-  sell order book.
+When the Venus chain receives the IBC packet, it processes the information contained in the packet and creates a buy order book. The Venus chain then sends an acknowledgement back to the Mars chain to confirm that the buy order book has been successfully created.
 
-Sending an IBC packet requires a user to specify a port and a channel through
-which a packet is transferred.
+Upon receiving the acknowledgement from the Venus chain, the Mars chain creates a sell order book. This sell order book is associated with the buy order book on the Venus chain, allowing users to trade assets between the two chains.
 
 ## Sell Order
 
-After an order book is created, the next step is to create a sell order:
+After creating an order book, the next step is to create a sell order. This can be done using the `send-sell-order` command, which is used to broadcast a transaction with a message that locks a specified amount of tokens and creates a sell order on the Mars blockchain.
 
 ```
 interchanged tx dex send-sell-order dex channel-0 marscoin 10 venuscoin 15  --from alice --chain-id mars --home ~/.mars
 ```
 
-The `send-sell-order` command broadcasts a message that locks token on the
-source blockchain and creates a sell order on the source blockchain.
+In the example provided, the `send-sell-order` command is used to create a sell order for 10 `marscoin` token and 15 `venuscoin` token. This sell order will be added to the order book on the Mars blockchain.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars)
@@ -178,13 +172,13 @@ sellOrderBook:
 
 ## Buy order 
 
-A buy order has the same arguments, the amount of token to be purchased and a
-price:
+After creating a sell order, the next step in the trading process is typically to create a buy order. This can be done using the `send-buy-order` command, which is used to lock a specified amount of tokens and create a buy order on the Venus blockchain
 
 ```
 interchanged tx dex send-buy-order dex channel-0 marscoin 10 venuscoin 5 --from alice --chain-id venus --home ~/.venus --node tcp://localhost:26659
 ```
-The `send-buy-order` command locks token on the target blockchain.
+
+In the example provided, the `send-buy-order` command is used to create a buy order for 10 `marscoin` token and 5 `venuscoin` token. This buy order will be added to the order book on the Venus blockchain.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.venus) --node tcp://localhost:26659
@@ -220,21 +214,18 @@ buyOrderBook:
 
 ## Perform an Exchange with a Sell Order
 
-You now have two orders open for marscoin:
+You currently have two open orders for `marscoin`:
 
-- A sell order on the source chain (for 10marscoin at 15venuscoin)
-- A buy order on the target chain (for 5marscoin at 5venuscoin)
+* A sell order on the Mars chain, where you are offering to sell 10 `marscoin` for 15 `venuscoin`.
+* A buy order on the Venus chain, where you are willing to buy 5 `marscoin` for 5 `venuscoin`.
 
-Now, perform an exchange by sending a sell order to the source chain:
+To perform an exchange, you can send a sell order to the Mars chain using the following command:
 
 ```
 interchanged tx dex send-sell-order dex channel-0 marscoin 5 venuscoin 3 --from alice --home ~/.mars
 ```
 
-The sell order (for 5marscoin at 3venuscoin) is filled on the target chain by
-the buy order.
-
-The amount of the buy order on the target chain is decreased by 5marscoin.
+This sell order, offering to sell 5 `marscoin` for 3 `venuscoin`, will be filled on the Venus chain by the existing buy order. This will result in the amount of the buy order on the Venus chain being reduced by 5 `marscoin`.
 
 ```
 interchanged q dex list-buy-order-book --node tcp://localhost:26659
@@ -254,11 +245,7 @@ buyOrderBook:
   priceDenom: venuscoin
 ```
 
-The sender of the filled sell order exchanged 5marscoin for 25 venuscoin
-vouchers.
-
-25 vouchers is a product of the amount of the sell order (5marscoin) and price
-of the buy order (5venuscoin):
+The sender of the filled sell order traded 5 `marscoin` for 25 `venuscoin` tokens. This means that the amount of the sell order (5 `marscoin`) was multiplied by the price of the buy order (5 `venuscoin`) to determine the value of the exchange. In this case, the value of the exchange was 25 `venuscoin` vouchers.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars)
@@ -274,8 +261,7 @@ balances:
   denom: token
 ```
 
-The counterparty (the sender of the buy marscoin order) receives 5 marscoin
-vouchers:
+The counterparty, or the sender of the buy `marscoin` order, will receive 5 `marscoin` as a result of the exchange.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.venus) --node tcp://localhost:26659
@@ -293,23 +279,18 @@ balances:
   denom: venuscoin
 ```
 
-The venuscoin balance hasn't changed because the correct amount of venuscoin
-(50) was locked at the creation of the buy order during the previous step.
+The `venuscoin` balance has remained unchanged because the appropriate amount of `venuscoin` (50) was already locked at the time the buy order was created in the previous step.
 
 
 ## Perform an Exchange with a Buy Order
 
-Now, send an order to buy 5marscoin for 15venuscoin:
+To perform an exchange with a buy order, send a transaction to the decentralized exchange to buy 5 `marscoin` for 15 `venuscoin`. This is done by running the following command:
 
 ```
 interchanged tx dex send-buy-order dex channel-0 marscoin 5 venuscoin 15 --from alice --home ~/.venus --node tcp://localhost:26659
 ```
 
-A buy order is immediately filled on the source chain and the sell order creator
-receives 75 venuscoin vouchers.
-
-The sell order amount is decreased by the amount of the filled buy order (by
-5marscoin):
+This buy order will be immediately filled on the Mars chain, and the creator of the sell order will receive 75 `venuscoin` vouchers as payment.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars)
@@ -324,6 +305,8 @@ balances:
 - amount: "1000"
   denom: token
 ```
+
+The amount of the sell order will be decreased by the amount of the filled buy order, so in this case it will be decreased by 5 `marscoin`.
 
 ```
 interchanged q dex list-sell-order-book
@@ -364,16 +347,15 @@ balances:
 
 ## Complete Exchange with a Partially Filled Sell Order
 
-Send an order to sell 10marscoin for 3venuscoin:
+To complete the exchange with a partially filled sell order, send a transaction to the decentralized exchange to sell 10 `marscoin` for 3 `venuscoin`. This is done by running the following command:
 
 ```
 interchanged tx dex send-sell-order dex channel-0 marscoin 10 venuscoin 3 --from alice --home ~/.mars
 ```
 
-The sell amount is 10marscoin, but the opened buy order amount is only
-5marscoin. The buy order gets filled completely and removed from the order book.
-The author of the previously created buy order receives 10 marscoin vouchers
-from the exchange:
+In this scenario, the sell amount is 10 `marscoin`, but there is an existing buy order for only 5 `marscoin`. The buy order will be filled completely and removed from the order book. The author of the previously created buy order will receive 10 `marscoin` vouchers from the exchange.
+
+To check the balances, she can run the following command:
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.venus) --node tcp://localhost:26659
@@ -446,16 +428,13 @@ sellOrderBook:
 
 ## Complete Exchange with a Partially Filled Buy Order
 
-Create an order to buy 10 marscoin for 5 venuscoin:
+To complete the exchange with a partially filled buy order, send a transaction to the decentralized exchange to buy 10 `marscoin` for 5 `venuscoin`. This is done by running the following command:
 
 ```
 interchanged tx dex send-buy-order dex channel-0 marscoin 10 venuscoin 5 --from alice --home ~/.venus --node tcp://localhost:26659
 ```
 
-The buy order is partially filled for 5marscoin. An existing sell order for 5
-marscoin (with a price of 3 venuscoin) on the source chain is completely filled
-and is removed from the order book. The author of the closed sell order receives
-15 venuscoin vouchers (product of 5marscoin and 3venuscoin):
+In this scenario, the buy order is only partially filled for 5 `marscoin`. There is an existing sell order for 5 `marscoin` (with a price of 3 `venuscoin`) on the Mars chain, which is completely filled and removed from the order book. The author of the closed sell order will receive 15 `venuscoin` vouchers as payment, which is the product of 5 `marscoin` and 3 `venuscoin`.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars)
@@ -490,9 +469,7 @@ sellOrderBook:
   priceDenom: venuscoin
 ```
 
-The author of the buy order receives 5 marscoin vouchers which locks 50
-venuscoin of their token. The 5marscoin amount that is not filled by the sell
-order creates a buy order on the target chain:
+In this scenario, the author of the buy order will receive 5 `marscoin` vouchers as payment, which locks up 50 `venuscoin` of their token. The remaining 5 `marscoin` that is not filled by the sell order will create a new buy order on the Venus chain. This means that the author of the buy order is still interested in purchasing 5 `marscoin`, and is willing to pay the specified price for it. The new buy order will remain on the order book until it is filled by another sell order, or it is cancelled by the buyer.
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.venus) --node tcp://localhost:26659
@@ -530,22 +507,25 @@ buyOrderBook:
 
 ## Cancel an Order
 
-After these exchanges, you still have two orders open:
+After the exchanges described, there are still two open orders: a sell order on the Mars chain (5 `marscoin` for 15 `venuscoin`), and a buy order on the Venus chain (5 `marscoin` for 5 `venuscoin`).
 
-- A sell order on the source chain (5marscoin for 15venuscoin)
-- A buy order on the target chain (5marscoin for 5venuscoin)
+To cancel an order on a blockchain, you can use the `cancel-sell-order` or `cancel-buy-order` command, depending on the type of order you want to cancel. The command takes several arguments, including the `channel-id` of the IBC connection, the `amount-denom` and `price-denom` of the order, and the `order-id` of the order you want to cancel.
 
-To cancel a sell order:
+To cancel a sell order on the Mars chain, you would run the following command:
 
 ```
 interchanged tx dex cancel-sell-order dex channel-0 marscoin venuscoin 0 --from alice --home ~/.mars
 ```
 
-The balance of marscoin is increased:
+This will cancel the sell order and remove it from the order book. The balance of Alice's `marscoin` will be increased by the amount of the cancelled sell order.
+
+To check Alice's balances, including her updated `marscoin` balance, run the following command:
 
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars) 
 ```
+
+This will return a list of Alice's balances, including her updated `marscoin` balance.
 
 ```yml
 balances:
@@ -557,7 +537,7 @@ balances:
   denom: token
 ```
 
-The sell order book on the source blockchain is now empty.
+After the sell order on the Mars chain has been cancelled, the sell order book on that blockchain will be empty. This means that there are no longer any active sell orders on the Mars chain, and anyone interested in purchasing `marscoin` will need to create a new buy order. The sell order book will remain empty until a new sell order is created and added to it.
 
 ```
 interchanged q dex list-sell-order-book
@@ -573,17 +553,21 @@ sellOrderBook:
   priceDenom: venuscoin
 ```
 
-To cancel a buy order:
+To cancel a buy order on the `Venus` chain, you can run the following command:
 
 ```
 interchanged tx dex cancel-buy-order dex channel-0 marscoin venuscoin 1 --from alice --home ~/.venus --node tcp://localhost:26659
 ```
 
+This will cancel the buy order and remove it from the order book. The balance of Alice's `venuscoin` will be increased by the amount of the cancelled buy order.
+
+To check Alice's balances, including her updated `venuscoin` balance, you can run the following command:
+
 ```
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.venus) --node tcp://localhost:26659
 ```
 
-The amount of venuscoin is increased:
+The amount of `venuscoin` is increased:
 
 ```yml
 balances:
@@ -597,7 +581,9 @@ balances:
   denom: venuscoin
 ```
 
-The buy order book on the target blockchain is now empty.
+This will return a list of Alice's balances, including her updated `venuscoin` balance.
+
+After canceling a buy order, the buy order book on the Venus blockchain will be empty. This means that there are no longer any active buy orders on the chain, and anyone interested in selling `marscoin` will need to create a new sell order. The buy order book will remain empty until a new buy order is created and added to it.
 
 ```
 interchanged q dex list-buy-order-book --node tcp://localhost:26659
@@ -613,9 +599,6 @@ buyOrderBook:
   priceDenom: venuscoin
 ```
 
-This walkthrough of the interchain exchange showed you how to:
+In this walkthrough, we demonstrated how to set up an interchain exchange for trading tokens between two different blockchain networks. This involved creating an exchange order book for a specific token pair and establishing a fixed exchange rate between the two.
 
-- Create an exchange order book for a token pair between two chains
-- Send sell orders on source chain
-- Send buy orders on target chain
-- Cancel sell or buy orders
+Once the exchange was set up, users could send sell orders on the Mars chain and buy orders on the Venus chain. This allowed them to offer their tokens for sale or purchase tokens from the exchange. In addition, users could also cancel their orders if needed. 
