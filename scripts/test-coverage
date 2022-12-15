@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -e -x
 
 go test -v -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... $(go list github.com/ignite/cli/ignite/...)
 
