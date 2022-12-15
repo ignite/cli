@@ -177,7 +177,7 @@ hellod query hello say-hello bob
 
 A debugger shell will be launched when the breakpoint is triggered:
 
-```go
+```
      7:		"google.golang.org/grpc/codes"
      8:		"google.golang.org/grpc/status"
      9:		"hello/x/hello/types"
