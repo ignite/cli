@@ -50,7 +50,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		return nil
 	}
 
-	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
+	uniquePlugins := pluginsconfig.RemoveDuplicates(pluginsConfigs)
 	plugins, err = plugin.Load(ctx, uniquePlugins)
 	if err != nil {
 		return err

@@ -42,6 +42,34 @@ type Plugin struct {
 	Global bool `yaml:"-"`
 }
 
+// RemoveDuplicates takes a list of Plugins and returns a new list with only unique values.
+// Local plugins take precedence over global plugins if duplicate paths exist.
+// Duplicates are compared regardless of version.
+func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
+	// struct to track plugin configs
+	type check struct {
+		exists    bool
+		global    bool
+		prevIndex int
+	}
+
+	keys := make(map[string]check)
+	for i, plugin := range plugins {
+		c := keys[plugin.Path]
+		if !c.exists {
+			keys[plugin.Path] = check{
+				exists:    true,
+				global:    plugin.Global,
+				prevIndex: i,
+			}
+			unique = append(unique, plugin)
+		} else if c.exists && !plugin.Global && c.global { // overwrite global plugin if local duplicate exists
+			unique[c.prevIndex] = plugin
+		}
+	}
+	return unique
+}
+
 func (p Plugin) HasPath(path string) bool {
 	if path == "" {
 		return false
