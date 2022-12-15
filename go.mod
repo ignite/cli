@@ -59,6 +59,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	github.com/vektra/mockery/v2 v2.15.0
 	go.etcd.io/bbolt v1.3.6
+	golang.org/x/exp v0.0.0-20221212164502-fae10dda9338
 	golang.org/x/mod v0.7.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.2.0
@@ -366,7 +367,6 @@ require (
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
-	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220827204233-334a2380cb91 // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect

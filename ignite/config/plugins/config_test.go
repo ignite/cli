@@ -5,10 +5,67 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 )
+
+func TestPluginHasPath(t *testing.T) {
+	tests := []struct {
+		name        string
+		plugin      pluginsconfig.Plugin
+		path        string
+		expectedRes bool
+	}{
+		{
+			name:        "empty both path",
+			plugin:      pluginsconfig.Plugin{},
+			expectedRes: false,
+		},
+		{
+			name: "simple path",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example",
+			},
+			path:        "github.com/ignite/example",
+			expectedRes: true,
+		},
+		{
+			name: "plugin path with ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@v1",
+			},
+			path:        "github.com/ignite/example",
+			expectedRes: true,
+		},
+		{
+			name: "plugin path with empty ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@",
+			},
+			path:        "github.com/ignite/example",
+			expectedRes: true,
+		},
+		{
+			name: "both path with different ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@v1",
+			},
+			path:        "github.com/ignite/example@v2",
+			expectedRes: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			res := tt.plugin.HasPath(tt.path)
+
+			assert.Equal(tt.expectedRes, res)
+		})
+	}
+}
 
 func TestConfigSave(t *testing.T) {
 	tests := []struct {

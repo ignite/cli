@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
+	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,6 +43,18 @@ type Plugin struct {
 	Global bool `yaml:"-"`
 }
 
+func (p Plugin) HasPath(path string) bool {
+	if path == "" {
+		return false
+	}
+	if p.Path == path {
+		return true
+	}
+	pluginPath := strings.Split(p.Path, "@")[0]
+	path = strings.Split(path, "@")[0]
+	return pluginPath == path
+}
+
 // Path return the path of the config file.
 func (c Config) Path() string {
 	return c.path
@@ -64,4 +78,11 @@ func (c *Config) Save() error {
 		return errf(err)
 	}
 	return nil
+}
+
+// HasPlugin returns true if c contains a plugin with given path.
+func (c Config) HasPlugin(path string) bool {
+	return slices.ContainsFunc(c.Plugins, func(cp Plugin) bool {
+		return cp.HasPath(path)
+	})
 }

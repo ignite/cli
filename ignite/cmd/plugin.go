@@ -31,9 +31,11 @@ var plugins []*plugin.Plugin
 
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
-func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	pluginsConfigs := make([]pluginsconfig.Plugin, 0)
-
+func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
+	var (
+		rootCmd        = cmd.Root()
+		pluginsConfigs []pluginsconfig.Plugin
+	)
 	localCfg, err := parseLocalPlugins(rootCmd)
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
@@ -45,6 +47,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	if err == nil {
 		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
 	}
+	ensureDefaultPlugins(cmd, globalCfg)
 
 	if len(pluginsConfigs) == 0 {
 		return nil
@@ -58,7 +61,7 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 		return nil
 	}
 
-	return loadPlugins(rootCmd, plugins)
+	return linkPlugins(rootCmd, plugins)
 }
 
 func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
@@ -97,12 +100,12 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 	return
 }
 
-func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
+func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	// Link plugins to related commands
-	var loadErrors []string
+	var linkErrors []*plugin.Plugin
 	for _, p := range plugins {
 		if p.Error != nil {
-			loadErrors = append(loadErrors, p.Path)
+			linkErrors = append(linkErrors, p)
 			continue
 		}
 		manifest, err := p.Interface.Manifest()
@@ -112,16 +115,16 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 		}
 		linkPluginHooks(rootCmd, p, manifest.Hooks)
 		if p.Error != nil {
-			loadErrors = append(loadErrors, p.Path)
+			linkErrors = append(linkErrors, p)
 			continue
 		}
 		linkPluginCmds(rootCmd, p, manifest.Commands)
 		if p.Error != nil {
-			loadErrors = append(loadErrors, p.Path)
+			linkErrors = append(linkErrors, p)
 			continue
 		}
 	}
-	if len(loadErrors) > 0 {
+	if len(linkErrors) > 0 {
 		// unload any plugin that could have been loaded
 		defer UnloadPlugins()
 		if err := printPlugins(cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
@@ -129,7 +132,11 @@ func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 			// return here, just print the error.
 			fmt.Printf("fail to print: %v\n", err)
 		}
-		return errors.Errorf("fail to load: %v", strings.Join(loadErrors, ","))
+		var s strings.Builder
+		for _, p := range linkErrors {
+			fmt.Fprintf(&s, "%s: %v", p.Path, p.Error)
+		}
+		return errors.Errorf("fail to link: %v", s.String())
 	}
 	return nil
 }
@@ -153,22 +160,11 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Ho
 
 func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
 	cmdPath := hook.PlaceHookOn
-
-	if !strings.HasPrefix(cmdPath, "ignite") {
-		// cmdPath must start with `ignite ` before comparison with
-		// cmd.CommandPath()
-		cmdPath = igniteCmdPrefix + cmdPath
-	}
-
-	cmdPath = strings.TrimSpace(cmdPath)
-
 	cmd := findCommandByPath(rootCmd, cmdPath)
-
 	if cmd == nil {
 		p.Error = errors.Errorf("unable to find commandPath %q for plugin hook %q", cmdPath, hook.Name)
 		return
 	}
-
 	if !cmd.Runnable() {
 		p.Error = errors.Errorf("can't attach plugin hook %q to non executable command %q", hook.Name, hook.PlaceHookOn)
 		return
@@ -266,13 +262,6 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugi
 
 func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {
 	cmdPath := pluginCmd.PlaceCommandUnder
-	if !strings.HasPrefix(cmdPath, "ignite") {
-		// cmdPath must start with `ignite ` before comparison with
-		// cmd.CommandPath()
-		cmdPath = igniteCmdPrefix + cmdPath
-	}
-	cmdPath = strings.TrimSpace(cmdPath)
-
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
 		p.Error = errors.Errorf("unable to find commandPath %q for plugin %q", cmdPath, p.Path)
@@ -282,18 +271,18 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		p.Error = errors.Errorf("can't attach plugin command %q to runnable command %q", pluginCmd.Use, cmd.CommandPath())
 		return
 	}
-	pluginCmdName := pluginCmd.Use
+
+	// Check for existing commands
 	// pluginCmd.Use can be like `command [args]` so we need to remove those
 	// extra args if any.
-	if i := strings.Index(pluginCmdName, " "); i >= 0 {
-		pluginCmdName = pluginCmdName[:i]
-	}
+	pluginCmdName := strings.Split(pluginCmd.Use, " ")[0]
 	for _, cmd := range cmd.Commands() {
 		if cmd.Name() == pluginCmdName {
 			p.Error = errors.Errorf("plugin command %q already exists in ignite's commands", pluginCmdName)
 			return
 		}
 	}
+
 	newCmd := &cobra.Command{
 		Use:     pluginCmd.Use,
 		Aliases: pluginCmd.Aliases,
@@ -341,6 +330,13 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 }
 
 func findCommandByPath(cmd *cobra.Command, cmdPath string) *cobra.Command {
+	if !strings.HasPrefix(cmdPath, "ignite") {
+		// cmdPath must start with `ignite ` before comparison with
+		// cmd.CommandPath()
+		cmdPath = igniteCmdPrefix + cmdPath
+	}
+	cmdPath = strings.TrimSpace(cmdPath)
+
 	if cmd.CommandPath() == cmdPath {
 		return cmd
 	}
