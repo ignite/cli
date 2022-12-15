@@ -317,7 +317,7 @@ ignite
 			rootCmd := buildRootCmd()
 			tt.setup(t, pi)
 
-			loadPlugins(rootCmd, []*plugin.Plugin{p})
+			linkPlugins(rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.Error(p.Error)
@@ -546,7 +546,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			rootCmd := buildRootCmd()
 			tt.setup(t, pi)
 
-			loadPlugins(rootCmd, []*plugin.Plugin{p})
+			linkPlugins(rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.EqualError(p.Error, tt.expectedError)

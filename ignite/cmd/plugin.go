@@ -31,7 +31,7 @@ var plugins []*plugin.Plugin
 
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
-func LoadPlugins(ctx context.Context, rootCmd *cobra.Command, options ...plugin.Option) error {
+func LoadPlugins(ctx context.Context, rootCmd *cobra.Command) error {
 	pluginsConfigs := make([]pluginsconfig.Plugin, 0)
 
 	localCfg, err := parseLocalPlugins(rootCmd)
@@ -50,15 +50,19 @@ func LoadPlugins(ctx context.Context, rootCmd *cobra.Command, options ...plugin.
 		return nil
 	}
 
+	session := cliui.New(cliui.WithStdout(os.Stdout))
+	defer session.End()
+
 	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
-	plugins, err = plugin.Load(ctx, uniquePlugins, options...)
+	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
-	} else if len(plugins) == 0 {
+	}
+	if len(plugins) == 0 {
 		return nil
 	}
 
-	return loadPlugins(rootCmd, plugins)
+	return linkPlugins(rootCmd, plugins)
 }
 
 func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
@@ -97,7 +101,7 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 	return
 }
 
-func loadPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
+func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	// Link plugins to related commands
 	var loadErrors []string
 	for _, p := range plugins {
@@ -464,12 +468,12 @@ Example:
 			}
 
 			session.StartSpinner("Loading plugin")
-			pluginInstance, err := plugin.LoadSingle(cmd.Context(), p, pluginsOptions...)
+			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{p}, pluginsOptions...)
 			if err != nil {
 				return err
 			}
-			if pluginInstance.Error != nil {
-				return fmt.Errorf("error while loading plugin %q: %w", args[0], pluginInstance.Error)
+			if plugins[0].Error != nil {
+				return fmt.Errorf("error while loading plugin %q: %w", args[0], plugins[0].Error)
 			}
 			session.Println("Done loading plugin")
 			conf.Plugins = append(conf.Plugins, p)
@@ -606,31 +610,30 @@ func NewPluginDescribe() *cobra.Command {
 }
 
 func printPlugins(session *cliui.Session) error {
-	var entries [][]string
-	buildStatus := func(p *plugin.Plugin) string {
-		if p.Error != nil {
-			return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
-		}
-		manifest, err := p.Interface.Manifest()
-		if err != nil {
-			return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
-		}
-		var (
-			hookCount = len(manifest.Hooks)
-			cmdCount  = len(manifest.Commands)
-		)
+	var (
+		entries     [][]string
+		buildStatus = func(p *plugin.Plugin) string {
+			if p.Error != nil {
+				return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
+			}
+			manifest, err := p.Interface.Manifest()
+			if err != nil {
+				return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
+			}
+			var (
+				hookCount = len(manifest.Hooks)
+				cmdCount  = len(manifest.Commands)
+			)
 
-		return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
-	}
-
-	installedStatus := func(p *plugin.Plugin) string {
-		installed := "local"
-		if p.IsGlobal() {
-			installed = "global"
+			return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
 		}
-		return installed
-	}
-
+		installedStatus = func(p *plugin.Plugin) string {
+			if p.IsGlobal() {
+				return "global"
+			}
+			return "local"
+		}
+	)
 	for _, p := range plugins {
 		entries = append(entries, []string{p.Path, buildStatus(p), installedStatus(p)})
 	}

@@ -94,15 +94,6 @@ func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option
 	return loaded, nil
 }
 
-// LoadSingle loads a single plugin instead of a list.
-func LoadSingle(ctx context.Context, pluginCfg pluginsconfig.Plugin, options ...Option) (*Plugin, error) {
-	loaded, err := Load(ctx, []pluginsconfig.Plugin{pluginCfg}, options...)
-	if err != nil {
-		return nil, err
-	}
-	return loaded[0], nil
-}
-
 // Update removes the cache directory of plugins and fetch them again.
 func Update(plugins ...*Plugin) error {
 	for _, p := range plugins {
