@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -39,6 +40,16 @@ type Plugin struct {
 	// Global holds whether the plugin is installed globally
 	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
 	Global bool `yaml:"-"`
+}
+
+func (p Plugin) SplitPathRef() (canonicalPath string, ref string) {
+	canonicalPath = p.Path
+	if i := strings.LastIndex(p.Path, "@"); i != -1 {
+		// path contains a reference
+		canonicalPath = p.Path[:i]
+		ref = p.Path[i+1:]
+	}
+	return
 }
 
 // Path return the path of the config file.

@@ -5,10 +5,57 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 )
+
+func TestSplitPathRef(t *testing.T) {
+	tests := []struct {
+		name                  string
+		plugin                pluginsconfig.Plugin
+		expectedCanonicalPath string
+		expectedRef           string
+	}{
+		{
+			name:   "empty path",
+			plugin: pluginsconfig.Plugin{},
+		},
+		{
+			name: "simple path",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example",
+			},
+			expectedCanonicalPath: "github.com/ignite/example",
+		},
+		{
+			name: "path with ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@v1",
+			},
+			expectedCanonicalPath: "github.com/ignite/example",
+			expectedRef:           "v1",
+		},
+		{
+			name: "path with empty ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@",
+			},
+			expectedCanonicalPath: "github.com/ignite/example",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			canonicalPath, ref := tt.plugin.SplitPathRef()
+
+			assert.Equal(tt.expectedCanonicalPath, canonicalPath)
+			assert.Equal(tt.expectedRef, ref)
+		})
+	}
+}
 
 func TestConfigSave(t *testing.T) {
 	tests := []struct {

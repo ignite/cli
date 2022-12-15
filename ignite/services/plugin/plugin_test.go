@@ -450,7 +450,7 @@ func TestRemoveDuplicates(t *testing.T) {
 			name: "prioritize local plugins",
 			configs: []pluginsconfig.Plugin{
 				{
-					Path:   "foo/bar",
+					Path:   "foo/bar@v1",
 					Global: true,
 				},
 				{
@@ -458,7 +458,7 @@ func TestRemoveDuplicates(t *testing.T) {
 					Global: true,
 				},
 				{
-					Path:   "foo/bar",
+					Path:   "foo/bar@v2",
 					Global: false,
 				},
 				{
@@ -468,7 +468,7 @@ func TestRemoveDuplicates(t *testing.T) {
 			},
 			expected: []pluginsconfig.Plugin{
 				{
-					Path:   "foo/bar",
+					Path:   "foo/bar@v2",
 					Global: false,
 				},
 				{
