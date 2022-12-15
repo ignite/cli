@@ -26,19 +26,18 @@ func PathWithError(path string, err error) PathRetriever {
 // The returned path retriever eventually returns the error from the first provided path retrievers
 // that returns a non-nil error.
 func Join(paths ...PathRetriever) PathRetriever {
-	var components []string
-	var err error
-	for _, path := range paths {
-		var component string
-		component, err = path()
-		if err != nil {
-			break
-		}
-		components = append(components, component)
-	}
-	path := filepath.Join(components...)
-
 	return func() (string, error) {
+		var components []string
+		var err error
+		for _, path := range paths {
+			var component string
+			component, err = path()
+			if err != nil {
+				break
+			}
+			components = append(components, component)
+		}
+		path := filepath.Join(components...)
 		return path, err
 	}
 }
@@ -52,18 +51,29 @@ func JoinFromHome(paths ...PathRetriever) PathRetriever {
 // List returns a paths retriever from a list of path retrievers.
 // The returned paths retriever eventually returns the error from the first provided path retrievers that returns a non-nil error.
 func List(paths ...PathRetriever) PathsRetriever {
-	var list []string
-	var err error
-	for _, path := range paths {
-		var resolved string
-		resolved, err = path()
-		if err != nil {
-			break
-		}
-		list = append(list, resolved)
-	}
-
 	return func() ([]string, error) {
+		var list []string
+		var err error
+		for _, path := range paths {
+			var resolved string
+			resolved, err = path()
+			if err != nil {
+				break
+			}
+			list = append(list, resolved)
+		}
+
 		return list, err
+	}
+}
+
+// Mkdir ensure path exists before returning it.
+func Mkdir(path PathRetriever) PathRetriever {
+	return func() (string, error) {
+		p, err := path()
+		if err != nil {
+			return "", err
+		}
+		return p, os.MkdirAll(p, 0o755)
 	}
 }
