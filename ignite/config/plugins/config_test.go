@@ -11,48 +11,58 @@ import (
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 )
 
-func TestSplitPathRef(t *testing.T) {
+func TestPluginHasPath(t *testing.T) {
 	tests := []struct {
-		name                  string
-		plugin                pluginsconfig.Plugin
-		expectedCanonicalPath string
-		expectedRef           string
+		name        string
+		plugin      pluginsconfig.Plugin
+		path        string
+		expectedRes bool
 	}{
 		{
-			name:   "empty path",
-			plugin: pluginsconfig.Plugin{},
+			name:        "empty both path",
+			plugin:      pluginsconfig.Plugin{},
+			expectedRes: false,
 		},
 		{
 			name: "simple path",
 			plugin: pluginsconfig.Plugin{
 				Path: "github.com/ignite/example",
 			},
-			expectedCanonicalPath: "github.com/ignite/example",
+			path:        "github.com/ignite/example",
+			expectedRes: true,
 		},
 		{
-			name: "path with ref",
+			name: "plugin path with ref",
 			plugin: pluginsconfig.Plugin{
 				Path: "github.com/ignite/example@v1",
 			},
-			expectedCanonicalPath: "github.com/ignite/example",
-			expectedRef:           "v1",
+			path:        "github.com/ignite/example",
+			expectedRes: true,
 		},
 		{
-			name: "path with empty ref",
+			name: "plugin path with empty ref",
 			plugin: pluginsconfig.Plugin{
 				Path: "github.com/ignite/example@",
 			},
-			expectedCanonicalPath: "github.com/ignite/example",
+			path:        "github.com/ignite/example",
+			expectedRes: true,
+		},
+		{
+			name: "both path with different ref",
+			plugin: pluginsconfig.Plugin{
+				Path: "github.com/ignite/example@v1",
+			},
+			path:        "github.com/ignite/example@v2",
+			expectedRes: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			canonicalPath, ref := tt.plugin.SplitPathRef()
+			res := tt.plugin.HasPath(tt.path)
 
-			assert.Equal(tt.expectedCanonicalPath, canonicalPath)
-			assert.Equal(tt.expectedRef, ref)
+			assert.Equal(tt.expectedRes, res)
 		})
 	}
 }

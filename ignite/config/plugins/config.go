@@ -42,14 +42,16 @@ type Plugin struct {
 	Global bool `yaml:"-"`
 }
 
-func (p Plugin) SplitPathRef() (canonicalPath string, ref string) {
-	canonicalPath = p.Path
-	if i := strings.LastIndex(p.Path, "@"); i != -1 {
-		// path contains a reference
-		canonicalPath = p.Path[:i]
-		ref = p.Path[i+1:]
+func (p Plugin) HasPath(path string) bool {
+	if path == "" {
+		return false
 	}
-	return
+	if p.Path == path {
+		return true
+	}
+	pluginPath := strings.Split(p.Path, "@")[0]
+	path = strings.Split(path, "@")[0]
+	return pluginPath == path
 }
 
 // Path return the path of the config file.
