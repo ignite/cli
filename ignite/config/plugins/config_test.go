@@ -65,13 +65,13 @@ func TestPluginHasPath(t *testing.T) {
 
 func TestPluginSubPath(t *testing.T) {
 	tests := []struct {
-		name        string
-		plugin      pluginsconfig.Plugin
+		name         string
+		plugin       pluginsconfig.Plugin
 		expectedPath string
 	}{
 		{
-			name:        "empty both path",
-			plugin:      pluginsconfig.Plugin{},
+			name:         "empty both path",
+			plugin:       pluginsconfig.Plugin{},
 			expectedPath: "",
 		},
 		{

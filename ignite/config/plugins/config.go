@@ -48,7 +48,7 @@ type Plugin struct {
 func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 	// struct to track plugin configs
 	type check struct {
-		hasPath    bool
+		hasPath   bool
 		global    bool
 		prevIndex int
 	}
@@ -58,7 +58,7 @@ func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 		c := keys[plugin.SubPath()]
 		if !c.hasPath {
 			keys[plugin.SubPath()] = check{
-				hasPath:    true,
+				hasPath:   true,
 				global:    plugin.Global,
 				prevIndex: i,
 			}
