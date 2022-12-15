@@ -53,11 +53,15 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 		return nil
 	}
 
+	session := cliui.New(cliui.WithStdout(os.Stdout))
+	defer session.End()
+
 	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
-	plugins, err = plugin.Load(ctx, uniquePlugins)
+	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
-	} else if len(plugins) == 0 {
+	}
+	if len(plugins) == 0 {
 		return nil
 	}
 
@@ -451,6 +455,10 @@ Example:
 				Global: global,
 			}
 
+			pluginsOptions := []plugin.Option{
+				plugin.CollectEvents(session.EventBus()),
+			}
+
 			var pluginArgs []string
 			if len(args) > 1 {
 				pluginArgs = args[1:]
@@ -465,12 +473,12 @@ Example:
 			}
 
 			session.StartSpinner("Loading plugin")
-			pluginInstance, err := plugin.LoadSingle(cmd.Context(), &p)
+			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{p}, pluginsOptions...)
 			if err != nil {
 				return err
 			}
-			if pluginInstance.Error != nil {
-				return fmt.Errorf("error while loading plugin %q: %w", args[0], pluginInstance.Error)
+			if plugins[0].Error != nil {
+				return fmt.Errorf("error while loading plugin %q: %w", args[0], plugins[0].Error)
 			}
 			session.Println("Done loading plugin")
 			conf.Plugins = append(conf.Plugins, p)
@@ -614,31 +622,30 @@ func NewPluginDescribe() *cobra.Command {
 }
 
 func printPlugins(session *cliui.Session) error {
-	var entries [][]string
-	buildStatus := func(p *plugin.Plugin) string {
-		if p.Error != nil {
-			return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
-		}
-		manifest, err := p.Interface.Manifest()
-		if err != nil {
-			return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
-		}
-		var (
-			hookCount = len(manifest.Hooks)
-			cmdCount  = len(manifest.Commands)
-		)
+	var (
+		entries     [][]string
+		buildStatus = func(p *plugin.Plugin) string {
+			if p.Error != nil {
+				return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
+			}
+			manifest, err := p.Interface.Manifest()
+			if err != nil {
+				return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
+			}
+			var (
+				hookCount = len(manifest.Hooks)
+				cmdCount  = len(manifest.Commands)
+			)
 
-		return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
-	}
-
-	installedStatus := func(p *plugin.Plugin) string {
-		installed := "local"
-		if p.IsGlobal() {
-			installed = "global"
+			return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
 		}
-		return installed
-	}
-
+		installedStatus = func(p *plugin.Plugin) string {
+			if p.IsGlobal() {
+				return "global"
+			}
+			return "local"
+		}
+	)
 	for _, p := range plugins {
 		entries = append(entries, []string{p.Path, buildStatus(p), installedStatus(p)})
 	}
