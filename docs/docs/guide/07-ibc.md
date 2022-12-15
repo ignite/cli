@@ -202,12 +202,12 @@ To identify the creator of the post in the receiving blockchain, add the
 command because it would automatically become a parameter in the `SendIbcPost`
 CLI command.
 
-```protobuf
-// proto/blog/packet.proto
+```protobuf title="proto/planet/blog/packet.proto"
 message IbcPostPacketData {
   string title = 1;
   string content = 2;
-  string creator = 3; // < ---
+  // highlight-next-line
+  string creator = 3;
 }
 ```
 
@@ -302,8 +302,7 @@ Append the type instance as `PostID` on receiving the packet:
 In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below
 `"errors"`:
 
-```go
-// x/blog/keeper/ibc_post.go
+```go title="x/blog/keeper/ibc_post.go"
 import (
 	//...
 
@@ -353,7 +352,7 @@ data is a type that identifies if the packet treatment has failed. The
 `Acknowledgement_Error` type is set if `OnRecvIbcPostPacket` returns an error
 from the packet.
 
-```go
+```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
 // ...
@@ -395,8 +394,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 Store posts that have not been received by target chains in `timedoutPost`
 posts. This logic follows the same format as `sentPost`.
 
-```go
-// x/blog/keeper/ibc_post.go
+```go title="x/blog/keeper/ibc_post.go"
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
 	k.AppendTimedoutPost(
 		ctx,
@@ -430,50 +428,79 @@ One blockchain is named `earth` and the other blockchain is named `mars`.
 
 The `earth.yml` and `mars.yml` files are required in the project directory:
 
-```yaml
-# earth.yml
+```yaml title="earth.yml"
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
-  - name: alice
-    coins: [ "1000token", "100000000stake" ]
-  - name: bob
-    coins: [ "500token", "100000000stake" ]
-validator:
-  name: alice
-  staked: "100000000stake"
+- name: alice
+  coins:
+  - 1000token
+  - 100000000stake
+- name: bob
+  coins:
+  - 500token
+  - 100000000stake
 faucet:
   name: bob
-  coins: [ "5token", "100000stake" ]
+  coins:
+  - 5token
+  - 100000stake
+  host: 0.0.0.0:4500
 genesis:
-  chain_id: "earth"
-init:
-  home: "$HOME/.earth"
+  chain_id: earth
+validators:
+- name: alice
+  bonded: 100000000stake
+  home: $HOME/.earth
 ```
 
-```yaml
-# mars.yml
+```yaml title="mars.yml"
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
-  - name: alice
-    coins: [ "1000token", "1000000000stake" ]
-  - name: bob
-    coins: [ "500token", "100000000stake" ]
-validator:
-  name: alice
-  staked: "100000000stake"
+- name: alice
+  coins:
+  - 1000token
+  - 1000000000stake
+- name: bob
+  coins:
+  - 500token
+  - 100000000stake
 faucet:
-  host: ":4501"
   name: bob
-  coins: [ "5token", "100000stake" ]
-host:
-  rpc: ":26659"
-  p2p: ":26658"
-  prof: ":6061"
-  grpc: ":9092"
-  grpc-web: ":9093"
-  api: ":1318"
+  coins:
+  - 5token
+  - 100000stake
+  host: :4501
 genesis:
-  chain_id: "mars"
-init:
-  home: "$HOME/.mars"
+  chain_id: mars
+validators:
+- name: alice
+  bonded: 100000000stake
+  app:
+    api:
+      address: :1318
+    grpc:
+      address: :9092
+    grpc-web:
+      address: :9093
+  config:
+    p2p:
+      laddr: :26658
+    rpc:
+      laddr: :26659
+      pprof_laddr: :6061
+  home: $HOME/.mars
 ```
 
 Open a terminal window and run the following command to start the `earth`
