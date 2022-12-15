@@ -477,6 +477,8 @@ Example:
 			if err != nil {
 				return err
 			}
+			defer plugins[0].KillClient()
+
 			if plugins[0].Error != nil {
 				return fmt.Errorf("error while loading plugin %q: %w", args[0], plugins[0].Error)
 			}
