@@ -276,6 +276,12 @@ All posts:
 Post:<title:"Hello!" body:"This is the first post" creator:"cosmos1dzemw76wzt7p0gj7w3427a4xx724dz03wxg8hd" > pagination:<total:1 >
 ```
 
+As you can see the client has successfully broadcasted a transaction and queried
+the chain for blog posts.
+
+Please note, that some values in the output on your terminal (like transaction
+hash and block height) might be different from the output above.
+
 You can confirm the new post with using the `blogd q blog list-post` command:
 
 ```yaml
