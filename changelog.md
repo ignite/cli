@@ -2,7 +2,6 @@
 
 ### Features
 
-- [#3306](https://github.com/ignite/cli/pull/3306) Move network command into a plugin
 - [#3214](https://github.com/ignite/cli/pull/3214) Global plugins config.
 - [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
 - [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
@@ -23,6 +22,7 @@
 
 ### Changes
 
+- [#3306](https://github.com/ignite/cli/pull/3306) Move network command into a plugin
 - [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
 - [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.
 - [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
