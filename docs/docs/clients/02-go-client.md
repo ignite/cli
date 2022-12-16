@@ -81,7 +81,7 @@ go 1.19
 
 require (
 	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.25.1
+	github.com/ignite/cli v0.25.2
 )
 
 replace blog => ../blog
