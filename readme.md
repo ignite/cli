@@ -67,7 +67,7 @@ otherwise, a row refers to a minor version and all associated patch versions.
 | v0.17       | v0.42       | Same with Cosmos SDK |                                                               |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the
-[Migration guide](https://docs.ignite.com/migration/v0.18).
+[Migration guide](https://docs.ignite.com/migration).
 
 ## Plugin system
 
