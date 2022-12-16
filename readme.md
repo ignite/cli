@@ -129,8 +129,8 @@ development, you only care about code and `ignite` handles the compilation.
 
 ## Contributing
 
-We welcome contributions from everyone. The `develop` branch contains the
-development version of the code. You can create a branch from `develop` and
+We welcome contributions from everyone. The `main` branch contains the
+development version of the code. You can create a branch from `main` and
 create a pull request, or maintain your own fork and submit a cross-repository
 pull request.
 
