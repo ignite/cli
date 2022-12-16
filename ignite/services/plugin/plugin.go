@@ -162,18 +162,6 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	return p
 }
 
-// RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values.
-func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Plugin) {
-	keys := make(map[string]bool)
-	for _, plugin := range plugins {
-		if _, value := keys[plugin.Path]; !value {
-			keys[plugin.Path] = true
-			unique = append(unique, plugin)
-		}
-	}
-	return unique
-}
-
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
 	if p.client != nil {
