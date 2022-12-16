@@ -16,6 +16,11 @@ type defaultPlugin struct {
 	path    string
 }
 
+const (
+	PluginNetworkVersion = "feat/import-from-cli"
+	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
+)
+
 // defaultPlugins holds the plugin that are considered trustable and for which
 // a command will added if the plugin is not already installed.
 // When the user executes that command, the plugin is automatically installed.
@@ -24,7 +29,7 @@ var defaultPlugins = []defaultPlugin{
 		use:     "network",
 		short:   "Launch a blockchain in production",
 		aliases: []string{"n"},
-		path:    "github.com/ignite/cli-plugin-network@feat/import-from-cli",
+		path:    PluginNetworkPath,
 	},
 }
 
@@ -64,7 +69,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 				panic(fmt.Sprintf("plugin %q unexpected in global config", dp.path))
 			}
 
-			// add plugin to cofig
+			// add plugin to config
 			pluginCfg := pluginsconfig.Plugin{
 				Path: dp.path,
 			}

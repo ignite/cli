@@ -11,6 +11,17 @@ import (
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 )
 
+func TestPluginIsGlobal(t *testing.T) {
+	assert.False(t, pluginsconfig.Plugin{}.IsGlobal())
+	assert.True(t, pluginsconfig.Plugin{Global: true}.IsGlobal())
+}
+
+func TestPluginIsLocalPath(t *testing.T) {
+	assert.False(t, pluginsconfig.Plugin{}.IsLocalPath())
+	assert.False(t, pluginsconfig.Plugin{Path: "github.com/ignite/example"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "/home/bob/example"}.IsLocalPath())
+}
+
 func TestPluginHasPath(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -59,6 +70,7 @@ func TestPluginHasPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res := tt.plugin.HasPath(tt.path)
+
 			require.Equal(t, tt.expectedRes, res)
 		})
 	}
@@ -312,6 +324,8 @@ func TestConfigSave(t *testing.T) {
 }
 
 func TestConfigHasPlugin(t *testing.T) {
+	wd, err := os.Getwd()
+	require.NoError(t, err)
 	tests := []struct {
 		name          string
 		cfg           pluginsconfig.Config
@@ -336,6 +350,16 @@ func TestConfigHasPlugin(t *testing.T) {
 				Plugins: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 					{Path: "github.com/ignite/example@master"},
+				},
+			},
+			expectedFound: true,
+		},
+		{
+			name: "found in config but from a local plugin",
+			cfg: pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{
+					{Path: "github.com/ignite/example2"},
+					{Path: path.Join(wd, "testdata", "localplugin", "example")},
 				},
 			},
 			expectedFound: true,

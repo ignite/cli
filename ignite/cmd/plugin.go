@@ -185,7 +185,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 				With:   p.With,
 			},
 		}
-		execHook.ExecutedCommand.SetFlags(cmd.Flags())
+		execHook.ExecutedCommand.SetFlags(cmd)
 		return execHook
 	}
 
@@ -287,20 +287,19 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		}
 	}
 
-	newCmd := &cobra.Command{
-		Use:     pluginCmd.Use,
-		Aliases: pluginCmd.Aliases,
-		Short:   pluginCmd.Short,
-		Long:    pluginCmd.Long,
-	}
-	for _, f := range pluginCmd.Flags {
-		err := f.FeedFlagSet(newCmd.Flags())
-		if err != nil {
-			p.Error = err
-			return
-		}
+	newCmd, err := pluginCmd.ToCobraCommand()
+	if err != nil {
+		p.Error = err
+		return
 	}
 	cmd.AddCommand(newCmd)
+
+	// NOTE(tb) we could probably simplify by removing this condition and call the
+	// plugin even if the invoked command isn't runnable. If we do so, the plugin
+	// will be responsible for outputing the standard cobra output, which implies
+	// it must use cobra too. This is how cli-plugin-network works, but to make
+	// it for all, we need to change the `plugin scaffold` output (so it outputs
+	// something similar than the cli-plugin-network) and update the docs.
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
@@ -312,7 +311,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 					OSArgs: os.Args,
 					With:   p.With,
 				}
-				execCmd.SetFlags(cmd.Flags())
+				execCmd.SetFlags(cmd)
 				// Call the plugin Execute
 				err := p.Interface.Execute(execCmd)
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
