@@ -120,13 +120,11 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
 	addressPrefix := "cosmos"
 
 	// Create a Cosmos client instance
-	cosmos, err := cosmosclient.New(
-		context.Background(),
-		cosmosclient.WithAddressPrefix(addressPrefix),
-	)
+	cosmos, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,7 +152,7 @@ func main() {
 
 	// Broadcast a transaction from account `alice` with the message
 	// to create a post store response in txResp
-	txResp, err := cosmos.BroadcastTx(context.Background(), account, msg)
+	txResp, err := cosmos.BroadcastTx(ctx, account, msg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -168,7 +166,7 @@ func main() {
 
 	// Query the blockchain using the client's `PostAll` method
 	// to get all posts store all posts in queryResp
-	queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
+	queryResp, err := queryClient.PostAll(ctx, &types.QueryAllPostRequest{})
 	if err != nil {
 		log.Fatal(err)
 	}
