@@ -56,7 +56,7 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	session := cliui.New(cliui.WithStdout(os.Stdout))
 	defer session.End()
 
-	uniquePlugins := plugin.RemoveDuplicates(pluginsConfigs)
+	uniquePlugins := pluginsconfig.RemoveDuplicates(pluginsConfigs)
 	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
