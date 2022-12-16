@@ -16,7 +16,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.22.1
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
-	github.com/cosmos/cosmos-sdk v0.46.6
+	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.1.0
 	github.com/emicklei/proto v1.11.0
@@ -58,7 +58,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/tbruyelle/mdgofmt v0.1.2
 	github.com/tendermint/spn v0.2.1-0.20221125172725-052fbf576cb2
-	github.com/tendermint/tendermint v0.34.23
+	github.com/tendermint/tendermint v0.34.24
 	github.com/tendermint/tm-db v0.6.7
 	github.com/vektra/mockery/v2 v2.15.0
 	go.etcd.io/bbolt v1.3.6
@@ -124,17 +124,16 @@ require (
 	github.com/cilium/ebpf v0.7.0 // indirect
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
-	github.com/confio/ics23/go v0.7.0 // indirect
+	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/containerd/cgroups v1.0.3 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/containerd/containerd v1.6.8 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
-	github.com/cosmos/btcutil v1.0.4 // indirect
+	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-alpha7 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
-	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
-	github.com/cosmos/ledger-go v0.9.2 // indirect
+	github.com/cosmos/ledger-cosmos-go v0.12.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
@@ -361,7 +360,8 @@ require (
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/yuin/goldmark v1.4.13 // indirect
 	github.com/yuin/goldmark-emoji v1.0.1 // indirect
-	github.com/zondax/hid v0.9.1-0.20220302062450-5552068d2266 // indirect
+	github.com/zondax/hid v0.9.1 // indirect
+	github.com/zondax/ledger-go v0.14.0 // indirect
 	gitlab.com/bosi/decorder v0.2.3 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.starlark.net v0.0.0-20220816155156-cfacd8902214 // indirect
