@@ -295,4 +295,6 @@ pagination:
   total: "0"
 ```
 
-Well done! You have successfully created a post using a standalone Go client.
+Great job! You have successfully completed the process of creating a Go client
+for your Cosmos SDK blockchain, submitting a transaction, and querying the
+chain.
