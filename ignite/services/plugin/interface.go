@@ -273,7 +273,7 @@ func (c ExecutedCommand) GobEncode() ([]byte, error) {
 	return b.Bytes(), err
 }
 
-// flagger matches both cobra.Command and Command
+// flagger matches both cobra.Command and Command.
 type flagger interface {
 	Flags() *pflag.FlagSet
 	PersistentFlags() *pflag.FlagSet
