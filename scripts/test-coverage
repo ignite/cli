@@ -1,8 +1,10 @@
 #!/bin/bash
+set -e -x
 
 go test -v -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... $(go list github.com/ignite/cli/ignite/...)
 
-excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER')"
+# append "||true" to grep so if no match the return code stays 0
+excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER' || true)"
 excludelist+=" $(find ./ -type f -name '*.pb.go')"
 excludelist+=" $(find ./ -type f -name '*.pb.gw.go')"
 excludelist+=" $(find ./actions -type d)"
