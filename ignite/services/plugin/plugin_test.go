@@ -78,9 +78,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-2551a5b7e3",
 				reference:  "",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-2551a5b7e3",
 				binaryName: "plugin",
 			},
 		},
@@ -90,9 +90,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin@develop",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-eba2cc2492",
 				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin@develop",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-eba2cc2492",
 				binaryName: "plugin",
 			},
 		},
@@ -102,9 +102,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-2551a5b7e3",
 				reference:  "",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin/plugin1",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-2551a5b7e3/plugin1",
 				binaryName: "plugin1",
 			},
 		},
@@ -114,9 +114,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin@develop",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-eba2cc2492",
 				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin@develop/plugin1",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-eba2cc2492/plugin1",
 				binaryName: "plugin1",
 			},
 		},
@@ -395,6 +395,7 @@ func TestPluginClean(t *testing.T) {
 }
 
 func assertPlugin(t *testing.T, want, have Plugin) {
+	t.Helper()
 	if want.Error != nil {
 		require.Error(t, have.Error)
 		assert.Regexp(t, want.Error.Error(), have.Error.Error())
