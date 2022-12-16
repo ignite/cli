@@ -93,7 +93,7 @@ After all existing Ignite CLI installations are removed, follow the  [Installing
 instructions.
 
 For details on version features and changes, see
-the [changelog.md](https://github.com/ignite/cli/blob/develop/changelog.md)
+the [changelog.md](https://github.com/ignite/cli/blob/main/changelog.md)
 in the repo.
 
 ## Build from source

@@ -49,7 +49,7 @@ func TestAccount(t *testing.T) {
 		)),
 		envtest.ExecStdout(listOutputAfterDeleteBuffer),
 	))
-	require.Equal(t, listOutputAfterDeleteBuffer.String(), "Name \tAddress Public Key \t\n\n")
+	require.Equal(t, "Name \tAddress Public Key \t\n\n", listOutputAfterDeleteBuffer.String())
 
 	env.Must(env.Exec("import account with mnemonic",
 		step.NewSteps(step.New(

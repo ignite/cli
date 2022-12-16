@@ -3,9 +3,11 @@ package xfilepath_test
 import (
 	"errors"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -87,4 +89,16 @@ func TestList(t *testing.T) {
 	retriever = xfilepath.List(retriever1, retrieverError, retriever2)
 	_, err = retriever()
 	require.Error(t, err)
+}
+
+func TestMkdir(t *testing.T) {
+	require := require.New(t)
+	assert := assert.New(t)
+	newdir := path.Join(t.TempDir(), "hey")
+
+	dir, err := xfilepath.Mkdir(xfilepath.Path(newdir))()
+
+	require.NoError(err)
+	assert.Equal(newdir, dir)
+	assert.DirExists(dir)
 }
