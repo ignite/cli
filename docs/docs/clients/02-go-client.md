@@ -124,7 +124,7 @@ func main() {
 	addressPrefix := "cosmos"
 
 	// Create a Cosmos client instance
-	cosmos, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix))
+	client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -133,7 +133,7 @@ func main() {
 	accountName := "alice"
 
 	// Get account from the keyring
-	account, err := cosmos.Account(accountName)
+	account, err := client.Account(accountName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -152,7 +152,7 @@ func main() {
 
 	// Broadcast a transaction from account `alice` with the message
 	// to create a post store response in txResp
-	txResp, err := cosmos.BroadcastTx(ctx, account, msg)
+	txResp, err := client.BroadcastTx(ctx, account, msg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -162,7 +162,7 @@ func main() {
 	fmt.Println(txResp)
 
 	// Instantiate a query client for your `blog` blockchain
-	queryClient := types.NewQueryClient(cosmos.Context())
+	queryClient := types.NewQueryClient(client.Context())
 
 	// Query the blockchain using the client's `PostAll` method
 	// to get all posts store all posts in queryResp
