@@ -120,9 +120,6 @@ import (
 )
 
 func main() {
-	// Prefix to use for account addresses.
-	// The address prefix was assigned to the blog blockchain
-	// using the `--address-prefix` flag during scaffolding.
 	addressPrefix := "cosmos"
 
 	// Create a Cosmos client instance
@@ -169,7 +166,7 @@ func main() {
 	// Instantiate a query client for your `blog` blockchain
 	queryClient := types.NewQueryClient(cosmos.Context())
 
-	// Query the blockchain using the client's `Posts` method
+	// Query the blockchain using the client's `PostAll` method
 	// to get all posts store all posts in queryResp
 	queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
 	if err != nil {
