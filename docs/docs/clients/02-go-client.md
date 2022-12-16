@@ -5,15 +5,46 @@ title: Go client
 
 # A client in the Go programming language
 
-Learn how to connect your blockchain to an independent application with RPC.
+In this tutorial, we will show you how to create a standalone Go program that
+serves as a client for a blockchain. We will use the Ignite CLI to set up a
+standard blockchain. To communicate with the blockchain, we will utilize the
+`cosmosclient` package, which provides an easy-to-use interface for interacting
+with the blockchain. You will learn how to use the `cosmosclient` package to
+send transactions and query the blockchain. By the end of this tutorial, you
+will have a good understanding of how to build a client for a blockchain using
+Go and the `cosmosclient` package.
 
-After creating the blog blockchain in this tutorial you will learn how to
-connect to your blockchain from a separate client.
+## Create a blockchain
 
-## Use the blog blockchain
+To create a blockchain using the Ignite CLI, use the following command:
 
-Navigate to a separate directory right next to the `blog` blockchain you built
-in the [Build a Blog](index.md) tutorial.
+```
+ignite scaffold chain blog
+```
+
+This will create a new Cosmos SDK blockchain called "blog".
+
+Once the blockchain has been created, you can generate code for a "blog" model
+that will enable you to perform create, read, update, and delete (CRUD)
+operations on blog posts. To do this, you can use the following command:
+
+```
+cd blog
+ignite scaffold list post title body
+```
+
+This will generate the necessary code for the "blog" model, including functions
+for creating, reading, updating, and deleting blog posts. With this code in
+place, you can now use your blockchain to perform CRUD operations on blog posts.
+You can use the generated code to create new blog posts, retrieve existing ones,
+update their content, and delete them as needed. This will give you a fully
+functional Cosmos SDK blockchain with the ability to manage blog posts.
+
+Start your blockchain node with the following command:
+
+```
+ignite chain serve
+```
 
 ## Creating a blockchain client
 
@@ -21,36 +52,27 @@ Create a new directory called `blogclient` on the same level as `blog`
 directory. As the name suggests, `blogclient` will contain a standalone Go
 program that acts as a client to your `blog` blockchain.
 
-The command:
-
-```bash
-ls
-```
-
-Shows just `blog` now. More results are listed when you have more directories
-here.
-
-Create your `blogclient` directory first, change your current working directory,
-and initialize the new Go module.
-
 ```bash
 mkdir blogclient
-cd blogclient
-go mod init blogclient
-touch main.go
 ```
 
-The `go.mod` file is created inside your `blogclient` directory.
+This command will create a new directory called `blogclient` in your current location. If you type `ls` in your terminal window, you should see both the `blog` and `blogclient` directories listed.
 
-Your blockchain client has only two dependencies:
+To initialize a new Go package inside the `blogclient` directory, you can use the following command:
 
-- The `blog` blockchain `types` for message types and a query client
-- `ignite` for the `cosmosclient` blockchain client
+```
+cd blogclient
+go mod init blogclient
+```
 
-```go-module
+This will create a `go.mod` file in the `blogclient` directory, which contains information about the package and the Go version being used.
+
+To import dependencies for your package, you can add the following code to the `go.mod` file:
+
+```text title="blogclient/go.mod"
 module blogclient
 
-go 1.18
+go 1.19
 
 require (
 	blog v0.0.0-00010101000000-000000000000
@@ -61,23 +83,22 @@ replace blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
+Your package will import two dependencies:
+
+* `blog`, which contains `types` of messages and a query client
+* `ignite` for the `cosmosclient` package
+
 The `replace` directive uses the package from the local `blog` directory and is
 specified as a relative path to the `blogclient` directory.
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
 directive to specify the correct dependency.
 
-The `blogclient` will eventually have only two files:
-
-- `main.go` for the main logic of the client
-- `go.mod` for specifying dependencies.
-
 ### Main logic of the client in `main.go`
 
-Add the following code to your `main.go` file to make a connection to your
-blockchain from a separate app.
+Create a `main.go` file inside the `blogclient` directory and add the following code:
 
-```go
+```go title="blogclient/main.go"
 package main
 
 import (
@@ -96,7 +117,7 @@ func main() {
 	// Prefix to use for account addresses.
 	// The address prefix was assigned to the blog blockchain
 	// using the `--address-prefix` flag during scaffolding.
-	addressPrefix := "blog"
+	addressPrefix := "cosmos"
 
 	// Create a Cosmos client instance
 	cosmos, err := cosmosclient.New(
@@ -144,7 +165,7 @@ func main() {
 
 	// Query the blockchain using the client's `Posts` method
 	// to get all posts store all posts in queryResp
-	queryResp, err := queryClient.Posts(context.Background(), &types.QueryPostsRequest{})
+	queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -155,13 +176,17 @@ func main() {
 }
 ```
 
-Read the comments in the code carefully to learn details about each line of
-code.
+The code above creates a standalone Go program that acts as a client to the `blog` blockchain. It begins by importing the required packages, including the general purpose Cosmos blockchain client and the `types` package of the `blog` blockchain.
 
-To learn more about the `cosmosclient` package, see the Go
-[cosmosclient](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient)
-package documentation. Details are provided to learn how to use the `Client`
-type with `Options` and `KeyringBackend`.
+In the `main` function, the code creates a Cosmos client instance and sets the address prefix to "cosmos". It then retrieves an account named `"alice"` from the keyring and gets the address of the account using the address prefix.
+
+Next, the code defines a message to create a blog post with the title "Hello!" and body "This is the first post". It then broadcasts a transaction from the account "alice" with the message to create the post, and stores the response in the variable `txResp`.
+
+The code then instantiates a query client for the blog blockchain and uses it to query the blockchain to retrieve all the posts. It stores the response in the variable `queryResp` and prints it to the console.
+
+Finally, the code prints the response from broadcasting the transaction to the console. This allows the user to see the results of creating and querying a blog post on the `blog` blockchain using the client.
+
+To find out more about the `cosmosclient` package, you can refer to the Go package documentation for [`cosmosclient`](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient). This documentation provides information on how to use the `Client` type with `Options` and `KeyringBackend`.
 
 ## Run the blockchain and the client
 
@@ -179,44 +204,71 @@ Run the blockchain client:
 go run main.go
 ```
 
-If successful, the results of running the command are printed to the terminal:
+If the command is successful, the results of running the command will be printed to the terminal. The output may include some warnings, which can be ignored.
 
-```
-# github.com/keybase/go-keychain
-### Some warnings might be displayed which can be ignored
+```yml
 MsgCreatePost:
 
-Response:
-  Height: 3222
-  TxHash: AFCA76B0FEE5113382C068967B610180C105FCE045FF8C7943EA45EF4B7A1E69
-  Data: 0A280A222F636F736D6F6E6175742E626C6F672E626C6F672E4D7367437265617465506F737412020801
-  Raw Log: [{"events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}]
-  Logs: [{"events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}]
-  GasWanted: 300000
-  GasUsed: 45805
-
+code: 0
+codespace: ""
+data: 12220A202F626C6F672E626C6F672E4D7367437265617465506F7374526573706F6E7365
+events:
+- attributes:
+  - index: true
+    key: ZmVl
+    value: null
+  - index: true
+    key: ZmVlX3BheWVy
+    value: Y29zbW9zMWR6ZW13NzZ3enQ3cDBnajd3MzQyN2E0eHg3MjRkejAzd3hnOGhk
+  type: tx
+- attributes:
+  - index: true
+    key: YWNjX3NlcQ==
+    value: Y29zbW9zMWR6ZW13NzZ3enQ3cDBnajd3MzQyN2E0eHg3MjRkejAzd3hnOGhkLzE=
+  type: tx
+- attributes:
+  - index: true
+    key: c2lnbmF0dXJl
+    value: UWZncUJCUFQvaWxWVzJwNUJNTngzcDlvRzVpSXp0elhXdE9yMHcwVE00OEtlSkRqR0FEdU9VNjJiY1ZRNVkxTHdEbXNuYUlsTmc3VE9uMnJ2ZWRHSlE9PQ==
+  type: tx
+- attributes:
+  - index: true
+    key: YWN0aW9u
+    value: L2Jsb2cuYmxvZy5Nc2dDcmVhdGVQb3N0
+  type: message
+gas_used: "52085"
+gas_wanted: "300000"
+height: "20"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: action
+      value: /blog.blog.MsgCreatePost
+    type: message
+  log: ""
+  msg_index: 0
+raw_log: '[{"msg_index":0,"events":[{"type":"message","attributes":[{"key":"action","value":"/blog.blog.MsgCreatePost"}]}]}]'
+timestamp: ""
+tx: null
+txhash: 4F53B75C18254F96EF159821DDD665E965DBB576A5AC2B94CE863EB62E33156A
 
 All posts:
 
-Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 >
+Post:<title:"Hello!" body:"This is the first post" creator:"cosmos1dzemw76wzt7p0gj7w3427a4xx724dz03wxg8hd" > pagination:<total:1 >
 ```
 
-You can confirm the new post with using the `blogd query blog posts` command
-that you learned about in the previous chapter. The result looks similar to:
+You can confirm the new post with using the `blogd q blog list-post` command:
 
 ```yaml
 Post:
-  - body: bar
-    creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
-    id: "0"
-    title: foo
-  - body: This is the first post
-    creator: blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n
-    id: "1"
-    title: Hello!
+- body: This is the first post
+  creator: cosmos1dzemw76wzt7p0gj7w3427a4xx724dz03wxg8hd
+  id: "0"
+  title: Hello!
 pagination:
   next_key: null
-  total: "2"
+  total: "0"
 ```
 
-Congratulations, you have just created a post using a separate app.
+Well done! You have successfully created a post using a standalone Go client.
