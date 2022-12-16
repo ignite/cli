@@ -1,23 +1,25 @@
 ---
-sidebar_position: 2
 description: Blockchain client in Go
+title: Go client
 ---
 
-# Create a blockchain client in Go
+# A client in the Go programming language
 
 Learn how to connect your blockchain to an independent application with RPC.
 
-After creating the blog blockchain in this tutorial you will learn how to connect to your blockchain from a separate
-client.
+After creating the blog blockchain in this tutorial you will learn how to
+connect to your blockchain from a separate client.
 
 ## Use the blog blockchain
 
-Navigate to a separate directory right next to the `blog` blockchain you built in the [Build a Blog](index.md) tutorial.
+Navigate to a separate directory right next to the `blog` blockchain you built
+in the [Build a Blog](index.md) tutorial.
 
 ## Creating a blockchain client
 
-Create a new directory called `blogclient` on the same level as `blog` directory. As the name suggests, `blogclient`
-will contain a standalone Go program that acts as a client to your `blog` blockchain.
+Create a new directory called `blogclient` on the same level as `blog`
+directory. As the name suggests, `blogclient` will contain a standalone Go
+program that acts as a client to your `blog` blockchain.
 
 The command:
 
@@ -25,9 +27,11 @@ The command:
 ls
 ```
 
-Shows just `blog` now. More results are listed when you have more directories here.
+Shows just `blog` now. More results are listed when you have more directories
+here.
 
-Create your `blogclient` directory first, change your current working directory, and initialize the new Go module.
+Create your `blogclient` directory first, change your current working directory,
+and initialize the new Go module.
 
 ```bash
 mkdir blogclient
@@ -57,11 +61,11 @@ replace blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
-The `replace` directive uses the package from the local `blog` directory and is specified as a relative path to
-the `blogclient` directory.
+The `replace` directive uses the package from the local `blog` directory and is
+specified as a relative path to the `blogclient` directory.
 
-Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct
-dependency.
+Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
+directive to specify the correct dependency.
 
 The `blogclient` will eventually have only two files:
 
@@ -70,7 +74,8 @@ The `blogclient` will eventually have only two files:
 
 ### Main logic of the client in `main.go`
 
-Add the following code to your `main.go` file to make a connection to your blockchain from a separate app.
+Add the following code to your `main.go` file to make a connection to your
+blockchain from a separate app.
 
 ```go
 package main
@@ -150,11 +155,13 @@ func main() {
 }
 ```
 
-Read the comments in the code carefully to learn details about each line of code.
+Read the comments in the code carefully to learn details about each line of
+code.
 
 To learn more about the `cosmosclient` package, see the Go
-[cosmosclient](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient) package documentation. Details are
-provided to learn how to use the `Client` type with `Options` and `KeyringBackend`.
+[cosmosclient](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient)
+package documentation. Details are provided to learn how to use the `Client`
+type with `Options` and `KeyringBackend`.
 
 ## Run the blockchain and the client
 
@@ -194,9 +201,8 @@ All posts:
 Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"blog1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 >
 ```
 
-You can confirm the new post with using the `blogd query blog posts` command that you learned about in the previous
-chapter.
-The result looks similar to:
+You can confirm the new post with using the `blogd query blog posts` command
+that you learned about in the previous chapter. The result looks similar to:
 
 ```yaml
 Post:

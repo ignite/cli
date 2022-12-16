@@ -64,8 +64,7 @@ post is saved on both blockchains.
 - are visible on the parameter `chain`. The following chart shows the lifecycle
   of a packet that travels through IBC.
 
-![The Lifecycle of an IBC packet in the Blog
-Module](./images/packet_sendpost.png)
+![The Lifecycle of an IBC packet](./images/packet_sendpost.png)
 
 ## Build your blockchain app
 
