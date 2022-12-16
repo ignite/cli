@@ -87,7 +87,7 @@ To remove the current Ignite CLI installation:
 
 After all existing Ignite CLI installations are removed, follow the  [Installing Ignite CLI](#installing-ignite-cli) instructions.
 
-For details on version features and changes, see the [changelog.md](https://github.com/ignite/cli/blob/develop/changelog.md) in the repo.
+For details on version features and changes, see the [changelog.md](https://github.com/ignite/cli/blob/main/changelog.md) in the repo.
 
 ## Build from source
 

@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Print Help 
-        uses: ignite/cli/actions/cli@develop
+        uses: ignite/cli/actions/cli@main
         with:
           args: -h 
 ```

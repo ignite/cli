@@ -20,10 +20,10 @@ import (
 
 	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/cliui"
 	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/env"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/pkg/xgit"
@@ -53,6 +53,18 @@ type Plugin struct {
 	binaryName string
 
 	client *hplugin.Client
+
+	ev events.Bus
+}
+
+// Option configures Plugin.
+type Option func(*Plugin)
+
+// CollectEvents collects events from the chain.
+func CollectEvents(ev events.Bus) Option {
+	return func(p *Plugin) {
+		p.ev = ev
+	}
 }
 
 // Load loads the plugins found in the chain config.
@@ -67,31 +79,19 @@ type Plugin struct {
 // If an error occurs during a plugin load, it's not returned but rather stored
 // in the Plugin.Error field. This prevents the loading of other plugins to be
 // interrupted.
-func Load(ctx context.Context, plugins []pluginsconfig.Plugin) ([]*Plugin, error) {
+func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	var loaded []*Plugin
 	for _, cp := range plugins {
-		p := newPlugin(pluginsDir, cp)
+		p := newPlugin(pluginsDir, cp, options...)
 		p.load(ctx)
 
 		loaded = append(loaded, p)
 	}
 	return loaded, nil
-}
-
-func LoadSingle(ctx context.Context, pluginCfg *pluginsconfig.Plugin) (*Plugin, error) {
-	pluginsDir, err := PluginsPath()
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	p := newPlugin(pluginsDir, *pluginCfg)
-	p.load(ctx)
-
-	return p, nil
 }
 
 // Update removes the cache directory of plugins and fetch them again.
@@ -107,7 +107,7 @@ func Update(plugins ...*Plugin) error {
 }
 
 // newPlugin creates a Plugin from configuration.
-func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
+func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *Plugin {
 	var (
 		p = &Plugin{
 			Plugin: cp,
@@ -118,6 +118,12 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 		p.Error = errors.Errorf(`missing plugin property "path"`)
 		return p
 	}
+
+	// Apply the options
+	for _, apply := range options {
+		apply(p)
+	}
+
 	if strings.HasPrefix(pluginPath, "/") {
 		// This is a local plugin, check if the file exists
 		st, err := os.Stat(pluginPath)
@@ -154,18 +160,6 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin) *Plugin {
 	p.binaryName = path.Base(pluginPath)
 
 	return p
-}
-
-// RemoveDuplicates takes a list of pluginsconfig.Plugins and returns a new list with only unique values.
-func RemoveDuplicates(plugins []pluginsconfig.Plugin) (unique []pluginsconfig.Plugin) {
-	keys := make(map[string]bool)
-	for _, plugin := range plugins {
-		if _, value := keys[plugin.Path]; !value {
-			keys[plugin.Path] = true
-			unique = append(unique, plugin)
-		}
-	}
-	return unique
 }
 
 // KillClient kills the running plugin client.
@@ -268,7 +262,8 @@ func (p *Plugin) fetch() {
 	if p.Error != nil {
 		return
 	}
-	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Fetching plugin %q...", p.cloneURL))).End()
+	p.ev.Send(fmt.Sprintf("Fetching plugin %q", p.cloneURL), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("Plugin fetched %q", p.cloneURL), events.ProgressFinish())
 
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
@@ -282,7 +277,8 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	defer cliui.New(cliui.StartSpinnerWithText(fmt.Sprintf("Building plugin %q...", p.Path))).End()
+	p.ev.Send(fmt.Sprintf("Building plugin %q", p.Path), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("Plugin built %q", p.Path), events.ProgressFinish())
 
 	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
 	// because our git history is too fat.
