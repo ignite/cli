@@ -56,18 +56,23 @@ program that acts as a client to your `blog` blockchain.
 mkdir blogclient
 ```
 
-This command will create a new directory called `blogclient` in your current location. If you type `ls` in your terminal window, you should see both the `blog` and `blogclient` directories listed.
+This command will create a new directory called `blogclient` in your current
+location. If you type `ls` in your terminal window, you should see both the
+`blog` and `blogclient` directories listed.
 
-To initialize a new Go package inside the `blogclient` directory, you can use the following command:
+To initialize a new Go package inside the `blogclient` directory, you can use
+the following command:
 
 ```
 cd blogclient
 go mod init blogclient
 ```
 
-This will create a `go.mod` file in the `blogclient` directory, which contains information about the package and the Go version being used.
+This will create a `go.mod` file in the `blogclient` directory, which contains
+information about the package and the Go version being used.
 
-To import dependencies for your package, you can add the following code to the `go.mod` file:
+To import dependencies for your package, you can add the following code to the
+`go.mod` file:
 
 ```text title="blogclient/go.mod"
 module blogclient
@@ -96,7 +101,8 @@ directive to specify the correct dependency.
 
 ### Main logic of the client in `main.go`
 
-Create a `main.go` file inside the `blogclient` directory and add the following code:
+Create a `main.go` file inside the `blogclient` directory and add the following
+code:
 
 ```go title="blogclient/main.go"
 package main
@@ -176,17 +182,33 @@ func main() {
 }
 ```
 
-The code above creates a standalone Go program that acts as a client to the `blog` blockchain. It begins by importing the required packages, including the general purpose Cosmos blockchain client and the `types` package of the `blog` blockchain.
+The code above creates a standalone Go program that acts as a client to the
+`blog` blockchain. It begins by importing the required packages, including the
+general purpose Cosmos blockchain client and the `types` package of the `blog`
+blockchain.
 
-In the `main` function, the code creates a Cosmos client instance and sets the address prefix to "cosmos". It then retrieves an account named `"alice"` from the keyring and gets the address of the account using the address prefix.
+In the `main` function, the code creates a Cosmos client instance and sets the
+address prefix to "cosmos". It then retrieves an account named `"alice"` from
+the keyring and gets the address of the account using the address prefix.
 
-Next, the code defines a message to create a blog post with the title "Hello!" and body "This is the first post". It then broadcasts a transaction from the account "alice" with the message to create the post, and stores the response in the variable `txResp`.
+Next, the code defines a message to create a blog post with the title "Hello!"
+and body "This is the first post". It then broadcasts a transaction from the
+account "alice" with the message to create the post, and stores the response in
+the variable `txResp`.
 
-The code then instantiates a query client for the blog blockchain and uses it to query the blockchain to retrieve all the posts. It stores the response in the variable `queryResp` and prints it to the console.
+The code then instantiates a query client for the blog blockchain and uses it to
+query the blockchain to retrieve all the posts. It stores the response in the
+variable `queryResp` and prints it to the console.
 
-Finally, the code prints the response from broadcasting the transaction to the console. This allows the user to see the results of creating and querying a blog post on the `blog` blockchain using the client.
+Finally, the code prints the response from broadcasting the transaction to the
+console. This allows the user to see the results of creating and querying a blog
+post on the `blog` blockchain using the client.
 
-To find out more about the `cosmosclient` package, you can refer to the Go package documentation for [`cosmosclient`](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient). This documentation provides information on how to use the `Client` type with `Options` and `KeyringBackend`.
+To find out more about the `cosmosclient` package, you can refer to the Go
+package documentation for
+[`cosmosclient`](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient).
+This documentation provides information on how to use the `Client` type with
+`Options` and `KeyringBackend`.
 
 ## Run the blockchain and the client
 
@@ -204,7 +226,8 @@ Run the blockchain client:
 go run main.go
 ```
 
-If the command is successful, the results of running the command will be printed to the terminal. The output may include some warnings, which can be ignored.
+If the command is successful, the results of running the command will be printed
+to the terminal. The output may include some warnings, which can be ignored.
 
 ```yml
 MsgCreatePost:
