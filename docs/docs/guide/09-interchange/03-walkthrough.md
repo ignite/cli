@@ -62,7 +62,7 @@ ignite relayer configure -a --source-rpc "http://0.0.0.0:26657" --source-faucet 
 
 To create a connection between the two chains, you can use the ignite relayer
 connect command. This command will establish a connection between the source and
-target chains, allowing you to transfer data and assets between them
+target chains, allowing you to transfer data and assets between them.
 
 ```
 ignite relayer connect
