@@ -28,9 +28,9 @@ func TestParseDir(t *testing.T) {
 		},
 		{
 			name:            "ok: path doesn't contain any config",
-			path:            "testdata/empty",
+			path:            "testdata/noconfig",
 			expectedPlugins: nil,
-			expectedPath:    "testdata/empty/plugins.yml",
+			expectedPath:    "testdata/noconfig/plugins.yml",
 		},
 		{
 			name:          "fail: path contains an invalid yml file",

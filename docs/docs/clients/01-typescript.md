@@ -1,5 +1,4 @@
 ---
-sidebar_position: 1
 description: Information about the generated TypeScript client code.
 ---
 

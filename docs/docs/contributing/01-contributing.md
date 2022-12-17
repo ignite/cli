@@ -17,7 +17,7 @@ and answered.
 
 - To provide feedback, file an issue and provide generous details to help us understand how we can make it better.
 - To provide a fix, make a direct contribution. If you're not a member or maintainer, fork the repo and then submit a
-  pull request (PR) from your forked repo to the `develop` branch.
+  pull request (PR) from your forked repo to the `main` branch.
 - Start by creating a draft pull request. Create your draft PR early, even if your work is just beginning or incomplete.
   Your draft PR indicates to the community that you're working on something and provides a space for conversations early
   in the development process. Merging is blocked for `Draft` PRs, so they provide a safe place to experiment and invite
