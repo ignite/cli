@@ -110,10 +110,10 @@ For example:
 
 - Use `ignitehq/cli:0.25.1` (without the `v` prefix) to use version `0.25.1`.
 - Use `ignitehq/cli` to use the latest version.
-- Use `ignitehq/cli:develop` to use the `develop` branch so you can experiment with the upcoming version.
+- Use `ignitehq/cli:main` to use the `main` branch, so you can experiment with the upcoming version.
 
 To get the latest image, run `docker pull`.
 
 ```bash
-docker pull ignitehq/cli:develop
+docker pull ignitehq/cli:main
 ```
