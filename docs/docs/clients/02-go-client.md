@@ -99,6 +99,12 @@ specified as a relative path to the `blogclient` directory.
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
 directive to specify the correct dependency.
 
+Finally, install dependencies for your `blogclient`:
+
+```bash
+go mod tidy
+```
+
 ### Main logic of the client in `main.go`
 
 Create a `main.go` file inside the `blogclient` directory and add the following
@@ -208,12 +214,6 @@ This documentation provides information on how to use the `Client` type with
 ## Run the blockchain and the client
 
 Make sure your blog blockchain is still running with `ignite chain serve`.
-
-Install dependencies for your `blogclient`:
-
-```bash
-go mod tidy
-```
 
 Run the blockchain client:
 
