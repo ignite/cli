@@ -94,10 +94,10 @@ You can specify to use a specific version of Ignite CLI. All available tags are 
 For example:
 
 - Use `ignitehq/cli:0.19.2` (without the `v` prefix) to use version 0.15.1.
-- Use `ignitehq/cli:develop` to use the `develop` branch so you can experiment with the next version.
+- Use `ignitehq/cli:main` to use the `main` branch so you can experiment with the next version.
 
 To get the latest image, run `docker pull`.
 
 ```bash
-docker pull ignitehq/cli:develop
+docker pull ignitehq/cli:main
 ```
