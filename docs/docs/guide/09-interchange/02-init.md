@@ -159,8 +159,7 @@ validators:
 
 Create the `venus.yml` file with your content:
 
-```yaml
-# venus.yml
+```yaml title="venus.yml"
 version: 1
 build:
   proto:
