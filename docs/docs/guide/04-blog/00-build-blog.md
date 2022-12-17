@@ -60,7 +60,10 @@ for the "title" and "body" of the post. The Ignite CLI will use this information
 to generate the necessary code for creating, reading, updating, and deleting
 data of this type in your application.
 
+Switch to the `blog` directory and run the `ignite scaffold list` command:
+
 ```
+cd blog
 ignite scaffold list post title body
 ```
 
