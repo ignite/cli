@@ -124,8 +124,7 @@ The native denoms for Mars are `marscoin`, and for Venus `venuscoin`.
 
 Create the `mars.yml` file with your content:
 
-```yaml
-# mars.yml
+```yaml title="mars.yml"
 version: 1
 build:
   proto:
