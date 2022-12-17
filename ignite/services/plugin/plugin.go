@@ -57,7 +57,8 @@ type Plugin struct {
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
 	isHost bool
-	ev     events.Bus
+
+	ev events.Bus
 }
 
 // Option configures Plugin.
