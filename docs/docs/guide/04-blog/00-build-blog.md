@@ -170,8 +170,8 @@ also see how it processes and responds to queries. This will give us a better
 understanding of how our application works and allow us to test its
 functionality.
 
-Here is an example of how to use the binary to create a new blog post on the
-blockchain:
+While `ignite chain serve` is running in one terminal window, open another
+terminal and use the chain's binary to create a new blog post on the blockchain:
 
 ```
 blogd tx blog create-post 'Hello, World!' 'This is a blog post' --from alice
