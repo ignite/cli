@@ -22,6 +22,7 @@
 
 ### Changes
 
+- [#3305](https://github.com/ignite/cli/pull/3305) Bump Cosmos SDK version to `v0.46.7`.
 - [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
 - [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.
 - [#2892](https://github.com/ignite/cli/pull/2982/) `ignite scaffold vue` and `ignite scaffold react` use v0.4.2 templates
@@ -331,7 +332,7 @@ Our new name is **Ignite CLI**!
 ### Breaking Changes
 
 - Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the
-  Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/develop/ignite/pkg/)
+  Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/main/ignite/pkg/)
   in [PR 1971](https://github.com/ignite/cli/pull/1971/files)
 
   Updates are required if your chain uses these packages:

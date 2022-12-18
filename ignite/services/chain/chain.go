@@ -36,7 +36,7 @@ type version struct {
 	hash string
 }
 
-// Chain provides programatic access and tools for a Cosmos SDK blockchain.
+// Chain provides programmatic access and tools for a Cosmos SDK blockchain.
 type Chain struct {
 	// app holds info about blockchain app.
 	app App
