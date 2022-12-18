@@ -46,7 +46,7 @@ type Plugin struct {
 	// attach it's rpc client to a an existing rpc server.
 	//
 	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
-	SharedHost bool `yaml:"shared_host"`
+	SharedHost bool `yaml:"shared_host,omitempty"`
 	// Global holds whether the plugin is installed globally
 	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
 	Global bool `yaml:"-"`
