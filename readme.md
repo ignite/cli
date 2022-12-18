@@ -12,7 +12,7 @@ so you can focus on writing business logic.
 ## Quick start
 
 Open Ignite CLI [in your web
-browser](https://gitpod.io/#https://github.com/ignite/cli/tree/master) (or open
+browser](https://gitpod.io/#https://github.com/ignite/cli/tree/main) (or open
 [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or
 [install the latest release](https://docs.ignite.com/guide/install).
 
