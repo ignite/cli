@@ -134,6 +134,10 @@ func TestCheckForbiddenTypeIndexField(t *testing.T) {
 			name:  "should pass - post",
 			index: "post",
 		},
+		{
+			name:  "should pass - typed index",
+			index: "uint:blogID",
+		},
 	}
 
 	for _, tc := range tests {

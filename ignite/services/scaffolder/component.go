@@ -216,7 +216,7 @@ func checkCustomTypes(ctx context.Context, path, appName, module string, fields 
 			continue
 		}
 		fieldType := datatype.Name(fieldSplit[1])
-		if _, ok := datatype.SupportedTypes[fieldType]; !ok {
+		if _, ok := datatype.IsSupportedType(fieldType); !ok {
 			customFields = append(customFields, string(fieldType))
 		}
 	}
@@ -231,7 +231,7 @@ func containCustomTypes(fields []string) bool {
 			continue
 		}
 		fieldType := datatype.Name(fieldSplit[1])
-		if _, ok := datatype.SupportedTypes[fieldType]; !ok {
+		if _, ok := datatype.IsSupportedType(fieldType); !ok {
 			return true
 		}
 	}

@@ -44,8 +44,8 @@ const (
 	TypeCustom = "customstarporttype"
 )
 
-// SupportedTypes all support data types and definitions.
-var SupportedTypes = map[Name]DataType{
+// supportedTypes all support data types and definitions.
+var supportedTypes = map[Name]DataType{
 	String:           DataString,
 	StringSlice:      DataStringSlice,
 	StringSliceAlias: DataStringSlice,
@@ -87,4 +87,9 @@ type DataType struct {
 type GoImport struct {
 	Name  string
 	Alias string
+}
+
+func IsSupportedType(datatype Name) (DataType, bool) {
+	f, ok := supportedTypes[datatype]
+	return f, ok
 }
