@@ -146,16 +146,11 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	signer := ""
-	if !o.withoutMessage {
-		signer = o.signer
-	}
-
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
 		return sm, err
 	}
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, signer)
+	tFields, err := parseTypeFields(o)
 	if err != nil {
 		return sm, err
 	}
@@ -278,6 +273,19 @@ func checkForbiddenTypeField(name string) error {
 	}
 
 	return checkGoReservedWord(name)
+}
+
+// parseTypeFields validades the fields and returns an error if the validation fails.
+func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
+	signer := ""
+	if opts.isList || opts.isMap || opts.isSingleton {
+		if !opts.withoutMessage {
+			signer = opts.signer
+		}
+		return field.ParseFields(opts.fields, checkForbiddenTypeField, signer)
+	}
+	// For simple types, only check if its a reserved keyword and don't pass a signer.
+	return field.ParseFields(opts.fields, checkGoReservedWord, signer)
 }
 
 // mapGenerator returns the template generator for a map.
