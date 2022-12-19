@@ -75,3 +75,33 @@ func TestCheckGoReservedWord(t *testing.T) {
 		})
 	}
 }
+
+func TestContainsCustomTypes(t *testing.T) {
+	tests := []struct {
+		name     string
+		fields   []string
+		contains bool
+	}{
+		{
+			name:     "contains no custom types",
+			fields:   []string{"foo", "bar"},
+			contains: false,
+		},
+		{
+			name:     "contains one non-custom type",
+			fields:   []string{"foo", "bar:coin"},
+			contains: false,
+		},
+		{
+			name:     "contains one custom type",
+			fields:   []string{"foo", "bar:CustomType"},
+			contains: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.contains, containsCustomTypes(tc.fields))
+		})
+	}
+}

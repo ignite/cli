@@ -111,18 +111,18 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 // checkCustomTypes returns error if one of the types is invalid.
 func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
 	protoPath := filepath.Join(path, protoFolder, appName, module)
-	customFields := make([]string, 0)
-	for _, name := range fields {
-		fieldSplit := strings.Split(name, datatype.Separator)
-		if len(fieldSplit) <= 1 {
+	customFieldTypes := make([]string, 0)
+	for _, field := range fields {
+		ft, ok := fieldType(field)
+		if !ok {
 			continue
 		}
-		fieldType := datatype.Name(fieldSplit[1])
-		if _, ok := datatype.IsSupportedType(fieldType); !ok {
-			customFields = append(customFields, string(fieldType))
+
+		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
+			customFieldTypes = append(customFieldTypes, ft)
 		}
 	}
-	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
+	return protoanalysis.HasMessages(ctx, protoPath, customFieldTypes...)
 }
 
 // checkForbiddenComponentName returns true if the name is forbidden as a component name.
@@ -227,15 +227,25 @@ func checkForbiddenOracleFieldName(name string) error {
 
 // containsCustomTypes returns true if the list of fields contains at least one custom type.
 func containsCustomTypes(fields []string) bool {
-	for _, name := range fields {
-		fieldSplit := strings.Split(name, datatype.Separator)
-		if len(fieldSplit) <= 1 {
+	for _, field := range fields {
+		ft, ok := fieldType(field)
+		if !ok {
 			continue
 		}
-		fieldType := datatype.Name(fieldSplit[1])
-		if _, ok := datatype.IsSupportedType(fieldType); !ok {
+
+		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
 			return true
 		}
 	}
 	return false
+}
+
+// checks if a field is given.  Returns type if true.
+func fieldType(field string) (fieldType string, isCustom bool) {
+	fieldSplit := strings.Split(field, datatype.Separator)
+	if len(fieldSplit) <= 1 {
+		return "", false
+	}
+
+	return fieldSplit[1], true
 }
