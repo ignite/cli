@@ -203,14 +203,11 @@ validators:
       laddr: :26659
       pprof_laddr: :6061
   home: $HOME/.venus
-
 ```
 
-In the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various
-running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later, so you can
-run two blockchains in parallel and prevent conflicts when the chains are using the same ports.
-
-You can also use the `host` parameter to use specific ports for any of the services.
+In order to run two blockchains side by side on a single machine, you need to
+start them on different ports. `venus.yml` has a validators configuration that
+stars services HTTP API, gRPC, P2P and RPC services on custom ports.
 
 After scaffolding, now is a good time to make a commit to the local GitHub repository that was created for you.
 
