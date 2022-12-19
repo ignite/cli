@@ -96,7 +96,6 @@ validators launch their nodes, a blockchain will be live.
 	// Includes Flags for Node and Faucet Address
 	c.PersistentFlags().AddFlagSet(flagSetSpnAddresses())
 
-
 	// add sub commands.
 	c.AddCommand(
 		NewNetworkChain(),
