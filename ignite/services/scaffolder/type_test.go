@@ -136,7 +136,7 @@ func TestCheckForbiddenTypeIndexField(t *testing.T) {
 		},
 		{
 			name:  "should pass - typed index",
-			index: "uint:blogID",
+			index: "blogID:uint",
 		},
 	}
 
