@@ -63,6 +63,7 @@
 - [#3129](https://github.com/ignite/cli/issues/3129) Remove redundant `keyring-backend` config option.
 - [#3187](https://github.com/ignite/cli/issues/3187) Change prompt text to fit within 80 characters width.
 - [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
+- [#3320](https://github.com/ignite/cli/pull/3320) Allow `id` and `creator` as names when scaffolding a type.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
@@ -332,7 +333,7 @@ Our new name is **Ignite CLI**!
 ### Breaking Changes
 
 - Deprecated the Starport Modules [tendermint/spm](https://github.com/tendermint/spm) repo and moved the contents to the
-  Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/develop/ignite/pkg/)
+  Ignite CLI repo [`ignite/pkg/`](https://github.com/ignite/cli/tree/main/ignite/pkg/)
   in [PR 1971](https://github.com/ignite/cli/pull/1971/files)
 
   Updates are required if your chain uses these packages:

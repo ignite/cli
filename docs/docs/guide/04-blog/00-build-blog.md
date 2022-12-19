@@ -6,534 +6,305 @@ slug: /guide/blog
 
 # Build a blog
 
-In this tutorial, you create a blockchain with a module that lets you write to
-and read data from the blockchain. This module implements create and read
-functionalities for a blog-like application. The end user will be able to submit
-new blog posts and show a list of blog posts on the blockchain.
+In this tutorial, we will create a blockchain with a module that allows us to
+write and read data from the blockchain. This module will implement the ability
+to create and read blog posts, similar to a blogging application. The end user
+will be able to submit new blog posts and view a list of existing posts on the
+blockchain. This tutorial will guide you through the process of creating and
+using this module to interact with the blockchain.
 
-> The purpose of this tutorial is to guide you through the implementation of a
-> complete feedback loop: submitting data and reading this data back from the
-> blockchain.
+The goal of this tutorial is to provide step-by-step instructions for creating a
+feedback loop that allows you to submit data to the blockchain and read that
+data back from the blockchain. By the end of this tutorial, you will have
+implemented a complete feedback loop and will be able to use it to interact with
+the blockchain.
 
-By completing this tutorial, you will learn about:
+First, create a new `blog` blockchain with Ignite CLI:
 
-* Scaffolding a Cosmos SDK message
-* Defining new types in protocol buffer files
-* Implementing keeper methods to write data to the store
-* Reading data from the store and return it as a result of a query
-* Using the blockchain's CLI to broadcast transactions and query the blockchain
-
-**Note:** All the functions in this chapter can be scaffolded with a single
-command, but instead you will learn how to add each functionality individually.
-
-This tutorial has been updated to work with a specific version of Ignite CLI
-v0.25.1.
-
-## Create your blog chain
-
-First, create a new blockchain.
-
-Open a terminal and navigate to a directory where you have permissions to create
-files. To create your Cosmos SDK blockchain, run this command:
-
-```bash
-ignite scaffold chain blog --address-prefix blog
+```
+ignite scaffold chain blog
 ```
 
-The `blog` directory is created with the default directory structure.
+In order to create a blog application that uses a blockchain, we need to define
+the requirements for our application. We want the application to store objects
+of type `Post` on the blockchain. These objects should have two properties: a
+`title` and a `body`.
 
-The new blockchain is scaffolded with the `--address-prefix blog` flag to use
-"blog" instead of the default "cosmos" address prefix.
+In addition to storing posts on the blockchain, we also want to provide users
+with the ability to perform CRUD (create, read, update, and delete) operations
+on these posts. This will allow users to create new posts, read existing posts,
+update the contents of existing posts, and delete posts that are no longer
+needed.
 
-## High-level transaction review
+One of the features of the Ignite CLI is the ability to generate code that
+implements basic CRUD functionality. This is accomplished through the use of
+scaffolding commands, which can be used to quickly generate the necessary code
+for creating, reading, updating, and deleting data in your application.
 
-So far, you have learned how to modify proto files to define a new API endpoint
-and modify a keeper query function to return static data back to the user. Of
-course, a keeper can do more than return a string of data. Its purpose is to
-manage access to the state of the blockchain.
+The Ignite CLI is capable of generating code for data that is stored in
+different types of data structures. This includes lists, which are collections
+of data indexed by an incrementing integer, maps, which are collections indexed
+by a custom key, and singles, which are single instances of data. By using these
+different data structures, you can customize your application to fit your
+specific needs. For example, if you are building a blog application, you may
+want to use a list to store all posts, with each post indexed by an integer.
+Alternatively, you could use a map to index each post by its unique title, or a
+single to store a single post. The choice of data structure will depend on the
+specific requirements of your application.
 
-You can think of the state as being a collection of key-value stores. Each
-module is responsible for its own store. Changes to the store are triggered by
-transactions that are signed and broadcasted by users. Each transaction contains
-Cosmos SDK messages (not to be confused with proto `message`). When a
-transaction is processed, each message gets routed to its module. A module has
-message handlers that process messages. Processing a message can trigger changes
-in the state.
+In addition to the data structure you choose, the Ignite CLI also requires you
+to provide the name of the type of data that it will generate code for, as well
+as fields that describe the type of data. For example, if you are creating a
+blog application, you may want to create a type called "Post" that has fields
+for the "title" and "body" of the post. The Ignite CLI will use this information
+to generate the necessary code for creating, reading, updating, and deleting
+data of this type in your application.
 
-## Create message types
+Switch to the `blog` directory and run the `ignite scaffold list` command:
 
-A Cosmos SDK message contains information that can trigger changes in the state
-of a blockchain.
-
-First, change into the `blog` directory:
-
-```bash
+```
 cd blog
+ignite scaffold list post title body
 ```
 
-To create a message type and its handler, use the `message` command:
+Now that you have used the Ignite CLI to generate code for your application,
+let's review what it has created. The Ignite CLI will have generated code for
+the data structure and data type that you specified, as well as code for the
+basic CRUD operations that are needed to manipulate this data. This code will
+provide a solid foundation for your application, and you can customize it
+further to fit your specific needs. By reviewing the code generated by the
+ignite CLI, you can ensure that it meets your requirements and get a better
+understanding of how to build your application using this tool.
 
-```bash
-ignite scaffold message createPost title body
+The Ignite CLI has generated several files and modifications in the
+`proto/blog/blog` directory. These include:
+
+* `post.proto`: This is a protocol buffer file that defines the `Post` type,
+  with fields for the `title`, `body`, `id`, and `creator`.
+* `tx.proto`: This file has been modified to include three RPCs (remote
+  procedure calls): `CreatePost`, `UpdatePost`, and `DeletePost`. Each of these
+  RPCs corresponds to a Cosmos SDK message that can be used to perform the
+  corresponding CRUD operation on a post.
+* `query.proto`: This file has been modified to include two queries: `Post` and
+  `PostAll`. The `Post` query can be used to retrieve a single post by its ID,
+  while the `PostAll` query can be used to retrieve a paginated list of posts.
+* `genesis.proto`: This file has been modified to include posts in the genesis
+  state of the module, which defines the initial state of the blockchain when it
+  is first started.
+
+The Ignite CLI has also generated several new files in the `x/blog/keeper`
+directory that implement the CRUD-specific logic for your application. These
+include:
+
+* `msg_server_post.go`: This file implements keeper methods for the
+  `CreatePost`, `UpdatePost`, and `DeletePost` messages. These methods are
+  called when a corresponding message is processed by the module, and they
+  handle the specific logic for each of the CRUD operations.
+* `query_post.go`: This file implements the `Post` and `PostAll` queries, which
+  are used to retrieve individual posts by ID or a paginated list of posts,
+  respectively.
+* `post.go`: This file implements the underlying functions that the keeper
+  methods depend on. These functions include appending (adding) posts to the
+  store, getting individual posts, getting the post count, and other operations
+  that are needed to manage the posts in the application.
+
+Overall, these files provide the necessary implementation for the CRUD
+functionality of your blog application. They handle the specific logic for each
+of the CRUD operations, as well as the underlying functions that these
+operations depend on.
+
+Files were created and modified in the `x/blog/types` directory.
+
+* `messages_post.go`: This new file contains Cosmos SDK message constructors and
+  associated methods such as `Route()`, `Type()`, `GetSigners()`,
+  `GetSignBytes()`, and `ValidateBasic()`.
+* `keys.go`: This file was modified to include key prefixes for storing blog
+  posts. By using key prefixes, we can ensure that the data for our blog posts
+  is kept separate from other types of data in the database, and that it can be
+  easily accessed when needed.
+* `genesis.go`: This file was modified to define the initial (genesis) state of
+  the blog module, as well as the `Validate()` function for validating this
+  initial state. This is an important step in setting up our blockchain, as it
+  defines the initial data and ensures that it is valid according to the rules
+  of our application.
+* `codec.go`: This file was modified to register our message types with the
+  encoder, allowing them to be properly serialized and deserialized when
+  transmitted over the network.
+
+Additionally, `*.pb.go` files were generated from `*.proto` files, and they
+contain type definitions for messages, RPCs, and queries used by our
+application. These files are automatically generated from the `*.proto` files
+using the Protocol Buffers (protobuf) tool, which allows us to define the
+structure of our data in a language-agnostic way.
+
+The Ignite CLI has added functionality to the `x/blog/client/cli` directory by
+creating and modifying several files.
+* `tx_post.go`: This file was created to implement CLI commands for broadcasting
+  transactions containing messages for the blog module. These commands allow
+  users to easily send messages to the blockchain using the Ignite CLI.
+* `query_post.go`: This file was created to implement CLI commands for querying
+  the blog module. These commands allow users to retrieve information from the
+  blockchain, such as a list of blog posts.
+* `tx.go`: This file was modified to add the CLI commands for broadcasting
+  transactions to the chain's binary.
+* `query.go`: This file was also modified to add the CLI commands for querying
+  the chain to the chain's binary.
+
+As you can see, the `ignite scaffold list` command has generated and modified a
+number of source code files. These files define the types of messages, logic
+that gets executed when a message is processed, and the wiring that connects
+everything together. This includes the logic for creating, updating, and
+deleting blog posts, as well as the queries needed to retrieve this information.
+
+To see the generated code in action, we will need to start the blockchain. We
+can do this by using the `ignite chain serve` command, which will build,
+initialize, and start the blockchain for us:
+
 ```
-
-The `message` command accepts message name (`createPost`) and a list of fields
-(`title` and `body`) as arguments.
-
-The `message` command has created and modified several files:
-
-```
-modify proto/blog/blog/tx.proto
-modify x/blog/client/cli/tx.go
-create x/blog/client/cli/tx_create_post.go
-create x/blog/keeper/msg_server_create_post.go
-modify x/blog/module_simulation.go
-create x/blog/simulation/create_post.go
-modify x/blog/types/codec.go
-create x/blog/types/message_create_post.go
-create x/blog/types/message_create_post_test.go
-
-🎉 Created a message `createPost`.
-```
-
-As always, start with a proto file. Inside the `proto/blog/blog/tx.proto` file,
-the `MsgCreatePost` message has been created. Edit the file to add the line that
-defines the `id` for `message MsgCreatePostResponse`:
-
-```protobuf title="proto/blog/blog/tx.proto"
-message MsgCreatePost {
-  string creator = 1;
-  string title = 2;
-  string body = 3;
-}
-
-message MsgCreatePostResponse {
-  // highlight-next-line
-  uint64 id = 1;
-}
-```
-
-## Review the message code
-
-Review the Cosmos SDK message type with proto `message`. The `MsgCreatePost` has
-three fields: creator, title, and body. Since the purpose of the `MsgCreatePost`
-message is to create new posts in the store, the only thing the message needs to
-return is an ID of a created post. The `CreatePost` RPC was already added to the
-`Msg` service:
-
-```protobuf title="proto/blog/blog/tx.proto"
-service Msg {
-  rpc CreatePost(MsgCreatePost) returns (MsgCreatePostResponse);
-}
-```
-
-## Define messages logic
-
-In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can
-see a placeholder implementation of the `CreatePost` function. Right now it does
-nothing and returns an empty response. For your blog chain, you want the
-contents of the message ( title and body) to be written to the state as a new
-post.
-
-You need to do two things:
-
-* Create a variable of type `Post` with title and body from the message
-* Append this `Post` to the store
-
-```go title="x/blog/keeper/msg_server_create_post.go"
-package keeper
-
-// ...
-
-func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
-	// Get the context
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// highlight-start
-	// Create variable of type Post
-	var post = types.Post{
-		Creator: msg.Creator,
-		Title:   msg.Title,
-		Body:    msg.Body,
-	}
-
-	// Add a post to the store and get back the ID
-	id := k.AppendPost(ctx, post)
-
-	// Return the ID of the post
-	return &types.MsgCreatePostResponse{Id: id}, nil
-	//highlight-end
-}
-```
-
-## Define the `Post` type and `AppendPost` keeper method
-
-When you define the `Post` type in a proto file, Ignite CLI (with the help of
-`protoc`) takes care of generating the required Go files.
-
-Create the `proto/blog/blog/post.proto` file and define the `Post` message:
-
-```protobuf title="proto/blog/blog/post.proto"
-syntax = "proto3";
-
-package blog.blog;
-
-option go_package = "blog/x/blog/types";
-
-message Post {
-  string creator = 1;
-  uint64 id = 2;
-  string title = 3;
-  string body = 4;
-}
-```
-
-The contents of the `post.proto` file are standard. The file defines:
-
-* A package name `blog.blog` that is used to identify messages
-* The Go package `go_package = "blog/x/blog/types"` where new files are
-  generated
-* The message `message Post`
-
-Continue developing your blog chain.
-
-### Define keeper methods
-
-The next step is to define the `AppendPost` keeper method.
-
-Create the `x/blog/keeper/post.go` file and start thinking about the logic of
-the function and what you want to call the prefixes. The file will be empty for
-now.
-
-* To implement `AppendPost` you must first understand how the key store works.
-  You can think of a store as a key-value database where keys are
-  lexicographically ordered. You can loop through keys and use `Get` and `Set`
-  to retrieve and set values based on keys. To distinguish between different
-  types of data that a module can keep in its store, you can use prefixes like
-  `product/` or `post/`.
-
-* To keep a list of posts in what is essentially a key-value store, you need to
-  keep track of the index of the posts you insert. Since both post values and
-  post count (index) values are kept in the store, you can use different
-  prefixes: `Post/value/` and `Post/count/`.
-
-Then, add these prefixes to the `x/blog/types/keys.go` file:
-
-```go title="x/blog/types/keys.go"
-package types
-
-const (
-	// ...
-
-	// Keep track of the index of posts
-	PostKey      = "Post/value/"
-	PostCountKey = "Post/count/"
-)
-```
-
-Your blog is now updated to take these actions when a `Post` message is sent to
-the `AppendPost` function:
-
-* Get the number of posts in the store (count)
-* Add a post by using the count as an ID
-* Increment the count
-* Return the count
-
-## Write data to the store
-
-In the `x/blog/keeper/post.go` file, draft the `AppendPost` function. You can
-add these comments to help you visualize what you do next:
-
-```go title="x/blog/keeper/post.go"
-package keeper
-
-import (
-	"encoding/binary"
-
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"blog/x/blog/types"
-)
-
-// func (k Keeper) AppendPost() uint64 {
-//   count := k.GetPostCount()
-//   store.Set()
-//   k.SetPostCount()
-//   return count
-// }
-```
-
-First, implement `GetPostCount`:
-
-```go title="x/blog/keeper/post.go"
-package keeper
-
-// ...
-
-func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
-	// Get the store using storeKey (which is "blog") and PostCountKey (which is "Post/count/")
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
-
-	// Convert the PostCountKey to bytes
-	byteKey := []byte(types.PostCountKey)
-
-	// Get the value of the count
-	bz := store.Get(byteKey)
-
-	// Return zero if the count value is not found (for example, it's the first post)
-	if bz == nil {
-		return 0
-	}
-
-	// Convert the count into uint64
-	return binary.BigEndian.Uint64(bz)
-}
-```
-
-Now that `GetPostCount` returns the correct number of posts in the store,
-implement `SetPostCount`:
-
-```go title="x/blog/keeper/post.go"
-package keeper
-
-// ...
-
-func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
-	// Get the store using storeKey (which is "blog") and PostCountKey (which is "Post/count/")
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostCountKey))
-
-	// Convert the PostCountKey to bytes
-	byteKey := []byte(types.PostCountKey)
-
-	// Convert count from uint64 to string and get bytes
-	bz := make([]byte, 8)
-	binary.BigEndian.PutUint64(bz, count)
-
-	// Set the value of Post/count/ to count
-	store.Set(byteKey, bz)
-}
-```
-
-Now that you have implemented functions for getting the number of posts and
-setting the post count, at the top of the same `x/blog/keeper/post.go` file,
-implement the logic behind the `AppendPost` function:
-
-```go title="x/blog/keeper/post.go"
-package keeper
-
-// ...
-
-func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
-	// Get the current number of posts in the store
-	count := k.GetPostCount(ctx)
-
-	// Assign an ID to the post based on the number of posts in the store
-	post.Id = count
-
-	// Get the store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostKey))
-
-	// Convert the post ID into bytes
-	byteKey := make([]byte, 8)
-	binary.BigEndian.PutUint64(byteKey, post.Id)
-
-	// Marshal the post into bytes
-	appendedValue := k.cdc.MustMarshal(&post)
-
-	// Insert the post bytes using post ID as a key
-	store.Set(byteKey, appendedValue)
-
-	// Update the post count
-	k.SetPostCount(ctx, count+1)
-	return count
-}
-```
-
-By following these steps, you have implemented all the code required to create
-new posts and store them on-chain. Now, when a transaction that contains a
-message of type `MsgCreatePost` is broadcast, the message is routed to your blog
-module.
-
-* `k.CreatePost` calls `AppendPost`
-* `AppendPost` gets the number of posts from the store, adds a post using the
-  count as an ID, increments the count, and returns the ID
-
-Now that you have added the functionality to create posts and broadcast them to
-our chain, you can add querying.
-
-## Display posts
-
-To display posts, scaffold a query:
-
-```bash
-ignite scaffold query posts --response title,body
-```
-
-Two components are responsible for querying data:
-
-* An RPC inside `service Query` in a proto file that defines data types and
-  specifies the HTTP API endpoint
-* A keeper method that performs the querying from the key-value store
-
-First, review the services and messages in `proto/blog/query.proto`. The `Posts`
-rpc accepts an empty request and returns an object with two fields: title and
-body. Now you can make changes, so it can return a list of posts. The list of
-posts can be long, so add pagination. When pagination is added, the request and
-response include a page number, so you can request a particular page when you
-know what page has been returned.
-
-Import the `Post` type from `post.proto`, add pagination to `QueryPostsRequest`
-and to `QueryPostsResponse` and return a list of posts from
-`QueryPostsResponse`.
-
-```protobuf title="proto/blog/query.proto"
-import "blog/blog/post.proto";
-
-message QueryPostsRequest {
-  // Adding pagination to request
-  cosmos.base.query.v1beta1.PageRequest pagination = 1;
-}
-
-message QueryPostsResponse {
-  // Returning a list of posts
-  repeated Post Post = 1;
-
-  // Adding pagination to response
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-```
-
-To implement post querying logic in the `x/blog/keeper/grpc_query_posts.go`
-file, delete the contents of that file and replace it with:
-
-```go title="x/blog/keeper/grpc_query_posts.go"
-package keeper
-
-import (
-	"context"
-
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
-	"blog/x/blog/types"
-)
-
-func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
-	// Throw an error if request is nil
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
-	}
-
-	// Define a variable that will store a list of posts
-	var posts []*types.Post
-
-	// Get context with the information about the environment
-	ctx := sdk.UnwrapSDKContext(c)
-
-	// Get the key-value module store using the store key (in our case store key is "chain")
-	store := ctx.KVStore(k.storeKey)
-
-	// Get the part of the store that keeps posts (using post key, which is "Post-value-")
-	postStore := prefix.NewStore(store, []byte(types.PostKey))
-
-	// Paginate the posts store based on PageRequest
-	pageRes, err := query.Paginate(postStore, req.Pagination, func(key []byte, value []byte) error {
-		var post types.Post
-		if err := k.cdc.Unmarshal(value, &post); err != nil {
-			return err
-		}
-
-		posts = append(posts, &post)
-
-		return nil
-	})
-
-	// Throw an error if pagination failed
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	// Return a struct containing a list of posts and pagination info
-	return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
-}
-```
-
-## Use the CLI to create a post
-
-Now that you have implemented logic for creating and querying posts, you can
-interact with your blog chain using the command line. The blog chain binary is
-`blogd`.
-
-First, start the chain on your development machine by running the following
-command in the `blog` directory:
-
-```bash
 ignite chain serve
 ```
 
-The binary is built by the `ignite chain serve` command bit it can also be built
-by running:
+Once the blockchain is running, we can use the binary to interact with it and
+see how the code handles creating, updating, and deleting blog posts. We can
+also see how it processes and responds to queries. This will give us a better
+understanding of how our application works and allow us to test its
+functionality.
 
-```bash
-ignite chain build
-```
-
-To create a post at the command line:
-
-```bash
-blogd tx blog create-post foo bar --from alice
-```
-
-The transaction is output to the terminal. You are prompted to confirm the
-transaction:
+While `ignite chain serve` is running in one terminal window, open another
+terminal and use the chain's binary to create a new blog post on the blockchain:
 
 ```
-{"body":{"messages":[{"@type":"/blog.blog.MsgCreatePost","creator":"blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
-
-confirm transaction before signing and broadcasting [y/N]: y
+blogd tx blog create-post 'Hello, World!' 'This is a blog post' --from alice
 ```
 
-Type `y` to sign and broadcast the transaction.
+When using the `--from` flag to specify the account that will be used to sign a
+transaction, it's important to ensure that the specified account is available
+for use. In a development environment, you can see a list of available accounts
+in the output of the `ignite chain serve` command, or in the `config.yml` file.
 
-Congratulations, you built a chain binary and used the `blogd` binary CLI to
-create a blog post.
+It's also worth noting that the `--from` flag is required when broadcasting
+transactions. This flag specifies the account that will be used to sign the
+transaction, which is a crucial step in the transaction process. Without a valid
+signature, the transaction will not be accepted by the blockchain. Therefore,
+it's important to ensure that the account specified with the `--from` flag is
+available.
 
-## Use the CLI to query posts
+After the transaction has been broadcasted successfully, you can query the
+blockchain for the list of blog posts. To do this, you can use the `blogd q blog
+list-post` command, which will return a paginated list of all the blog posts
+that have been added to the blockchain.
 
-To query the list of all on-chain posts:
-
-```bash
-blogd q blog posts
 ```
+blogd q blog list-post
 
-The result:
-
-```yaml
 Post:
-  - body: bar
-    creator: blog1ctxp3pfdtr3sw9udz2ptuh59ce9z0eaa2zvv6w
-    id: "0"
-    title: foo
+- body: This is a blog post
+  creator: cosmos1xz770h6g55rrj8vc9ll9krv6mr964tzhqmsu2v
+  id: "0"
+  title: Hello, World!
 pagination:
   next_key: null
-  total: "1"
+  total: "0"
 ```
 
-## Conclusion
+By querying the blockchain, you can verify that your transaction was processed
+successfully and that the blog post has been added to the chain. Additionally,
+you can use other query commands to retrieve information about other data on the
+blockchain, such as accounts, balances, and governance proposals.
 
-Congratulations. You have built a blog blockchain!
+Let's modify the blog post that we just created by changing the `body` content.
+To do this, we can use the `blogd tx blog update-post` command, which allows us
+to update an existing blog post on the blockchain. When running this command, we
+will need to specify the ID of the blog post that we want to modify, as well as
+the new body content that we want to use. After running this command, the
+transaction will be broadcasted to the blockchain and the blog post will be
+updated with the new body content.
 
-You have successfully completed these steps:
+```
+blogd tx blog update-post 0 'Hello, World!' 'This is a blog post from Alice' --from alice
+```
 
-* Write blog posts to your chain
-* Read from blog posts
-* Scaffold a Cosmos SDK message
-* Define new types in protocol buffer files
-* Write keeper methods to write data to the store
-* Register query handlers
-* Read data from the store and return it as a result a query
-* Use the CLI to broadcast transactions
+Now that we have updated the blog post with new content, let's query the
+blockchain again to see the changes. To do this, we can use the `blogd q blog
+list-post` command, which will return a list of all the blog posts on the
+blockchain. By running this command again, we can see the updated blog post in
+the list, and we can verify that the changes we made have been successfully
+applied to the blockchain.
+
+
+```
+blogd q blog list-post
+
+Post:
+- body: This is a blog post from Alice
+  creator: cosmos1xz770h6g55rrj8vc9ll9krv6mr964tzhqmsu2v
+  id: "0"
+  title: Hello, World!
+pagination:
+  next_key: null
+  total: "0"
+```
+
+Let's try to delete one of the blog posts using Bob's account. However, since
+the blog post was created using Alice's account, we can expect the blockchain to
+check whether the user is authorized to delete the post. In this case, since Bob
+is not the author of the post, his transaction should be rejected by the
+blockchain.
+
+To delete a blog post, we can use the `blogd tx blog delete-post` command, which
+allows us to delete an existing blog post on the blockchain. When running this
+command, we will need to specify the ID of the blog post that we want to delete,
+as well as the account that we want to use for signing the transaction. In this
+case, we will use Bob's account to sign the transaction.
+
+After running this command, the transaction will be broadcasted to the
+blockchain. However, since Bob is not the author of the post, the blockchain
+should reject his transaction and the blog post will not be deleted. This is an
+example of how the blockchain can enforce rules and permissions, and it shows
+that only authorized users are able to make changes to the blockchain.
+
+```
+blogd tx blog delete-post 0 --from bob
+
+raw_log: 'failed to execute message; message index: 0: incorrect owner: unauthorized'
+```
+
+Now, let's try to delete the blog post again, but this time using Alice's
+account. Since Alice is the author of the blog post, she should be authorized to
+delete it.
+
+```
+blogd tx blog delete-post 0 --from alice
+```
+
+To check whether the blog post has been successfully deleted by Alice, we can
+query the blockchain for a list of posts again.
+
+```
+blogd q blog list-post
+
+Post: []
+pagination:
+  next_key: null
+  total: "0"
+```
+
+Congratulations on successfully completing the tutorial on building a blog with
+Ignite CLI! By following the instructions, you have learned how to create a new
+blockchain, generate code for a "post" type with CRUD functionality, start a
+local blockchain, and test out the functionality of your blog.
+
+Now that you have a working example of a simple application, you can experiment
+with the code generated by Ignite and see how changes affect the behavior of the
+application. This is a valuable skill to have, as it will allow you to customize
+your application to fit your specific needs and improve the functionality of
+your application. You can try making changes to the data structure or data type,
+or add additional fields or functionality to the code.
+
+In the following tutorials, we will take a closer look at the code that Ignite
+generates in order to better understand how to build blockchains. By writing
+some of the code ourselves, we can gain a deeper understanding of how Ignite
+works and how it can be used to create applications on a blockchain. This will
+help us learn more about the capabilities of Ignite CLI and how it can be used
+to build robust and powerful applications. Keep an eye out for these tutorials
+and get ready to dive deeper into the world of blockchains with Ignite!
