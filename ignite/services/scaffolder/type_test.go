@@ -1,8 +1,9 @@
 package scaffolder
 
 import (
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"testing"
+
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
 
 	"github.com/stretchr/testify/require"
 
@@ -144,7 +145,6 @@ func TestParseTypeFields(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tc.expectedFields, fields)
-
 		})
 	}
 }
