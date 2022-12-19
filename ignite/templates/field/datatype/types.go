@@ -89,7 +89,9 @@ type GoImport struct {
 	Alias string
 }
 
-func IsSupportedType(datatype Name) (DataType, bool) {
-	f, ok := supportedTypes[datatype]
-	return f, ok
+// IsSupportedType type checks if the given typename is supported by ignite scaffolding.
+// Returns corresponding Datatype if supported.
+func IsSupportedType(typename Name) (dt DataType, ok bool) {
+	dt, ok = supportedTypes[typename]
+	return
 }
