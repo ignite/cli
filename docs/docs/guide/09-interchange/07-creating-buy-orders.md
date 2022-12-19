@@ -75,7 +75,25 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 
 	// Construct the packet
 	var packet types.BuyOrderPacketData
+
 	packet.Buyer = msg.Creator
+	packet.AmountDenom = msg.AmountDenom
+	packet.Amount = msg.Amount
+	packet.PriceDenom = msg.PriceDenom
+	packet.Price = msg.Price
+
+	// Transmit the packet
+	err = k.TransmitBuyOrderPacket(
+		ctx,
+		packet,
+		msg.Port,
+		msg.ChannelID,
+		clienttypes.ZeroHeight(),
+		msg.TimeoutTimestamp,
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	// Transmit an IBC packet...
 	return &types.MsgSendBuyOrderResponse{}, nil
@@ -153,40 +171,40 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 }
 ```
 
-### Implement the FillSellOrder Function
+### Implement a FillBuyOrder Function
 
-The `FillSellOrder` function tries to fill the buy order with the order book and returns all the side effects:
+The `FillBuyOrder` function tries to fill the sell order with the order book and returns all the side effects:
 
 ```go
-// x/dex/types/buy_order_book.go
+// x/dex/types/sell_order_book.go
 
 package types
 
 // ...
 
-func (b *BuyOrderBook) FillSellOrder(order Order) (
-	remainingSellOrder Order,
+func (s *SellOrderBook) FillBuyOrder(order Order) (
+	remainingBuyOrder Order,
 	liquidated []Order,
-	gain int32,
+	purchase int32,
 	filled bool,
 ) {
 	var liquidatedList []Order
-	totalGain := int32(0)
-	remainingSellOrder = order
+	totalPurchase := int32(0)
+	remainingBuyOrder = order
 
 	// Liquidate as long as there is match
 	for {
 		var match bool
 		var liquidation Order
-		remainingSellOrder, liquidation, gain, match, filled = b.LiquidateFromSellOrder(
-			remainingSellOrder,
+		remainingBuyOrder, liquidation, purchase, match, filled = s.LiquidateFromBuyOrder(
+			remainingBuyOrder,
 		)
 		if !match {
 			break
 		}
 
 		// Update gains
-		totalGain += gain
+		totalPurchase += purchase
 
 		// Update liquidated
 		liquidatedList = append(liquidatedList, liquidation)
@@ -196,68 +214,68 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (
 		}
 	}
 
-	return remainingSellOrder, liquidatedList, totalGain, filled
+	return remainingBuyOrder, liquidatedList, totalPurchase, filled
 }
 ```
 
-### Implement The LiquidateFromSellOrder Function
+### Implement a LiquidateFromBuyOrder Function
 
-The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is
+The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is
 found, return false for match:
 
 ```go
-// x/dex/types/buy_order_book.go
+// x/dex/types/sell_order_book.go
 
 package types
 
 // ...
 
-func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
-	remainingSellOrder Order,
-	liquidatedBuyOrder Order,
-	gain int32,
+func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
+	remainingBuyOrder Order,
+	liquidatedSellOrder Order,
+	purchase int32,
 	match bool,
 	filled bool,
 ) {
-	remainingSellOrder = order
+	remainingBuyOrder = order
 
 	// No match if no order
-	orderCount := len(b.Book.Orders)
+	orderCount := len(s.Book.Orders)
 	if orderCount == 0 {
-		return order, liquidatedBuyOrder, gain, false, false
+		return order, liquidatedSellOrder, purchase, false, false
 	}
 
 	// Check if match
-	highestBid := b.Book.Orders[orderCount-1]
-	if order.Price > highestBid.Price {
-		return order, liquidatedBuyOrder, gain, false, false
+	lowestAsk := s.Book.Orders[orderCount-1]
+	if order.Price < lowestAsk.Price {
+		return order, liquidatedSellOrder, purchase, false, false
 	}
 
-	liquidatedBuyOrder = *highestBid
+	liquidatedSellOrder = *lowestAsk
 
-	// Check if sell order can be entirely filled
-	if highestBid.Amount >= order.Amount {
-		remainingSellOrder.Amount = 0
-		liquidatedBuyOrder.Amount = order.Amount
-		gain = order.Amount * highestBid.Price
+	// Check if buy order can be entirely filled
+	if lowestAsk.Amount >= order.Amount {
+		remainingBuyOrder.Amount = 0
+		liquidatedSellOrder.Amount = order.Amount
+		purchase = order.Amount
 
-		// Remove the highest bid if it has been entirely liquidated
-		highestBid.Amount -= order.Amount
-		if highestBid.Amount == 0 {
-			b.Book.Orders = b.Book.Orders[:orderCount-1]
+		// Remove lowest ask if it has been entirely liquidated
+		lowestAsk.Amount -= order.Amount
+		if lowestAsk.Amount == 0 {
+			s.Book.Orders = s.Book.Orders[:orderCount-1]
 		} else {
-			b.Book.Orders[orderCount-1] = highestBid
+			s.Book.Orders[orderCount-1] = lowestAsk
 		}
 
-		return remainingSellOrder, liquidatedBuyOrder, gain, true, true
+		return remainingBuyOrder, liquidatedSellOrder, purchase, true, true
 	}
 
 	// Not entirely filled
-	gain = highestBid.Amount * highestBid.Price
-	b.Book.Orders = b.Book.Orders[:orderCount-1]
-	remainingSellOrder.Amount -= highestBid.Amount
+	purchase = lowestAsk.Amount
+	s.Book.Orders = s.Book.Orders[:orderCount-1]
+	remainingBuyOrder.Amount -= lowestAsk.Amount
 
-	return remainingSellOrder, liquidatedBuyOrder, gain, true, false
+	return remainingBuyOrder, liquidatedSellOrder, purchase, true, false
 }
 ```
 
