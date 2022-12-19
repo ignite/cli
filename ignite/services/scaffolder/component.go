@@ -57,7 +57,7 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 		"types",
 		"tx",
 		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by Starport scaffolder", name.LowerCamel)
+		return fmt.Errorf("%s is used by Ignite scaffolder", name.LowerCamel)
 	}
 
 	if strings.HasSuffix(name.LowerCase, "test") {
@@ -118,7 +118,7 @@ func checkGoReservedWord(name string) error {
 	return nil
 }
 
-// checkComponentCreated checks if the component has been already created with Starport in the project.
+// checkComponentCreated checks if the component has been already created with Ignite in the project.
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
@@ -223,8 +223,8 @@ func checkCustomTypes(ctx context.Context, path, appName, module string, fields 
 	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
 }
 
-// containCustomTypes returns true if the list of fields contains at least one custom type.
-func containCustomTypes(fields []string) bool {
+// containsCustomTypes returns true if the list of fields contains at least one custom type.
+func containsCustomTypes(fields []string) bool {
 	for _, name := range fields {
 		fieldSplit := strings.Split(name, datatype.Separator)
 		if len(fieldSplit) <= 1 {
