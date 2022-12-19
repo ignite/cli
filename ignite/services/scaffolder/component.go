@@ -44,6 +44,87 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 	return checkComponentCreated(appPath, moduleName, compName, noMessage)
 }
 
+// checkComponentCreated checks if the component has been already created with Ignite in the project.
+func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
+	// associate the type to check with the component that scaffold this type
+	typesToCheck := map[string]string{
+		compName.UpperCamel:                           componentType,
+		"QueryAll" + compName.UpperCamel + "Request":  componentType,
+		"QueryAll" + compName.UpperCamel + "Response": componentType,
+		"QueryGet" + compName.UpperCamel + "Request":  componentType,
+		"QueryGet" + compName.UpperCamel + "Response": componentType,
+		"Query" + compName.UpperCamel + "Request":     componentQuery,
+		"Query" + compName.UpperCamel + "Response":    componentQuery,
+		compName.UpperCamel + "PacketData":            componentPacket,
+	}
+
+	if !noMessage {
+		typesToCheck["MsgCreate"+compName.UpperCamel] = componentType
+		typesToCheck["MsgUpdate"+compName.UpperCamel] = componentType
+		typesToCheck["MsgDelete"+compName.UpperCamel] = componentType
+		typesToCheck["Msg"+compName.UpperCamel] = componentMessage
+		typesToCheck["MsgSend"+compName.UpperCamel] = componentPacket
+	}
+
+	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
+	if err != nil {
+		return err
+	}
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
+	if err != nil {
+		return err
+	}
+
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			ast.Inspect(f, func(x ast.Node) bool {
+				typeSpec, ok := x.(*ast.TypeSpec)
+				if !ok {
+					return true
+				}
+
+				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
+					return true
+				}
+
+				// Check if the parsed type is from a scaffolded component with the name
+				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
+					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
+						compType,
+						compName.Original,
+						typeSpec.Name.Name,
+					)
+					return false
+				}
+
+				return true
+			})
+			if err != nil {
+				return
+			}
+		}
+	}
+	return err
+}
+
+// checkCustomTypes returns error if one of the types is invalid.
+func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
+	protoPath := filepath.Join(path, protoFolder, appName, module)
+	customFields := make([]string, 0)
+	for _, name := range fields {
+		fieldSplit := strings.Split(name, datatype.Separator)
+		if len(fieldSplit) <= 1 {
+			continue
+		}
+		fieldType := datatype.Name(fieldSplit[1])
+		if _, ok := datatype.IsSupportedType(fieldType); !ok {
+			customFields = append(customFields, string(fieldType))
+		}
+	}
+	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
+}
+
 // checkForbiddenComponentName returns true if the name is forbidden as a component name.
 func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
@@ -118,71 +199,9 @@ func checkGoReservedWord(name string) error {
 	return nil
 }
 
-// checkComponentCreated checks if the component has been already created with Ignite in the project.
-func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
-	// associate the type to check with the component that scaffold this type
-	typesToCheck := map[string]string{
-		compName.UpperCamel:                           componentType,
-		"QueryAll" + compName.UpperCamel + "Request":  componentType,
-		"QueryAll" + compName.UpperCamel + "Response": componentType,
-		"QueryGet" + compName.UpperCamel + "Request":  componentType,
-		"QueryGet" + compName.UpperCamel + "Response": componentType,
-		"Query" + compName.UpperCamel + "Request":     componentQuery,
-		"Query" + compName.UpperCamel + "Response":    componentQuery,
-		compName.UpperCamel + "PacketData":            componentPacket,
-	}
-
-	if !noMessage {
-		typesToCheck["MsgCreate"+compName.UpperCamel] = componentType
-		typesToCheck["MsgUpdate"+compName.UpperCamel] = componentType
-		typesToCheck["MsgDelete"+compName.UpperCamel] = componentType
-		typesToCheck["Msg"+compName.UpperCamel] = componentMessage
-		typesToCheck["MsgSend"+compName.UpperCamel] = componentPacket
-	}
-
-	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
-	if err != nil {
-		return err
-	}
-	fileSet := token.NewFileSet()
-	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
-	if err != nil {
-		return err
-	}
-
-	for _, pkg := range all {
-		for _, f := range pkg.Files {
-			ast.Inspect(f, func(x ast.Node) bool {
-				typeSpec, ok := x.(*ast.TypeSpec)
-				if !ok {
-					return true
-				}
-
-				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
-					return true
-				}
-
-				// Check if the parsed type is from a scaffolded component with the name
-				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
-					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
-						compType,
-						compName.Original,
-						typeSpec.Name.Name,
-					)
-					return false
-				}
-
-				return true
-			})
-			if err != nil {
-				return
-			}
-		}
-	}
-	return err
-}
-
 // checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name.
+//
+// Deprecated: This function is no longer maintained.
 func checkForbiddenOracleFieldName(name string) error {
 	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
 	if err != nil {
@@ -201,26 +220,9 @@ func checkForbiddenOracleFieldName(name string) error {
 		"FEELIMIT",
 		"PREPAREGAS",
 		"EXECUTEGAS":
-		return fmt.Errorf("%s is used by Starport scaffolder", name)
+		return fmt.Errorf("%s is used by Ignite scaffolder", name)
 	}
 	return nil
-}
-
-// checkCustomTypes returns error if one of the types is invalid.
-func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
-	protoPath := filepath.Join(path, protoFolder, appName, module)
-	customFields := make([]string, 0)
-	for _, name := range fields {
-		fieldSplit := strings.Split(name, datatype.Separator)
-		if len(fieldSplit) <= 1 {
-			continue
-		}
-		fieldType := datatype.Name(fieldSplit[1])
-		if _, ok := datatype.IsSupportedType(fieldType); !ok {
-			customFields = append(customFields, string(fieldType))
-		}
-	}
-	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
 }
 
 // containsCustomTypes returns true if the list of fields contains at least one custom type.
