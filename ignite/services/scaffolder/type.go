@@ -275,7 +275,7 @@ func checkForbiddenTypeField(field string) error {
 	return checkGoReservedWord(field)
 }
 
-// parseTypeFields validades the fields and returns an error if the validation fails.
+// parseTypeFields validates the fields and returns an error if the validation fails.
 func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 	signer := ""
 	if opts.isList || opts.isMap || opts.isSingleton {
