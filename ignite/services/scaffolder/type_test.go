@@ -83,3 +83,37 @@ func TestAddTypeOptions(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckForbiddenTypeIndex(t *testing.T) {
+	tests := []struct {
+		name        string
+		index       string
+		shouldError bool
+	}{
+		{
+			name:        "should fail with empty index",
+			index:       "",
+			shouldError: true,
+		},
+		{
+			name:        "should fail with empty index",
+			index:       "",
+			shouldError: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := checkForbiddenTypeIndex(tc.index)
+			if tc.shouldError {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestCheckForbiddenTypeField(t *testing.T) {
+
+}
