@@ -284,7 +284,7 @@ func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 		}
 		return field.ParseFields(opts.fields, checkForbiddenTypeField, signer)
 	}
-	// For simple types, only check if its a reserved keyword and don't pass a signer.
+	// For simple types, only check if it's a reserved keyword and don't pass a signer.
 	return field.ParseFields(opts.fields, checkGoReservedWord, signer)
 }
 

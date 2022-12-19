@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -84,7 +85,7 @@ func TestAddTypeOptions(t *testing.T) {
 	}
 }
 
-func TestCheckForbiddenTypeIndex(t *testing.T) {
+func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	tests := []struct {
 		name        string
 		index       string
@@ -96,9 +97,42 @@ func TestCheckForbiddenTypeIndex(t *testing.T) {
 			shouldError: true,
 		},
 		{
-			name:        "should fail with empty index",
-			index:       "",
+			name:        "should fail with reserved Go keyword",
+			index:       "uint",
 			shouldError: true,
+		},
+		{
+			name:        "should fail with forbidden ignite keyword - id",
+			index:       "id",
+			shouldError: true,
+		},
+		{
+			name:        "should fail with forbidden ignite keyword - ID",
+			index:       "id",
+			shouldError: true,
+		},
+		{
+			name:        "should fail with forbidden ignite keyword - params",
+			index:       "params",
+			shouldError: true,
+		},
+		{
+			name:        "should fail with forbidden ignite keyword - appendedvalue",
+			index:       "appendedvalue",
+			shouldError: true,
+		},
+		{
+			name:        "should fail with forbidden ignite keyword - customtype keyword",
+			index:       datatype.TypeCustom,
+			shouldError: true,
+		},
+		{
+			name:  "should pass - blog",
+			index: "blog",
+		},
+		{
+			name:  "should pass - post",
+			index: "post",
 		},
 	}
 
@@ -112,8 +146,4 @@ func TestCheckForbiddenTypeIndex(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-
-func TestCheckForbiddenTypeField(t *testing.T) {
-
 }
