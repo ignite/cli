@@ -1,23 +1,28 @@
 package scaffolder
 
 import (
-	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
-func TestAddTypeOptions(t *testing.T) {
+func TestParseTypeFields(t *testing.T) {
 	const (
 		testModuleName = "test"
 		testSigner     = "creator"
 	)
 
 	tests := []struct {
-		name       string
-		addKind    AddTypeKind
-		addOptions []AddTypeOption
-		expected   addTypeOptions
+		name            string
+		addKind         AddTypeKind
+		addOptions      []AddTypeOption
+		expectedOptions addTypeOptions
+		shouldError     bool
+		expectedFields  field.Fields
 	}{
 		{
 			name:    "list type with fields",
@@ -25,11 +30,40 @@ func TestAddTypeOptions(t *testing.T) {
 			addOptions: []AddTypeOption{
 				TypeWithFields("foo", "bar"),
 			},
-			expected: addTypeOptions{
+			expectedOptions: addTypeOptions{
 				moduleName: testModuleName,
 				fields:     []string{"foo", "bar"},
 				isList:     true,
 				signer:     testSigner,
+			},
+			shouldError: false,
+			expectedFields: field.Fields{
+				{
+					Name: multiformatname.Name{
+						Original:   "foo",
+						LowerCamel: "foo",
+						UpperCamel: "Foo",
+						LowerCase:  "foo",
+						UpperCase:  "FOO",
+						Kebab:      "foo",
+						Snake:      "foo",
+					},
+					DatatypeName: "string",
+					Datatype:     "",
+				},
+				{
+					Name: multiformatname.Name{
+						Original:   "bar",
+						LowerCamel: "bar",
+						UpperCamel: "Bar",
+						LowerCase:  "bar",
+						UpperCase:  "BAR",
+						Kebab:      "bar",
+						Snake:      "bar",
+					},
+					DatatypeName: "string",
+					Datatype:     "",
+				},
 			},
 		},
 		{
@@ -38,11 +72,13 @@ func TestAddTypeOptions(t *testing.T) {
 			addOptions: []AddTypeOption{
 				TypeWithModule("module"),
 			},
-			expected: addTypeOptions{
+			expectedOptions: addTypeOptions{
 				moduleName:  "module",
 				isSingleton: true,
 				signer:      testSigner,
 			},
+			shouldError:    false,
+			expectedFields: nil,
 		},
 		{
 			name:    "map type without simulation",
@@ -50,13 +86,15 @@ func TestAddTypeOptions(t *testing.T) {
 			addOptions: []AddTypeOption{
 				TypeWithoutSimulation(),
 			},
-			expected: addTypeOptions{
+			expectedOptions: addTypeOptions{
 				moduleName:        testModuleName,
 				indexes:           []string{"foo", "bar"},
 				isMap:             true,
 				withoutSimulation: true,
 				signer:            testSigner,
 			},
+			shouldError:    false,
+			expectedFields: nil,
 		},
 		{
 			name:    "dry type with signer, without message",
@@ -64,11 +102,29 @@ func TestAddTypeOptions(t *testing.T) {
 			addOptions: []AddTypeOption{
 				TypeWithoutMessage(),
 				TypeWithSigner("signer"),
+				TypeWithFields("FieldFoo"),
 			},
-			expected: addTypeOptions{
+			expectedOptions: addTypeOptions{
 				moduleName:     testModuleName,
 				withoutMessage: true,
+				fields:         []string{"FieldFoo"},
 				signer:         "signer",
+			},
+			shouldError: false,
+			expectedFields: field.Fields{
+				{
+					Name: multiformatname.Name{
+						Original:   "FieldFoo",
+						LowerCamel: "fieldFoo",
+						UpperCamel: "FieldFoo",
+						LowerCase:  "fieldfoo",
+						UpperCase:  "FIELDFOO",
+						Kebab:      "field-foo",
+						Snake:      "field_foo",
+					},
+					DatatypeName: "string",
+					Datatype:     "",
+				},
 			},
 		},
 	}
@@ -80,11 +136,20 @@ func TestAddTypeOptions(t *testing.T) {
 				apply(&o)
 			}
 
-			require.Equal(t, tc.expected, o)
+			require.Equal(t, tc.expectedOptions, o)
+			fields, err := parseTypeFields(o)
+			if tc.shouldError {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tc.expectedFields, fields)
+
 		})
 	}
 }
 
+// indirectly tests checkForbiddenTypeField()
 func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	tests := []struct {
 		name        string
