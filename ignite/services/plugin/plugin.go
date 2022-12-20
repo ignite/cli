@@ -54,7 +54,7 @@ type Plugin struct {
 
 	client *hplugin.Client
 
-	//manifest holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
+	// holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
 	manifest Manifest
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
@@ -293,7 +293,6 @@ func (p *Plugin) load(ctx context.Context) {
 	p.Interface = raw.(Interface)
 
 	m, err := p.Interface.Manifest()
-
 	if err != nil {
 		p.Error = errors.Wrapf(err, "manifest load")
 	}
