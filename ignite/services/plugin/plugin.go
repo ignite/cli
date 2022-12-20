@@ -54,6 +54,8 @@ type Plugin struct {
 
 	client *hplugin.Client
 
+	//manifest holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
+	manifest Manifest
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
 	isHost bool
@@ -168,14 +170,16 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
-	if p.Plugin.SharedHost && !p.isHost {
+	if p.manifest.SharedHost && !p.isHost {
 		// Don't send kill signal to a shared-host plugin when this process isn't
 		// the one who initiated it.
 		return
 	}
+
 	if p.client != nil {
 		p.client.Kill()
 	}
+
 	if p.isHost {
 		DeletePluginConfCache(p.Path)
 		p.isHost = false
@@ -208,6 +212,7 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 	}
+
 	if p.isLocal() {
 		// trigger rebuild for local plugin if binary is outdated
 		if p.outdatedBinary() {
@@ -238,7 +243,8 @@ func (p *Plugin) load(ctx context.Context) {
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
-	if p.Plugin.SharedHost && CheckPluginConfCache(p.Path) {
+
+	if CheckPluginConfCache(p.Path) {
 		rconf := hplugin.ReattachConfig{}
 		err := ReadPluginConfigCache(p.Path, &rconf)
 		if err != nil {
@@ -266,14 +272,9 @@ func (p *Plugin) load(ctx context.Context) {
 			SyncStderr:      os.Stderr,
 			SyncStdout:      os.Stdout,
 		})
-
-		if p.Plugin.SharedHost {
-			p.isHost = true
-		}
-
 	}
 
-	// Connect via RPC
+	// :Connect via RPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -291,15 +292,26 @@ func (p *Plugin) load(ctx context.Context) {
 	// implementation but is in fact over an RPC connection.
 	p.Interface = raw.(Interface)
 
+	m, err := p.Interface.Manifest()
+
+	if err != nil {
+		p.Error = errors.Wrapf(err, "manifest load")
+	}
+
+	p.manifest = m
+
 	// write the rpc context to cache if the plugin is declared as host.
 	// writing it to cache as lost operation within load to assure rpc client's reattach config
 	// is hydrated.
-	if !CheckPluginConfCache(p.Path) && p.isHost {
+	if m.SharedHost && !CheckPluginConfCache(p.Path) {
 		err := WritePluginConfigCache(p.Path, *p.client.ReattachConfig())
 		if err != nil {
 			p.Error = err
 			return
 		}
+
+		// set the plugin's rpc server as host so other plugin clients may share
+		p.isHost = true
 	}
 }
 

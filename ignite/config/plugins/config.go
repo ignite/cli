@@ -37,16 +37,6 @@ type Plugin struct {
 	Path string `yaml:"path"`
 	// With holds arguments passed to the plugin interface
 	With map[string]string `yaml:"with,omitempty"`
-	// SharedHost enables sharing a single plugin server across all running instances
-	// of a plugin. Useful if a plugin adds or extends long running commands
-	//
-	// example: `ignite chain serve`
-	//
-	// When enabled, all plugins of the same `Path` loaded from the same configuration will
-	// attach it's rpc client to a an existing rpc server.
-	//
-	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
-	SharedHost bool `yaml:"shared_host"`
 	// Global holds whether the plugin is installed globally
 	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
 	Global bool `yaml:"-"`
