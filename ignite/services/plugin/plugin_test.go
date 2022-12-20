@@ -140,7 +140,7 @@ func TestPluginLoad(t *testing.T) {
 	// current ignite/cli sources.
 	scaffoldPlugin := func(t *testing.T, dir, name string) string {
 		require := require.New(t)
-		path, err := Scaffold(dir, name)
+		path, err := Scaffold(dir, name, false)
 		require.NoError(err)
 		// We want the scaffolded plugin to use the current version of ignite/cli,
 		// for that we need to update the plugin go.mod and add a replace to target
@@ -210,8 +210,10 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
 				return Plugin{
-					srcPath:    scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar"),
+					Plugin:     pluginsconfig.Plugin{Path: path},
+					srcPath:    path,
 					binaryName: "bar",
 				}
 			},
@@ -223,6 +225,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote")},
 					cloneURL:   repoDir,
 					cloneDir:   cloneDir,
 					srcPath:    path.Join(cloneDir, "remote"),
@@ -236,6 +239,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:   pluginsconfig.Plugin{Path: path.Join(cloneDir, "plugin")},
 					repoPath: "/xxxx/yyyy",
 					cloneURL: "/xxxx/yyyy",
 					cloneDir: cloneDir,
@@ -259,6 +263,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-tag")},
 					cloneURL:   repoDir,
 					reference:  "v1",
 					cloneDir:   cloneDir,
@@ -282,6 +287,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  "branch1",
 					cloneDir:   cloneDir,
@@ -300,6 +306,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  h.Hash().String(),
 					cloneDir:   cloneDir,
@@ -316,6 +323,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-no-ref")},
 					cloneURL:   repoDir,
 					reference:  "doesnt_exists",
 					cloneDir:   cloneDir,
@@ -362,7 +370,7 @@ func TestPluginLoadSharedHost(t *testing.T) {
 	// current ignite/cli sources.
 	scaffoldPlugin := func(t *testing.T, dir, name string) string {
 		require := require.New(t)
-		path, err := Scaffold(dir, name)
+		path, err := Scaffold(dir, name, true)
 		require.NoError(err)
 		// We want the scaffolded plugin to use the current version of ignite/cli,
 		// for that we need to update the plugin go.mod and add a replace to target
@@ -389,37 +397,37 @@ func TestPluginLoadSharedHost(t *testing.T) {
 		instances     int
 	}{
 		{
-			name: "ok: from local sharedhost is on",
+			name: "ok: from local sharedhost is on 1",
 			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-1")
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{SharedHost: true, Path: path},
+					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
-					binaryName: "bar",
+					binaryName: "bar-1",
 				}
 			},
 			instances: 1,
 		},
 		{
-			name: "ok: from local sharedhost is on",
+			name: "ok: from local sharedhost is on 2",
 			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-2")
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{SharedHost: true, Path: path},
+					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
-					binaryName: "bar",
+					binaryName: "bar-2",
 				}
 			},
 			instances: 2,
 		},
 		{
-			name: "ok: from local sharedhost is on",
+			name: "ok: from local sharedhost is on 4",
 			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar")
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4")
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{SharedHost: true, Path: path},
+					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
-					binaryName: "bar",
+					binaryName: "bar-4",
 				}
 			},
 			instances: 4,
@@ -429,7 +437,6 @@ func TestPluginLoadSharedHost(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			// assert := assert.New(t)
 			var plugins []*Plugin
 			for i := 0; i < tt.instances; i++ {
 				p := tt.buildPlugin(t)
