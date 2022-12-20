@@ -124,59 +124,90 @@ The native denoms for Mars are `marscoin`, and for Venus `venuscoin`.
 
 Create the `mars.yml` file with your content:
 
-```yaml
-# mars.yml
+```yaml title="mars.yml"
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
-  - name: alice
-    coins: [ "1000token", "100000000stake", "1000marscoin" ]
-  - name: bob
-    coins: [ "500token", "1000marscoin", "100000000stake" ]
-validator:
-  name: alice
-  staked: "100000000stake"
+- name: alice
+  coins:
+  - 1000token
+  - 100000000stake
+  - 1000marscoin
+- name: bob
+  coins:
+  - 500token
+  - 1000marscoin
+  - 100000000stake
 faucet:
   name: bob
-  coins: [ "5token", "100000stake" ]
+  coins:
+  - 5token
+  - 100000stake
+  host: 0.0.0.0:4500
 genesis:
-  chain_id: "mars"
-init:
-  home: "$HOME/.mars"
+  chain_id: mars
+validators:
+- name: alice
+  bonded: 100000000stake
+  home: $HOME/.mars
 ```
 
 Create the `venus.yml` file with your content:
 
-```yaml
-# venus.yml
+```yaml title="venus.yml"
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
-  - name: alice
-    coins: [ "1000token", "1000000000stake", "1000venuscoin" ]
-  - name: bob
-    coins: [ "500token", "1000venuscoin", "100000000stake" ]
-validator:
-  name: alice
-  staked: "100000000stake"
+- name: alice
+  coins:
+  - 1000token
+  - 1000000000stake
+  - 1000venuscoin
+- name: bob
+  coins:
+  - 500token
+  - 1000venuscoin
+  - 100000000stake
 faucet:
-  host: ":4501"
   name: bob
-  coins: [ "5token", "100000stake" ]
-host:
-  rpc: ":26659"
-  p2p: ":26658"
-  prof: ":6061"
-  grpc: ":9092"
-  grpc-web: ":9093"
-  api: ":1318"
+  coins:
+  - 5token
+  - 100000stake
+  host: :4501
 genesis:
-  chain_id: "venus"
-init:
-  home: "$HOME/.venus"
+  chain_id: venus
+validators:
+- name: alice
+  bonded: 100000000stake
+  app:
+    api:
+      address: :1318
+    grpc:
+      address: :9092
+    grpc-web:
+      address: :9093
+  config:
+    p2p:
+      laddr: :26658
+    rpc:
+      laddr: :26659
+      pprof_laddr: :6061
+  home: $HOME/.venus
 ```
 
-In the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various
-running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later, so you can
-run two blockchains in parallel and prevent conflicts when the chains are using the same ports.
-
-You can also use the `host` parameter to use specific ports for any of the services.
+In order to run two blockchains side by side on a single machine, you need to
+start them on different ports. `venus.yml` has a validators configuration that
+stars services HTTP API, gRPC, P2P and RPC services on custom ports.
 
 After scaffolding, now is a good time to make a commit to the local GitHub repository that was created for you.
 
