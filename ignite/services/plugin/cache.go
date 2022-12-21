@@ -4,7 +4,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
-	"path"
 	"path/filepath"
 
 	hplugin "github.com/hashicorp/go-plugin"
@@ -34,9 +33,8 @@ type ConfigContext struct {
 }
 
 func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
-	name := path.Base(pluginPath)
 
-	if name == "." {
+	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 
@@ -61,15 +59,14 @@ func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) erro
 		return err
 	}
 
-	cache.Put(name, confCont)
+	cache.Put(pluginPath, confCont)
 
 	return err
 }
 
 func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error {
-	name := path.Base(pluginPath)
 
-	if name == "." {
+	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 
@@ -78,7 +75,7 @@ func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error
 		return err
 	}
 
-	confCont, err := cache.Get(name)
+	confCont, err := cache.Get(pluginPath)
 	if err != nil {
 		return err
 	}
@@ -90,9 +87,7 @@ func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error
 }
 
 func CheckPluginConfCache(pluginPath string) bool {
-	name := path.Base(pluginPath)
-
-	if name == "." {
+	if pluginPath == "" {
 		return false
 	}
 
@@ -100,16 +95,14 @@ func CheckPluginConfCache(pluginPath string) bool {
 	if err != nil {
 		return false
 	}
-	if _, err := cache.Get(name); err != nil {
+	if _, err := cache.Get(pluginPath); err != nil {
 		return false
 	}
 	return true
 }
 
 func DeletePluginConfCache(pluginPath string) error {
-	name := path.Base(pluginPath)
-
-	if name == "." {
+	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
@@ -117,7 +110,7 @@ func DeletePluginConfCache(pluginPath string) error {
 		return err
 	}
 
-	if err := cache.Delete(name); err != nil {
+	if err := cache.Delete(pluginPath); err != nil {
 		return err
 	}
 
