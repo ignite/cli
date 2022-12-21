@@ -1,6 +1,39 @@
 package docs
 
-import "embed"
+import (
+    "embed"
+    "html/template"
+    "net/http"
+
+    "github.com/gorilla/mux"
+)
+
+const apiFile = "/static/openapi.yml"
+
 
 //go:embed static
 var Docs embed.FS
+
+//go:embed index.tpl
+var index embed.FS
+
+func RegisterOpenAPIService(appName string, rtr *mux.Router) {
+
+    rtr.Handle(apiFile, http.FileServer(http.FS(Docs)))
+    rtr.HandleFunc("/", handler(appName, apiFile))
+}
+
+// handler returns an http handler that servers OpenAPI console for an OpenAPI spec at specURL.
+func handler(title, specURL string) http.HandlerFunc {
+	t, _ := template.ParseFS(index, "index.tpl")
+
+	return func(w http.ResponseWriter, req *http.Request) {
+		t.Execute(w, struct {
+			Title string
+			URL   string
+		}{
+			title,
+			specURL,
+		})
+	}
+}

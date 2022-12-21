@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -103,7 +102,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-	"github.com/ignite/cli/ignite/pkg/openapiconsole"
+	//"github.com/ignite/cli/ignite/pkg/openapiconsole"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
@@ -823,8 +822,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register app's OpenAPI routes.
-	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
+	docs.RegisterOpenAPIService(Name, apiSvr.Router, )
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
@@ -843,7 +841,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 }
 
 // RegisterNodeService implements the Application.RegisterNodeService method.
-func (app *SimApp) RegisterNodeService(clientCtx client.Context) {
+func (app *App) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
