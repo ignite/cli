@@ -341,14 +341,14 @@ func TestPluginLoad(t *testing.T) {
 func TestPluginLoadSharedHost(t *testing.T) {
 	tests := []struct {
 		name        string
-		buildPlugin func(t *testing.T) Plugin
+		buildPlugin func(t *testing.T, sharedHost bool) Plugin
 		instances   int
 		sharesHost  bool
 	}{
 		{
 			name: "ok: from local sharedhost is on 1 instance",
-			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-1", true)
+			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-1", sharedHost)
 				return Plugin{
 					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
@@ -360,8 +360,8 @@ func TestPluginLoadSharedHost(t *testing.T) {
 		},
 		{
 			name: "ok: from local sharedhost is on 2 instances",
-			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-2", true)
+			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-2", sharedHost)
 				return Plugin{
 					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
@@ -373,8 +373,8 @@ func TestPluginLoadSharedHost(t *testing.T) {
 		},
 		{
 			name: "ok: from local sharedhost is on 4 instances",
-			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4", true)
+			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4", sharedHost)
 				return Plugin{
 					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
@@ -386,8 +386,8 @@ func TestPluginLoadSharedHost(t *testing.T) {
 		},
 		{
 			name: "ok: from local sharedhost is off 4 instances",
-			buildPlugin: func(t *testing.T) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4", false)
+			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4", sharedHost)
 				return Plugin{
 					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
@@ -404,7 +404,7 @@ func TestPluginLoadSharedHost(t *testing.T) {
 			require := require.New(t)
 			var plugins []*Plugin
 			for i := 0; i < tt.instances; i++ {
-				p := tt.buildPlugin(t)
+				p := tt.buildPlugin(t, tt.sharesHost)
 				p.load(context.Background())
 				plugins = append(plugins, &p)
 			}
