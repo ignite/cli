@@ -33,7 +33,6 @@ type ConfigContext struct {
 }
 
 func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
-
 	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
@@ -65,7 +64,6 @@ func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) erro
 }
 
 func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error {
-
 	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
