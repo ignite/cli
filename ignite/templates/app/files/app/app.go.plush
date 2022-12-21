@@ -842,7 +842,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	)
 }
 
-//
+// RegisterNodeService implements the Application.RegisterNodeService method.
 func (app *SimApp) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
