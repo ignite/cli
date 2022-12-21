@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPluginCacheAdd(t *testing.T) {
+func TestReadWritePluginConfigCache(t *testing.T) {
 	t.Run("Should cache plugin config and read from cache", func(t *testing.T) {
 		const path = "/path/to/awesome/plugin"
 		unixFD, _ := net.ResolveUnixAddr("unix", "/var/folders/5k/sv4bxrs102n_6rr7430jc7j80000gn/T/plugin193424090")
@@ -26,6 +26,7 @@ func TestPluginCacheAdd(t *testing.T) {
 		c := hplugin.ReattachConfig{}
 		err = ReadPluginConfigCache(path, &c)
 		require.NoError(t, err)
+		require.Equal(t, rc, c)
 	})
 
 	t.Run("Should error writing bad plugin config to cache", func(t *testing.T) {
