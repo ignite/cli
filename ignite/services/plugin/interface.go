@@ -62,7 +62,10 @@ type Manifest struct {
 	// SharedHost enables sharing a single plugin server across all running instances
 	// of a plugin. Useful if a plugin adds or extends long running commands
 	//
-	// example: `ignite chain serve`
+	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// when the command is run. Now if you want to interact with that instance from commands
+	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
+	// instantiate separate plugin servers.
 	//
 	// When enabled, all plugins of the same `Path` loaded from the same configuration will
 	// attach it's rpc client to a an existing rpc server.
