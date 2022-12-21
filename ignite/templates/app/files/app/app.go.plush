@@ -102,7 +102,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-	//"github.com/ignite/cli/ignite/pkg/openapiconsole"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
