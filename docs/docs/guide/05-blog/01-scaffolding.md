@@ -1,4 +1,4 @@
-# Building a blog with Ignite
+# Code scaffolding
 
 In this tutorial, you will learn how to create a blog application as a Cosmos
 SDK blockchain using the Ignite CLI by building it from scratch. This means that
@@ -33,11 +33,11 @@ create a `Post` type to represent these posts. You can do this using the
 following Ignite CLI command:
 
 ```
-ignite scaffold type post title body
+ignite scaffold type post title body id:uint
 ```
 
 This will create a `Post` type with two fields: `title` and `body`, both of
-which are of type `string`.
+which are of type `string`, and `id` of type `uint`.
 
 It is a good practice to commit your changes to a version control system like
 Git after using Ignite's code scaffolding commands. This will allow you to
