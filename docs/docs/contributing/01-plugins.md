@@ -1,20 +1,23 @@
 ---
-sidebar_position: 12
-description: Using and Developing Plugins
+description: Using and Developing plugins
 ---
 
-# Using and Developing Plugins
+# Developing plugins
 
 ## Using Plugins
 
-Ignite plugins offer a way to extend the functionality of the Ignite CLI. There are two core concepts within plugins : `Commands` and `Hooks`. Where `Commands` extend the cli's functionality, and `Hooks` extend existing command functionality.
+Ignite plugins offer a way to extend the functionality of the Ignite CLI. There
+are two core concepts within plugins : `Commands` and `Hooks`. Where `Commands`
+extend the cli's functionality, and `Hooks` extend existing command
+functionality.
 
-Plugins are registered in an Ignite scaffolded Blockchain project through the `config.yml`.
+Plugins are registered in an Ignite scaffolded Blockchain project through the
+`config.yml`.
 
 ### Adding plugins to a project
 
-Plugins are registered per project, using the `config.yml` file. To use a
-plugin within your project, add a `plugins` section with the following:
+Plugins are registered per project, using the `config.yml` file. To use a plugin
+within your project, add a `plugins` section with the following:
 
 ```yaml title=config.yml
 plugins:
@@ -27,15 +30,18 @@ commands, and/or hooks attached to existing commands.
 
 ### Listing installed plugins
 
-When in an ignite scaffolded blockchain you can use the command `ignite plugin list` to list all plugins and there statuses.
+When in an ignite scaffolded blockchain you can use the command `ignite plugin
+list` to list all plugins and there statuses.
 
 ### Updating plugins
 
-When a plugin in a remote repository releases updates, running `ignite plugin update <path/to/plugin>` will update a specific plugin declared in your project's `config.yml`.
+When a plugin in a remote repository releases updates, running `ignite plugin
+update <path/to/plugin>` will update a specific plugin declared in your
+project's `config.yml`.
 
 ## Developing Plugins
 
-It's easy to create a plugin and use it immediately in your project. First 
+It's easy to create a plugin and use it immediately in your project. First
 choose a directory outside your project and run :
 
 ```sh
@@ -142,8 +148,8 @@ Plugin commands are custom commands added to the ignite cli by a registered
 plugin. Commands can be of any path not defined already by ignite. All plugin
 commands will extend of the command root `ignite`. 
 
-For instance, let's say your plugin adds a new `oracle` command to
-`ignite scaffold`, the `Manifest()` method will look like :
+For instance, let's say your plugin adds a new `oracle` command to `ignite
+scaffold`, the `Manifest()` method will look like :
 
 ```go
 func (p) Manifest() (plugin.Manifest, error) {
@@ -166,8 +172,8 @@ func (p) Manifest() (plugin.Manifest, error) {
 }
 ```
 
-To update the plugin execution, you have to change the plugin `Execute`
-command, for instance :
+To update the plugin execution, you have to change the plugin `Execute` command,
+for instance :
 
 ```go
 func (p) Execute(cmd plugin.ExecutedCommand) error {
@@ -193,17 +199,22 @@ compile and execute the plugin.
 
 ### Adding hooks
 
-Plugin `Hooks` allow existing ignite commands to be extended with new functionality. Hooks are useful when you want to streamline functionality without needing to run custom scripts after or before a command has been run. this can streamline processes that where once error prone or forgotten all together.
+Plugin `Hooks` allow existing ignite commands to be extended with new
+functionality. Hooks are useful when you want to streamline functionality
+without needing to run custom scripts after or before a command has been run.
+this can streamline processes that where once error prone or forgotten all
+together.
 
 The following are hooks defined which will run on a registered `ignite` commands
 
-| Name    | Description             |
-|-------- |-------------------------|
-| Pre     | Runs before a commands main functionality is invoked in the `PreRun` scope |
-| Post    | Runs after a commands main functionality is invoked in the `PostRun` scope |
-| Clean Up| Runs after a commands main functionality is invoked. if the command returns an error it will run before the error is returned to guarantee execution.|
+| Name     | Description                                                                                                                                           |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pre      | Runs before a commands main functionality is invoked in the `PreRun` scope                                                                            |
+| Post     | Runs after a commands main functionality is invoked in the `PostRun` scope                                                                            |
+| Clean Up | Runs after a commands main functionality is invoked. if the command returns an error it will run before the error is returned to guarantee execution. |
 
-*Note*: If a hook causes an error in the pre step the command will not run resulting in `post` and `clean up` not executing.
+*Note*: If a hook causes an error in the pre step the command will not run
+resulting in `post` and `clean up` not executing.
 
 The following is an example of a `hook` definition.
 
@@ -251,4 +262,7 @@ func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
 }
 ```
 
-Above we can see a similar definition to `Command` where a hook has a `Name` and a `PlaceHookOn`. You'll notice that the `Execute*` methods map directly to each life cycle of the hook. All hooks defined within the plugin will invoke these methods.
+Above we can see a similar definition to `Command` where a hook has a `Name` and
+a `PlaceHookOn`. You'll notice that the `Execute*` methods map directly to each
+life cycle of the hook. All hooks defined within the plugin will invoke these
+methods.
