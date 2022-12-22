@@ -114,3 +114,22 @@ This query will return a post of type Post in a paginated output. The
 `--paginated` flag indicates that the query should return its results in a
 paginated format, allowing users to retrieve a specific page of results at a
 time.
+
+## Summary
+
+Congratulations on completing the initial setup of your blockchain application!
+You have successfully created a "post" data type and generated the necessary
+code for handling three types of messages (create, update, and delete) and two
+types of queries (list and show posts).
+
+However, at this point, the messages you have created will not trigger any state
+transitions, and the queries you have created will not return any results. This
+is because Ignite only generates the boilerplate code for these features, and it
+is up to you to implement the necessary logic to make them functional.
+
+In the next chapters of the tutorial, you will learn how to implement the
+message handling and query logic to complete your blockchain application. This
+will involve writing code to process the messages and queries you have created
+and use them to modify or retrieve data from the blockchain's state. By the end
+of this process, you will have a fully functional blog application on a Cosmos
+SDK blockchain.
