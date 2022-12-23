@@ -19,8 +19,8 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.1.0
-	github.com/emicklei/proto v1.11.0
-	github.com/emicklei/proto-contrib v0.12.0
+	github.com/emicklei/proto v1.11.1
+	github.com/emicklei/proto-contrib v0.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-delve/delve v1.9.1
 	github.com/go-git/go-git/v5 v5.4.2
