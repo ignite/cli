@@ -1,15 +1,14 @@
 package docs
 
 import (
-    "embed"
-    "html/template"
-    "net/http"
+	"embed"
+	"html/template"
+	"net/http"
 
-    "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 )
 
 const apiFile = "/static/openapi.yml"
-
 
 //go:embed static
 var Docs embed.FS
@@ -18,9 +17,8 @@ var Docs embed.FS
 var index embed.FS
 
 func RegisterOpenAPIService(appName string, rtr *mux.Router) {
-
-    rtr.Handle(apiFile, http.FileServer(http.FS(Docs)))
-    rtr.HandleFunc("/", handler(appName, apiFile))
+	rtr.Handle(apiFile, http.FileServer(http.FS(Docs)))
+	rtr.HandleFunc("/", handler(appName, apiFile))
 }
 
 // handler returns an http handler that servers OpenAPI console for an OpenAPI spec at specURL.

@@ -491,7 +491,7 @@ func New(
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
-    /**** IBC Routing ****/
+	/**** IBC Routing ****/
 
 	// Sealing prevents other modules from creating scoped sub-keepers
 	app.CapabilityKeeper.Seal()
@@ -505,21 +505,21 @@ func New(
 
 	/**** Module Hooks ****/
 
-    // register hooks after all modules have been initialized
+	// register hooks after all modules have been initialized
 
-    app.StakingKeeper.SetHooks(
-    	stakingtypes.NewMultiStakingHooks(
-    		// insert staking hooks receivers here
-    		app.DistrKeeper.Hooks(),
-    		app.SlashingKeeper.Hooks(),
-    	    ),
-    )
+	app.StakingKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(
+			// insert staking hooks receivers here
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+		),
+	)
 
-    app.GovKeeper.SetHooks(
-        govtypes.NewMultiGovHooks(
-        	// insert governance hooks receivers here
-        ),
-    )
+	app.GovKeeper.SetHooks(
+		govtypes.NewMultiGovHooks(
+		// insert governance hooks receivers here
+		),
+	)
 
 	/**** Module Options ****/
 
@@ -815,13 +815,13 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	// Register new tendermint queries routes from grpc-gateway.
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	// Register node gRPC service for grpc-gateway.
-    nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register app's OpenAPI routes.
-	docs.RegisterOpenAPIService(Name, apiSvr.Router, )
+	docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
@@ -843,7 +843,6 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 func (app *App) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
-
 
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
