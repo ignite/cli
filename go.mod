@@ -46,7 +46,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/moby v20.10.21+incompatible
 	github.com/muesli/reflow v0.3.0
-	github.com/otiai10/copy v1.7.0
+	github.com/otiai10/copy v1.9.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
