@@ -18,7 +18,7 @@ file called `post.go`. This file will contain functions that are specifically
 designed to handle operations related to creating and managing posts within the
 blockchain.
 
-## `AppendPost`
+## Appending posts to the store
 
 ```go title="x/blog/keeper/post.go"
 package keeper
@@ -102,7 +102,7 @@ performed:
 * Implement `SetPostCount`, which will update the post count stored in the
   database.
 
-### `PostKey`
+### Post key prefix
 
 In the file `keys.go`, let's define the `PostKey` prefix as follows:
 
@@ -116,7 +116,7 @@ This prefix will be used to uniquely identify a post within the system. It will
 be used as the beginning of the key for each post, followed by the ID of the
 post to create a unique key for each post.
 
-### `GetPostCount`
+### Getting the post count
 
 In the file `post.go`, let's define the `GetPostCount` function as follows:
 
@@ -169,7 +169,7 @@ const (
 This key will be used to keep track of the ID of the latest post added to the
 store.
 
-### `GetPostIDBytes`
+### Converting post ID to bytes
 
 Now, let's implement `GetPostIDBytes`, which will convert a post ID to a byte
 array.
@@ -198,7 +198,7 @@ big-endian encoded unsigned integer and stores the resulting bytes in the
 `[]byte` slice `bz`. The resulting byte slice can then be used as a key in the
 store.
 
-### `SetPostCount`
+### Updating the post count
 
 Implement `SetPostCount` in `post.go`, which will update the post count stored
 in the database.
@@ -245,7 +245,7 @@ Now that you have implemented the code for creating blog posts, you can proceed
 to implement the keeper method that is invoked when the "create post" message is
 processed.
 
-## `CreatePost`
+## Handling the "create post" message
 
 ```go title="x/blog/keeper/msg_server_create_post.go"
 package keeper
