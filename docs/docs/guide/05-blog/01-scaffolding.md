@@ -33,11 +33,11 @@ create a `Post` type to represent these posts. You can do this using the
 following Ignite CLI command:
 
 ```
-ignite scaffold type post title body id:uint
+ignite scaffold type post title body creator id:uint
 ```
 
-This will create a `Post` type with two fields: `title` and `body`, both of
-which are of type `string`, and `id` of type `uint`.
+This will create a `Post` type with four fields: `title`, `body`, `creator`, all
+of type `string`, and `id` of type `uint`.
 
 It is a good practice to commit your changes to a version control system like
 Git after using Ignite's code scaffolding commands. This will allow you to
