@@ -123,7 +123,5 @@ The `SetPost` method enables you to update an existing post in the store. This
 can be useful for correcting mistakes or updating the content of a post as new
 information becomes available.
 
-Finally, you created the `UpdatePost` method, which is called whenever the
-blockchain processes a message requesting an update to a post. This function
-helps ensure that any changes to posts are properly recorded and tracked within
-the blockchain.
+Finally, you implemented the `UpdatePost` method, which is called whenever the
+blockchain processes a message requesting an update to a post.
