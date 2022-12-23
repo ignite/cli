@@ -139,6 +139,11 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 		typesToCheck["Msg"+compName.UpperCamel] = componentMessage
 		typesToCheck["MsgSend"+compName.UpperCamel] = componentPacket
 	}
+	// Make all names lower case to handle cases of the same name with different cases
+	for k, v := range typesToCheck {
+		delete(typesToCheck, k)
+		typesToCheck[strings.ToLower(k)] = v
+	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
 	if err != nil {
@@ -163,7 +168,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 				}
 
 				// Check if the parsed type is from a scaffolded component with the name
-				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
+				if compType, ok := typesToCheck[strings.ToLower(typeSpec.Name.Name)]; ok {
 					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
 						compType,
 						compName.Original,
