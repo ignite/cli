@@ -62,6 +62,14 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		envtest.ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a message whose name only differs in capitalization",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-Foo", "bar"),
+			step.Workdir(app.SourcePath()),
+		)),
+		envtest.ExecShouldError(),
+	))
+
 	env.Must(env.Exec("create a message with a custom signer name",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-bar", "bar", "--signer", "bar-doer"),
