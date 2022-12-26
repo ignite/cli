@@ -27,7 +27,8 @@ func View(path string) error {
 	//nolint:staticcheck,nolintlint
 	defer p.DisableMouseCellMotion()
 
-	return p.Start()
+	_, err = p.Run()
+	return err
 }
 
 func config(path string) (ui.Config, error) {
