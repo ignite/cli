@@ -122,22 +122,22 @@ func checkGoReservedWord(name string) error {
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
-		compName.UpperCamel:                           componentType,
-		"QueryAll" + compName.UpperCamel + "Request":  componentType,
-		"QueryAll" + compName.UpperCamel + "Response": componentType,
-		"QueryGet" + compName.UpperCamel + "Request":  componentType,
-		"QueryGet" + compName.UpperCamel + "Response": componentType,
-		"Query" + compName.UpperCamel + "Request":     componentQuery,
-		"Query" + compName.UpperCamel + "Response":    componentQuery,
-		compName.UpperCamel + "PacketData":            componentPacket,
+		compName.UpperCamel:                          componentType,
+		"queryall" + compName.LowerCase + "request":  componentType,
+		"queryall" + compName.LowerCase + "response": componentType,
+		"queryget" + compName.LowerCase + "request":  componentType,
+		"queryget" + compName.LowerCase + "response": componentType,
+		"query" + compName.LowerCase + "request":     componentQuery,
+		"query" + compName.LowerCase + "response":    componentQuery,
+		compName.LowerCase + "packetdata":            componentPacket,
 	}
 
 	if !noMessage {
-		typesToCheck["MsgCreate"+compName.UpperCamel] = componentType
-		typesToCheck["MsgUpdate"+compName.UpperCamel] = componentType
-		typesToCheck["MsgDelete"+compName.UpperCamel] = componentType
-		typesToCheck["Msg"+compName.UpperCamel] = componentMessage
-		typesToCheck["MsgSend"+compName.UpperCamel] = componentPacket
+		typesToCheck["msgcreate"+compName.LowerCase] = componentType
+		typesToCheck["msgupdate"+compName.LowerCase] = componentType
+		typesToCheck["msgdelete"+compName.LowerCase] = componentType
+		typesToCheck["msg"+compName.LowerCase] = componentMessage
+		typesToCheck["msgsend"+compName.LowerCase] = componentPacket
 	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
@@ -163,7 +163,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 				}
 
 				// Check if the parsed type is from a scaffolded component with the name
-				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
+				if compType, ok := typesToCheck[strings.ToLower(typeSpec.Name.Name)]; ok {
 					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
 						compType,
 						compName.Original,
