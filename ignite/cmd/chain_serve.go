@@ -104,7 +104,8 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 
 		// Render UI
 		m := cmdmodel.NewChainServe(cmd, bus, chainServeCmd(cmd, session))
-		return tea.NewProgram(m).Start()
+		_, err := tea.NewProgram(m).Run()
+		return err
 	}
 
 	// Otherwise run the serve command directly
