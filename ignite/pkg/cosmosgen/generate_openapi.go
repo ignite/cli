@@ -113,7 +113,7 @@ func generateOpenAPISpec(g *generator) error {
 		return nil
 	}
 
-	// protoc openapi generator acts weird on conccurrent run, so do not use goroutines here.
+	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
 	if err := add(g.appPath, g.appModules); err != nil {
 		return err
 	}

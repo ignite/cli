@@ -16,7 +16,7 @@ Start a new [Discussion](https://github.com/ignite/cli/discussions/new) if you w
 
 To prepare for success, see [Set Up Your Ignite CLI Development Environment](dev-env-setup.md).
 
-To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](docs/docs/contributing/01-contributing.md).
+To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](docs/docs/contributing/02-docs.md).
 
 Thank you for your contribution!
 
@@ -101,9 +101,5 @@ strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-wo
 
 * A single project board <https://github.com/ignite/cli/projects/4> shows the issues we are currently working on and
   what issues we plan to work on.
-
-Contributors, check the **To Do** column on the project board <https://github.com/ignite/cli/projects/4> to find an
-issue to work on. See the [Ignite CLI bounty program](docs/docs/09-bounty.md) to learn how your participation can earn
-rewards.
 
 We appreciate your contribution!

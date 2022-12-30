@@ -78,7 +78,8 @@ func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	if server {
 		bus := session.EventBus()
 		m := cmdmodel.NewChainDebug(cmd, bus, chainDebugCmd(cmd, session))
-		return tea.NewProgram(m).Start()
+		_, err := tea.NewProgram(m).Run()
+		return err
 	}
 
 	return chainDebug(cmd, session)

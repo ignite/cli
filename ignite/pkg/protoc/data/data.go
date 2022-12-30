@@ -14,7 +14,7 @@ func Include() fs.FS {
 	return f
 }
 
-// Binary returns the platform spesific protoc binary.
+// Binary returns the platform specific protoc binary.
 func Binary() []byte {
 	return binary
 }

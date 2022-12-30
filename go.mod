@@ -9,18 +9,18 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/aws/smithy-go v1.13.4
 	github.com/blang/semver/v4 v4.0.0
-	github.com/briandowns/spinner v1.19.0
+	github.com/briandowns/spinner v1.20.0
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/bubbles v0.7.6
-	github.com/charmbracelet/bubbletea v0.22.1
+	github.com/charmbracelet/bubbletea v0.23.1
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.1.0
-	github.com/emicklei/proto v1.11.0
-	github.com/emicklei/proto-contrib v0.12.0
+	github.com/emicklei/proto v1.11.1
+	github.com/emicklei/proto-contrib v0.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-delve/delve v1.9.1
 	github.com/go-git/go-git/v5 v5.4.2
@@ -31,7 +31,7 @@ require (
 	github.com/goccy/go-yaml v1.9.7
 	github.com/gogo/protobuf v1.3.3
 	github.com/golangci/golangci-lint v1.50.1
-	github.com/google/go-github/v48 v48.1.0
+	github.com/google/go-github/v48 v48.2.0
 	github.com/gookit/color v1.5.2
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
@@ -46,7 +46,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/moby v20.10.21+incompatible
 	github.com/muesli/reflow v0.3.0
-	github.com/otiai10/copy v1.7.0
+	github.com/otiai10/copy v1.9.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
@@ -60,7 +60,7 @@ require (
 	github.com/tendermint/spn v0.2.1-0.20221125172725-052fbf576cb2
 	github.com/tendermint/tendermint v0.34.24
 	github.com/tendermint/tm-db v0.6.7
-	github.com/vektra/mockery/v2 v2.15.0
+	github.com/vektra/mockery/v2 v2.16.0
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/mod v0.7.0
 	golang.org/x/sync v0.1.0
@@ -102,6 +102,7 @@ require (
 	github.com/ashanbrown/forbidigo v1.3.0 // indirect
 	github.com/ashanbrown/makezero v1.1.1 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
+	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
@@ -120,6 +121,7 @@ require (
 	github.com/charmbracelet/charm v0.8.6 // indirect
 	github.com/charmbracelet/glamour v0.2.1-0.20210402234443-abe9cda419ba // indirect
 	github.com/chavacava/garif v0.0.0-20220630083739-93517212f375 // indirect
+	github.com/chigopher/pathlib v0.12.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cilium/ebpf v0.7.0 // indirect
 	github.com/cloudflare/circl v1.1.0 // indirect
@@ -263,7 +265,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mbilski/exhaustivestruct v1.2.0 // indirect
 	github.com/meowgorithm/babyenv v1.3.1 // indirect
@@ -284,7 +286,7 @@ require (
 	github.com/muesli/gitcha v0.2.0 // indirect
 	github.com/muesli/go-app-paths v0.2.1 // indirect
 	github.com/muesli/sasquatch v0.0.0-20200811221207-66979d92330a // indirect
-	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739 // indirect
+	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/nakabonne/nestif v0.3.1 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354 // indirect
 	github.com/nishanths/exhaustive v0.8.3 // indirect
