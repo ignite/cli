@@ -21,8 +21,9 @@ ignite scaffold chain blog
 ```
 
 This will create a new directory called `blog/` containing the necessary files
-and directories for your blockchain application. Next, navigate to the newly
-created directory by running:
+and directories for your [blockchain
+application](https://docs.cosmos.network/main/basics/app-anatomy). Next,
+navigate to the newly created directory by running:
 
 ```
 cd blog
@@ -55,7 +56,8 @@ git commit -am "ignite scaffold type post title body"
 Next, you will be implementing CRUD (create, read, update, and delete)
 operations for your blog posts. Since create, update, and delete operations
 change the state of the application, they are considered write operations. In
-Cosmos SDK blockchains, state is changed by broadcasting transactions that
+Cosmos SDK blockchains, state is changed by broadcasting
+[transactions](https://docs.cosmos.network/main/basics/tx-lifecycle) that
 contain messages that trigger state transitions. To create the logic for
 broadcasting and handling transactions with a "create post" message, you can use
 the following Ignite CLI command:
@@ -90,10 +92,11 @@ ignite scaffold message delete-post id:uint
 
 ### Creating queries
 
-Queries allow users to retrieve information from the blockchain state. In your
-application, you will have two queries: "show post" and "list post". The "show
-post" query will allow users to retrieve a specific post by its ID, while the
-"list post" query will return a paginated list of all stored posts.
+[Queries](https://docs.cosmos.network/main/basics/query-lifecycle) allow users
+to retrieve information from the blockchain state. In your application, you will
+have two queries: "show post" and "list post". The "show post" query will allow
+users to retrieve a specific post by its ID, while the "list post" query will
+return a paginated list of all stored posts.
 
 To create the "show post" query, you can use the following Ignite CLI command:
 
