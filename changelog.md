@@ -48,7 +48,9 @@
 - [#3183](https://github.com/ignite/cli/pull/3183/) Make config optional for init phase.
 - [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
 - [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands
-- [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
+- [#3244](https://github.com/ignite/cli/pull/3244) Update actions.yml for resolving deprecation message
+- [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
+- [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` grpc in `app.go` template.
 
 ### Breaking Changes
 
