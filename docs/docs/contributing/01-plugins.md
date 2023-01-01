@@ -159,6 +159,7 @@ A plugin may also share a host process by setting `SharedHost` to `true`.
 `SharedHost` is desirable if a plugin hooks into, or declares long running commands.
 Commands executed from the same plugin context interact with the same plugin server. 
 Allowing all executing commands to share the same server instance, giving shared execution context.
+
 ### Adding new command
 
 Plugin commands are custom commands added to the ignite cli by a registered
