@@ -23,8 +23,7 @@ func TestReadWritePluginConfigCache(t *testing.T) {
 		err := WritePluginConfigCache(path, rc)
 		require.NoError(t, err)
 
-		c := hplugin.ReattachConfig{}
-		err = ReadPluginConfigCache(path, &c)
+		c, err := ReadPluginConfigCache(path)
 		require.NoError(t, err)
 		require.Equal(t, rc, c)
 	})
@@ -74,9 +73,8 @@ func TestPluginCacheDelete(t *testing.T) {
 		err = DeletePluginConfCache(path)
 		require.NoError(t, err)
 
-		c := hplugin.ReattachConfig{}
 		// there should be an error after deleting the config from the cache
-		err = ReadPluginConfigCache(path, &c)
+		_, err = ReadPluginConfigCache(path)
 		require.Error(t, err)
 	})
 

@@ -4,11 +4,10 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
-	"path/filepath"
+	"path"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	chainconfig "github.com/ignite/cli/ignite/config"
 	"github.com/ignite/cli/ignite/pkg/cache"
 )
 
@@ -17,86 +16,48 @@ const (
 	cacheNamespace = "plugin.rpc.context"
 )
 
-var (
-	storage      *cache.Storage
-	storageCache *cache.Cache[ConfigContext]
-)
+var storageCache *cache.Cache[hplugin.ReattachConfig]
 
 func init() {
 	gob.Register(hplugin.ReattachConfig{})
-	gob.Register(net.UnixAddr{})
-}
-
-type ConfigContext struct {
-	Plugin hplugin.ReattachConfig
-	Addr   net.UnixAddr
+	gob.Register(&net.UnixAddr{})
 }
 
 func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
-
 	if conf.Addr == nil {
 		return fmt.Errorf("plugin Address info cannot be empty")
 	}
-
-	confCont := ConfigContext{}
-	// TODO: figure out a better way of resolving the type of network connection is established between plugin server and host
-	// currently this will always be a unix network socket. but this might not be the case moving forward.
-	ua, err := net.ResolveUnixAddr(conf.Addr.Network(), conf.Addr.String())
-	if err != nil {
-		return err
-	}
-
-	confCont.Addr = *ua
-	conf.Addr = nil
-	confCont.Plugin = conf
-
 	cache, err := newCache()
 	if err != nil {
 		return err
 	}
-
-	cache.Put(pluginPath, confCont)
-
-	return err
+	return cache.Put(pluginPath, conf)
 }
 
-func ReadPluginConfigCache(pluginPath string, ref *hplugin.ReattachConfig) error {
+func ReadPluginConfigCache(pluginPath string) (hplugin.ReattachConfig, error) {
 	if pluginPath == "" {
-		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return hplugin.ReattachConfig{}, fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
-
 	cache, err := newCache()
 	if err != nil {
-		return err
+		return hplugin.ReattachConfig{}, err
 	}
-
-	confCont, err := cache.Get(pluginPath)
-	if err != nil {
-		return err
-	}
-
-	*ref = confCont.Plugin
-	ref.Addr = &confCont.Addr
-
-	return nil
+	return cache.Get(pluginPath)
 }
 
 func CheckPluginConfCache(pluginPath string) bool {
 	if pluginPath == "" {
 		return false
 	}
-
 	cache, err := newCache()
 	if err != nil {
 		return false
 	}
-	if _, err := cache.Get(pluginPath); err != nil {
-		return false
-	}
-	return true
+	_, err = cache.Get(pluginPath)
+	return err == nil
 }
 
 func DeletePluginConfCache(pluginPath string) error {
@@ -107,27 +68,21 @@ func DeletePluginConfCache(pluginPath string) error {
 	if err != nil {
 		return err
 	}
-
-	if err := cache.Delete(pluginPath); err != nil {
-		return err
-	}
-
-	return nil
+	return cache.Delete(pluginPath)
 }
 
-func newCache() (*cache.Cache[ConfigContext], error) {
-	cacheRootDir, err := chainconfig.DirPath()
+func newCache() (*cache.Cache[hplugin.ReattachConfig], error) {
+	cacheRootDir, err := PluginsPath()
 	if err != nil {
 		return nil, err
 	}
-	if storage == nil {
-		storageTmp, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	if storageCache == nil {
+		storage, err := cache.NewStorage(path.Join(cacheRootDir, cacheFileName))
 		if err != nil {
 			return nil, err
 		}
-		storage = &storageTmp
-		cacheTmp := cache.New[ConfigContext](*storage, cacheNamespace)
-		storageCache = &cacheTmp
+		c := cache.New[hplugin.ReattachConfig](storage, cacheNamespace)
+		storageCache = &c
 	}
 
 	return storageCache, nil

@@ -245,8 +245,7 @@ func (p *Plugin) load(ctx context.Context) {
 	})
 
 	if CheckPluginConfCache(p.Path) {
-		rconf := hplugin.ReattachConfig{}
-		err := ReadPluginConfigCache(p.Path, &rconf)
+		rconf, err := ReadPluginConfigCache(p.Path)
 		if err != nil {
 			p.Error = err
 			return
