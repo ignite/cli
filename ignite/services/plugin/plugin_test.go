@@ -390,8 +390,14 @@ func TestPluginLoadSharedHost(t *testing.T) {
 			}
 			// Ensure all plugins are killed at the end of test case
 			defer func() {
-				for i := 0; i < len(plugins); i++ {
+				for i := len(plugins) - 1; i >= 0; i-- {
 					plugins[i].KillClient()
+					if tt.sharesHost && i > 0 {
+						assert.False(plugins[i].client.Exited(), "non host plugin can't kill host plugin")
+						assert.True(checkConfCache(plugins[i].Path), "non host plugin doesn't remove config cache when killed")
+					} else {
+						assert.True(plugins[i].client.Exited(), "plugin should be killed")
+					}
 					assert.False(plugins[i].isHost, "killed plugins are no longer host")
 				}
 				assert.False(checkConfCache(plugins[0].Path), "once host is killed the cache should be cleared")
