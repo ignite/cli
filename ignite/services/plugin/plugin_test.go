@@ -394,19 +394,19 @@ func TestPluginLoadSharedHost(t *testing.T) {
 					plugins[i].KillClient()
 					assert.False(plugins[i].isHost, "killed plugins are no longer host")
 				}
-				assert.False(CheckPluginConfCache(plugins[0].Path), "once host is killed the cache should be cleared")
+				assert.False(checkConfCache(plugins[0].Path), "once host is killed the cache should be cleared")
 			}()
 
 			var hostConf *hplugin.ReattachConfig
 			for i := 0; i < len(plugins); i++ {
 				if tt.sharesHost {
-					assert.True(CheckPluginConfCache(plugins[i].Path), "sharedHost must have a cache entry")
+					assert.True(checkConfCache(plugins[i].Path), "sharedHost must have a cache entry")
 					if i == 0 {
 						// first plugin is the host
 						assert.True(plugins[i].isHost, "first plugin is the host")
 						// Assert reattach config has been saved
 						hostConf = plugins[i].client.ReattachConfig()
-						ref, err := ReadPluginConfigCache(plugins[i].Path)
+						ref, err := readConfigCache(plugins[i].Path)
 						if assert.NoError(err) {
 							assert.Equal(hostConf, &ref, "wrong cache entry for plugin host")
 						}
@@ -417,7 +417,7 @@ func TestPluginLoadSharedHost(t *testing.T) {
 					}
 				} else {
 					assert.False(plugins[i].isHost, "plugin %d can't be host if sharedHost is disabled", i)
-					assert.False(CheckPluginConfCache(plugins[i].Path), "plugin %d can't have a cache entry if sharedHost is disabled", i)
+					assert.False(checkConfCache(plugins[i].Path), "plugin %d can't have a cache entry if sharedHost is disabled", i)
 				}
 			}
 		})

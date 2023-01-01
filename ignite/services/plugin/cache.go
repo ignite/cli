@@ -23,7 +23,7 @@ func init() {
 	gob.Register(&net.UnixAddr{})
 }
 
-func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
+func writeConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
@@ -37,7 +37,7 @@ func WritePluginConfigCache(pluginPath string, conf hplugin.ReattachConfig) erro
 	return cache.Put(pluginPath, conf)
 }
 
-func ReadPluginConfigCache(pluginPath string) (hplugin.ReattachConfig, error) {
+func readConfigCache(pluginPath string) (hplugin.ReattachConfig, error) {
 	if pluginPath == "" {
 		return hplugin.ReattachConfig{}, fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
@@ -48,7 +48,7 @@ func ReadPluginConfigCache(pluginPath string) (hplugin.ReattachConfig, error) {
 	return cache.Get(pluginPath)
 }
 
-func CheckPluginConfCache(pluginPath string) bool {
+func checkConfCache(pluginPath string) bool {
 	if pluginPath == "" {
 		return false
 	}
@@ -60,7 +60,7 @@ func CheckPluginConfCache(pluginPath string) bool {
 	return err == nil
 }
 
-func DeletePluginConfCache(pluginPath string) error {
+func deleteConfCache(pluginPath string) error {
 	if pluginPath == "" {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
@@ -84,6 +84,5 @@ func newCache() (*cache.Cache[hplugin.ReattachConfig], error) {
 		c := cache.New[hplugin.ReattachConfig](storage, cacheNamespace)
 		storageCache = &c
 	}
-
 	return storageCache, nil
 }
