@@ -12,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -340,93 +341,81 @@ func TestPluginLoad(t *testing.T) {
 
 func TestPluginLoadSharedHost(t *testing.T) {
 	tests := []struct {
-		name        string
-		buildPlugin func(t *testing.T, sharedHost bool) Plugin
-		instances   int
-		sharesHost  bool
+		name       string
+		instances  int
+		sharesHost bool
 	}{
 		{
-			name: "ok: from local sharedhost is on 1 instance",
-			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-1", sharedHost)
-				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
-					srcPath:    path,
-					binaryName: "bar-1",
-				}
-			},
+			name:       "ok: from local sharedhost is on 1 instance",
 			instances:  1,
 			sharesHost: true,
 		},
 		{
-			name: "ok: from local sharedhost is on 2 instances",
-			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-2", sharedHost)
-				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
-					srcPath:    path,
-					binaryName: "bar-2",
-				}
-			},
+			name:       "ok: from local sharedhost is on 2 instances",
 			instances:  2,
 			sharesHost: true,
 		},
 		{
-			name: "ok: from local sharedhost is on 4 instances",
-			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4", sharedHost)
-				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
-					srcPath:    path,
-					binaryName: "bar-4",
-				}
-			},
+			name:       "ok: from local sharedhost is on 4 instances",
 			instances:  4,
 			sharesHost: true,
 		},
 		{
-			name: "ok: from local sharedhost is off 4 instances",
-			buildPlugin: func(t *testing.T, sharedHost bool) Plugin {
-				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar-4", sharedHost)
-				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
-					srcPath:    path,
-					binaryName: "bar-4",
-				}
-			},
+			name:       "ok: from local sharedhost is off 4 instances",
 			instances:  4,
 			sharesHost: false,
 		},
 	}
 
-	for _, tt := range tests {
+	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			var plugins []*Plugin
+			var (
+				require = require.New(t)
+				assert  = assert.New(t)
+				// scaffold an unique plugin for all instances
+				path = scaffoldPlugin(t, t.TempDir(),
+					fmt.Sprintf("github.com/foo/bar-%d", i), tt.sharesHost)
+				plugins []*Plugin
+			)
+			// Load one plugin per instance
 			for i := 0; i < tt.instances; i++ {
-				p := tt.buildPlugin(t, tt.sharesHost)
+				p := Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path},
+					srcPath:    path,
+					binaryName: filepath.Base(path),
+				}
 				p.load(context.Background())
+				require.NoError(p.Error)
 				plugins = append(plugins, &p)
 			}
-
-			if !tt.sharesHost {
-				require.Equal(false, CheckPluginConfCache(plugins[0].Path))
-				for i := 0; i < tt.instances; i++ {
-					require.Equal(false, plugins[i].isHost)
+			// Ensure all plugins are killed at the end of test case
+			defer func() {
+				for i := 0; i < len(plugins); i++ {
+					plugins[i].KillClient()
+					assert.False(plugins[i].isHost, "killed plugins are no longer host")
 				}
-				return
-			}
+				assert.False(CheckPluginConfCache(plugins[0].Path), "once host is killed the cache should be cleared")
+			}()
 
-			require.Equal(true, CheckPluginConfCache(plugins[0].Path))
-
-			for i := len(plugins) - 1; i >= 0; i-- {
-				plugins[i].KillClient()
-				if i != 0 {
-					require.Equal(true, plugins[0].isHost)
-					rconf := plugins[i].client.ReattachConfig()
-					require.Equal(rconf.Addr.String(), plugins[i].client.ReattachConfig().Addr.String())
+			for i := 0; i < len(plugins); i++ {
+				if tt.sharesHost {
+					assert.True(CheckPluginConfCache(plugins[i].Path), "sharedHost must have a cache entry")
+					if i == 0 {
+						// first plugin is the host
+						assert.True(plugins[i].isHost, "first plugin is the host")
+						// Assert reattach config has been saved for non host
+						rconf := plugins[i].client.ReattachConfig()
+						var ref hplugin.ReattachConfig
+						if assert.NoError(ReadPluginConfigCache(plugins[i].Path, &ref)) {
+							assert.Equal(rconf, &ref, "wrong cache entry for plugin host")
+						}
+					} else {
+						// plugins after first aren't host
+						assert.False(plugins[i].isHost, "plugin %d can't be host", i)
+					}
 				} else {
-					require.Equal(false, plugins[0].isHost)
+					assert.False(plugins[i].isHost, "plugin %d can't be host if sharedHost is disabled", i)
+					assert.False(CheckPluginConfCache(plugins[i].Path), "plugin %d can't have a cache entry if sharedHost is disabled", i)
 				}
 			}
 		})
