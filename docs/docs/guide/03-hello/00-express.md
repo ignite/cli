@@ -30,7 +30,7 @@ nodes and the results are returned to the querying client.
 
 ## Create a query with Ignite
 
-To add a query, run the following command:
+To add a query, run the following command inside the `hello` directory:
 
 ```
 ignite scaffold query say-hello name --response name
