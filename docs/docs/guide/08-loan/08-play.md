@@ -28,7 +28,15 @@ validators:
 		bonded: 100000000stake
 ```
 
+Start a blockchain node:
+
+```
+ignite chain serve
+```
+
 ## Repaying a loan
+
+Request a loan of `1000token` with `100token` as a fee and `1000foocoin` as a collateral from Alice's account. The deadline is set to `500` blocks:
 
 ```
 loand tx loan request-loan 1000token 100token 1000foocoin 500 --from alice
@@ -50,6 +58,8 @@ Loan:
 	state: requested
 ```
 
+Approve the loan from Bob's account:
+
 ```
 loand tx loan approve-loan 0 --from bob
 ```
@@ -57,6 +67,8 @@ loand tx loan approve-loan 0 --from bob
 ```
 loand q loan list-loan         
 ```
+
+The `lender` field has been updated to Bob's address and the `state` field has been updated to `approved`:
 
 ```yml        
 Loan:
@@ -76,6 +88,8 @@ Loan:
 loand q bank balances $(loand keys show alice -a)
 ```
 
+The `foocoin` balance has been updated to `9000`, because `1000foocoin` has been transferred as collateral to the module account. The `token` balance has been updated to `21000`, because `1000token` has been transferred from Bob's account to Alice's account as a loan:
+
 ```yml
 balances:
 	# highlight-start
@@ -94,6 +108,10 @@ balances:
 loand q bank balances $(loand keys show bob -a)  
 ```
 
+The `token` balance has been updated to `9000`, because `1000token` has been transferred from Bob's account to Alice's account as a loan:
+
+```yml
+
 ```yml
 balances:
 - amount: "100000000"
@@ -104,6 +122,8 @@ balances:
 	# highlight-end
 ```
 
+Repay the loan from Alice's account:
+
 ```
 loand tx loan repay-loan 0 --from alice
 ```
@@ -111,6 +131,8 @@ loand tx loan repay-loan 0 --from alice
 ```
 loand q loan list-loan
 ```
+
+The `state` field has been updated to `repayed`:
 
 ```yml
 Loan:
@@ -128,6 +150,10 @@ Loan:
 ```
 loand q bank balances $(loand keys show alice -a)
 ```
+
+The `foocoin` balance has been updated to `10000`, because `1000foocoin` has been transferred from the module account to Alice's account. The `token` balance has been updated to `19900`, because `1000token` has been transferred from Alice's account to Bob's account as a repayment and `100token` has been transferred from Alice's account to Bob's account as a fee:
+
+```yml
 
 ```yml
 balances:
@@ -147,6 +173,8 @@ balances:
 loand q bank balances $(loand keys show bob -a)  
 ```
 
+The `token` balance has been updated to `10100`, because `1000token` has been transferred from Alice's account to Bob's account as a repayment and `100token` has been transferred from Alice's account to Bob's account as a fee:
+
 ```yml
 balances:
 - amount: "100000000"
@@ -159,6 +187,8 @@ balances:
 
 ## Liquidating a loan
 
+Request a loan of `1000token` with `100token` as a fee and `1000foocoin` as a collateral from Alice's account. The deadline is set to `20` blocks. The deadline is set to a very small value, so that the loan can be quickly liquidated in the next step: 
+
 ```
 loand tx loan request-loan 1000token 100token 1000foocoin 20 --from alice
 ```
@@ -166,6 +196,8 @@ loand tx loan request-loan 1000token 100token 1000foocoin 20 --from alice
 ```
 loand q loan list-loan
 ```
+
+A loan has been added to the list:
 
 ```yml
 Loan:
@@ -189,9 +221,13 @@ Loan:
 	# highlight-end
 ```
 
+Approve the loan from Bob's account:
+
 ```
 loand tx loan approve-loan 0 --from bob
 ```
+
+Liquidate the loan from Bob's account:
 
 ```
 loand tx loan liquidate-loan 1 --from bob
@@ -200,6 +236,8 @@ loand tx loan liquidate-loan 1 --from bob
 ```
 loand q loan list-loan
 ```
+
+The loan has been liquidated:
 
 ```yml
 Loan:
@@ -227,6 +265,8 @@ Loan:
 q bank balances $(loand keys show alice -a)
 ```
 
+The `foocoin` balance has been updated to `9000`, because `1000foocoin` has been transferred from Alice's account to the module account as a collateral. Alice has lost her collateral, but she has kept the loan amount:
+
 ```yml
 balances:
 	# highlight-start
@@ -244,6 +284,10 @@ balances:
 ```
 loand q bank balances $(loand keys show bob -a)  
 ```
+
+The `foocoin` balance has been updated to `1000`, because `1000foocoin` has been transferred from the module account to Bob's account as a collateral. Bob has gained the collateral, but he has lost the loan amount:
+
+```yml
 
 ```yml
 balances:
