@@ -5,7 +5,7 @@ title: In-depth tutorial
 # In-depth "Hello, World!" tutorial
 
 In this tutorial you will implement "Hello, World!" functionality from
-scratch.The functionality of the application you will be building will be
+scratch. The functionality of the application you will be building will be
 identical to what the one you created in the "Express tutorial" section, but
 here you will be doing it manually in order to gain a deeper understanding of
 the process.
