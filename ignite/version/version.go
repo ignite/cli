@@ -34,16 +34,9 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		return false, "", nil
 	}
 
-	latest, _, err := github.
-		NewClient(nil).
-		Repositories.
-		GetLatestRelease(ctx, "ignite", "cli")
+	tagName, err := getLatestRelease(ctx)
 	if err != nil {
 		return false, "", err
-	}
-
-	if latest.TagName == nil {
-		return false, "", nil
 	}
 
 	currentVersion, err := semver.ParseTolerant(Version)
@@ -51,14 +44,39 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		return false, "", err
 	}
 
-	latestVersion, err := semver.ParseTolerant(*latest.TagName)
+	latestVersion, err := semver.ParseTolerant(tagName)
 	if err != nil {
 		return false, "", err
 	}
 
 	isAvailable = latestVersion.GT(currentVersion)
 
-	return isAvailable, *latest.TagName, nil
+	return isAvailable, tagName, nil
+}
+
+func getLatestRelease(ctx context.Context) (string, error) {
+	latest, _, err := github.
+		NewClient(nil).
+		Repositories.
+		GetLatestRelease(ctx, "ignite", "cli")
+	if err != nil {
+		return "", err
+	}
+
+	if latest.TagName == nil {
+		return "", nil
+	}
+
+	return *latest.TagName, nil
+}
+
+func resolveDevVersion() string {
+	if Version != versionDev {
+		return Version
+	}
+
+	tag, _ := getLatestRelease(context.Background())
+	return tag + "-dev"
 }
 
 // Long generates a detailed version info.
@@ -78,6 +96,7 @@ func Long(ctx context.Context) string {
 				break
 			}
 		}
+
 		for _, kv := range info.Settings {
 			switch kv.Key {
 			case "vcs.revision":
@@ -100,7 +119,7 @@ func Long(ctx context.Context) string {
 
 	w.Init(b, 0, 8, 0, '\t', 0)
 
-	write("Ignite CLI version", Version)
+	write("Ignite CLI version", resolveDevVersion())
 	write("Ignite CLI build date", date)
 	write("Ignite CLI source hash", head)
 	write("Ignite CLI config version", chainconfig.LatestVersion)
