@@ -2,7 +2,6 @@ package cosmoserror
 
 import (
 	"errors"
-
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -13,6 +12,8 @@ var (
 	ErrNotFound       = errors.New("not found")
 )
 
+// Unwrap checks if an error contains a given grpc error code and returns the corresponding simple error type
+//
 //nolint:exhaustive
 func Unwrap(err error) error {
 	s, ok := status.FromError(err)
@@ -31,4 +32,9 @@ func Unwrap(err error) error {
 		return unwrapped
 	}
 	return err
+}
+
+// IsNotFound returns if the given error is "not found"
+func IsNotFound(err error) bool {
+	return errors.Is(Unwrap(err), ErrNotFound)
 }
