@@ -95,7 +95,7 @@ func TSClientPath(conf Config) string {
 // VuexPath returns the relative path to the Vuex stores directory.
 // Path is relative to the app's directory.
 func VuexPath(conf *Config) string {
-	//nolint:staticcheck //ignore SA1019 until vuex config option is removed
+	//nolint:staticcheck,nolintlint //ignore SA1019 until vuex config option is removed
 	if path := strings.TrimSpace(conf.Client.Vuex.Path); path != "" {
 		return filepath.Clean(path)
 	}
