@@ -73,13 +73,19 @@ func getLatestReleaseTag(ctx context.Context) (string, error) {
 // resolveDevVersion creates a string for version printing if the version being used is "development".
 // the version will be of the form "LATEST-dev" where LATEST is the latest tagged release.
 func resolveDevVersion() string {
-	// do nothing if built with specific tag
-	if Version != versionDev {
-		return Version
+	tag, _ := getLatestReleaseTag(context.Background())
+
+	if Version == versionDev {
+		return tag + "-dev"
+
+	}
+	if Version == versionNightly {
+		return tag + "-nightly"
 	}
 
-	tag, _ := getLatestReleaseTag(context.Background())
-	return tag + "-dev"
+	// do nothing if built with specific tag
+	return Version
+
 }
 
 // Long generates a detailed version info.
