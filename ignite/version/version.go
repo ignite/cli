@@ -85,7 +85,6 @@ func resolveDevVersion() string {
 
 	// do nothing if built with specific tag
 	return Version
-
 }
 
 // Long generates a detailed version info.
