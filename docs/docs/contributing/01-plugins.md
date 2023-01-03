@@ -25,7 +25,7 @@ plugins:
 ```
 
 Now the next time the `ignite` command is run under your project, the declared
-plugin will be fetched, compiled and ran. This will result in more avaiable
+plugin will be fetched, compiled and ran. This will result in more available
 commands, and/or hooks attached to existing commands.
 
 ### Listing installed plugins
@@ -129,6 +129,19 @@ type Manifest struct {
 	// Hooks contains the hooks that will be attached to the existing ignite
 	// commands.
 	Hooks []Hook
+	// SharedHost enables sharing a single plugin server across all running instances
+	// of a plugin. Useful if a plugin adds or extends long running commands
+	//
+	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// when the command is run. Now if you want to interact with that instance from commands
+	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
+	// instantiate separate plugin servers.
+	//
+	// When enabled, all plugins of the same `Path` loaded from the same configuration will
+	// attach it's rpc client to a an existing rpc server.
+	//
+	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
+	SharedHost bool `yaml:"shared_host"`
 }
 ```
 
@@ -141,6 +154,11 @@ field.
 If your plugin adds features to existing commands, feeds the `Hooks` field.
 
 Of course a plugin can declare `Commands` *and* `Hooks`.
+
+A plugin may also share a host process by setting `SharedHost` to `true`.
+`SharedHost` is desirable if a plugin hooks into, or declares long running commands.
+Commands executed from the same plugin context interact with the same plugin server. 
+Allowing all executing commands to share the same server instance, giving shared execution context.
 
 ### Adding new command
 
