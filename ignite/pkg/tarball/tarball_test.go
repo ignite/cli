@@ -44,7 +44,7 @@ func TestExtractFile(t *testing.T) {
 		{
 			name: "read from subfolder",
 			args: args{
-				tarballPath: "testdata/example-subfolder.tar.gz",
+				tarballPath: "testdata/example-suborder.tar.gz",
 				file:        "example.json",
 			},
 			want:     exampleJSON,

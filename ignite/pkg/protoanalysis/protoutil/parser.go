@@ -9,7 +9,7 @@ import (
 	"github.com/emicklei/proto-contrib/pkg/protofmt"
 )
 
-// ParseProtoFile opens the file denoted by path and parses it
+// ParseProtoPath opens the file denoted by path and parses it
 // into a proto file.
 func ParseProtoPath(path string) (pf *proto.Proto, err error) {
 	f, err := os.Open(path)
@@ -21,12 +21,12 @@ func ParseProtoPath(path string) (pf *proto.Proto, err error) {
 	return proto.NewParser(f).Parse()
 }
 
-// PraseProtoFile parses the given file.
+// ParseProtoFile parses the given file.
 func ParseProtoFile(r io.Reader) (*proto.Proto, error) {
 	return proto.NewParser(r).Parse()
 }
 
-// Print() formats the proto file using proto-contrib/pkg/protofmt.
+// Print formats the proto file using proto-contrib/pkg/protofmt.
 // This does have certain opinions on how formatting is done.
 func Print(pf *proto.Proto) string {
 	output := new(strings.Builder)

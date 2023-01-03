@@ -12,7 +12,7 @@ type builder struct {
 	p pkg
 }
 
-// buil turns a low lovel proto pkg into a high level Package.
+// build turns a low level proto pkg into a high level Package.
 func build(p pkg) Package {
 	br := builder{p}
 
