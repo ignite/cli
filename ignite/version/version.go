@@ -71,6 +71,7 @@ func getLatestRelease(ctx context.Context) (string, error) {
 }
 
 func resolveDevVersion() string {
+	// do nothing if built with specific tag
 	if Version != versionDev {
 		return Version
 	}
