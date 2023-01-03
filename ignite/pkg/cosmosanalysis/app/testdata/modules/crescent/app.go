@@ -78,69 +78,58 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/cosmos/ibc-go/v2/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v2/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v2/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v2/modules/core/02-client"
+	ibcclientclient "github.com/cosmos/ibc-go/v2/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
+	porttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v2/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
+	"github.com/tendermint/budget/x/budget"
+	budgetkeeper "github.com/tendermint/budget/x/budget/keeper"
+	budgettypes "github.com/tendermint/budget/x/budget/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	// IBC modules
-	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
-	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
-	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
-
-	// budget module
-	"github.com/tendermint/budget/x/budget"
-	budgetkeeper "github.com/tendermint/budget/x/budget/keeper"
-	budgettypes "github.com/tendermint/budget/x/budget/types"
-
-	// core modules
-	farmingparams "github.com/crescent-network/crescent/v4/app/params"
-	v2_0_0 "github.com/crescent-network/crescent/v4/app/upgrades/mainnet/v2.0.0"
-	v3 "github.com/crescent-network/crescent/v4/app/upgrades/mainnet/v3"
-	v4 "github.com/crescent-network/crescent/v4/app/upgrades/mainnet/v4"
-	"github.com/crescent-network/crescent/v4/app/upgrades/testnet/rc4"
-	"github.com/crescent-network/crescent/v4/x/claim"
-	claimkeeper "github.com/crescent-network/crescent/v4/x/claim/keeper"
-	claimtypes "github.com/crescent-network/crescent/v4/x/claim/types"
-	"github.com/crescent-network/crescent/v4/x/farming"
-	farmingclient "github.com/crescent-network/crescent/v4/x/farming/client"
-	farmingkeeper "github.com/crescent-network/crescent/v4/x/farming/keeper"
-	farmingtypes "github.com/crescent-network/crescent/v4/x/farming/types"
-	"github.com/crescent-network/crescent/v4/x/liquidfarming"
-	liquidfarmingkeeper "github.com/crescent-network/crescent/v4/x/liquidfarming/keeper"
-	liquidfarmingtypes "github.com/crescent-network/crescent/v4/x/liquidfarming/types"
-	"github.com/crescent-network/crescent/v4/x/liquidity"
-	liquiditykeeper "github.com/crescent-network/crescent/v4/x/liquidity/keeper"
-	liquiditytypes "github.com/crescent-network/crescent/v4/x/liquidity/types"
-	"github.com/crescent-network/crescent/v4/x/liquidstaking"
-	liquidstakingkeeper "github.com/crescent-network/crescent/v4/x/liquidstaking/keeper"
-	liquidstakingtypes "github.com/crescent-network/crescent/v4/x/liquidstaking/types"
-	"github.com/crescent-network/crescent/v4/x/lpfarm"
-	lpfarmclient "github.com/crescent-network/crescent/v4/x/lpfarm/client"
-	lpfarmkeeper "github.com/crescent-network/crescent/v4/x/lpfarm/keeper"
-	lpfarmtypes "github.com/crescent-network/crescent/v4/x/lpfarm/types"
-	"github.com/crescent-network/crescent/v4/x/marketmaker"
-	marketmakerclient "github.com/crescent-network/crescent/v4/x/marketmaker/client"
-	marketmakerkeeper "github.com/crescent-network/crescent/v4/x/marketmaker/keeper"
-	marketmakertypes "github.com/crescent-network/crescent/v4/x/marketmaker/types"
-	"github.com/crescent-network/crescent/v4/x/mint"
-	mintkeeper "github.com/crescent-network/crescent/v4/x/mint/keeper"
-	minttypes "github.com/crescent-network/crescent/v4/x/mint/types"
+	farmingparams "github.com/crescent-network/crescent/v3/app/params"
+	v2_0_0 "github.com/crescent-network/crescent/v3/app/upgrades/mainnet/v2.0.0"
+	v3 "github.com/crescent-network/crescent/v3/app/upgrades/mainnet/v3"
+	"github.com/crescent-network/crescent/v3/app/upgrades/testnet/rc4"
+	"github.com/crescent-network/crescent/v3/x/claim"
+	claimkeeper "github.com/crescent-network/crescent/v3/x/claim/keeper"
+	claimtypes "github.com/crescent-network/crescent/v3/x/claim/types"
+	"github.com/crescent-network/crescent/v3/x/farming"
+	farmingclient "github.com/crescent-network/crescent/v3/x/farming/client"
+	farmingkeeper "github.com/crescent-network/crescent/v3/x/farming/keeper"
+	farmingtypes "github.com/crescent-network/crescent/v3/x/farming/types"
+	"github.com/crescent-network/crescent/v3/x/liquidfarming"
+	liquidfarmingkeeper "github.com/crescent-network/crescent/v3/x/liquidfarming/keeper"
+	liquidfarmingtypes "github.com/crescent-network/crescent/v3/x/liquidfarming/types"
+	"github.com/crescent-network/crescent/v3/x/liquidity"
+	liquiditykeeper "github.com/crescent-network/crescent/v3/x/liquidity/keeper"
+	liquiditytypes "github.com/crescent-network/crescent/v3/x/liquidity/types"
+	"github.com/crescent-network/crescent/v3/x/liquidstaking"
+	liquidstakingkeeper "github.com/crescent-network/crescent/v3/x/liquidstaking/keeper"
+	liquidstakingtypes "github.com/crescent-network/crescent/v3/x/liquidstaking/types"
+	"github.com/crescent-network/crescent/v3/x/lpfarm"
+	lpfarmclient "github.com/crescent-network/crescent/v3/x/lpfarm/client"
+	lpfarmkeeper "github.com/crescent-network/crescent/v3/x/lpfarm/keeper"
+	lpfarmtypes "github.com/crescent-network/crescent/v3/x/lpfarm/types"
+	"github.com/crescent-network/crescent/v3/x/marketmaker"
+	marketmakerclient "github.com/crescent-network/crescent/v3/x/marketmaker/client"
+	marketmakerkeeper "github.com/crescent-network/crescent/v3/x/marketmaker/keeper"
+	marketmakertypes "github.com/crescent-network/crescent/v3/x/marketmaker/types"
+	"github.com/crescent-network/crescent/v3/x/mint"
+	mintkeeper "github.com/crescent-network/crescent/v3/x/mint/keeper"
+	minttypes "github.com/crescent-network/crescent/v3/x/mint/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/crescent-network/crescent/v4/client/docs/statik"
+	_ "github.com/crescent-network/crescent/v3/client/docs/statik"
 )
 
 var (
@@ -175,9 +164,9 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		ibc.AppModuleBasic{},
-		transfer.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
+		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		budget.AppModuleBasic{},
 		farming.AppModuleBasic{},
@@ -187,7 +176,6 @@ var (
 		claim.AppModuleBasic{},
 		marketmaker.AppModuleBasic{},
 		lpfarm.AppModuleBasic{},
-		ica.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -207,7 +195,6 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		marketmakertypes.ModuleName:    nil,
 		lpfarmtypes.ModuleName:         nil,
-		icatypes.ModuleName:            nil,
 	}
 )
 
@@ -222,7 +209,6 @@ var (
 // capabilities aren't needed for testing.
 type App struct {
 	*baseapp.BaseApp
-
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
@@ -246,7 +232,7 @@ type App struct {
 	CrisisKeeper        crisiskeeper.Keeper
 	UpgradeKeeper       upgradekeeper.Keeper
 	ParamsKeeper        paramskeeper.Keeper
-	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	IBCKeeper           *ibckeeper.Keeper
 	EvidenceKeeper      evidencekeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
@@ -259,17 +245,11 @@ type App struct {
 	ClaimKeeper         claimkeeper.Keeper
 	MarketMakerKeeper   marketmakerkeeper.Keeper
 	LPFarmKeeper        lpfarmkeeper.Keeper
-	ICAHostKeeper       icahostkeeper.Keeper
 
-	// scoped keepers
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
-	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
-	// IBC app modules
 	transferModule transfer.AppModule
-	icaModule      ica.AppModule
-
 	// the module manager
 	mm *module.Manager
 
@@ -335,7 +315,6 @@ func NewApp(
 		claimtypes.StoreKey,
 		marketmakertypes.StoreKey,
 		lpfarmtypes.StoreKey,
-		icahosttypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -366,7 +345,6 @@ func NewApp(
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.CapabilityKeeper.Seal()
 
 	// add keepers
@@ -411,6 +389,7 @@ func NewApp(
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
 	)
+
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec,
 		keys[distrtypes.StoreKey],
@@ -491,27 +470,6 @@ func NewApp(
 		app.BankKeeper,
 		app.LiquidityKeeper,
 	)
-	app.LiquidStakingKeeper = liquidstakingkeeper.NewKeeper(
-		appCodec,
-		keys[liquidstakingtypes.StoreKey],
-		app.GetSubspace(liquidstakingtypes.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.StakingKeeper,
-		app.DistrKeeper,
-		app.LiquidityKeeper,
-		app.LPFarmKeeper,
-		app.SlashingKeeper,
-	)
-	app.LiquidFarmingKeeper = liquidfarmingkeeper.NewKeeper(
-		appCodec,
-		keys[liquidfarmingtypes.StoreKey],
-		app.GetSubspace(liquidfarmingtypes.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.LPFarmKeeper,
-		app.LiquidityKeeper,
-	)
 
 	// register the proposal types
 	govRouter := govtypes.NewRouter()
@@ -534,11 +492,36 @@ func NewApp(
 		app.StakingKeeper,
 		govRouter,
 	)
+
+	app.LiquidStakingKeeper = liquidstakingkeeper.NewKeeper(
+		appCodec,
+		keys[liquidstakingtypes.StoreKey],
+		app.GetSubspace(liquidstakingtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
+		app.LiquidityKeeper,
+		app.LPFarmKeeper,
+		app.SlashingKeeper,
+	)
+
+	app.LiquidFarmingKeeper = liquidfarmingkeeper.NewKeeper(
+		appCodec,
+		keys[liquidfarmingtypes.StoreKey],
+		app.GetSubspace(liquidfarmingtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.LPFarmKeeper,
+		app.LiquidityKeeper,
+	)
+
 	app.GovKeeper = *app.GovKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			app.LiquidStakingKeeper.Hooks(),
 		),
 	)
+
 	app.ClaimKeeper = claimkeeper.NewKeeper(
 		appCodec,
 		keys[claimtypes.StoreKey],
@@ -548,11 +531,11 @@ func NewApp(
 		app.LiquidityKeeper,
 		app.LiquidStakingKeeper,
 	)
+
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		keys[ibctransfertypes.StoreKey],
 		app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
@@ -560,20 +543,11 @@ func NewApp(
 		scopedTransferKeeper,
 	)
 	app.transferModule = transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 
-	app.ICAHostKeeper = icahostkeeper.NewKeeper(
-		appCodec,
-		keys[icahosttypes.StoreKey],
-		app.GetSubspace(icahosttypes.SubModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		scopedICAHostKeeper,
-		app.MsgServiceRouter(),
-	)
-	app.icaModule = ica.NewAppModule(nil, &app.ICAHostKeeper)
-	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
+	// create static IBC router, add transfer route, then set and seal it
+	ibcRouter := porttypes.NewRouter()
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, app.transferModule)
+	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -582,17 +556,9 @@ func NewApp(
 		app.StakingKeeper,
 		app.SlashingKeeper,
 	)
+
 	app.EvidenceKeeper = *evidenceKeeper
 
-	// create static IBC router, add transfer route, then set and seal it
-	ibcRouter := porttypes.NewRouter()
-
-	ibcRouter.
-		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
-		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
-	app.IBCKeeper.SetRouter(ibcRouter)
-
-	/****  Module Options ****/
 	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -629,7 +595,6 @@ func NewApp(
 		marketmaker.NewAppModule(appCodec, app.MarketMakerKeeper, app.AccountKeeper, app.BankKeeper),
 		lpfarm.NewAppModule(appCodec, app.LPFarmKeeper, app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper),
 		app.transferModule,
-		app.icaModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -665,7 +630,6 @@ func NewApp(
 		farmingtypes.ModuleName,
 		claimtypes.ModuleName,
 		marketmakertypes.ModuleName,
-		icatypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		// EndBlocker of crisis module called AssertInvariants
@@ -697,7 +661,6 @@ func NewApp(
 		budgettypes.ModuleName,
 		marketmakertypes.ModuleName,
 		lpfarmtypes.ModuleName,
-		icatypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -733,7 +696,6 @@ func NewApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		icatypes.ModuleName,
 
 		// InitGenesis of crisis module called AssertInvariants
 		crisistypes.ModuleName,
@@ -791,7 +753,7 @@ func NewApp(
 				SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			IBCKeeper: app.IBCKeeper,
+			IBCChannelkeeper: app.IBCKeeper.ChannelKeeper,
 		},
 	)
 	if err != nil {
@@ -806,15 +768,14 @@ func NewApp(
 	app.SetUpgradeStoreLoaders()
 	app.SetUpgradeHandlers(app.mm, app.configurator)
 
-	app.ScopedIBCKeeper = scopedIBCKeeper
-	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedICAHostKeeper = scopedICAHostKeeper
-
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 		}
 	}
+
+	app.ScopedIBCKeeper = scopedIBCKeeper
+	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	return app
 }
@@ -979,7 +940,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(liquidfarmingtypes.ModuleName)
 	paramsKeeper.Subspace(marketmakertypes.ModuleName)
 	paramsKeeper.Subspace(lpfarmtypes.ModuleName)
-	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 
 	return paramsKeeper
 }
@@ -996,19 +956,15 @@ func (app *App) SetUpgradeStoreLoaders() {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &rc4.StoreUpgrades))
 	}
-
 	// mainnet upgrade state loaders
 	if upgradeInfo.Name == v2_0_0.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &v2_0_0.StoreUpgrades))
 	}
+
 	if upgradeInfo.Name == v3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &v3.StoreUpgrades))
-	}
-	if upgradeInfo.Name == v4.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &v4.StoreUpgrades))
 	}
 }
 
@@ -1024,8 +980,4 @@ func (app *App) SetUpgradeHandlers(mm *module.Manager, configurator module.Confi
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v3.UpgradeName, v3.UpgradeHandler(
 			mm, configurator, app.MarketMakerKeeper, app.LiquidityKeeper, app.LPFarmKeeper, app.FarmingKeeper, app.BankKeeper))
-
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v4.UpgradeName, v4.UpgradeHandler(
-			mm, configurator, app.icaModule))
 }
