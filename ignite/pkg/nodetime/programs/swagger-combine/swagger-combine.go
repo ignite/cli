@@ -61,7 +61,7 @@ func (c *Config) AddSpec(id, path string) error {
 		rename[o] = id + o
 	}
 
-	// add api with replaced operantion ids.
+	// add api with replaced operation ids.
 	c.APIs = append(c.APIs, API{
 		ID:           id,
 		URL:          path,

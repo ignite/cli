@@ -15,7 +15,7 @@ const (
 	scriptTemplate = "#!/bin/bash\n%s $@\n"
 )
 
-// BinaryPath returns the path to the binary of the ts-proto plugin so it can be passed to
+// BinaryPath returns the path to the binary of the ts-proto plugin, so it can be passed to
 // protoc via --plugin option.
 //
 // protoc is very picky about binary names of its plugins. for ts-proto, binary name

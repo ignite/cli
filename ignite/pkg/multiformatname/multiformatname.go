@@ -71,7 +71,7 @@ func basicCheckName(name string) error {
 	}
 
 	for _, c := range name[1:] {
-		// A name can contains letter, hyphen or underscore
+		// A name can contain letter, hyphen or underscore
 		authorized := ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '-' || c == '_'
 		if !authorized {
 			return fmt.Errorf("name cannot contain %v", string(c))
