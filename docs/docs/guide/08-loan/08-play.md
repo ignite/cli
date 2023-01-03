@@ -5,27 +5,27 @@ Add `10000foocoin` to Alice's account. These tokens will be used as a loan colla
 ```yml
 version: 1
 accounts:
-  - name: alice
-    coins:
-      - 20000token
-      # highlight-next-line
-      - 10000foocoin
-      - 200000000stake
-  - name: bob
-    coins:
-      - 10000token
-      - 100000000stake
+	- name: alice
+		coins:
+			- 20000token
+			# highlight-next-line
+			- 10000foocoin
+			- 200000000stake
+	- name: bob
+		coins:
+			- 10000token
+			- 100000000stake
 client:
-  openapi:
-    path: docs/static/openapi.yml
+	openapi:
+		path: docs/static/openapi.yml
 faucet:
-  name: bob
-  coins:
-    - 5token
-    - 100000stake
+	name: bob
+	coins:
+		- 5token
+		- 100000stake
 validators:
-  - name: alice
-    bonded: 100000000stake
+	- name: alice
+		bonded: 100000000stake
 ```
 
 ## Repaying a loan
@@ -41,13 +41,13 @@ loand q loan list-loan
 ```yml
 Loan:
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "500"
-  fee: 100token
-  id: "0"
-  lender: ""
-  state: requested
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "500"
+	fee: 100token
+	id: "0"
+	lender: ""
+	state: requested
 ```
 
 ```
@@ -61,15 +61,15 @@ loand q loan list-loan
 ```yml        
 Loan:
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "500"
-  fee: 100token
-  id: "0"
-  # highlight-start
-  lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
-  state: approved
-  # highlight-end
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "500"
+	fee: 100token
+	id: "0"
+	# highlight-start
+	lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
+	state: approved
+	# highlight-end
 ```
 
 ```
@@ -78,16 +78,16 @@ loand q bank balances $(loand keys show alice -a)
 
 ```yml
 balances:
-  # highlight-start
+	# highlight-start
 - amount: "9000"
-  denom: foocoin
-  # highlight-end
+	denom: foocoin
+	# highlight-end
 - amount: "100000000"
-  denom: stake
-  # highlight-start
+	denom: stake
+	# highlight-start
 - amount: "21000"
-  denom: token
-  # highlight-end
+	denom: token
+	# highlight-end
 ```
 
 ```
@@ -97,11 +97,11 @@ loand q bank balances $(loand keys show bob -a)
 ```yml
 balances:
 - amount: "100000000"
-  denom: stake
-  # highlight-start
+	denom: stake
+	# highlight-start
 - amount: "9000"
-  denom: token
-  # highlight-end
+	denom: token
+	# highlight-end
 ```
 
 ```
@@ -115,14 +115,14 @@ loand q loan list-loan
 ```yml
 Loan:
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "500"
-  fee: 100token
-  id: "0"
-  lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
-  # highlight-next-line
-  state: repayed
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "500"
+	fee: 100token
+	id: "0"
+	lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
+	# highlight-next-line
+	state: repayed
 ```
 
 ```
@@ -131,16 +131,16 @@ loand q bank balances $(loand keys show alice -a)
 
 ```yml
 balances:
-  # highlight-start
+	# highlight-start
 - amount: "10000"
-  denom: foocoin
-  # highlight-end
+	denom: foocoin
+	# highlight-end
 - amount: "100000000"
-  denom: stake
-  # highlight-start
+	denom: stake
+	# highlight-start
 - amount: "19900"
-  denom: token
-  # highlight-end
+	denom: token
+	# highlight-end
 ```
 
 ```
@@ -150,11 +150,11 @@ loand q bank balances $(loand keys show bob -a)
 ```yml
 balances:
 - amount: "100000000"
-  denom: stake
-  # highlight-start
+	denom: stake
+	# highlight-start
 - amount: "10100"
-  denom: token
-  # highlight-end
+	denom: token
+	# highlight-end
 ```
 
 ## Liquidating a loan
@@ -170,23 +170,23 @@ loand q loan list-loan
 ```yml
 Loan:
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "500"
-  fee: 100token
-  id: "0"
-  lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
-  state: repayed
-  # highlight-start
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "500"
+	fee: 100token
+	id: "0"
+	lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
+	state: repayed
+	# highlight-start
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "20"
-  fee: 100token
-  id: "1"
-  lender: ""
-  state: requested
-  # highlight-end
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "20"
+	fee: 100token
+	id: "1"
+	lender: ""
+	state: requested
+	# highlight-end
 ```
 
 ```
@@ -204,23 +204,23 @@ loand q loan list-loan
 ```yml
 Loan:
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "500"
-  fee: 100token
-  id: "0"
-  lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
-  state: repayed
-  # highlight-start
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "500"
+	fee: 100token
+	id: "0"
+	lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
+	state: repayed
+	# highlight-start
 - amount: 1000token
-  borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
-  collateral: 1000foocoin
-  deadline: "20"
-  fee: 100token
-  id: "1"
-  lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
-  state: liquidated
-  # highlight-end
+	borrower: cosmos153dk8qh56v4yg6e4uzrvvqjueu6d36fptlr2kw
+	collateral: 1000foocoin
+	deadline: "20"
+	fee: 100token
+	id: "1"
+	lender: cosmos1qfzpxfhsu2qfy2exkukuanrkzrrexh9yeg2pr4
+	state: liquidated
+	# highlight-end
 ```
 
 ```
@@ -229,16 +229,16 @@ q bank balances $(loand keys show alice -a)
 
 ```yml
 balances:
-  # highlight-start
+	# highlight-start
 - amount: "9000"
-  denom: foocoin
-  # highlight-end
+	denom: foocoin
+	# highlight-end
 - amount: "100000000"
-  denom: stake
-  # highlight-start
+	denom: stake
+	# highlight-start
 - amount: "20900"
-  denom: token
-  # highlight-end
+	denom: token
+	# highlight-end
 ```
 
 ```
@@ -247,12 +247,12 @@ loand q bank balances $(loand keys show bob -a)
 
 ```yml
 balances:
-  # highlight-start
+	# highlight-start
 - amount: "1000"
-  denom: foocoin
-  # highlight-end
+	denom: foocoin
+	# highlight-end
 - amount: "100000000"
-  denom: stake
+	denom: stake
 - amount: "9100"
-  denom: token
+	denom: token
 ```
