@@ -12,21 +12,26 @@ extend the cli's functionality, and `Hooks` extend existing command
 functionality.
 
 Plugins are registered in an Ignite scaffolded Blockchain project through the
-`config.yml`.
+`plugins.yml`, or globally through `$HOME/.ignite/plugins/plugins.yml`.
 
-### Adding plugins to a project
+To use a plugin within your project, execute the following command inside the
+project directory:
 
-Plugins are registered per project, using the `config.yml` file. To use a plugin
-within your project, add a `plugins` section with the following:
-
-```yaml title=config.yml
-plugins:
-- path: github.com/project/cli-plugin
+```sh
+ignite plugin add github.com/project/cli-plugin
 ```
 
-Now the next time the `ignite` command is run under your project, the declared
-plugin will be fetched, compiled and ran. This will result in more available
-commands, and/or hooks attached to existing commands.
+The plugin will be available only when running `ignite` inside the project
+directory.
+
+To use a plugin globally on the other hand, execute the following command:
+
+```sh
+ignite plugin add -g github.com/project/cli-plugin
+```
+
+The command will compile the plugin and make it immediately available to the
+`ignite` command lists.
 
 ### Listing installed plugins
 
@@ -49,9 +54,9 @@ $ ignite plugin scaffold my-plugin
 ```
 
 This will create a new directory `my-plugin` that contains the plugin's code,
-and will output some instructions about how to declare your plugin in your
-project. Indeed it's possible to declare a local directory in your project's
-`config.yml`, which has several benefits:
+and will output some instructions about how to use your plugin with the
+`ignite` command. Indeed a plugin path can be a local directory, which has
+several benefits:
 
 - you don't need to use a git repository during the development of your plugin.
 - the plugin is recompiled each time you run the `ignite` binary in your
@@ -59,18 +64,14 @@ project, if the source files are older than the plugin binary.
 
 Thus, the plugin development workflow is as simple as :
 
-1. scaffold a plugin
-2. declare it in the `config.yml` of a chain (which can be a fresh new chain
-created via `ignite scaffold chain my-chain`)
+1. scaffold a plugin with `ignite plugin scaffold my-plugin`
+2. add it to your config via `ignite plugin add -g /path/to/my-plugin`
 3. update plugin code
-4. run `ignite my-command` binary in your chain to compile and run the plugin,
-where `my-command` is a command added by your plugin, or an existing `ignite`
-command with hooks added by your plugin.
+4. run `ignite my-plugin` binary to compile and run the plugin.
 5. go back to 3.
 
 Once your plugin is ready, you can publish it to a git repository, and the
-community can use it by declaring this git repository path in their chain's
-`config.yml`.
+community can use it by calling `ignite plugin add github.com/foo/my-plugin`.
 
 Now let's detail how to update your plugin's code.
 
@@ -212,8 +213,7 @@ func (p) Execute(cmd plugin.ExecutedCommand) error {
 }
 ```
 
-Then, run `ignite scaffold oracle` in a chain where the plugin is registered to
-compile and execute the plugin.
+Then, run `ignite scaffold oracle` to execute the plugin.
 
 ### Adding hooks
 
