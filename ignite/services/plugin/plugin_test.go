@@ -12,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	hplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -136,36 +137,12 @@ func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 
-	// scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
-	// current ignite/cli sources.
-	scaffoldPlugin := func(t *testing.T, dir, name string) string {
-		require := require.New(t)
-		path, err := Scaffold(dir, name)
-		require.NoError(err)
-		// We want the scaffolded plugin to use the current version of ignite/cli,
-		// for that we need to update the plugin go.mod and add a replace to target
-		// current ignite/cli
-		gomod, err := gomodule.ParseAt(path)
-		require.NoError(err)
-		// use GOMOD env to get current directory module path
-		modpath, err := gocmd.Env(gocmd.EnvGOMOD)
-		require.NoError(err)
-		modpath = filepath.Dir(modpath)
-		gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
-		// Save go.mod
-		data, err := gomod.Format()
-		require.NoError(err)
-		err = os.WriteFile(filepath.Join(path, "go.mod"), data, 0o644)
-		require.NoError(err)
-		return path
-	}
-
 	// Helper to make a local git repository with gofile committed.
 	// Returns the repo directory and the git.Repository
 	makeGitRepo := func(t *testing.T, name string) (string, *git.Repository) {
 		require := require.New(t)
 		repoDir := t.TempDir()
-		scaffoldPlugin(t, repoDir, "github.com/ignite/"+name)
+		scaffoldPlugin(t, repoDir, "github.com/ignite/"+name, false)
 		require.NoError(err)
 		repo, err := git.PlainInit(repoDir, false)
 		require.NoError(err)
@@ -210,8 +187,10 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
+				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar", false)
 				return Plugin{
-					srcPath:    scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar"),
+					Plugin:     pluginsconfig.Plugin{Path: path},
+					srcPath:    path,
 					binaryName: "bar",
 				}
 			},
@@ -223,6 +202,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote")},
 					cloneURL:   repoDir,
 					cloneDir:   cloneDir,
 					srcPath:    path.Join(cloneDir, "remote"),
@@ -236,6 +216,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:   pluginsconfig.Plugin{Path: path.Join(cloneDir, "plugin")},
 					repoPath: "/xxxx/yyyy",
 					cloneURL: "/xxxx/yyyy",
 					cloneDir: cloneDir,
@@ -259,6 +240,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-tag")},
 					cloneURL:   repoDir,
 					reference:  "v1",
 					cloneDir:   cloneDir,
@@ -282,6 +264,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  "branch1",
 					cloneDir:   cloneDir,
@@ -300,6 +283,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  h.Hash().String(),
 					cloneDir:   cloneDir,
@@ -316,6 +300,7 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-no-ref")},
 					cloneURL:   repoDir,
 					reference:  "doesnt_exists",
 					cloneDir:   cloneDir,
@@ -340,6 +325,7 @@ func TestPluginLoad(t *testing.T) {
 				require.Regexp(tt.expectedError, p.Error.Error())
 				return
 			}
+
 			require.NoError(p.Error)
 			require.NotNil(p.Interface)
 			manifest, err := p.Interface.Manifest()
@@ -349,6 +335,97 @@ func TestPluginLoad(t *testing.T) {
 			assert.NoError(p.Interface.ExecuteHookPre(ExecutedHook{}))
 			assert.NoError(p.Interface.ExecuteHookPost(ExecutedHook{}))
 			assert.NoError(p.Interface.ExecuteHookCleanUp(ExecutedHook{}))
+		})
+	}
+}
+
+func TestPluginLoadSharedHost(t *testing.T) {
+	tests := []struct {
+		name       string
+		instances  int
+		sharesHost bool
+	}{
+		{
+			name:       "ok: from local sharedhost is on 1 instance",
+			instances:  1,
+			sharesHost: true,
+		},
+		{
+			name:       "ok: from local sharedhost is on 2 instances",
+			instances:  2,
+			sharesHost: true,
+		},
+		{
+			name:       "ok: from local sharedhost is on 4 instances",
+			instances:  4,
+			sharesHost: true,
+		},
+		{
+			name:       "ok: from local sharedhost is off 4 instances",
+			instances:  4,
+			sharesHost: false,
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				require = require.New(t)
+				assert  = assert.New(t)
+				// scaffold an unique plugin for all instances
+				path = scaffoldPlugin(t, t.TempDir(),
+					fmt.Sprintf("github.com/foo/bar-%d", i), tt.sharesHost)
+				plugins []*Plugin
+			)
+			// Load one plugin per instance
+			for i := 0; i < tt.instances; i++ {
+				p := Plugin{
+					Plugin:     pluginsconfig.Plugin{Path: path},
+					srcPath:    path,
+					binaryName: filepath.Base(path),
+				}
+				p.load(context.Background())
+				require.NoError(p.Error)
+				plugins = append(plugins, &p)
+			}
+			// Ensure all plugins are killed at the end of test case
+			defer func() {
+				for i := len(plugins) - 1; i >= 0; i-- {
+					plugins[i].KillClient()
+					if tt.sharesHost && i > 0 {
+						assert.False(plugins[i].client.Exited(), "non host plugin can't kill host plugin")
+						assert.True(checkConfCache(plugins[i].Path), "non host plugin doesn't remove config cache when killed")
+					} else {
+						assert.True(plugins[i].client.Exited(), "plugin should be killed")
+					}
+					assert.False(plugins[i].isHost, "killed plugins are no longer host")
+				}
+				assert.False(checkConfCache(plugins[0].Path), "once host is killed the cache should be cleared")
+			}()
+
+			var hostConf *hplugin.ReattachConfig
+			for i := 0; i < len(plugins); i++ {
+				if tt.sharesHost {
+					assert.True(checkConfCache(plugins[i].Path), "sharedHost must have a cache entry")
+					if i == 0 {
+						// first plugin is the host
+						assert.True(plugins[i].isHost, "first plugin is the host")
+						// Assert reattach config has been saved
+						hostConf = plugins[i].client.ReattachConfig()
+						ref, err := readConfigCache(plugins[i].Path)
+						if assert.NoError(err) {
+							assert.Equal(hostConf, &ref, "wrong cache entry for plugin host")
+						}
+					} else {
+						// plugins after first aren't host
+						assert.False(plugins[i].isHost, "plugin %d can't be host", i)
+						assert.Equal(hostConf, plugins[i].client.ReattachConfig(), "ReattachConfig different from host plugin")
+					}
+				} else {
+					assert.False(plugins[i].isHost, "plugin %d can't be host if sharedHost is disabled", i)
+					assert.False(checkConfCache(plugins[i].Path), "plugin %d can't have a cache entry if sharedHost is disabled", i)
+				}
+			}
 		})
 	}
 }
@@ -392,6 +469,30 @@ func TestPluginClean(t *testing.T) {
 			}
 		})
 	}
+}
+
+// scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
+// current ignite/cli sources.
+func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
+	require := require.New(t)
+	path, err := Scaffold(dir, name, sharedHost)
+	require.NoError(err)
+	// We want the scaffolded plugin to use the current version of ignite/cli,
+	// for that we need to update the plugin go.mod and add a replace to target
+	// current ignite/cli
+	gomod, err := gomodule.ParseAt(path)
+	require.NoError(err)
+	// use GOMOD env to get current directory module path
+	modpath, err := gocmd.Env(gocmd.EnvGOMOD)
+	require.NoError(err)
+	modpath = filepath.Dir(modpath)
+	gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
+	// Save go.mod
+	data, err := gomod.Format()
+	require.NoError(err)
+	err = os.WriteFile(filepath.Join(path, "go.mod"), data, 0o644)
+	require.NoError(err)
+	return path
 }
 
 func assertPlugin(t *testing.T, want, have Plugin) {
