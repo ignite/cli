@@ -1,8 +1,14 @@
 ---
-
+title: In-depth tutorial
 ---
 
-# "Hello, World!"
+# In-depth "Hello, World!" tutorial
+
+In this tutorial you will implement "Hello, World!" functionality from
+scratch.The functionality of the application you will be building will be
+identical to what the one you created in the "Express tutorial" section, but
+here you will be doing it manually in order to gain a deeper understanding of
+the process.
 
 To begin, let's start with a fresh `hello` blockchain. You can either roll back
 the changes you made in the previous section or create a new blockchain using

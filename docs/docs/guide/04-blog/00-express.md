@@ -1,9 +1,9 @@
 ---
 description: Learn module basics by writing and reading blog posts to your chain.
-title: Express
+title: Express tutorial
 ---
 
-# Build a blog with a single command
+# "Build a blog" in 5 minutes
 
 In this tutorial, we will create a blockchain with a module that allows us to
 write and read data from the blockchain. This module will implement the ability

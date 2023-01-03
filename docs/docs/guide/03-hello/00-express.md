@@ -1,9 +1,9 @@
 ---
 description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module.
-title: Express
+title: Express tutorial
 ---
 
-# "Hello, World!" with a single command
+# "Hello, World!" in 5 minutes
 
 In this tutorial, you will create a simple blockchain with a custom query that
 responds with `"Hello, %s!"`, where `%s` is a name provided in the query. To do
