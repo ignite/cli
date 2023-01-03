@@ -59,6 +59,19 @@ type Manifest struct {
 	// Hooks contains the hooks that will be attached to the existing ignite
 	// commands.
 	Hooks []Hook
+	// SharedHost enables sharing a single plugin server across all running instances
+	// of a plugin. Useful if a plugin adds or extends long running commands
+	//
+	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// when the command is run. Now if you want to interact with that instance from commands
+	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
+	// instantiate separate plugin servers.
+	//
+	// When enabled, all plugins of the same `Path` loaded from the same configuration will
+	// attach it's rpc client to a an existing rpc server.
+	//
+	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
+	SharedHost bool `yaml:"shared_host"`
 }
 
 // Command represents a plugin command.
