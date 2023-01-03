@@ -34,7 +34,7 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		return false, "", nil
 	}
 
-	tagName, err := getLatestRelease(ctx)
+	tagName, err := getLatestReleaseTag(ctx)
 	if err != nil {
 		return false, "", err
 	}
@@ -54,7 +54,7 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 	return isAvailable, tagName, nil
 }
 
-func getLatestRelease(ctx context.Context) (string, error) {
+func getLatestReleaseTag(ctx context.Context) (string, error) {
 	latest, _, err := github.
 		NewClient(nil).
 		Repositories.
@@ -78,7 +78,7 @@ func resolveDevVersion() string {
 		return Version
 	}
 
-	tag, _ := getLatestRelease(context.Background())
+	tag, _ := getLatestReleaseTag(context.Background())
 	return tag + "-dev"
 }
 
