@@ -111,8 +111,6 @@ loand q bank balances $(loand keys show bob -a)
 The `token` balance has been updated to `9000`, because `1000token` has been transferred from Bob's account to Alice's account as a loan:
 
 ```yml
-
-```yml
 balances:
 - amount: "100000000"
 	denom: stake
