@@ -94,7 +94,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
