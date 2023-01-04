@@ -1,6 +1,11 @@
 name: Check Markdown links
 on:
+  pull_request:
+    paths:
+      - "**.*.md"
   push:
+    paths:
+      - "**.*.md"
     branches:
       - main
 jobs:

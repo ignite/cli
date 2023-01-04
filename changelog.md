@@ -2,6 +2,7 @@
 
 ### Features
 
+- [#3238](https://github.com/ignite/cli/pull/3238) Add `Sharedhost` plugin option
 - [#3214](https://github.com/ignite/cli/pull/3214) Global plugins config.
 - [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
 - [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
@@ -50,6 +51,9 @@
 - [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands
 - [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
 - [#3122](https://github.com/ignite/cli/issues/3122) Change `generate ts-client` to ignore the cache by default.
+- [#3244](https://github.com/ignite/cli/pull/3244) Update actions.yml for resolving deprecation message
+- [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
+- [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` grpc in `app.go` template.
 
 ### Breaking Changes
 
@@ -65,6 +69,7 @@
 - [#3187](https://github.com/ignite/cli/issues/3187) Change prompt text to fit within 80 characters width.
 - [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
 - [#3320](https://github.com/ignite/cli/pull/3320) Allow `id` and `creator` as names when scaffolding a type.
+- [#3327](https://github.com/ignite/cli/issues/3327) Scaffolding messages with same name leads to aliasing.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
