@@ -70,6 +70,16 @@ When a loan is created, a certain message input validation is required. You want
 to throw error messages in case the end user tries impossible inputs.
 
 ```go title="x/loan/types/message_request_loan.go"
+package types
+
+import (
+	// highlight-next-line
+	"strconv"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
 func (msg *MsgRequestLoan) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
@@ -83,12 +93,17 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 	if amount.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
 	}
-
 	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
 	if !fee.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
 	}
-
+	deadline, err := strconv.ParseInt(msg.Deadline, 10, 64)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deadline is not an integer")
+	}
+	if deadline <= 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deadline should be a positive integer")
+	}
 	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
 	if !collateral.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
