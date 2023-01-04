@@ -36,10 +36,10 @@ func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (
 	}
 	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
-  if err != nil {
-    return nil, err
-  }
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+	if err != nil {
+		return nil, err
+	}
 	loan.State = "cancelled"
 	k.SetLoan(ctx, loan)
 	return &types.MsgCancelLoanResponse{}, nil
