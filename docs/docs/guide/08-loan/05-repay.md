@@ -51,7 +51,7 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
 	err := k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
 	if err != nil {
-		return nil, sdkerrors.Wrap(types.ErrWrongLoanState, "Cannot send coins")
+		return nil, err
 	}
 	err = k.bankKeeper.SendCoins(ctx, borrower, lender, fee)
 	if err != nil {
