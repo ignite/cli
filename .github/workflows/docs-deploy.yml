@@ -25,21 +25,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: docs/node_modules
-          key: node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: npm
-          cache-dependency-path: docs/package-lock.json
+          cache: yarn
+          cache-dependency-path: docs/yarn.lock
 
       - name: Install Dependencies
-        run: npm install
+        run: yarn install
         working-directory: ./docs
 
       - name: Build
-        run: npm run build
+        run: yarn run build
         working-directory: ./docs
 
       - name: Deploy

@@ -15,6 +15,7 @@ import (
 )
 
 type generateOptions struct {
+	useCache             bool
 	isGoEnabled          bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
@@ -40,10 +41,11 @@ func GenerateGo() GenerateTarget {
 // GenerateTSClient enables generating proto based Typescript Client.
 // The path assigns the output path to use for the generated Typescript client
 // overriding the configured or default path. Path can be an empty string.
-func GenerateTSClient(path string) GenerateTarget {
+func GenerateTSClient(path string, useCache bool) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isTSClientEnabled = true
 		o.tsClientPath = path
+		o.useCache = useCache
 	}
 }
 
@@ -93,7 +95,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if generateClients {
 		if p := conf.Client.Typescript.Path; p != "" {
-			targets = append(targets, GenerateTSClient(p))
+			targets = append(targets, GenerateTSClient(p, true))
 		}
 
 		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
@@ -177,6 +179,7 @@ func (c *Chain) Generate(
 			cosmosgen.WithTSClientGeneration(
 				cosmosgen.TypescriptModulePath(tsClientPath),
 				tsClientPath,
+				targetOptions.useCache,
 			),
 		)
 	}
