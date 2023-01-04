@@ -276,9 +276,7 @@ func TestClientAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				c = newClient(t, nil)
-			)
+			c := newClient(t, nil)
 			_, err := c.AccountRegistry.Import(accountName, key, passphrase)
 			require.NoError(t, err)
 
@@ -335,9 +333,7 @@ func TestClientAddress(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				c = newClient(t, nil, tt.opts...)
-			)
+			c := newClient(t, nil, tt.opts...)
 			_, err := c.AccountRegistry.Import(accountName, key, passphrase)
 			require.NoError(t, err)
 
@@ -577,9 +573,7 @@ func TestClientCreateTx(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				c = newClient(t, tt.setup, tt.opts...)
-			)
+			c := newClient(t, tt.setup, tt.opts...)
 			account, err := c.AccountRegistry.Import(accountName, key, passphrase)
 			require.NoError(t, err)
 
