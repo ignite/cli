@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
@@ -78,8 +79,15 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 				return err
 			}
 
+			session := cliui.New()
+			defer session.End()
+
 			// load and link the plugin
-			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{pluginCfg})
+			plugins, err := plugin.Load(
+				cmd.Context(),
+				[]pluginsconfig.Plugin{pluginCfg},
+				plugin.CollectEvents(session.EventBus()),
+			)
 			if err != nil {
 				return err
 			}
