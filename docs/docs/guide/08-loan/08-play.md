@@ -284,8 +284,6 @@ loand q bank balances $(loand keys show bob -a)
 The `foocoin` balance has been updated to `1000`, because `1000foocoin` has been transferred from the module account to Bob's account as a collateral. Bob has gained the collateral, but he has lost the loan amount:
 
 ```yml
-
-```yml
 balances:
 	# highlight-start
 - amount: "1000"
