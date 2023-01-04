@@ -72,8 +72,16 @@ func getLatestReleaseTag(ctx context.Context) (string, error) {
 
 // resolveDevVersion creates a string for version printing if the version being used is "development".
 // the version will be of the form "LATEST-dev" where LATEST is the latest tagged release.
-func resolveDevVersion() string {
-	tag, _ := getLatestReleaseTag(context.Background())
+func resolveDevVersion(ctx context.Context) string {
+	// do nothing if built with specific tag
+	if Version != versionDev && Version != versionNightly {
+		return Version
+	}
+
+	tag, err := getLatestReleaseTag(ctx)
+	if err != nil {
+		return Version
+	}
 
 	if Version == versionDev {
 		return tag + "-dev"
@@ -83,7 +91,6 @@ func resolveDevVersion() string {
 		return tag + "-nightly"
 	}
 
-	// do nothing if built with specific tag
 	return Version
 }
 
@@ -127,7 +134,7 @@ func Long(ctx context.Context) string {
 
 	w.Init(b, 0, 8, 0, '\t', 0)
 
-	write("Ignite CLI version", resolveDevVersion())
+	write("Ignite CLI version", resolveDevVersion(ctx))
 	write("Ignite CLI build date", date)
 	write("Ignite CLI source hash", head)
 	write("Ignite CLI config version", chainconfig.LatestVersion)
