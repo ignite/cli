@@ -66,3 +66,4 @@ jobs:
           goarch: ${{ matrix.goarch }}
           ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version=nightly
           goversion: "1.19"
+          retry: 10
