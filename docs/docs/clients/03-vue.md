@@ -128,3 +128,47 @@ assets in your Vue app.
 Congratulations! You have successfully created a client-side Vue application and
 connected it to your blockchain. You can modify the source code of your Vue
 application to build out the rest of your project.
+
+## Setting the address prefix
+
+It is necessary to set the correct address prefix in order for the Vue app to
+properly interact with a Cosmos chain. The address prefix is used to identify
+the chain that the app is connected to, and must match the prefix used by the
+chain.
+
+By default Ignite creates a chain with the the `cosmos` prefix. If you have
+created your chain with `ignite scaffold chain ... --adddress-prefix foo` or
+manually changed the prefix in the source code of the chain, you need to set the
+prefix in the Vue app.
+
+There are two ways to set the address prefix in a Vue app.
+
+### Using an environment variable
+
+You can set the `VITE_ADDRESS_PREFIX` environment variable to the correct
+address prefix for your chain. This will override the default prefix used by the
+app.
+
+To set the `VITE_ADDRESS_PREFIX` environment variable, you can use the following
+command:
+
+```bash
+export VITE_ADDRESS_PREFIX=your-prefix
+```
+
+Replace `your-prefix` with the actual address prefix for your chain.
+
+### Setting address prefix in the code
+
+Alternatively, you can manually set the correct address prefix by replacing the
+fallback value of the `prefix` variable in the file `./vue/src/env.ts`.
+
+To do this, open the file `./vue/src/env.ts` and find the following line:
+
+```ts title="./vue/src/env.ts"
+const prefix = process.env.VITE_ADDRESS_PREFIX || 'your-prefix';
+```
+
+Replace `your-prefix` with the actual address prefix for your chain.
+
+Save the file and restart the Vue app to apply the changes.
