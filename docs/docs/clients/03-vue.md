@@ -14,7 +14,7 @@ application.
 
 Once you have your blockchain and Vue template set up, the next step is to
 generate an API client. This will allow you to easily interact with your
-blockchain from your web application, allowing you to retrieve data and make
+blockchain from your web application, enabling you to retrieve data and make
 transactions. By the end of this tutorial, you will have a fully functional web
 application that is connected to your own blockchain.
 
