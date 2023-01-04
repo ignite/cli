@@ -158,11 +158,20 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 	p.repoPath = path.Join(parts[:3]...)
 	p.cloneURL, _ = xurl.HTTPS(p.repoPath)
+
 	if len(p.reference) > 0 {
+		ref := strings.ReplaceAll(p.reference, "/", "-")
+		p.cloneDir = path.Join(pluginsDir, fmt.Sprintf("%s-%s", p.repoPath, ref))
 		p.repoPath += "@" + p.reference
+	} else {
+		p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	}
-	p.cloneDir = path.Join(pluginsDir, p.repoPath)
-	p.srcPath = path.Join(pluginsDir, p.repoPath, path.Join(parts[3:]...))
+
+	// Plugin can have a subpath within its repository. For example,
+	// "github.com/ignite/plugins/plugin1" where "plugin1" is the subpath.
+	repoSubPath := path.Join(parts[3:]...)
+
+	p.srcPath = path.Join(p.cloneDir, repoSubPath)
 	p.binaryName = path.Base(pluginPath)
 
 	return p

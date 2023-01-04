@@ -91,9 +91,21 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin@develop",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-develop",
 				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin@develop",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-develop",
+				binaryName: "plugin",
+			},
+		},
+		{
+			name:      "ok: remote plugin with @ref containing slash",
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin@package/v1.0.0"},
+			expectedPlugin: Plugin{
+				repoPath:   "github.com/ignite/plugin@package/v1.0.0",
+				cloneURL:   "https://github.com/ignite/plugin",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				reference:  "package/v1.0.0",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
 				binaryName: "plugin",
 			},
 		},
@@ -115,9 +127,21 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin@develop",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-develop",
 				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin@develop/plugin1",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-develop/plugin1",
+				binaryName: "plugin1",
+			},
+		},
+		{
+			name:      "ok: remote plugin with subpath and @ref containing slash",
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1@package/v1.0.0"},
+			expectedPlugin: Plugin{
+				repoPath:   "github.com/ignite/plugin@package/v1.0.0",
+				cloneURL:   "https://github.com/ignite/plugin",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				reference:  "package/v1.0.0",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0/plugin1",
 				binaryName: "plugin1",
 			},
 		},
@@ -489,6 +513,7 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 }
 
 func assertPlugin(t *testing.T, want, have Plugin) {
+	t.Helper()
 	if want.Error != nil {
 		require.Error(t, have.Error)
 		assert.Regexp(t, want.Error.Error(), have.Error.Error())
