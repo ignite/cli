@@ -52,9 +52,9 @@ func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateL
 		return nil, sdkerrors.Wrap(types.ErrDeadline, "Cannot liquidate before deadline")
 	}
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lender, collateral)
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 	loan.State = "liquidated"
 	k.SetLoan(ctx, loan)
 	return &types.MsgLiquidateLoanResponse{}, nil
