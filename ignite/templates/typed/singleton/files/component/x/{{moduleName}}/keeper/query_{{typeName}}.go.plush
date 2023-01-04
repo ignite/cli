@@ -9,11 +9,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) <%= TypeName.UpperCamel %>(c context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>(goCtx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	ctx := sdk.UnwrapSDKContext(c)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	val, found := k.Get<%= TypeName.UpperCamel %>(ctx)
 	if !found {
