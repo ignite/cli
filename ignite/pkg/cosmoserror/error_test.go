@@ -34,14 +34,19 @@ func TestUnwrap(t *testing.T) {
 			want: cosmoserror.ErrNotFound,
 		},
 		{
+			name: "should return not found with wrapped error",
+			err:  fmt.Errorf("oups: %w", status.Error(codes.NotFound, "test error 4")),
+			want: cosmoserror.ErrNotFound,
+		},
+		{
 			name: "should return same error",
-			err:  errors.New("test error 4"),
-			want: errors.New("test error 4"),
+			err:  errors.New("test error 5"),
+			want: errors.New("test error 5"),
 		},
 		{
 			name: "should unwrap error",
-			err:  fmt.Errorf("test error 4: %w", errors.New("test error 5")),
-			want: errors.New("test error 5"),
+			err:  fmt.Errorf("test error 4: %w", errors.New("test error 6")),
+			want: errors.New("test error 6"),
 		},
 	}
 	for _, tc := range tests {
