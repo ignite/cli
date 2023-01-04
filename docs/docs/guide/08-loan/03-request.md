@@ -99,3 +99,4 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 	// highlight-end
 	return nil
 }
+```
