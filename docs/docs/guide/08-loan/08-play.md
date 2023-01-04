@@ -2,7 +2,7 @@
 
 Add `10000foocoin` to Alice's account. These tokens will be used as a loan collateral.
 
-```yml
+```yml title="config.yml"
 version: 1
 accounts:
 	- name: alice
