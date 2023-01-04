@@ -152,8 +152,6 @@ loand q bank balances $(loand keys show alice -a)
 The `foocoin` balance has been updated to `10000`, because `1000foocoin` has been transferred from the module account to Alice's account. The `token` balance has been updated to `19900`, because `1000token` has been transferred from Alice's account to Bob's account as a repayment and `100token` has been transferred from Alice's account to Bob's account as a fee:
 
 ```yml
-
-```yml
 balances:
 	# highlight-start
 - amount: "10000"
