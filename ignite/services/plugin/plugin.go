@@ -5,8 +5,6 @@ package plugin
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"io/fs"
 	"os"
@@ -161,14 +159,12 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	p.repoPath = path.Join(parts[:3]...)
 	p.cloneURL, _ = xurl.HTTPS(p.repoPath)
 
-	// Use the beginning of the hash as plugin directory name suffix to avoid
-	// using branch or tag reference names in the path.
-	checksum := md5.Sum([]byte(p.repoPath + p.reference))
-	hash := hex.EncodeToString(checksum[:])
-	p.cloneDir = path.Join(pluginsDir, fmt.Sprintf("%s-%s", p.repoPath, hash[:10]))
-
 	if len(p.reference) > 0 {
+		ref := strings.ReplaceAll(p.reference, "/", "-")
+		p.cloneDir = path.Join(pluginsDir, fmt.Sprintf("%s-%s", p.repoPath, ref))
 		p.repoPath += "@" + p.reference
+	} else {
+		p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	}
 
 	// Plugin can have a subpath within its repository. For example,
