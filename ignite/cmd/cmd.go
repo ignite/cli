@@ -17,7 +17,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/goenv"
@@ -42,7 +41,9 @@ const (
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
-func New() *cobra.Command {
+// Returns the cobra.Command, a cleanUp function and an error. The cleanUp
+// function must be invoked by the caller to clean eventual plugin instances.
+func New(ctx context.Context) (*cobra.Command, func(), error) {
 	cobra.EnableCommandSorting = false
 
 	c := &cobra.Command{
@@ -72,7 +73,6 @@ To get started, create a blockchain:
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
-	c.AddCommand(NewNetwork())
 	c.AddCommand(NewNode())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
@@ -82,7 +82,11 @@ To get started, create a blockchain:
 	c.AddCommand(NewPlugin())
 	c.AddCommand(deprecated()...)
 
-	return c
+	// Load plugins if any
+	if err := LoadPlugins(ctx, c); err != nil {
+		return nil, nil, fmt.Errorf("error while loading plugins: %w", err)
+	}
+	return c, UnloadPlugins, nil
 }
 
 func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
@@ -105,12 +109,6 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "directory where the blockchain node is initialized")
-	return fs
-}
-
-func flagNetworkFrom() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagFrom, cosmosaccount.DefaultAccount, "account name to use for sending transactions to SPN")
 	return fs
 }
 

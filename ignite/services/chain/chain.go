@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/tendermint/spn/pkg/chainid"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chainconfigv1 "github.com/ignite/cli/ignite/config/chain/v1"
@@ -239,11 +238,6 @@ func (c *Chain) ID() (string, error) {
 
 	// use app name by default.
 	return c.app.N(), nil
-}
-
-// ChainID returns the default network chain's id.
-func (c *Chain) ChainID() (string, error) {
-	return chainid.NewGenesisChainID(c.Name(), 1), nil
 }
 
 // Name returns the chain's name.

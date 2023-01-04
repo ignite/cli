@@ -206,14 +206,13 @@ func TestPluginLoad(t *testing.T) {
 					binaryName: "testdata",
 				}
 			},
-			expectedError: `no packages to build`,
+			expectedError: `no Go files in`,
 		},
 		{
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
 				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar", false)
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
 					binaryName: "bar",
 				}
@@ -226,7 +225,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote")},
 					cloneURL:   repoDir,
 					cloneDir:   cloneDir,
 					srcPath:    path.Join(cloneDir, "remote"),
@@ -240,7 +238,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:   pluginsconfig.Plugin{Path: path.Join(cloneDir, "plugin")},
 					repoPath: "/xxxx/yyyy",
 					cloneURL: "/xxxx/yyyy",
 					cloneDir: cloneDir,
@@ -264,7 +261,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-tag")},
 					cloneURL:   repoDir,
 					reference:  "v1",
 					cloneDir:   cloneDir,
@@ -288,7 +284,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  "branch1",
 					cloneDir:   cloneDir,
@@ -307,7 +302,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  h.Hash().String(),
 					cloneDir:   cloneDir,
@@ -324,7 +318,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-no-ref")},
 					cloneURL:   repoDir,
 					reference:  "doesnt_exists",
 					cloneDir:   cloneDir,

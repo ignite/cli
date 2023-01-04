@@ -7,7 +7,6 @@ require (
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/aws/smithy-go v1.13.4
 	github.com/blang/semver/v4 v4.0.0
 	github.com/briandowns/spinner v1.20.0
 	github.com/buger/jsonparser v1.1.1
@@ -50,18 +49,17 @@ require (
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
-	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rs/cors v1.8.2
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
 	github.com/tbruyelle/mdgofmt v0.1.2
-	github.com/tendermint/spn v0.2.1-0.20221125172725-052fbf576cb2
 	github.com/tendermint/tendermint v0.34.24
 	github.com/tendermint/tm-db v0.6.7
 	github.com/vektra/mockery/v2 v2.16.0
 	go.etcd.io/bbolt v1.3.6
+	golang.org/x/exp v0.0.0-20221212164502-fae10dda9338
 	golang.org/x/mod v0.7.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.2.0
@@ -69,7 +67,6 @@ require (
 	golang.org/x/tools v0.3.0
 	golang.org/x/vuln v0.0.0-20221122171214-05fb7250142c
 	google.golang.org/grpc v1.51.0
-	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/gofumpt v0.4.0
 )
@@ -372,12 +369,13 @@ require (
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
-	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220827204233-334a2380cb91 // indirect
 	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20221114212237-e4508ebdbee1 // indirect
+	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
