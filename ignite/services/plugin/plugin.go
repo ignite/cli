@@ -171,7 +171,11 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		p.repoPath += "@" + p.reference
 	}
 
-	p.srcPath = path.Join(p.cloneDir, path.Join(parts[3:]...))
+	// Plugin can have a subpath within its repository. For example,
+	// "github.com/ignite/plugins/plugin1" where "plugin1" is the subpath.
+	repoSubPath := path.Join(parts[3:]...)
+
+	p.srcPath = path.Join(p.cloneDir, repoSubPath)
 	p.binaryName = path.Base(pluginPath)
 
 	return p
