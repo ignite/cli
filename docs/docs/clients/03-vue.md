@@ -83,7 +83,7 @@ accounts:
     # highlight-end
 ```
 
-Replace the `stringle since...` mnemonic with the one you saved in the previous
+Replace the `struggle since...` mnemonic with the one you saved in the previous
 step.
 
 Adding an account with a mnemonic to the config file will tell Ignite CLI to add
