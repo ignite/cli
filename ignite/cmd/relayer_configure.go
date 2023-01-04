@@ -38,8 +38,8 @@ const (
 	flagSourceClientID      = "source-client-id"
 	flagTargetClientID      = "target-client-id"
 
-	relayerSource = "source"
-	relayerTarget = "target"
+	RelayerSource = "source"
+	RelayerTarget = "target"
 
 	defaultSourceRPCAddress = "http://localhost:26657"
 	defaultTargetRPCAddress = "https://rpc.cosmos.network:443"
@@ -387,11 +387,11 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	r := relayer.New(ca)
 
 	// initialize the chains
-	sourceChain, err := initChain(
+	sourceChain, err := InitChain(
 		cmd,
 		r,
 		session,
-		relayerSource,
+		RelayerSource,
 		sourceAccount,
 		sourceRPCAddress,
 		sourceFaucetAddress,
@@ -408,11 +408,11 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 		return err
 	}
 
-	targetChain, err := initChain(
+	targetChain, err := InitChain(
 		cmd,
 		r,
 		session,
-		relayerTarget,
+		RelayerTarget,
 		targetAccount,
 		targetRPCAddress,
 		targetFaucetAddress,
@@ -455,8 +455,8 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	return session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 }
 
-// initChain initializes chain information for the relayer connection.
-func initChain(
+// InitChain initializes chain information for the relayer connection.
+func InitChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
 	session *cliui.Session,

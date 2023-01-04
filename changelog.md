@@ -23,6 +23,7 @@
 
 ### Changes
 
+- [#3306](https://github.com/ignite/cli/pull/3306) Move network command into a plugin
 - [#3305](https://github.com/ignite/cli/pull/3305) Bump Cosmos SDK version to `v0.46.7`.
 - [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
 - [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.
@@ -47,8 +48,10 @@
 - [#3106](https://github.com/ignite/cli/pull/3106) Add zoom image plugin.
 - [#3194](https://github.com/ignite/cli/issues/3194) Move config validators check to validate only when required.
 - [#3183](https://github.com/ignite/cli/pull/3183/) Make config optional for init phase.
-- [#3224](https://github.com/ignite/cli/pull/3224) Remove grpc_* prefix from query files in scaffolded chains
+- [#3224](https://github.com/ignite/cli/pull/3224) Remove `grpc_*` prefix from query files in scaffolded chains
 - [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands
+- [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
+- [#3122](https://github.com/ignite/cli/issues/3122) Change `generate ts-client` to ignore the cache by default.
 - [#3244](https://github.com/ignite/cli/pull/3244) Update actions.yml for resolving deprecation message
 - [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
 - [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` grpc in `app.go` template.
