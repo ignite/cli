@@ -319,12 +319,10 @@ func TestFindRegisteredModules(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-
 			m, err := app.FindRegisteredModules(tt.path)
 
-			require.NoError(err)
-			require.ElementsMatch(tt.expectedModules, m)
+			require.NoError(t, err)
+			require.ElementsMatch(t, tt.expectedModules, m)
 		})
 	}
 }

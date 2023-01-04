@@ -169,7 +169,7 @@ func SimappWithPrintAllInvariants(printAllInvariants bool) SimappOption {
 	}
 }
 
-// SimappWithEnable provides enable option for the simapp command..
+// SimappWithEnable provides enable option for the simapp command.
 func SimappWithEnable(enable bool) SimappOption {
 	return func(command []string) []string {
 		if enable {

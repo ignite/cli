@@ -28,7 +28,7 @@ var (
 )
 
 // SprintFunc returns a function to apply a foreground color to any number of texts.
-// The retuned function receives strings as arguments with the text that should be colorized.
+// The returned function receives strings as arguments with the text that should be colorized.
 // Color specifies a color by hex or ANSI value.
 func SprintFunc(color string) func(i ...interface{}) string {
 	return func(i ...interface{}) string {

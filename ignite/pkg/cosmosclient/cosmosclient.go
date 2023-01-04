@@ -102,7 +102,7 @@ type Client struct {
 	// context is a Cosmos SDK client context.
 	context client.Context
 
-	// AccountRegistry is the retistry to access accounts.
+	// AccountRegistry is the registry to access accounts.
 	AccountRegistry cosmosaccount.Registry
 
 	accountRetriever client.AccountRetriever
@@ -145,8 +145,8 @@ func WithHome(path string) Option {
 	}
 }
 
-// WithKeyringServiceName used as the keyring's name when you are using OS keyring backend.
-// by default it is `cosmos`.
+// WithKeyringServiceName used as the keyring name when you are using OS keyring backend.
+// by default, it is `cosmos`.
 func WithKeyringServiceName(name string) Option {
 	return func(c *Client) {
 		c.keyringServiceName = name
@@ -353,7 +353,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	return c, nil
 }
 
-// LatestBlockHeight returns the lastest block height of the app.
+// LatestBlockHeight returns the latest block height of the app.
 func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
 	resp, err := c.Status(ctx)
 	if err != nil {
@@ -369,7 +369,7 @@ func (c Client) WaitForNextBlock(ctx context.Context) error {
 	return c.WaitForNBlocks(ctx, 1)
 }
 
-// WaitForNBlocks reads the current block height and then waits for anothers n
+// WaitForNBlocks reads the current block height and then waits for another n
 // blocks to be committed, or returns an error if ctx is canceled.
 func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
 	start, err := c.LatestBlockHeight(ctx)

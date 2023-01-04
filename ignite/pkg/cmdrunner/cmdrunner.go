@@ -77,7 +77,7 @@ func EnableDebug() Option {
 	}
 }
 
-// New returns a new commands runner.
+// New returns a new command runner.
 func New(options ...Option) *Runner {
 	runner := &Runner{
 		endSignal: os.Interrupt,
@@ -96,7 +96,7 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	}
 	g, ctx := errgroup.WithContext(ctx)
 	for i, step := range steps {
-		// copy s to a new variable to allocate a new address
+		// copy s to a new variable to allocate a new address,
 		// so we can safely use it inside goroutines spawned in this loop.
 		if r.debug {
 			var cd string
