@@ -46,10 +46,10 @@ several values, such as `requested`, `approved`, `paid`, `cancelled`, or
 `liquidated`. A loan is in the `requested` state when the borrower first submits
 a request for the loan. If the lender approves the request, the loan moves to
 the `approved` state. When the borrower repays the loan, the loan moves to the
-`paid` state. If the borrower cancels the loan or the lender denies the request,
-the loan moves to the `cancelled` state. If the borrower is unable to pay back
-the loan by the deadline, the lender may choose to liquidate the loan and seize
-the collateral. In this case, the loan moves to the `liquidated` state.
+`paid` state. If the borrower cancels the loan before it is, the loan moves to
+the `cancelled` state. If the borrower is unable to pay back the loan by the
+deadline, the lender may choose to liquidate the loan and seize the collateral.
+In this case, the loan moves to the `liquidated` state.
 
 In a loan transaction, there are two parties involved: the borrower and the
 lender. The borrower is the party that requests the loan and agrees to pay back
@@ -57,8 +57,8 @@ the loan amount plus a fee to the lender by a predetermined deadline. The lender
 is the party that approves the loan request and provides the borrower with the
 loan amount.
 
-As a borrower, you should be able to perform several actions on the loan platform.
-These actions may include:
+As a borrower, you should be able to perform several actions on the loan
+platform. These actions may include:
 
 * requesting a loan,
 * canceling a loan,
