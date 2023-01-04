@@ -21,7 +21,7 @@ import (
 var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(moduleName).
-func Scaffold(dir, moduleName string) (string, error) {
+func Scaffold(dir, moduleName string, sharedHost bool) (string, error) {
 	var (
 		name     = filepath.Base(moduleName)
 		finalDir = path.Join(dir, name)
@@ -42,6 +42,8 @@ func Scaffold(dir, moduleName string) (string, error) {
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", moduleName)
 	ctx.Set("Name", name)
+	ctx.Set("SharedHost", sharedHost)
+
 	g.Transformer(xgenny.Transformer(ctx))
 	r := genny.WetRunner(ctx)
 	err := r.With(g)

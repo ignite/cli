@@ -16,6 +16,7 @@ import (
 type generateOptions struct {
 	includeDirs []string
 	gomodPath   string
+	useCache    bool
 
 	jsOut            func(module.Module) string
 	tsClientRootPath string
@@ -42,10 +43,11 @@ type Option func(*generateOptions)
 
 // WithTSClientGeneration adds Typescript Client code generation.
 // The tsClientRootPath is used to determine the root path of generated Typescript classes.
-func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option {
+func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string, useCache bool) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.tsClientRootPath = tsClientRootPath
+		o.useCache = useCache
 	}
 }
 
