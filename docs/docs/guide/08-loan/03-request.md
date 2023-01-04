@@ -28,7 +28,10 @@ func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan)
 		State:      "requested",
 		Borrower:   msg.Creator,
 	}
-	borrower, _ := sdk.AccAddressFromBech32(msg.Creator)
+	borrower, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		panic(err)
+	}
 	collateral, err := sdk.ParseCoinsNormalized(loan.Collateral)
 	if err != nil {
 		panic(err)
