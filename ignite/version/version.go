@@ -85,7 +85,6 @@ func resolveDevVersion(ctx context.Context) string {
 
 	if Version == versionDev {
 		return tag + "-dev"
-
 	}
 	if Version == versionNightly {
 		return tag + "-nightly"
