@@ -14,8 +14,8 @@ import (
 
 func TestNetworkRequestParam(t *testing.T) {
 	var (
-		spnPath = cloneSPN(t)
 		env     = envtest.New(t)
+		spnPath = setupSPN(env)
 		spn     = env.App(
 			spnPath,
 			envtest.AppHomePath(t.TempDir()),

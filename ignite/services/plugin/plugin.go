@@ -186,15 +186,6 @@ func (p *Plugin) KillClient() {
 	}
 }
 
-// IsGlobal returns whether the plugin is installed globally or locally for a chain.
-func (p *Plugin) IsGlobal() bool {
-	return p.Plugin.Global
-}
-
-func (p *Plugin) isLocal() bool {
-	return p.cloneURL == ""
-}
-
 func (p *Plugin) binaryPath() string {
 	return path.Join(p.srcPath, p.binaryName)
 }
@@ -213,7 +204,7 @@ func (p *Plugin) load(ctx context.Context) {
 		}
 	}
 
-	if p.isLocal() {
+	if p.IsLocalPath() {
 		// trigger rebuild for local plugin if binary is outdated
 		if p.outdatedBinary() {
 			p.build(ctx)
@@ -315,7 +306,7 @@ func (p *Plugin) load(ctx context.Context) {
 
 // fetch clones the plugin repository at the expected reference.
 func (p *Plugin) fetch() {
-	if p.isLocal() {
+	if p.IsLocalPath() {
 		return
 	}
 	if p.Error != nil {
@@ -346,7 +337,7 @@ func (p *Plugin) build(ctx context.Context) {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	if err := gocmd.BuildAll(ctx, p.binaryName, p.srcPath, nil); err != nil {
+	if err := gocmd.Build(ctx, p.binaryName, p.srcPath, nil); err != nil {
 		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
@@ -358,7 +349,7 @@ func (p *Plugin) clean() error {
 		// Dont try to clean plugins with error
 		return nil
 	}
-	if p.isLocal() {
+	if p.IsLocalPath() {
 		// Not a remote plugin, nothing to clean
 		return nil
 	}
