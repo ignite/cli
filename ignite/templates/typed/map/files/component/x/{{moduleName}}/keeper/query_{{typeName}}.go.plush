@@ -11,13 +11,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>All(goCtx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
 	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
-	ctx := sdk.UnwrapSDKContext(c)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	store := ctx.KVStore(k.storeKey)
 	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
@@ -39,11 +39,11 @@ func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.Quer
 	return &types.QueryAll<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
 }
 
-func (k Keeper) <%= TypeName.UpperCamel %>(c context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>(goCtx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	ctx := sdk.UnwrapSDKContext(c)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	val, found := k.Get<%= TypeName.UpperCamel %>(
 	    ctx,

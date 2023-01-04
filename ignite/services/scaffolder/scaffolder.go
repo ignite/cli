@@ -96,6 +96,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 			cosmosgen.WithTSClientGeneration(
 				cosmosgen.TypescriptModulePath(tsClientPath),
 				tsClientPath,
+				true,
 			),
 		)
 	}
