@@ -58,19 +58,10 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 		msg.ExecuteGas,
 	)
 
-	err := k.ChannelKeeper.SendPacket(ctx, channelCap, channeltypes.NewPacket(
-		packetData.GetBytes(),
-		sequence,
-		sourcePort,
-		msg.SourceChannel,
-		destinationPort,
-		destinationChannel,
-		clienttypes.NewHeight(0, 0),
-		uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), // Arbitrary timestamp timeout for now
-	))
-	if err != nil {
-		return nil, err
-	}
+	packetBytes, err := packetData.GetBytes()
+    if err != nil {
+        return sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: " + err.Error())
+    }
 
-	return &types.Msg<%= queryName.UpperCamel %>DataResponse{}, nil
+	return k.channelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
