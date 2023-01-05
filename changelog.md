@@ -23,6 +23,7 @@
 
 ### Changes
 
+- [#3306](https://github.com/ignite/cli/pull/3306) Move network command into a plugin
 - [#3305](https://github.com/ignite/cli/pull/3305) Bump Cosmos SDK version to `v0.46.7`.
 - [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
 - [#3071](https://github.com/ignite/cli/pull/3071) Refactor `ignite/templates` package.

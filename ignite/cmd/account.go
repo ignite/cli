@@ -17,7 +17,6 @@ const (
 	flagNonInteractive = "non-interactive"
 	flagKeyringBackend = "keyring-backend"
 	flagKeyringDir     = "keyring-dir"
-	flagFrom           = "from"
 )
 
 func NewAccount() *cobra.Command {
@@ -98,11 +97,6 @@ func flagSetAccountPrefixes() *flag.FlagSet {
 
 func getAddressPrefix(cmd *cobra.Command) string {
 	prefix, _ := cmd.Flags().GetString(flagAddressPrefix)
-	return prefix
-}
-
-func getFrom(cmd *cobra.Command) string {
-	prefix, _ := cmd.Flags().GetString(flagFrom)
 	return prefix
 }
 
