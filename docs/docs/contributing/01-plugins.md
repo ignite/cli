@@ -55,7 +55,7 @@ $ ignite plugin scaffold my-plugin
 
 This will create a new directory `my-plugin` that contains the plugin's code,
 and will output some instructions about how to use your plugin with the
-`ignite` command. Indeed a plugin path can be a local directory, which has
+`ignite` command. Indeed, a plugin path can be a local directory, which has
 several benefits:
 
 - you don't need to use a git repository during the development of your plugin.
