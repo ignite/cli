@@ -36,7 +36,7 @@ func TestCreateImport(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		spec := []protoutil.ImportSpecOptions{}
+		var spec []protoutil.ImportSpecOptions
 		switch test.kind {
 		case "weak":
 			spec = append(spec, protoutil.Weak())
@@ -111,7 +111,7 @@ func TestCreateOption(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.OptionSpecOptions{}
+		var opts []protoutil.OptionSpecOptions
 		if test.isCustom {
 			opts = []protoutil.OptionSpecOptions{protoutil.Custom()}
 		}
@@ -154,7 +154,7 @@ func TestCreateRPC(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.RPCSpecOptions{}
+		var opts []protoutil.RPCSpecOptions
 		if test.streamsReq {
 			opts = append(opts, protoutil.StreamRequest())
 		}
@@ -198,7 +198,7 @@ func TestCreateService(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.ServiceSpecOptions{}
+		var opts []protoutil.ServiceSpecOptions
 		opts = append(opts, protoutil.WithRPCs(test.rpcs...))
 		opts = append(opts, protoutil.WithServiceOptions(test.options...))
 		rpc := protoutil.NewService(test.name, opts...)
@@ -259,7 +259,7 @@ func TestCreateField(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.FieldSpecOptions{}
+		var opts []protoutil.FieldSpecOptions
 		if test.repeated {
 			opts = append(opts, protoutil.Repeated())
 		}
@@ -317,7 +317,7 @@ func TestCreateMessage(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.MessageSpecOptions{}
+		var opts []protoutil.MessageSpecOptions
 		opts = append(opts, protoutil.WithFields(test.fields...))
 		opts = append(opts, protoutil.WithEnums(test.enums...))
 		opts = append(opts, protoutil.WithMessageOptions(test.options...))
@@ -372,7 +372,7 @@ func TestCreateEnumField(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.EnumFieldSpecOptions{}
+		var opts []protoutil.EnumFieldSpecOptions
 		opts = append(opts, protoutil.WithEnumFieldOptions(test.options...))
 		field := protoutil.NewEnumField(test.name, test.value, opts...)
 
@@ -414,7 +414,7 @@ func TestCreateEnum(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.EnumSpecOpts{}
+		var opts []protoutil.EnumSpecOpts
 		opts = append(opts, protoutil.WithEnumFields(test.values...))
 		opts = append(opts, protoutil.WithEnumOptions(test.options...))
 		enum := protoutil.NewEnum(test.name, opts...)
@@ -499,7 +499,7 @@ func TestCreateOneof(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		opts := []protoutil.OneofSpecOptions{}
+		var opts []protoutil.OneofSpecOptions
 		opts = append(opts, protoutil.WithOneofFields(test.values...))
 		opts = append(opts, protoutil.WithOneofOptions(test.options...))
 		oneof := protoutil.NewOneof(test.name, opts...)
@@ -526,7 +526,7 @@ func TestAttachComment(t *testing.T) {
 	protoutil.AttachComment(msg, "my comment")
 	require.Equal(t, " my comment", msg.Comment.Lines[0], "expected %v, got %v", "my comment", msg.Comment.Lines[0])
 
-	// Attach comment to an rpc call
+	// Attach comment to rpc call
 	rpc := protoutil.NewRPC("my_rpc", "my_request", "my_response")
 	protoutil.AttachComment(rpc, "my comment")
 	require.Equal(t, " my comment", rpc.Comment.Lines[0], "expected %v, got %v", "my comment", rpc.Comment.Lines[0])
@@ -546,7 +546,7 @@ func TestIsString(t *testing.T) {
 	require.False(t, protoutil.NewLiteral("true").IsString)
 	require.False(t, protoutil.NewLiteral("false").IsString)
 
-	// Dont report numbers as strings
+	// Don't report numbers as strings
 	require.False(t, protoutil.NewLiteral("1").IsString)
 	require.False(t, protoutil.NewLiteral("1.0").IsString)
 	require.False(t, protoutil.NewLiteral("1.0e-10").IsString)

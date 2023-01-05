@@ -85,7 +85,7 @@ func (m StatusEvents) Update(msg tea.Msg) (StatusEvents, tea.Cmd) {
 				m.events.Remove(m.events.Back())
 			}
 		} else {
-			// Events that have no progress status are considered static
+			// Events that have no progress status are considered static,
 			// so they will be printed without the spinner and won't be
 			// removed from the output until the view is removed.
 			m.static = append(m.static, msg.Event)
@@ -177,7 +177,7 @@ func (m Events) Wait() tea.Cmd {
 		}
 	}
 
-	// By default just wait until the next event is received
+	// By default, just wait until the next event is received
 	return m.WaitEvent
 }
 
@@ -245,7 +245,7 @@ func (m Events) View() string {
 			view.WriteString(evt.String())
 		}
 
-		// Make sure that events have an EOL so they are displayed right below each other
+		// Make sure that events have an EOL, so they are displayed right below each other
 		if !strings.HasSuffix(evt.Message, "\n") {
 			view.WriteRune('\n')
 		}

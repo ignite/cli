@@ -27,7 +27,7 @@ func (d Doc) MarshalYAML() ([]byte, error) {
 	return yaml.Marshal(out)
 }
 
-// Pretty converts a Doc to a human readable string.
+// Pretty converts a Doc to a human-readable string.
 func (d Doc) Pretty() (string, error) {
 	proposalyaml, err := yaml.Marshal(d)
 	return string(proposalyaml), err

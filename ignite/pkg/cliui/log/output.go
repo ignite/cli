@@ -106,7 +106,7 @@ func WithStderr(r io.WriteCloser) Option {
 }
 
 // NewOutput creates a new log output.
-// By default the new output uses the default OS stdout and stderr to
+// By default, the new output uses the default OS stdout and stderr to
 // initialize the outputs with a default verbosity that doesn't change
 // the output.
 func NewOutput(options ...Option) (out Output) {

@@ -52,7 +52,7 @@ func Env(v ...string) Option {
 
 // WithCommand assigns a protoc command to use for code generation.
 // This allows to use a single protoc binary in multiple code generation calls.
-// Otherwise `Generate` creates a new protoc binary each time it is called.
+// Otherwise, `Generate` creates a new protoc binary each time it is called.
 func WithCommand(command Cmd) Option {
 	return func(c *configs) {
 		c.command = command
@@ -176,7 +176,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 // (everything under protoPath) will always be a part of the discovered files.
 //
 // when .proto files of the app depends on another proto package under includePaths (dependencies), those
-// ones may need to be discovered as well. some protoc plugins already do this discovery internally but
+// may need to be discovered as well. some protoc plugins already do this discovery internally but
 // for the ones that don't, it needs to be handled here if GenerateDependencies() is enabled.
 func discoverFiles(ctx context.Context, c configs, protoPath string, includePaths []string, cache protoanalysis.Cache) (
 	discovered []string, err error,

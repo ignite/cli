@@ -28,7 +28,7 @@ func TestResponseJSON(t *testing.T) {
 func TestNewErrorResponse(t *testing.T) {
 	require.Equal(t, ErrorResponseBody{
 		Error: ErrorResponse{
-			Message: "error!",
+			Message: "error",
 		},
-	}, NewErrorResponse(errors.New("error!")))
+	}, NewErrorResponse(errors.New("error")))
 }

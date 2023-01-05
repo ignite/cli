@@ -43,7 +43,7 @@ type SchemasWalkFunc func(version uint64, script []byte) error
 
 // NewSchemas creates a new embedded SQL schema manager.
 // The embedded FS is used to iterate the schema files.
-// By default the applied schema versions are stored in the "schema"
+// By default, the applied schema versions are stored in the "schema"
 // table but the name can have a prefix namespace when different
 // packages are storing the schemas in the same database.
 func NewSchemas(fs fs.FS, namespace string) Schemas {
@@ -138,7 +138,7 @@ func (s Schemas) getSchemaVersionInsertSQL(version uint64) string {
 	return fmt.Sprintf(tplSchemaInsertSQL, s.tableName, version)
 }
 
-// ScriptBuilder helps building database DDL/SQL scripts that execute multiple commands.
+// ScriptBuilder builds database DDL/SQL scripts that execute multiple commands.
 type ScriptBuilder struct {
 	buf bytes.Buffer
 }
@@ -153,7 +153,7 @@ func (b *ScriptBuilder) CommitTX() {
 	b.AppendCommand(sqlCommitTX)
 }
 
-// AppendCommand appends a command to the stript.
+// AppendCommand appends a command to the script.
 func (b *ScriptBuilder) AppendCommand(cmd string) {
 	if strings.HasSuffix(cmd, sqlCommandSuffix) {
 		b.buf.WriteString(cmd)
@@ -162,7 +162,7 @@ func (b *ScriptBuilder) AppendCommand(cmd string) {
 	}
 }
 
-// AppendScript appends a database DDL/SQL stript.
+// AppendScript appends a database DDL/SQL script.
 func (b *ScriptBuilder) AppendScript(s []byte) {
 	b.buf.Write(s)
 }

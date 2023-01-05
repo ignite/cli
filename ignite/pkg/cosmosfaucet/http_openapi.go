@@ -20,6 +20,6 @@ type openAPIData struct {
 	APIAddress string
 }
 
-func (f Faucet) openAPISpecHandler(w http.ResponseWriter, r *http.Request) {
+func (f Faucet) openAPISpecHandler(w http.ResponseWriter, _ *http.Request) {
 	tmplOpenAPISpec.Execute(w, f.openAPIData)
 }

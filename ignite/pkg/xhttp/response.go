@@ -11,17 +11,17 @@ import (
 // as payload.
 func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
 	var errMarhsal error
-	bdata, err := json.Marshal(data)
+	bz, err := json.Marshal(data)
 	if err != nil {
 		status = http.StatusInternalServerError
-		bdata, errMarhsal = json.Marshal(NewErrorResponse(errors.New(http.StatusText(status))))
+		bz, errMarhsal = json.Marshal(NewErrorResponse(errors.New(http.StatusText(status))))
 
 		// wrap error
 		err = fmt.Errorf("%s: %w", errMarhsal.Error(), err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(bdata)
+	w.Write(bz)
 	return err
 }
 
