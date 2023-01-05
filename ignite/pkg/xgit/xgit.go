@@ -91,21 +91,21 @@ func AreChangesCommitted(dir string) (bool, error) {
 	return ws.IsClean(), nil
 }
 
-// Clone clones a git repository represented by urlref, into dir.
-// urlref is the URL of the repository, with an optional ref, suffixed to the
+// Clone clones a git repository represented by urlRef, into dir.
+// urlRef is the URL of the repository, with an optional ref, suffixed to the
 // URL with a `@`. Ref can be a tag, a branch or a hash.
-// Valid examples of urlref: github.com/org/repo, github.com/org/repo@v1,
+// Valid examples of urlRef: github.com/org/repo, github.com/org/repo@v1,
 // github.com/org/repo@develop, github.com/org/repo@ab88cdf.
-func Clone(ctx context.Context, urlref, dir string) error {
-	// Ensure dir is empty if it exists (if it doesn't exists, the call to
+func Clone(ctx context.Context, urlRef, dir string) error {
+	// Ensure dir is empty if it exists (if it doesn't exist, the call to
 	// git.PlainCloneContext below will create it).
 	files, _ := os.ReadDir(dir)
 	if len(files) > 0 {
 		return fmt.Errorf("clone: target directory %q is not empty", dir)
 	}
-	// Split urlref
+	// Split urlRef
 	var (
-		parts = strings.Split(urlref, "@")
+		parts = strings.Split(urlRef, "@")
 		url   = parts[0]
 		ref   string
 	)

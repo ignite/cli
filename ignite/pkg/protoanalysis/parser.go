@@ -15,12 +15,12 @@ const optionGoPkg = "go_package"
 
 // parser parses proto packages.
 type parser struct {
-	packages []*pkg
+	packages []*protoPackage
 }
 
 // parse parses proto files in the fs that matches with pattern and returns
 // the low level representations of proto packages.
-func parse(ctx context.Context, path, pattern string) ([]*pkg, error) {
+func parse(ctx context.Context, path, pattern string) ([]*protoPackage, error) {
 	pr := &parser{}
 
 	paths, err := localfs.Search(path, pattern)
@@ -40,8 +40,8 @@ func parse(ctx context.Context, path, pattern string) ([]*pkg, error) {
 	return pr.packages, nil
 }
 
-// pkg represents a proto package.
-type pkg struct {
+// protoPackage represents a proto package.
+type protoPackage struct {
 	// name of the proto package.
 	name string
 
@@ -65,7 +65,7 @@ type file struct {
 	services []*proto.Service
 }
 
-func (p *pkg) options() (o []*proto.Option) {
+func (p *protoPackage) options() (o []*proto.Option) {
 	for _, f := range p.files {
 		o = append(o, f.options...)
 	}
@@ -73,7 +73,7 @@ func (p *pkg) options() (o []*proto.Option) {
 	return
 }
 
-func (p *pkg) messages() (m []*proto.Message) {
+func (p *protoPackage) messages() (m []*proto.Message) {
 	for _, f := range p.files {
 		m = append(m, f.messages...)
 	}
@@ -81,7 +81,7 @@ func (p *pkg) messages() (m []*proto.Message) {
 	return
 }
 
-func (p *pkg) services() (s []*proto.Service) {
+func (p *protoPackage) services() (s []*proto.Service) {
 	for _, f := range p.files {
 		s = append(s, f.services...)
 	}
@@ -108,7 +108,7 @@ func (p *parser) parseFile(path string) error {
 		proto.WithPackage(func(p *proto.Package) { pkgName = p.Name }),
 	)
 
-	var pp *pkg
+	var pp *protoPackage
 	for _, v := range p.packages {
 		if pkgName == v.name {
 			pp = v
@@ -116,7 +116,7 @@ func (p *parser) parseFile(path string) error {
 		}
 	}
 	if pp == nil {
-		pp = &pkg{
+		pp = &protoPackage{
 			name: pkgName,
 			dir:  filepath.Dir(path),
 		}

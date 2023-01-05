@@ -42,7 +42,7 @@ func HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, w
 	checksum, err := ChecksumFromPaths(workdir, paths...)
 	if errors.Is(err, ErrNoFile) {
 		// Checksum cannot be saved with no file
-		// Therefore if no file are found, this means these have been delete, then the directory has been changed
+		// Therefore if no file are found, this means these have been deleted, then the directory has been changed
 		return true, nil
 	} else if err != nil {
 		return false, err

@@ -23,7 +23,7 @@ func (s TxService) Gas() uint64 {
 }
 
 // Broadcast signs and broadcasts this tx.
-// If faucet is enabled and if the from account doesn't have enough funds, is
+// If faucet is enabled and if the "from" account doesn't have enough funds, is
 // it automatically filled with the default amount, and the tx is broadcasted
 // again. Note that this may still end with the same error if the amount is
 // greater than the amount dumped by the faucet.
@@ -61,7 +61,7 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 	// but it is very ugly to decode, not sure if it's worth it (see sdk code
 	// x/auth/query.go method makeTxResult)
 	// - third parameter represents the timestamp of the tx, which must be
-	// fetched from the block it self. So it requires an other API call to
+	// fetched from the block itself. So it requires another API call to
 	// fetch the block from res.Height, not sure if it's worth it too.
 	resp = sdktypes.NewResponseResultTx(res, nil, "")
 
