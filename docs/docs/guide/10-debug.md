@@ -20,7 +20,7 @@ chain build` sub-commands.
 
 To start a debugging session in the terminal run:
 
-```bash
+```
 ignite chain debug
 ```
 
@@ -71,13 +71,13 @@ client connections.
 
 To start a debug server use the following flag:
 
-```bash
+```
 ignite chain debug --server
 ```
 
 To start a debug server with a custom address use the following flags:
 
-```bash
+```
 ignite chain debug --server --server-address 127.0.0.1:30500
 ```
 
@@ -94,7 +94,7 @@ Using it as debugging client is straightforward as it doesn't require any
 configuration. Once the debug server is running and listening for client
 requests connect to it by running:
 
-```bash
+```
 gdlv connect 127.0.0.1:30500
 ```
 
@@ -143,26 +143,26 @@ a query to be able to trigger a debugging breakpoint when the query is called.
 
 Create a new blockchain:
 
-```bash
+```
 ignite scaffold chain hello
 ```
 
 Scaffold a new query in the `hello` directory:
 
-```bash
+```
 ignite scaffold query say-hello name --response name
 ```
 
 The next step initializes the blockchain's data directory and compiles a debug
 binary:
 
-```bash
+```
 ignite chain init --debug
 ```
 
 Once the initialization finishes launch the debugger shell:
 
-```bash
+```
 ignite chain debug
 ```
 
@@ -176,7 +176,7 @@ Within the debugger shell create a breakpoint that will be triggered when the
 
 From a different terminal use the `hellod` binary to call the query:
 
-```bash
+```
 hellod query hello say-hello bob
 ```
 
