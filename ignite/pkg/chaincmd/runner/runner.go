@@ -1,4 +1,4 @@
-// Package chaincmdrunner provides a high level access to a blockchain's commands.
+// Package chaincmdrunner provides high level access to a blockchain's commands.
 package chaincmdrunner
 
 import (
@@ -16,7 +16,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/truncatedbuffer"
 )
 
-// Runner provides a high level access to a blockchain's commands.
+// Runner provides high level access to a blockchain's commands.
 type Runner struct {
 	chainCmd       chaincmd.ChainCmd
 	stdout, stderr io.Writer
@@ -83,7 +83,7 @@ func (r Runner) Cmd() chaincmd.ChainCmd {
 
 type runOptions struct {
 	// wrappedStdErrMaxLen determines the maximum length of the wrapped error logs
-	// this option is used for long running command to prevent the buffer containing stderr getting too big
+	// this option is used for long-running command to prevent the buffer containing stderr getting too big
 	// 0 can be used for no maximum length
 	wrappedStdErrMaxLen int
 
@@ -143,15 +143,15 @@ type buffer struct {
 // JSONEnsuredBytes ensures that encoding format for returned bytes is always
 // JSON even if the written data is originally encoded in YAML.
 func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
-	bytes := b.Buffer.Bytes()
+	bz := b.Buffer.Bytes()
 
 	var out interface{}
 
-	if err := yaml.Unmarshal(bytes, &out); err == nil {
-		return yaml.YAMLToJSON(bytes)
+	if err := yaml.Unmarshal(bz, &out); err == nil {
+		return yaml.YAMLToJSON(bz)
 	}
 
-	return bytes, nil
+	return bz, nil
 }
 
 type txResult struct {

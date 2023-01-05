@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -19,14 +18,14 @@ func TestJoin(t *testing.T) {
 		xfilepath.PathWithError("bar", nil),
 		xfilepath.Path("foobar/barfoo"),
 	)
-	path, err := retriever()
+	p, err := retriever()
 	require.NoError(t, err)
 	require.Equal(t, filepath.Join(
 		"foo",
 		"bar",
 		"foobar",
 		"barfoo",
-	), path)
+	), p)
 
 	retriever = xfilepath.Join(
 		xfilepath.Path("foo"),
@@ -46,7 +45,7 @@ func TestJoinFromHome(t *testing.T) {
 		xfilepath.PathWithError("bar", nil),
 		xfilepath.Path("foobar/barfoo"),
 	)
-	path, err := retriever()
+	p, err := retriever()
 	require.NoError(t, err)
 	require.Equal(t, filepath.Join(
 		home,
@@ -54,7 +53,7 @@ func TestJoinFromHome(t *testing.T) {
 		"bar",
 		"foobar",
 		"barfoo",
-	), path)
+	), p)
 
 	retriever = xfilepath.JoinFromHome(
 		xfilepath.Path("foo"),
@@ -92,13 +91,11 @@ func TestList(t *testing.T) {
 }
 
 func TestMkdir(t *testing.T) {
-	require := require.New(t)
-	assert := assert.New(t)
 	newdir := path.Join(t.TempDir(), "hey")
 
 	dir, err := xfilepath.Mkdir(xfilepath.Path(newdir))()
 
-	require.NoError(err)
-	assert.Equal(newdir, dir)
-	assert.DirExists(dir)
+	require.NoError(t, err)
+	require.Equal(t, newdir, dir)
+	require.DirExists(t, dir)
 }

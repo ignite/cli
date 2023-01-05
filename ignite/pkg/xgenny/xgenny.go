@@ -43,21 +43,21 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 			continue
 		}
 
-		path := filepath.Join(path, entry.Name())
+		entryPath := filepath.Join(path, entry.Name())
 
-		data, err := w.fs.ReadFile(path)
+		data, err := w.fs.ReadFile(entryPath)
 		if err != nil {
 			return err
 		}
 
-		ppath := strings.TrimPrefix(path, w.trimPrefix)
-		ppath = filepath.Join(w.path, ppath)
-		f, err := packd.NewFile(ppath, bytes.NewReader(data))
+		trimPath := strings.TrimPrefix(entryPath, w.trimPrefix)
+		trimPath = filepath.Join(w.path, trimPath)
+		f, err := packd.NewFile(trimPath, bytes.NewReader(data))
 		if err != nil {
 			return err
 		}
 
-		wl(ppath, f)
+		wl(trimPath, f)
 	}
 
 	return nil

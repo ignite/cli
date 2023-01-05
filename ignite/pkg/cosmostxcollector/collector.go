@@ -9,22 +9,22 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter"
 )
 
-// TXsCollecter defines the interface for Cosmos clients that support collection of transactions.
+// TXsCollector defines the interface for Cosmos clients that support collection of transactions.
 //
-//go:generate mockery --name TXsCollecter --filename txs_collecter.go --with-expecter
-type TXsCollecter interface {
+//go:generate mockery --name TXsCollector --filename txs_collector.go --with-expecter
+type TXsCollector interface {
 	CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) error
 }
 
 // New creates a new Cosmos transaction collector.
-func New(db adapter.Saver, client TXsCollecter) Collector {
+func New(db adapter.Saver, client TXsCollector) Collector {
 	return Collector{db, client}
 }
 
 // Collector defines a type to collect and save Cosmos transactions in a data backend.
 type Collector struct {
 	db     adapter.Saver
-	client TXsCollecter
+	client TXsCollector
 }
 
 // Collect gathers transactions for all blocks starting from a specific height.
@@ -41,7 +41,7 @@ func (c Collector) Collect(ctx context.Context, fromHeight int64) error {
 	})
 
 	// The transactions for each block are saved in "bulks" so they are not
-	// kept in memory. Also they are saved sequentially to avoid block height
+	// kept in memory. Also, they are saved sequentially to avoid block height
 	// gaps that can occur if a group of transactions from a previous block
 	// fail to be saved.
 	wg.Go(func() error {

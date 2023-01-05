@@ -10,7 +10,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -35,13 +34,13 @@ func TestTxServiceBroadcast(t *testing.T) {
 	// Export created account to we can import it in the Client below.
 	key, err := r.Export(accountName, passphrase)
 	require.NoError(t, err)
-	sdkaddress, err := a.Record.GetAddress()
+	sdkaddr, err := a.Record.GetAddress()
 	require.NoError(t, err)
 	msg := &banktypes.MsgSend{
-		FromAddress: sdkaddress.String(),
+		FromAddress: sdkaddr.String(),
 		ToAddress:   "cosmos1k8e50d2d8xkdfw9c4et3m45llh69e7xzw6uzga",
 		Amount: sdktypes.NewCoins(
-			sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+			sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 		),
 	}
 	tests := []struct {
@@ -57,7 +56,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			msg:           &banktypes.MsgSend{},
 			expectedError: "invalid from address: empty address string is not allowed: invalid address",
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -66,7 +65,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			expectedError: "make sure that your account has enough balance",
 
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
@@ -81,7 +80,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			expectedError: "error code: '42' msg: 'oups'",
 
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
@@ -102,7 +101,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			},
 
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
@@ -128,7 +127,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			expectedError: "error code: '42' msg: 'oups'",
 
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
@@ -157,7 +156,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			},
 
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
 					Sign(mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
@@ -190,26 +189,24 @@ func TestTxServiceBroadcast(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			assert := assert.New(t)
 			c := newClient(t, tt.setup, tt.opts...)
 			account, err := c.AccountRegistry.Import(accountName, key, passphrase)
-			require.NoError(err)
+			require.NoError(t, err)
 			ctx := c.Context().
 				WithFromName(accountName).
-				WithFromAddress(sdkaddress)
+				WithFromAddress(sdkaddr)
 			txService, err := c.CreateTx(goCtx, account, tt.msg)
-			require.NoError(err)
+			require.NoError(t, err)
 
 			res, err := txService.Broadcast(goCtx)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
-			assert.Equal(ctx.Codec, res.Codec)
-			assert.Equal(tt.expectedResponse, res.TxResponse)
+			require.NoError(t, err)
+			require.Equal(t, ctx.Codec, res.Codec)
+			require.Equal(t, tt.expectedResponse, res.TxResponse)
 		})
 	}
 }

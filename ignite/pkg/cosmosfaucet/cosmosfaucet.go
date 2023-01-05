@@ -23,7 +23,7 @@ const (
 	// on each request.
 	DefaultAmount = 10000000
 
-	// DefaultMaxAmount specifies the maximum amount that can be tranffered to an
+	// DefaultMaxAmount specifies the maximum amount that can be transferred to an
 	// account in all times.
 	DefaultMaxAmount = 100000000
 
@@ -34,7 +34,7 @@ const (
 
 // Faucet represents a faucet.
 type Faucet struct {
-	// runner used to intereact with blockchain's binary to transfer tokens.
+	// runner used to interact with blockchain's binary to transfer tokens.
 	runner chaincmdrunner.Runner
 
 	// chainID is the chain id of the chain that faucet is operating for.
