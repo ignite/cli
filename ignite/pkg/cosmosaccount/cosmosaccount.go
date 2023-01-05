@@ -260,7 +260,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 	return unsafeExportPrivKeyHex(r.Keyring, name, passphrase)
 }
 
-func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey string, err error) {
+func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privKey string, err error) {
 	priv, err := kr.ExportPrivKeyArmor(uid, passphrase)
 	if err != nil {
 		return "", err

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	gomodmodule "golang.org/x/mod/module"
+	gomodule "golang.org/x/mod/module"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
@@ -102,7 +102,7 @@ type generator struct {
 	protoDir     string
 	o            *generateOptions
 	sdkImport    string
-	deps         []gomodmodule.Version
+	deps         []gomodule.Version
 	appModules   []module.Module
 	thirdModules map[string][]module.Module // app dependency-modules pair.
 }
@@ -146,14 +146,14 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 
-		// Update Vuex store dependecies when Vuex stores are generated.
+		// Update Vuex store dependencies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateVuexDependencies(); err != nil {
 			return err
 		}
 
-		// Update Vue app dependecies when Vuex stores are generated.
+		// Update Vue app dependencies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateVueDependencies(); err != nil {

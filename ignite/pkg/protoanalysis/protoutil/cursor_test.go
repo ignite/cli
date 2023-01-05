@@ -308,14 +308,16 @@ func TestAddImports(t *testing.T) {
 	require.NoError(t, err)
 
 	// Add an import
-	AddImports(f, true, NewImport("this.proto"))
+	err = AddImports(f, true, NewImport("this.proto"))
+	require.NoError(t, err)
 	require.True(t, HasImport(f, "this.proto"))
 	// Note: added in reverse order.
-	AddImports(f, true,
+	err = AddImports(f, true,
 		NewImport("that.proto"),
 		NewImport("the.other.proto"),
 		NewImport("and.another.proto"),
 	)
+	require.NoError(t, err)
 	require.True(t, HasImport(f, "that.proto"))
 	require.True(t, HasImport(f, "the.other.proto"))
 	require.True(t, HasImport(f, "and.another.proto"))
@@ -332,10 +334,11 @@ func TestAddImports(t *testing.T) {
 	// Exercise the recursive case:
 	f, err = parseStringProto(`syntax = "proto3"`)
 	require.NoError(t, err)
-	AddImports(f, true,
+	err = AddImports(f, true,
 		NewImport("this.proto"),
 		NewImport("that.proto"),
 	)
+	require.NoError(t, err)
 	require.True(t, HasImport(f, "this.proto"))
 	require.True(t, HasImport(f, "that.proto"))
 
@@ -348,12 +351,16 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "chainname/params.proto";
 `)
 	require.NoError(t, err)
-	AddImports(f, true, NewImport("chainname/bleep.proto"))
+	err = AddImports(f, true, NewImport("chainname/bleep.proto"))
+	require.NoError(t, err)
 	// Add dupes:
-	AddImports(f, true, NewImport("chainname/bleep.proto"))
-	AddImports(f, true, NewImport("chainname/bleep.proto"))
-	AddImports(f, true, NewImport("chainname/params.proto"))
-	// just checking that is is added last.
+	err = AddImports(f, true, NewImport("chainname/bleep.proto"))
+	require.NoError(t, err)
+	err = AddImports(f, true, NewImport("chainname/bleep.proto"))
+	require.NoError(t, err)
+	err = AddImports(f, true, NewImport("chainname/params.proto"))
+	require.NoError(t, err)
+	// just checking that is added last.
 	// fmt.Print(Printer(f))
 
 	// Check that adding duplicates does nothing.
@@ -370,7 +377,8 @@ import "chainname/params.proto";
 		NewImport("chainname/params.proto"),
 		NewImport("gogoproto/gogo.proto"),
 	}
-	AddImports(f, true, imports...)
+	err = AddImports(f, true, imports...)
+	require.NoError(t, err)
 	require.Equal(t, len(f.Elements), 6, "The number of elements shouldn't have changed")
 
 	// Pass an empty import list.

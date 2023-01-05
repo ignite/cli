@@ -66,7 +66,7 @@ return createCustomOperationId(method, route, moduleName);
 
 // WithCommand assigns a typescript API generator command to use for code generation.
 // This allows to use a single nodetime STA generator binary in multiple code generation
-// calls. Otherwise `Generate` creates a new generator binary each time it is called.
+// calls. Otherwise, `Generate` creates a new generator binary each time it is called.
 func WithCommand(command Cmd) Option {
 	return func(c *configs) {
 		c.command = command
