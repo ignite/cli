@@ -151,9 +151,18 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 
 	if r.chainCmd.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
-		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
-		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		_, err := fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		if err != nil {
+			return "", err
+		}
+		_, err = fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		if err != nil {
+			return "", err
+		}
+		_, err = fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		if err != nil {
+			return "", err
+		}
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
@@ -266,7 +275,7 @@ func (r Runner) QueryTxEvents(
 	selector EventSelector,
 	moreSelectors ...EventSelector,
 ) ([]Event, error) {
-	// prepare the slector.
+	// prepare the selector.
 	var list []string
 
 	eventsSelectors := append([]EventSelector{selector}, moreSelectors...)
@@ -277,7 +286,7 @@ func (r Runner) QueryTxEvents(
 
 	query := strings.Join(list, "&")
 
-	// execute the commnd and parse the output.
+	// execute the command and parse the output.
 	b := newBuffer()
 
 	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {

@@ -23,7 +23,7 @@ func TestCollector(t *testing.T) {
 
 	txs := [][]cosmosclient.TX{{}, {}}
 
-	client := mocks.NewTXsCollecter(t)
+	client := mocks.NewTXsCollector(t)
 	client.EXPECT().
 		CollectTXs(
 			mock.Anything,
@@ -68,7 +68,7 @@ func TestCollectorWithCollectError(t *testing.T) {
 	// Arrange
 	wantErr := errors.New("expected error")
 
-	client := mocks.NewTXsCollecter(t)
+	client := mocks.NewTXsCollector(t)
 	client.EXPECT().
 		CollectTXs(
 			mock.Anything,
@@ -97,9 +97,9 @@ func TestCollectorWithCollectError(t *testing.T) {
 func TestCollectorWithSaveError(t *testing.T) {
 	// Arrange
 	wantErr := errors.New("expected error")
-	txs := []cosmosclient.TX{}
+	var txs []cosmosclient.TX
 
-	client := mocks.NewTXsCollecter(t)
+	client := mocks.NewTXsCollector(t)
 	client.EXPECT().
 		CollectTXs(
 			mock.Anything,

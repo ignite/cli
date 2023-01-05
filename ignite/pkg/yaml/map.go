@@ -2,7 +2,7 @@ package yaml
 
 // Map defines a map type that uses strings as key value.
 // The map implements the Unmarshaller interface to convert
-// the unmershalled map keys type from interface{} to string.
+// the unmarshalled map keys type from interface{} to string.
 type Map map[string]interface{}
 
 func (m *Map) UnmarshalYAML(unmarshal func(interface{}) error) error {

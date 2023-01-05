@@ -51,7 +51,7 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 	return totalAmount, nil
 }
 
-// Transfer transfer amount of tokens from the faucet account to toAccountAddress.
+// Transfer transfers amount of tokens from the faucet account to toAccountAddress.
 func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sdk.Coins) error {
 	transferMutex.Lock()
 	defer transferMutex.Unlock()
@@ -96,6 +96,6 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 		return err
 	}
 
-	// wait for the send tx to be confirmed
+	// wait for send tx to be confirmed
 	return f.runner.WaitTx(ctx, txHash, time.Second, 30)
 }

@@ -107,7 +107,7 @@ func applyOptions(c *ChainCmd, options []Option) {
 }
 
 // WithVersion sets the version of the blockchain.
-// when this is not provided, latest version of SDK is assumed.
+// when this is not provided, the latest version of SDK is assumed.
 func WithVersion(v cosmosver.Version) Option {
 	return func(c *ChainCmd) {
 		c.sdkVersion = v
