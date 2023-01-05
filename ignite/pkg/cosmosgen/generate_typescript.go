@@ -103,13 +103,19 @@ func (g *tsGenerator) generateModuleTemplates() error {
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
 				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
-				changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
-				if err != nil {
-					return err
-				}
 
-				if !changed {
-					return nil
+				// Always generate module templates by default unless cache is enabled, in which
+				// case the module template is generated when one or more files were changed in
+				// the module since the last generation.
+				if g.g.o.useCache {
+					changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
+					if err != nil {
+						return err
+					}
+
+					if !changed {
+						return nil
+					}
 				}
 
 				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)

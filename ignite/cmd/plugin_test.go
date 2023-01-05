@@ -201,6 +201,21 @@ ignite
 			expectedError: `plugin command "scaffold" already exists in ignite's commands`,
 		},
 		{
+			name: "fail: plugin name with args exists in legacy commands",
+			setup: func(t *testing.T, p *mocks.PluginInterface) {
+				p.EXPECT().Manifest().Return(plugin.Manifest{
+					Commands: []plugin.Command{
+						{
+							Use: "scaffold [args]",
+						},
+					},
+				},
+					nil,
+				)
+			},
+			expectedError: `plugin command "scaffold" already exists in ignite's commands`,
+		},
+		{
 			name: "fail: plugin name exists in legacy sub commands",
 			setup: func(t *testing.T, p *mocks.PluginInterface) {
 				p.EXPECT().Manifest().Return(plugin.Manifest{

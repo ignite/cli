@@ -26,7 +26,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	"github.com/ignite/cli/ignite/services/network"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -55,7 +54,7 @@ func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name + "d",
-		Short: "Stargate CosmosHub App",
+		Short: "Start <%= AppName %> node",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
@@ -141,7 +140,6 @@ func initRootCmd(
 		queryCommand(),
 		txCommand(),
 		keys.Commands(app.DefaultNodeHome),
-		startWithTunnelingCommand(a, app.DefaultNodeHome),
 	)
 }
 
@@ -195,29 +193,6 @@ func txCommand() *cobra.Command {
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
-}
-
-// startWithTunnelingCommand returns a new start command with http tunneling
-// enabled.
-func startWithTunnelingCommand(appCreator appCreator, defaultNodeHome string) *cobra.Command {
-	startCmd := server.StartCmd(appCreator.newApp, defaultNodeHome)
-	startCmd.Use = "start-with-http-tunneling"
-	startCmd.Short = "Run the full node with http tunneling"
-	// Backup existing PreRunE, since we'll override it.
-	startPreRunE := startCmd.PreRunE
-	startCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		var (
-			ctx       = cmd.Context()
-			clientCtx = client.GetClientContextFromCmd(cmd)
-			serverCtx = server.GetServerContextFromCmd(cmd)
-		)
-		network.StartProxyForTunneledPeers(ctx, clientCtx, serverCtx)
-		if startPreRunE == nil {
-			return nil
-		}
-		return startPreRunE(cmd, args)
-	}
-	return startCmd
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
@@ -302,7 +277,7 @@ func (a appCreator) newApp(
 		baseapp.SetTrace(cast.ToBool(appOpts.Get(server.FlagTrace))),
 		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(server.FlagIndexEvents))),
 		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
-        baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(server.FlagIAVLCacheSize))),
+		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(server.FlagIAVLCacheSize))),
 		baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(server.FlagDisableIAVLFastNode))),
 	)
 }
@@ -348,19 +323,8 @@ func (a appCreator) appExport(
 func initAppConfig() (string, interface{}) {
 	// The following code snippet is just for reference.
 
-	// WASMConfig defines configuration for the wasm module.
-	type WASMConfig struct {
-		// This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
-		QueryGasLimit uint64 `mapstructure:"query_gas_limit"`
-
-		// Address defines the gRPC-web server to listen on
-		LruSize uint64 `mapstructure:"lru_size"`
-	}
-
 	type CustomAppConfig struct {
 		serverconfig.Config
-
-		WASM WASMConfig `mapstructure:"wasm"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -382,19 +346,8 @@ func initAppConfig() (string, interface{}) {
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
-		WASM: WASMConfig{
-			LruSize:       1,
-			QueryGasLimit: 300000,
-		},
 	}
-
-	customAppTemplate := serverconfig.DefaultConfigTemplate + `
-[wasm]
-# This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
-query_gas_limit = 300000
-# This is the number of wasm vm instances we keep cached in memory for speed-up
-# Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
-lru_size = 0`
+	customAppTemplate := serverconfig.DefaultConfigTemplate
 
 	return customAppTemplate, customAppConfig
 }
