@@ -60,6 +60,8 @@ Loan:
   state: requested
 ```
 
+Please be aware that the addresses displayed in your terminal window (such as those in the `borrower` field) will not match the ones provided in this tutorial. This is because Ignite generates new accounts each time a chain is started, unless an account has a mnemonic specified in the `config.yml` file.
+
 Approve the loan from Bob's account:
 
 ```
