@@ -100,15 +100,14 @@ func BuildPath(ctx context.Context, output, binary, path string, flags []string,
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
-// BuildAll runs go build ./... on path with options.
-func BuildAll(ctx context.Context, out, path string, flags []string, options ...exec.Option) error {
+// Build runs go build on path with options.
+func Build(ctx context.Context, out, path string, flags []string, options ...exec.Option) error {
 	command := []string{
 		Name(),
 		CommandBuild,
 		FlagOut, out,
 	}
 	command = append(command, flags...)
-	command = append(command, "./...")
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 

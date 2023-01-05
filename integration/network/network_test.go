@@ -14,30 +14,53 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
+	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/xgit"
 	envtest "github.com/ignite/cli/integration"
 )
 
 const (
-	spnModule     = "github.com/tendermint/spn"
-	spnRepoURL    = "https://" + spnModule
-	spnConfigFile = "config_2.yml"
+	spnModule            = "github.com/tendermint/spn"
+	spnRepoURL           = "https://" + spnModule
+	spnConfigFile        = "config_2.yml"
+	pluginNetworkRepoURL = "https://" + ignitecmd.PluginNetworkPath
 )
 
-func cloneSPN(t *testing.T) string {
-	path := t.TempDir()
-	repo, err := git.PlainClone(path, false, &git.CloneOptions{
-		URL:      spnRepoURL,
-		Progress: os.Stdout,
-	})
-	require.NoError(t, err)
+// setupSPN executes the following tasks:
+// - clone cli-plugin-network to get the SPN version from go.mod
+// - add the cloned cli-plugin-network as a global plugin
+// - clone SPN to the expected version
+// - returns the path of the cloned SPN.
+func setupSPN(env envtest.Env) string {
+	var (
+		t          = env.T()
+		require    = require.New(t)
+		path       = t.TempDir()
+		pluginPath = filepath.Join(path, "cli-plugin-network")
+		spnPath    = filepath.Join(path, "spn")
+		spnVersion string
+	)
+	// Clone the cli-plugin-network with the expected version
+	err := xgit.Clone(context.Background(), pluginNetworkRepoURL, pluginPath)
+	require.NoError(err)
+	t.Logf("Checkout cli-plugin-revision to ref %q", ignitecmd.PluginNetworkPath)
+	// Add plugin to config
+	env.Must(env.Exec("add plugin network",
+		step.NewSteps(step.New(
+			// NOTE(tb): to test cli-plugin-network locally (can happen during dev)
+			// comment the first line below and uncomment the second, with the
+			// correct path to the plugin.
+			step.Exec(envtest.IgniteApp, "plugin", "add", "-g", pluginPath),
+			// step.Exec(envtest.IgniteApp, "plugin", "add", "-g", "/home/tom/src/ignite/cli-plugin-network"),
+		)),
+	))
 
-	// Read spn version from go.mod
-	gm, err := gomodule.ParseAt("../..")
-	require.NoError(t, err)
-	var spnVersion string
+	// Read spn version from plugin's go.mod
+	gm, err := gomodule.ParseAt(pluginPath)
+	require.NoError(err)
 	for _, r := range gm.Require {
 		if r.Mod.Path == spnModule {
 			spnVersion = r.Mod.Version
@@ -51,22 +74,29 @@ func cloneSPN(t *testing.T) string {
 
 	// Check if spnVersion is a tag or a pseudo-version
 	v, err := semver.ParseTolerant(spnVersion)
-	require.NoError(t, err)
+	require.NoError(err)
 	if n := len(v.Pre); n > 0 {
 		// pseudo version, need to extract hash
 		spnVersion = strings.Split(v.Pre[n-1].VersionStr, "-")[1]
 	}
-	rev, err := repo.ResolveRevision(plumbing.Revision(spnVersion))
-	require.NoError(t, err)
-	w, err := repo.Worktree()
-	require.NoError(t, err)
+
+	// Clone spn
+	spnRepo, err := git.PlainClone(spnPath, false, &git.CloneOptions{
+		URL: spnRepoURL,
+	})
+	require.NoError(err)
+	// Checkout expected version
+	rev, err := spnRepo.ResolveRevision(plumbing.Revision(spnVersion))
+	require.NoError(err, spnVersion)
+	w, err := spnRepo.Worktree()
+	require.NoError(err)
 	err = w.Checkout(&git.CheckoutOptions{
 		Hash: *rev,
 	})
-	require.NoError(t, err)
+	require.NoError(err, rev)
 	t.Logf("Checkout spn to ref %q", rev)
 
-	return path
+	return spnPath
 }
 
 func migrateSPNConfig(t *testing.T, spnPath string) {
@@ -91,8 +121,8 @@ func migrateSPNConfig(t *testing.T, spnPath string) {
 
 func TestNetworkPublish(t *testing.T) {
 	var (
-		spnPath = cloneSPN(t)
 		env     = envtest.New(t)
+		spnPath = setupSPN(env)
 		spn     = env.App(
 			spnPath,
 			envtest.AppHomePath(t.TempDir()),
@@ -145,8 +175,8 @@ func TestNetworkPublish(t *testing.T) {
 
 func TestNetworkPublishGenesisConfig(t *testing.T) {
 	var (
-		spnPath = cloneSPN(t)
 		env     = envtest.New(t)
+		spnPath = setupSPN(env)
 		spn     = env.App(
 			spnPath,
 			envtest.AppHomePath(t.TempDir()),

@@ -91,9 +91,21 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin@develop",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-develop",
 				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin@develop",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-develop",
+				binaryName: "plugin",
+			},
+		},
+		{
+			name:      "ok: remote plugin with @ref containing slash",
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin@package/v1.0.0"},
+			expectedPlugin: Plugin{
+				repoPath:   "github.com/ignite/plugin@package/v1.0.0",
+				cloneURL:   "https://github.com/ignite/plugin",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				reference:  "package/v1.0.0",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
 				binaryName: "plugin",
 			},
 		},
@@ -115,9 +127,21 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:   "github.com/ignite/plugin@develop",
 				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin@develop",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-develop",
 				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin@develop/plugin1",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-develop/plugin1",
+				binaryName: "plugin1",
+			},
+		},
+		{
+			name:      "ok: remote plugin with subpath and @ref containing slash",
+			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1@package/v1.0.0"},
+			expectedPlugin: Plugin{
+				repoPath:   "github.com/ignite/plugin@package/v1.0.0",
+				cloneURL:   "https://github.com/ignite/plugin",
+				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				reference:  "package/v1.0.0",
+				srcPath:    ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0/plugin1",
 				binaryName: "plugin1",
 			},
 		},
@@ -182,14 +206,13 @@ func TestPluginLoad(t *testing.T) {
 					binaryName: "testdata",
 				}
 			},
-			expectedError: `no packages to build`,
+			expectedError: `no Go files in`,
 		},
 		{
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
 				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar", false)
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
 					srcPath:    path,
 					binaryName: "bar",
 				}
@@ -202,7 +225,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote")},
 					cloneURL:   repoDir,
 					cloneDir:   cloneDir,
 					srcPath:    path.Join(cloneDir, "remote"),
@@ -216,7 +238,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:   pluginsconfig.Plugin{Path: path.Join(cloneDir, "plugin")},
 					repoPath: "/xxxx/yyyy",
 					cloneURL: "/xxxx/yyyy",
 					cloneDir: cloneDir,
@@ -240,7 +261,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-tag")},
 					cloneURL:   repoDir,
 					reference:  "v1",
 					cloneDir:   cloneDir,
@@ -264,7 +284,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  "branch1",
 					cloneDir:   cloneDir,
@@ -283,7 +302,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-branch")},
 					cloneURL:   repoDir,
 					reference:  h.Hash().String(),
 					cloneDir:   cloneDir,
@@ -300,7 +318,6 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path.Join(cloneDir, "remote-no-ref")},
 					cloneURL:   repoDir,
 					reference:  "doesnt_exists",
 					cloneDir:   cloneDir,
@@ -496,6 +513,7 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 }
 
 func assertPlugin(t *testing.T, want, have Plugin) {
+	t.Helper()
 	if want.Error != nil {
 		require.Error(t, have.Error)
 		assert.Regexp(t, want.Error.Error(), have.Error.Error())
