@@ -17,8 +17,8 @@ in the Ignite CLI Developer Tutorials. Before you start this building your
 nameservice app, we recommend that you complete these foundational tutorials:
 
 - [Install Ignite CLI](../01-install.md)
-- [Hello, World](../03-hello.md)
-- [Module Basics](../04-blog/00-build-blog.md)
+- [Hello, World](./hello/express)
+- [Module Basics](./blog/express)
 
 The goal of this tutorial is to build a functional nameservice app and a mapping
 of strings to other strings(`map[string]string`).
