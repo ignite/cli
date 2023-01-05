@@ -26,8 +26,7 @@ func NewOptions() Options {
 }
 
 func (o Options) Add(options ...Option) Options {
-	o = append(o, options...)
-	return o
+	return append(o, options...)
 }
 
 func New(options ...Option) *Step {
@@ -110,7 +109,7 @@ func Write(data []byte) Option {
 type Steps []*Step
 
 func NewSteps(steps ...*Step) Steps {
-	return Steps(steps)
+	return steps
 }
 
 func (s *Steps) Add(steps ...*Step) Steps {

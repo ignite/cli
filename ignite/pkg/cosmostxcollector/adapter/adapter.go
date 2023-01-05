@@ -15,7 +15,7 @@ type Saver interface {
 	Save(context.Context, []cosmosclient.TX) error
 }
 
-// Adapter defines the interface for data backend adaptors.
+// Adapter defines the interface for data backend adapters.
 type Adapter interface {
 	Saver
 
@@ -26,7 +26,7 @@ type Adapter interface {
 	// During initialization the adapter creates or updates the data backend schema
 	// required to save the metrics and performs any initialization required previous
 	// to use the adapter.
-	// This method must be called at least once to setup the initial database schema.
+	// This method must be called at least once to set up the initial database schema.
 	// Calling it when a schema already exists updates the existing schema to the
 	// latest version if the current one is older.
 	Init(context.Context) error

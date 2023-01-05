@@ -10,7 +10,7 @@ import (
 // returned error is context.Canceled if ctx canceled otherwise the error returned by g.Wait().
 //
 // this is useful when errgroup cannot be used with errgroup.WithContext which happens if executed
-// func does not support cancelation.
+// func does not support cancellation.
 func Wait(ctx context.Context, g *errgroup.Group) error {
 	doneC := make(chan struct{})
 

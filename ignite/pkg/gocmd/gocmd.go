@@ -39,18 +39,25 @@ const (
 	// CommandEnv represents go "env" command.
 	CommandEnv = "env"
 
-	// Go environment variable names.
+	// EnvGOARCH represents GOARCH variable.
 	EnvGOARCH = "GOARCH"
-	EnvGOMOD  = "GOMOD"
-	EnvGOOS   = "GOOS"
+	// EnvGOMOD represents GOMOD variable.
+	EnvGOMOD = "GOMOD"
+	// EnvGOOS represents GOOS variable.
+	EnvGOOS = "GOOS"
 
-	// Go command flags and values.
-	FlagGcflags           = "-gcflags"
+	// FlagGcflags represents gcflags go flag.
+	FlagGcflags = "-gcflags"
+	// FlagGcflagsValueDebug represents debug go flags.
 	FlagGcflagsValueDebug = "all=-N -l"
-	FlagLdflags           = "-ldflags"
-	FlagMod               = "-mod"
-	FlagModValueReadOnly  = "readonly"
-	FlagOut               = "-o"
+	// FlagLdflags represents ldflags go flag.
+	FlagLdflags = "-ldflags"
+	// FlagMod represents mod go flag.
+	FlagMod = "-mod"
+	// FlagModValueReadOnly represents readonly go flag.
+	FlagModValueReadOnly = "readonly"
+	// FlagOut represents out go flag.
+	FlagOut = "-o"
 )
 
 // Env returns the value of `go env name`.

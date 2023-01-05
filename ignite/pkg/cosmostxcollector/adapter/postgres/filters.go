@@ -98,7 +98,7 @@ func NewIntSliceFilter(field string, values []int64, options ...FilterOption) Sl
 	}
 }
 
-// Filter defines a generic slice/array equality filter.
+// SliceFilter defines a generic slice/array equality filter.
 type SliceFilter struct {
 	Filter
 }

@@ -135,7 +135,7 @@ func (a Adapter) UpdateSchema(ctx context.Context, s Schemas) error {
 		return err
 	}
 
-	// Create the schema table if it doesn't exists
+	// Create the schema table if it doesn't exist
 	if _, err := db.ExecContext(ctx, s.GetTableDDL()); err != nil {
 		return fmt.Errorf("failed to check schema table: %w", err)
 	}
@@ -339,12 +339,12 @@ func createPostgresURI(a Adapter) string {
 
 	// Add extra params as query arguments
 	if a.params != nil {
-		query := url.Values{}
+		val := url.Values{}
 		for k, v := range a.params {
-			query.Set(k, v)
+			val.Set(k, v)
 		}
 
-		uri.RawQuery = query.Encode()
+		uri.RawQuery = val.Encode()
 	}
 
 	return uri.String()
