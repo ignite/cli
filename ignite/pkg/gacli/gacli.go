@@ -1,4 +1,4 @@
-// Package gacli is a client for Google Analyrics to send data points for hint-type=event.
+// Package gacli is a client for Google Analytics to send data points for hint-type=event.
 package gacli
 
 import (
@@ -12,14 +12,14 @@ const (
 
 // Client is an analytics client.
 type Client struct {
-	gaid string
+	id string // Google Analytics ID
 }
 
 // New creates a new analytics client for Segment.io with Segment's
 // endpoint and access key.
-func New(gaid string) *Client {
+func New(id string) *Client {
 	return &Client{
-		gaid: gaid,
+		id: id,
 	}
 }
 
@@ -37,7 +37,7 @@ type Metric struct {
 func (c *Client) Send(metric Metric) error {
 	v := url.Values{
 		"v":   {"1"},
-		"tid": {c.gaid},
+		"tid": {c.id},
 		"cid": {metric.User},
 		"t":   {"event"},
 		"ec":  {metric.Category},

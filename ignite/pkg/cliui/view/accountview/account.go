@@ -24,9 +24,9 @@ type Account struct {
 	Mnemonic string
 }
 
-func WithMnemonic(menmonic string) Option {
+func WithMnemonic(mnemonic string) Option {
 	return func(a *Account) {
-		a.Mnemonic = menmonic
+		a.Mnemonic = mnemonic
 	}
 }
 

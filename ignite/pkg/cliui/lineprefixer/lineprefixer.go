@@ -26,8 +26,8 @@ func NewWriter(w io.Writer, prefix func() string) *Writer {
 // Write implements io.Writer.
 func (p *Writer) Write(b []byte) (n int, err error) {
 	var (
-		blen         = len(b)
-		lastChar     = b[blen-1]
+		numBytes     = len(b)
+		lastChar     = b[numBytes-1]
 		newLine      = byte('\n')
 		snewLine     = []byte{newLine}
 		replaceCount = bytes.Count(b, snewLine)
@@ -44,5 +44,5 @@ func (p *Writer) Write(b []byte) (n int, err error) {
 	if _, err := p.w.Write(b); err != nil {
 		return 0, err
 	}
-	return blen, nil
+	return numBytes, nil
 }

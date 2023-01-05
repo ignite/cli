@@ -243,9 +243,9 @@ func TestQuery(t *testing.T) {
 func TestQueryCursor(t *testing.T) {
 	// Arrange
 	var (
-		rowValue           string
-		cursorNextSucceded bool
-		err                error
+		rowValue            string
+		cursorNextSucceeded bool
+		err                 error
 	)
 
 	db, mock := createMatchEqualSQLMock(t)
@@ -273,12 +273,12 @@ func TestQueryCursor(t *testing.T) {
 
 	// Act
 	cr, _ := adapter.Query(ctx, qry)
-	if cursorNextSucceded = cr.Next(); cursorNextSucceded {
+	if cursorNextSucceeded = cr.Next(); cursorNextSucceeded {
 		err = cr.Scan(&rowValue)
 	}
 
 	// Assert
-	require.True(t, cursorNextSucceded, "expected cursor.Next() to succeed")
+	require.True(t, cursorNextSucceeded, "expected cursor.Next() to succeed")
 	require.NoError(t, err, "expected no scan errors on execution")
 	require.Equal(t, wantRowValue, rowValue)
 	require.NoError(t, mock.ExpectationsWereMet())

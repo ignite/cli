@@ -9,11 +9,11 @@ import (
 )
 
 type builder struct {
-	p pkg
+	p protoPackage
 }
 
-// buil turns a low lovel proto pkg into a high level Package.
-func build(p pkg) Package {
+// build turns a low level proto pkg into a high level Package.
+func build(p protoPackage) Package {
 	br := builder{p}
 
 	pk := Package{

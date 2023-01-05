@@ -68,7 +68,7 @@ type FaucetInfoResponse struct {
 	ChainID string `json:"chain_id"`
 }
 
-func (f Faucet) faucetInfoHandler(w http.ResponseWriter, r *http.Request) {
+func (f Faucet) faucetInfoHandler(w http.ResponseWriter, _ *http.Request) {
 	xhttp.ResponseJSON(w, http.StatusOK, FaucetInfoResponse{
 		IsAFaucet: true,
 		ChainID:   f.chainID,

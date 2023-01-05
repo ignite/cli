@@ -179,11 +179,11 @@ func IsChainPath(path string) error {
 	errf := func(err error) error {
 		return ErrPathNotChain{path: path, err: err}
 	}
-	modfile, err := gomodule.ParseAt(path)
+	modFile, err := gomodule.ParseAt(path)
 	if err != nil {
 		return errf(err)
 	}
-	if err := ValidateGoMod(modfile); err != nil {
+	if err := ValidateGoMod(modFile); err != nil {
 		return errf(err)
 	}
 	return nil
