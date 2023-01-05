@@ -39,7 +39,7 @@ same random seed is deterministic with the same output.
 
 To create a new chain:
 
-```bash
+```
 ignite scaffold chain mars
 ```
 
@@ -48,7 +48,7 @@ Review the empty `x/mars/simulation` folder and the
 
 Now, scaffold a new message:
 
-```bash
+```
 ignite scaffold list user address balance:uint state
 ```
 
@@ -64,14 +64,14 @@ For this example, change the `defaultWeightMsgDeleteUser` to 30 and the
 Run the `BenchmarkSimulation` method into `app/simulation_test.go` to run
 simulation tests for all modules:
 
-```bash
+```
 ignite chain simulate
 ```
 
 You can also define flags that are provided by the simulation. Flags are defined
 by the method `simapp.GetSimulatorFlags()`:
 
-```bash
+```
 ignite chain simulate -v --numBlocks 200 --blockSize 50 --seed 33
 ```
 
@@ -79,7 +79,7 @@ Wait for the entire simulation to finish and check the result of the messages.
 
 The default `go test` command works to run the simulation:
 
-```bash
+```
 go test -v -benchmem -run=^$ -bench ^BenchmarkSimulation -cpuprofile cpu.out ./app -Commit=true
 ```
 
@@ -93,7 +93,7 @@ Use logic to avoid sending a message without returning an error. Return only
 Scaffolding a module with params automatically adds the module in the
 `module_simulaton.go` file:
 
-```bash
+```
 ignite s module earth --params channel:string,minLaunch:uint,maxLaunch:int
 ```
 
