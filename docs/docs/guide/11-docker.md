@@ -54,13 +54,13 @@ To scaffold a blockchain `planet` in the `/apps` directory in the container, run
 this command in a terminal window:
 
 ```bash
-docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps ignitehq/cli:0.25.1 scaffold chain planet
+docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps ignitehq/cli:0.25.2 scaffold chain planet
 ```
 
 Be patient, this command takes a minute or two to run because it does everything
 for you:
 
-- Creates a container that runs from the `ignitehq/cli:0.25.1` image.
+- Creates a container that runs from the `ignitehq/cli:0.25.2` image.
 - Executes the Ignite CLI binary inside the image.
 - `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local
   computer (the host machine) to the home directory `/home/tendermint` inside
@@ -84,7 +84,7 @@ To start the blockchain node in the Docker container you just created, run this
 command:
 
 ```bash
-docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 ignitehq/cli:0.25.1 chain serve -p planet
+docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 ignitehq/cli:0.25.2 chain serve -p planet
 ```
 
 This command does the following:
@@ -118,8 +118,8 @@ container.
   release](https://github.com/ignite/cli/releases).
 
 For example, if latest release is
-[v0.25.1](https://github.com/ignite/cli/releases/tag/v0.25.1), the `latest` tag
-points to the `0.25.1` tag.
+[v0.25.2](https://github.com/ignite/cli/releases/tag/v0.25.2), the `latest` tag
+points to the `0.25.2` tag.
 
 ### Specific version
 
@@ -130,7 +130,7 @@ Docker Hub.
 
 For example:
 
-- Use `ignitehq/cli:0.25.1` (without the `v` prefix) to use version `0.25.1`.
+- Use `ignitehq/cli:0.25.2` (without the `v` prefix) to use version `0.25.2`.
 - Use `ignitehq/cli` to use the latest version.
 - Use `ignitehq/cli:main` to use the `main` branch, so you can experiment with
   the upcoming version.
