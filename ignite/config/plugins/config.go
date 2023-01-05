@@ -6,7 +6,10 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
 
 type Config struct {
@@ -71,6 +74,16 @@ func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 	return unique
 }
 
+// IsGlobal returns whether the plugin is installed globally or locally for a chain.
+func (p Plugin) IsGlobal() bool {
+	return p.Global
+}
+
+// IsLocalPath returns true if the plugin path is a local directory.
+func (p Plugin) IsLocalPath() bool {
+	return strings.HasPrefix(p.Path, "/")
+}
+
 // HasPath verifies if a plugin has the given path regardless of version.
 // Example:
 // github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true"
@@ -115,4 +128,25 @@ func (c *Config) Save() error {
 		return errf(err)
 	}
 	return nil
+}
+
+// HasPlugin returns true if c contains a plugin with given path.
+// Returns also true if there's a local plugin with the module name equal to
+// that path.
+func (c Config) HasPlugin(path string) bool {
+	return slices.ContainsFunc(c.Plugins, func(cp Plugin) bool {
+		if cp.HasPath(path) {
+			return true
+		}
+		if cp.IsLocalPath() {
+			// check local plugin go.mod to see if module name match plugin path
+			gm, err := gomodule.ParseAt(cp.Path)
+			if err != nil {
+				// Skip if we can't parse gomod
+				return false
+			}
+			return Plugin{Path: gm.Module.Mod.Path}.HasPath(path)
+		}
+		return false
+	})
 }
