@@ -25,7 +25,7 @@ import (
 // <%= moduleName %>ChannelKeeper is a stub of cosmosibckeeper.ChannelKeeper.
 type <%= moduleName %>ChannelKeeper struct{}
 
-func (<%= moduleName %>ChannelKeeper) GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool) {
+func (<%= moduleName %>ChannelKeeper) GetChannel(ctx sdk.Context, portID, channelID string) (channeltypes.Channel, bool) {
 	return channeltypes.Channel{}, false
 }
 
