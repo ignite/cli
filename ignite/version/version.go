@@ -34,16 +34,9 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		return false, "", nil
 	}
 
-	latest, _, err := github.
-		NewClient(nil).
-		Repositories.
-		GetLatestRelease(ctx, "ignite", "cli")
+	tagName, err := getLatestReleaseTag(ctx)
 	if err != nil {
 		return false, "", err
-	}
-
-	if latest.TagName == nil {
-		return false, "", nil
 	}
 
 	currentVersion, err := semver.ParseTolerant(Version)
@@ -51,14 +44,53 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 		return false, "", err
 	}
 
-	latestVersion, err := semver.ParseTolerant(*latest.TagName)
+	latestVersion, err := semver.ParseTolerant(tagName)
 	if err != nil {
 		return false, "", err
 	}
 
 	isAvailable = latestVersion.GT(currentVersion)
 
-	return isAvailable, *latest.TagName, nil
+	return isAvailable, tagName, nil
+}
+
+func getLatestReleaseTag(ctx context.Context) (string, error) {
+	latest, _, err := github.
+		NewClient(nil).
+		Repositories.
+		GetLatestRelease(ctx, "ignite", "cli")
+	if err != nil {
+		return "", err
+	}
+
+	if latest.TagName == nil {
+		return "", nil
+	}
+
+	return *latest.TagName, nil
+}
+
+// resolveDevVersion creates a string for version printing if the version being used is "development".
+// the version will be of the form "LATEST-dev" where LATEST is the latest tagged release.
+func resolveDevVersion(ctx context.Context) string {
+	// do nothing if built with specific tag
+	if Version != versionDev && Version != versionNightly {
+		return Version
+	}
+
+	tag, err := getLatestReleaseTag(ctx)
+	if err != nil {
+		return Version
+	}
+
+	if Version == versionDev {
+		return tag + "-dev"
+	}
+	if Version == versionNightly {
+		return tag + "-nightly"
+	}
+
+	return Version
 }
 
 // Long generates a detailed version info.
@@ -78,6 +110,7 @@ func Long(ctx context.Context) string {
 				break
 			}
 		}
+
 		for _, kv := range info.Settings {
 			switch kv.Key {
 			case "vcs.revision":
@@ -100,7 +133,7 @@ func Long(ctx context.Context) string {
 
 	w.Init(b, 0, 8, 0, '\t', 0)
 
-	write("Ignite CLI version", Version)
+	write("Ignite CLI version", resolveDevVersion(ctx))
 	write("Ignite CLI build date", date)
 	write("Ignite CLI source hash", head)
 	write("Ignite CLI config version", chainconfig.LatestVersion)
