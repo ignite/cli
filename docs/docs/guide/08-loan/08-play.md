@@ -236,7 +236,7 @@ Loan:
 Approve the loan from Bob's account:
 
 ```
-loand tx loan approve-loan 0 --from bob
+loand tx loan approve-loan 1 --from bob
 ```
 
 Liquidate the loan from Bob's account:
