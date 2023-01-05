@@ -114,7 +114,7 @@ invariants.
 
 For example, in `x/earth/keeper/invariants.go`:
 
-```go
+```go title="x/earth/keeper/invariants.go"
 package keeper
 
 import (
