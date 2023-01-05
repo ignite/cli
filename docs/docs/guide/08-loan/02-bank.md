@@ -6,7 +6,7 @@ module` using `--dep bank`. This command created a new module and added the
 keeper methods in loan's keeper methods.
 
 To see the changes made by `--dep bank`, review the following files:
-`x/foo/keeper/keeper.go` and `x/foo/module.go`.
+`x/loan/keeper/keeper.go` and `x/loan/module.go`.
 
 Ignite takes care of adding the `bank` keeper, but you still need to tell the
 `loan` module which `bank` methods you will be using. You will be using three
