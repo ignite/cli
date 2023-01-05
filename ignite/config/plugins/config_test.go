@@ -5,10 +5,22 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 )
+
+func TestPluginIsGlobal(t *testing.T) {
+	assert.False(t, pluginsconfig.Plugin{}.IsGlobal())
+	assert.True(t, pluginsconfig.Plugin{Global: true}.IsGlobal())
+}
+
+func TestPluginIsLocalPath(t *testing.T) {
+	assert.False(t, pluginsconfig.Plugin{}.IsLocalPath())
+	assert.False(t, pluginsconfig.Plugin{Path: "github.com/ignite/example"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "/home/bob/example"}.IsLocalPath())
+}
 
 func TestPluginHasPath(t *testing.T) {
 	tests := []struct {
@@ -58,6 +70,7 @@ func TestPluginHasPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res := tt.plugin.HasPath(tt.path)
+
 			require.Equal(t, tt.expectedRes, res)
 		})
 	}
@@ -306,6 +319,57 @@ func TestConfigSave(t *testing.T) {
 			bz, err := os.ReadFile(cfg.Path())
 			require.NoError(err)
 			require.Equal(string(bz), tt.expectedContent)
+		})
+	}
+}
+
+func TestConfigHasPlugin(t *testing.T) {
+	wd, err := os.Getwd()
+	require.NoError(t, err)
+	tests := []struct {
+		name          string
+		cfg           pluginsconfig.Config
+		expectedFound bool
+	}{
+		{
+			name:          "empty config",
+			expectedFound: false,
+		},
+		{
+			name: "not found in config",
+			cfg: pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{
+					{Path: "github.com/ignite/example2"},
+				},
+			},
+			expectedFound: false,
+		},
+		{
+			name: "found in config",
+			cfg: pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{
+					{Path: "github.com/ignite/example2"},
+					{Path: "github.com/ignite/example@master"},
+				},
+			},
+			expectedFound: true,
+		},
+		{
+			name: "found in config but from a local plugin",
+			cfg: pluginsconfig.Config{
+				Plugins: []pluginsconfig.Plugin{
+					{Path: "github.com/ignite/example2"},
+					{Path: path.Join(wd, "testdata", "localplugin", "example")},
+				},
+			},
+			expectedFound: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			found := tt.cfg.HasPlugin("github.com/ignite/example@v42")
+
+			assert.Equal(t, tt.expectedFound, found)
 		})
 	}
 }

@@ -26,16 +26,14 @@ func run() int {
 	)
 	ctx := clictx.From(context.Background())
 
-	cmd := ignitecmd.New()
-
-	// Load plugins if any
-	if err := ignitecmd.LoadPlugins(ctx, cmd); err != nil {
-		fmt.Printf("Error while loading plugins: %v\n", err)
+	cmd, cleanUp, err := ignitecmd.New(ctx)
+	if err != nil {
+		fmt.Printf("%v\n", err)
 		return exitCodeError
 	}
-	defer ignitecmd.UnloadPlugins()
+	defer cleanUp()
 
-	err := cmd.ExecuteContext(ctx)
+	err = cmd.ExecuteContext(ctx)
 
 	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
 		fmt.Println("aborted")
