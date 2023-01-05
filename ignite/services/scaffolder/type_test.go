@@ -3,10 +3,9 @@ package scaffolder
 import (
 	"testing"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/templates/field"
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
