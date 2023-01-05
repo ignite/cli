@@ -9,7 +9,7 @@ import (
 
 // ChannelKeeper defines the expected IBC channel keeper.
 type ChannelKeeper interface {
-	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
+	GetChannel(ctx sdk.Context, portID string, channelID string) (channeltypes.Channel, bool)
 	GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool)
 	SendPacket(
 		ctx sdk.Context,
