@@ -2,7 +2,7 @@
 description: Run Ignite CLI using a Docker container.
 ---
 
-# Run Ignite CLI in Docker
+# Running inside a Docker container
 
 You can run Ignite CLI inside a Docker container without installing the Ignite
 CLI binary directly on your machine.
