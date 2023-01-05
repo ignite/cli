@@ -2,7 +2,7 @@
 description: Using and Developing plugins
 ---
 
-# Developing plugins
+# Plugins
 
 ## Using Plugins
 
