@@ -274,7 +274,7 @@ Loan:
 ```
 
 ```
-q bank balances $(loand keys show alice -a)
+loand q bank balances $(loand keys show alice -a)
 ```
 
 The `foocoin` balance has been updated to `9000`, because `1000foocoin` has been
