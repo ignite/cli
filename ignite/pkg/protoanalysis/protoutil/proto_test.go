@@ -97,11 +97,12 @@ func TestAddEmptyList_tx(t *testing.T) {
 
 	// 1) Add import for the new type (module/lowercase_typ)
 	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typename)))
-	AddImports(f, true, imp)
+	err = AddImports(f, true, imp)
+	require.NoError(t, err)
 	require.True(t, containsElement(f, imp))
 
 	// 2) Add rpcs
-	rpcs := []*proto.RPC{}
+	var rpcs []*proto.RPC
 	for _, op := range []string{"Create", "Update", "Delete"} {
 		rpc := NewRPC(op+typename, "Msg"+op+typename, "Msg"+op+typename+"Response")
 		rpcs = append(rpcs, rpc)
@@ -167,7 +168,8 @@ func TestAddEmptyList_genesis(t *testing.T) {
 
 	// 1) Add import for the new type (module/lowercase_typ)
 	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typename)))
-	AddImports(f, true, imp)
+	err = AddImports(f, true, imp)
+	require.NoError(t, err)
 	require.True(t, containsElement(f, imp))
 
 	// 2) Add fields to GenesisState. Append.
@@ -196,7 +198,8 @@ func TestAddEmptyList_query(t *testing.T) {
 
 	// 1) Add import for the new type (module/lowercase_typ)
 	imp := NewImport(fmt.Sprintf("%s/%s.proto", modname, strings.ToLower(typename)))
-	AddImports(f, true, imp)
+	err = AddImports(f, true, imp)
+	require.NoError(t, err)
 	require.True(t, containsElement(f, imp))
 
 	q, err := GetServiceByName(f, "Query")

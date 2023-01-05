@@ -1,4 +1,4 @@
-// Wrap proto structs to allow easier creation, protobuf lang is small enough
+// Package protoutil wraps proto structs to allow easier creation, protobuf lang is small enough
 // to easily allow this.
 package protoutil
 
@@ -18,7 +18,7 @@ const (
 	KindPublic = "public"
 )
 
-// Create a new Literal:
+// NewLiteral creates a new Literal:
 //
 // // true
 // l := NewLiteral("true")
@@ -43,7 +43,7 @@ type ImportSpec struct {
 	kind string
 }
 
-// Type alias for a callable accepting an ImportSpec.
+// ImportSpecOptions is a type alias for a callable accepting an ImportSpec.
 type ImportSpecOptions func(i *ImportSpec)
 
 // Weak allows you to set the kind of the import statement to 'weak'.
@@ -163,17 +163,17 @@ type RPCSpec struct {
 	options                     []*proto.Option
 }
 
-// Type alias for a callable accepting an RPCSpec.
+// RPCSpecOptions is a type alias for a callable accepting an RPCSpec.
 type RPCSpecOptions func(i *RPCSpec)
 
-// Mark request as streaming.
+// StreamRequest marks request as streaming.
 func StreamRequest() RPCSpecOptions {
 	return func(r *RPCSpec) {
 		r.streamsReq = true
 	}
 }
 
-// Mark response as streaming.
+// StreamResponse marks response as streaming.
 func StreamResponse() RPCSpecOptions {
 	return func(r *RPCSpec) {
 		r.streamsResp = true
@@ -371,7 +371,7 @@ func WithMessageOptions(options ...*proto.Option) MessageSpecOptions {
 	}
 }
 
-// WithMessageFields adds fields to the message.
+// WithFields adds fields to the message.
 func WithFields(fields ...*proto.NormalField) MessageSpecOptions {
 	return func(m *MessageSpec) {
 		m.fields = append(m.fields, fields...)
@@ -532,7 +532,7 @@ func NewEnum(name string, opts ...EnumSpecOpts) *proto.Enum {
 	return enum
 }
 
-// OneOfField holds information relevant to the oneof field statement.
+// OneofFieldSpec holds information relevant to the oneof field statement.
 type OneofFieldSpec struct {
 	name, typename string
 	sequence       int
@@ -551,7 +551,7 @@ func WithOneofFieldOptions(options ...*proto.Option) OneofFieldOptions {
 
 // NewOneofField creates a new oneof field statement node:
 //
-//		// Needs to placed in a oneof block.
+//		// Needs to placed in oneof block.
 //	 // int32 Foo = 1;
 //	 field := NewOneofField("Foo", "int32", 1)
 //
@@ -577,7 +577,7 @@ func NewOneofField(name, typename string, sequence int, opts ...OneofFieldOption
 	return field
 }
 
-// OneOfSpec holds information relevant to the enum statement.
+// OneofSpec holds information relevant to the enum statement.
 type OneofSpec struct {
 	name    string
 	options []*proto.Option
@@ -626,9 +626,9 @@ func NewOneof(name string, opts ...OneofSpecOptions) *proto.Oneof {
 	return oneof
 }
 
-// Attach a comment top level nodes. Currently only supports Messages, Rpc's and Services.
-// Silently ignores other nodes though they can easily be added by just appending a new
-// case to the switch statement.
+// AttachComment attaches a comment top level nodes. Currently only supports Messages, RPC's
+// and Services. Silently ignores other nodes though they can easily be added by just appending
+// a new case to the switch statement.
 func AttachComment(n proto.Visitee, comment string) {
 	c := &proto.Comment{
 		// Attach a starting space here, i.e // text and not //text

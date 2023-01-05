@@ -7,7 +7,6 @@ import (
 	"go/token"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/xast"
@@ -51,27 +50,22 @@ func TestInspect(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			calls = 0
-			require := require.New(t)
-			assert := assert.New(t)
-
 			err = xast.Inspect(n, tt.f)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
-			assert.Equal(tt.expectedCalls, calls)
+			require.NoError(t, err)
+			require.Equal(t, tt.expectedCalls, calls)
 		})
 	}
 }
 
 func TestParseDir(t *testing.T) {
-	require := require.New(t)
-
 	pkg, fileSet, err := xast.ParseDir("testdata/parseDir")
 
-	require.NoError(err)
-	require.NotNil(fileSet)
-	require.Equal("file", pkg.Name)
+	require.NoError(t, err)
+	require.NotNil(t, fileSet)
+	require.Equal(t, "file", pkg.Name)
 }

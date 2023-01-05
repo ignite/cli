@@ -110,7 +110,7 @@ func parseURL(s string) (*url.URL, error) {
 
 	// Handle the case where the URI is an IP:PORT or HOST:PORT
 	// without scheme prefix because that case can't be URL parsed.
-	// When the URI has not scheme it is parsed as a path by "url.Parse"
+	// When the URI has no scheme it is parsed as a path by "url.Parse"
 	// placing the colon within the path, which is invalid.
 	if host, isAddrPort := addressPort(s); isAddrPort {
 		return &url.URL{Host: host}, nil

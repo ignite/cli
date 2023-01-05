@@ -371,7 +371,7 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 		implPath := filepath.Join(d.sourcePath, implRelPath)
 
 		for _, s := range pkg.Services {
-			// List of the RPC service method names defined by the current proto's service
+			// List of the RPC service method names defined by the current proto service
 			methods := make([]string, len(s.RPCFuncs))
 			for i, rpcFunc := range s.RPCFuncs {
 				methods[i] = rpcFunc.Name
@@ -383,9 +383,9 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 				return false, err
 			}
 
-			// Some times the registered module definition is located in a different
+			// Sometimes the registered module definition is located in a different
 			// directory branch from where the RPC implementation is defined. In this
-			// case search the RPC implementation in all of the custom app module files.
+			// case search the RPC implementation in all custom app module files.
 			if len(found) == 0 && strings.HasPrefix(m, goModuleImport) {
 				altImplRelPath := strings.TrimPrefix(goModuleImport, d.basegopath)
 				if altImplRelPath == goModuleImport {

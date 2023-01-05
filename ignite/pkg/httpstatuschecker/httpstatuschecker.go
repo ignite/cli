@@ -1,4 +1,4 @@
-// httpstatuschecker is a tool check health of http pages.
+// Package httpstatuschecker is a tool check health of http pages.
 package httpstatuschecker
 
 import (

@@ -1,6 +1,6 @@
 // Package nodetime provides a single, and standalone NodeJS runtime executable that contains
 // several NodeJS CLI programs bundled inside where those are reachable via subcommands.
-// the CLI bundled programs are the ones that needed by Ignite CLI and more can added as needed.
+// the CLI bundled programs are the ones that needed by Ignite CLI and more can be added as needed.
 package nodetime
 
 import (
