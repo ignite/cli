@@ -114,7 +114,7 @@ func TypeWithSigner(signer string) AddTypeOption {
 }
 
 // AddType adds a new type to a scaffolded app.
-// if non of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
+// if none of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
 // will be scaffolded.
 // if no module is given, the type will be scaffolded inside the app's default module.
 func (s Scaffolder) AddType(
@@ -243,22 +243,22 @@ func (s Scaffolder) AddType(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// checkForbiddenTypeIndex returns true if the name is forbidden as a field name.
-func checkForbiddenTypeIndex(name string) error {
-	fieldSplit := strings.Split(name, datatype.Separator)
-	if len(fieldSplit) > 1 {
-		name = fieldSplit[0]
-		fieldType := datatype.Name(fieldSplit[1])
-		if f, ok := datatype.SupportedTypes[fieldType]; !ok || f.NonIndex {
-			return fmt.Errorf("invalid index type %s", fieldType)
+// checkForbiddenTypeIndex returns true if the name is forbidden as a index name.
+func checkForbiddenTypeIndex(index string) error {
+	indexSplit := strings.Split(index, datatype.Separator)
+	if len(indexSplit) > 1 {
+		index = indexSplit[0]
+		indexType := datatype.Name(indexSplit[1])
+		if f, ok := datatype.IsSupportedType(indexType); !ok || f.NonIndex {
+			return fmt.Errorf("invalid index type %s", indexType)
 		}
 	}
-	return checkForbiddenTypeField(name)
+	return checkForbiddenTypeField(index)
 }
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name.
-func checkForbiddenTypeField(name string) error {
-	mfName, err := multiformatname.NewName(name)
+func checkForbiddenTypeField(field string) error {
+	mfName, err := multiformatname.NewName(field)
 	if err != nil {
 		return err
 	}
@@ -269,13 +269,13 @@ func checkForbiddenTypeField(name string) error {
 		"params",
 		"appendedvalue",
 		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by type scaffolder", name)
+		return fmt.Errorf("%s is used by type scaffolder", field)
 	}
 
-	return checkGoReservedWord(name)
+	return checkGoReservedWord(field)
 }
 
-// parseTypeFields validades the fields and returns an error if the validation fails.
+// parseTypeFields validates the fields and returns an error if the validation fails.
 func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 	signer := ""
 	if opts.isList || opts.isMap || opts.isSingleton {
@@ -284,7 +284,7 @@ func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 		}
 		return field.ParseFields(opts.fields, checkForbiddenTypeField, signer)
 	}
-	// For simple types, only check if its a reserved keyword and don't pass a signer.
+	// For simple types, only check if it's a reserved keyword and don't pass a signer.
 	return field.ParseFields(opts.fields, checkGoReservedWord, signer)
 }
 
