@@ -24,7 +24,7 @@ func TestDoctor(t *testing.T) {
 				// Pass ignite config dir
 				// (testscript resets envs so even if envtest.New has properly set
 				// IGNT_CONFIG_DIR, we need to set it again)
-				"IGNT_CONFIG_DIR="+xfilepath.Must(config.DirPath),
+				"IGNT_CONFIG_DIR="+xfilepath.MustInvoke(config.DirPath),
 			)
 			return nil
 		},

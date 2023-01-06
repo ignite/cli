@@ -12,8 +12,8 @@ type PathRetriever func() (path string, err error)
 // PathsRetriever is a function that retrieves the contained list of paths or an error.
 type PathsRetriever func() (path []string, err error)
 
-// Must invokes the PathsRetriever func and panics if it returns an error.
-func Must(p PathRetriever) string {
+// MustInvoke invokes the PathsRetriever func and panics if it returns an error.
+func MustInvoke(p PathRetriever) string {
 	path, err := p()
 	if err != nil {
 		panic(err)
