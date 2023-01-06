@@ -10,6 +10,25 @@ import (
 	"path/filepath"
 	"strings"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	grouptypes "github.com/cosmos/cosmos-sdk/x/group"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibchosttypes "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -42,52 +61,53 @@ var (
 	// A new module's name can't be equal to a reserved name.
 	// A map is used for direct comparing.
 	reservedNames = map[string]struct{}{
-		"account":      {},
-		"auth":         {},
-		"authz":        {},
-		"bank":         {},
-		"block":        {},
-		"broadcast":    {},
-		"crisis":       {},
-		"capability":   {},
-		"distribution": {},
-		"encode":       {},
-		"evidence":     {},
-		"feegrant":     {},
-		"genutil":      {},
-		"gov":          {},
-		"group":        {},
-		"ibc":          {},
-		"mint":         {},
-		"multisign":    {},
-		"params":       {},
-		"sign":         {},
-		"slashing":     {},
-		"staking":      {},
-		"transfer":     {},
-		"tx":           {},
-		"txs":          {},
-		"upgrade":      {},
-		"vesting":      {},
+		"account":                    {},
+		"block":                      {},
+		"broadcast":                  {},
+		"encode":                     {},
+		"multisign":                  {},
+		"sign":                       {},
+		"tx":                         {},
+		"txs":                        {},
+		ibchosttypes.ModuleName:      {},
+		transfertypes.ModuleName:     {},
+		authtypes.ModuleName:         {},
+		authztypes.ModuleName:        {},
+		banktypes.ModuleName:         {},
+		crisistypes.ModuleName:       {},
+		capabilitytypes.ModuleName:   {},
+		distributiontypes.ModuleName: {},
+		evidencetypes.ModuleName:     {},
+		feegranttypes.ModuleName:     {},
+		genutiltypes.ModuleName:      {},
+		govtypes.ModuleName:          {},
+		grouptypes.ModuleName:        {},
+		minttypes.ModuleName:         {},
+		paramstypes.ModuleName:       {},
+		slashingtypes.ModuleName:     {},
+		stakingtypes.ModuleName:      {},
+		upgradetypes.ModuleName:      {},
+		vestingtypes.ModuleName:      {},
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
 	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
-		"acc",
-		"bank",
-		"capability",
-		"distribution",
-		"evidence",
-		"feegrant",
-		"gov",
-		"group",
-		"mint",
-		"slashing",
-		"staking",
-		"upgrade",
-		"ibc",
-		"transfer",
+		ibchosttypes.StoreKey,
+		transfertypes.StoreKey,
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		capabilitytypes.StoreKey,
+		distributiontypes.StoreKey,
+		evidencetypes.StoreKey,
+		feegranttypes.StoreKey,
+		govtypes.StoreKey,
+		grouptypes.StoreKey,
+		minttypes.StoreKey,
+		paramstypes.StoreKey,
+		slashingtypes.StoreKey,
+		stakingtypes.StoreKey,
+		upgradetypes.StoreKey,
 	}
 )
 
