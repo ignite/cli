@@ -233,14 +233,14 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
-						c.ev.Send(
-							fmt.Sprintf(
-								"%s %s",
-								colors.Info("Blockchain failed to start.\nIf the new code is no longer compatible with the saved state, you can reset the database by launching:"),
-								"ignite chain serve --reset-once",
-							),
+						info := colors.Info(
+							"Blockchain failed to start.\n",
+							"If the new code is no longer compatible with the saved\n",
+							"state, you can reset the database by launching:",
 						)
-						return fmt.Errorf("cannot run %s", startErr.AppName)
+						command := colors.SprintFunc(colors.White)("ignite chain serve --reset-once")
+
+						return fmt.Errorf("cannot run %s\n\n%s\n%s", startErr.AppName, info, command)
 					}
 
 					// return the clear parsed error
