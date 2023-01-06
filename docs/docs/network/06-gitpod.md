@@ -183,8 +183,66 @@ The network can be started
 
 You now have two validators approved for your testnet.
 
-You can now trigger the launch of your testnet:
+You can now trigger the launch of your testnet on **Instance 1**:
 
 ```
 ignite network chain launch 6
+```
+
+```
+Chain 6 will be launched on 2023-01-06 10:09:06.712021355 +0000 UTC m=+35.133616724
+```
+
+The `launch` command freezes the changes to the chain launch information and communicates to validator the the chain is ready to be launched.
+
+## Launch a validator node on Instance 1
+
+On the same instance, as a validator you can run the following command to download the finalized genesis and prepare the node to start on **Instance 1**:
+
+```
+ignite network chain prepare 6
+```
+
+```
+Source code fetched
+Blockchain set up
+Genesis initialized
+Genesis built
+✔ Chain is prepared for launch
+
+You can start your node by running the following command:
+        /workspace/go/bin/ignite network tool proxy-tunnel /home/gitpod/spn/6/spn.yml & exampled start --home /home/gitpod/spn/6
+```
+
+Now that you have the finalized genesis, you can start your node:
+
+```
+/workspace/go/bin/ignite network tool proxy-tunnel /home/gitpod/spn/6/spn.yml & exampled start --home /home/gitpod/spn/6
+```
+
+You will see output from the node in your terminal. So far you've just started a single validator node. Your chain cannot launch with only 50% of the voting power. You need to start a second validator node.
+
+## Launch a validator node on Instance 2
+
+Run the following command to download the finalized genesis and prepare the node to start on **Instance 2**:
+
+```
+ignite network chain prepare 6
+```
+
+```
+Source code fetched
+Blockchain set up
+Genesis initialized
+Genesis built
+✔ Chain is prepared for launch
+
+You can start your node by running the following command:
+        /workspace/go/bin/ignite network tool proxy-tunnel /home/gitpod/spn/6/spn.yml & exampled start --home /home/gitpod/spn/6
+```
+
+Start your node:
+
+```
+/workspace/go/bin/ignite network tool proxy-tunnel /home/gitpod/spn/6/spn.yml & exampled start --home /home/gitpod/spn/6
 ```
