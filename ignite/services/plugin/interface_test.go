@@ -19,6 +19,7 @@ func TestCommandToCobraCommand(t *testing.T) {
 			Aliases: []string{"n"},
 			Short:   "short",
 			Long:    "long",
+			Hidden:  true,
 			Flags: []plugin.Flag{
 				{
 					Name:      "bool",
@@ -57,6 +58,7 @@ func TestCommandToCobraCommand(t *testing.T) {
 	assert.Equal(pcmd.Short, cmd.Short)
 	assert.Equal(pcmd.Long, cmd.Long)
 	assert.Equal(pcmd.Aliases, cmd.Aliases)
+	assert.Equal(pcmd.Hidden, cmd.Hidden)
 	for _, f := range pcmd.Flags {
 		if f.Persistent {
 			assert.NotNil(cmd.PersistentFlags().Lookup(f.Name), "missing pflag %s", f.Name)
@@ -78,6 +80,7 @@ func TestManifestImportCobraCommand(t *testing.T) {
 		Aliases: []string{"n"},
 		Short:   "short",
 		Long:    "long",
+		Hidden:  true,
 	}
 	cmd.Flags().BoolP("bool", "b", true, "a bool")
 	cmd.Flags().String("string", "hello", "a string")
@@ -106,6 +109,7 @@ func TestManifestImportCobraCommand(t *testing.T) {
 				Aliases:           []string{"n"},
 				Short:             "short",
 				Long:              "long",
+				Hidden:            true,
 				PlaceCommandUnder: "under",
 				Flags: []plugin.Flag{
 					{

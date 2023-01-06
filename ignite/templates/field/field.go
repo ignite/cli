@@ -20,7 +20,7 @@ type Field struct {
 
 // DataType returns the field Datatype.
 func (f Field) DataType() string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -34,7 +34,7 @@ func (f Field) ProtoFieldName() string {
 
 // ProtoType returns the field proto Datatype.
 func (f Field) ProtoType(index int) string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -43,7 +43,7 @@ func (f Field) ProtoType(index int) string {
 
 // DefaultTestValue returns the Datatype value default.
 func (f Field) DefaultTestValue() string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -52,7 +52,7 @@ func (f Field) DefaultTestValue() string {
 
 // ValueLoop returns the Datatype value for loop iteration.
 func (f Field) ValueLoop() string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -64,7 +64,7 @@ func (f Field) ValueLoop() string {
 
 // ValueIndex returns the Datatype value for indexes.
 func (f Field) ValueIndex() string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -76,7 +76,7 @@ func (f Field) ValueIndex() string {
 
 // ValueInvalidIndex returns the Datatype value for invalid indexes.
 func (f Field) ValueInvalidIndex() string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -88,7 +88,7 @@ func (f Field) ValueInvalidIndex() string {
 
 // GenesisArgs returns the Datatype genesis args.
 func (f Field) GenesisArgs(value int) string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -97,7 +97,7 @@ func (f Field) GenesisArgs(value int) string {
 
 // CLIArgs returns the Datatype CLI args.
 func (f Field) CLIArgs(prefix string, argIndex int) string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -106,7 +106,7 @@ func (f Field) CLIArgs(prefix string, argIndex int) string {
 
 // ToBytes returns the Datatype byte array cast.
 func (f Field) ToBytes(name string) string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -118,7 +118,7 @@ func (f Field) ToBytes(name string) string {
 
 // ToString returns the Datatype byte array cast.
 func (f Field) ToString(name string) string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -131,7 +131,7 @@ func (f Field) ToString(name string) string {
 // ToProtoField returns the Datatype as a *proto.Field node.
 func (f Field) ToProtoField(index int) *proto.NormalField {
 	// TODO: Do we can if it's an index type?
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -140,7 +140,7 @@ func (f Field) ToProtoField(index int) *proto.NormalField {
 
 // GoCLIImports returns the Datatype imports for CLI package.
 func (f Field) GoCLIImports() []datatype.GoImport {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -149,7 +149,7 @@ func (f Field) GoCLIImports() []datatype.GoImport {
 
 // ProtoImports returns the Datatype imports for proto files.
 func (f Field) ProtoImports() []string {
-	dt, ok := datatype.SupportedTypes[f.DatatypeName]
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}

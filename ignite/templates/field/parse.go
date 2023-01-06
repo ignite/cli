@@ -63,7 +63,7 @@ func ParseFields(
 		existingFields[name.LowerCamel] = struct{}{}
 
 		// Check if is a static type
-		if _, ok := datatype.SupportedTypes[datatypeName]; ok {
+		if _, ok := datatype.IsSupportedType(datatypeName); ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
 				DatatypeName: datatypeName,
