@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	proto_path = "../testdata/liquidity"
+	protoPath = "../testdata/liquidity"
 )
 
 // Sanity check: Ensure that parsing works fine.
@@ -51,7 +51,7 @@ func TestParseString(t *testing.T) {
 func TestParseProtoFiles(t *testing.T) {
 	files := []string{"genesis", "liquidity", "msg", "query", "tx"}
 	for _, f := range files {
-		f = fmt.Sprintf(`%[1]v/%[2]v.proto`, proto_path, f)
+		f = fmt.Sprintf(`%[1]v/%[2]v.proto`, protoPath, f)
 		fp, err := os.Open(f)
 		require.NoError(t, err)
 

@@ -31,12 +31,12 @@ func (m *TendermintClientMock) OnStatus() *mock.Call {
 	return m.On("Status", mock.Anything)
 }
 
-// OnStatus starts a generic call mock on the Block RPC method.
+// OnBlock starts a generic call mock on the Block RPC method.
 func (m *TendermintClientMock) OnBlock() *mock.Call {
 	return m.On("Block", RepeatMockArgs(2)...)
 }
 
-// OnStatus starts a generic call mock on the TxSearch RPC method.
+// OnTxSearch starts a generic call mock on the TxSearch RPC method.
 func (m *TendermintClientMock) OnTxSearch() *mock.Call {
 	return m.On("TxSearch", RepeatMockArgs(6)...)
 }

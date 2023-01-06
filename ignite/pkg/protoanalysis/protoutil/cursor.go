@@ -169,7 +169,7 @@ func (c *Cursor) InsertBefore(n proto.Visitee) {
 	c.iter.index++
 }
 
-// application carries all the shared data so we can pass it around cheaply.
+// application carries all the shared data, so we can pass it around cheaply.
 type application struct {
 	pre, post ApplyFunc
 	cursor    Cursor
@@ -198,7 +198,7 @@ func (a *application) apply(parent proto.Visitee, name string, iter *iterator, n
 	// This is the issue with proto. Structure isn't really here in order to be able to
 	// visit every component using a distinct interface. They are all Visitee's.
 	// Ideally, we could wrap the proto nodes into interfaces that enforce a structure,
-	// i.e Nodes, MesssageNodes, ServiceNodes, ProtoNodes, etc.
+	// i.e. Nodes, MessageNodes, ServiceNodes, ProtoNodes, etc.
 	// this way, inserting into a slice would be guarded (by error-ing) by the type of the slice.
 	//
 	// An alternative would be to reflect in the insertion methods for cursor and only allow
@@ -299,7 +299,7 @@ func Append(n proto.Visitee, elems ...proto.Visitee) {
 	case *proto.NormalField, *proto.OneOfField:
 		// Make into options, panic on failure of one of the objects to do
 		// so.
-		elements := []*proto.Option{}
+		var elements []*proto.Option
 		for _, e := range elems {
 			o, ok := e.(*proto.Option)
 			if !ok {
@@ -307,7 +307,7 @@ func Append(n proto.Visitee, elems ...proto.Visitee) {
 			}
 			elements = append(elements, o)
 		}
-		// Perform the append.
+		// append
 		v := reflect.Indirect(reflect.ValueOf(n)).FieldByName("Options")
 		v.Set(reflect.AppendSlice(v, reflect.ValueOf(elements)))
 		return

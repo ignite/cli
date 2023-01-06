@@ -68,7 +68,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.OracleWithSigner(signer)) //nolint: staticcheck
 	}
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}

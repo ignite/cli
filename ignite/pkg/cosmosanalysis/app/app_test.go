@@ -183,6 +183,40 @@ func TestFindRegisteredModules(t *testing.T) {
 			},
 		},
 		{
+			name: "crescent",
+			path: "testdata/modules/crescent",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/crescent-network/crescent/v3/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant/module",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/ibc-go/v2/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v2/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/tendermint/budget/x/budget",
+				"github.com/crescent-network/crescent/v3/x/farming",
+				"github.com/crescent-network/crescent/v3/x/liquidity",
+				"github.com/crescent-network/crescent/v3/x/liquidstaking",
+				"github.com/crescent-network/crescent/v3/x/liquidfarming",
+				"github.com/crescent-network/crescent/v3/x/claim",
+				"github.com/crescent-network/crescent/v3/x/marketmaker",
+				"github.com/crescent-network/crescent/v3/x/lpfarm",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
+		},
+		{
 			name: "spn",
 			path: "testdata/modules/spn",
 			expectedModules: []string{
@@ -319,12 +353,10 @@ func TestFindRegisteredModules(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-
 			m, err := app.FindRegisteredModules(tt.path)
 
-			require.NoError(err)
-			require.ElementsMatch(tt.expectedModules, m)
+			require.NoError(t, err)
+			require.ElementsMatch(t, tt.expectedModules, m)
 		})
 	}
 }

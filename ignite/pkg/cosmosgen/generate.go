@@ -49,7 +49,7 @@ func (g *generator) setup() (err error) {
 		return errors.Wrap(err, errb.String())
 	}
 
-	modfile, err := gomodule.ParseAt(g.appPath)
+	modFile, err := gomodule.ParseAt(g.appPath)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (g *generator) setup() (err error) {
 
 	// Check if the Cosmos SDK import path points to a different path
 	// and if so change the default one to the new location.
-	for _, r := range modfile.Replace {
+	for _, r := range modFile.Replace {
 		if r.Old.Path == defaultSDKImport {
 			g.sdkImport = r.New.Path
 			break
@@ -66,7 +66,7 @@ func (g *generator) setup() (err error) {
 	}
 
 	// Read the dependencies defined in the `go.mod` file
-	g.deps, err = gomodule.ResolveDependencies(modfile)
+	g.deps, err = gomodule.ResolveDependencies(modFile)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
-func (g *generator) resolveDepencyInclude() ([]string, error) {
+func (g *generator) resolveDependencyInclude() ([]string, error) {
 	// Init paths with the global include paths for protoc
 	paths, err := protocGlobalInclude()
 	if err != nil {
@@ -176,7 +176,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 	}
 
 	// Append paths for dependencies that have protocol buffer files
-	includePaths, err := g.resolveDepencyInclude()
+	includePaths, err := g.resolveDependencyInclude()
 	if err != nil {
 		return nil, err
 	}

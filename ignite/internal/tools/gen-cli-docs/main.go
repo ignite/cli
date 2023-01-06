@@ -24,11 +24,10 @@ import (
 )
 
 const head = `---
-sidebar_position: 7
 description: Ignite CLI docs.
 ---
 
-# CLI Reference
+# CLI commands
 
 Documentation for Ignite CLI.
 `

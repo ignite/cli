@@ -51,7 +51,7 @@ func (g *generator) generateTS() error {
 
 	// Third party modules are always required to generate the root
 	// template because otherwise it would be generated only with
-	// custom modules loosing the registration of the third party
+	// custom modules losing the registration of the third party
 	// modules when the root templates are re-generated.
 	for _, modules := range g.thirdModules {
 		data.Modules = append(data.Modules, modules...)
@@ -179,16 +179,16 @@ func (g *tsGenerator) generateModuleTemplate(
 	}
 
 	// generate OpenAPI spec
-	oaitemp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
+	tmp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
 	if err != nil {
 		return err
 	}
 
-	defer os.RemoveAll(oaitemp)
+	defer os.RemoveAll(tmp)
 
 	err = protoc.Generate(
 		ctx,
-		oaitemp,
+		tmp,
 		m.Pkg.Path,
 		includePaths,
 		jsOpenAPIOut,
@@ -200,11 +200,11 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// generate the REST client from the OpenAPI spec
 	var (
-		srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
+		srcSpec = filepath.Join(tmp, "apidocs.swagger.json")
 		outREST = filepath.Join(out, "rest.ts")
 	)
 
-	if err := sta.Generate(ctx, outREST, srcspec, sta.WithCommand(staCmd)); err != nil {
+	if err := sta.Generate(ctx, outREST, srcSpec, sta.WithCommand(staCmd)); err != nil {
 		return err
 	}
 
