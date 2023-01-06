@@ -24,7 +24,7 @@ type Doctor struct {
 	ev events.Bus
 }
 
-// New returns a new doctor
+// New returns a new doctor.
 func New(opts ...Option) *Doctor {
 	d := &Doctor{}
 	for _, opt := range opts {
@@ -35,7 +35,7 @@ func New(opts ...Option) *Doctor {
 
 type Option func(*Doctor)
 
-// CollectEvents sets doctor event bus
+// CollectEvents sets doctor event bus.
 func CollectEvents(ev events.Bus) Option {
 	return func(d *Doctor) {
 		d.ev = ev
@@ -77,15 +77,14 @@ func (d *Doctor) MigrateConfig(ctx context.Context) error {
 		d.ev.Send(fmt.Sprintf("config file %s", colors.Success("migrated")),
 			events.Icon(icons.OK), events.ProgressFinish())
 	}
-	d.ev.Send(fmt.Sprintf("config file OK"), events.Icon(icons.OK),
-		events.ProgressFinish())
+	d.ev.Send("config file OK", events.Icon(icons.OK), events.ProgressFinish())
 
 	return nil
 }
 
 // FixDependencyTools ensures that:
 // - tools/tools.go is present and populated properly
-// - dependency tools are installed
+// - dependency tools are installed.
 func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 	errf := func(err error) error {
 		return fmt.Errorf("doctor fix dependency tools: %w", err)
