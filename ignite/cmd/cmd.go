@@ -17,12 +17,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/services/chain"
-	"github.com/ignite/cli/ignite/services/scaffolder"
 	"github.com/ignite/cli/ignite/version"
 )
 
@@ -268,24 +266,6 @@ func checkNewVersion(ctx context.Context) {
 ··
 
 `, next)
-}
-
-// newApp create a new scaffold app.
-func newApp(appPath string) (scaffolder.Scaffolder, error) {
-	sc, err := scaffolder.App(appPath)
-	if err != nil {
-		return sc, err
-	}
-
-	if sc.Version.LT(cosmosver.StargateFortyFourVersion) {
-		return sc, fmt.Errorf(
-			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
-Please, follow the migration guide to upgrade your chain to the latest version:
-
-https://docs.ignite.com/migration`, sc.Version.String(),
-		)
-	}
-	return sc, nil
 }
 
 func printSection(session *cliui.Session, title string) error {
