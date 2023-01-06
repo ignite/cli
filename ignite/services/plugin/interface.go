@@ -86,6 +86,7 @@ func convertCobraCommand(c *cobra.Command, placeCommandUnder string) Command {
 		Aliases:           c.Aliases,
 		Short:             c.Short,
 		Long:              c.Long,
+		Hidden:            c.Hidden,
 		PlaceCommandUnder: placeCommandUnder,
 		Flags:             convertPFlags(c),
 	}
@@ -105,6 +106,8 @@ type Command struct {
 	Short string
 	// Same as cobra.Command.Long
 	Long string
+	// Same as cobra.Command.Hidden
+	Hidden bool
 	// Flags holds the list of command flags
 	Flags []Flag
 	// PlaceCommandUnder indicates where the command should be placed.
@@ -124,6 +127,7 @@ func (c Command) ToCobraCommand() (*cobra.Command, error) {
 		Aliases: c.Aliases,
 		Short:   c.Short,
 		Long:    c.Long,
+		Hidden:  c.Hidden,
 	}
 	for _, f := range c.Flags {
 		err := f.feedFlagSet(cmd)
