@@ -1,9 +1,8 @@
 ---
-sidebar_position: 7
 description: Ignite CLI docs.
 ---
 
-# CLI Reference
+# CLI commands
 
 Documentation for Ignite CLI.
 ## ignite
@@ -64,7 +63,7 @@ chain.
 ```
   -h, --help                     help for account
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -96,7 +95,7 @@ ignite account create [name] [flags]
 
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -122,7 +121,7 @@ ignite account delete [name] [flags]
 
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -151,7 +150,7 @@ ignite account export [name] [flags]
 
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -180,7 +179,7 @@ ignite account import [name] [flags]
 
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -207,7 +206,7 @@ ignite account list [flags]
 
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -234,7 +233,7 @@ ignite account show [name] [flags]
 
 ```
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
@@ -1309,7 +1308,7 @@ ignite network chain init [launch-id] [flags]
   -h, --help                                help for init
       --home string                         home directory used for blockchains
       --keyring-backend string              keyring backend to store your account keys (default "test")
-      --keyring-dir string                  accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string                  accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --validator-account string            account for the chain validator (default "default")
       --validator-details string            details about the validator
       --validator-gas-price string          validator gas price
@@ -1411,7 +1410,7 @@ ignite network chain join [launch-id] [flags]
   -h, --help                     help for join
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --no-account               prevent sending a request for a genesis account
       --peer-address string      peer's address
   -y, --yes                      answers interactive yes/no questions with yes
@@ -1474,7 +1473,7 @@ ignite network chain launch [launch-id] [flags]
       --from string              account name to use for sending transactions to SPN (default "default")
   -h, --help                     help for launch
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --launch-time string       timestamp the chain is effectively launched (example "2022-01-01T00:00:00Z")
 ```
 
@@ -1564,7 +1563,7 @@ ignite network chain prepare [launch-id] [flags]
   -h, --help                     help for prepare
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -1644,7 +1643,7 @@ ignite network chain publish [source-url] [flags]
   -h, --help                     help for publish
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --mainnet                  initialize a mainnet project
       --metadata string          add a project metadata
       --no-check                 skip verifying chain's integrity
@@ -1685,7 +1684,7 @@ ignite network chain revert-launch [launch-id] [flags]
       --from string              account name to use for sending transactions to SPN (default "default")
   -h, --help                     help for revert-launch
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -1927,7 +1926,7 @@ ignite network coordinator set details|identity|website [value] [flags]
   -h, --help                     help for set
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2100,7 +2099,7 @@ ignite network project create [name] [total-supply] [flags]
   -h, --help                     help for create
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --metadata string          Add a metadata to the chain
 ```
 
@@ -2188,7 +2187,7 @@ ignite network project update [project-id] [flags]
       --from string              account name to use for sending transactions to SPN (default "default")
   -h, --help                     help for update
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --metadata string          update the project metadata
       --name string              update the project name
       --total-supply string      update the total of the mainnet of a project
@@ -2289,7 +2288,7 @@ ignite network request add-account [launch-id] [address] [coins] [flags]
   -h, --help                     help for add-account
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2343,7 +2342,7 @@ ignite network request approve [launch-id] [number<,...>] [flags]
   -h, --help                     help for approve
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --no-verification          approve the requests without verifying them
 ```
 
@@ -2377,7 +2376,7 @@ ignite network request change-param [launch-id] [module-name] [param-name] [valu
   -h, --help                     help for change-param
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2447,7 +2446,7 @@ ignite network request reject [launch-id] [number<,...>] [flags]
   -h, --help                     help for reject
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2480,7 +2479,7 @@ ignite network request remove-account [launch-id] [address] [flags]
   -h, --help                     help for remove-account
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2513,7 +2512,7 @@ ignite network request remove-validator [launch-id] [address] [flags]
   -h, --help                     help for remove-validator
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2582,7 +2581,7 @@ ignite network request verify [launch-id] [number<,...>] [flags]
   -h, --help                     help for verify
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2678,7 +2677,7 @@ ignite network reward set [launch-id] [last-reward-height] [coins] [flags]
   -h, --help                     help for set
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2813,7 +2812,7 @@ ignite network validator set details|identity|website|security [value] [flags]
   -h, --help                     help for set
       --home string              home directory used for blockchains
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -2937,7 +2936,7 @@ ignite node query bank balances [from_account_or_address] [flags]
   -h, --help                     help for balances
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --limit uint               pagination limit of all balances to query for (default 100)
       --offset uint              pagination offset of all balances to query for
       --page uint                pagination page of all balances to query for. This sets offset to a multiple of limit (default 1)
@@ -2996,7 +2995,7 @@ Transactions subcommands
   -h, --help                     help for tx
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **Options inherited from parent commands**
@@ -3031,7 +3030,7 @@ Bank transaction subcommands
       --generate-only            build an unsigned transaction and write it to STDOUT
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
 ```
 
@@ -3065,7 +3064,7 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
       --generate-only            build an unsigned transaction and write it to STDOUT
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
 ```
 
@@ -3266,7 +3265,7 @@ ignite relayer configure [flags]
   -a, --advanced                  advanced configuration options for custom IBC modules
   -h, --help                      help for configure
       --keyring-backend string    keyring backend to store your account keys (default "test")
-      --keyring-dir string        accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string        accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
       --ordered                   set the channel as ordered
   -r, --reset                     reset the relayer config
       --source-account string     source Account
@@ -3307,7 +3306,7 @@ ignite relayer connect [<path>,...] [flags]
 ```
   -h, --help                     help for connect
       --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --keyring-dir string       accounts keyring directory (default "/Users/fadeev/.ignite/accounts")
 ```
 
 **SEE ALSO**
