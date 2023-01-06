@@ -2,49 +2,7 @@
 description: Using and Developing plugins
 ---
 
-# Plugins
-
-## Using Plugins
-
-Ignite plugins offer a way to extend the functionality of the Ignite CLI. There
-are two core concepts within plugins : `Commands` and `Hooks`. Where `Commands`
-extend the cli's functionality, and `Hooks` extend existing command
-functionality.
-
-Plugins are registered in an Ignite scaffolded Blockchain project through the
-`plugins.yml`, or globally through `$HOME/.ignite/plugins/plugins.yml`.
-
-To use a plugin within your project, execute the following command inside the
-project directory:
-
-```sh
-ignite plugin add github.com/project/cli-plugin
-```
-
-The plugin will be available only when running `ignite` inside the project
-directory.
-
-To use a plugin globally on the other hand, execute the following command:
-
-```sh
-ignite plugin add -g github.com/project/cli-plugin
-```
-
-The command will compile the plugin and make it immediately available to the
-`ignite` command lists.
-
-### Listing installed plugins
-
-When in an ignite scaffolded blockchain you can use the command `ignite plugin
-list` to list all plugins and there statuses.
-
-### Updating plugins
-
-When a plugin in a remote repository releases updates, running `ignite plugin
-update <path/to/plugin>` will update a specific plugin declared in your
-project's `config.yml`.
-
-## Developing Plugins
+# Developing Plugins
 
 It's easy to create a plugin and use it immediately in your project. First
 choose a directory outside your project and run :
@@ -75,7 +33,7 @@ community can use it by calling `ignite plugin add github.com/foo/my-plugin`.
 
 Now let's detail how to update your plugin's code.
 
-### The plugin interface
+## The plugin interface
 
 The `ignite` plugin system uses `github.com/hashicorp/go-plugin` under the hood,
 which implies to implement a predefined interface:
@@ -116,7 +74,7 @@ The code scaffolded already implements this interface, you just need to update
 the methods' body.
 
 
-### Defining plugin's manifest
+## Defining plugin's manifest
 
 Here is the `Manifest` struct :
 
@@ -161,7 +119,7 @@ A plugin may also share a host process by setting `SharedHost` to `true`.
 Commands executed from the same plugin context interact with the same plugin server. 
 Allowing all executing commands to share the same server instance, giving shared execution context.
 
-### Adding new command
+## Adding new command
 
 Plugin commands are custom commands added to the ignite cli by a registered
 plugin. Commands can be of any path not defined already by ignite. All plugin
@@ -215,7 +173,7 @@ func (p) Execute(cmd plugin.ExecutedCommand) error {
 
 Then, run `ignite scaffold oracle` to execute the plugin.
 
-### Adding hooks
+## Adding hooks
 
 Plugin `Hooks` allow existing ignite commands to be extended with new
 functionality. Hooks are useful when you want to streamline functionality
