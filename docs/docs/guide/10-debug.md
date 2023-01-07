@@ -1,12 +1,11 @@
 ---
-sidebar_position: 13
-description: Blockchain Debug
+description: Debugging your Cosmos SDK blockchain
 ---
 
-# Blockchain Debug
+# Debugging a chain
 
-Ignite chain debug command can help you to find issues during development.
-It uses [Delve](https://github.com/go-delve/delve) debugger which enables you to
+Ignite chain debug command can help you find issues during development. It uses
+[Delve](https://github.com/go-delve/delve) debugger which enables you to
 interact with your blockchain app by controlling the execution of the process,
 evaluating variables, and providing information of thread / goroutine state, CPU
 register state and more.
@@ -14,14 +13,14 @@ register state and more.
 ## Debug Command
 
 The debug command requires that the blockchain app binary is build with
-debugging support by removing optimizations and inlining.
-A debug binary is built by default by the `ignite chain serve` command or can
-optionally be created using the `--debug` flag when running `ignite chain init`
-or `ignite chain build` sub-commands.
+debugging support by removing optimizations and inlining. A debug binary is
+built by default by the `ignite chain serve` command or can optionally be
+created using the `--debug` flag when running `ignite chain init` or `ignite
+chain build` sub-commands.
 
 To start a debugging session in the terminal run:
 
-```bash
+```
 ignite chain debug
 ```
 
@@ -33,10 +32,11 @@ Type 'help' for list of commands.
 (dlv)
 ```
 
-At this point the blockchain app blocks execution so you can set one or more
+At this point the blockchain app blocks execution, so you can set one or more
 breakpoints before continuing execution.
 
-Use the [break](https://github.com/go-delve/delve/blob/master/Documentation/cli/README.md#break)
+Use the
+[break](https://github.com/go-delve/delve/blob/master/Documentation/cli/README.md#break)
 (alias `b`) command to set any number of breakpoints using, for example the
 `<filename>:<line>` notation:
 
@@ -47,7 +47,7 @@ Use the [break](https://github.com/go-delve/delve/blob/master/Documentation/cli/
 This command adds a breakpoint to the `x/hello/client/cli/query_say_hello.go`
 file at line 14.
 
-Once all breakpoints are setted resume blockchain execution using the
+Once all breakpoints are set resume blockchain execution using the
 [continue](https://github.com/go-delve/delve/blob/master/Documentation/cli/README.md#continue)
 (alias `c`) command:
 
@@ -71,13 +71,13 @@ client connections.
 
 To start a debug server use the following flag:
 
-```bash
+```
 ignite chain debug --server
 ```
 
 To start a debug server with a custom address use the following flags:
 
-```bash
+```
 ignite chain debug --server --server-address 127.0.0.1:30500
 ```
 
@@ -94,7 +94,7 @@ Using it as debugging client is straightforward as it doesn't require any
 configuration. Once the debug server is running and listening for client
 requests connect to it by running:
 
-```bash
+```
 gdlv connect 127.0.0.1:30500
 ```
 
@@ -112,7 +112,7 @@ extension is installed.
 VS Code debugging is configured using the `launch.json` file which is usually
 located inside the `.vscode` folder in your workspace.
 
-You can use the following launch configuration to set up VS Code as debugging 
+You can use the following launch configuration to set up VS Code as debugging
 client:
 
 ```json title=launch.json
@@ -133,7 +133,7 @@ client:
 ```
 
 Alternatively it's possible to create a custom `launch.json` file from the "Run
-and Debug" panel. When prompted choose the Go debugger option labeled "Go: 
+and Debug" panel. When prompted choose the Go debugger option labeled "Go:
 Connect to Server" and enter the debug host address and then the port number.
 
 ## Example: Debugging a Blockchain App
@@ -141,23 +141,28 @@ Connect to Server" and enter the debug host address and then the port number.
 In this short example we will be using Ignite CLI to create a new blockchain and
 a query to be able to trigger a debugging breakpoint when the query is called.
 
-To create a new blockchain and a query run:
+Create a new blockchain:
 
-```bash
+```
 ignite scaffold chain hello
+```
+
+Scaffold a new query in the `hello` directory:
+
+```
 ignite scaffold query say-hello name --response name
 ```
 
 The next step initializes the blockchain's data directory and compiles a debug
 binary:
 
-```bash
+```
 ignite chain init --debug
 ```
 
 Once the initialization finishes launch the debugger shell:
 
-```bash
+```
 ignite chain debug
 ```
 
@@ -171,7 +176,7 @@ Within the debugger shell create a breakpoint that will be triggered when the
 
 From a different terminal use the `hellod` binary to call the query:
 
-```bash
+```
 hellod query hello say-hello bob
 ```
 
@@ -200,5 +205,5 @@ From then on you can use Delve commands like `next` (alias `n`) or `print`
 "bob"
 ```
 
-Finally use `quit` (alias `q`) to stop the blockchain app and finish the
+Finally, use `quit` (alias `q`) to stop the blockchain app and finish the
 debugging session.
