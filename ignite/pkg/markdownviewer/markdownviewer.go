@@ -14,18 +14,8 @@ func View(path string) error {
 		return err
 	}
 
+	// TODO: Enable bubbletea WithAltScreen and WithMouseCellMotion options when glow supports them
 	p := ui.NewProgram(conf)
-
-	// TODO: refactor to remove deprecated function calls
-	//nolint:staticcheck,nolintlint
-	p.EnterAltScreen()
-	//nolint:staticcheck,nolintlint
-	defer p.ExitAltScreen()
-
-	//nolint:staticcheck,nolintlint
-	p.EnableMouseCellMotion()
-	//nolint:staticcheck,nolintlint
-	defer p.DisableMouseCellMotion()
 
 	_, err = p.Run()
 	return err
