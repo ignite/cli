@@ -59,7 +59,7 @@ This command generates two directories:
 
 ## Set up Keplr and an account
 
-Open your browser with the Keplr wallet extension isntalled. Follow [the
+Open your browser with the Keplr wallet extension installed. Follow [the
 instructions](https://keplr.crunch.help/en/getting-started/creating-a-new-keplr-account)
 to create a new account or use an existing one. Make sure to save the mnemonic
 phrase as you will need it in the next step.
