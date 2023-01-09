@@ -2,44 +2,7 @@
 description: Using and Developing plugins
 ---
 
-# Developing plugins
-
-## Using Plugins
-
-Ignite plugins offer a way to extend the functionality of the Ignite CLI. There
-are two core concepts within plugins : `Commands` and `Hooks`. Where `Commands`
-extend the cli's functionality, and `Hooks` extend existing command
-functionality.
-
-Plugins are registered in an Ignite scaffolded Blockchain project through the
-`config.yml`.
-
-### Adding plugins to a project
-
-Plugins are registered per project, using the `config.yml` file. To use a plugin
-within your project, add a `plugins` section with the following:
-
-```yaml title=config.yml
-plugins:
-- path: github.com/project/cli-plugin
-```
-
-Now the next time the `ignite` command is run under your project, the declared
-plugin will be fetched, compiled and ran. This will result in more available
-commands, and/or hooks attached to existing commands.
-
-### Listing installed plugins
-
-When in an ignite scaffolded blockchain you can use the command `ignite plugin
-list` to list all plugins and there statuses.
-
-### Updating plugins
-
-When a plugin in a remote repository releases updates, running `ignite plugin
-update <path/to/plugin>` will update a specific plugin declared in your
-project's `config.yml`.
-
-## Developing Plugins
+# Developing Plugins
 
 It's easy to create a plugin and use it immediately in your project. First
 choose a directory outside your project and run :
@@ -49,9 +12,9 @@ $ ignite plugin scaffold my-plugin
 ```
 
 This will create a new directory `my-plugin` that contains the plugin's code,
-and will output some instructions about how to declare your plugin in your
-project. Indeed it's possible to declare a local directory in your project's
-`config.yml`, which has several benefits:
+and will output some instructions about how to use your plugin with the
+`ignite` command. Indeed, a plugin path can be a local directory, which has
+several benefits:
 
 - you don't need to use a git repository during the development of your plugin.
 - the plugin is recompiled each time you run the `ignite` binary in your
@@ -59,22 +22,18 @@ project, if the source files are older than the plugin binary.
 
 Thus, the plugin development workflow is as simple as :
 
-1. scaffold a plugin
-2. declare it in the `config.yml` of a chain (which can be a fresh new chain
-created via `ignite scaffold chain my-chain`)
+1. scaffold a plugin with `ignite plugin scaffold my-plugin`
+2. add it to your config via `ignite plugin add -g /path/to/my-plugin`
 3. update plugin code
-4. run `ignite my-command` binary in your chain to compile and run the plugin,
-where `my-command` is a command added by your plugin, or an existing `ignite`
-command with hooks added by your plugin.
+4. run `ignite my-plugin` binary to compile and run the plugin.
 5. go back to 3.
 
 Once your plugin is ready, you can publish it to a git repository, and the
-community can use it by declaring this git repository path in their chain's
-`config.yml`.
+community can use it by calling `ignite plugin add github.com/foo/my-plugin`.
 
 Now let's detail how to update your plugin's code.
 
-### The plugin interface
+## The plugin interface
 
 The `ignite` plugin system uses `github.com/hashicorp/go-plugin` under the hood,
 which implies to implement a predefined interface:
@@ -115,7 +74,7 @@ The code scaffolded already implements this interface, you just need to update
 the methods' body.
 
 
-### Defining plugin's manifest
+## Defining plugin's manifest
 
 Here is the `Manifest` struct :
 
@@ -160,7 +119,7 @@ A plugin may also share a host process by setting `SharedHost` to `true`.
 Commands executed from the same plugin context interact with the same plugin server. 
 Allowing all executing commands to share the same server instance, giving shared execution context.
 
-### Adding new command
+## Adding new command
 
 Plugin commands are custom commands added to the ignite cli by a registered
 plugin. Commands can be of any path not defined already by ignite. All plugin
@@ -212,10 +171,9 @@ func (p) Execute(cmd plugin.ExecutedCommand) error {
 }
 ```
 
-Then, run `ignite scaffold oracle` in a chain where the plugin is registered to
-compile and execute the plugin.
+Then, run `ignite scaffold oracle` to execute the plugin.
 
-### Adding hooks
+## Adding hooks
 
 Plugin `Hooks` allow existing ignite commands to be extended with new
 functionality. Hooks are useful when you want to streamline functionality
