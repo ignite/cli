@@ -16,7 +16,7 @@ Start a new [Discussion](https://github.com/ignite/cli/discussions/new) if you w
 
 To prepare for success, see [Set Up Your Ignite CLI Development Environment](dev-env-setup.md).
 
-To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](docs/docs/contributing/02-docs.md).
+To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](docs/docs/contributing/01-docs.md).
 
 Thank you for your contribution!
 
