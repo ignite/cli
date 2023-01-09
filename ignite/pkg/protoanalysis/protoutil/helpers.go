@@ -1,4 +1,3 @@
-// Helpers holds some functions that mostly wrap cursor and make adding things easier.
 package protoutil
 
 import (
@@ -59,7 +58,7 @@ func importFallback(f *proto.Proto, imp *proto.Import) error {
 	return nil
 }
 
-// AddImport tries its best to add the given import *after* any other imports
+// AddImports attempts to add the given import *after* any other imports
 // in the file.
 //
 // If fallback is supplied, attempts to add it after the 'package'
@@ -104,7 +103,7 @@ func AddImports(f *proto.Proto, fallback bool, imports ...*proto.Import) (err er
 	}
 	// else fallback if defined.
 	if fallback {
-		// if the number of improts is > 1, we can try and insert the first after
+		// if the number of imports is > 1, we can try and insert the first after
 		// the package/syntax and then recurse into AddImport with the rest (which we'll)
 		// know that we can insert after an import since we just added it.
 		imports = []*proto.Import{}

@@ -4,6 +4,7 @@ package scaffolder
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -27,8 +28,26 @@ type Scaffolder struct {
 	modpath gomodulepath.Path
 }
 
-// App creates a new scaffolder for an existent app.
-func App(path string) (Scaffolder, error) {
+// New creates a new scaffold app.
+func New(appPath string) (Scaffolder, error) {
+	sc, err := new(appPath)
+	if err != nil {
+		return sc, err
+	}
+
+	if sc.Version.LT(cosmosver.StargateFortyFourVersion) {
+		return sc, fmt.Errorf(
+			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
+Please, follow the migration guide to upgrade your chain to the latest version:
+
+https://docs.ignite.com/migration`, sc.Version.String(),
+		)
+	}
+	return sc, nil
+}
+
+// new creates a new scaffolder for an existent app.
+func new(path string) (Scaffolder, error) {
 	path, err := filepath.Abs(path)
 	if err != nil {
 		return Scaffolder{}, err
@@ -96,6 +115,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 			cosmosgen.WithTSClientGeneration(
 				cosmosgen.TypescriptModulePath(tsClientPath),
 				tsClientPath,
+				true,
 			),
 		)
 	}

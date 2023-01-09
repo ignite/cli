@@ -79,34 +79,32 @@ func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cos
 }
 
 func TestNew(t *testing.T) {
-	assert := assert.New(t)
-
 	c := newClient(t, nil)
 
 	ctx := c.Context()
-	assert.Equal("mychain", ctx.ChainID)
-	assert.NotNil(ctx.InterfaceRegistry)
-	assert.NotNil(ctx.Codec)
-	assert.NotNil(ctx.TxConfig)
-	assert.NotNil(ctx.LegacyAmino)
-	assert.Equal(bufio.NewReader(os.Stdin), ctx.Input)
-	assert.Equal(io.Discard, ctx.Output)
-	assert.NotNil(ctx.AccountRetriever)
-	assert.Equal(flags.BroadcastSync, ctx.BroadcastMode)
+	require.Equal(t, "mychain", ctx.ChainID)
+	require.NotNil(t, ctx.InterfaceRegistry)
+	require.NotNil(t, ctx.Codec)
+	require.NotNil(t, ctx.TxConfig)
+	require.NotNil(t, ctx.LegacyAmino)
+	require.Equal(t, bufio.NewReader(os.Stdin), ctx.Input)
+	require.Equal(t, io.Discard, ctx.Output)
+	require.NotNil(t, ctx.AccountRetriever)
+	require.Equal(t, flags.BroadcastSync, ctx.BroadcastMode)
 	home, err := os.UserHomeDir()
 	require.NoError(t, err)
-	assert.Equal(home+"/.mychain", ctx.HomeDir)
-	assert.NotNil(ctx.Client)
-	assert.True(ctx.SkipConfirm)
-	assert.Equal(c.AccountRegistry.Keyring, ctx.Keyring)
-	assert.False(ctx.GenerateOnly)
+	require.Equal(t, home+"/.mychain", ctx.HomeDir)
+	require.NotNil(t, ctx.Client)
+	require.True(t, ctx.SkipConfirm)
+	require.Equal(t, c.AccountRegistry.Keyring, ctx.Keyring)
+	require.False(t, ctx.GenerateOnly)
 	txf := c.TxFactory
-	assert.Equal("mychain", txf.ChainID())
-	assert.Equal(c.AccountRegistry.Keyring, txf.Keybase())
-	assert.EqualValues(300000, txf.Gas())
-	assert.Equal(1.0, txf.GasAdjustment())
-	assert.Equal(signing.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
-	assert.NotNil(txf.AccountRetriever())
+	require.Equal(t, "mychain", txf.ChainID())
+	require.Equal(t, c.AccountRegistry.Keyring, txf.Keybase())
+	require.EqualValues(t, 300000, txf.Gas())
+	require.Equal(t, 1.0, txf.GasAdjustment())
+	require.Equal(t, signing.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
+	require.NotNil(t, txf.AccountRetriever())
 }
 
 func TestClientWaitForBlockHeight(t *testing.T) {
@@ -150,7 +148,6 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
 			c := newClient(t, tt.setup)
 			ctx, cancel := context.WithTimeout(context.Background(), tt.timeout)
 			defer cancel()
@@ -158,10 +155,10 @@ func TestClientWaitForBlockHeight(t *testing.T) {
 			err := c.WaitForBlockHeight(ctx, targetBlockHeight)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -224,18 +221,16 @@ func TestClientWaitForTx(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			assert := assert.New(t)
 			c := newClient(t, tt.setup)
 
 			res, err := c.WaitForTx(ctx, tt.hash)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
-			assert.Equal(tt.expectedResult, res)
+			require.NoError(t, err)
+			require.Equal(t, tt.expectedResult, res)
 		})
 	}
 }
@@ -281,22 +276,18 @@ func TestClientAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				require = require.New(t)
-				assert  = assert.New(t)
-				c       = newClient(t, nil)
-			)
+			c := newClient(t, nil)
 			_, err := c.AccountRegistry.Import(accountName, key, passphrase)
-			require.NoError(err)
+			require.NoError(t, err)
 
 			account, err := c.Account(tt.addressOrName)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
-			assert.Equal(expectedAccount, account)
+			require.NoError(t, err)
+			require.Equal(t, expectedAccount, account)
 		})
 	}
 }
@@ -342,24 +333,20 @@ func TestClientAddress(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				require = require.New(t)
-				assert  = assert.New(t)
-				c       = newClient(t, nil, tt.opts...)
-			)
+			c := newClient(t, nil, tt.opts...)
 			_, err := c.AccountRegistry.Import(accountName, key, passphrase)
-			require.NoError(err)
+			require.NoError(t, err)
 
 			address, err := c.Address(tt.accountName)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
+			require.NoError(t, err)
 			expectedAddr, err := expectedAccount.Address(tt.expectedPrefix)
-			require.NoError(err)
-			assert.Equal(expectedAddr, address)
+			require.NoError(t, err)
+			require.Equal(t, expectedAddr, address)
 		})
 	}
 }
@@ -419,7 +406,7 @@ func TestClientCreateTx(t *testing.T) {
 	// Export created account to we can import it in the Client below.
 	key, err := r.Export(accountName, passphrase)
 	require.NoError(t, err)
-	sdkaddress, err := a.Record.GetAddress()
+	sdkaddr, err := a.Record.GetAddress()
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -435,7 +422,7 @@ func TestClientCreateTx(t *testing.T) {
 			expectedError: "nope",
 			setup: func(s suite) {
 				s.accountRetriever.EXPECT().
-					EnsureExists(mock.Anything, sdkaddress).Return(errors.New("nope"))
+					EnsureExists(mock.Anything, sdkaddr).Return(errors.New("nope"))
 			},
 		},
 		{
@@ -444,12 +431,12 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -461,14 +448,14 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount)
+				s.expectMakeSureAccountHasToken(sdkaddr.String(), defaultFaucetMinAmount)
 
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -480,13 +467,13 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectMakeSureAccountHasToken(sdkaddress.String(), defaultFaucetMinAmount-1)
-				s.expectPrepareFactory(sdkaddress)
+				s.expectMakeSureAccountHasToken(sdkaddr.String(), defaultFaucetMinAmount-1)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -498,12 +485,12 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"10"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -516,12 +503,12 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"900000"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -534,12 +521,12 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedError: "cannot provide both fees and gas prices",
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 			},
 		},
 		{
@@ -551,12 +538,12 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.gasometer.EXPECT().
 					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, 42, nil)
@@ -571,12 +558,12 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64((1))),
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
 			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddress)
+				s.expectPrepareFactory(sdkaddr)
 				s.gasometer.EXPECT().
 					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, 42, nil)
@@ -586,25 +573,21 @@ func TestClientCreateTx(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				require = require.New(t)
-				assert  = assert.New(t)
-				c       = newClient(t, tt.setup, tt.opts...)
-			)
+			c := newClient(t, tt.setup, tt.opts...)
 			account, err := c.AccountRegistry.Import(accountName, key, passphrase)
-			require.NoError(err)
+			require.NoError(t, err)
 
 			txs, err := c.CreateTx(ctx, account, tt.msg)
 
 			if tt.expectedError != "" {
-				require.EqualError(err, tt.expectedError)
+				require.EqualError(t, err, tt.expectedError)
 				return
 			}
-			require.NoError(err)
-			assert.NotNil(txs)
+			require.NoError(t, err)
+			assert.NotNil(t, txs)
 			bz, err := txs.EncodeJSON()
-			require.NoError(err)
-			assert.JSONEq(tt.expectedJSONTx, string(bz))
+			require.NoError(t, err)
+			require.JSONEq(t, tt.expectedJSONTx, string(bz))
 		})
 	}
 }
@@ -678,7 +661,7 @@ func TestGetBlockTXsPagination(t *testing.T) {
 	m.OnBlock().Return(&ctypes.ResultBlock{Block: &block}, nil)
 
 	// Mock the TxSearch RPC endpoint and fake the number of
-	// transactions so it is called twice to fetch two pages
+	// transactions, so it is called twice to fetch two pages
 	ctx := context.Background()
 	searchQry := fmt.Sprintf("tx.height=%d", block.Height)
 	perPage := 30
@@ -971,7 +954,7 @@ func (s suite) expectMakeSureAccountHasToken(address string, balance int64) {
 		nil,
 	).Once()
 	if balance >= defaultFaucetMinAmount {
-		// balance is high enought, faucet won't be called
+		// balance is high enough, faucet won't be called
 		return
 	}
 
@@ -996,12 +979,12 @@ func (s suite) expectMakeSureAccountHasToken(address string, balance int64) {
 	).Once()
 }
 
-func (s suite) expectPrepareFactory(sdkaddress sdktypes.Address) {
+func (s suite) expectPrepareFactory(sdkaddr sdktypes.Address) {
 	s.accountRetriever.EXPECT().
-		EnsureExists(mock.Anything, sdkaddress).
+		EnsureExists(mock.Anything, sdkaddr).
 		Return(nil)
 	s.accountRetriever.EXPECT().
-		GetAccountNumberSequence(mock.Anything, sdkaddress).
+		GetAccountNumberSequence(mock.Anything, sdkaddr).
 		Return(1, 2, nil)
 }
 

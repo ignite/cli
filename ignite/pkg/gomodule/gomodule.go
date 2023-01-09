@@ -115,20 +115,20 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 	d := json.NewDecoder(out)
 
 	for {
-		var module struct {
+		var mod struct {
 			Path, Version, Dir string
 		}
-		if err := d.Decode(&module); err != nil {
+		if err := d.Decode(&mod); err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}
 			return "", err
 		}
-		if module.Path == pkg.Path && module.Version == pkg.Version {
-			if err := pathCache.Put(cacheKey, module.Dir); err != nil {
+		if mod.Path == pkg.Path && mod.Version == pkg.Version {
+			if err := pathCache.Put(cacheKey, mod.Dir); err != nil {
 				return "", err
 			}
-			return module.Dir, nil
+			return mod.Dir, nil
 		}
 	}
 

@@ -67,7 +67,7 @@ func (b Bus) SendInfo(message string, options ...Option) {
 	b.Send(colors.Info(message), options...)
 }
 
-// SendInfo sends an error event to the bus.
+// SendError sends an error event to the bus.
 func (b Bus) SendError(err error, options ...Option) {
 	b.Send(colors.Error(err.Error()), options...)
 }
@@ -85,7 +85,7 @@ func (b Bus) Events() <-chan Event {
 }
 
 // Stop stops the event bus.
-// All new events are ignired once the event bus is stopped.
+// All new events are ignored once the event bus is stopped.
 func (b *Bus) Stop() {
 	if b.evChan == nil {
 		return

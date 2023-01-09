@@ -144,7 +144,7 @@ func scaffoldType(
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}

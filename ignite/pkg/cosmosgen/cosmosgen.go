@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	gomodmodule "golang.org/x/mod/module"
+	gomodule "golang.org/x/mod/module"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
@@ -16,6 +16,7 @@ import (
 type generateOptions struct {
 	includeDirs []string
 	gomodPath   string
+	useCache    bool
 
 	jsOut            func(module.Module) string
 	tsClientRootPath string
@@ -42,10 +43,11 @@ type Option func(*generateOptions)
 
 // WithTSClientGeneration adds Typescript Client code generation.
 // The tsClientRootPath is used to determine the root path of generated Typescript classes.
-func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string) Option {
+func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string, useCache bool) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.tsClientRootPath = tsClientRootPath
+		o.useCache = useCache
 	}
 }
 
@@ -100,7 +102,7 @@ type generator struct {
 	protoDir     string
 	o            *generateOptions
 	sdkImport    string
-	deps         []gomodmodule.Version
+	deps         []gomodule.Version
 	appModules   []module.Module
 	thirdModules map[string][]module.Module // app dependency-modules pair.
 }
@@ -144,14 +146,14 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 
-		// Update Vuex store dependecies when Vuex stores are generated.
+		// Update Vuex store dependencies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateVuexDependencies(); err != nil {
 			return err
 		}
 
-		// Update Vue app dependecies when Vuex stores are generated.
+		// Update Vue app dependencies when Vuex stores are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateVueDependencies(); err != nil {

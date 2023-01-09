@@ -54,6 +54,12 @@ type Plugin struct {
 
 	client *hplugin.Client
 
+	// holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
+	manifest Manifest
+	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
+	// plugin instance is controlling the rpc server.
+	isHost bool
+
 	ev events.Bus
 }
 
@@ -152,11 +158,20 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 	p.repoPath = path.Join(parts[:3]...)
 	p.cloneURL, _ = xurl.HTTPS(p.repoPath)
+
 	if len(p.reference) > 0 {
+		ref := strings.ReplaceAll(p.reference, "/", "-")
+		p.cloneDir = path.Join(pluginsDir, fmt.Sprintf("%s-%s", p.repoPath, ref))
 		p.repoPath += "@" + p.reference
+	} else {
+		p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	}
-	p.cloneDir = path.Join(pluginsDir, p.repoPath)
-	p.srcPath = path.Join(pluginsDir, p.repoPath, path.Join(parts[3:]...))
+
+	// Plugin can have a subpath within its repository. For example,
+	// "github.com/ignite/plugins/plugin1" where "plugin1" is the subpath.
+	repoSubPath := path.Join(parts[3:]...)
+
+	p.srcPath = path.Join(p.cloneDir, repoSubPath)
 	p.binaryName = path.Base(pluginPath)
 
 	return p
@@ -164,18 +179,20 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
+	if p.manifest.SharedHost && !p.isHost {
+		// Don't send kill signal to a shared-host plugin when this process isn't
+		// the one who initiated it.
+		return
+	}
+
 	if p.client != nil {
 		p.client.Kill()
 	}
-}
 
-// IsGlobal returns whether the plugin is installed globally or locally for a chain.
-func (p *Plugin) IsGlobal() bool {
-	return p.Plugin.Global
-}
-
-func (p *Plugin) isLocal() bool {
-	return p.cloneURL == ""
+	if p.isHost {
+		deleteConfCache(p.Path)
+		p.isHost = false
+	}
 }
 
 func (p *Plugin) binaryPath() string {
@@ -195,7 +212,8 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 	}
-	if p.isLocal() {
+
+	if p.IsLocalPath() {
 		// trigger rebuild for local plugin if binary is outdated
 		if p.outdatedBinary() {
 			p.build(ctx)
@@ -225,17 +243,37 @@ func (p *Plugin) load(ctx context.Context) {
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
-	// We're a host! Start by launching the plugin process.
-	p.client = hplugin.NewClient(&hplugin.ClientConfig{
-		HandshakeConfig: handshakeConfig,
-		Plugins:         pluginMap,
-		Logger:          logger,
-		Cmd:             exec.Command(p.binaryPath()),
-		SyncStderr:      os.Stderr,
-		SyncStdout:      os.Stdout,
-	})
 
-	// Connect via RPC
+	if checkConfCache(p.Path) {
+		rconf, err := readConfigCache(p.Path)
+		if err != nil {
+			p.Error = err
+			return
+		}
+
+		// We're attaching to an existing server, supply attachment configuration
+		p.client = hplugin.NewClient(&hplugin.ClientConfig{
+			HandshakeConfig: handshakeConfig,
+			Plugins:         pluginMap,
+			Logger:          logger,
+			Reattach:        &rconf,
+			SyncStderr:      os.Stderr,
+			SyncStdout:      os.Stdout,
+		})
+
+	} else {
+		// We're a host! Start by launching the plugin process.
+		p.client = hplugin.NewClient(&hplugin.ClientConfig{
+			HandshakeConfig: handshakeConfig,
+			Plugins:         pluginMap,
+			Logger:          logger,
+			Cmd:             exec.Command(p.binaryPath()),
+			SyncStderr:      os.Stderr,
+			SyncStdout:      os.Stdout,
+		})
+	}
+
+	// :Connect via RPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -252,11 +290,32 @@ func (p *Plugin) load(ctx context.Context) {
 	// We should have an Interface now! This feels like a normal interface
 	// implementation but is in fact over an RPC connection.
 	p.Interface = raw.(Interface)
+
+	m, err := p.Interface.Manifest()
+	if err != nil {
+		p.Error = errors.Wrapf(err, "manifest load")
+	}
+
+	p.manifest = m
+
+	// write the rpc context to cache if the plugin is declared as host.
+	// writing it to cache as lost operation within load to assure rpc client's reattach config
+	// is hydrated.
+	if m.SharedHost && !checkConfCache(p.Path) {
+		err := writeConfigCache(p.Path, *p.client.ReattachConfig())
+		if err != nil {
+			p.Error = err
+			return
+		}
+
+		// set the plugin's rpc server as host so other plugin clients may share
+		p.isHost = true
+	}
 }
 
 // fetch clones the plugin repository at the expected reference.
 func (p *Plugin) fetch() {
-	if p.isLocal() {
+	if p.IsLocalPath() {
 		return
 	}
 	if p.Error != nil {
@@ -287,7 +346,7 @@ func (p *Plugin) build(ctx context.Context) {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	if err := gocmd.BuildAll(ctx, p.binaryName, p.srcPath, nil); err != nil {
+	if err := gocmd.Build(ctx, p.binaryName, p.srcPath, nil); err != nil {
 		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
@@ -299,7 +358,7 @@ func (p *Plugin) clean() error {
 		// Dont try to clean plugins with error
 		return nil
 	}
-	if p.isLocal() {
+	if p.IsLocalPath() {
 		// Not a remote plugin, nothing to clean
 		return nil
 	}

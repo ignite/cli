@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-plugin"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
@@ -59,16 +60,54 @@ type Manifest struct {
 	// Hooks contains the hooks that will be attached to the existing ignite
 	// commands.
 	Hooks []Hook
+	// SharedHost enables sharing a single plugin server across all running instances
+	// of a plugin. Useful if a plugin adds or extends long running commands
+	//
+	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// when the command is run. Now if you want to interact with that instance from commands
+	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
+	// instantiate separate plugin servers.
+	//
+	// When enabled, all plugins of the same `Path` loaded from the same configuration will
+	// attach it's rpc client to a an existing rpc server.
+	//
+	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
+	SharedHost bool `yaml:"shared_host"`
+}
+
+// ImportCobraCommand allows to hydrate m with a standard root cobra commands.
+func (m *Manifest) ImportCobraCommand(c *cobra.Command, placeCommandUnder string) {
+	m.Commands = append(m.Commands, convertCobraCommand(c, placeCommandUnder))
+}
+
+func convertCobraCommand(c *cobra.Command, placeCommandUnder string) Command {
+	cmd := Command{
+		Use:               c.Use,
+		Aliases:           c.Aliases,
+		Short:             c.Short,
+		Long:              c.Long,
+		Hidden:            c.Hidden,
+		PlaceCommandUnder: placeCommandUnder,
+		Flags:             convertPFlags(c),
+	}
+	for _, c := range c.Commands() {
+		cmd.Commands = append(cmd.Commands, convertCobraCommand(c, ""))
+	}
+	return cmd
 }
 
 // Command represents a plugin command.
 type Command struct {
 	// Same as cobra.Command.Use
 	Use string
+	// Same as cobra.Command.Aliases
+	Aliases []string
 	// Same as cobra.Command.Short
 	Short string
 	// Same as cobra.Command.Long
 	Long string
+	// Same as cobra.Command.Hidden
+	Hidden bool
 	// Flags holds the list of command flags
 	Flags []Flag
 	// PlaceCommandUnder indicates where the command should be placed.
@@ -80,6 +119,39 @@ type Command struct {
 	Commands []Command
 }
 
+// PlaceCommandUnderFull returns a normalized p.PlaceCommandUnder, by adding
+// the `ignite ` prefix if not present.
+func (c Command) PlaceCommandUnderFull() string {
+	return commandFull(c.PlaceCommandUnder)
+}
+
+func commandFull(cmdPath string) string {
+	const rootCmdName = "ignite"
+	if !strings.HasPrefix(cmdPath, rootCmdName) {
+		cmdPath = rootCmdName + " " + cmdPath
+	}
+	return strings.TrimSpace(cmdPath)
+}
+
+// ToCobraCommand turns Command into a cobra.Command so it can be added to a
+// parent command.
+func (c Command) ToCobraCommand() (*cobra.Command, error) {
+	cmd := &cobra.Command{
+		Use:     c.Use,
+		Aliases: c.Aliases,
+		Short:   c.Short,
+		Long:    c.Long,
+		Hidden:  c.Hidden,
+	}
+	for _, f := range c.Flags {
+		err := f.feedFlagSet(cmd)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return cmd, nil
+}
+
 // Hook represents a user defined action within a plugin.
 type Hook struct {
 	// Name identifies the hook for the client to invoke the correct hook
@@ -87,6 +159,12 @@ type Hook struct {
 	Name string
 	// PlaceHookOn indicates the command to register the hooks for
 	PlaceHookOn string
+}
+
+// PlaceHookOnFull returns a normalized p.PlaceCommandUnder, by adding the
+// `ignite ` prefix if not present.
+func (h Hook) PlaceHookOnFull() string {
+	return commandFull(h.PlaceHookOn)
 }
 
 // ExecutedCommand represents a plugin command under execution.
@@ -97,10 +175,13 @@ type ExecutedCommand struct {
 	Path string
 	// Args are the command arguments
 	Args []string
+	// Full list of args taken from os.Args
+	OSArgs []string
 	// With contains the plugin config parameters
 	With map[string]string
 
-	flags *pflag.FlagSet
+	flags  *pflag.FlagSet
+	pflags *pflag.FlagSet
 }
 
 // ExecutedHook represents a plugin hook under execution.
@@ -119,13 +200,23 @@ func (c *ExecutedCommand) Flags() *pflag.FlagSet {
 	return c.flags
 }
 
-// SetFlags set the flags.
-// As a plugin developer, you probably don't need to use it.
-func (c *ExecutedCommand) SetFlags(fs *pflag.FlagSet) {
-	c.flags = fs
+// PersistentFlags gives access to the commands' persistent flags, like
+// cobra.Command.PersistentFlags.
+func (c *ExecutedCommand) PersistentFlags() *pflag.FlagSet {
+	if c.pflags == nil {
+		c.pflags = pflag.NewFlagSet(os.Args[0], pflag.ContinueOnError)
+	}
+	return c.pflags
 }
 
-// Flag is a exportable representation of pflag.Flag.
+// SetFlags set the flags.
+// As a plugin developer, you probably don't need to use it.
+func (c *ExecutedCommand) SetFlags(cmd *cobra.Command) {
+	c.flags = cmd.Flags()
+	c.pflags = cmd.PersistentFlags()
+}
+
+// Flag is a serializable representation of pflag.Flag.
 type Flag struct {
 	Name      string // name as it appears on command line
 	Shorthand string // one-letter abbreviated flag
@@ -133,7 +224,9 @@ type Flag struct {
 	DefValue  string // default value (as text); for usage message
 	Type      FlagType
 	Value     string
-	// TODO add Persistent field ?
+	// Persistent indicates wether or not the flag is propagated on children
+	// commands
+	Persistent bool
 }
 
 // FlagType represents the pflag.Flag.Value.Type().
@@ -151,9 +244,12 @@ const (
 	FlagTypeStringSlice FlagType = "stringSlice"
 )
 
-// FeedFlagSet fills fs with f.
-// As a plugin developer, you probably don't need to use it.
-func (f Flag) FeedFlagSet(fs *pflag.FlagSet) error {
+// feedFlagSet fills flagger with f.
+func (f Flag) feedFlagSet(fgr flagger) error {
+	fs := fgr.Flags()
+	if f.Persistent {
+		fs = fgr.PersistentFlags()
+	}
 	switch f.Type {
 	case FlagTypeBool:
 		defVal, _ := strconv.ParseBool(f.DefValue)
@@ -199,14 +295,31 @@ type gobCommandContextFlags struct {
 	Flags          []Flag
 }
 
+// gobCommandContext is the same as ExecutedCommand but without GobDecode
+// attached, which avoids infinite loops.
 type gobCommandContext ExecutedCommand
 
 // GobEncode implements gob.Encoder.
 // It actually encodes a gobCommandContext struct built from c.
 func (c ExecutedCommand) GobEncode() ([]byte, error) {
+	var b bytes.Buffer
+	err := gob.NewEncoder(&b).Encode(gobCommandContextFlags{
+		CommandContext: gobCommandContext(c),
+		Flags:          convertPFlags(&c),
+	})
+	return b.Bytes(), err
+}
+
+// flagger matches both cobra.Command and Command.
+type flagger interface {
+	Flags() *pflag.FlagSet
+	PersistentFlags() *pflag.FlagSet
+}
+
+func convertPFlags(fgr flagger) []Flag {
 	var ff []Flag
-	if c.flags != nil {
-		c.flags.VisitAll(func(pf *pflag.Flag) {
+	if fgr.Flags() != nil {
+		fgr.Flags().VisitAll(func(pf *pflag.Flag) {
 			ff = append(ff, Flag{
 				Name:      pf.Name,
 				Shorthand: pf.Shorthand,
@@ -217,12 +330,20 @@ func (c ExecutedCommand) GobEncode() ([]byte, error) {
 			})
 		})
 	}
-	var b bytes.Buffer
-	err := gob.NewEncoder(&b).Encode(gobCommandContextFlags{
-		CommandContext: gobCommandContext(c),
-		Flags:          ff,
-	})
-	return b.Bytes(), err
+	if fgr.PersistentFlags() != nil {
+		fgr.PersistentFlags().VisitAll(func(pf *pflag.Flag) {
+			ff = append(ff, Flag{
+				Name:       pf.Name,
+				Shorthand:  pf.Shorthand,
+				Usage:      pf.Usage,
+				DefValue:   pf.DefValue,
+				Value:      pf.Value.String(),
+				Type:       FlagType(pf.Value.Type()),
+				Persistent: true,
+			})
+		})
+	}
+	return ff
 }
 
 // GobDecode implements gob.Decoder.
@@ -235,7 +356,7 @@ func (c *ExecutedCommand) GobDecode(bz []byte) error {
 	}
 	*c = ExecutedCommand(gb.CommandContext)
 	for _, f := range gb.Flags {
-		err := f.FeedFlagSet(c.Flags())
+		err := f.feedFlagSet(c)
 		if err != nil {
 			return err
 		}
