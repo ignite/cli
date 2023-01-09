@@ -119,6 +119,20 @@ type Command struct {
 	Commands []Command
 }
 
+// PlaceCommandUnderFull returns a normalized p.PlaceCommandUnder, by adding
+// the `ignite ` prefix if not present.
+func (c Command) PlaceCommandUnderFull() string {
+	return commandFull(c.PlaceCommandUnder)
+}
+
+func commandFull(cmdPath string) string {
+	const rootCmdName = "ignite"
+	if !strings.HasPrefix(cmdPath, rootCmdName) {
+		cmdPath = rootCmdName + " " + cmdPath
+	}
+	return strings.TrimSpace(cmdPath)
+}
+
 // ToCobraCommand turns Command into a cobra.Command so it can be added to a
 // parent command.
 func (c Command) ToCobraCommand() (*cobra.Command, error) {
@@ -145,6 +159,12 @@ type Hook struct {
 	Name string
 	// PlaceHookOn indicates the command to register the hooks for
 	PlaceHookOn string
+}
+
+// PlaceHookOnFull returns a normalized p.PlaceCommandUnder, by adding the
+// `ignite ` prefix if not present.
+func (h Hook) PlaceHookOnFull() string {
+	return commandFull(h.PlaceHookOn)
 }
 
 // ExecutedCommand represents a plugin command under execution.
