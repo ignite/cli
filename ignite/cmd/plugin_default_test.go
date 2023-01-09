@@ -16,17 +16,18 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 		expectAddedInCommand bool
 	}{
 		{
-			name:                 "empty config",
+			name:                 "should add because absent from config",
 			cfg:                  &pluginsconfig.Config{},
 			expectAddedInCommand: true,
 		},
 		{
-			name: "config with default plugin",
+			name: "should not add because already present in config",
 			cfg: &pluginsconfig.Config{
 				Plugins: []pluginsconfig.Plugin{{
 					Path: "github.com/ignite/cli-plugin-network@v42",
 				}},
 			},
+			expectAddedInCommand: false,
 		},
 	}
 	for _, tt := range tests {
@@ -35,7 +36,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 
 			ensureDefaultPlugins(cmd, tt.cfg)
 
-			expectedCmd := findCommandByPath(cmd, "network")
+			expectedCmd := findCommandByPath(cmd, "ignite network")
 			if tt.expectAddedInCommand {
 				assert.NotNil(t, expectedCmd)
 			} else {
