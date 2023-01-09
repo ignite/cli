@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"time"
 
-	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v6/modules/core/23-commitment/types"
 	"github.com/tendermint/tendermint/libs/bytes"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
