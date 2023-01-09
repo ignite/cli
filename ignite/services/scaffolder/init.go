@@ -21,16 +21,22 @@ import (
 
 // Init initializes a new app with name and given options.
 func Init(ctx context.Context, cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
-	if root, err = filepath.Abs(root); err != nil {
-		return "", err
-	}
-
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
 	}
 
-	path = filepath.Join(root, pathInfo.Root)
+	// Create a new folder named as the blockchain when a custom path is not specified
+	var appFolder string
+	if root == "" {
+		appFolder = pathInfo.Root
+	}
+
+	if root, err = filepath.Abs(root); err != nil {
+		return "", err
+	}
+
+	path = filepath.Join(root, appFolder)
 
 	// create the project
 	if err := generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule); err != nil {
