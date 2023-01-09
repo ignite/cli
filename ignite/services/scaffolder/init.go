@@ -20,7 +20,13 @@ import (
 )
 
 // Init initializes a new app with name and given options.
-func Init(ctx context.Context, cacheStorage cache.Storage, tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
+func Init(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	tracer *placeholder.Tracer,
+	root, name, addressPrefix string,
+	noDefaultModule, skipGit bool,
+) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
@@ -47,9 +53,11 @@ func Init(ctx context.Context, cacheStorage cache.Storage, tracer *placeholder.T
 		return "", err
 	}
 
-	// initialize git repository and perform the first commit
-	if err := xgit.InitAndCommit(path); err != nil {
-		return "", err
+	if !skipGit {
+		// Initialize git repository and perform the first commit
+		if err := xgit.InitAndCommit(path); err != nil {
+			return "", err
+		}
 	}
 
 	return path, nil
