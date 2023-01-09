@@ -27,8 +27,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	ibchosttypes "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibchosttypes "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"

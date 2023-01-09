@@ -14,8 +14,8 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -25,15 +25,26 @@ import (
 // <%= moduleName %>ChannelKeeper is a stub of cosmosibckeeper.ChannelKeeper.
 type <%= moduleName %>ChannelKeeper struct{}
 
-func (<%= moduleName %>ChannelKeeper) GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool) {
+func (<%= moduleName %>ChannelKeeper) GetChannel(ctx sdk.Context, portID, channelID string) (channeltypes.Channel, bool) {
 	return channeltypes.Channel{}, false
 }
+
 func (<%= moduleName %>ChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool) {
 	return 0, false
 }
-func (<%= moduleName %>ChannelKeeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet ibcexported.PacketI) error {
-	return nil
+
+func (<%= moduleName %>ChannelKeeper) SendPacket(
+    ctx sdk.Context,
+    channelCap *capabilitytypes.Capability,
+    sourcePort string,
+    sourceChannel string,
+    timeoutHeight clienttypes.Height,
+    timeoutTimestamp uint64,
+    data []byte,
+) (uint64, error) {
+    return 0, nil
 }
+
 func (<%= moduleName %>ChannelKeeper) ChanCloseInit(ctx sdk.Context, portID, channelID string, chanCap *capabilitytypes.Capability) error {
 	return nil
 }
