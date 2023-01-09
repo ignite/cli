@@ -21,7 +21,6 @@ import (
 )
 
 const (
-	igniteCmdPrefix   = "ignite "
 	flagPluginsGlobal = "global"
 )
 
@@ -163,7 +162,7 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Ho
 }
 
 func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
-	cmdPath := hook.PlaceHookOn
+	cmdPath := hook.PlaceHookOnFull()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
 		p.Error = errors.Errorf("unable to find commandPath %q for plugin hook %q", cmdPath, hook.Name)
@@ -265,7 +264,7 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugi
 }
 
 func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {
-	cmdPath := pluginCmd.PlaceCommandUnder
+	cmdPath := pluginCmd.PlaceCommandUnderFull()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
 		p.Error = errors.Errorf("unable to find commandPath %q for plugin %q", cmdPath, p.Path)
@@ -333,13 +332,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 }
 
 func findCommandByPath(cmd *cobra.Command, cmdPath string) *cobra.Command {
-	if !strings.HasPrefix(cmdPath, "ignite") {
-		// cmdPath must start with `ignite ` before comparison with
-		// cmd.CommandPath()
-		cmdPath = igniteCmdPrefix + cmdPath
-	}
-	cmdPath = strings.TrimSpace(cmdPath)
-
 	if cmd.CommandPath() == cmdPath {
 		return cmd
 	}
@@ -579,9 +571,13 @@ func NewPluginScaffold() *cobra.Command {
 ⭐️ Successfully created a new plugin '%[1]s'.
 👉 update plugin code at '%[2]s/main.go'
 
-👉 test plugin integration by adding the following lines in a chain config.yaml:
-plugins:
-- path: %[2]s
+👉 test plugin integration by adding the plugin to a chain's config:
+
+  ignite plugin add %[2]s
+
+Or to the global config:
+
+  ignite plugin add -g %[2]s
 
 👉 once the plugin is pushed to a repository, replace the local path by the repository path.
 `
@@ -606,12 +602,15 @@ func NewPluginDescribe() *cobra.Command {
 					if err != nil {
 						return fmt.Errorf("error while loading plugin manifest: %w", err)
 					}
-
-					if err := printPluginCommands(manifest.Commands, s); err != nil {
-						return err
+					s.Printf("Plugin '%s':\n", args[0])
+					s.Printf("%s %d Command(s):\n", icons.Command, len(manifest.Commands))
+					for i, c := range manifest.Commands {
+						cmdPath := fmt.Sprintf("%s %s", c.PlaceCommandUnderFull(), c.Use)
+						s.Printf("\t%d) '%s'\n", i+1, cmdPath)
 					}
-					if err := printPluginHooks(manifest.Hooks, s); err != nil {
-						return err
+					s.Printf("%s %d Hook(s):\n", icons.Hook, len(manifest.Hooks))
+					for i, h := range manifest.Hooks {
+						s.Printf("\t%d) '%s' on command '%s'\n", i+1, h.Name, h.PlaceHookOnFull())
 					}
 					break
 				}
@@ -637,8 +636,7 @@ func printPlugins(session *cliui.Session) error {
 				hookCount = len(manifest.Hooks)
 				cmdCount  = len(manifest.Commands)
 			)
-
-			return fmt.Sprintf("%s Loaded: 🪝%d 💻%d", icons.OK, hookCount, cmdCount)
+			return fmt.Sprintf("%s Loaded: %s %d %s%d ", icons.OK, icons.Command, cmdCount, icons.Hook, hookCount)
 		}
 		installedStatus = func(p *plugin.Plugin) string {
 			if p.IsGlobal() {
@@ -652,57 +650,6 @@ func printPlugins(session *cliui.Session) error {
 	}
 	if err := session.PrintTable([]string{"Path", "Status", "Config"}, entries...); err != nil {
 		return fmt.Errorf("error while printing plugins: %w", err)
-	}
-	return nil
-}
-
-func printPluginCommands(cmds []plugin.Command, session *cliui.Session) error {
-	var entries [][]string
-	// Processes command graph
-	traverse := func(cmd plugin.Command) {
-		// cmdPair is a Wrapper struct to create parent child relationship for sub commands without a `place command under`
-		type cmdPair struct {
-			cmd    plugin.Command
-			parent plugin.Command
-		}
-
-		queue := make([]cmdPair, 0)
-		queue = append(queue, cmdPair{cmd: cmd, parent: plugin.Command{}})
-
-		for len(queue) > 0 {
-			c := queue[0]
-			queue = queue[1:]
-			if c.cmd.PlaceCommandUnder != "" {
-				entries = append(entries, []string{c.cmd.Use, c.cmd.PlaceCommandUnder})
-			} else {
-				entries = append(entries, []string{c.cmd.Use, c.parent.Use})
-			}
-
-			for _, sc := range c.cmd.Commands {
-				queue = append(queue, cmdPair{cmd: sc, parent: c.cmd})
-			}
-		}
-	}
-
-	for _, c := range cmds {
-		traverse(c)
-	}
-
-	if err := session.PrintTable([]string{"command use", "under"}, entries...); err != nil {
-		return fmt.Errorf("error while printing plugin commands: %w", err)
-	}
-	return nil
-}
-
-func printPluginHooks(hooks []plugin.Hook, session *cliui.Session) error {
-	var entries [][]string
-
-	for _, h := range hooks {
-		entries = append(entries, []string{h.Name, h.PlaceHookOn})
-	}
-
-	if err := session.PrintTable([]string{"hook name", "on"}, entries...); err != nil {
-		return fmt.Errorf("error while printing plugin hooks: %w", err)
 	}
 	return nil
 }
