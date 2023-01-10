@@ -1205,6 +1205,7 @@ validators launch their nodes, a blockchain will be live.
 * [ignite network reward](#ignite-network-reward)	 - Manage network rewards
 * [ignite network tool](#ignite-network-tool)	 - Commands to run subsidiary tools
 * [ignite network validator](#ignite-network-validator)	 - Show and update a validator profile
+* [ignite network version](#ignite-network-version)	 - Version of the plugin
 
 
 ## ignite network chain
@@ -1260,7 +1261,7 @@ All chains published to Ignite can be listed by using the "list" command.
 * [ignite network chain list](#ignite-network-chain-list)	 - List published chains
 * [ignite network chain prepare](#ignite-network-chain-prepare)	 - Prepare the chain for launch
 * [ignite network chain publish](#ignite-network-chain-publish)	 - Publish a new chain to start a new network
-* [ignite network chain revert-launch](#ignite-network-chain-revert-launch)	 - Revert launch of a network
+* [ignite network chain revert-launch](#ignite-network-chain-revert-launch)	 - Revert launch of a network as a coordinator
 * [ignite network chain show](#ignite-network-chain-show)	 - Show details of a chain
 
 
@@ -1392,9 +1393,18 @@ in a home directory used by "ignite network chain init" by default. To use a
 different directory, use the "--home" flag or pass a gentx file directly with
 the  "--gentx" flag.
 
+To join a chain as a validator, you must provide the IP address of your node so
+that other validators can connect to it. The join command will ask you for the
+IP address and will attempt to automatically detect and fill in the value. If
+you want to manually specify the IP address, you can use the "--peer-address"
+flag:
+
+	ignite network chain join 42 --peer-address 0.0.0.0
+
 Since "join" broadcasts a transaction to the Ignite blockchain, you will need an
 account on the Ignite blockchain. During the testnet phase, however, Ignite
 automatically requests tokens from a faucet.
+
 
 ```
 ignite network chain join [launch-id] [flags]
@@ -1645,7 +1655,7 @@ ignite network chain publish [source-url] [flags]
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
       --mainnet                  initialize a mainnet project
-      --metadata string          add a project metadata
+      --metadata string          add chain metadata
       --no-check                 skip verifying chain's integrity
       --project uint             project ID to use for this network
       --reward.coins string      reward coins
@@ -1672,7 +1682,20 @@ ignite network chain publish [source-url] [flags]
 
 ## ignite network chain revert-launch
 
-Revert launch of a network
+Revert launch of a network as a coordinator
+
+**Synopsis**
+
+The revert launch command reverts the previously scheduled launch of a chain.
+
+Only the coordinator of the chain can execute the launch command.
+
+	ignite network chain revert-launch 42
+
+After the revert launch command is executed, changes to the genesis of the chain
+are allowed again. For example, validators will be able to request to join the
+chain. Revert launch also resets the launch time.
+
 
 ```
 ignite network chain revert-launch [launch-id] [flags]
@@ -2855,6 +2878,39 @@ ignite network validator show [address] [flags]
 **SEE ALSO**
 
 * [ignite network validator](#ignite-network-validator)	 - Show and update a validator profile
+
+
+## ignite network version
+
+Version of the plugin
+
+**Synopsis**
+
+The version of the plugin to use to interact with a chain might be specified by the coordinator.
+
+
+```
+ignite network version [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for version
+```
+
+**Options inherited from parent commands**
+
+```
+      --local                       Use local SPN network
+      --nightly                     Use nightly SPN network
+      --spn-faucet-address string   SPN faucet address (default "https://faucet.devnet.ignite.com:443")
+      --spn-node-address string     SPN node address (default "https://rpc.devnet.ignite.com:443")
+```
+
+**SEE ALSO**
+
+* [ignite network](#ignite-network)	 - Launch a blockchain in production
 
 
 ## ignite node
