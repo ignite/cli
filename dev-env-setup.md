@@ -43,7 +43,7 @@ Before you install a new version of Ignite CLI, remove all existing installation
 curl https://get.ignite.com! | bash`
 ```
 
-See [Install Ignite CLI](docs/docs/guide/01-install.md).
+See [Install Ignite CLI](./docs/docs/01-welcome/02-install.md).
 
 ## Clone the Ignite CLI repo
 
