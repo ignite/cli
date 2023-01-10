@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 func NewScaffoldWasm() *cobra.Command {
@@ -32,7 +33,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}

@@ -23,6 +23,7 @@
 
 ### Changes
 
+- [#3369](https://github.com/ignite/cli/pull/3369) Update `ibc-go` to `v6.1.0`.
 - [#3306](https://github.com/ignite/cli/pull/3306) Move network command into a plugin
 - [#3305](https://github.com/ignite/cli/pull/3305) Bump Cosmos SDK version to `v0.46.7`.
 - [#3068](https://github.com/ignite/cli/pull/3068) Add configs to generated TS code for working with JS projects
@@ -71,6 +72,8 @@
 - [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
 - [#3320](https://github.com/ignite/cli/pull/3320) Allow `id` and `creator` as names when scaffolding a type.
 - [#3327](https://github.com/ignite/cli/issues/3327) Scaffolding messages with same name leads to aliasing.
+- [#3383](https://github.com/ignite/cli/pull/3383) State error and info are now displayed when using serve UI.
+- [#3379](https://github.com/ignite/cli/issues/3379) Fix `ignite docs` issue by disabling mouse support.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
