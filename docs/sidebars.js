@@ -20,7 +20,7 @@ const sidebars = {
     {
       type: "category",
       label: "Resources",
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           type: "link",
