@@ -1,14 +1,14 @@
 # Contributing guidelines
 
-* [Contributing guidelines](#contributing-guidelines)
-    * [Providing Feedback](#providing-feedback)
-    * [Opening pull requests (PRs)](#opening-pull-requests-prs)
-        * [Choose a good PR title](#choose-a-good-pr-title)
-        * [Review your own code](#review-your-own-code)
-        * [Do not rebase commits in your branch](#do-not-rebase-commits-in-your-branch)
-    * [Contributing to documentation](#contributing-to-documentation)
-        * [Ask for help](#ask-for-help)
-    * [Prioritizing issues with milestones](#prioritizing-issues-with-milestones)
+- [Contributing guidelines](#contributing-guidelines)
+  - [Providing Feedback](#providing-feedback)
+  - [Opening pull requests (PRs)](#opening-pull-requests-prs)
+    - [Choose a good PR title](#choose-a-good-pr-title)
+    - [Review your own code](#review-your-own-code)
+    - [Do not rebase commits in your branch](#do-not-rebase-commits-in-your-branch)
+  - [Contributing to documentation](#contributing-to-documentation)
+    - [Ask for help](#ask-for-help)
+  - [Prioritizing issues with milestones](#prioritizing-issues-with-milestones)
 
 Before you create a new PR on Ignite CLI, make sure that you read and comply with this document.
 
@@ -16,7 +16,7 @@ Start a new [Discussion](https://github.com/ignite/cli/discussions/new) if you w
 
 To prepare for success, see [Set Up Your Ignite CLI Development Environment](dev-env-setup.md).
 
-To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](docs/docs/contributing/02-docs.md).
+To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](https://docs.ignite.com/contributing).
 
 Thank you for your contribution!
 

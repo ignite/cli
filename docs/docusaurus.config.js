@@ -232,6 +232,17 @@ const config = {
       },
     }),
   plugins: [
+    [
+      "@docusaurus/plugin-client-redirects",
+      {
+        redirects: [
+          {
+            from: "/nightly/guide/install",
+            to: "/nightly/welcome/install",
+          },
+        ],
+      },
+    ],
     async function myPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
