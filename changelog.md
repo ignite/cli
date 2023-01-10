@@ -388,7 +388,7 @@ Our new name is **Ignite CLI**!
 - Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were
   scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must
   update the default blockchain template to use blockchains that were scaffolded with earlier versions.
-  See [Migration](./docs/docs/migration/readme.md).
+  See [Migration](https://docs.ignite.com/migration).
 
 ### Features
 
