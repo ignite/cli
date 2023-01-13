@@ -76,8 +76,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
-  nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
-  nfttypes "github.com/cosmos/cosmos-sdk/x/nft/types"
+  	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
+  	nfttypes "github.com/cosmos/cosmos-sdk/x/nft/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
@@ -219,7 +219,7 @@ type App struct {
 	BankKeeper       bankkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
-  NftKeeper        nftkeeper.Keeper
+  	NftKeeper        nftkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
 	MintKeeper       mintkeeper.Keeper
 	DistrKeeper      distrkeeper.Keeper
@@ -356,11 +356,11 @@ func New(
 		app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-  app.NftKeeper = nftkeeper.NewKeeper(
-    appCodec,
-		app.AccountKeeper,
-		app.BankKeeper,
-  )
+	app.NftKeeper = nftkeeper.NewKeeper(
+		appCodec,
+			app.AccountKeeper,
+			app.BankKeeper,
+	)
 
 	app.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
