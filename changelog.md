@@ -1,4 +1,4 @@
-## Unreleased
+## [`v0.26.0`](https://github.com/ignite/cli/releases/tag/v0.26.0)
 
 ### Features
 
