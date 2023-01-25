@@ -70,7 +70,7 @@ Now, you are ready to implement these Cosmos SDK messages to achieve the desired
 
 Use the `ignite scaffold message` command to scaffold new messages for your module.
 
-- The [`ignite scaffold message`](/cli#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
+- The [`ignite scaffold message`](../../../references/cli#ignite-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. 
 - By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`.
 
 ### Add the MsgBuyName Message
