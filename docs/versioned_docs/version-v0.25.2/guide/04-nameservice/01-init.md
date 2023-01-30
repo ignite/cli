@@ -9,7 +9,7 @@ Scaffold a blockchain and create a `nameservice` module for the nameservice app.
 
 ## Create a Blockchain
 
-Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command. The [ignite scaffold chain](/cli#ignite-scaffold-chain) command accepts one argument: the Go module path that is used for the project.
+Scaffold a new Cosmos SDK blockchain using the `ignite scaffold chain` command. The [ignite scaffold chain](../../../references/cli#ignite-scaffold-chain) command accepts one argument: the Go module path that is used for the project.
 
 By default, a chain is scaffolded with a new empty Cosmos SDK module. You want to create the nameservice module without scaffolding a module, so use the `--no-module` flag:
 
