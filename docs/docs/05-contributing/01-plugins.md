@@ -39,7 +39,7 @@ The `ignite` plugin system uses `github.com/hashicorp/go-plugin` under the hood,
 which implies to implement a predefined interface:
 
 ```go title=ignite/services/plugin/interface.go
-// An ignite plugin must implements the Plugin interface.
+// An ignite plugin must implement the Plugin interface.
 type Interface interface {
 	// Manifest declares the plugin's Command(s) and Hook(s).
 	Manifest() (Manifest, error)
@@ -91,13 +91,13 @@ type Manifest struct {
 	// SharedHost enables sharing a single plugin server across all running instances
 	// of a plugin. Useful if a plugin adds or extends long running commands
 	//
-	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instantiated
 	// when the command is run. Now if you want to interact with that instance from commands
 	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
 	// instantiate separate plugin servers.
 	//
 	// When enabled, all plugins of the same `Path` loaded from the same configuration will
-	// attach it's rpc client to a an existing rpc server.
+	// attach its rpc client to an existing rpc server.
 	//
 	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
 	SharedHost bool `yaml:"shared_host"`
@@ -126,7 +126,7 @@ plugin. Commands can be of any path not defined already by ignite. All plugin
 commands will extend of the command root `ignite`. 
 
 For instance, let's say your plugin adds a new `oracle` command to `ignite
-scaffold`, the `Manifest()` method will look like :
+scaffold`, the `Manifest()` method will look like:
 
 ```go
 func (p) Manifest() (plugin.Manifest, error) {
@@ -137,7 +137,7 @@ func (p) Manifest() (plugin.Manifest, error) {
 				Use:   "oracle [name]",
 				Short: "Scaffold an oracle module",
 				Long:  "Long description goes here...",
-				// Optionnal flags is required
+				// Optional flags is required
 				Flags: []plugin.Flag{
 					{Name: "source", Type: plugin.FlagTypeString, Usage: "the oracle source"},
 				},
@@ -178,8 +178,7 @@ Then, run `ignite scaffold oracle` to execute the plugin.
 Plugin `Hooks` allow existing ignite commands to be extended with new
 functionality. Hooks are useful when you want to streamline functionality
 without needing to run custom scripts after or before a command has been run.
-this can streamline processes that where once error prone or forgotten all
-together.
+this can streamline processes that were once error prone or forgotten altogether.
 
 The following are hooks defined which will run on a registered `ignite` commands
 

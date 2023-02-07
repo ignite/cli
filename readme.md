@@ -14,7 +14,7 @@ so you can focus on writing business logic.
 Open Ignite CLI [in your web
 browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
 [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or
-[install the latest release](https://docs.ignite.com/guide/install).
+[install the latest release](https://docs.ignite.com/welcome/install).
 
 To create and start a blockchain:
 
