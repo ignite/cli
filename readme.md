@@ -14,7 +14,7 @@ so you can focus on writing business logic.
 Open Ignite CLI [in your web
 browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
 [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or
-[install the latest release](https://docs.ignite.com/guide/install).
+[install the latest release](https://docs.ignite.com/welcome/install).
 
 To create and start a blockchain:
 
@@ -54,7 +54,8 @@ version of Cosmos SDK that your blockchain is built with. Unless noted
 otherwise, a row refers to a minor version and all associated patch versions.
 
 | Ignite CLI  | Cosmos SDK  | IBC                  | Notes                                                         |
-| ----------- | ----------- | -------------------- | ------------------------------------------------------------- |
+|-------------|-------------|----------------------|---------------------------------------------------------------|
+| v0.26.0     | v0.46.7     | v6.1.0               |                                                               |
 | v0.25.2     | v0.46.6     | v5.1.0               | Bump Tendermint version to v0.34.24                           |
 | v0.25.1     | v0.46.3     | v5.0.0               | Includes  Dragonberry security fix                            |
 | ~~v0.24.0~~ | ~~v0.46.0~~ | ~~v5.0.0~~           | This version is deprecated due to a security fix in `v0.25.0` |
