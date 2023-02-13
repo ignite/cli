@@ -9,31 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
-var (
-	MainFile   = []byte(`package main`)
-	ImportFile = []byte(`
-package app
-
-import (
-	"io"
-	"net/http"
-	"path/filepath"
-
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/server/api"
-	"github.com/cosmos/cosmos-sdk/server/config"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	queryonlymodmodule "github.com/tendermint/testchain/x/queryonlymod"
-	queryonlymodmodulekeeper "github.com/tendermint/testchain/x/queryonlymod/keeper"
-	queryonlymodmoduletypes "github.com/tendermint/testchain/x/queryonlymod/types"
-)
-`)
-)
+var MainFile = []byte(`package main`)
 
 func TestDiscoverMain(t *testing.T) {
 	tests := []struct {
@@ -156,28 +135,98 @@ func createMainFiles(tmpDir string, mainFiles []string) (pathsWithMain []string,
 	return pathsWithMain, nil
 }
 
-func TestFindImportedPackages(t *testing.T) {
-	tmpDir := t.TempDir()
+func TestGenVarExists(t *testing.T) {
+	testFile := `
+		package goanalysis
+		
+		import (
+			"context"
+			"errors"
+			"path/filepath"
+		)
+		
+		const (
+			fooConst = "foo"
+		)
+		
+		type (
+			fooStruct struct {
+				name string
+			}
+		)
+		
+		var (
+			fooVar       = filepath.Join("test", "join")
+			contextVar   = context.Background()
+			fooStructVar = fooStruct{}
+		)
+		
+		var (
+			errorFooVar  = errors.New("error foo")
+			bazStructVar = fooStruct{}
+			errorBarVar  = errors.New("error bar")
+		)
+		
+		func fooMethod(foo string) error {
+			return nil
+		}
+`
+	filename := filepath.Join(t.TempDir(), "var.go")
+	require.NoError(t, os.WriteFile(filename, []byte(testFile), 0o644))
 
-	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, ImportFile, 0o644)
-	require.NoError(t, err)
+	tests := []struct {
+		name        string
+		declaration string
+		want        bool
+	}{
+		{
+			name:        "test success assign",
+			declaration: "context.Background",
+			want:        true,
+		},
+		{
+			name:        "test success assign",
+			declaration: "filepath.Join",
+			want:        true,
+		},
+		{
+			name:        "test success assign",
+			declaration: "errors.New",
+			want:        true,
+		},
+		{
+			name:        "test invalid case sensitive assign",
+			declaration: "join",
+			want:        false,
+		},
+		{
+			name:        "test invalid struct assign",
+			declaration: "fooStruct",
+			want:        false,
+		},
+		{
+			name:        "test invalid method signature",
+			declaration: "fooMethod",
+			want:        false,
+		},
+		{
+			name:        "test not found name",
+			declaration: "Invalid",
+			want:        false,
+		},
+		{
+			name:        "test invalid assign with wrong",
+			declaration: "invalid.New",
+			want:        false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			appPkg, _, err := xast.ParseFile(filename)
+			require.NoError(t, err)
 
-	packages, err := goanalysis.FindImportedPackages(tmpFile)
-	require.NoError(t, err)
-	require.EqualValues(t, packages, map[string]string{
-		"io":                       "io",
-		"http":                     "net/http",
-		"filepath":                 "path/filepath",
-		"baseapp":                  "github.com/cosmos/cosmos-sdk/baseapp",
-		"client":                   "github.com/cosmos/cosmos-sdk/client",
-		"types":                    "github.com/cosmos/cosmos-sdk/codec/types",
-		"api":                      "github.com/cosmos/cosmos-sdk/server/api",
-		"config":                   "github.com/cosmos/cosmos-sdk/server/config",
-		"servertypes":              "github.com/cosmos/cosmos-sdk/server/types",
-		"simapp":                   "github.com/cosmos/cosmos-sdk/simapp",
-		"queryonlymodmodule":       "github.com/tendermint/testchain/x/queryonlymod",
-		"queryonlymodmodulekeeper": "github.com/tendermint/testchain/x/queryonlymod/keeper",
-		"queryonlymodmoduletypes":  "github.com/tendermint/testchain/x/queryonlymod/types",
-	})
+			got := goanalysis.GenVarExists(appPkg, tt.declaration)
+			require.Equal(t, tt.want, got)
+		})
+	}
 }

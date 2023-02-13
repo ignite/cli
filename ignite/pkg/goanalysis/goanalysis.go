@@ -70,15 +70,47 @@ func DiscoverOneMain(path string) (pkgPath string, err error) {
 	return pkgPaths[0], nil
 }
 
-// FindImportedPackages finds the imported packages in a Go file and returns a map
-// with package name, import path pair.
-func FindImportedPackages(name string) (map[string]string, error) {
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, name, nil, 0)
-	if err != nil {
-		return nil, err
+// GenVarExists finds a genesis variable declaration into the go file
+func GenVarExists(f *ast.File, declaration string) bool {
+	for _, d := range f.Decls {
+		genDecl, ok := d.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.VAR {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			valueDecl, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			for _, id := range valueDecl.Names {
+				vSpec, ok := id.Obj.Decl.(*ast.ValueSpec)
+				if !ok || len(vSpec.Values) == 0 {
+					continue
+				}
+
+				call, ok := vSpec.Values[0].(*ast.CallExpr)
+				if !ok {
+					continue
+				}
+				sel, ok := call.Fun.(*ast.SelectorExpr)
+				if !ok {
+					continue
+				}
+
+				x, ok := sel.X.(*ast.Ident)
+				if !ok {
+					continue
+				}
+
+				cursorDeclaration := x.String() + "." + sel.Sel.String()
+				if cursorDeclaration == declaration {
+					return true
+				}
+			}
+		}
+
 	}
-	return FormatImports(f), nil
+	return false
 }
 
 // FormatImports translate f.Imports into a map where name -> package.
