@@ -175,49 +175,64 @@ func TestGenVarExists(t *testing.T) {
 	require.NoError(t, os.WriteFile(filename, []byte(testFile), 0o644))
 
 	tests := []struct {
-		name        string
-		declaration string
-		want        bool
+		name            string
+		goImport        string
+		methodSignature string
+		want            bool
 	}{
 		{
-			name:        "test success assign",
-			declaration: "context.Background",
-			want:        true,
+			name:            "test success assign",
+			methodSignature: "Background",
+			goImport:        "context",
+			want:            true,
 		},
 		{
-			name:        "test success assign",
-			declaration: "filepath.Join",
-			want:        true,
+			name:            "test success assign",
+			methodSignature: "Join",
+			goImport:        "path/filepath",
+			want:            true,
 		},
 		{
-			name:        "test success assign",
-			declaration: "errors.New",
-			want:        true,
+			name:            "test success assign",
+			methodSignature: "New",
+			goImport:        "errors",
+			want:            true,
 		},
 		{
-			name:        "test invalid case sensitive assign",
-			declaration: "join",
-			want:        false,
+			name:            "test invalid import",
+			methodSignature: "Join",
+			goImport:        "errors",
+			want:            false,
 		},
 		{
-			name:        "test invalid struct assign",
-			declaration: "fooStruct",
-			want:        false,
+			name:            "test invalid case sensitive assign",
+			methodSignature: "join",
+			goImport:        "context",
+			want:            false,
 		},
 		{
-			name:        "test invalid method signature",
-			declaration: "fooMethod",
-			want:        false,
+			name:            "test invalid struct assign",
+			methodSignature: "fooStruct",
+			goImport:        "context",
+			want:            false,
 		},
 		{
-			name:        "test not found name",
-			declaration: "Invalid",
-			want:        false,
+			name:            "test invalid method signature",
+			methodSignature: "fooMethod",
+			goImport:        "context",
+			want:            false,
 		},
 		{
-			name:        "test invalid assign with wrong",
-			declaration: "invalid.New",
-			want:        false,
+			name:            "test not found name",
+			methodSignature: "Invalid",
+			goImport:        "context",
+			want:            false,
+		},
+		{
+			name:            "test invalid assign with wrong",
+			methodSignature: "invalid.New",
+			goImport:        "context",
+			want:            false,
 		},
 	}
 	for _, tt := range tests {
@@ -225,7 +240,7 @@ func TestGenVarExists(t *testing.T) {
 			appPkg, _, err := xast.ParseFile(filename)
 			require.NoError(t, err)
 
-			got := goanalysis.GenVarExists(appPkg, tt.declaration)
+			got := goanalysis.GenVarExists(appPkg, tt.goImport, tt.methodSignature)
 			require.Equal(t, tt.want, got)
 		})
 	}

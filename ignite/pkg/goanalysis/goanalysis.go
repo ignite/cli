@@ -70,8 +70,22 @@ func DiscoverOneMain(path string) (pkgPath string, err error) {
 	return pkgPaths[0], nil
 }
 
-// GenVarExists finds a genesis variable declaration into the go file
-func GenVarExists(f *ast.File, declaration string) bool {
+// GenVarExists finds a genesis variable goImport into the go file
+func GenVarExists(f *ast.File, goImport, methodSignature string) bool {
+	var (
+		importAlias = ""
+		imports     = FormatImports(f)
+	)
+	for alias, imp := range imports {
+		if imp == goImport {
+			importAlias = alias
+		}
+	}
+	if importAlias == "" {
+		return false
+	}
+	methodDecl := importAlias + "." + methodSignature
+
 	for _, d := range f.Decls {
 		genDecl, ok := d.(*ast.GenDecl)
 		if !ok || genDecl.Tok != token.VAR {
@@ -103,7 +117,7 @@ func GenVarExists(f *ast.File, declaration string) bool {
 				}
 
 				cursorDeclaration := x.String() + "." + sel.Sel.String()
-				if cursorDeclaration == declaration {
+				if cursorDeclaration == methodDecl {
 					return true
 				}
 			}

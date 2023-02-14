@@ -16,7 +16,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
-const appWiringCallMethod = "appconfig.Compose"
+const (
+	appWiringImport     = "cosmossdk.io/core/appconfig"
+	appWiringCallMethod = "Compose"
+)
 
 var appImplementation = []string{
 	"RegisterAPIRoutes",
@@ -160,7 +163,7 @@ func CheckAppWiring(chainRoot string) (bool, error) {
 
 	// Loop on package's files
 	for _, f := range appPkg.Files {
-		exists := goanalysis.GenVarExists(f, appWiringCallMethod)
+		exists := goanalysis.GenVarExists(f, appWiringImport, appWiringCallMethod)
 		if exists {
 			return true, err
 		}
