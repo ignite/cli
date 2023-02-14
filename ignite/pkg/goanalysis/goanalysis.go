@@ -70,7 +70,7 @@ func DiscoverOneMain(path string) (pkgPath string, err error) {
 	return pkgPaths[0], nil
 }
 
-// GenVarExists finds a genesis variable goImport into the go file
+// GenVarExists finds a genesis variable goImport into the go file.
 func GenVarExists(f *ast.File, goImport, methodSignature string) bool {
 	var (
 		importAlias = ""

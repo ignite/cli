@@ -145,7 +145,7 @@ func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 	return modules, nil
 }
 
-// CheckAppWiring check if the app wiring exists finding the `appconfig.Compose` method call
+// CheckAppWiring check if the app wiring exists finding the `appconfig.Compose` method call.
 func CheckAppWiring(chainRoot string) (bool, error) {
 	// Assumption: modules are registered in the app package
 	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
