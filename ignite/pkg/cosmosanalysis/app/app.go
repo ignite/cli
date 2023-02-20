@@ -163,7 +163,7 @@ func CheckAppWiring(chainRoot string) (bool, error) {
 
 	// Loop on package's files
 	for _, f := range appPkg.Files {
-		exists := goanalysis.GenVarExists(f, appWiringImport, appWiringCallMethod)
+		exists := goanalysis.FuncVarExists(f, appWiringImport, appWiringCallMethod)
 		if exists {
 			return true, err
 		}

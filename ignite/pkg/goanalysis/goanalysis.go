@@ -3,6 +3,7 @@ package goanalysis
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -70,8 +71,8 @@ func DiscoverOneMain(path string) (pkgPath string, err error) {
 	return pkgPaths[0], nil
 }
 
-// GenVarExists finds a genesis variable goImport into the go file.
-func GenVarExists(f *ast.File, goImport, methodSignature string) bool {
+// FuncVarExists finds a genesis variable goImport into the go file.
+func FuncVarExists(f *ast.File, goImport, methodSignature string) bool {
 	var (
 		importAlias = ""
 		imports     = FormatImports(f)
@@ -87,44 +88,101 @@ func GenVarExists(f *ast.File, goImport, methodSignature string) bool {
 	methodDecl := importAlias + "." + methodSignature
 
 	for _, d := range f.Decls {
-		genDecl, ok := d.(*ast.GenDecl)
-		if !ok || genDecl.Tok != token.VAR {
-			continue
-		}
-		for _, spec := range genDecl.Specs {
-			valueDecl, ok := spec.(*ast.ValueSpec)
-			if !ok {
+		switch decl := d.(type) {
+		case *ast.FuncDecl:
+			for _, stmt := range decl.Body.List {
+				switch v := stmt.(type) {
+				case *ast.DeclStmt:
+					genDecl, ok := d.(*ast.GenDecl)
+					if !ok {
+						continue
+					}
+					cursorDeclaration, err := getGenDeclName(genDecl)
+					if err != nil {
+						continue
+					}
+					if cursorDeclaration == methodDecl {
+						return true
+					}
+				case *ast.AssignStmt:
+					if len(v.Rhs) == 0 {
+						continue
+					}
+					cursorDeclaration, err := getCallExprName(v.Rhs[0])
+					if err != nil {
+						continue
+					}
+					if cursorDeclaration == methodDecl {
+						return true
+					}
+				case *ast.IfStmt:
+					stmt, ok := v.Init.(*ast.AssignStmt)
+					if !ok || len(stmt.Rhs) == 0 {
+						continue
+					}
+					cursorDeclaration, err := getCallExprName(stmt.Rhs[0])
+					if err != nil {
+						continue
+					}
+					if cursorDeclaration == methodDecl {
+						return true
+					}
+				}
+			}
+		case *ast.GenDecl:
+			cursorDeclaration, err := getGenDeclName(decl)
+			if err != nil {
 				continue
 			}
-			for _, id := range valueDecl.Names {
-				vSpec, ok := id.Obj.Decl.(*ast.ValueSpec)
-				if !ok || len(vSpec.Values) == 0 {
-					continue
-				}
-
-				call, ok := vSpec.Values[0].(*ast.CallExpr)
-				if !ok {
-					continue
-				}
-				sel, ok := call.Fun.(*ast.SelectorExpr)
-				if !ok {
-					continue
-				}
-
-				x, ok := sel.X.(*ast.Ident)
-				if !ok {
-					continue
-				}
-
-				cursorDeclaration := x.String() + "." + sel.Sel.String()
-				if cursorDeclaration == methodDecl {
-					return true
-				}
+			if cursorDeclaration == methodDecl {
+				return true
 			}
 		}
-
 	}
 	return false
+}
+
+func getGenDeclName(genDecl *ast.GenDecl) (string, error) {
+	if genDecl.Tok != token.VAR {
+		return "", fmt.Errorf("genDecl is not a var token: %v", genDecl.Tok)
+	}
+	for _, spec := range genDecl.Specs {
+		valueDecl, ok := spec.(*ast.ValueSpec)
+		if !ok {
+			continue
+		}
+		for _, id := range valueDecl.Names {
+			vSpec, ok := id.Obj.Decl.(*ast.ValueSpec)
+			if !ok || len(vSpec.Values) == 0 {
+				continue
+			}
+
+			cursorDeclaration, err := getCallExprName(vSpec.Values[0])
+			if err != nil {
+				continue
+			}
+			return cursorDeclaration, nil
+		}
+	}
+	return "", fmt.Errorf("declaration not found")
+}
+
+func getCallExprName(expr ast.Expr) (string, error) {
+	call, ok := expr.(*ast.CallExpr)
+	if !ok {
+		return "", fmt.Errorf("expression is not a *ast.CallExpr: %v", expr)
+	}
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return "", fmt.Errorf("expression function is not a *ast.SelectorExpr: %v", call.Fun)
+	}
+
+	x, ok := sel.X.(*ast.Ident)
+	if !ok {
+		return "", fmt.Errorf("selector expression function is not a *ast.Ident: %v", sel.X)
+	}
+
+	return x.String() + "." + sel.Sel.String(), nil
 }
 
 // FormatImports translate f.Imports into a map where name -> package.
