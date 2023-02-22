@@ -88,53 +88,55 @@ func FuncVarExists(f *ast.File, goImport, methodSignature string) bool {
 	methodDecl := importAlias + "." + methodSignature
 
 	for _, d := range f.Decls {
-		switch decl := d.(type) {
-		case *ast.FuncDecl:
-			for _, stmt := range decl.Body.List {
-				switch v := stmt.(type) {
-				case *ast.DeclStmt:
-					genDecl, ok := d.(*ast.GenDecl)
-					if !ok {
-						continue
-					}
-					cursorDeclaration, err := getGenDeclName(genDecl)
-					if err != nil {
-						continue
-					}
-					if cursorDeclaration == methodDecl {
-						return true
-					}
-				case *ast.AssignStmt:
-					if len(v.Rhs) == 0 {
-						continue
-					}
-					cursorDeclaration, err := getCallExprName(v.Rhs[0])
-					if err != nil {
-						continue
-					}
-					if cursorDeclaration == methodDecl {
-						return true
-					}
-				case *ast.IfStmt:
-					stmt, ok := v.Init.(*ast.AssignStmt)
-					if !ok || len(stmt.Rhs) == 0 {
-						continue
-					}
-					cursorDeclaration, err := getCallExprName(stmt.Rhs[0])
-					if err != nil {
-						continue
-					}
-					if cursorDeclaration == methodDecl {
-						return true
-					}
+		if declVarExists(d, methodDecl) {
+			return true
+		}
+	}
+	return false
+}
+
+// declVarExists find a variable declaration into a ast.Decl.
+func declVarExists(decl ast.Decl, methodDecl string) bool {
+	switch d := decl.(type) {
+	case *ast.FuncDecl:
+		for _, stmt := range d.Body.List {
+			switch v := stmt.(type) {
+			case *ast.DeclStmt:
+				if declVarExists(v.Decl, methodDecl) {
+					return true
+				}
+			case *ast.AssignStmt:
+				if len(v.Rhs) == 0 {
+					continue
+				}
+				decl, err := getCallExprName(v.Rhs[0])
+				if err != nil {
+					continue
+				}
+				if decl == methodDecl {
+					return true
+				}
+			case *ast.IfStmt:
+				stmt, ok := v.Init.(*ast.AssignStmt)
+				if !ok || len(stmt.Rhs) == 0 {
+					continue
+				}
+				decl, err := getCallExprName(stmt.Rhs[0])
+				if err != nil {
+					continue
+				}
+				if decl == methodDecl {
+					return true
 				}
 			}
-		case *ast.GenDecl:
-			cursorDeclaration, err := getGenDeclName(decl)
-			if err != nil {
-				continue
-			}
-			if cursorDeclaration == methodDecl {
+		}
+	case *ast.GenDecl:
+		decls, err := getGenDeclNames(d)
+		if err != nil {
+			return false
+		}
+		for _, decl := range decls {
+			if decl == methodDecl {
 				return true
 			}
 		}
@@ -142,10 +144,12 @@ func FuncVarExists(f *ast.File, goImport, methodSignature string) bool {
 	return false
 }
 
-func getGenDeclName(genDecl *ast.GenDecl) (string, error) {
+// getGenDeclNames returns a list of the method declaration inside the ast.GenDecl
+func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 	if genDecl.Tok != token.VAR {
-		return "", fmt.Errorf("genDecl is not a var token: %v", genDecl.Tok)
+		return nil, fmt.Errorf("genDecl is not a var token: %v", genDecl.Tok)
 	}
+	var decls []string
 	for _, spec := range genDecl.Specs {
 		valueDecl, ok := spec.(*ast.ValueSpec)
 		if !ok {
@@ -157,16 +161,20 @@ func getGenDeclName(genDecl *ast.GenDecl) (string, error) {
 				continue
 			}
 
-			cursorDeclaration, err := getCallExprName(vSpec.Values[0])
+			cursorDecl, err := getCallExprName(vSpec.Values[0])
 			if err != nil {
 				continue
 			}
-			return cursorDeclaration, nil
+			decls = append(decls, cursorDecl)
 		}
 	}
-	return "", fmt.Errorf("declaration not found")
+	if len(decls) == 0 {
+		return nil, fmt.Errorf("empty method declarations")
+	}
+	return decls, nil
 }
 
+// getGenDeclNames returns the method declaration inside the ast.Expr
 func getCallExprName(expr ast.Expr) (string, error) {
 	call, ok := expr.(*ast.CallExpr)
 	if !ok {

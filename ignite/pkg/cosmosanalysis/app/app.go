@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	appWiringImport     = "cosmossdk.io/core/appconfig"
-	appWiringCallMethod = "Compose"
+	appWiringImport     = "cosmossdk.io/depinject"
+	appWiringCallMethod = "Inject"
 )
 
 var appImplementation = []string{

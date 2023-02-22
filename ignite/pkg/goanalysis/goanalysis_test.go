@@ -157,7 +157,6 @@ func TestGenVarExists(t *testing.T) {
 		
 		var (
 			fooVar       = filepath.Join("test", "join")
-			contextVar   = context.Background()
 			fooStructVar = fooStruct{}
 		)
 		
@@ -170,6 +169,17 @@ func TestGenVarExists(t *testing.T) {
 		func fooMethod(foo string) error {
 			return nil
 		}
+
+		func barMethod(foo string) context.Context {
+			contextVar := context.Background()
+			return contextVar
+		}
+
+		func bazMethod(foo string) {
+			if list := filepath.SplitList("list"); list == nil {
+				return errors.New("error baz")
+			}
+		}
 `
 	filename := filepath.Join(t.TempDir(), "var.go")
 	require.NoError(t, os.WriteFile(filename, []byte(testFile), 0o644))
@@ -181,19 +191,25 @@ func TestGenVarExists(t *testing.T) {
 		want            bool
 	}{
 		{
-			name:            "test success assign",
+			name:            "test a declaration inside a method success",
 			methodSignature: "Background",
 			goImport:        "context",
 			want:            true,
 		},
 		{
-			name:            "test success assign",
+			name:            "test global declaration success",
 			methodSignature: "Join",
 			goImport:        "path/filepath",
 			want:            true,
 		},
 		{
-			name:            "test success assign",
+			name:            "test a declaration inside an if and inside a method success",
+			methodSignature: "SplitList",
+			goImport:        "path/filepath",
+			want:            true,
+		},
+		{
+			name:            "test global variable success assign",
 			methodSignature: "New",
 			goImport:        "errors",
 			want:            true,
@@ -234,13 +250,19 @@ func TestGenVarExists(t *testing.T) {
 			goImport:        "context",
 			want:            false,
 		},
+		{
+			name:            "test invalid assign with wrong",
+			methodSignature: "SplitList",
+			goImport:        "path/filepath",
+			want:            true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			appPkg, _, err := xast.ParseFile(filename)
 			require.NoError(t, err)
 
-			got := goanalysis.GenVarExists(appPkg, tt.goImport, tt.methodSignature)
+			got := goanalysis.FuncVarExists(appPkg, tt.goImport, tt.methodSignature)
 			require.Equal(t, tt.want, got)
 		})
 	}
