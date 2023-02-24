@@ -74,6 +74,7 @@
 - [#3327](https://github.com/ignite/cli/issues/3327) Scaffolding messages with same name leads to aliasing.
 - [#3383](https://github.com/ignite/cli/pull/3383) State error and info are now displayed when using serve UI.
 - [#3379](https://github.com/ignite/cli/issues/3379) Fix `ignite docs` issue by disabling mouse support.
+- [#3435](https://github.com/ignite/cli/issues/3435) Fix wrong client context for cmd query methods.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
