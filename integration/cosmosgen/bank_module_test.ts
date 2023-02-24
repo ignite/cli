@@ -57,5 +57,5 @@ describe('bank module', async () => {
       expect(response.statusText).toEqual('OK')
       expect(response.data.balance.amount).toEqual(tc.wantAmount)
     }
-  })
+  }, 10000)
 })

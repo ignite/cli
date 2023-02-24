@@ -32,6 +32,7 @@ type Hosts struct {
 	GRPC    string
 	GRPCWeb string
 	API     string
+	Faucet  string
 }
 
 type App struct {
@@ -203,7 +204,7 @@ func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 // its config.yml and returns new values.
 func (a App) RandomizeServerPorts() Hosts {
 	// generate random server ports
-	ports, err := availableport.Find(6)
+	ports, err := availableport.Find(7)
 	require.NoError(a.env.t, err)
 
 	genAddr := func(port int) string {
@@ -217,6 +218,7 @@ func (a App) RandomizeServerPorts() Hosts {
 		GRPC:    genAddr(ports[3]),
 		GRPCWeb: genAddr(ports[4]),
 		API:     genAddr(ports[5]),
+		Faucet:  genAddr(ports[6]),
 	}
 
 	a.EditConfig(func(c *chainconfig.Config) {
@@ -229,6 +231,8 @@ func (a App) RandomizeServerPorts() Hosts {
 		s.P2P.Address = hosts.P2P
 		s.RPC.Address = hosts.RPC
 		s.RPC.PProfAddress = hosts.Prof
+
+		c.Faucet.Host = hosts.Faucet
 
 		require.NoError(a.env.t, v.SetServers(s))
 	})
