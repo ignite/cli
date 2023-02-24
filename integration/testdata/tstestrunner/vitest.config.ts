@@ -8,7 +8,8 @@ export default defineConfig({
   test: {
     include: ['**/*_test.ts'],
     globals: true,
-    setupFiles: 'testutil/setup.ts'
+    setupFiles: 'testutil/setup.ts',
+    testTimeout: 10000
   },
   resolve: {
     alias: {

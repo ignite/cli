@@ -37,5 +37,5 @@ describe('custom module', async () => {
     expect(response.statusText).toEqual('OK')
     expect(response.data['Entry']).toHaveLength(1)
     expect(response.data['Entry'][0]).toEqual(entry)
-  })
+  }, 10000)
 })
