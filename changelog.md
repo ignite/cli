@@ -56,6 +56,7 @@
 - [#3244](https://github.com/ignite/cli/pull/3244) Update `actions.yml` for resolving deprecation message
 - [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
 - [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` gRPC in `app.go` template.
+- [#3447](https://github.com/ignite/cli/pull/3447) Disable ignite network plugin.
 
 ### Breaking Changes
 
@@ -81,6 +82,7 @@
 ### Changes
 
 - [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
+
 # Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
