@@ -590,7 +590,7 @@ func TestClientCreateTx(t *testing.T) {
 		{
 			name: "ok: without gas price and zero gas adjustment",
 			opts: []cosmosclient.Option{
-				cosmosclient.WithGasPrices("3token"),
+				cosmosclient.WithGas("auto"),
 				cosmosclient.WithGasAdjustment(0),
 			},
 			msg: &banktypes.MsgSend{
@@ -600,7 +600,8 @@ func TestClientCreateTx(t *testing.T) {
 					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
 				),
 			},
-			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"900000"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
+			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}
+`,
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.gasometer.EXPECT().
