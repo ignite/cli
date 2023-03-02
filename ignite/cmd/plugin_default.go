@@ -26,12 +26,12 @@ const (
 // a command will added if the plugin is not already installed.
 // When the user executes that command, the plugin is automatically installed.
 var defaultPlugins = []defaultPlugin{
-	{
-		use:     "network",
-		short:   "Launch a blockchain in production",
-		aliases: []string{"n"},
-		path:    PluginNetworkPath,
-	},
+	//{
+	//	use:     "network",
+	//	short:   "Launch a blockchain in production",
+	//	aliases: []string{"n"},
+	//	path:    PluginNetworkPath,
+	//},
 }
 
 // ensureDefaultPlugins ensures that all defaultPlugins are wether registered
