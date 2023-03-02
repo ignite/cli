@@ -50,7 +50,7 @@ func flagSetGasFlags() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagGasPrices, "", "gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)")
 	fs.String(flagGas, gasFlagAuto, fmt.Sprintf("gas limit to set per-transaction; set to %q to calculate sufficient gas automatically", gasFlagAuto))
-	fs.Float64(flagAdjustment, 0, fmt.Sprintf("gas adjustment to set per-transaction"))
+	fs.Float64(flagAdjustment, 0, "gas adjustment to set per-transaction")
 	return fs
 }
 
