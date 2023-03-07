@@ -77,7 +77,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
   	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
-  	nfttypes "github.com/cosmos/cosmos-sdk/x/nft/types"
+  	nftmodule "github.com/cosmos/cosmos-sdk/x/nft/module"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
