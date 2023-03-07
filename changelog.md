@@ -21,6 +21,7 @@
 - [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
 - [#2992](https://github.com/ignite/cli/issues/2992) Add `ignite chain debug` command.
 - [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
+- [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
 
 ### Changes
 
@@ -74,6 +75,7 @@
 - [#3327](https://github.com/ignite/cli/issues/3327) Scaffolding messages with same name leads to aliasing.
 - [#3383](https://github.com/ignite/cli/pull/3383) State error and info are now displayed when using serve UI.
 - [#3379](https://github.com/ignite/cli/issues/3379) Fix `ignite docs` issue by disabling mouse support.
+- [#3435](https://github.com/ignite/cli/issues/3435) Fix wrong client context for cmd query methods.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
