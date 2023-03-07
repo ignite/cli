@@ -356,10 +356,11 @@ func New(
 		app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	app.NftKeeper = nftkeeper.NewKeeper(
+	app.NFTKeeper = nftkeeper.NewKeeper(
+		keys[nftkeeper.StoreKey],
 		appCodec,
-			app.AccountKeeper,
-			app.BankKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
 	)
 
 	app.MintKeeper = mintkeeper.NewKeeper(
