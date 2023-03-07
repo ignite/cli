@@ -10,6 +10,7 @@ import (
 
 const (
 	flagNoDefaultModule = "no-module"
+	flagSkipGit         = "skip-git"
 
 	tplScaffoldChainSuccess = `
 ⭐️ Successfully created a new blockchain '%[1]v'.
@@ -74,8 +75,9 @@ about Cosmos SDK on https://docs.cosmos.network
 
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
-	c.Flags().StringP(flagPath, "p", ".", "create a project in a specific path")
+	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
+	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
 
 	return c
 }
@@ -89,6 +91,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix      = getAddressPrefix(cmd)
 		appPath            = flagGetPath(cmd)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
+		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 	)
 
 	cacheStorage, err := newCache(cmd)
@@ -104,6 +107,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		name,
 		addressPrefix,
 		noDefaultModule,
+		skipGit,
 	)
 	if err != nil {
 		return err

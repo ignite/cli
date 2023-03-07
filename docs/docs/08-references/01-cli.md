@@ -3512,7 +3512,8 @@ ignite scaffold chain [name] [flags]
       --clear-cache             clear the build cache (advanced)
   -h, --help                    help for chain
       --no-module               create a project without a default module
-  -p, --path string             create a project in a specific path (default ".")
+  -p, --path string             create a project in a specific path
+      --skip-git                skip Git repository initialization
 ```
 
 **SEE ALSO**
