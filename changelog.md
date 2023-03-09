@@ -1,4 +1,4 @@
-## Unreleased
+## [`v0.26.0`](https://github.com/ignite/cli/releases/tag/v0.26.0)
 
 ### Features
 
@@ -6,7 +6,7 @@
 - [#3238](https://github.com/ignite/cli/pull/3238) Add `Sharedhost` plugin option
 - [#3214](https://github.com/ignite/cli/pull/3214) Global plugins config.
 - [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
-- [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` `remove` commands for `plugins`
+- [#3181](https://github.com/ignite/cli/pull/3181) Addition of `add` and `remove` commands for `plugins`
 - [#3184](https://github.com/ignite/cli/pull/3184) Separate `plugins.yml` config file.
 - [#3038](https://github.com/ignite/cli/pull/3038) Addition of Plugin Hooks in Plugin System
 - [#3056](https://github.com/ignite/cli/pull/3056) Add `--genesis-config` flag option to `ignite network chain publish`
@@ -21,6 +21,8 @@
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
 - [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
 - [#2992](https://github.com/ignite/cli/issues/2992) Add `ignite chain debug` command.
+- [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
+- [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
 
 ### Changes
 
@@ -37,7 +39,7 @@
 - [#2981](https://github.com/ignite/cli/issues/2981) Change CLI to also search chain binary in Go binary path.
 - [#2958](https://github.com/ignite/cli/pull/2958) Support absolute paths for client code generation config paths.
 - [#2993](https://github.com/ignite/cli/pull/2993) Hide `ignite scaffold band` command and deprecate functionality.
-- [#2986](https://github.com/ignite/cli/issues/2986) Remove `--proto-all-modules` flag because is now the default behaviour.
+- [#2986](https://github.com/ignite/cli/issues/2986) Remove `--proto-all-modules` flag because it is now the default behaviour.
 - [#2986](https://github.com/ignite/cli/issues/2986) Remove automatic Vue code scaffolding from `scaffold chain` command.
 - [#2986](https://github.com/ignite/cli/issues/2986) Add `--generate-clients` to `chain serve` command for optional client code (re)generation.
 - [#2998](https://github.com/ignite/cli/pull/2998) Hide `ignite generate dart` command and remove functionality.
@@ -52,11 +54,10 @@
 - [#3183](https://github.com/ignite/cli/pull/3183/) Make config optional for init phase.
 - [#3224](https://github.com/ignite/cli/pull/3224) Remove `grpc_*` prefix from query files in scaffolded chains
 - [#3229](https://github.com/ignite/cli/pull/3229) Rename `campaign` to `project` in ignite network set of commands
-- [#3244](https://github.com/ignite/cli/pull/3244) updated actions.yml for resolving deprecation message
 - [#3122](https://github.com/ignite/cli/issues/3122) Change `generate ts-client` to ignore the cache by default.
-- [#3244](https://github.com/ignite/cli/pull/3244) Update actions.yml for resolving deprecation message
+- [#3244](https://github.com/ignite/cli/pull/3244) Update `actions.yml` for resolving deprecation message
 - [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
-- [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` grpc in `app.go` template.
+- [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` gRPC in `app.go` template.
 
 ### Breaking Changes
 
@@ -75,6 +76,7 @@
 - [#3327](https://github.com/ignite/cli/issues/3327) Scaffolding messages with same name leads to aliasing.
 - [#3383](https://github.com/ignite/cli/pull/3383) State error and info are now displayed when using serve UI.
 - [#3379](https://github.com/ignite/cli/issues/3379) Fix `ignite docs` issue by disabling mouse support.
+- [#3435](https://github.com/ignite/cli/issues/3435) Fix wrong client context for cmd query methods.
 
 ## [`v0.25.2`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
@@ -389,7 +391,7 @@ Our new name is **Ignite CLI**!
 - Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were
   scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must
   update the default blockchain template to use blockchains that were scaffolded with earlier versions.
-  See [Migration](./docs/docs/migration/readme.md).
+  See [Migration](https://docs.ignite.com/migration).
 
 ### Features
 
