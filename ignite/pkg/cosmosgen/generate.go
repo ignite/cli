@@ -167,6 +167,7 @@ func (g *generator) resolveDependencyInclude() ([]string, error) {
 
 	return paths, nil
 }
+
 func (g *generator) resolveIncludeApp(path string) (paths []string) {
 	// Append chain app's proto paths
 	paths = append(paths, filepath.Join(path, g.protoDir))

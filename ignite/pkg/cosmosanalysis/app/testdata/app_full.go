@@ -3,6 +3,7 @@ package app
 import (
 	"net/http"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -29,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/ignite/cli/ignite/pkg/openapiconsole"
 
