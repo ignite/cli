@@ -281,6 +281,7 @@ func TestNodeTxBankSend(t *testing.T) {
 					"--address-prefix", testPrefix,
 					"--gas", "200000",
 					"--gas-prices", "1stake",
+					"--gas-adjustment", "1.8",
 				),
 			)),
 		)
