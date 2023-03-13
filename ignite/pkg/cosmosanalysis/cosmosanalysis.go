@@ -23,10 +23,11 @@ const (
 	defaultAppFilePath   = "app/" + appFileName
 )
 
+// TODO fix me
 var appImplementation = []string{
 	"Name",
-	"BeginBlocker",
-	"EndBlocker",
+	"LegacyAmino",
+	"AppCodec",
 }
 
 // implementation tracks the implementation of an interface for a given struct.

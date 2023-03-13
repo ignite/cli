@@ -4,7 +4,8 @@ go 1.19
 
 require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
-	github.com/cosmos/cosmos-sdk v0.47.0-rc2
+	github.com/confio/ics23/go v0.9.0
+	github.com/cosmos/cosmos-sdk v0.47.0-rc3
 	github.com/cosmos/gogoproto v1.4.4
 	github.com/cosmos/ibc-go/v7 v7.0.0-rc0
 	github.com/golang/protobuf v1.5.2
@@ -15,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
-	github.com/tendermint/tendermint v0.37.0-rc2
+	github.com/cometbft/cometbft v0.37.0
 	github.com/tendermint/tm-db v0.6.7
 	google.golang.org/grpc v1.53.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -166,5 +167,4 @@ require (
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
-	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.37.0-rc2
 )
