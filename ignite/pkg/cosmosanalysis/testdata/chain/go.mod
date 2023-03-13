@@ -204,5 +204,4 @@ require (
 
 replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
-	github.com/cosmos/gogoproto => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )

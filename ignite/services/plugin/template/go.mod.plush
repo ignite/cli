@@ -6,7 +6,3 @@ require (
 	github.com/hashicorp/go-plugin v1.4.4
 	github.com/ignite/cli v0.25.3-0.20230104184106-15d7be221737
 )
-
-replace (
-	github.com/cosmos/gogoproto => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-)
