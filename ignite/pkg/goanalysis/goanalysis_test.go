@@ -135,123 +135,87 @@ func createMainFiles(tmpDir string, mainFiles []string) (pathsWithMain []string,
 	return pathsWithMain, nil
 }
 
-func TestGenVarExists(t *testing.T) {
-	testFile := `
-		package goanalysis
-		
-		import (
-			"context"
-			"errors"
-			"path/filepath"
-		)
-		
-		const (
-			fooConst = "foo"
-		)
-		
-		type (
-			fooStruct struct {
-				name string
-			}
-		)
-		
-		var (
-			fooVar       = filepath.Join("test", "join")
-			fooStructVar = fooStruct{}
-		)
-		
-		var (
-			errorFooVar  = errors.New("error foo")
-			bazStructVar = fooStruct{}
-			errorBarVar  = errors.New("error bar")
-		)
-		
-		func fooMethod(foo string) error {
-			return nil
-		}
-
-		func barMethod(foo string) context.Context {
-			contextVar := context.Background()
-			return contextVar
-		}
-
-		func bazMethod(foo string) {
-			if list := filepath.SplitList("list"); list == nil {
-				return errors.New("error baz")
-			}
-		}
-`
-	filename := filepath.Join(t.TempDir(), "var.go")
-	require.NoError(t, os.WriteFile(filename, []byte(testFile), 0o644))
-
+func TestFuncVarExists(t *testing.T) {
 	tests := []struct {
 		name            string
+		testfile        string
 		goImport        string
 		methodSignature string
 		want            bool
 	}{
 		{
 			name:            "test a declaration inside a method success",
+			testfile:        "testdata/varexist",
 			methodSignature: "Background",
 			goImport:        "context",
 			want:            true,
 		},
 		{
 			name:            "test global declaration success",
+			testfile:        "testdata/varexist",
 			methodSignature: "Join",
 			goImport:        "path/filepath",
 			want:            true,
 		},
 		{
 			name:            "test a declaration inside an if and inside a method success",
+			testfile:        "testdata/varexist",
 			methodSignature: "SplitList",
 			goImport:        "path/filepath",
 			want:            true,
 		},
 		{
 			name:            "test global variable success assign",
+			testfile:        "testdata/varexist",
 			methodSignature: "New",
 			goImport:        "errors",
 			want:            true,
 		},
 		{
 			name:            "test invalid import",
+			testfile:        "testdata/varexist",
 			methodSignature: "Join",
 			goImport:        "errors",
 			want:            false,
 		},
 		{
 			name:            "test invalid case sensitive assign",
+			testfile:        "testdata/varexist",
 			methodSignature: "join",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid struct assign",
+			testfile:        "testdata/varexist",
 			methodSignature: "fooStruct",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid method signature",
+			testfile:        "testdata/varexist",
 			methodSignature: "fooMethod",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test not found name",
+			testfile:        "testdata/varexist",
 			methodSignature: "Invalid",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid assign with wrong",
+			testfile:        "testdata/varexist",
 			methodSignature: "invalid.New",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid assign with wrong",
+			testfile:        "testdata/varexist",
 			methodSignature: "SplitList",
 			goImport:        "path/filepath",
 			want:            true,
@@ -259,7 +223,7 @@ func TestGenVarExists(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			appPkg, _, err := xast.ParseFile(filename)
+			appPkg, _, err := xast.ParseFile(tt.testfile)
 			require.NoError(t, err)
 
 			got := goanalysis.FuncVarExists(appPkg, tt.goImport, tt.methodSignature)
