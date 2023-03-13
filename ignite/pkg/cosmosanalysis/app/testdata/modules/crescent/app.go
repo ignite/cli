@@ -14,6 +14,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 
+	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
@@ -94,7 +95,6 @@ import (
 	"github.com/tendermint/budget/x/budget"
 	budgetkeeper "github.com/tendermint/budget/x/budget/keeper"
 	budgettypes "github.com/tendermint/budget/x/budget/types"
-	dbm "github.com/tendermint/tm-db"
 
 	farmingparams "github.com/crescent-network/crescent/v3/app/params"
 	v2_0_0 "github.com/crescent-network/crescent/v3/app/upgrades/mainnet/v2.0.0"
@@ -929,7 +929,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(minttypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
-	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
+	paramsKeeper.Subspace(govtypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)

@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmdb "github.com/tendermint/tm-db"
+	tmdb "github.com/cometbft/cometbft-db"
 )
 
 // <%= moduleName %>ChannelKeeper is a stub of cosmosibckeeper.ChannelKeeper.

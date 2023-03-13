@@ -18,7 +18,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
 	tmrand "github.com/cometbft/cometbft/libs/rand"
-	tmdb "github.com/tendermint/tm-db"
+	tmdb "github.com/cometbft/cometbft-db"
 )
 
 type (
