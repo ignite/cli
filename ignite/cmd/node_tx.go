@@ -10,10 +10,11 @@ import (
 const (
 	flagGenerateOnly = "generate-only"
 
-	gasFlagAuto   = "auto"
-	flagGasPrices = "gas-prices"
-	flagGas       = "gas"
-	flagFees      = "fees"
+	gasFlagAuto    = "auto"
+	flagGasPrices  = "gas-prices"
+	flagAdjustment = "gas-adjustment"
+	flagGas        = "gas"
+	flagFees       = "fees"
 )
 
 func NewNodeTx() *cobra.Command {
@@ -49,12 +50,18 @@ func flagSetGasFlags() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagGasPrices, "", "gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)")
 	fs.String(flagGas, gasFlagAuto, fmt.Sprintf("gas limit to set per-transaction; set to %q to calculate sufficient gas automatically", gasFlagAuto))
+	fs.Float64(flagAdjustment, 0, "gas adjustment to set per-transaction")
 	return fs
 }
 
 func getGasPrices(cmd *cobra.Command) string {
 	gasPrices, _ := cmd.Flags().GetString(flagGasPrices)
 	return gasPrices
+}
+
+func getGasAdjustment(cmd *cobra.Command) float64 {
+	gasAdjustment, _ := cmd.Flags().GetFloat64(flagAdjustment)
+	return gasAdjustment
 }
 
 func getGas(cmd *cobra.Command) string {

@@ -127,10 +127,11 @@ type Client struct {
 	keyringBackend     cosmosaccount.KeyringBackend
 	keyringDir         string
 
-	gas          string
-	gasPrices    string
-	fees         string
-	generateOnly bool
+	gas           string
+	gasPrices     string
+	gasAdjustment float64
+	fees          string
+	generateOnly  bool
 }
 
 // Option configures your client.
@@ -206,6 +207,13 @@ func WithGas(gas string) Option {
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
+	}
+}
+
+// WithGasAdjustment sets the gas adjustment.
+func WithGasAdjustment(gasAdjustment float64) Option {
+	return func(c *Client) {
+		c.gasAdjustment = gasAdjustment
 	}
 }
 
@@ -584,6 +592,10 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
+	}
+
+	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+		txf = txf.WithGasAdjustment(c.gasAdjustment)
 	}
 
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
