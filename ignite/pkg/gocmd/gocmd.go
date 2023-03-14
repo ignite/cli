@@ -151,8 +151,7 @@ func IsInstallError(err error) bool {
 	if err == nil {
 		return false
 	}
-	const label = "no required module provides package"
-	return strings.Contains(err.Error(), label)
+	return strings.Contains(err.Error(), "no required module provides package")
 }
 
 // Get runs go get pkgs on path with options.
