@@ -32,7 +32,7 @@ func (t TX) GetEvents() (events []TXEvent, err error) {
 			}
 
 			evt.Attributes = append(evt.Attributes, TXEventAttribute{
-				Key:   string(a.Key),
+				Key:   a.Key,
 				Value: v,
 			})
 		}
