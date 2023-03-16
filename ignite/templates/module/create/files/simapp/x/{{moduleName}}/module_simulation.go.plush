@@ -1,6 +1,8 @@
 package <%= moduleName %>
 
 import (
+	"math/rand"
+
 	"<%= modulePath %>/testutil/sample"
 	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
