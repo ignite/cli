@@ -19,6 +19,7 @@ var (
 	_ = <%= moduleName %>simulation.FindAccount
 	_ = simulation.MsgEntryKind
 	_ = baseapp.Paramspace
+	_ = rand.Rand{}
 )
 
 const (
