@@ -1,9 +1,10 @@
 package module
 
 import (
-	"github.com/ignite/cli/ignite/pkg/xstrings"
 	"regexp"
 	"strings"
+
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 // ProtoPackageName creates a protocol buffer package name for an app module.
