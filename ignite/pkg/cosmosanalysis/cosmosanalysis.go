@@ -28,8 +28,6 @@ var appImplementation = []string{
 	"BeginBlocker",
 	"EndBlocker",
 	"RegisterAPIRoutes",
-	"RegisterTendermintService",
-	"RegisterNodeService",
 }
 
 // implementation tracks the implementation of an interface for a given struct.
