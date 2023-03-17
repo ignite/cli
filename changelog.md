@@ -22,6 +22,7 @@
 - [#2992](https://github.com/ignite/cli/issues/2992) Add `ignite chain debug` command.
 - [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
 - [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
+- [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 
 ### Changes
 

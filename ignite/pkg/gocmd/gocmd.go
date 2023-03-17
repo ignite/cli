@@ -52,6 +52,8 @@ const (
 	FlagGcflagsValueDebug = "all=-N -l"
 	// FlagLdflags represents ldflags go flag.
 	FlagLdflags = "-ldflags"
+	// FlagTags represents tags go flag.
+	FlagTags = "-tags"
 	// FlagMod represents mod go flag.
 	FlagMod = "-mod"
 	// FlagModValueReadOnly represents readonly go flag.
@@ -152,6 +154,11 @@ func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option
 // Ldflags returns a combined ldflags set from flags.
 func Ldflags(flags ...string) string {
 	return strings.Join(flags, " ")
+}
+
+// Tags returns a combined tags set from flags.
+func Tags(tags ...string) string {
+	return strings.Join(tags, " ")
 }
 
 // BuildTarget builds a GOOS:GOARCH pair.
