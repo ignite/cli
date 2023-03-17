@@ -48,7 +48,7 @@ func (g *generator) generateTS() error {
 	data := generatePayload{
 		Modules:         g.appModules,
 		PackageNS:       strings.ReplaceAll(appModulePath, "/", "-"),
-		IsConsumerChain: true,
+		IsConsumerChain: false,
 	}
 
 	// Third party modules are always required to generate the root
@@ -58,8 +58,8 @@ func (g *generator) generateTS() error {
 	for _, modules := range g.thirdModules {
 		data.Modules = append(data.Modules, modules...)
 		for _, m := range modules {
-			if strings.HasPrefix(m.Pkg.Name, "cosmos.staking") {
-				data.IsConsumerChain = false
+			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
+				data.IsConsumerChain = true
 			}
 		}
 	}
