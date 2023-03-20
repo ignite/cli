@@ -83,6 +83,8 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
+            require.NoError(t, net.WaitForNextBlock())
+
             var args []string
             args = append(args, fields...)
             args = append(args, tc.args...)
@@ -130,6 +132,8 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
+            require.NoError(t, net.WaitForNextBlock())
+
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{}, tc.args...))
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
