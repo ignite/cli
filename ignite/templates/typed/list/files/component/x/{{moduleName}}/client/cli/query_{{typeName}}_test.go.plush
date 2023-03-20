@@ -20,9 +20,7 @@ import (
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
-	state := types.GenesisState{}
-    require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
-
+	state := types.GenesisState{PortId: "port-id"}
 	for i := 0; i < n; i++ {
 		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
     		Id: uint64(i),
@@ -32,7 +30,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
-    cfg.GenesisState[types.ModuleName] = buf
+	cfg.GenesisState[types.ModuleName] = buf
 	return network.New(t, cfg), state.<%= TypeName.UpperCamel %>List
 }
 

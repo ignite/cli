@@ -1,12 +1,12 @@
 package cli
 
 import (
-    "context"
-	<%= for (goImport) in mergeGoImports(Indexes) { %>
-    <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
-    "github.com/spf13/cobra"
+	"github.com/spf13/cobra"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	<%= for (goImport) in mergeGoImports(Indexes) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -31,7 +31,7 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
                 Pagination: pageReq,
             }
 
-            res, err := queryClient.<%= TypeName.UpperCamel %>All(context.Background(), params)
+            res, err := queryClient.<%= TypeName.UpperCamel %>All(cmd.Context(), params)
             if err != nil {
                 return err
             }
@@ -66,7 +66,7 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
                 <% } %>
             }
 
-            res, err := queryClient.<%= TypeName.UpperCamel %>(context.Background(), params)
+            res, err := queryClient.<%= TypeName.UpperCamel %>(cmd.Context(), params)
             if err != nil {
                 return err
             }

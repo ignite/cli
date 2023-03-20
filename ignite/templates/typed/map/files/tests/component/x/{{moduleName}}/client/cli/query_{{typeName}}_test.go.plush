@@ -24,9 +24,7 @@ var _ = strconv.IntSize
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
-	state := types.GenesisState{}
-    require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
-
+	state := types.GenesisState{PortId: "port-id"}
 	for i := 0; i < n; i++ {
 		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
 			<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
