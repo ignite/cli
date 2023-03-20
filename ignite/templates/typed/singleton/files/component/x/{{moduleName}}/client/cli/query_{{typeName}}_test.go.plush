@@ -18,7 +18,7 @@ import (
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Network, types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
-	state := types.GenesisState{PortId: "port-id"}
+	state := types.GenesisState{}
 	<%= TypeName.LowerCamel %> := &types.<%= TypeName.UpperCamel %>{}
 	nullify.Fill(&<%= TypeName.LowerCamel %>)
 	state.<%= TypeName.UpperCamel %> = <%= TypeName.LowerCamel %>
