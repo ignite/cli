@@ -18,7 +18,9 @@ import (
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Network, types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
-	state := types.GenesisState{}
+	state := types.GenesisState{
+		<%= if (isIBC) { %>PortId: types.PortID,<% } %>
+	}
 	<%= TypeName.LowerCamel %> := &types.<%= TypeName.UpperCamel %>{}
 	nullify.Fill(&<%= TypeName.LowerCamel %>)
 	state.<%= TypeName.UpperCamel %> = <%= TypeName.LowerCamel %>
