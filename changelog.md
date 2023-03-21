@@ -23,6 +23,7 @@
 - [#2992](https://github.com/ignite/cli/issues/2992) Add `ignite chain debug` command.
 - [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
 - [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
+- [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 
 ### Changes
 
@@ -58,6 +59,7 @@
 - [#3244](https://github.com/ignite/cli/pull/3244) Update `actions.yml` for resolving deprecation message
 - [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
 - [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` gRPC in `app.go` template.
+- [#3445](https://github.com/ignite/cli/pull/3445) refactor: replace `github.com/ghodss/yaml` with `sigs.k8s.io/yaml`
 
 ### Breaking Changes
 
@@ -68,7 +70,7 @@
 - [#3114](https://github.com/ignite/cli/pull/3114) Fix out of gas issue when approving many requests
 - [#3068](https://github.com/ignite/cli/pull/3068) Fix REST codegen method casing bug
 - [#3031](https://github.com/ignite/cli/pull/3031) Move keeper hooks to after all keepers initialized in `app.go` template.
-- [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error. 
+- [#3098](https://github.com/ignite/cli/issues/3098) Fix config upgrade issue that left config empty on error.
 - [#3129](https://github.com/ignite/cli/issues/3129) Remove redundant `keyring-backend` config option.
 - [#3187](https://github.com/ignite/cli/issues/3187) Change prompt text to fit within 80 characters width.
 - [#3203](https://github.com/ignite/cli/issues/3203) Fix relayer to work with multiple paths.
