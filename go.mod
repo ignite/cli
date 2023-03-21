@@ -36,7 +36,6 @@ require (
 	github.com/cosmos/ledger-cosmos-go v0.12.1 // indirect
 	github.com/emicklei/proto v1.11.1
 	github.com/emicklei/proto-contrib v0.13.0
-	github.com/ghodss/yaml v1.0.0
 	github.com/go-delve/delve v1.9.1
 	github.com/go-git/go-git/v5 v5.5.2
 	github.com/gobuffalo/genny/v2 v2.1.0
@@ -99,7 +98,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/gofumpt v0.4.0
 	pgregory.net/rapid v0.5.5 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (

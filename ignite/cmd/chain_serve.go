@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/services/chain"
 )
@@ -75,6 +76,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
 	c.Flags().Bool(flagGenerateClients, false, "generate code for the configured clients on reset or source code change")
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
+	c.Flags().StringSlice(flagBuildTags, []string{cosmosver.DefaultVersion().String()}, "parameters to build the chain binary")
 
 	return c
 }
@@ -190,8 +192,21 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 		serveOptions = append(serveOptions, chain.GenerateClients())
 	}
 
+	buildTags, err := cmd.Flags().GetStringSlice(flagBuildTags)
+	if err != nil {
+		return err
+	}
+
+	if len(buildTags) > 0 {
+		serveOptions = append(serveOptions, chain.BuildTags(buildTags...))
+	}
+
 	if flagGetSkipProto(cmd) {
 		serveOptions = append(serveOptions, chain.ServeSkipProto())
+	}
+
+	if quitOnFail {
+		serveOptions = append(serveOptions, chain.QuitOnFail())
 	}
 
 	return c.Serve(cmd.Context(), cacheStorage, serveOptions...)
