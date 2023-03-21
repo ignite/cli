@@ -59,6 +59,7 @@
 - [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
 - [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` gRPC in `app.go` template.
 - [#3445](https://github.com/ignite/cli/pull/3445) refactor: replace `github.com/ghodss/yaml` with `sigs.k8s.io/yaml`
+- [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
 
 ### Breaking Changes
 
