@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/moby/moby/pkg/archive"
 	"github.com/pkg/errors"
@@ -34,6 +35,7 @@ const (
 func (c *Chain) Build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
+	buildTags []string,
 	output string,
 	skipProto, debug bool,
 ) (binaryName string, err error) {
@@ -41,7 +43,7 @@ func (c *Chain) Build(
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output, skipProto, false, debug); err != nil {
+	if err := c.build(ctx, cacheStorage, buildTags, output, skipProto, false, debug); err != nil {
 		return "", err
 	}
 
@@ -51,6 +53,7 @@ func (c *Chain) Build(
 func (c *Chain) build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
+	buildTags []string,
 	output string,
 	skipProto, generateClients, debug bool,
 ) (err error) {
@@ -69,7 +72,7 @@ func (c *Chain) build(
 		}
 	}
 
-	buildFlags, err := c.preBuild(ctx, cacheStorage)
+	buildFlags, err := c.preBuild(ctx, cacheStorage, buildTags...)
 	if err != nil {
 		return err
 	}
@@ -95,7 +98,13 @@ func (c *Chain) build(
 // BuildRelease builds binaries for a release. targets is a list
 // of GOOS:GOARCH when provided. It defaults to your system when no targets provided.
 // prefix is used as prefix to tarballs containing each target.
-func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, output, prefix string, targets ...string) (releasePath string, err error) {
+func (c *Chain) BuildRelease(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	buildParams []string,
+	output, prefix string,
+	targets ...string,
+) (releasePath string, err error) {
 	if prefix == "" {
 		prefix = c.app.Name
 	}
@@ -108,7 +117,7 @@ func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, ou
 		return "", err
 	}
 
-	buildFlags, err := c.preBuild(ctx, cacheStorage)
+	buildFlags, err := c.preBuild(ctx, cacheStorage, buildParams...)
 	if err != nil {
 		return "", err
 	}
@@ -186,7 +195,11 @@ func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, ou
 	return releasePath, checksum.Sum(releasePath, checksumPath)
 }
 
-func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (buildFlags []string, err error) {
+func (c *Chain) preBuild(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	buildTags ...string,
+) (buildFlags []string, err error) {
 	config, err := c.Config()
 	if err != nil {
 		return nil, err
@@ -203,10 +216,12 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.AppName=%sd", c.app.Name),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Version=%s", c.sourceVersion.tag),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Commit=%s", c.sourceVersion.hash),
+		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.BuildTags=%s", strings.Join(buildTags, ",")),
 		fmt.Sprintf("-X %s/cmd/%s/cmd.ChainID=%s", c.app.ImportPath, c.app.D(), chainID),
 	)
 	buildFlags = []string{
 		gocmd.FlagMod, gocmd.FlagModValueReadOnly,
+		gocmd.FlagTags, gocmd.Tags(buildTags...),
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 

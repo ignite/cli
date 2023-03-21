@@ -9,6 +9,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -17,6 +18,7 @@ const (
 	flagDebug             = "debug"
 	flagOutput            = "output"
 	flagRelease           = "release"
+	flagBuildTags         = "build.tags"
 	flagReleasePrefix     = "release.prefix"
 	flagReleaseTargets    = "release.targets"
 )
@@ -89,6 +91,7 @@ for your current environment.
 	c.Flags().AddFlagSet(flagSetDebug())
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
+	c.Flags().StringSlice(flagBuildTags, []string{cosmosver.DefaultVersion().String()}, "parameters to build the chain binary")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().StringP(flagOutput, "o", "", "binary output path")
 	c.Flags().BoolP("verbose", "v", false, "verbose output")
@@ -101,6 +104,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		isRelease, _      = cmd.Flags().GetBool(flagRelease)
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
+		buildTags, _      = cmd.Flags().GetStringSlice(flagBuildTags)
 		output, _         = cmd.Flags().GetString(flagOutput)
 		session           = cliui.New(
 			cliui.WithVerbosity(getVerbosity(cmd)),
@@ -131,7 +135,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 
 	ctx := cmd.Context()
 	if isRelease {
-		releasePath, err := c.BuildRelease(ctx, cacheStorage, output, releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(ctx, cacheStorage, buildTags, output, releasePrefix, releaseTargets...)
 		if err != nil {
 			return err
 		}
@@ -139,7 +143,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		return session.Printf("🗃  Release created: %s\n", colors.Info(releasePath))
 	}
 
-	binaryName, err := c.Build(ctx, cacheStorage, output, flagGetSkipProto(cmd), flagGetDebug(cmd))
+	binaryName, err := c.Build(ctx, cacheStorage, buildTags, output, flagGetSkipProto(cmd), flagGetDebug(cmd))
 	if err != nil {
 		return err
 	}
