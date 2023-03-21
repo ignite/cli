@@ -512,10 +512,11 @@ func TestClientCreateTx(t *testing.T) {
 			},
 		},
 		{
-			name: "fail: with fees and gas prices",
+			name: "fail: with fees, gas prices and gas adjustment",
 			opts: []cosmosclient.Option{
 				cosmosclient.WithFees("10token"),
 				cosmosclient.WithGasPrices("3token"),
+				cosmosclient.WithGasAdjustment(2.1),
 			},
 			msg: &banktypes.MsgSend{
 				FromAddress: "from",
@@ -569,8 +570,46 @@ func TestClientCreateTx(t *testing.T) {
 					Return(nil, 42, nil)
 			},
 		},
+		{
+			name: "ok: with gas adjustment",
+			opts: []cosmosclient.Option{
+				cosmosclient.WithGasAdjustment(2.4),
+			},
+			msg: &banktypes.MsgSend{
+				FromAddress: "from",
+				ToAddress:   "to",
+				Amount: sdktypes.NewCoins(
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+				),
+			},
+			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
+			setup: func(s suite) {
+				s.expectPrepareFactory(sdkaddr)
+			},
+		},
+		{
+			name: "ok: without gas price and zero gas adjustment",
+			opts: []cosmosclient.Option{
+				cosmosclient.WithGas("auto"),
+				cosmosclient.WithGasAdjustment(0),
+			},
+			msg: &banktypes.MsgSend{
+				FromAddress: "from",
+				ToAddress:   "to",
+				Amount: sdktypes.NewCoins(
+					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+				),
+			},
+			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}
+`,
+			setup: func(s suite) {
+				s.expectPrepareFactory(sdkaddr)
+				s.gasometer.EXPECT().
+					CalculateGas(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil, 42, nil)
+			},
+		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := newClient(t, tt.setup, tt.opts...)

@@ -15,7 +15,10 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 		Use:   "list-<%= TypeName.Kebab %>",
 		Short: "list all <%= TypeName.Original %>",
 		RunE: func(cmd *cobra.Command, args []string) error {
-            clientCtx := client.GetClientContextFromCmd(cmd)
+            clientCtx, err := client.GetClientQueryContext(cmd)
+            if err != nil {
+                return err
+            }
 
             pageReq, err := client.ReadPageRequest(cmd.Flags())
             if err != nil {
@@ -49,7 +52,10 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "shows a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            clientCtx := client.GetClientContextFromCmd(cmd)
+            clientCtx, err := client.GetClientQueryContext(cmd)
+            if err != nil {
+                return err
+            }
 
             queryClient := types.NewQueryClient(clientCtx)
 
