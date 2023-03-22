@@ -113,7 +113,7 @@ func TypeWithSigner(signer string) AddTypeOption {
 	}
 }
 
-// AddType adds a scaffolder type to a scaffolded app.
+// AddType adds a new type to a scaffolded app.
 // if none of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
 // will be scaffolded.
 // if no module is given, the type will be scaffolded inside the app's default module.

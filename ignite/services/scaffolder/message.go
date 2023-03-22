@@ -55,7 +55,7 @@ func WithoutSimulation() MessageOption {
 	}
 }
 
-// AddMessage adds a scaffolder message to scaffolded app.
+// AddMessage adds a new message to scaffolded app.
 func (s Scaffolder) AddMessage(
 	ctx context.Context,
 	cacheStorage cache.Storage,

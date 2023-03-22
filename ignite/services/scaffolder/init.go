@@ -19,7 +19,7 @@ import (
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
 
-// Init initializes a scaffolder app with name and given options.
+// Init initializes a new app with name and given options.
 func Init(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -32,7 +32,7 @@ func Init(
 		return "", err
 	}
 
-	// Create a scaffolder folder named as the blockchain when a custom path is not specified
+	// Create a new folder named as the blockchain when a custom path is not specified
 	var appFolder string
 	if root == "" {
 		appFolder = pathInfo.Root

@@ -28,7 +28,7 @@ type Scaffolder struct {
 	modpath gomodulepath.Path
 }
 
-// New creates a scaffolder scaffold app.
+// New creates a new scaffold app.
 func New(appPath string) (Scaffolder, error) {
 	sc, err := scaffolder(appPath)
 	if err != nil {
@@ -46,7 +46,7 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-// scaffolder creates a new scaffolder for an existent app.
+// scaffolder creates a new Scaffolder for an existent app.
 func scaffolder(path string) (Scaffolder, error) {
 	path, err := filepath.Abs(path)
 	if err != nil {
