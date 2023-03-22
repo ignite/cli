@@ -12,7 +12,7 @@ jobs:
     
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
 
@@ -26,5 +26,5 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           workdir: ${{ env.working-directory }}
-          version: 1.13.0 
+          version: 1.13.0
           args: release --rm-dist
