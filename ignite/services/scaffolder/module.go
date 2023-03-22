@@ -58,7 +58,7 @@ const (
 
 var (
 	// reservedNames are either names from the default modules defined in a Cosmos-SDK app or names used in the default query and tx CLI namespace.
-	// A new module's name can't be equal to a reserved name.
+	// A scaffolder module's name can't be equal to a reserved name.
 	// A map is used for direct comparing.
 	reservedNames = map[string]struct{}{
 		"account":                    {},
@@ -91,7 +91,7 @@ var (
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
-	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
+	// A scaffolder module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
 		ibcexported.StoreKey,
 		transfertypes.StoreKey,
@@ -111,7 +111,7 @@ var (
 	}
 )
 
-// moduleCreationOptions holds options for creating a new module.
+// moduleCreationOptions holds options for creating a scaffolder module.
 type moduleCreationOptions struct {
 	// ibc true if the module is an ibc module
 	ibc bool
@@ -164,7 +164,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 	}
 }
 
-// CreateModule creates a new empty module in the scaffolded app.
+// CreateModule creates a scaffolder empty module in the scaffolded app.
 func (s Scaffolder) CreateModule(
 	ctx context.Context,
 	cacheStorage cache.Storage,
@@ -285,7 +285,7 @@ func (s Scaffolder) ImportModule(
 	if err != nil {
 		var validationErr validation.Error
 		if errors.As(err, &validationErr) {
-			// TODO: implement a more generic method when there will be new methods to import wasm
+			// TODO: implement a more generic method when there will be scaffolder methods to import wasm
 			return sm, errors.New("wasm cannot be imported. Apps initialized with Starport <=0.16.2 must downgrade Starport to 0.16.2 to import wasm")
 		}
 		return sm, err

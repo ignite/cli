@@ -18,7 +18,7 @@ func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
 
 		// wrap error
 		if errMarhsal != nil {
-			err = fmt.Errorf("%w: %s", err, errMarhsal.Error()) //nolint: errorlint
+			err = fmt.Errorf("%w: %s", err, errMarhsal.Error())
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")

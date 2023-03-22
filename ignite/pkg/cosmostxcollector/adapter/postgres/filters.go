@@ -85,14 +85,14 @@ func (f Filter) applyModifiers(field string) string {
 }
 
 // NewStringSliceFilter creates a new string slice equality filter.
-func NewStringSliceFilter(field string, values []string, options ...FilterOption) SliceFilter {
+func NewStringSliceFilter(field string, values []string) SliceFilter {
 	return SliceFilter{
 		Filter: NewFilter(field, pq.Array(values)),
 	}
 }
 
 // NewIntSliceFilter creates a new int64 slice equality filter.
-func NewIntSliceFilter(field string, values []int64, options ...FilterOption) SliceFilter {
+func NewIntSliceFilter(field string, values []int64) SliceFilter {
 	return SliceFilter{
 		Filter: NewFilter(field, pq.Array(values)),
 	}

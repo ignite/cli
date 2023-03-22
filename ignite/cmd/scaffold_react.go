@@ -24,7 +24,7 @@ func NewScaffoldReact() *cobra.Command {
 	return c
 }
 
-func scaffoldReactHandler(cmd *cobra.Command, args []string) error {
+func scaffoldReactHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 

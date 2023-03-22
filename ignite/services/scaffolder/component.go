@@ -183,7 +183,7 @@ func checkGoReservedWord(name string) error {
 		"iota",
 		"len",
 		"make",
-		"new",
+		"scaffolder",
 		"nil",
 		"uint64",
 		"print",

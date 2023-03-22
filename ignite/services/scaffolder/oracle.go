@@ -46,7 +46,7 @@ func OracleWithSigner(signer string) OracleOption {
 	}
 }
 
-// AddOracle adds a new BandChain oracle envtest.
+// AddOracle adds a scaffolder BandChain oracle envtest.
 //
 // Deprecated: This function is no longer maintained.
 func (s *Scaffolder) AddOracle(

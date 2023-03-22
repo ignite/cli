@@ -51,7 +51,7 @@ func PacketWithSigner(signer string) PacketOption {
 	}
 }
 
-// AddPacket adds a new type stype to scaffolded app by using optional type fields.
+// AddPacket adds a scaffolder type stype to scaffolded app by using optional type fields.
 func (s Scaffolder) AddPacket(
 	ctx context.Context,
 	cacheStorage cache.Storage,
