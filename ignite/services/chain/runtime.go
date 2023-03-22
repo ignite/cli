@@ -184,7 +184,7 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 
 	// Set default config values
 	tmConfig.Set("keyring-backend", "test")
-	tmConfig.Set("broadcast-mode", "block")
+	tmConfig.Set("broadcast-mode", "sync")
 
 	// Update config values with the validator's client config
 	updateTomlTreeValues(tmConfig, validator.Client)
