@@ -1,8 +1,6 @@
 package <%= moduleName %>
 
 import (
-	"math/rand"
-
 	"<%= modulePath %>/testutil/sample"
 	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
@@ -19,7 +17,6 @@ var (
 	_ = <%= moduleName %>simulation.FindAccount
 	_ = simulation.MsgEntryKind
 	_ = baseapp.Paramspace
-	_ = rand.Rand{}
 )
 
 const (
