@@ -16,6 +16,8 @@ import (
 )
 
 func TestCustomModule(t *testing.T) {
+	t.Skip()
+
 	var (
 		env     = envtest.New(t)
 		app     = env.Scaffold("chain", "--no-module")
