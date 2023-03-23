@@ -2,6 +2,7 @@ package app_test
 
 import (
 	_ "embed"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -378,7 +379,7 @@ func TestCheckAppWiring(t *testing.T) {
 			name:    "invalid case",
 			appFile: AppMinimalFile,
 			want:    false,
-			err:     nil,
+			err:     errors.New("app.go file cannot be found"),
 		},
 	}
 	for _, tt := range tests {
@@ -390,7 +391,8 @@ func TestCheckAppWiring(t *testing.T) {
 
 			got, err := app.CheckAppWiring(tmpDir)
 			if tt.err != nil {
-				require.ErrorIs(t, tt.err, err)
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
 				return
 			}
 			require.NoError(t, err)

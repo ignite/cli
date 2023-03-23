@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/client/v2/autocli"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -981,3 +982,6 @@ func (app *App) SetUpgradeHandlers(mm *module.Manager, configurator module.Confi
 		v3.UpgradeName, v3.UpgradeHandler(
 			mm, configurator, app.MarketMakerKeeper, app.LiquidityKeeper, app.LPFarmKeeper, app.FarmingKeeper, app.BankKeeper))
 }
+
+func (App) TxConfig() client.TxConfig       { return nil }
+func (App) AutoCliOpts() autocli.AppOptions { return autocli.AppOptions{} }

@@ -144,7 +144,7 @@ func declVarExists(decl ast.Decl, methodDecl string) bool {
 	return false
 }
 
-// getGenDeclNames returns a list of the method declaration inside the ast.GenDecl
+// getGenDeclNames returns a list of the method declaration inside the ast.GenDecl.
 func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 	if genDecl.Tok != token.VAR {
 		return nil, fmt.Errorf("genDecl is not a var token: %v", genDecl.Tok)
@@ -174,7 +174,7 @@ func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 	return decls, nil
 }
 
-// getGenDeclNames returns the method declaration inside the ast.Expr
+// getGenDeclNames returns the method declaration inside the ast.Expr.
 func getCallExprName(expr ast.Expr) (string, error) {
 	call, ok := expr.(*ast.CallExpr)
 	if !ok {

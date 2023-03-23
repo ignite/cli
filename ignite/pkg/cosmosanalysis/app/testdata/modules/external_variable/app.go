@@ -1,25 +1,18 @@
 package app
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	abci "github.com/tendermint/tendermint/abci/types"
-
 	"app/modules"
+
+	"cosmossdk.io/client/v2/autocli"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/types/module"
 )
 
 var ModuleBasics = module.NewBasicManager(modules.Basic...)
 
 type Foo struct{}
 
-func (Foo) Name() string {
-	return "foo"
-}
-
-func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return abci.ResponseBeginBlock{}
-}
-
-func (Foo) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
-	return abci.ResponseEndBlock{}
-}
+func (Foo) Name() string                                    { return "foo" }
+func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
+func (Foo) TxConfig() client.TxConfig                       { return nil }
+func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
