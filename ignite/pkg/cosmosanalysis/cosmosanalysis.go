@@ -26,7 +26,6 @@ const (
 var appImplementation = []string{
 	"Name",
 	"TxConfig",
-	"AutoCliOpts",
 	"InterfaceRegistry",
 }
 
