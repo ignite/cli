@@ -91,18 +91,18 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	appConfig.Set("api.enabled-unsafe-cors", true)
 	appConfig.Set("rpc.cors_allowed_origins", []string{"*"})
 
-	// Update config values with the validator's Cosmos SDK app config
-	updateTomlTreeValues(appConfig, validator.App)
-
-	// Make sure the API address have the protocol prefix
-	appConfig.Set("api.address", apiAddr)
-
 	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
 	if err != nil {
 		return err
 	}
 	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
 	appConfig.Set("minimum-gas-prices", gas.String())
+
+	// Update config values with the validator's Cosmos SDK app config
+	updateTomlTreeValues(appConfig, validator.App)
+
+	// Make sure the API address have the protocol prefix
+	appConfig.Set("api.address", apiAddr)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
