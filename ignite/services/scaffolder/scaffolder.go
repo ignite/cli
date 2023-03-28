@@ -30,7 +30,7 @@ type Scaffolder struct {
 
 // New creates a new scaffold app.
 func New(appPath string) (Scaffolder, error) {
-	sc, err := scaffolder(appPath)
+	sc, err := newScaffolder(appPath)
 	if err != nil {
 		return sc, err
 	}
@@ -46,8 +46,8 @@ https://docs.ignite.com/migration`, sc.Version.String(),
 	return sc, nil
 }
 
-// scaffolder creates a new Scaffolder for an existent app.
-func scaffolder(path string) (Scaffolder, error) {
+// newScaffolder creates a new Scaffolder for an existent app.
+func newScaffolder(path string) (Scaffolder, error) {
 	path, err := filepath.Abs(path)
 	if err != nil {
 		return Scaffolder{}, err
