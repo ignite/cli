@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/client/v2/autocli"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -1039,6 +1040,9 @@ func (app *GaiaApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 func (app *GaiaApp) GetTxConfig() client.TxConfig {
 	return MakeTestEncodingConfig().TxConfig
 }
+
+func (GaiaApp) TxConfig() client.TxConfig       { return nil }
+func (GaiaApp) AutoCliOpts() autocli.AppOptions { return autocli.AppOptions{} }
 
 // EmptyAppOptions is a stub implementing AppOptions
 type EmptyAppOptions struct{}
