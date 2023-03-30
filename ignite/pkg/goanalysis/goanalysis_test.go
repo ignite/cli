@@ -9,31 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
-var (
-	MainFile   = []byte(`package main`)
-	ImportFile = []byte(`
-package app
-
-import (
-	"io"
-	"net/http"
-	"path/filepath"
-
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/server/api"
-	"github.com/cosmos/cosmos-sdk/server/config"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	queryonlymodmodule "github.com/tendermint/testchain/x/queryonlymod"
-	queryonlymodmodulekeeper "github.com/tendermint/testchain/x/queryonlymod/keeper"
-	queryonlymodmoduletypes "github.com/tendermint/testchain/x/queryonlymod/types"
-)
-`)
-)
+var MainFile = []byte(`package main`)
 
 func TestDiscoverMain(t *testing.T) {
 	tests := []struct {
@@ -156,28 +135,99 @@ func createMainFiles(tmpDir string, mainFiles []string) (pathsWithMain []string,
 	return pathsWithMain, nil
 }
 
-func TestFindImportedPackages(t *testing.T) {
-	tmpDir := t.TempDir()
+func TestFuncVarExists(t *testing.T) {
+	tests := []struct {
+		name            string
+		testfile        string
+		goImport        string
+		methodSignature string
+		want            bool
+	}{
+		{
+			name:            "test a declaration inside a method success",
+			testfile:        "testdata/varexist",
+			methodSignature: "Background",
+			goImport:        "context",
+			want:            true,
+		},
+		{
+			name:            "test global declaration success",
+			testfile:        "testdata/varexist",
+			methodSignature: "Join",
+			goImport:        "path/filepath",
+			want:            true,
+		},
+		{
+			name:            "test a declaration inside an if and inside a method success",
+			testfile:        "testdata/varexist",
+			methodSignature: "SplitList",
+			goImport:        "path/filepath",
+			want:            true,
+		},
+		{
+			name:            "test global variable success assign",
+			testfile:        "testdata/varexist",
+			methodSignature: "New",
+			goImport:        "errors",
+			want:            true,
+		},
+		{
+			name:            "test invalid import",
+			testfile:        "testdata/varexist",
+			methodSignature: "Join",
+			goImport:        "errors",
+			want:            false,
+		},
+		{
+			name:            "test invalid case sensitive assign",
+			testfile:        "testdata/varexist",
+			methodSignature: "join",
+			goImport:        "context",
+			want:            false,
+		},
+		{
+			name:            "test invalid struct assign",
+			testfile:        "testdata/varexist",
+			methodSignature: "fooStruct",
+			goImport:        "context",
+			want:            false,
+		},
+		{
+			name:            "test invalid method signature",
+			testfile:        "testdata/varexist",
+			methodSignature: "fooMethod",
+			goImport:        "context",
+			want:            false,
+		},
+		{
+			name:            "test not found name",
+			testfile:        "testdata/varexist",
+			methodSignature: "Invalid",
+			goImport:        "context",
+			want:            false,
+		},
+		{
+			name:            "test invalid assign with wrong",
+			testfile:        "testdata/varexist",
+			methodSignature: "invalid.New",
+			goImport:        "context",
+			want:            false,
+		},
+		{
+			name:            "test invalid assign with wrong",
+			testfile:        "testdata/varexist",
+			methodSignature: "SplitList",
+			goImport:        "path/filepath",
+			want:            true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			appPkg, _, err := xast.ParseFile(tt.testfile)
+			require.NoError(t, err)
 
-	tmpFile := filepath.Join(tmpDir, "app.go")
-	err := os.WriteFile(tmpFile, ImportFile, 0o644)
-	require.NoError(t, err)
-
-	packages, err := goanalysis.FindImportedPackages(tmpFile)
-	require.NoError(t, err)
-	require.EqualValues(t, packages, map[string]string{
-		"io":                       "io",
-		"http":                     "net/http",
-		"filepath":                 "path/filepath",
-		"baseapp":                  "github.com/cosmos/cosmos-sdk/baseapp",
-		"client":                   "github.com/cosmos/cosmos-sdk/client",
-		"types":                    "github.com/cosmos/cosmos-sdk/codec/types",
-		"api":                      "github.com/cosmos/cosmos-sdk/server/api",
-		"config":                   "github.com/cosmos/cosmos-sdk/server/config",
-		"servertypes":              "github.com/cosmos/cosmos-sdk/server/types",
-		"simapp":                   "github.com/cosmos/cosmos-sdk/simapp",
-		"queryonlymodmodule":       "github.com/tendermint/testchain/x/queryonlymod",
-		"queryonlymodmodulekeeper": "github.com/tendermint/testchain/x/queryonlymod/keeper",
-		"queryonlymodmoduletypes":  "github.com/tendermint/testchain/x/queryonlymod/types",
-	})
+			got := goanalysis.FuncVarExists(appPkg, tt.goImport, tt.methodSignature)
+			require.Equal(t, tt.want, got)
+		})
+	}
 }

@@ -10,6 +10,7 @@ import (
 
 	"app/keepers"
 
+	"cosmossdk.io/client/v2/autocli"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -431,6 +432,9 @@ func (app *OsmosisApp) setupUpgradeHandlers() {
 		)
 	}
 }
+
+func (OsmosisApp) TxConfig() client.TxConfig       { return nil }
+func (OsmosisApp) AutoCliOpts() autocli.AppOptions { return autocli.AppOptions{} }
 
 // RegisterSwaggerAPI registers swagger route with API Server.
 func RegisterSwaggerAPI(ctx client.Context, rtr *mux.Router) {
