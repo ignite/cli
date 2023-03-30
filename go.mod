@@ -3,7 +3,7 @@ module github.com/ignite/cli
 go 1.19
 
 require (
-	cosmossdk.io/math v1.0.0-rc.0
+	cosmossdk.io/math v1.0.0
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -16,9 +16,9 @@ require (
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cometbft/cometbft v0.37.0
-	github.com/cosmos/cosmos-sdk v0.47.0
+	github.com/cosmos/cosmos-sdk v0.47.1
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/gogoproto v1.4.6
+	github.com/cosmos/gogoproto v1.4.7
 	github.com/cosmos/ibc-go/v7 v7.0.0
 	github.com/emicklei/proto v1.11.1
 	github.com/emicklei/proto-contrib v0.13.0
@@ -57,7 +57,7 @@ require (
 	github.com/tbruyelle/mdgofmt v0.1.3
 	github.com/vektra/mockery/v2 v2.16.0
 	go.etcd.io/bbolt v1.3.7
-	golang.org/x/exp v0.0.0-20230310171629-522b1b587ee0
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/mod v0.8.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.6.0
