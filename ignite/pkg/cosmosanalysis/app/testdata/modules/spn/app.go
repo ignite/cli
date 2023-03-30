@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/client/v2/autocli"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -1014,3 +1015,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
+
+func (app *App) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
+func (app *App) TxConfig() client.TxConfig                       { return nil }
+func (app *App) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
