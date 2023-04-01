@@ -7,6 +7,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -35,6 +36,14 @@ func (Foo) Name() string                                    { return "foo" }
 func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
 func (Foo) TxConfig() client.TxConfig                       { return nil }
 func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
+
+func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return abci.ResponseBeginBlock{}
+}
+
+func (Foo) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
+	return abci.ResponseEndBlock{}
+}
 
 func (Foo) RegisterAPIRoutes(s *api.Server, cfg config.APIConfig) {
 	// These two modules should be discovered too
