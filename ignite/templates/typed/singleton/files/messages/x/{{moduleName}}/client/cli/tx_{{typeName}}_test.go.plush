@@ -39,8 +39,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-            _, err := net.WaitForHeight(0)
-            require.NoError(t, err)
+            require.NoError(t, net.WaitForNextBlock())
 
             var args []string
             args = append(args, fields...)
@@ -90,8 +89,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-            _, err := net.WaitForHeight(0)
-            require.NoError(t, err)
+            require.NoError(t, net.WaitForNextBlock())
 
             var args []string
             args = append(args, fields...)
@@ -142,8 +140,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-            _, err := net.WaitForHeight(0)
-            require.NoError(t, err)
+            require.NoError(t, net.WaitForNextBlock())
 
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{}, tc.args...))
 			if tc.err != nil {
