@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"cosmossdk.io/client/v2/autocli"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -753,6 +754,9 @@ func RegisterSwaggerAPI(ctx client.Context, rtr *mux.Router) {
 func (app *AkashApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
 }
+
+func (AkashApp) TxConfig() client.TxConfig       { return nil }
+func (AkashApp) AutoCliOpts() autocli.AppOptions { return autocli.AppOptions{} }
 
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key,

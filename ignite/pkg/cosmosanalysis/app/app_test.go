@@ -2,6 +2,7 @@ package app_test
 
 import (
 	_ "embed"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -20,8 +21,8 @@ var (
 	NoAppFile []byte
 	//go:embed testdata/two_app.go
 	TwoAppFile []byte
-	//go:embed testdata/app_full.go
-	AppFullFile []byte
+	//go:embed testdata/app_v2.go
+	AppV2 []byte
 )
 
 func TestCheckKeeper(t *testing.T) {
@@ -357,6 +358,45 @@ func TestFindRegisteredModules(t *testing.T) {
 
 			require.NoError(t, err)
 			require.ElementsMatch(t, tt.expectedModules, m)
+		})
+	}
+}
+
+func TestCheckAppWiring(t *testing.T) {
+	tests := []struct {
+		name    string
+		appFile []byte
+		want    bool
+		err     error
+	}{
+		{
+			name:    "valid case",
+			appFile: AppV2,
+			want:    true,
+			err:     nil,
+		},
+		{
+			name:    "invalid case",
+			appFile: AppMinimalFile,
+			want:    false,
+			err:     errors.New("app.go file cannot be found"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			tmpFile := filepath.Join(tmpDir, "app.go")
+			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
+			require.NoError(t, err)
+
+			got, err := app.CheckAppWiring(tmpDir)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

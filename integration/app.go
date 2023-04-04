@@ -207,7 +207,7 @@ func (a App) RandomizeServerPorts() Hosts {
 	require.NoError(a.env.t, err)
 
 	genAddr := func(port int) string {
-		return fmt.Sprintf("localhost:%d", port)
+		return fmt.Sprintf("127.0.0.1:%d", port)
 	}
 
 	hosts := Hosts{

@@ -46,3 +46,10 @@ func ParseDir(dir string) (*ast.Package, *token.FileSet, error) {
 	}
 	return nil, nil, errors.Errorf("no valid package found in %s", dir)
 }
+
+// ParseFile invokes ast.ParseFile and returns the *ast.File.
+func ParseFile(filepath string) (*ast.File, *token.FileSet, error) {
+	fileSet := token.NewFileSet()
+	file, err := parser.ParseFile(fileSet, filepath, nil, 0)
+	return file, fileSet, err
+}
