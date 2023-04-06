@@ -59,7 +59,7 @@ func (d *Doctor) MigrateConfig(ctx context.Context) error {
 		return errf(err)
 	}
 	defer f.Close()
-	
+
 	version, err := chainconfig.ReadConfigVersion(f)
 	if err != nil {
 		return errf(err)
