@@ -1,6 +1,7 @@
 package app
 
 import (
+	"cosmossdk.io/api/tendermint/abci"
 	"cosmossdk.io/client/v2/autocli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
