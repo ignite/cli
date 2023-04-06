@@ -1,4 +1,8 @@
-## [`v0.26.0`](https://github.com/ignite/cli/releases/tag/v0.26.0)
+# Changelog
+
+## Unreleased
+
+## [`v0.26.1`](https://github.com/ignite/cli/releases/tag/v0.26.1)
 
 ### Features
 
@@ -86,7 +90,6 @@
 ### Changes
 
 - [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
-# Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
