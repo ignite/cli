@@ -78,6 +78,7 @@ To get started, create a blockchain:
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewPlugin())
+	c.AddCommand(NewDoctor())
 	c.AddCommand(deprecated()...)
 
 	// Load plugins if any
