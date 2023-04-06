@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from "vitest/config";
 
 // TODO: add .env file support for a better developer experience ? It would allow
 // writting new tests agains a running blockchain without the need of scaffolding
@@ -6,13 +6,14 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    include: ['**/*_test.ts'],
+    include: ["**/*_test.ts"],
     globals: true,
-    setupFiles: 'testutil/setup.ts'
+    setupFiles: "testutil/setup.ts",
+    testTimeout: 600000, // milliseconds
   },
   resolve: {
     alias: {
-      'client': process.env.TEST_TSCLIENT_DIR
-    }
-  }
-})
+      client: process.env.TEST_TSCLIENT_DIR,
+    },
+  },
+});
