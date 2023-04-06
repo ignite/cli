@@ -85,7 +85,14 @@ func Fmt(ctx context.Context, path string, options ...exec.Option) error {
 
 // ModTidy runs go mod tidy on path with options.
 func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
-	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModTidy}, append(options, exec.StepOption(step.Workdir(path)))...)
+	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModTidy},
+		append(options,
+			exec.StepOption(step.Workdir(path)),
+			// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
+			// mod tidy requests the sumdb, until we understand why, we disable sumdb.
+			// related issue:  https://github.com/golang/go/issues/56174
+			exec.StepOption(step.Env("GOSUMDB=off")),
+		)...)
 }
 
 // ModVerify runs go mod verify on path with options.
@@ -139,6 +146,14 @@ func Install(ctx context.Context, path string, pkgs []string, options ...exec.Op
 	}
 	command = append(command, pkgs...)
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// IsInstallError returns true if err is interpreted as a go install error.
+func IsInstallError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "no required module provides package")
 }
 
 // Get runs go get pkgs on path with options.

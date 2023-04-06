@@ -6,6 +6,7 @@
 
 ### Features
 
+- [#3381](https://github.com/ignite/cli/pull/3381) Add `ignite doctor` command
 - [#3238](https://github.com/ignite/cli/pull/3238) Add `Sharedhost` plugin option
 - [#3214](https://github.com/ignite/cli/pull/3214) Global plugins config.
 - [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
