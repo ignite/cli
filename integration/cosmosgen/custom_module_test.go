@@ -25,7 +25,7 @@ func TestCustomModule(t *testing.T) {
 	queryAPI, err := xurl.HTTP(servers.API)
 	require.NoError(t, err)
 
-	txAPI, err := xurl.TCP(servers.RPC)
+	txAPI, err := xurl.HTTP(servers.RPC)
 	require.NoError(t, err)
 
 	// Accounts to be included in the genesis

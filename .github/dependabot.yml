@@ -10,6 +10,10 @@ updates:
     schedule:
       interval: "daily"
       time: "10:00"
+    labels:
+      - "dependencies"
+      - "go"
+      - "Skip-Changelog"
     open-pull-requests-limit: 0
 
   - package-ecosystem: "npm"
@@ -17,4 +21,8 @@ updates:
     schedule:
       interval: "daily"
       time: "10:00"
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "Skip-Changelog"
     open-pull-requests-limit: 0
