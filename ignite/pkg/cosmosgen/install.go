@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 )
@@ -23,11 +24,12 @@ func DepTools() []string {
 
 // InstallDepTools installs protoc dependencies needed by Cosmos ecosystem.
 func InstallDepTools(ctx context.Context, appPath string) error {
-	// NOTE(tb): go get is not required thanks to tools.go, but for retrocompat
-	// with older scaffolded chains that doesn't have this file, we need to run
-	// it anyway.
-	if err := gocmd.Get(ctx, appPath, DepTools()); err != nil {
+	if err := gocmd.ModTidy(ctx, appPath); err != nil {
 		return err
 	}
-	return gocmd.Install(ctx, appPath, DepTools())
+	err := gocmd.Install(ctx, appPath, DepTools())
+	if gocmd.IsInstallError(err) {
+		return errors.New("unable to install dependency tools, try to run `ignite doctor` and try again")
+	}
+	return err
 }
