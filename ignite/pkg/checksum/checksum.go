@@ -34,7 +34,7 @@ func Sum(dirPath, outPath string) error {
 			return err
 		}
 
-		if _, err := b.WriteString(fmt.Sprintf("%x %s\n", h.Sum(nil), info.Name())); err != nil {
+		if _, err := b.WriteString(fmt.Sprintf("%x  %s\n", h.Sum(nil), info.Name())); err != nil {
 			return err
 		}
 	}
