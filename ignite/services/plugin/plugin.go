@@ -20,8 +20,6 @@ import (
 
 	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	cliexec "github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
@@ -339,10 +337,7 @@ func (p *Plugin) build(ctx context.Context) {
 	p.ev.Send(fmt.Sprintf("Building plugin %q", p.Path), events.ProgressStart())
 	defer p.ev.Send(fmt.Sprintf("Plugin built %q", p.Path), events.ProgressFinish())
 
-	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
-	// because our git history is too fat.
-	opt := cliexec.StepOption(step.Env("GOSUMDB=off"))
-	if err := gocmd.ModTidy(ctx, p.srcPath, opt); err != nil {
+	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
