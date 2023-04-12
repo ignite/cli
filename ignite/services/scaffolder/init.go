@@ -9,14 +9,13 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/templates/app"
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
 // Init initializes a new app with name and given options.
@@ -78,7 +77,7 @@ func generate(
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
-	g, err := app.New(&app.Options{
+	g, err := app.NewGenerator(&app.Options{
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
@@ -88,6 +87,10 @@ func generate(
 		AddressPrefix:    addressPrefix,
 	})
 	if err != nil {
+		return err
+	}
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(g, absRoot); err != nil {
 		return err
 	}
 
@@ -113,20 +116,14 @@ func generate(
 		if err != nil {
 			return err
 		}
-		if err := run(genny.WetRunner(context.Background()), g); err != nil {
+		if err := run(genny.WetRunner(ctx), g); err != nil {
 			return err
 		}
 		g = modulecreate.NewAppModify(tracer, opts)
-		if err := run(genny.WetRunner(context.Background()), g); err != nil {
+		if err := run(genny.WetRunner(ctx), g); err != nil {
 			return err
 		}
 
 	}
-
-	// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
-	// mod tidy requests the sumdb, until we understand why, we disable sumdb.
-	// related issue:  https://github.com/golang/go/issues/56174
-	opt := exec.StepOption(step.Env("GOSUMDB=off"))
-
-	return gocmd.ModTidy(ctx, absRoot, opt)
+	return gocmd.ModTidy(ctx, absRoot)
 }
