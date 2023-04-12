@@ -49,11 +49,12 @@ func ModuleSimulationMsgModify(
 	opWeightMsg%[2]v%[3]v,
 	defaultWeightMsg%[2]v%[3]v,
 	func(r *rand.Rand, ctx sdk.Context, accs []simtypes.Account) sdk.Msg {
+		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.accountKeeper, am.bankKeeper, am.keeper)
 		return nil
 	},
 ),
 %[1]v`
-			replacementOpMsg := fmt.Sprintf(templateOpMsg, PlaceholderSimappOperationMsg, msg, typeName.UpperCamel)
+			replacementOpMsg := fmt.Sprintf(templateOpMsg, PlaceholderSimappOperationMsg, msg, typeName.UpperCamel, moduleName)
 			content = replacer.Replace(content, PlaceholderSimappOperationMsg, replacementOpMsg)
 		}
 	}
