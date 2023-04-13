@@ -48,6 +48,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
+	github.com/rogpeppe/go-internal v1.9.0
 	github.com/rs/cors v1.8.2
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -297,6 +298,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d // indirect
+	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.0.5 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect

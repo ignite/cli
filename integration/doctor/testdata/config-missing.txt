@@ -1,0 +1,4 @@
+# Test fix config
+# config is missing
+! exec $IGNITE doctor
+stdout 'could not locate a config.yml'

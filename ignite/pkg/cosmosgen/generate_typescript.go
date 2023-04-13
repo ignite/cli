@@ -29,8 +29,9 @@ type tsGenerator struct {
 }
 
 type generatePayload struct {
-	Modules   []module.Module
-	PackageNS string
+	Modules         []module.Module
+	PackageNS       string
+	IsConsumerChain bool
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
@@ -45,8 +46,9 @@ func (g *generator) generateTS() error {
 
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	data := generatePayload{
-		Modules:   g.appModules,
-		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
+		Modules:         g.appModules,
+		PackageNS:       strings.ReplaceAll(appModulePath, "/", "-"),
+		IsConsumerChain: false,
 	}
 
 	// Third party modules are always required to generate the root
@@ -55,8 +57,12 @@ func (g *generator) generateTS() error {
 	// modules when the root templates are re-generated.
 	for _, modules := range g.thirdModules {
 		data.Modules = append(data.Modules, modules...)
+		for _, m := range modules {
+			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
+				data.IsConsumerChain = true
+			}
+		}
 	}
-
 	// Make sure the modules are always sorted to keep the import
 	// and module registration order consistent so the generated
 	// files are not changed.
