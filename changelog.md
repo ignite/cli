@@ -6,6 +6,11 @@
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
 
+### Fixes
+
+- [#3481](https://github.com/ignite/cli/pull/3481) Use correct checksum format in release checksum file
+- [#3470](https://github.com/ignite/cli/pull/3470) Prevent overriding minimum-gas-prices with default value
+
 ## [`v0.26.1`](https://github.com/ignite/cli/releases/tag/v0.26.1)
 
 ### Features
