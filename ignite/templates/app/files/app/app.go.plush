@@ -890,7 +890,12 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	return paramsKeeper
 }
 
-// SimulationManager implements the SimulationApp interface
+// SimulationManager returns the app SimulationManager
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// ModuleManager returns the app ModuleManager
+func (app *App) ModuleManager() *module.Manager {
+	return app.mm
 }
