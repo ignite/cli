@@ -1,7 +1,21 @@
-## [`v0.26.0`](https://github.com/ignite/cli/releases/tag/v0.26.0)
+# Changelog
+
+## Unreleased
+
+### Changes
+
+- [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
+
+### Fixes
+
+- [#3481](https://github.com/ignite/cli/pull/3481) Use correct checksum format in release checksum file
+- [#3470](https://github.com/ignite/cli/pull/3470) Prevent overriding minimum-gas-prices with default value
+
+## [`v0.26.1`](https://github.com/ignite/cli/releases/tag/v0.26.1)
 
 ### Features
 
+- [#3381](https://github.com/ignite/cli/pull/3381) Add `ignite doctor` command
 - [#3238](https://github.com/ignite/cli/pull/3238) Add `Sharedhost` plugin option
 - [#3214](https://github.com/ignite/cli/pull/3214) Global plugins config.
 - [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
@@ -85,7 +99,6 @@
 ### Changes
 
 - [#3145](https://github.com/ignite/cli/pull/3145) Security fix upgrading Cosmos SDK to `v0.46.6`
-# Changelog
 
 ## [`v0.25.1`](https://github.com/ignite/cli/releases/tag/v0.25.1)
 
