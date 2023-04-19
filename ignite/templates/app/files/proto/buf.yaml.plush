@@ -1,10 +1,10 @@
 version: v1
-name: <%= ModulePath %>
 deps:
-  - buf.build/cosmos/cosmos-sdk
-  - buf.build/cosmos/cosmos-proto
-  - buf.build/cosmos/gogo-proto
-  - buf.build/googleapis/googleapis
+  - buf.build/cosmos/cosmos-sdk:954f7b05f38440fc8250134b15adec47
+  - buf.build/cosmos/cosmos-proto:1935555c206d4afb9e94615dfd0fad31
+  - buf.build/cosmos/gogo-proto:34d970b699f84aa382f3c29773a60836
+  - buf.build/googleapis/googleapis:5ae7f88519b04fe1965da0f8a375a088
+  - buf.build/cosmos/ics23:3c44d8daa8b44059ac744cd17d4a49d7
 lint:
   use:
     - DEFAULT
