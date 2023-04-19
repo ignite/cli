@@ -43,7 +43,7 @@ func CollectEvents(ev events.Bus) Option {
 }
 
 // MigrateConfig migrates the chain config if required.
-func (d *Doctor) MigrateConfig(ctx context.Context) error {
+func (d *Doctor) MigrateConfig(_ context.Context) error {
 	errf := func(err error) error {
 		return fmt.Errorf("doctor migrate config: %w", err)
 	}
