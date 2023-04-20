@@ -14,6 +14,7 @@ func DepTools() []string {
 
 		// Go code generation plugin.
 		"github.com/golang/protobuf/protoc-gen-go",
+		"github.com/bufbuild/buf/cmd/buf",
 
 		// grpc-gateway plugins.
 		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",

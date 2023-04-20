@@ -1,0 +1,12 @@
+version: v1
+managed:
+  enabled: true
+plugins:
+  - plugin: buf.build/community/stephenh-ts-proto
+    out: ./ts
+    opt:
+      - logtostderr=true
+      - allow_merge=true
+      - json_names_for_fields=false
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+

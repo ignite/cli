@@ -1,0 +1,13 @@
+version: v1
+plugins:
+  - name: openapiv2
+    out: ../docs/openapi
+    opt:
+      - logtostderr=true
+      - allow_merge=true
+      - json_names_for_fields=false
+      - openapi_naming_strategy=fqn
+      - simple_operation_ids=true
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+    strategy: all
+

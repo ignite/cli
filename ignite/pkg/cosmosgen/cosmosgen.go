@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"github.com/ignite/cli/ignite/pkg/buf"
 	"path/filepath"
 	"strings"
 
@@ -97,6 +98,7 @@ func IncludeDirs(dirs []string) Option {
 // generator generates code for sdk and sdk apps.
 type generator struct {
 	ctx          context.Context
+	buf          buf.Buf
 	cacheStorage cache.Storage
 	appPath      string
 	protoDir     string
@@ -110,8 +112,14 @@ type generator struct {
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
 func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir string, options ...Option) error {
+	b, err := buf.New()
+	if err != nil {
+		return err
+	}
+
 	g := &generator{
 		ctx:          ctx,
+		buf:          b,
 		appPath:      appPath,
 		protoDir:     protoDir,
 		o:            &generateOptions{},
