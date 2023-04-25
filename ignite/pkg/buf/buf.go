@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"golang.org/x/sync/errgroup"
 
@@ -98,8 +97,6 @@ func (b Buf) runCommand(ctx context.Context, cmd ...string) error {
 	execOpts := []exec.Option{
 		exec.IncludeStdLogsToError(),
 	}
-	// TODO REMOVE ME
-	fmt.Printf("\n\nbuf = %s\n\n", strings.Join(cmd, " "))
 	return exec.Exec(ctx, cmd, execOpts...)
 }
 

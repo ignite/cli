@@ -3,7 +3,7 @@ managed:
   enabled: true
 plugins:
   - plugin: buf.build/community/stephenh-ts-proto
-    out: ./ts
+    out: .
     opt:
       - logtostderr=true
       - allow_merge=true
@@ -11,3 +11,4 @@ plugins:
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
       - ts_proto_opt=snakeToCamel=true
       - ts_proto_opt=esModuleInterop=true
+      - ts_proto_out=.
