@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"bytes"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -21,7 +20,7 @@ const (
 	moduleCacheNamespace = "generate.setup.module"
 )
 
-var protocGlobalInclude = xfilepath.List(
+var protocGlobalInclude = xfilepath.List( // nolint: unused
 	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
 	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
@@ -126,46 +125,6 @@ func (g *generator) setup() (err error) {
 	}
 
 	return nil
-}
-
-func (g *generator) resolveDependencyInclude() ([]string, error) {
-	// Init paths with the global include paths for protoc
-	paths, err := protocGlobalInclude()
-	if err != nil {
-		return nil, err
-	}
-
-	// Relative paths to proto directories
-	protoDirs := append([]string{g.protoDir}, g.o.includeDirs...)
-
-	// Create a list of proto import paths for the dependencies.
-	// These paths will be available to be imported from the chain app's proto files.
-	for rootPath, m := range g.thirdModules {
-		// Skip modules without proto files
-		if m == nil {
-			continue
-		}
-
-		// Check each one of the possible proto directory names for the
-		// current module and append them only when the directory exists.
-		for _, d := range protoDirs {
-			p := filepath.Join(rootPath, d)
-			f, err := os.Stat(p)
-			if err != nil {
-				if os.IsNotExist(err) {
-					continue
-				}
-
-				return nil, err
-			}
-
-			if f.IsDir() {
-				paths = append(paths, p)
-			}
-		}
-	}
-
-	return paths, nil
 }
 
 func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {
