@@ -18,7 +18,8 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path string
+		path  string
+		cache protoanalysis.Cache
 	}
 )
 
@@ -50,7 +51,8 @@ func New() (Buf, error) {
 		return Buf{}, err
 	}
 	return Buf{
-		path: path,
+		path:  path,
+		cache: protoanalysis.NewCache(),
 	}, nil
 }
 
@@ -61,7 +63,7 @@ func (c Command) String() string {
 
 // Generate runs the buf Generate command for each file into the proto directory.
 func (b Buf) Generate(ctx context.Context, protoDir, output, template string) error {
-	pkgs, err := protoanalysis.Parse(ctx, protoanalysis.NewCache(), protoDir)
+	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
 	if err != nil {
 		return err
 	}
