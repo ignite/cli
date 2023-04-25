@@ -1,9 +1,8 @@
-// Package sta provides access to swagger-typescript-api CLI.
-package sta
+// Package telescope provides access to @osmosis-labs/telescope CLI.
+package telescope
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
@@ -82,7 +81,6 @@ func Generate(ctx context.Context, outPath string, includePaths []string, option
 			includePaths[i],
 		}...)
 	}
-	fmt.Println(command)
 	// execute the command.
 	return exec.Exec(ctx, command, exec.IncludeStdLogsToError())
 }
