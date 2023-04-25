@@ -9,14 +9,15 @@ import (
 
 func DepTools() []string {
 	return []string{
+		// buf build code generation.
+		"github.com/bufbuild/buf/cmd/buf",
+
 		// the gocosmos plugin.
 		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
 
-		// Go code generation plugin.
-		"github.com/bufbuild/buf/cmd/buf",
-
 		// grpc-gateway plugins.
 		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
+		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
 		"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
 	}
 }
