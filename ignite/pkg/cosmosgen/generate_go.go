@@ -8,7 +8,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-const goTemplate = "buf.gen.gogo.yaml"
+func (g *generator) goTemplate() string {
+	return filepath.Join(g.appPath, g.protoDir, "buf.gen.gogo.yaml")
+}
 
 func (g *generator) generateGo() error {
 	// create a temporary dir to locate generated code under which later only some of them will be moved to the
@@ -27,7 +29,7 @@ func (g *generator) generateGo() error {
 		g.ctx,
 		protoPath,
 		tmp,
-		g.protoTemplate(goTemplate),
+		g.goTemplate(),
 	); err != nil {
 		return err
 	}

@@ -72,6 +72,10 @@ func (g *generator) generateTS() error {
 	return tsg.generateRootTemplates(data)
 }
 
+func (g *tsGenerator) tsTemplate() string {
+	return filepath.Join(g.g.appPath, g.g.protoDir, "buf.gen.ts.yaml")
+}
+
 func (g *tsGenerator) generateModuleTemplates() error {
 	staCmd, cleanupSTA, err := sta.Command()
 	if err != nil {
@@ -148,7 +152,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		ctx,
 		m.Pkg.Path,
 		typesOut,
-		g.g.protoTemplate(openAPITemplate),
+		g.tsTemplate(),
 	); err != nil {
 		return err
 	}
@@ -165,7 +169,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		ctx,
 		m.Pkg.Path,
 		tmp,
-		g.g.protoTemplate(openAPITemplate),
+		g.g.openAPITemplate(),
 	); err != nil {
 		return err
 	}

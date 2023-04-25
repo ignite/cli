@@ -16,12 +16,11 @@ import (
 )
 
 const (
-	openAPITemplate    = "buf.gen.openapi.yaml"
 	specCacheNamespace = "generate.openapi.spec"
 )
 
-func (g *generator) protoTemplate(name string) string {
-	return filepath.Join(g.appPath, g.protoDir, name)
+func (g *generator) openAPITemplate() string {
+	return filepath.Join(g.appPath, g.protoDir, "buf.gen.openapi.yaml")
 }
 
 func (g *generator) generateOpenAPISpec() error {
@@ -76,7 +75,7 @@ func (g *generator) generateOpenAPISpec() error {
 				g.ctx,
 				m.Pkg.Path,
 				dir,
-				g.protoTemplate(openAPITemplate),
+				g.openAPITemplate(),
 			); err != nil {
 				return err
 			}
