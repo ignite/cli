@@ -20,6 +20,10 @@ const (
 	specCacheNamespace = "generate.openapi.spec"
 )
 
+func (g *generator) protoTemplate(name string) string {
+	return filepath.Join(g.appPath, g.protoDir, name)
+}
+
 func (g *generator) generateOpenAPISpec() error {
 	var (
 		specDirs []string
@@ -72,7 +76,7 @@ func (g *generator) generateOpenAPISpec() error {
 				g.ctx,
 				m.Pkg.Path,
 				dir,
-				openAPITemplate,
+				g.protoTemplate(openAPITemplate),
 			); err != nil {
 				return err
 			}

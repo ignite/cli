@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 )
 
@@ -21,13 +20,12 @@ type (
 )
 
 const (
-	binaryName         = "buf"
-	flagTemplate       = "template"
-	flagOutput         = "output"
-	flagIncludeImports = "include-imports"
-	flagErrorFormat    = "error-format"
-	flagLogFormat      = "log-format"
-	fmtJSON            = "json"
+	binaryName      = "buf"
+	flagTemplate    = "template"
+	flagOutput      = "output"
+	flagErrorFormat = "error-format"
+	flagLogFormat   = "log-format"
+	fmtJSON         = "json"
 
 	// CMDGenerate generate command
 	CMDGenerate Command = "generate"
@@ -63,23 +61,22 @@ func (b Buf) Generate(ctx context.Context, protoDir, output, template string) er
 	cmd, err := b.generateCommand(
 		CMDGenerate,
 		map[string]string{
-			flagTemplate:       template,
-			flagOutput:         output,
-			flagIncludeImports: "true",
-			flagErrorFormat:    fmtJSON,
-			flagLogFormat:      fmtJSON,
+			flagTemplate:    template,
+			flagOutput:      output,
+			flagErrorFormat: fmtJSON,
+			flagLogFormat:   fmtJSON,
 		},
+		protoDir,
 	)
 	if err != nil {
 		return err
 	}
-	return b.runCommand(ctx, protoDir, cmd...)
+	return b.runCommand(ctx, cmd...)
 }
 
 // runCommand run the buf CLI command
-func (b Buf) runCommand(ctx context.Context, workDir string, cmd ...string) error {
+func (b Buf) runCommand(ctx context.Context, cmd ...string) error {
 	execOpts := []exec.Option{
-		exec.StepOption(step.Workdir(workDir)),
 		exec.IncludeStdLogsToError(),
 	}
 

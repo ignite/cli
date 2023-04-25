@@ -148,7 +148,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		ctx,
 		m.Pkg.Path,
 		typesOut,
-		openAPITemplate,
+		g.g.protoTemplate(openAPITemplate),
 	); err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		ctx,
 		m.Pkg.Path,
 		tmp,
-		openAPITemplate,
+		g.g.protoTemplate(openAPITemplate),
 	); err != nil {
 		return err
 	}
