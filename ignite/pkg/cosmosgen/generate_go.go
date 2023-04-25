@@ -11,11 +11,6 @@ import (
 const goTemplate = "buf.gen.gogo.yaml"
 
 func (g *generator) generateGo() error {
-	//includePaths, err := g.resolveInclude(g.appPath)
-	//if err != nil {
-	//	return err
-	//}
-
 	// create a temporary dir to locate generated code under which later only some of them will be moved to the
 	// app's source code. this also prevents having leftover files in the app's source code or its parent dir - when
 	// command executed directly there - in case of an interrupt.

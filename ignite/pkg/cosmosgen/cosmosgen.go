@@ -2,13 +2,13 @@ package cosmosgen
 
 import (
 	"context"
-	"github.com/ignite/cli/ignite/pkg/buf"
 	"path/filepath"
 	"strings"
 
 	"github.com/iancoleman/strcase"
 	gomodule "golang.org/x/mod/module"
 
+	"github.com/ignite/cli/ignite/pkg/buf"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 )
@@ -196,7 +196,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	if g.o.specOut != "" {
-		if err := generateOpenAPISpec(g); err != nil {
+		if err := g.generateOpenAPISpec(); err != nil {
 			return err
 		}
 	}

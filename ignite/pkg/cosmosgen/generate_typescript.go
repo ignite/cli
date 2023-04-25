@@ -14,15 +14,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
-	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
-	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
-var (
-	dirchangeCacheNamespace = "generate.typescript.dirchange"
-	jsOpenAPIOut            = []string{"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:."}
-	tsOut                   = []string{"--ts_proto_out=."}
-)
+var dirchangeCacheNamespace = "generate.typescript.dirchange"
 
 type tsGenerator struct {
 	g *generator
@@ -79,20 +73,6 @@ func (g *generator) generateTS() error {
 }
 
 func (g *tsGenerator) generateModuleTemplates() error {
-	protocCmd, cleanupProtoc, err := protoc.Command()
-	if err != nil {
-		return err
-	}
-
-	defer cleanupProtoc()
-
-	tsprotoPluginPath, cleanupPlugin, err := tsproto.BinaryPath()
-	if err != nil {
-		return err
-	}
-
-	defer cleanupPlugin()
-
 	staCmd, cleanupSTA, err := sta.Command()
 	if err != nil {
 		return err
@@ -124,7 +104,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 					}
 				}
 
-				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)
+				err = g.generateModuleTemplate(g.g.ctx, staCmd, sourcePath, m)
 				if err != nil {
 					return err
 				}
@@ -150,9 +130,8 @@ func (g *tsGenerator) generateModuleTemplates() error {
 
 func (g *tsGenerator) generateModuleTemplate(
 	ctx context.Context,
-	protocCmd protoc.Cmd,
 	staCmd sta.Cmd,
-	tsprotoPluginPath, appPath string,
+	appPath string,
 	m module.Module,
 ) error {
 	var (
@@ -160,27 +139,17 @@ func (g *tsGenerator) generateModuleTemplate(
 		typesOut = filepath.Join(out, "types")
 	)
 
-	includePaths, err := g.g.resolveInclude(appPath)
-	if err != nil {
-		return err
-	}
-
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 
 	// generate ts-proto types
-	err = protoc.Generate(
+	if err := g.g.buf.Generate(
 		ctx,
-		typesOut,
 		m.Pkg.Path,
-		includePaths,
-		tsOut,
-		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=true", "--ts_proto_opt=esModuleInterop=true"),
-		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
-		protoc.WithCommand(protocCmd),
-	)
-	if err != nil {
+		typesOut,
+		openAPITemplate,
+	); err != nil {
 		return err
 	}
 
@@ -192,15 +161,12 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	defer os.RemoveAll(tmp)
 
-	err = protoc.Generate(
+	if err := g.g.buf.Generate(
 		ctx,
-		tmp,
 		m.Pkg.Path,
-		includePaths,
-		jsOpenAPIOut,
-		protoc.WithCommand(protocCmd),
-	)
-	if err != nil {
+		tmp,
+		openAPITemplate,
+	); err != nil {
 		return err
 	}
 

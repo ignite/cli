@@ -13,16 +13,14 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
-var openAPIOut = []string{
-	"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,fqn_for_openapi_name=true,simple_operation_ids=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
-}
+const (
+	openAPITemplate    = "buf.gen.openapi.yaml"
+	specCacheNamespace = "generate.openapi.spec"
+)
 
-const specCacheNamespace = "generate.openapi.spec"
-
-func generateOpenAPISpec(g *generator) error {
+func (g *generator) generateOpenAPISpec() error {
 	var (
 		specDirs []string
 		conf     = swaggercombine.Config{
@@ -69,19 +67,13 @@ func generateOpenAPISpec(g *generator) error {
 			}
 		} else {
 			hasAnySpecChanged = true
-			include, err := g.resolveInclude(src)
-			if err != nil {
-				return err
-			}
 
-			err = protoc.Generate(
+			if err := g.buf.Generate(
 				g.ctx,
-				dir,
 				m.Pkg.Path,
-				include,
-				openAPIOut,
-			)
-			if err != nil {
+				dir,
+				openAPITemplate,
+			); err != nil {
 				return err
 			}
 
