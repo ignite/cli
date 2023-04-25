@@ -1,7 +1,7 @@
 version: v1
 plugins:
   - name: openapiv2
-    out: ../docs/openapi
+    out: .
     opt:
       - logtostderr=true
       - allow_merge=true
@@ -9,3 +9,5 @@ plugins:
       - openapi_naming_strategy=fqn
       - simple_operation_ids=true
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+    strategy: all
+

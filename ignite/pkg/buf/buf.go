@@ -4,8 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 )
 
@@ -13,7 +17,7 @@ type (
 	// Command represents a high level command under buf.
 	Command string
 
-	// Buf represents the buf application structure
+	// Buf represents the buf application structure.
 	Buf struct {
 		path string
 	}
@@ -27,7 +31,7 @@ const (
 	flagLogFormat   = "log-format"
 	fmtJSON         = "json"
 
-	// CMDGenerate generate command
+	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
 )
 
@@ -36,11 +40,11 @@ var (
 		CMDGenerate: {},
 	}
 
-	// ErrInvalidCommand error invalid command name
+	// ErrInvalidCommand error invalid command name.
 	ErrInvalidCommand = errors.New("invalid command name")
 )
 
-// New creates a new Buf based on the installed binary
+// New creates a new Buf based on the installed binary.
 func New() (Buf, error) {
 	path, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
@@ -51,39 +55,55 @@ func New() (Buf, error) {
 	}, nil
 }
 
-// String returns the command name
+// String returns the command name.
 func (c Command) String() string {
 	return string(c)
 }
 
-// Generate runs the buf Generate command
+// Generate runs the buf Generate command for each file into the proto directory.
 func (b Buf) Generate(ctx context.Context, protoDir, output, template string) error {
-	cmd, err := b.generateCommand(
-		CMDGenerate,
-		map[string]string{
-			flagTemplate:    template,
-			flagOutput:      output,
-			flagErrorFormat: fmtJSON,
-			flagLogFormat:   fmtJSON,
-		},
-		protoDir,
-	)
+	pkgs, err := protoanalysis.Parse(ctx, protoanalysis.NewCache(), protoDir)
 	if err != nil {
 		return err
 	}
-	return b.runCommand(ctx, cmd...)
+
+	g, ctx := errgroup.WithContext(ctx)
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			cmd, err := b.generateCommand(
+				CMDGenerate,
+				map[string]string{
+					flagTemplate:    template,
+					flagOutput:      output,
+					flagErrorFormat: fmtJSON,
+					flagLogFormat:   fmtJSON,
+				},
+				file.Path,
+			)
+			if err != nil {
+				return err
+			}
+			g.Go(func() error {
+				ctx := ctx
+				cmd := cmd
+				return b.runCommand(ctx, cmd...)
+			})
+		}
+	}
+	return g.Wait()
 }
 
-// runCommand run the buf CLI command
+// runCommand run the buf CLI command.
 func (b Buf) runCommand(ctx context.Context, cmd ...string) error {
 	execOpts := []exec.Option{
 		exec.IncludeStdLogsToError(),
 	}
-
+	// TODO REMOVE ME
+	fmt.Printf("\n\nbuf = %s\n\n", strings.Join(cmd, " "))
 	return exec.Exec(ctx, cmd, execOpts...)
 }
 
-// generateCommand generate the buf CLI command
+// generateCommand generate the buf CLI command.
 func (b Buf) generateCommand(
 	c Command,
 	flags map[string]string,
