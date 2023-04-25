@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to generate the proto files
+
 ### Changes
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
