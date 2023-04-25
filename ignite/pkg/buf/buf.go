@@ -107,7 +107,7 @@ func (b Buf) generateCommand(
 	args ...string,
 ) ([]string, error) {
 	if _, ok := commands[c]; !ok {
-		return nil, fmt.Errorf("%v: %s", ErrInvalidCommand, c)
+		return nil, fmt.Errorf("%w: %s", ErrInvalidCommand, c)
 	}
 
 	command := []string{
