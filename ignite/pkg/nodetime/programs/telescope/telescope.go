@@ -43,7 +43,7 @@ func Command() (command Cmd, cleanup func(), err error) {
 	return
 }
 
-// Generate generates client code and TS types to outPath from an OpenAPI spec that resides at specPath.
+// Generate generates client code and TS types to outPath from an array of proto paths.
 func Generate(ctx context.Context, outPath string, includePaths []string, options ...Option) error {
 	c := configs{}
 
