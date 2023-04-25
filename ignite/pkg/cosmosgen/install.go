@@ -13,13 +13,10 @@ func DepTools() []string {
 		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
 
 		// Go code generation plugin.
-		"github.com/golang/protobuf/protoc-gen-go",
 		"github.com/bufbuild/buf/cmd/buf",
 
 		// grpc-gateway plugins.
 		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
-		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
-		"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
 	}
 }
 
