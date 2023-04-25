@@ -33,6 +33,9 @@ const (
 
 	// CommandXRelayer is a relayer wrapper for Ignite CLI made using the confio relayer.
 	CommandXRelayer = "xrelayer"
+
+	// CommandTelescope is https://github.com/osmosis-labs/telescope
+	CommandTelescope = "telescope"
 )
 
 // CommandName represents a high level command under nodetime.

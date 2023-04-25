@@ -13,6 +13,7 @@
 		"@cosmjs/proto-signing": "0.28.11",
 		"@cosmjs/stargate": "0.28.11",
 		"@cosmjs/tendermint-rpc": "0.28.11",
+		"@osmonauts/telescope": "^0.94.0",
 		"js-yaml": "^4.0.0",
 		"json-rpc-2.0": "^0.2.16",
 		"long": "^4.0.0",
