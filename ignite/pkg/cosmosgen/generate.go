@@ -20,7 +20,7 @@ const (
 	moduleCacheNamespace = "generate.setup.module"
 )
 
-var protocGlobalInclude = xfilepath.List( // nolint: unused
+var protocGlobalInclude = xfilepath.List( //nolint: unused
 	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
 	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
