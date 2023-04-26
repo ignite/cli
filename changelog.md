@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#3488](https://github.com/ignite/cli/pull/3488) Add telescope to nodetime commands
+
 ### Changes
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
