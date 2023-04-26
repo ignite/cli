@@ -37,6 +37,7 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		keyringDir     = getKeyringDir(cmd)
 		gas            = getGas(cmd)
 		gasPrices      = getGasPrices(cmd)
+		gasAdjustment  = getGasAdjustment(cmd)
 		fees           = getFees(cmd)
 		generateOnly   = getGenerateOnly(cmd)
 	)
@@ -60,6 +61,9 @@ func newNodeCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	}
 	if gasPrices != "" {
 		options = append(options, cosmosclient.WithGasPrices(gasPrices))
+	}
+	if gasAdjustment != 0 {
+		options = append(options, cosmosclient.WithGasAdjustment(gasAdjustment))
 	}
 	if fees != "" {
 		options = append(options, cosmosclient.WithFees(fees))

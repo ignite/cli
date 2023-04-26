@@ -379,3 +379,56 @@ func TestClone(t *testing.T) {
 		})
 	}
 }
+
+func TestIsRepository(t *testing.T) {
+	tests := []struct {
+		name       string
+		dirFunc    func(*testing.T) string
+		shouldFail bool
+		expected   bool
+	}{
+		{
+			name: "path is a repository",
+			dirFunc: func(t *testing.T) string {
+				dir := t.TempDir()
+				_, err := git.PlainInit(dir, false)
+				require.NoError(t, err)
+				return dir
+			},
+			expected: true,
+		},
+		{
+			name: "path is not a repository",
+			dirFunc: func(t *testing.T) string {
+				return t.TempDir()
+			},
+			expected: false,
+		},
+		{
+			name: "repository error",
+			dirFunc: func(t *testing.T) string {
+				dir := t.TempDir()
+				err := os.Chmod(dir, 0)
+				require.NoError(t, err)
+				return dir
+			},
+			shouldFail: true,
+			expected:   false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Act
+			exists, err := xgit.IsRepository(tt.dirFunc(t))
+
+			// Assert
+			require.Equal(t, tt.expected, exists)
+
+			if tt.shouldFail {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}

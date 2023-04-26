@@ -2,6 +2,8 @@ package app
 
 import (
 	"embed"
+	"fmt"
+	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
@@ -9,20 +11,21 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/testutil"
 )
 
 //go:embed files/* files/**/*
-var fs embed.FS
+var files embed.FS
 
-// New returns the generator to scaffold a new Cosmos SDK app.
-func New(opts *Options) (*genny.Generator, error) {
-	var (
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fs, "files/", opts.AppPath)
-	)
-	if err := g.Box(template); err != nil {
-		return g, err
+// NewGenerator returns the generator to scaffold a new Cosmos SDK app.
+func NewGenerator(opts *Options) (*genny.Generator, error) {
+	// Remove "files/" prefix
+	subfs, err := fs.Sub(files, "files")
+	if err != nil {
+		return nil, fmt.Errorf("generator sub: %w", err)
+	}
+	g := genny.New()
+	if err := g.OnlyFS(subfs, opts.IncludePrefixes, nil); err != nil {
+		return g, fmt.Errorf("generator fs: %w", err)
 	}
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
@@ -36,11 +39,6 @@ func New(opts *Options) (*genny.Generator, error) {
 	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
-
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, opts.AppPath); err != nil {
-		return g, err
-	}
 
 	return g, nil
 }

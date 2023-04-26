@@ -175,7 +175,6 @@ func (s *Session) StartSpinner(text string) {
 	// with an invalid format.
 	if s.options.verbosity == uilog.VerbosityVerbose {
 		fmt.Fprint(s.out.Stdout(), text)
-
 		return
 	}
 

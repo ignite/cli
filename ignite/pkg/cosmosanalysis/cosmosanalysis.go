@@ -25,8 +25,8 @@ const (
 
 var appImplementation = []string{
 	"Name",
-	"BeginBlocker",
-	"EndBlocker",
+	"TxConfig",
+	"InterfaceRegistry",
 }
 
 // implementation tracks the implementation of an interface for a given struct.

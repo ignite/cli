@@ -214,12 +214,6 @@ const config = {
           },
         ],
       },
-      algolia: {
-        appId: "VVETP7QCVE",
-        apiKey: "a9c466699c13052d35581030138f9fdc",
-        indexName: "ignite-cli",
-        contextualSearch: false,
-      },
       zoom: {
         selector: ".markdown :not(em) > img",
         config: {
@@ -232,6 +226,15 @@ const config = {
       },
     }),
   plugins: [
+    [
+      require.resolve("@cmfcmf/docusaurus-search-local"),
+      {
+        indexDocs: true,
+        indexBlog: false,
+        indexPages: true,
+        language: "en",
+      },
+    ],
     [
       "@docusaurus/plugin-client-redirects",
       {

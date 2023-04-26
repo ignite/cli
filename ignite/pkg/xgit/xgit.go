@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	commitMsg  = "Initialized with Ignite CLI"
-	devXAuthor = &object.Signature{
+	commitMsg       = "Initialized with Ignite CLI"
+	defaultOpenOpts = git.PlainOpenOptions{DetectDotGit: true}
+	devXAuthor      = &object.Signature{
 		Name:  "Developer Experience team at Ignite",
 		Email: "hello@ignite.com",
 		When:  time.Now(),
@@ -26,9 +27,7 @@ var (
 // InitAndCommit creates a git repo in path if path isn't already inside a git
 // repository, then commits path content.
 func InitAndCommit(path string) error {
-	repo, err := git.PlainOpenWithOptions(path, &git.PlainOpenOptions{
-		DetectDotGit: true,
-	})
+	repo, err := git.PlainOpenWithOptions(path, &defaultOpenOpts)
 	if err != nil {
 		if !errors.Is(err, git.ErrRepositoryNotExists) {
 			return fmt.Errorf("open git repo %s: %w", path, err)
@@ -143,4 +142,15 @@ func Clone(ctx context.Context, urlRef, dir string) error {
 	return wt.Checkout(&git.CheckoutOptions{
 		Hash: *h,
 	})
+}
+
+// IsRepository checks if a path contains a Git repository.
+func IsRepository(path string) (bool, error) {
+	if _, err := git.PlainOpenWithOptions(path, &defaultOpenOpts); err != nil {
+		if errors.Is(err, git.ErrRepositoryNotExists) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
