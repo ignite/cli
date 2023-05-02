@@ -33,6 +33,16 @@ The required database tables will be created automatically by the collector the 
 When the application is run it will fetch all the transactions and events starting from one of the
 recent blocks until the current block height and populate the database:
 
+Your go.mod must add two lines:
+
+```go
+require github.com/ignite/cli v0.26.1
+
+// and 
+replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
+```
+
 ```go
 package main
 
@@ -56,7 +66,7 @@ const (
 
 func collect(ctx context.Context, db postgres.Adapter) error {
 	// Make sure that the data backend schema is up to date
-	if err = db.Init(ctx); err != nil {
+	if err := db.Init(ctx); err != nil {
 		return err
 	}
 
