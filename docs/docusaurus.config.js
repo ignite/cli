@@ -224,17 +224,20 @@ const config = {
           },
         },
       },
+      algolia: {
+        appId: 'VVETP7QCVE',
+        apiKey: 'a9c466699c13052d35581030138f9fdc',
+        indexName: 'ignite-cli',
+        contextualSearch: true,
+
+        // ↓ - To remove if `contextualSearch` versioning search works (to use if not)
+        // exclusionPatterns: [
+        //     'https://docs.ignite.com/v0.25.2/**',
+        //     'https://docs.ignite.com/nightly/**',
+        // ]
+      },
     }),
   plugins: [
-    [
-      require.resolve("@cmfcmf/docusaurus-search-local"),
-      {
-        indexDocs: true,
-        indexBlog: false,
-        indexPages: true,
-        language: "en",
-      },
-    ],
     [
       "@docusaurus/plugin-client-redirects",
       {
