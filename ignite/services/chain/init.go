@@ -226,11 +226,7 @@ func (c Chain) UpdateGenesisFile(data map[string]interface{}) error {
 		return err
 	}
 
-	if err = cf.Save(genesis); err != nil {
-		return err
-	}
-
-	return nil
+	return cf.Save(genesis)
 }
 
 type Validator struct {

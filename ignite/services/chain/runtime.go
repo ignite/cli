@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/nqd/flat"
 	"github.com/pelletier/go-toml"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -183,7 +184,7 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 
 	// Set default config values
 	tmConfig.Set("keyring-backend", "test")
-	tmConfig.Set("broadcast-mode", "block")
+	tmConfig.Set("broadcast-mode", "sync")
 
 	// Update config values with the validator's client config
 	updateTomlTreeValues(tmConfig, validator.Client)
@@ -203,20 +204,14 @@ func (c Chain) appHome() string {
 	return filepath.Join(home, "."+c.app.Name)
 }
 
-func updateTomlTreeValues(t *toml.Tree, values map[string]interface{}) {
-	for name, v := range values {
-		// Map are treated as TOML sections where the section names are the key values
-		if m, ok := v.(map[string]interface{}); ok {
-			section := name
-
-			for name, v := range m {
-				path := fmt.Sprintf("%s.%s", section, name)
-
-				t.Set(path, v)
-			}
-		} else {
-			// By default set top a level key/value
-			t.Set(name, v)
-		}
+func updateTomlTreeValues(t *toml.Tree, values map[string]interface{}) error {
+	flatValues, err := flat.Flatten(values, nil)
+	if err != nil {
+		return err
 	}
+
+	for name, v := range flatValues {
+		t.Set(name, v)
+	}
+	return nil
 }

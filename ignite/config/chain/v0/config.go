@@ -21,12 +21,8 @@ type Config struct {
 
 // Clone returns an identical copy of the instance.
 func (c *Config) Clone() (version.Converter, error) {
-	copy := Config{}
-	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
-		return nil, err
-	}
-
-	return &copy, nil
+	cfgCopy := Config{}
+	return &cfgCopy, mergo.Merge(&cfgCopy, c, mergo.WithAppendSlice)
 }
 
 // Decode decodes the config file values from YAML.

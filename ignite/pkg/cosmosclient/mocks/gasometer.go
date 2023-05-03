@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	grpc "github.com/gogo/protobuf/grpc"
+	grpc "github.com/cosmos/gogoproto/grpc"
 	mock "github.com/stretchr/testify/mock"
 
 	tx "github.com/cosmos/cosmos-sdk/client/tx"

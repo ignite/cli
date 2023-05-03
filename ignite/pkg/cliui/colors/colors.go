@@ -19,7 +19,7 @@ const (
 var (
 	info     = lipgloss.NewStyle().Foreground(lipgloss.Color(Yellow))
 	infof    = lipgloss.NewStyle().Foreground(lipgloss.Color(Yellow))
-	error    = lipgloss.NewStyle().Foreground(lipgloss.Color(Red))
+	err      = lipgloss.NewStyle().Foreground(lipgloss.Color(Red))
 	success  = lipgloss.NewStyle().Foreground(lipgloss.Color(Green))
 	modified = lipgloss.NewStyle().Foreground(lipgloss.Color(Magenta))
 	name     = lipgloss.NewStyle().Bold(true)
@@ -46,7 +46,7 @@ func Infof(format string, i ...interface{}) string {
 }
 
 func Error(i ...interface{}) string {
-	return error.Render(fmt.Sprint(i...))
+	return err.Render(fmt.Sprint(i...))
 }
 
 func Success(i ...interface{}) string {
