@@ -228,7 +228,7 @@ const config = {
         appId: 'VVETP7QCVE',
         apiKey: '167213b8ce51cc7ff9a804df130657e5',
         indexName: 'ignite-cli',
-        contextualSearch: true,
+        contextualSearch: false,
 
         // ↓ - To remove if `contextualSearch` versioning search works (to use if not)
         // exclusionPatterns: [
