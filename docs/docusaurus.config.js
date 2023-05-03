@@ -226,7 +226,7 @@ const config = {
       },
       algolia: {
         appId: 'VVETP7QCVE',
-        apiKey: 'a9c466699c13052d35581030138f9fdc',
+        apiKey: '167213b8ce51cc7ff9a804df130657e5',
         indexName: 'ignite-cli',
         contextualSearch: true,
 
