@@ -1,6 +1,6 @@
 //go:build !relayer
 
-package app_test
+package ibc_test
 
 import (
 	"testing"

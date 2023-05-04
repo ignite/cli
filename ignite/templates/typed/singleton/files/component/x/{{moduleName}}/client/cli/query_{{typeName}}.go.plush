@@ -1,11 +1,10 @@
 package cli
 
 import (
-    "context"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
+
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -24,7 +23,7 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{}
 
-            res, err := queryClient.<%= TypeName.UpperCamel %>(context.Background(), params)
+            res, err := queryClient.<%= TypeName.UpperCamel %>(cmd.Context(), params)
             if err != nil {
                 return err
             }

@@ -8,8 +8,8 @@ import (
 	"os"
 
 	sdkmath "cosmossdk.io/math"
+	"github.com/cometbft/cometbft/crypto/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 const GentxFilename = "gentx.json"

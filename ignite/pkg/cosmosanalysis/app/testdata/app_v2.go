@@ -8,22 +8,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"cosmossdk.io/log"
-	dbm "github.com/cosmos/cosmos-db"
-
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/evidence"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
-	nftkeeper "cosmossdk.io/x/nft/keeper"
-	nftmodule "cosmossdk.io/x/nft/module"
-
-	storetypes "cosmossdk.io/store/types"
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
+	nftkeeper "cosmossdk.io/x/nft/keeper"
+	nftmodule "cosmossdk.io/x/nft/module"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
-
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -34,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -68,6 +66,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -297,6 +296,14 @@ func NewSimApp(
 
 // Name returns the name of the App
 func (app *SimApp) Name() string { return app.BaseApp.Name() }
+
+func (app *SimApp) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return abci.ResponseBeginBlock{}
+}
+
+func (app *SimApp) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
+	return abci.ResponseEndBlock{}
+}
 
 // LegacyAmino returns SimApp's amino codec.
 //

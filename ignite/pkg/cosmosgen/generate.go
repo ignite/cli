@@ -168,12 +168,17 @@ func (g *generator) resolveDependencyInclude() ([]string, error) {
 	return paths, nil
 }
 
-func (g *generator) resolveInclude(path string) (paths []string, err error) {
+func (g *generator) resolveIncludeApp(path string) (paths []string) {
 	// Append chain app's proto paths
 	paths = append(paths, filepath.Join(path, g.protoDir))
 	for _, p := range g.o.includeDirs {
 		paths = append(paths, filepath.Join(path, p))
 	}
+	return
+}
+
+func (g *generator) resolveInclude(path string) (paths []string, err error) {
+	paths = g.resolveIncludeApp(path)
 
 	// Append paths for dependencies that have protocol buffer files
 	includePaths, err := g.resolveDependencyInclude()

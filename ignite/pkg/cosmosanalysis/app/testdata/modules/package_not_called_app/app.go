@@ -1,16 +1,15 @@
 package gaia
 
 import (
-	"cosmossdk.io/client/v2/autocli"
-	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	abci "github.com/tendermint/tendermint/abci/types"
 	foomodule "github.com/username/test/x/foo"
 )
 
@@ -27,7 +26,18 @@ var ModuleBasics = module.NewBasicManager(
 
 type Foo struct{}
 
-func (Foo) Name() string                                    { return "foo" }
-func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
-func (Foo) TxConfig() client.TxConfig                       { return nil }
-func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
+func (Foo) Name() string {
+	return "foo"
+}
+
+func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return abci.ResponseBeginBlock{}
+}
+
+func (Foo) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
+	return abci.ResponseEndBlock{}
+}
+
+func (Foo) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
+}

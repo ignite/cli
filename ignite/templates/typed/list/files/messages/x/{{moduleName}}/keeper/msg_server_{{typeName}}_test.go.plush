@@ -22,7 +22,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		request *types.MsgUpdate<%= TypeName.UpperCamel %>
 		err     error
@@ -41,7 +41,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>, Id: 10},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			srv, ctx := setupMsgServer(t)
 			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
@@ -60,7 +61,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		request *types.MsgDelete<%= TypeName.UpperCamel %>
 		err     error
@@ -79,7 +80,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>, Id: 10},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			srv, ctx := setupMsgServer(t)
 

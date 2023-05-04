@@ -41,7 +41,7 @@ func NewChainSimulate() *cobra.Command {
 	return c
 }
 
-func chainSimulationHandler(cmd *cobra.Command, args []string) error {
+func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	var (
 		verbose, _     = cmd.Flags().GetBool(flagSimappVerbose)
 		period, _      = cmd.Flags().GetUint(flagSimappPeriod)
