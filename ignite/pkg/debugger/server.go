@@ -179,8 +179,5 @@ func applyDebuggerOptions(options ...Option) debuggerOptions {
 }
 
 func disableDelveLogging() error {
-	if err := logflags.Setup(false, "", ""); err != nil {
-		return err
-	}
-	return nil
+	return logflags.Setup(false, "", "")
 }

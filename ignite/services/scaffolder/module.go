@@ -27,8 +27,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	ibchosttypes "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -69,7 +69,7 @@ var (
 		"sign":                       {},
 		"tx":                         {},
 		"txs":                        {},
-		ibchosttypes.ModuleName:      {},
+		ibcexported.ModuleName:       {},
 		transfertypes.ModuleName:     {},
 		authtypes.ModuleName:         {},
 		authztypes.ModuleName:        {},
@@ -93,7 +93,7 @@ var (
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
 	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
-		ibchosttypes.StoreKey,
+		ibcexported.StoreKey,
 		transfertypes.StoreKey,
 		authtypes.StoreKey,
 		banktypes.StoreKey,

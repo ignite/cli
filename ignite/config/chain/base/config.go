@@ -171,11 +171,7 @@ func (c Config) GetVersion() version.Version {
 
 // SetDefaults assigns default values to empty config fields.
 func (c *Config) SetDefaults() error {
-	if err := mergo.Merge(c, DefaultConfig()); err != nil {
-		return err
-	}
-
-	return nil
+	return mergo.Merge(c, DefaultConfig())
 }
 
 // DefaultConfig returns a base config with default values.

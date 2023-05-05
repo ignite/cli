@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 )
 
 // TX defines a block transaction.
@@ -26,13 +26,13 @@ func (t TX) GetEvents() (events []TXEvent, err error) {
 			// Make sure that the attribute value is a valid JSON encoded string.
 			// Tendermint event attribute values contain JSON encoded values without quotes
 			// so string values need to be encoded to be quoted and saved as valid JSONB.
-			v, err := formatAttributeValue(a.Value)
+			v, err := formatAttributeValue([]byte(a.Value))
 			if err != nil {
 				return nil, fmt.Errorf("error encoding event attr '%s.%s': %w", e.Type, a.Key, err)
 			}
 
 			evt.Attributes = append(evt.Attributes, TXEventAttribute{
-				Key:   string(a.Key),
+				Key:   a.Key,
 				Value: v,
 			})
 		}

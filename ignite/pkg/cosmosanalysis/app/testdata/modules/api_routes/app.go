@@ -1,12 +1,14 @@
 package app
 
 import (
+	"cosmossdk.io/api/tendermint/abci"
 	"cosmossdk.io/client/v2/autocli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -36,9 +38,15 @@ func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
 func (Foo) TxConfig() client.TxConfig                       { return nil }
 func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
 
-type App struct{}
+func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return abci.ResponseBeginBlock{}
+}
 
-func (App) RegisterAPIRoutes(s *api.Server, cfg config.APIConfig) {
+func (Foo) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
+	return abci.ResponseEndBlock{}
+}
+
+func (Foo) RegisterAPIRoutes(s *api.Server, cfg config.APIConfig) {
 	// These two modules should be discovered too
 	authtx.RegisterGRPCGatewayRoutes(s.ClientCtx, s.GRPCGatewayRouter)
 	tmservice.RegisterGRPCGatewayRoutes(s.ClientCtx, s.GRPCGatewayRouter)

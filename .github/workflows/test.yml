@@ -11,8 +11,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: technote-space/get-diff-action@v6.1.1
+      - uses: actions/checkout@v3.4.0
+      - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
             **/*.go
@@ -20,7 +20,7 @@ jobs:
             go.sum
             **/testdata/**
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
           go-version: 1.19

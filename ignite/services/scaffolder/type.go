@@ -203,6 +203,7 @@ func (s Scaffolder) AddType(
 		opts.AppName,
 		opts.ModulePath,
 		opts.ModuleName,
+		opts.IsIBC,
 	)
 	if err != nil {
 		return sm, err

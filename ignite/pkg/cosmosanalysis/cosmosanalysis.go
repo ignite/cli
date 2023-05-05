@@ -18,15 +18,16 @@ import (
 
 const (
 	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
-	tendermintModulePath = "github.com/tendermint/tendermint"
+	tendermintModulePath = "github.com/cometbft/cometbft"
 	appFileName          = "app.go"
 	defaultAppFilePath   = "app/" + appFileName
 )
 
 var appImplementation = []string{
 	"Name",
-	"TxConfig",
-	"InterfaceRegistry",
+	"BeginBlocker",
+	"EndBlocker",
+	"RegisterAPIRoutes",
 }
 
 // implementation tracks the implementation of an interface for a given struct.

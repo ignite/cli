@@ -12,8 +12,8 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: technote-space/get-diff-action@v6.1.1
+      - uses: actions/checkout@v3.4.0
+      - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
             **/*.md

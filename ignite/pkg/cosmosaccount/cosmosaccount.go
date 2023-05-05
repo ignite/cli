@@ -181,8 +181,7 @@ func (r Registry) EnsureDefaultAccount() error {
 
 // Create creates a new account with name.
 func (r Registry) Create(name string) (acc Account, mnemonic string, err error) {
-	acc, err = r.GetByName(name)
-	if err == nil {
+	if _, err = r.GetByName(name); err == nil {
 		return Account{}, "", ErrAccountExists
 	}
 	var accErr *AccountDoesNotExistError

@@ -21,10 +21,8 @@ func NewDoctor() *cobra.Command {
 			if err := doc.MigrateConfig(cmd.Context()); err != nil {
 				return err
 			}
-			if err := doc.FixDependencyTools(cmd.Context()); err != nil {
-				return err
-			}
-			return nil
+
+			return doc.FixDependencyTools(cmd.Context())
 		},
 	}
 }

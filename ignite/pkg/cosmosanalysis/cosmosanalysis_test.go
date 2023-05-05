@@ -74,17 +74,29 @@ func (f Foo) foobar() {}
 package app
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) InterfaceRegistry() codectypes.InterfaceRegistry { return app.interfaceRegistry }
-func (app *App) TxConfig() client.TxConfig { return app.txConfig }
-func (app *App) AutoCliOpts() autocli.AppOptions { return app.autoCliOpts }
+func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return app.mm.BeginBlock(ctx, req)
+}
+func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	return app.mm.EndBlock(ctx, req)
+}
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
+}
 `)
 	appTestFile = []byte(`
 package app_test
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) InterfaceRegistry() codectypes.InterfaceRegistry { return app.interfaceRegistry }
-func (app *App) TxConfig() client.TxConfig { return app.txConfig }
-func (app *App) AutoCliOpts() autocli.AppOptions { return app.autoCliOpts }
+func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return app.mm.BeginBlock(ctx, req)
+}
+func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	return app.mm.EndBlock(ctx, req)
+}
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
+}
 `)
 )
 
@@ -178,6 +190,7 @@ func TestFindAppFilePath(t *testing.T) {
 	err = os.WriteFile(appTestFilePath, appTestFile, 0o644)
 	require.NoError(t, err)
 	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
+	require.Error(t, err)
 	require.Contains(t, err.Error(), "cannot locate your app.go")
 
 	// With an additional app file (that is app.go)

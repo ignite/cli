@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
-	channelutils "github.com/cosmos/ibc-go/v6/modules/core/04-channel/client/utils"
+	channelutils "github.com/cosmos/ibc-go/v7/modules/core/04-channel/client/utils"
 )
 
 var _ = strconv.Itoa(0)
