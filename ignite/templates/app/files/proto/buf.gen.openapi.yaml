@@ -9,5 +9,4 @@ plugins:
       - openapi_naming_strategy=fqn
       - simple_operation_ids=true
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
-    strategy: all
 

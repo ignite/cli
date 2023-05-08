@@ -29,7 +29,7 @@ func (g *generator) generateGo() error {
 		g.ctx,
 		protoPath,
 		tmp,
-		g.goTemplate(),
+		g.gogoTemplate(),
 	); err != nil {
 		return err
 	}
