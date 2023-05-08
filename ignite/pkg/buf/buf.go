@@ -85,7 +85,6 @@ func (b Buf) Generate(ctx context.Context, protoDir, output, template string) er
 				return err
 			}
 			g.Go(func() error {
-				ctx := ctx
 				cmd := cmd
 				return b.runCommand(ctx, cmd...)
 			})
