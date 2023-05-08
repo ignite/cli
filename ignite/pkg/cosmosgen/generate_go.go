@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (g *generator) goTemplate() string {
+func (g *generator) gogoTemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.gogo.yaml")
 }
 
