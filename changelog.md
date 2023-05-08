@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
+- [#3494](https://github.com/ignite/cli/pull/3494) bump `cosmos-sdk` and `cometbft` versions
 
 ### Fixes
 
