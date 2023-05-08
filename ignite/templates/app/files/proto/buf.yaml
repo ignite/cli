@@ -5,6 +5,9 @@ deps:
   - buf.build/cosmos/gogo-proto:34d970b699f84aa382f3c29773a60836
   - buf.build/googleapis/googleapis:5ae7f88519b04fe1965da0f8a375a088
   - buf.build/cosmos/ics23:3c44d8daa8b44059ac744cd17d4a49d7
+breaking:
+  use:
+    - FILE
 lint:
   use:
     - DEFAULT
@@ -16,10 +19,5 @@ lint:
     - SERVICE_SUFFIX
     - PACKAGE_VERSION_SUFFIX
     - RPC_REQUEST_STANDARD_NAME
-    - RPC_REQUEST_RESPONSE_UNIQUE
-    - RPC_RESPONSE_STANDARD_NAME
-    - RPC_REQUEST_RESPONSE_UNIQUE
-    - COMMENT_MESSAGE
-breaking:
-  use:
-    - FILE
+  ignore:
+    - tendermint

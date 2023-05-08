@@ -20,7 +20,7 @@ const (
 )
 
 func (g *generator) openAPITemplate() string {
-	return filepath.Join(g.appPath, g.protoDir, "buf.gen.openapi.yaml")
+	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
 }
 
 func (g *generator) generateOpenAPISpec() error {
