@@ -10,7 +10,7 @@ import (
 func DepTools() []string {
 	return []string{
 		// the gocosmos plugin.
-		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
+		"github.com/cosmos/gogoproto/protoc-gen-gocosmos",
 
 		// Go code generation plugin.
 		"github.com/golang/protobuf/protoc-gen-go",

@@ -17,7 +17,7 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
-	for _, tc := range []struct {
+	tests := []struct {
 		desc     string
 		request  *types.QueryGet<%= TypeName.UpperCamel %>Request
 		response *types.QueryGet<%= TypeName.UpperCamel %>Response
@@ -32,7 +32,8 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			response, err := keeper.<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {

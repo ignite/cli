@@ -40,7 +40,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		request *types.MsgUpdate<%= TypeName.UpperCamel %>
 		err     error
@@ -68,7 +68,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 			srv := keeper.NewMsgServerImpl(*k)
@@ -99,7 +100,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		request *types.MsgDelete<%= TypeName.UpperCamel %>
 		err     error
@@ -127,7 +128,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 			srv := keeper.NewMsgServerImpl(*k)

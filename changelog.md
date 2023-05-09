@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
+- [#3494](https://github.com/ignite/cli/pull/3494) bump `cosmos-sdk` and `cometbft` versions
 
 ### Fixes
 
@@ -72,6 +73,7 @@
 - [#3244](https://github.com/ignite/cli/pull/3244) Update `actions.yml` for resolving deprecation message
 - [#3337](https://github.com/ignite/cli/pull/3337) Remove `pkg/openapiconsole` import from scaffold template.
 - [#3337](https://github.com/ignite/cli/pull/3337) Register`nodeservice` gRPC in `app.go` template.
+- [#3455](https://github.com/ignite/cli/pull/3455) Bump `cosmos-sdk` to `v0.47.1`
 - [#3434](https://github.com/ignite/cli/pull/3434) Detect app wiring implementation.
 - [#3445](https://github.com/ignite/cli/pull/3445) refactor: replace `github.com/ghodss/yaml` with `sigs.k8s.io/yaml`
 

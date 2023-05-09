@@ -94,7 +94,7 @@ func (m ChainDebug) updateModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ChainDebug) processQuitMsg(msg cliuimodel.QuitMsg) (tea.Model, tea.Cmd) {
+func (m ChainDebug) processQuitMsg(cliuimodel.QuitMsg) (tea.Model, tea.Cmd) {
 	return m, tea.Quit
 }
 

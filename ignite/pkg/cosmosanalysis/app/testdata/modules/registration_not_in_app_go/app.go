@@ -1,9 +1,8 @@
 package app
 
 import (
-	"cosmossdk.io/client/v2/autocli"
-	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -25,6 +24,6 @@ func (Foo) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
 	return abci.ResponseEndBlock{}
 }
 
-func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
-func (Foo) TxConfig() client.TxConfig                       { return nil }
-func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
+func (Foo) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
+}

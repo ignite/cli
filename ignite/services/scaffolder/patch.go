@@ -38,11 +38,8 @@ func supportGenesisTests(
 	appName,
 	modulePath,
 	moduleName string,
+	isIBC bool,
 ) ([]*genny.Generator, error) {
-	isIBC, err := isIBCModule(appPath, moduleName)
-	if err != nil {
-		return gens, err
-	}
 	genesisTest, err := modulecreate.AddGenesisTest(
 		appPath,
 		appName,

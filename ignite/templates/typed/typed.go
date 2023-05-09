@@ -21,6 +21,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", opts.ModuleName)
+	ctx.Set("IsIBC", opts.IsIBC)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("TypeName", opts.TypeName)
 	ctx.Set("ModulePath", opts.ModulePath)

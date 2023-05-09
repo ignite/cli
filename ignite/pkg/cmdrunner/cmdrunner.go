@@ -191,7 +191,7 @@ type cmdSignal struct {
 
 func (e *cmdSignal) Signal(s os.Signal) { e.Cmd.Process.Signal(s) }
 
-func (e *cmdSignal) Write(data []byte) (n int, err error) { return 0, nil }
+func (e *cmdSignal) Write([]byte) (n int, err error) { return 0, nil }
 
 // cmdSignalWithWriter is an executor with signal processing and that can write into stdin.
 type cmdSignalWithWriter struct {

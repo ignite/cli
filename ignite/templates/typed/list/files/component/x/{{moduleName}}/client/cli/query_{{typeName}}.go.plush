@@ -1,7 +1,6 @@
 package cli
 
 import (
-    "context"
     "strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -31,7 +30,7 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
                 Pagination: pageReq,
             }
 
-            res, err := queryClient.<%= TypeName.UpperCamel %>All(context.Background(), params)
+            res, err := queryClient.<%= TypeName.UpperCamel %>All(cmd.Context(), params)
             if err != nil {
                 return err
             }
@@ -68,7 +67,7 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
                 Id: id,
             }
 
-            res, err := queryClient.<%= TypeName.UpperCamel %>(context.Background(), params)
+            res, err := queryClient.<%= TypeName.UpperCamel %>(cmd.Context(), params)
             if err != nil {
                 return err
             }
