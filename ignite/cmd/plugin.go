@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/xgit"
+	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
@@ -263,6 +264,16 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugi
 	}
 }
 
+func SetupChain(cmd *cobra.Command) (*chain.Chain, error) {
+	c, err := newChainWithHomeFlags(
+		cmd,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
 func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {
 	cmdPath := pluginCmd.PlaceCommandUnderFull()
 	cmd := findCommandByPath(rootCmd, cmdPath)
@@ -303,6 +314,20 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			return clictx.Do(cmd.Context(), func() error {
+				c, err := SetupChain(cmd)
+				if err != nil {
+					return err
+				}
+				manifest, err := p.Interface.Manifest()
+				if err != nil {
+					return err
+				}
+				if manifest.WithPaths {
+					if p.With == nil {
+						p.With = make(map[string]string)
+					}
+					p.With["appPath"] = c.AppPath()
+				}
 				execCmd := plugin.ExecutedCommand{
 					Use:    cmd.Use,
 					Path:   cmd.CommandPath(),
@@ -312,7 +337,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 				}
 				execCmd.SetFlags(cmd)
 				// Call the plugin Execute
-				err := p.Interface.Execute(execCmd)
+				err = p.Interface.Execute(execCmd)
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
 				// output from stdout/stderr of the plugin. Without that pause, this
 				// output can be discarded and not printed in the user console.

@@ -60,6 +60,8 @@ type Manifest struct {
 	// Hooks contains the hooks that will be attached to the existing ignite
 	// commands.
 	Hooks []Hook
+
+	WithPaths bool
 	// SharedHost enables sharing a single plugin server across all running instances
 	// of a plugin. Useful if a plugin adds or extends long running commands
 	//
