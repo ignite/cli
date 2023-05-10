@@ -19,7 +19,7 @@ paths:
       parameters:
       - in: "body"
         name: "body"
-        description: "Send coins request object\n\nAfter making a sample execution by the 'Try it out' button in the right corner, visit the following link to see the difference in sample account's balance: {{ .APIAddress }}/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+        description: "Send coins request object\n\nAfter making a sample execution by the 'Try it out' button in the right corner, visit the following link to see the difference in sample account's balance: {{ .APIAddress }}/cosmos/bank/v1beta1/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
         required: true
         schema:
           $ref: "#/definitions/SendRequest"
@@ -29,7 +29,7 @@ paths:
         "500":
           description: "Internal error"
         "200":
-          description: "All coins are successfully sent\n\nAfter making a sample execution, visit the following link to see the difference in sample account's balance: {{ .APIAddress }}/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+          description: "All coins are successfully sent\n\nAfter making a sample execution, visit the following link to see the difference in sample account's balance: {{ .APIAddress }}/cosmos/bank/v1beta1/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
           schema:
             $ref: "#/definitions/SendResponse"
 
