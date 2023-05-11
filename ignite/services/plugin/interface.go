@@ -61,7 +61,8 @@ type Manifest struct {
 	// commands.
 	Hooks []Hook
 
-	WithPaths bool
+	WithPaths          bool
+	WithModuleAnalysis bool
 	// SharedHost enables sharing a single plugin server across all running instances
 	// of a plugin. Useful if a plugin adds or extends long running commands
 	//

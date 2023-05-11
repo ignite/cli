@@ -10,11 +10,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/exp/maps"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/common"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/chain"
@@ -322,11 +324,15 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 				if err != nil {
 					return err
 				}
+				if p.With == nil {
+					p.With = make(map[string]string)
+				}
 				if manifest.WithPaths {
-					if p.With == nil {
-						p.With = make(map[string]string)
-					}
 					p.With["appPath"] = c.AppPath()
+				}
+				if manifest.WithModuleAnalysis {
+					modules, _ := common.GetModuleList(cmd.Context(), c)
+					maps.Copy(p.With, modules)
 				}
 				execCmd := plugin.ExecutedCommand{
 					Use:    cmd.Use,
