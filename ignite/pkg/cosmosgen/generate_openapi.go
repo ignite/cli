@@ -3,6 +3,7 @@ package cosmosgen
 import (
 	"errors"
 	"fmt"
+	"github.com/ignite/cli/ignite/pkg/xos"
 	"os"
 	"path/filepath"
 	"sort"
@@ -17,6 +18,7 @@ import (
 
 const (
 	specCacheNamespace = "generate.openapi.spec"
+	specFilename       = "swagger.config.json"
 )
 
 func (g *generator) openAPITemplate() string {
@@ -51,7 +53,6 @@ func (g *generator) generateOpenAPISpec() error {
 		if err != nil {
 			return err
 		}
-		specPath := filepath.Join(dir, "apidocs.swagger.json")
 
 		checksumPaths := append([]string{m.Pkg.Path}, g.o.includeDirs...)
 		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
@@ -65,33 +66,43 @@ func (g *generator) generateOpenAPISpec() error {
 		}
 
 		if !errors.Is(err, cache.ErrorNotFound) {
+			specPath := filepath.Join(dir, specFilename)
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-		} else {
-			hasAnySpecChanged = true
+			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath)
+		}
 
-			if err := g.buf.Generate(
-				g.ctx,
-				m.Pkg.Path,
-				dir,
-				g.openAPITemplate(),
-			); err != nil {
-				return err
-			}
+		hasAnySpecChanged = true
+		if err := g.buf.Generate(
+			g.ctx,
+			m.Pkg.Path,
+			dir,
+			g.openAPITemplate(),
+		); err != nil {
+			return err
+		}
 
-			f, err := os.ReadFile(specPath)
+		specs, err := xos.FindFiles(dir, xos.JSONFile)
+		if err != nil {
+			return err
+		}
+
+		for _, spec := range specs {
+			f, err := os.ReadFile(spec)
 			if err != nil {
 				return err
 			}
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
+				return err
+			}
 		}
-
 		specDirs = append(specDirs, dir)
 
-		return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath)
+		return nil
 	}
 
 	// generate specs for each module and persist them in the file system
@@ -100,7 +111,6 @@ func (g *generator) generateOpenAPISpec() error {
 
 	add := func(src string, modules []module.Module) error {
 		for _, m := range modules {
-			m := m
 			if err := gen(src, m); err != nil {
 				return err
 			}
@@ -113,11 +123,11 @@ func (g *generator) generateOpenAPISpec() error {
 		return err
 	}
 
-	for src, modules := range g.thirdModules {
-		if err := add(src, modules); err != nil {
-			return err
-		}
-	}
+	//for src, modules := range g.thirdModules {
+	//	if err := add(src, modules); err != nil {
+	//		return err
+	//	}
+	//}
 
 	out := g.o.specOut
 

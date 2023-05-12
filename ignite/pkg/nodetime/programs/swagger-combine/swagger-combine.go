@@ -75,6 +75,11 @@ func (c *Config) AddSpec(id, path string) error {
 	return nil
 }
 
+//// CombineDir combines openapi files from a folder and save into the out path.
+//func CombineDir(ctx context.Context, dir, out string) error {
+//
+//}
+
 // Combine combines openapi specs into one and saves to out path.
 // specs is a spec id-fs path pair.
 func Combine(ctx context.Context, c Config, out string) error {

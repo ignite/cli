@@ -1,10 +1,10 @@
 version: v1
 plugins:
-  - name: swagger
+  - name: openapiv2
     out: .
+    strategy: all
     opt:
       - logtostderr=true
-      - allow_merge=true
-      - json_names_for_fields=false
       - openapi_naming_strategy=fqn
       - simple_operation_ids=true
+      - json_names_for_fields=false

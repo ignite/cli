@@ -4,12 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/ignite/pkg/xexec"
+	"golang.org/x/sync/errgroup"
 )
 
 type (
@@ -78,6 +76,7 @@ func (b Buf) Generate(ctx context.Context, protoDir, output, template string) er
 					flagOutput:      output,
 					flagErrorFormat: fmtJSON,
 					flagLogFormat:   fmtJSON,
+					"exclude-path":  "orm/internal",
 				},
 				file.Path,
 			)
