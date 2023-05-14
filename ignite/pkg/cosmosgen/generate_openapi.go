@@ -123,11 +123,11 @@ func (g *generator) generateOpenAPISpec() error {
 		return err
 	}
 
-	//for src, modules := range g.thirdModules {
-	//	if err := add(src, modules); err != nil {
-	//		return err
-	//	}
-	//}
+	for src, modules := range g.thirdModules {
+		if err := add(src, modules); err != nil {
+			return err
+		}
+	}
 
 	out := g.o.specOut
 

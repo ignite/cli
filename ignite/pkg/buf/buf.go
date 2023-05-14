@@ -76,7 +76,6 @@ func (b Buf) Generate(ctx context.Context, protoDir, output, template string) er
 					flagOutput:      output,
 					flagErrorFormat: fmtJSON,
 					flagLogFormat:   fmtJSON,
-					"exclude-path":  "orm/internal",
 				},
 				file.Path,
 			)

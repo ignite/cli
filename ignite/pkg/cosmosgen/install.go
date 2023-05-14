@@ -14,6 +14,7 @@ func DepTools() []string {
 		"github.com/cosmos/gogoproto/protoc-gen-gocosmos",
 
 		// Go code generation plugin.
+		"google.golang.org/grpc/cmd/protoc-gen-go-grpc",
 		"google.golang.org/protobuf/cmd/protoc-gen-go",
 
 		// grpc-gateway plugins.

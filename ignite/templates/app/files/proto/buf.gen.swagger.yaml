@@ -2,7 +2,6 @@ version: v1
 plugins:
   - name: openapiv2
     out: .
-    strategy: all
     opt:
       - logtostderr=true
       - openapi_naming_strategy=fqn
