@@ -6,6 +6,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 )
 
+// MissingTools find missing tools import indo a *ast.File.
 func MissingTools(f *ast.File) (missingTools []string) {
 	imports := make(map[string]string)
 	for name, imp := range goanalysis.FormatImports(f) {
@@ -18,8 +19,4 @@ func MissingTools(f *ast.File) (missingTools []string) {
 		}
 	}
 	return
-}
-
-func UpgradeTools(f *ast.File, addImports, removeImports []string) error {
-	return nil
 }

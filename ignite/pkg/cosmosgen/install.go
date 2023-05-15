@@ -7,6 +7,19 @@ import (
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 )
 
+// UnusedTools deprecated and not necessary tools.
+func UnusedTools() []string {
+	return []string{
+		// regen protoc plugin
+		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
+
+		// old ignite repo.
+		"github.com/ignite-hq/cli/ignite/pkg/cmdrunner",
+		"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step",
+	}
+}
+
+// DepTools necessary tools to build and run the chain.
 func DepTools() []string {
 	return []string{
 		// the gocosmos plugin.

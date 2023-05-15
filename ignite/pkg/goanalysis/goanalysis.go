@@ -217,7 +217,7 @@ func FormatImports(f *ast.File) map[string]string {
 	return m
 }
 
-// ImportExists helper function to check if an import exists in the *ast.File
+// ImportExists helper function to check if an import exists in the *ast.File.
 func ImportExists(file *ast.File, imp string) bool {
 	for _, i := range file.Imports {
 		if i.Path.Value == strconv.Quote(imp) {
@@ -227,7 +227,7 @@ func ImportExists(file *ast.File, imp string) bool {
 	return false
 }
 
-// UpdateInitImports helper function to remove and add imports to an *ast.File
+// UpdateInitImports helper function to remove and add imports to an *ast.File.
 func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) ([]byte, error) {
 	fset := token.NewFileSet()
 	for _, imp := range importsToRemove {
@@ -241,7 +241,7 @@ func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) (
 		}
 	}
 
-	// Format the modified AST
+	// Format the modified AST.
 	var buf bytes.Buffer
 	if err := format.Node(&buf, fset, file); err != nil {
 		return nil, fmt.Errorf("failed to format file: %v", err)
