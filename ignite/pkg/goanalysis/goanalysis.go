@@ -2,14 +2,19 @@
 package goanalysis
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"golang.org/x/tools/go/ast/astutil"
 )
 
 const (
@@ -199,7 +204,7 @@ func FormatImports(f *ast.File) map[string]string {
 	m := make(map[string]string) // name -> import
 	for _, imp := range f.Imports {
 		var importName string
-		if imp.Name != nil {
+		if imp.Name != nil && imp.Name.Name != "_" && imp.Name.Name != "." {
 			importName = imp.Name.Name
 		} else {
 			importParts := strings.Split(imp.Path.Value, "/")
@@ -210,4 +215,36 @@ func FormatImports(f *ast.File) map[string]string {
 		m[name] = strings.Trim(imp.Path.Value, "\"")
 	}
 	return m
+}
+
+// ImportExists helper function to check if an import exists in the *ast.File
+func ImportExists(file *ast.File, imp string) bool {
+	for _, i := range file.Imports {
+		if i.Path.Value == strconv.Quote(imp) {
+			return true
+		}
+	}
+	return false
+}
+
+// UpdateInitImports helper function to remove and add imports to an *ast.File
+func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) ([]byte, error) {
+	fset := token.NewFileSet()
+	for _, imp := range importsToRemove {
+		astutil.DeleteNamedImport(fset, file, "_", imp)
+		astutil.DeleteImport(fset, file, imp)
+	}
+
+	for _, imp := range importsToAdd {
+		if !ImportExists(file, imp) {
+			astutil.AddNamedImport(fset, file, "_", imp)
+		}
+	}
+
+	// Format the modified AST
+	var buf bytes.Buffer
+	if err := format.Node(&buf, fset, file); err != nil {
+		return nil, fmt.Errorf("failed to format file: %v", err)
+	}
+	return buf.Bytes(), nil
 }
