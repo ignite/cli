@@ -16,6 +16,9 @@ const (
 	cacheNamespace = "plugin.rpc.context"
 )
 
+// Caches configuration for shared plugin hosts.
+// The cached configuration can be used to re-attach to running plugins.
+// These type of plugins must have "shared_host: true" in their manifest.
 var storageCache *cache.Cache[hplugin.ReattachConfig]
 
 func init() {
