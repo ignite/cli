@@ -194,6 +194,11 @@ type ExecutedCommand struct {
 	// With contains the plugin config parameters
 	With map[string]string
 
+	// Data contains runtime data sent to the plugin.
+	// Runtime data is generated right before execution
+	// and can be configured using plugin config parameters.
+	Data map[string]any
+
 	flags  *pflag.FlagSet
 	pflags *pflag.FlagSet
 }
