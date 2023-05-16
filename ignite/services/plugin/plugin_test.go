@@ -492,7 +492,7 @@ func TestPluginClean(t *testing.T) {
 // current ignite/cli sources.
 func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 	require := require.New(t)
-	path, err := Scaffold(dir, name, sharedHost)
+	path, err := Scaffold(context.Background(), dir, name, sharedHost)
 	require.NoError(err)
 	// We want the scaffolded plugin to use the current version of ignite/cli,
 	// for that we need to update the plugin go.mod and add a replace to target

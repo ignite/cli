@@ -21,7 +21,7 @@ import (
 var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(moduleName).
-func Scaffold(dir, moduleName string, sharedHost bool) (string, error) {
+func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (string, error) {
 	var (
 		name     = filepath.Base(moduleName)
 		finalDir = path.Join(dir, name)
@@ -32,32 +32,38 @@ func Scaffold(dir, moduleName string, sharedHost bool) (string, error) {
 			finalDir,
 		)
 	)
+
 	if _, err := os.Stat(finalDir); err == nil {
 		// finalDir already exists, don't overwrite stuff
 		return "", errors.Errorf("dir %q already exists, abort scaffolding", finalDir)
 	}
+
 	if err := g.Box(template); err != nil {
 		return "", errors.WithStack(err)
 	}
-	ctx := plush.NewContext()
-	ctx.Set("ModuleName", moduleName)
-	ctx.Set("Name", name)
-	ctx.Set("SharedHost", sharedHost)
 
-	g.Transformer(xgenny.Transformer(ctx))
-	r := genny.WetRunner(ctx)
+	pctx := plush.NewContextWithContext(ctx)
+	pctx.Set("ModuleName", moduleName)
+	pctx.Set("Name", name)
+	pctx.Set("SharedHost", sharedHost)
+
+	g.Transformer(xgenny.Transformer(pctx))
+	r := genny.WetRunner(pctx)
 	err := r.With(g)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
+
 	if err := r.Run(); err != nil {
 		return "", errors.WithStack(err)
 	}
+
 	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
 	// because our git history is too fat.
 	opt := exec.StepOption(step.Env("GOSUMDB=off"))
-	if err := gocmd.ModTidy(context.TODO(), finalDir, opt); err != nil {
+	if err := gocmd.ModTidy(ctx, finalDir, opt); err != nil {
 		return "", errors.WithStack(err)
 	}
+
 	return finalDir, nil
 }
