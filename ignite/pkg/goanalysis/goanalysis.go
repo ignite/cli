@@ -255,7 +255,7 @@ func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) (
 	var buf bytes.Buffer
 	fset := token.NewFileSet()
 	if err := format.Node(&buf, fset, file); err != nil {
-		return nil, fmt.Errorf("failed to format file: %v", err)
+		return nil, fmt.Errorf("failed to format file: %w", err)
 	}
 	return append([]byte(toolsBuildTag), buf.Bytes()...), nil
 }
