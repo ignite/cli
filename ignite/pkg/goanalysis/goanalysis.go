@@ -13,13 +13,12 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"golang.org/x/tools/go/ast/astutil"
 )
 
 const (
 	mainPackage     = "main"
 	goFileExtension = ".go"
+	toolsBuildTag   = "//go:build tools\n\n"
 )
 
 // ErrMultipleMainPackagesFound is returned when multiple main packages found while expecting only one.
@@ -217,34 +216,57 @@ func FormatImports(f *ast.File) map[string]string {
 	return m
 }
 
-// ImportExists helper function to check if an import exists in the *ast.File.
-func ImportExists(file *ast.File, imp string) bool {
-	for _, i := range file.Imports {
-		if i.Path.Value == strconv.Quote(imp) {
-			return true
-		}
-	}
-	return false
-}
-
 // UpdateInitImports helper function to remove and add imports to an *ast.File.
 func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) ([]byte, error) {
-	fset := token.NewFileSet()
-	for _, imp := range importsToRemove {
-		astutil.DeleteNamedImport(fset, file, "_", imp)
-		astutil.DeleteImport(fset, file, imp)
+	// Create a map for faster lookup of items to remove
+	importMap := make(map[string]bool)
+	for _, astImport := range file.Imports {
+		value, err := strconv.Unquote(astImport.Path.Value)
+		if err != nil {
+			return nil, err
+		}
+		importMap[value] = true
+	}
+	for _, removeImport := range importsToRemove {
+		importMap[removeImport] = false
+	}
+	for _, addImport := range importsToAdd {
+		importMap[addImport] = true
 	}
 
-	for _, imp := range importsToAdd {
-		if !ImportExists(file, imp) {
-			astutil.AddNamedImport(fset, file, "_", imp)
+	// Add the imports
+	for _, d := range file.Decls {
+		if dd, ok := d.(*ast.GenDecl); ok {
+			if dd.Tok == token.IMPORT {
+				file.Imports = make([]*ast.ImportSpec, 0)
+				dd.Specs = make([]ast.Spec, 0)
+				for imp, exist := range importMap {
+					if exist {
+						spec := createUnderscoreImport(imp)
+						file.Imports = append(file.Imports, spec)
+						dd.Specs = append(dd.Specs, spec)
+					}
+				}
+			}
 		}
 	}
 
 	// Format the modified AST.
 	var buf bytes.Buffer
+	fset := token.NewFileSet()
 	if err := format.Node(&buf, fset, file); err != nil {
 		return nil, fmt.Errorf("failed to format file: %v", err)
 	}
-	return buf.Bytes(), nil
+	return append([]byte(toolsBuildTag), buf.Bytes()...), nil
+}
+
+// createUnderscoreImports helper function to create an AST underscore import with given path.
+func createUnderscoreImport(imp string) *ast.ImportSpec {
+	return &ast.ImportSpec{
+		Name: ast.NewIdent("_"),
+		Path: &ast.BasicLit{
+			Kind:  token.STRING,
+			Value: strconv.Quote(imp),
+		},
+	}
 }

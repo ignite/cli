@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -16,7 +15,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
 )
@@ -114,7 +112,7 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 }
 
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
-	// session.EventBus().Send("Checking missing tools...", events.ProgressUpdate())
+	session.StartSpinner("Checking missing tools...")
 
 	appPath := flagGetPath(cmd)
 	toolsFilename := filepath.Join(appPath, toolsFile)
@@ -127,28 +125,33 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 		missing = cosmosgen.MissingTools(f)
 		unused  = cosmosgen.UnusedTools(f)
 	)
-	if len(missing) > 0 {
-		question := fmt.Sprintf(
-			"Some imports are missing into the tools file (%s): \n%s\nWould you like to add these missing imports?",
-			toolsFilename,
-			strings.Join(missing, "\n"),
-		)
-		if err := session.AskConfirm(question); err != nil {
-			missing = []string{}
-		}
-	}
 
-	if len(unused) > 0 {
-		question := fmt.Sprintf(
-			"Some imports are unused into the tools file (%s): \n%s\nWould you like to remove these unused imports?",
-			toolsFilename,
-			strings.Join(unused, "\n"),
-		)
-		if err := session.AskConfirm(question); err != nil {
-			unused = []string{}
-		}
-	}
-	session.EventBus().Send("Migrating tools...", events.ProgressUpdate())
+	//session.StopSpinner()
+	//if len(missing) > 0 {
+	//	question := fmt.Sprintf(
+	//		"Some imports are missing into the %s file: %s. Would you like to add?",
+	//		toolsFilename,
+	//		strings.Join(missing, ", "),
+	//	)
+	//	if err := session.AskConfirm(question); err != nil {
+	//		missing = []string{}
+	//	}
+	//}
+
+	//if len(unused) > 0 {
+	//	question := fmt.Sprintf(
+	//		"Some imports are unused into the %s file: %s. Would you like to remove?",
+	//		toolsFilename,
+	//		strings.Join(unused, ", "),
+	//	)
+	//	if err := session.AskConfirm(question); err != nil {
+	//		unused = []string{}
+	//	}
+	//}
+	//if len(missing) == 0 && len(unused) == 0 {
+	//	return nil
+	//}
+	session.StartSpinner("Migrating tools...")
 
 	newTools, err := goanalysis.UpdateInitImports(f, missing, unused)
 	if err != nil {

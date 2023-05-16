@@ -424,6 +424,20 @@ func TestUpdateInitImports(t *testing.T) {
 					"go/ast",
 				},
 			},
+			want: []string{},
+		},
+		{
+			name: "test remove not exist import",
+			args: args{
+				fileImports: []string{
+					"errors",
+					"go/ast",
+				},
+				importsToAdd: []string{},
+				importsToRemove: []string{
+					"fmt",
+				},
+			},
 			want: []string{
 				"errors",
 				"go/ast",
