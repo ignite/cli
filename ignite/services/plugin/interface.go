@@ -177,6 +177,12 @@ func (h Hook) PlaceHookOnFull() string {
 	return commandFull(h.PlaceHookOn)
 }
 
+// ExecuteData contains runtime data sent to the plugin.
+type ExecuteData struct {
+	AppPath      string
+	ProtoImports []string
+}
+
 // ExecutedCommand represents a plugin command under execution.
 type ExecutedCommand struct {
 	// Use is copied from Command.Use
@@ -197,7 +203,7 @@ type ExecutedCommand struct {
 	// Data contains runtime data sent to the plugin.
 	// Runtime data is generated right before execution
 	// and can be configured using plugin config parameters.
-	Data map[string]any
+	Data ExecuteData
 
 	flags  *pflag.FlagSet
 	pflags *pflag.FlagSet
