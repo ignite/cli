@@ -36,11 +36,13 @@ var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
-	// Embed the plugin configuration
+	// Embed the plugin configuration.
 	pluginsconfig.Plugin
+
 	// Interface allows to communicate with the plugin via net/rpc.
 	Interface Interface
-	// If any error occurred during the plugin load, it's stored here
+
+	// If any error occurred during the plugin load, it's stored here.
 	Error error
 
 	repoPath   string
@@ -52,8 +54,9 @@ type Plugin struct {
 
 	client *hplugin.Client
 
-	// holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
+	// Holds a cache of the plugin manifest to prevent mant calls over the rpc boundary.
 	manifest Manifest
+
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
 	isHost bool
@@ -74,15 +77,13 @@ func CollectEvents(ev events.Bus) Option {
 // Load loads the plugins found in the chain config.
 //
 // There's 2 kinds of plugins, local or remote.
-// Local plugins have their path starting with a `/`, while remote plugins
-// don't.
+// Local plugins have their path starting with a `/`, while remote plugins don't.
 // Local plugins are useful for development purpose.
-// Remote plugins require to be fetched first, in $HOME/.ignite/plugins
-// folder, then they are loaded from there.
+// Remote plugins require to be fetched first, in $HOME/.ignite/plugins folder, then they are loaded
+// from there.
 //
-// If an error occurs during a plugin load, it's not returned but rather stored
-// in the Plugin.Error field. This prevents the loading of other plugins to be
-// interrupted.
+// If an error occurs during a plugin load, it's not returned but rather stored in the Plugin.Error field.
+// This prevents the loading of other plugins to be interrupted.
 func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
@@ -101,8 +102,7 @@ func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option
 // Update removes the cache directory of plugins and fetch them again.
 func Update(plugins ...*Plugin) error {
 	for _, p := range plugins {
-		err := p.clean()
-		if err != nil {
+		if err := p.clean(); err != nil {
 			return err
 		}
 		p.fetch()

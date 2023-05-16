@@ -37,11 +37,13 @@ type Interface interface {
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookPre(hook ExecutedHook) error
+
 	// ExecuteHookPost is invoked by ignite when a command specified by the hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookPost(hook ExecutedHook) error
+
 	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
 	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
 	// execution status of the command and hooks.
@@ -53,13 +55,16 @@ type Interface interface {
 // Manifest represents the plugin behavior.
 type Manifest struct {
 	Name string
+
 	// Commands contains the commands that will be added to the list of ignite
 	// commands. Each commands are independent, for nested commands use the
 	// inner Commands field.
 	Commands []Command
+
 	// Hooks contains the hooks that will be attached to the existing ignite
 	// commands.
 	Hooks []Hook
+
 	// SharedHost enables sharing a single plugin server across all running instances
 	// of a plugin. Useful if a plugin adds or extends long running commands
 	//
@@ -100,21 +105,27 @@ func convertCobraCommand(c *cobra.Command, placeCommandUnder string) Command {
 type Command struct {
 	// Same as cobra.Command.Use
 	Use string
+
 	// Same as cobra.Command.Aliases
 	Aliases []string
+
 	// Same as cobra.Command.Short
 	Short string
+
 	// Same as cobra.Command.Long
 	Long string
+
 	// Same as cobra.Command.Hidden
 	Hidden bool
+
 	// Flags holds the list of command flags
 	Flags []Flag
+
 	// PlaceCommandUnder indicates where the command should be placed.
-	// For instance `ignite scaffold` will place the command at the
-	// `scaffold` command.
+	// For instance `ignite scaffold` will place the command at the `scaffold` command.
 	// An empty value is interpreted as `ignite` (==root).
 	PlaceCommandUnder string
+
 	// List of sub commands
 	Commands []Command
 }
@@ -133,8 +144,7 @@ func commandFull(cmdPath string) string {
 	return strings.TrimSpace(cmdPath)
 }
 
-// ToCobraCommand turns Command into a cobra.Command so it can be added to a
-// parent command.
+// ToCobraCommand turns Command into a cobra.Command so it can be added to a parent command.
 func (c Command) ToCobraCommand() (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:     c.Use,
@@ -144,8 +154,7 @@ func (c Command) ToCobraCommand() (*cobra.Command, error) {
 		Hidden:  c.Hidden,
 	}
 	for _, f := range c.Flags {
-		err := f.feedFlagSet(cmd)
-		if err != nil {
+		if err := f.feedFlagSet(cmd); err != nil {
 			return nil, err
 		}
 	}
@@ -157,6 +166,7 @@ type Hook struct {
 	// Name identifies the hook for the client to invoke the correct hook
 	// must be unique
 	Name string
+
 	// PlaceHookOn indicates the command to register the hooks for
 	PlaceHookOn string
 }
@@ -171,12 +181,16 @@ func (h Hook) PlaceHookOnFull() string {
 type ExecutedCommand struct {
 	// Use is copied from Command.Use
 	Use string
+
 	// Path contains the command path, e.g. `ignite scaffold foo`
 	Path string
+
 	// Args are the command arguments
 	Args []string
+
 	// Full list of args taken from os.Args
 	OSArgs []string
+
 	// With contains the plugin config parameters
 	With map[string]string
 
@@ -186,10 +200,11 @@ type ExecutedCommand struct {
 
 // ExecutedHook represents a plugin hook under execution.
 type ExecutedHook struct {
-	// ExecutedCommand gives access to the command attached by the hook.
-	ExecutedCommand ExecutedCommand
 	// Hook is a copy of the original Hook defined in the Manifest.
 	Hook
+
+	// ExecutedCommand gives access to the command attached by the hook.
+	ExecutedCommand ExecutedCommand
 }
 
 // Flags gives access to the commands' flags, like cobra.Command.Flags.
@@ -224,8 +239,8 @@ type Flag struct {
 	DefValue  string // default value (as text); for usage message
 	Type      FlagType
 	Value     string
-	// Persistent indicates wether or not the flag is propagated on children
-	// commands
+
+	// Persistent indicates wether or not the flag is propagated on children commands.
 	Persistent bool
 }
 
@@ -286,10 +301,9 @@ func (f Flag) feedFlagSet(fgr flagger) error {
 }
 
 // gobCommandFlags is used to gob encode/decode Command.
-// Command can't be encoded because :
-// - flags is unexported (because we want to expose it via the Flags() method,
-// like a regular cobra.Command)
-// - flags type is *pflag.FlagSet which is also full of unexported fields.
+// Command can't be encoded because:
+// - flags is unexported (because we want to expose it via the Flags() method, like a regular cobra.Command)
+// - flags type is *pflag.FlagSet which is also full of unexported fields
 type gobCommandContextFlags struct {
 	CommandContext gobCommandContext
 	Flags          []Flag
@@ -364,16 +378,16 @@ func (c *ExecutedCommand) GobDecode(bz []byte) error {
 	return nil
 }
 
-// handshakeConfigs are used to just do a basic handshake between
-// a plugin and host. If the handshake fails, a user friendly error is shown.
-// This prevents users from executing bad plugins or executing a plugin
-// directory. It is a UX feature, not a security feature.
 var handshakeConfig = plugin.HandshakeConfig{
 	ProtocolVersion:  1,
 	MagicCookieKey:   "BASIC_PLUGIN",
 	MagicCookieValue: "hello",
 }
 
+// HandshakeConfig are used to just do a basic handshake between a plugin and host.
+// If the handshake fails, a user friendly error is shown. This prevents users from
+// executing bad plugins or executing a plugin directory. It is a UX feature, not a
+// security feature.
 func HandshakeConfig() plugin.HandshakeConfig {
 	return handshakeConfig
 }
