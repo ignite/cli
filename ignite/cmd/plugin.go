@@ -559,7 +559,7 @@ func NewPluginScaffold() *cobra.Command {
 				return err
 			}
 			moduleName := args[0]
-			path, err := plugin.Scaffold(wd, moduleName, false)
+			path, err := plugin.Scaffold(cmd.Context(), wd, moduleName, false)
 			if err != nil {
 				return err
 			}
