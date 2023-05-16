@@ -43,9 +43,6 @@ func (p) Manifest() (plugin.Manifest, error) {
 				*/
 			},
 		},
-		//
-		WithPaths: true,
-		WithModuleAnalysis: true,
 		// Add hooks here
 		Hooks: []plugin.Hook{},
 		SharedHost: <%= SharedHost %>,
