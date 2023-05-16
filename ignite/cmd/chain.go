@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -126,31 +127,31 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 		unused  = cosmosgen.UnusedTools(f)
 	)
 
-	//session.StopSpinner()
-	//if len(missing) > 0 {
-	//	question := fmt.Sprintf(
-	//		"Some imports are missing into the %s file: %s. Would you like to add?",
-	//		toolsFilename,
-	//		strings.Join(missing, ", "),
-	//	)
-	//	if err := session.AskConfirm(question); err != nil {
-	//		missing = []string{}
-	//	}
-	//}
+	session.StopSpinner()
+	if len(missing) > 0 {
+		question := fmt.Sprintf(
+			"Some imports are missing into the %s file: %s. Would you like to add?",
+			toolsFilename,
+			strings.Join(missing, ", "),
+		)
+		if err := session.AskConfirm(question); err != nil {
+			missing = []string{}
+		}
+	}
 
-	//if len(unused) > 0 {
-	//	question := fmt.Sprintf(
-	//		"Some imports are unused into the %s file: %s. Would you like to remove?",
-	//		toolsFilename,
-	//		strings.Join(unused, ", "),
-	//	)
-	//	if err := session.AskConfirm(question); err != nil {
-	//		unused = []string{}
-	//	}
-	//}
-	//if len(missing) == 0 && len(unused) == 0 {
-	//	return nil
-	//}
+	if len(unused) > 0 {
+		question := fmt.Sprintf(
+			"Some imports are unused into the %s file: %s. Would you like to remove?",
+			toolsFilename,
+			strings.Join(unused, ", "),
+		)
+		if err := session.AskConfirm(question); err != nil {
+			unused = []string{}
+		}
+	}
+	if len(missing) == 0 && len(unused) == 0 {
+		return nil
+	}
 	session.StartSpinner("Migrating tools...")
 
 	newTools, err := goanalysis.UpdateInitImports(f, missing, unused)
