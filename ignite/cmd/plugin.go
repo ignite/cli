@@ -289,8 +289,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	}
 
 	// Check for existing commands
-	// pluginCmd.Use can be like `command [args]` so we need to remove those
-	// extra args if any.
+	// pluginCmd.Use can be like `command [args]` so we need to remove those extra args if any.
 	pluginCmdName := strings.Split(pluginCmd.Use, " ")[0]
 	for _, cmd := range cmd.Commands() {
 		if cmd.Name() == pluginCmdName {

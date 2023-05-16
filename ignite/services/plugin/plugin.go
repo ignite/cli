@@ -273,7 +273,7 @@ func (p *Plugin) load(ctx context.Context) {
 		})
 	}
 
-	// :Connect via RPC
+	// Connect via RPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -298,9 +298,8 @@ func (p *Plugin) load(ctx context.Context) {
 
 	p.manifest = m
 
-	// write the rpc context to cache if the plugin is declared as host.
-	// writing it to cache as lost operation within load to assure rpc client's reattach config
-	// is hydrated.
+	// Write the rpc context to cache if the plugin is declared as host. Writing it to cache
+	// as lost operation within load to assure rpc client's reattach config is hydrated.
 	if m.SharedHost && !checkConfCache(p.Path) {
 		err := writeConfigCache(p.Path, *p.client.ReattachConfig())
 		if err != nil {
@@ -308,7 +307,7 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 
-		// set the plugin's rpc server as host so other plugin clients may share
+		// Set the plugin's rpc server as host so other plugin clients may share
 		p.isHost = true
 	}
 }
@@ -368,8 +367,7 @@ func (p *Plugin) clean() error {
 	return errors.WithStack(err)
 }
 
-// outdatedBinary returns true if the plugin binary is older than the other
-// files in p.srcPath.
+// outdatedBinary returns true if the plugin binary is older than the other files in p.srcPath.
 // Also returns true if the plugin binary is absent.
 func (p *Plugin) outdatedBinary() bool {
 	var (
