@@ -22,8 +22,15 @@ func TestMissingTools(t *testing.T) {
 		},
 		{
 			name:    "some missing tools",
-			astFile: createASTFileWithImports("github.com/golang/protobuf/protoc-gen-go", "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway", "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger"),
-			want:    []string{"github.com/cosmos/gogoproto/protoc-gen-gocosmos", "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"},
+			astFile: createASTFileWithImports(
+				"github.com/golang/protobuf/protoc-gen-go",
+				"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
+				"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
+			),
+			want: []string{
+				"github.com/cosmos/gogoproto/protoc-gen-gocosmos",
+				"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
+			},
 		},
 		{
 			name:    "all tools missing",
