@@ -130,7 +130,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	session.StopSpinner()
 	if len(missing) > 0 {
 		question := fmt.Sprintf(
-			"Some required imports are missing in %s file: %s. Would you like to add them?",
+			"Some required imports are missing in %s file: %s. Would you like to add them",
 			toolsFilename,
 			strings.Join(missing, ", "),
 		)
@@ -141,7 +141,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 
 	if len(unused) > 0 {
 		question := fmt.Sprintf(
-			"File %s contains deprecated imports: %s. Would you like to remove them?",
+			"File %s contains deprecated imports: %s. Would you like to remove them",
 			toolsFilename,
 			strings.Join(unused, ", "),
 		)

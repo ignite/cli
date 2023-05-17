@@ -216,7 +216,7 @@ func FormatImports(f *ast.File) map[string]string {
 	return m
 }
 
-// UpdateInitImports helper function to remove and add imports to an *ast.File.
+// UpdateInitImports helper function to remove and add underscore (init) imports to an *ast.File.
 func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) ([]byte, error) {
 	// Create a map for faster lookup of items to remove
 	importMap := make(map[string]bool)
