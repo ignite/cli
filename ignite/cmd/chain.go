@@ -141,7 +141,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 
 	if len(unused) > 0 {
 		question := fmt.Sprintf(
-			"Some imports are unused into the %s file: %s. Would you like to remove?",
+			"File %s contains deprecated imports: %s. Would you like to remove them?",
 			toolsFilename,
 			strings.Join(unused, ", "),
 		)
