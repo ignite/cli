@@ -1,4 +1,4 @@
-package cosmosgen
+package cosmosgen_test
 
 import (
 	"go/ast"
@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 )
 
 func TestMissingTools(t *testing.T) {
@@ -17,7 +19,7 @@ func TestMissingTools(t *testing.T) {
 	}{
 		{
 			name:    "no missing tools",
-			astFile: createASTFileWithImports(DepTools()...),
+			astFile: createASTFileWithImports(cosmosgen.DepTools()...),
 			want:    nil,
 		},
 		{
@@ -35,12 +37,12 @@ func TestMissingTools(t *testing.T) {
 		{
 			name:    "all tools missing",
 			astFile: createASTFileWithImports(),
-			want:    DepTools(),
+			want:    cosmosgen.DepTools(),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := MissingTools(tt.astFile)
+			got := cosmosgen.MissingTools(tt.astFile)
 			require.EqualValues(t, tt.want, got)
 		})
 	}
@@ -83,7 +85,7 @@ func TestUnusedTools(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := UnusedTools(tt.astFile)
+			got := cosmosgen.UnusedTools(tt.astFile)
 			require.EqualValues(t, tt.want, got)
 		})
 	}

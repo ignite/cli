@@ -12,11 +12,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"golang.org/x/tools/go/ast/astutil"
 
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
-
-	"golang.org/x/tools/go/ast/astutil"
 )
 
 var MainFile = []byte(`package main`)
