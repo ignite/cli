@@ -60,7 +60,11 @@ func TestUnusedTools(t *testing.T) {
 				"github.com/ignite-hq/cli/ignite/pkg/cmdrunner",
 				"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step",
 			),
-			want: []string{"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos", "github.com/ignite-hq/cli/ignite/pkg/cmdrunner", "github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step"},
+			want: []string{
+				"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
+				"github.com/ignite-hq/cli/ignite/pkg/cmdrunner",
+				"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step",
+			},
 		},
 		{
 			name: "some unused tools",
