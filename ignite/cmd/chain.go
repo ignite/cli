@@ -130,7 +130,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	session.StopSpinner()
 	if len(missing) > 0 {
 		question := fmt.Sprintf(
-			"Some imports are missing into the %s file: %s. Would you like to add?",
+			"Some required imports are missing in %s file: %s. Would you like to add them?",
 			toolsFilename,
 			strings.Join(missing, ", "),
 		)
