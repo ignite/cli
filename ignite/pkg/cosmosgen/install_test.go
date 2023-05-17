@@ -21,7 +21,7 @@ func TestMissingTools(t *testing.T) {
 			want:    nil,
 		},
 		{
-			name:    "some missing tools",
+			name: "some missing tools",
 			astFile: createASTFileWithImports(
 				"github.com/golang/protobuf/protoc-gen-go",
 				"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",

@@ -1,6 +1,7 @@
 package goanalysis_test
 
 import (
+	"bytes"
 	"errors"
 	"go/ast"
 	"go/parser"
@@ -457,7 +458,8 @@ func TestUpdateInitImports(t *testing.T) {
 			}
 
 			// test method
-			got, err := goanalysis.UpdateInitImports(file, tt.args.importsToAdd, tt.args.importsToRemove)
+			var buf bytes.Buffer
+			err := goanalysis.UpdateInitImports(file, &buf, tt.args.importsToAdd, tt.args.importsToRemove)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
@@ -465,7 +467,7 @@ func TestUpdateInitImports(t *testing.T) {
 			}
 			require.NoError(t, err)
 
-			gotFile, err := parser.ParseFile(token.NewFileSet(), "", got, parser.ParseComments)
+			gotFile, err := parser.ParseFile(token.NewFileSet(), "", buf.Bytes(), parser.ParseComments)
 			require.NoError(t, err)
 
 			gotImports := make([]string, 0)

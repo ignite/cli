@@ -2,13 +2,13 @@
 package goanalysis
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -217,13 +217,13 @@ func FormatImports(f *ast.File) map[string]string {
 }
 
 // UpdateInitImports helper function to remove and add underscore (init) imports to an *ast.File.
-func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) ([]byte, error) {
+func UpdateInitImports(file *ast.File, writer io.Writer, importsToAdd, importsToRemove []string) error {
 	// Create a map for faster lookup of items to remove
 	importMap := make(map[string]bool)
 	for _, astImport := range file.Imports {
 		value, err := strconv.Unquote(astImport.Path.Value)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		importMap[value] = true
 	}
@@ -251,13 +251,10 @@ func UpdateInitImports(file *ast.File, importsToAdd, importsToRemove []string) (
 		}
 	}
 
-	// Format the modified AST.
-	var buf bytes.Buffer
-	fset := token.NewFileSet()
-	if err := format.Node(&buf, fset, file); err != nil {
-		return nil, fmt.Errorf("failed to format file: %w", err)
+	if _, err := writer.Write([]byte(toolsBuildTag)); err != nil {
+		return fmt.Errorf("failed to write the build tag: %w", err)
 	}
-	return append([]byte(toolsBuildTag), buf.Bytes()...), nil
+	return format.Node(writer, token.NewFileSet(), file)
 }
 
 // createUnderscoreImports helper function to create an AST underscore import with given path.

@@ -154,12 +154,12 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	}
 	session.StartSpinner("Migrating tools...")
 
-	newTools, err := goanalysis.UpdateInitImports(f, missing, unused)
-	if err != nil {
+	var buf bytes.Buffer
+	if err := goanalysis.UpdateInitImports(f, &buf, missing, unused); err != nil {
 		return err
 	}
 
-	return os.WriteFile(toolsFilename, newTools, 0o644)
+	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
 }
 
 func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
