@@ -4,10 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/ignite/pkg/xexec"
-	"golang.org/x/sync/errgroup"
+	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
 type (
@@ -22,12 +27,13 @@ type (
 )
 
 const (
-	binaryName      = "buf"
-	flagTemplate    = "template"
-	flagOutput      = "output"
-	flagErrorFormat = "error-format"
-	flagLogFormat   = "log-format"
-	fmtJSON         = "json"
+	cosmosSDKModulePath = "github.com/cosmos/cosmos-sdk"
+	binaryName          = "buf"
+	flagTemplate        = "template"
+	flagOutput          = "output"
+	flagErrorFormat     = "error-format"
+	flagLogFormat       = "log-format"
+	fmtJSON             = "json"
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
@@ -60,33 +66,61 @@ func (c Command) String() string {
 }
 
 // Generate runs the buf Generate command for each file into the proto directory.
-func (b Buf) Generate(ctx context.Context, protoDir, output, template string) error {
-	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
-	if err != nil {
-		return err
+func (b Buf) Generate(ctx context.Context, protoDir, output, template string) (err error) {
+	var (
+		cmds  = make([][]string, 0)
+		flags = map[string]string{
+			flagTemplate:    template,
+			flagOutput:      output,
+			flagErrorFormat: fmtJSON,
+			flagLogFormat:   fmtJSON,
+		}
+	)
+
+	if strings.Contains(protoDir, cosmosSDKModulePath) {
+		protoDir, err = prepareSDK(protoDir)
+		if err != nil {
+			return err
+		}
+		// defer os.RemoveAll(protoDir)
+
+		cmd, err := b.generateCommand(
+			CMDGenerate,
+			flags,
+			protoDir,
+		)
+		if err != nil {
+			return err
+		}
+		cmds = append(cmds, cmd)
+
+	} else {
+		pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
+		if err != nil {
+			return err
+		}
+
+		for _, pkg := range pkgs {
+			for _, file := range pkg.Files {
+				cmd, err := b.generateCommand(
+					CMDGenerate,
+					flags,
+					file.Path,
+				)
+				if err != nil {
+					return err
+				}
+				cmds = append(cmds, cmd)
+			}
+		}
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	for _, pkg := range pkgs {
-		for _, file := range pkg.Files {
-			cmd, err := b.generateCommand(
-				CMDGenerate,
-				map[string]string{
-					flagTemplate:    template,
-					flagOutput:      output,
-					flagErrorFormat: fmtJSON,
-					flagLogFormat:   fmtJSON,
-				},
-				file.Path,
-			)
-			if err != nil {
-				return err
-			}
-			g.Go(func() error {
-				cmd := cmd
-				return b.runCommand(ctx, cmd...)
-			})
-		}
+	for _, cmd := range cmds {
+		g.Go(func() error {
+			cmd := cmd
+			return b.runCommand(ctx, cmd...)
+		})
 	}
 	return g.Wait()
 }
@@ -121,4 +155,22 @@ func (b Buf) generateCommand(
 		)
 	}
 	return command, nil
+}
+
+func findSDKPath(protoDir string) (string, error) {
+	paths := strings.Split(protoDir, "@")
+	if len(paths) < 2 {
+		return "", fmt.Errorf("invalid sdk mod dir: %s", protoDir)
+	}
+	version := strings.Split(paths[1], "/")[0]
+	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
+}
+
+func prepareSDK(protoDir string) (string, error) {
+	tmpDir, err := os.MkdirTemp("", "proto-sdk")
+	srcPath, err := findSDKPath(protoDir)
+	if err != nil {
+		return "", err
+	}
+	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
 }

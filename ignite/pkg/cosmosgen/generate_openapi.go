@@ -3,7 +3,6 @@ package cosmosgen
 import (
 	"errors"
 	"fmt"
-	"github.com/ignite/cli/ignite/pkg/xos"
 	"os"
 	"path/filepath"
 	"sort"
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
+	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
 const (

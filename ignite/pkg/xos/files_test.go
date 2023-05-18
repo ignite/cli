@@ -1,11 +1,14 @@
-package xos
+package xos_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
 func TestFindFiles(t *testing.T) {
@@ -61,7 +64,7 @@ func TestFindFiles(t *testing.T) {
 				require.NoError(t, file.Close())
 			}
 
-			gotFiles, err := FindFiles(tempDir, tt.extension)
+			gotFiles, err := xos.FindFiles(tempDir, tt.extension)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
