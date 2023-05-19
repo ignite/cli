@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/sync/errgroup"
@@ -21,8 +22,9 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path  string
-		cache protoanalysis.Cache
+		path     string
+		sdkCache string
+		cache    protoanalysis.Cache
 	}
 )
 
@@ -67,60 +69,53 @@ func (c Command) String() string {
 
 // Generate runs the buf Generate command for each file into the proto directory.
 func (b Buf) Generate(ctx context.Context, protoDir, output, template string) (err error) {
-	var (
-		cmds  = make([][]string, 0)
-		flags = map[string]string{
-			flagTemplate:    template,
-			flagOutput:      output,
-			flagErrorFormat: fmtJSON,
-			flagLogFormat:   fmtJSON,
-		}
-	)
+	flags := map[string]string{
+		flagTemplate:    template,
+		flagOutput:      output,
+		flagErrorFormat: fmtJSON,
+		flagLogFormat:   fmtJSON,
+	}
 
+	// TODO find a better way to generate the cosmos-sdk files
+	// the buf.work.yaml contains the `orm/internal` folder, but the `go mod`
+	// can't download this folder because is unused as a dependency. We need to
+	// change the workspace copying the files to another folder and generate the
+	// files.
 	if strings.Contains(protoDir, cosmosSDKModulePath) {
-		protoDir, err = prepareSDK(protoDir)
-		if err != nil {
-			return err
-		}
-		// defer os.RemoveAll(protoDir)
-
-		cmd, err := b.generateCommand(
-			CMDGenerate,
-			flags,
-			protoDir,
-		)
-		if err != nil {
-			return err
-		}
-		cmds = append(cmds, cmd)
-
-	} else {
-		pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
-		if err != nil {
-			return err
-		}
-
-		for _, pkg := range pkgs {
-			for _, file := range pkg.Files {
-				cmd, err := b.generateCommand(
-					CMDGenerate,
-					flags,
-					file.Path,
-				)
-				if err != nil {
-					return err
-				}
-				cmds = append(cmds, cmd)
+		if b.sdkCache == "" {
+			b.sdkCache, err = prepareSDK(protoDir)
+			if err != nil {
+				return err
 			}
 		}
+		dirs := strings.Split(protoDir, "/proto/")
+		if len(dirs) < 2 {
+			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+		}
+		protoDir = filepath.Join(b.sdkCache, dirs[1])
+	}
+
+	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
+	if err != nil {
+		return err
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	for _, cmd := range cmds {
-		g.Go(func() error {
-			cmd := cmd
-			return b.runCommand(ctx, cmd...)
-		})
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			cmd, err := b.generateCommand(
+				CMDGenerate,
+				flags,
+				file.Path,
+			)
+			if err != nil {
+				return err
+			}
+			g.Go(func() error {
+				cmd := cmd
+				return b.runCommand(ctx, cmd...)
+			})
+		}
 	}
 	return g.Wait()
 }
@@ -157,7 +152,8 @@ func (b Buf) generateCommand(
 	return command, nil
 }
 
-func findSDKPath(protoDir string) (string, error) {
+// findSDKProtoPath find the cosmos-sdk proto folder path.
+func findSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
 		return "", fmt.Errorf("invalid sdk mod dir: %s", protoDir)
@@ -166,9 +162,11 @@ func findSDKPath(protoDir string) (string, error) {
 	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
 }
 
+// prepareSDK copy the cosmos sdk proto folder to a temporary directory
+// so we can skip the buf workspace.
 func prepareSDK(protoDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "proto-sdk")
-	srcPath, err := findSDKPath(protoDir)
+	srcPath, err := findSDKProtoPath(protoDir)
 	if err != nil {
 		return "", err
 	}
