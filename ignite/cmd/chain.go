@@ -122,10 +122,8 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 		return err
 	}
 
-	var (
-		missing = cosmosgen.MissingTools(f)
-		unused  = cosmosgen.UnusedTools(f)
-	)
+	missing := cosmosgen.MissingTools(f)
+	unused  := cosmosgen.UnusedTools(f)
 
 	session.StopSpinner()
 	if len(missing) > 0 {
