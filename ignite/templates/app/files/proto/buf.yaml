@@ -1,3 +1,8 @@
+# This file is auto-generated from Ignite. You can edit
+# the file content but do not change the file name or path.
+#
+# buf.yaml
+#
 version: v1
 deps:
   - buf.build/cosmos/cosmos-sdk:954f7b05f38440fc8250134b15adec47

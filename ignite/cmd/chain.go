@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -13,13 +14,14 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
-	msgMigrationCancel = "Stopping because config version v%d is required to run the command"
 	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
 	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
+	msgMigrationBuf    = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -78,7 +80,7 @@ chain.
 `,
 		Aliases:           []string{"c"},
 		Args:              cobra.ExactArgs(1),
-		PersistentPreRunE: configMigrationPreRunHandler,
+		PersistentPreRunE: preRunHandler,
 	}
 
 	// Add flags required for the configMigrationPreRunHandler
@@ -97,10 +99,39 @@ chain.
 	return c
 }
 
-func configMigrationPreRunHandler(cmd *cobra.Command, _ []string) (err error) {
+func preRunHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.End()
 
+	if err := configMigrationPreRunHandler(cmd, session); err != nil {
+		return err
+	}
+	return bufMigrationPreRunHandler(cmd, session)
+}
+
+func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
+	appPath := flagGetPath(cmd)
+	hasFiles := chain.CheckBufFiles(appPath)
+	if hasFiles {
+		return nil
+	}
+	if err := session.AskConfirm(msgMigrationBuf); err != nil {
+		return fmt.Errorf("build the protobuf files with the protoc binary is only supported on version " +
+			"`v0.26.1` or below. Please downgrade your Ignite version")
+	}
+
+	sm, err := chain.BoxBufFiles(appPath)
+	if err != nil {
+		return err
+	}
+
+	session.Print("\n🎉 buf.build files added: \n\n")
+	session.Printf("%s\n\n", strings.Join(sm.CreatedFiles(), "\n"))
+
+	return nil
+}
+
+func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
 	appPath := flagGetPath(cmd)
 	configPath := getConfig(cmd)
 	if configPath == "" {

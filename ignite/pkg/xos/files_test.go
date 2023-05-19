@@ -80,3 +80,53 @@ func TestFindFiles(t *testing.T) {
 		})
 	}
 }
+
+func TestFileExists(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "TestCopyFile")
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, os.RemoveAll(tempDir))
+	})
+
+	srcDir := filepath.Join(tempDir, "source")
+	err = os.MkdirAll(srcDir, 0o755)
+	require.NoError(t, err)
+
+	srcFile := filepath.Join(srcDir, "file.txt")
+	err = os.WriteFile(srcFile, []byte("File content"), 0o644)
+	require.NoError(t, err)
+
+	tests := []struct {
+		name     string
+		filename string
+		want     bool
+	}{
+		{
+			name:     "existing file",
+			filename: srcFile,
+			want:     true,
+		},
+		{
+			name:     "non existing file",
+			filename: "non_existing_file.txt",
+			want:     false,
+		},
+		{
+			name:     "directory",
+			filename: srcDir,
+			want:     false,
+		},
+		{
+			name:     "empty filename",
+			filename: "",
+			want:     false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := xos.FileExists(tt.filename)
+			require.EqualValues(t, tt.want, got)
+		})
+	}
+}

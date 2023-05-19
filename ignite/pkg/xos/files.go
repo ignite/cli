@@ -25,3 +25,12 @@ func FindFiles(directory, extension string) ([]string, error) {
 		return nil
 	})
 }
+
+// FileExists check if a file from a given path exists.
+func FileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
