@@ -166,6 +166,9 @@ func findSDKProtoPath(protoDir string) (string, error) {
 // so we can skip the buf workspace.
 func prepareSDK(protoDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "proto-sdk")
+	if err != nil {
+		return "", err
+	}
 	srcPath, err := findSDKProtoPath(protoDir)
 	if err != nil {
 		return "", err
