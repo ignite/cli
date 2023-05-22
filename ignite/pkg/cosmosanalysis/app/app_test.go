@@ -379,7 +379,11 @@ func TestCheckAppWiring(t *testing.T) {
 			name:    "invalid case",
 			appFile: AppMinimalFile,
 			want:    false,
-			err:     errors.New("app.go file cannot be found"),
+		},
+		{
+			name:    "invalid file",
+			appFile: nil,
+			err:     errors.New("expected 'package', found 'EOF'"),
 		},
 	}
 	for _, tt := range tests {
@@ -392,7 +396,7 @@ func TestCheckAppWiring(t *testing.T) {
 			got, err := app.CheckAppWiring(tmpDir)
 			if tt.err != nil {
 				require.Error(t, err)
-				require.Equal(t, tt.err.Error(), err.Error())
+				require.Contains(t, err.Error(), tt.err.Error())
 				return
 			}
 			require.NoError(t, err)

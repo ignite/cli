@@ -92,7 +92,8 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < 10; i++ {
 		g.Go(func() error {
-			_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
+			c := faucetClient
+			_, err := c.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
 			if err != nil && !errors.As(err, &cosmosfaucet.ErrTransferRequest{}) {
 				return err
 			}
@@ -100,7 +101,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 		})
 	}
 	require.NoError(t, g.Wait())
-	checkAccountBalance(t, ctx, cosmosClient, addr, []string{"100token", "10stake"})
+	checkAccountBalance(t, ctx, cosmosClient, addr, []string{"130token", "13stake"})
 }
 
 func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Client, accAddr string, coins []string) {

@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -21,7 +22,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	ctx := val.ClientCtx
 
     fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
-	for _, tc := range []struct {
+	tests := []struct {
 		desc string
 		args []string
 		err  error
@@ -32,24 +33,28 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdkmath.NewInt(10))).String()),
 			},
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
+            require.NoError(t, net.WaitForNextBlock())
+
             args := []string{}
             args = append(args, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
-			} else {
-				require.NoError(t, err)
-				var resp sdk.TxResponse
-				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.Equal(t, tc.code, resp.Code)
+				return
 			}
+			require.NoError(t, err)
+
+			var resp sdk.TxResponse
+			require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
+			require.NoError(t, clitestutil.CheckTxCode(net, ctx, resp.TxHash, tc.code))
 		})
 	}
 }
@@ -64,7 +69,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdkmath.NewInt(10))).String()),
 	}
     args := []string{}
@@ -73,7 +78,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	require.NoError(t, err)
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc string
 		id   string
 		args []string
@@ -91,20 +96,29 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
 		},
-	} {
+		{
+			desc: "invalid key",
+			id:   "invalid",
+			err:  strconv.ErrSyntax,
+		},
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
+            require.NoError(t, net.WaitForNextBlock())
+
             args := []string{tc.id}
             args = append(args, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUpdate<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
-			} else {
-				require.NoError(t, err)
-				var resp sdk.TxResponse
-				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.Equal(t, tc.code, resp.Code)
+				return
 			}
+			require.NoError(t, err)
+
+			var resp sdk.TxResponse
+			require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
+			require.NoError(t, clitestutil.CheckTxCode(net, ctx, resp.TxHash, tc.code))
 		})
 	}
 }
@@ -119,7 +133,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdkmath.NewInt(10))).String()),
 	}
     args := []string{}
@@ -128,7 +142,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	require.NoError(t, err)
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc string
 		id   string
 		args []string
@@ -146,17 +160,26 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
 		},
-	} {
+		{
+			desc: "invalid key",
+			id:   "invalid",
+			err:  strconv.ErrSyntax,
+		},
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
+            require.NoError(t, net.WaitForNextBlock())
+
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{tc.id}, tc.args...))
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
-			} else {
-				require.NoError(t, err)
-				var resp sdk.TxResponse
-				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.Equal(t, tc.code, resp.Code)
+				return
 			}
+			require.NoError(t, err)
+
+			var resp sdk.TxResponse
+			require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
+			require.NoError(t, clitestutil.CheckTxCode(net, ctx, resp.TxHash, tc.code))
 		})
 	}
 }

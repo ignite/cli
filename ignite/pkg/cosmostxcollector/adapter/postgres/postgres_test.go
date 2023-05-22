@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	abci "github.com/cometbft/cometbft/abci/types"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
@@ -95,8 +95,8 @@ func TestSave(t *testing.T) {
 
 	// Arrange: A Cosmos client TX to save
 	evtAttr := abci.EventAttribute{
-		Key:   []byte("recipient"),
-		Value: []byte("cosmos1crje20aj4gxdtyct7z3knxqry2jqt2fuaey6u5"),
+		Key:   "recipient",
+		Value: "cosmos1crje20aj4gxdtyct7z3knxqry2jqt2fuaey6u5",
 	}
 	evt := abci.Event{
 		Type:       "transfer",

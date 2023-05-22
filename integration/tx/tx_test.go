@@ -1,6 +1,6 @@
 //go:build !relayer
 
-package app_test
+package tx_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
@@ -163,13 +164,14 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					return execErr
 				}
 
-				addresses := []string{}
-
 				// collect addresses of alice and bob.
-				var accounts []struct {
-					Name    string `json:"name"`
-					Address string `json:"address"`
-				}
+				var (
+					accounts []struct {
+						Name    string `json:"name"`
+						Address string `json:"address"`
+					}
+					addresses []string
+				)
 				if err := json.NewDecoder(output).Decode(&accounts); err != nil {
 					return err
 				}
@@ -229,6 +231,8 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						if err != nil {
 							return errors.Wrap(err, "call to get tx via gRPC gateway")
 						}
+
+						time.Sleep(5 * time.Second)
 						resp, err := http.DefaultClient.Do(req)
 						if err != nil {
 							return err

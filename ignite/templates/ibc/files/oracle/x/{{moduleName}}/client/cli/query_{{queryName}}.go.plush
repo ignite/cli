@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -52,7 +51,7 @@ func CmdLast<%= queryName.UpperCamel %>ID() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Last<%= queryName.UpperCamel %>Id(context.Background(), &types.QueryLast<%= queryName.UpperCamel %>IdRequest{})
+			r, err := queryClient.Last<%= queryName.UpperCamel %>Id(cmd.Context(), &types.QueryLast<%= queryName.UpperCamel %>IdRequest{})
 			if err != nil {
 				return err
 			}

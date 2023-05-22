@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/stretchr/testify/require"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -20,9 +20,7 @@ import (
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
-	state := types.GenesisState{}
-    require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
-
+	state := types.GenesisState{<%= if (IsIBC) { %>PortId: types.PortID<% } %>}
 	for i := 0; i < n; i++ {
 		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
     		Id: uint64(i),
@@ -32,7 +30,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
-    cfg.GenesisState[types.ModuleName] = buf
+	cfg.GenesisState[types.ModuleName] = buf
 	return network.New(t, cfg), state.<%= TypeName.UpperCamel %>List
 }
 
@@ -43,7 +41,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 	common := []string{
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
-	for _, tc := range []struct {
+	tests := []struct {
 		desc string
 		id   string
 		args []string
@@ -62,8 +60,8 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 			args: common,
 			err:  status.Error(codes.NotFound, "not found"),
 		},
-	} {
-		tc := tc
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			args := []string{tc.id}
 			args = append(args, tc.args...)

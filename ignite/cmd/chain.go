@@ -97,7 +97,7 @@ chain.
 	return c
 }
 
-func configMigrationPreRunHandler(cmd *cobra.Command, args []string) (err error) {
+func configMigrationPreRunHandler(cmd *cobra.Command, _ []string) (err error) {
 	session := cliui.New()
 	defer session.End()
 

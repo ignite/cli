@@ -32,7 +32,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 
 	cfg.Genesis = map[string]interface{}{"chain_id": "cosmos"}
 	cfg.Validators[0].App["hello"] = "cosmos"
-	cfg.Validators[0].Config["fast_sync"] = false
+	cfg.Validators[0].Config["log_format"] = "json"
 
 	require.NoError(t, cf.Save(cfg))
 
@@ -53,16 +53,17 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	}{
 		{confile.DefaultJSONEncodingCreator, "config/genesis.json", "chain_id", "cosmos"},
 		{confile.DefaultTOMLEncodingCreator, "config/app.toml", "hello", "cosmos"},
-		{confile.DefaultTOMLEncodingCreator, "config/config.toml", "fast_sync", false},
+		{confile.DefaultTOMLEncodingCreator, "config/config.toml", "log_format", "json"},
 	}
-
 	for _, tt := range cases {
-		var conf map[string]interface{}
+		t.Run("test "+tt.relpath, func(t *testing.T) {
+			var conf map[string]interface{}
 
-		path := filepath.Join(env.AppHome(appname), tt.relpath)
-		c := confile.New(tt.ec, path)
+			path := filepath.Join(env.AppHome(appname), tt.relpath)
+			c := confile.New(tt.ec, path)
 
-		require.NoError(t, c.Load(&conf))
-		require.Equalf(t, tt.want, conf[tt.key], "unexpected value for %s", tt.relpath)
+			require.NoError(t, c.Load(&conf))
+			require.Equalf(t, tt.want, conf[tt.key], "unexpected value for %s", tt.relpath)
+		})
 	}
 }

@@ -25,4 +25,5 @@ const (
 	PlaceholderSimappConst        = "// this line is used by starport scaffolding # simapp/module/const"
 	PlaceholderSimappGenesisState = "// this line is used by starport scaffolding # simapp/module/genesisState"
 	PlaceholderSimappOperation    = "// this line is used by starport scaffolding # simapp/module/operation"
+	PlaceholderSimappOperationMsg = "// this line is used by starport scaffolding # simapp/module/OpMsg"
 )
