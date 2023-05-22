@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"net/url"
 
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/lib/pq"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"

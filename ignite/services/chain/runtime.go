@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/nqd/flat"
 	"github.com/pelletier/go-toml"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -91,18 +92,18 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	appConfig.Set("api.enabled-unsafe-cors", true)
 	appConfig.Set("rpc.cors_allowed_origins", []string{"*"})
 
-	// Update config values with the validator's Cosmos SDK app config
-	updateTomlTreeValues(appConfig, validator.App)
-
-	// Make sure the API address have the protocol prefix
-	appConfig.Set("api.address", apiAddr)
-
 	staked, err := sdktypes.ParseCoinNormalized(validator.Bonded)
 	if err != nil {
 		return err
 	}
 	gas := sdktypes.NewInt64Coin(staked.Denom, 0)
 	appConfig.Set("minimum-gas-prices", gas.String())
+
+	// Update config values with the validator's Cosmos SDK app config
+	updateTomlTreeValues(appConfig, validator.App)
+
+	// Make sure the API address have the protocol prefix
+	appConfig.Set("api.address", apiAddr)
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -183,7 +184,7 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 
 	// Set default config values
 	tmConfig.Set("keyring-backend", "test")
-	tmConfig.Set("broadcast-mode", "block")
+	tmConfig.Set("broadcast-mode", "sync")
 
 	// Update config values with the validator's client config
 	updateTomlTreeValues(tmConfig, validator.Client)
@@ -203,20 +204,14 @@ func (c Chain) appHome() string {
 	return filepath.Join(home, "."+c.app.Name)
 }
 
-func updateTomlTreeValues(t *toml.Tree, values map[string]interface{}) {
-	for name, v := range values {
-		// Map are treated as TOML sections where the section names are the key values
-		if m, ok := v.(map[string]interface{}); ok {
-			section := name
-
-			for name, v := range m {
-				path := fmt.Sprintf("%s.%s", section, name)
-
-				t.Set(path, v)
-			}
-		} else {
-			// By default set top a level key/value
-			t.Set(name, v)
-		}
+func updateTomlTreeValues(t *toml.Tree, values map[string]interface{}) error {
+	flatValues, err := flat.Flatten(values, nil)
+	if err != nil {
+		return err
 	}
+
+	for name, v := range flatValues {
+		t.Set(name, v)
+	}
+	return nil
 }

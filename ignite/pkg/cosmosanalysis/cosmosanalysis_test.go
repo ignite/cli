@@ -80,6 +80,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
+}
 `)
 	appTestFile = []byte(`
 package app_test
@@ -90,6 +93,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 }
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
+}
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
 }
 `)
 )
@@ -184,6 +190,7 @@ func TestFindAppFilePath(t *testing.T) {
 	err = os.WriteFile(appTestFilePath, appTestFile, 0o644)
 	require.NoError(t, err)
 	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
+	require.Error(t, err)
 	require.Contains(t, err.Error(), "cannot locate your app.go")
 
 	// With an additional app file (that is app.go)

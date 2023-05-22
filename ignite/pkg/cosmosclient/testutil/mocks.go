@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient/mocks"
 )
 
-//go:generate mockery --srcpkg github.com/tendermint/tendermint/rpc/client --name Client --structname RPCClient --filename rpc_client.go --output ../mocks --with-expecter
+//go:generate mockery --srcpkg github.com/cometbft/cometbft/rpc/client --name Client --structname RPCClient --filename rpc_client.go --output ../mocks --with-expecter
 //go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/client --name AccountRetriever --filename account_retriever.go --output ../mocks --with-expecter
 //go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/x/bank/types --name QueryClient --structname BankQueryClient --filename bank_query_client.go --output ../mocks --with-expecter
 

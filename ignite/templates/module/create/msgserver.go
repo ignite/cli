@@ -54,10 +54,10 @@ func codecPath(replacer placeholder.Replacer, appPath, moduleName string) genny.
 		}
 
 		// Add msgservice import
-		old := "import ("
-		new := fmt.Sprintf(`%v
-%v`, old, msgServiceImport)
-		content := replacer.Replace(f.String(), old, new)
+		oldImport := "import ("
+		newImport := fmt.Sprintf(`%v
+%v`, oldImport, msgServiceImport)
+		content := replacer.Replace(f.String(), oldImport, newImport)
 
 		// Add RegisterMsgServiceDesc method call
 		template := `%[1]v

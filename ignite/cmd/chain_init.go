@@ -6,6 +6,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -88,6 +89,7 @@ commands manually to ensure a production-level node initialization.
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetDebug())
+	c.Flags().StringSlice(flagBuildTags, []string{cosmosver.DefaultVersion().String()}, "parameters to build the chain binary")
 
 	return c
 }
@@ -119,8 +121,11 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	ctx := cmd.Context()
-	if _, err = c.Build(ctx, cacheStorage, "", flagGetSkipProto(cmd), flagGetDebug(cmd)); err != nil {
+	var (
+		ctx          = cmd.Context()
+		buildTags, _ = cmd.Flags().GetStringSlice(flagBuildTags)
+	)
+	if _, err = c.Build(ctx, cacheStorage, buildTags, "", flagGetSkipProto(cmd), flagGetDebug(cmd)); err != nil {
 		return err
 	}
 

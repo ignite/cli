@@ -1,5 +1,5 @@
 package tendermintlogger
 
-import tmlog "github.com/tendermint/tendermint/libs/log"
+import tmlog "github.com/cometbft/cometbft/libs/log"
 
 var _ tmlog.Logger = (*DiscardLogger)(nil)

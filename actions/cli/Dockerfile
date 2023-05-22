@@ -1,3 +1,3 @@
-FROM ignitehq/cli:develop
+FROM ignitehq/cli:latest
 
 USER root

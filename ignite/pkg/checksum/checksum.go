@@ -34,7 +34,10 @@ func Sum(dirPath, outPath string) error {
 			return err
 		}
 
-		if _, err := b.WriteString(fmt.Sprintf("%x %s\n", h.Sum(nil), info.Name())); err != nil {
+		// Note that checksum entry has two spaces as separator to follow
+		// FIPS-180-2 regarding the character prefix for text file types.
+		// This is required for tools like sha256sum with a strict verification.
+		if _, err := b.WriteString(fmt.Sprintf("%x  %s\n", h.Sum(nil), info.Name())); err != nil {
 			return err
 		}
 	}

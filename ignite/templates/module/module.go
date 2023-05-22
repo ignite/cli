@@ -9,8 +9,8 @@ import (
 
 // ProtoPackageName creates a protocol buffer package name for an app module.
 func ProtoPackageName(appModulePath, moduleName string) string {
-	path := strings.Split(appModulePath, "/")
-	path = append(path, moduleName)
+	pathArray := strings.Split(appModulePath, "/")
+	path := []string{pathArray[len(pathArray)-1], moduleName}
 
 	// Make sure that the first path element can be used as proto package name.
 	// This is required for app module names like "github.com/username/repo" where

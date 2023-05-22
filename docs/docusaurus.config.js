@@ -214,12 +214,6 @@ const config = {
           },
         ],
       },
-      algolia: {
-        appId: "VVETP7QCVE",
-        apiKey: "a9c466699c13052d35581030138f9fdc",
-        indexName: "ignite-cli",
-        contextualSearch: false,
-      },
       zoom: {
         selector: ".markdown :not(em) > img",
         config: {
@@ -229,6 +223,18 @@ const config = {
             dark: "rgb(50, 50, 50)",
           },
         },
+      },
+      algolia: {
+        appId: 'VVETP7QCVE',
+        apiKey: '167213b8ce51cc7ff9a804df130657e5',
+        indexName: 'ignite-cli',
+        contextualSearch: true,
+
+        // ↓ - To remove if `contextualSearch` versioning search works (to use if not)
+        // exclusionPatterns: [
+        //     'https://docs.ignite.com/v0.25.2/**',
+        //     'https://docs.ignite.com/nightly/**',
+        // ]
       },
     }),
   plugins: [
