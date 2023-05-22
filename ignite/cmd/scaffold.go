@@ -166,7 +166,7 @@ func scaffoldType(
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func scaffoldType(
 	return nil
 }
 
-func gitChangesConfirmPreRunHandler(cmd *cobra.Command, args []string) error {
+func gitChangesConfirmPreRunHandler(cmd *cobra.Command, _ []string) error {
 	// Don't confirm when the "--yes" flag is present
 	if getYes(cmd) {
 		return nil

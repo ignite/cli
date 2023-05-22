@@ -54,7 +54,7 @@ func WithStderr(stderr io.WriteCloser) Option {
 	}
 }
 
-// WithStdout sets the starndard input for the session.
+// WithStdin sets the starndard input for the session.
 func WithStdin(stdin io.ReadCloser) Option {
 	return func(s *Session) {
 		s.options.stdin = stdin
@@ -175,7 +175,6 @@ func (s *Session) StartSpinner(text string) {
 	// with an invalid format.
 	if s.options.verbosity == uilog.VerbosityVerbose {
 		fmt.Fprint(s.out.Stdout(), text)
-
 		return
 	}
 

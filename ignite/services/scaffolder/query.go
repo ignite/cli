@@ -46,7 +46,7 @@ func (s Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided request fields
-	if ok := containCustomTypes(reqFields); ok {
+	if ok := containsCustomTypes(reqFields); ok {
 		return sm, errors.New("query request params can't contain custom type")
 	}
 	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)

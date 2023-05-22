@@ -43,15 +43,13 @@ func TestDo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-
 			err := clictx.Do(tt.ctx, tt.f)
 
 			if tt.expectedErr != "" {
-				require.EqualError(err, tt.expectedErr)
+				require.EqualError(t, err, tt.expectedErr)
 				return
 			}
-			require.NoError(err)
+			require.NoError(t, err)
 		})
 	}
 }

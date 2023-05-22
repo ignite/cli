@@ -132,7 +132,7 @@ func parseFilters(filters []query.Filter) string {
 	items := make([]string, len(filters))
 
 	for i, f := range filters {
-		// Render the filter so it can be applied to the query
+		// Render the filter, so it can be applied to the query
 		expr := f.String()
 
 		// When the filter has a value replace the "?" by a positional

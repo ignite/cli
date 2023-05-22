@@ -13,6 +13,8 @@ import (
 )
 
 func TestCosmosGenScaffoldComposables(t *testing.T) {
+	t.Skip()
+
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")

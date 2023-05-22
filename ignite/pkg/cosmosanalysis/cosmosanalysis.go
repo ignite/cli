@@ -18,7 +18,7 @@ import (
 
 const (
 	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
-	tendermintModulePath = "github.com/tendermint/tendermint"
+	tendermintModulePath = "github.com/cometbft/cometbft"
 	appFileName          = "app.go"
 	defaultAppFilePath   = "app/" + appFileName
 )
@@ -27,6 +27,7 @@ var appImplementation = []string{
 	"Name",
 	"BeginBlocker",
 	"EndBlocker",
+	"RegisterAPIRoutes",
 }
 
 // implementation tracks the implementation of an interface for a given struct.
@@ -179,11 +180,11 @@ func IsChainPath(path string) error {
 	errf := func(err error) error {
 		return ErrPathNotChain{path: path, err: err}
 	}
-	modfile, err := gomodule.ParseAt(path)
+	modFile, err := gomodule.ParseAt(path)
 	if err != nil {
 		return errf(err)
 	}
-	if err := ValidateGoMod(modfile); err != nil {
+	if err := ValidateGoMod(modFile); err != nil {
 		return errf(err)
 	}
 	return nil

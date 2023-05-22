@@ -110,7 +110,7 @@ func (e Env) IsAppServed(ctx context.Context, apiAddr string) error {
 
 		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/cosmos/base/tendermint/v1beta1/node_info", addr))
 		if err == nil && !ok {
-			err = errors.New("app is not online")
+			err = errors.New("waiting for app")
 		}
 		if HasTestVerboseFlag() {
 			fmt.Printf("IsAppServed at %s: %v\n", addr, err)

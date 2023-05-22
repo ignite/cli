@@ -3,6 +3,7 @@ package goanalysis
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -70,15 +71,126 @@ func DiscoverOneMain(path string) (pkgPath string, err error) {
 	return pkgPaths[0], nil
 }
 
-// FindImportedPackages finds the imported packages in a Go file and returns a map
-// with package name, import path pair.
-func FindImportedPackages(name string) (map[string]string, error) {
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, name, nil, 0)
-	if err != nil {
-		return nil, err
+// FuncVarExists finds a genesis variable goImport into the go file.
+func FuncVarExists(f *ast.File, goImport, methodSignature string) bool {
+	var (
+		importAlias = ""
+		imports     = FormatImports(f)
+	)
+	for alias, imp := range imports {
+		if imp == goImport {
+			importAlias = alias
+		}
 	}
-	return FormatImports(f), nil
+	if importAlias == "" {
+		return false
+	}
+	methodDecl := importAlias + "." + methodSignature
+
+	for _, d := range f.Decls {
+		if declVarExists(d, methodDecl) {
+			return true
+		}
+	}
+	return false
+}
+
+// declVarExists find a variable declaration into a ast.Decl.
+func declVarExists(decl ast.Decl, methodDecl string) bool {
+	switch d := decl.(type) {
+	case *ast.FuncDecl:
+		for _, stmt := range d.Body.List {
+			switch v := stmt.(type) {
+			case *ast.DeclStmt:
+				if declVarExists(v.Decl, methodDecl) {
+					return true
+				}
+			case *ast.AssignStmt:
+				if len(v.Rhs) == 0 {
+					continue
+				}
+				decl, err := getCallExprName(v.Rhs[0])
+				if err != nil {
+					continue
+				}
+				if decl == methodDecl {
+					return true
+				}
+			case *ast.IfStmt:
+				stmt, ok := v.Init.(*ast.AssignStmt)
+				if !ok || len(stmt.Rhs) == 0 {
+					continue
+				}
+				decl, err := getCallExprName(stmt.Rhs[0])
+				if err != nil {
+					continue
+				}
+				if decl == methodDecl {
+					return true
+				}
+			}
+		}
+	case *ast.GenDecl:
+		decls, err := getGenDeclNames(d)
+		if err != nil {
+			return false
+		}
+		for _, decl := range decls {
+			if decl == methodDecl {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// getGenDeclNames returns a list of the method declaration inside the ast.GenDecl.
+func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
+	if genDecl.Tok != token.VAR {
+		return nil, fmt.Errorf("genDecl is not a var token: %v", genDecl.Tok)
+	}
+	var decls []string
+	for _, spec := range genDecl.Specs {
+		valueDecl, ok := spec.(*ast.ValueSpec)
+		if !ok {
+			continue
+		}
+		for _, id := range valueDecl.Names {
+			vSpec, ok := id.Obj.Decl.(*ast.ValueSpec)
+			if !ok || len(vSpec.Values) == 0 {
+				continue
+			}
+
+			cursorDecl, err := getCallExprName(vSpec.Values[0])
+			if err != nil {
+				continue
+			}
+			decls = append(decls, cursorDecl)
+		}
+	}
+	if len(decls) == 0 {
+		return nil, fmt.Errorf("empty method declarations")
+	}
+	return decls, nil
+}
+
+// getGenDeclNames returns the method declaration inside the ast.Expr.
+func getCallExprName(expr ast.Expr) (string, error) {
+	call, ok := expr.(*ast.CallExpr)
+	if !ok {
+		return "", fmt.Errorf("expression is not a *ast.CallExpr: %v", expr)
+	}
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return "", fmt.Errorf("expression function is not a *ast.SelectorExpr: %v", call.Fun)
+	}
+
+	x, ok := sel.X.(*ast.Ident)
+	if !ok {
+		return "", fmt.Errorf("selector expression function is not a *ast.Ident: %v", sel.X)
+	}
+
+	return x.String() + "." + sel.Sel.String(), nil
 }
 
 // FormatImports translate f.Imports into a map where name -> package.

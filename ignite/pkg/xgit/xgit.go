@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	commitMsg  = "Initialized with Ignite CLI"
-	devXAuthor = &object.Signature{
+	commitMsg       = "Initialized with Ignite CLI"
+	defaultOpenOpts = git.PlainOpenOptions{DetectDotGit: true}
+	devXAuthor      = &object.Signature{
 		Name:  "Developer Experience team at Ignite",
 		Email: "hello@ignite.com",
 		When:  time.Now(),
@@ -26,9 +27,7 @@ var (
 // InitAndCommit creates a git repo in path if path isn't already inside a git
 // repository, then commits path content.
 func InitAndCommit(path string) error {
-	repo, err := git.PlainOpenWithOptions(path, &git.PlainOpenOptions{
-		DetectDotGit: true,
-	})
+	repo, err := git.PlainOpenWithOptions(path, &defaultOpenOpts)
 	if err != nil {
 		if !errors.Is(err, git.ErrRepositoryNotExists) {
 			return fmt.Errorf("open git repo %s: %w", path, err)
@@ -91,21 +90,21 @@ func AreChangesCommitted(dir string) (bool, error) {
 	return ws.IsClean(), nil
 }
 
-// Clone clones a git repository represented by urlref, into dir.
-// urlref is the URL of the repository, with an optional ref, suffixed to the
+// Clone clones a git repository represented by urlRef, into dir.
+// urlRef is the URL of the repository, with an optional ref, suffixed to the
 // URL with a `@`. Ref can be a tag, a branch or a hash.
-// Valid examples of urlref: github.com/org/repo, github.com/org/repo@v1,
+// Valid examples of urlRef: github.com/org/repo, github.com/org/repo@v1,
 // github.com/org/repo@develop, github.com/org/repo@ab88cdf.
-func Clone(ctx context.Context, urlref, dir string) error {
-	// Ensure dir is empty if it exists (if it doesn't exists, the call to
+func Clone(ctx context.Context, urlRef, dir string) error {
+	// Ensure dir is empty if it exists (if it doesn't exist, the call to
 	// git.PlainCloneContext below will create it).
 	files, _ := os.ReadDir(dir)
 	if len(files) > 0 {
 		return fmt.Errorf("clone: target directory %q is not empty", dir)
 	}
-	// Split urlref
+	// Split urlRef
 	var (
-		parts = strings.Split(urlref, "@")
+		parts = strings.Split(urlRef, "@")
 		url   = parts[0]
 		ref   string
 	)
@@ -143,4 +142,15 @@ func Clone(ctx context.Context, urlref, dir string) error {
 	return wt.Checkout(&git.CheckoutOptions{
 		Hash: *h,
 	})
+}
+
+// IsRepository checks if a path contains a Git repository.
+func IsRepository(path string) (bool, error) {
+	if _, err := git.PlainOpenWithOptions(path, &defaultOpenOpts); err != nil {
+		if errors.Is(err, git.ErrRepositoryNotExists) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

@@ -28,7 +28,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		request *types.MsgUpdate<%= TypeName.UpperCamel %>
 		err     error
@@ -42,7 +42,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B"},
 			err:     sdkerrors.ErrUnauthorized,
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 			srv := keeper.NewMsgServerImpl(*k)
@@ -67,7 +68,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		request *types.MsgDelete<%= TypeName.UpperCamel %>
 		err     error
@@ -81,7 +82,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B"},
 			err:     sdkerrors.ErrUnauthorized,
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 			srv := keeper.NewMsgServerImpl(*k)

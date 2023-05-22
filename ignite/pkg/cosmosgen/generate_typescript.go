@@ -29,8 +29,9 @@ type tsGenerator struct {
 }
 
 type generatePayload struct {
-	Modules   []module.Module
-	PackageNS string
+	Modules         []module.Module
+	PackageNS       string
+	IsConsumerChain bool
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
@@ -45,18 +46,23 @@ func (g *generator) generateTS() error {
 
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	data := generatePayload{
-		Modules:   g.appModules,
-		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
+		Modules:         g.appModules,
+		PackageNS:       strings.ReplaceAll(appModulePath, "/", "-"),
+		IsConsumerChain: false,
 	}
 
 	// Third party modules are always required to generate the root
 	// template because otherwise it would be generated only with
-	// custom modules loosing the registration of the third party
+	// custom modules losing the registration of the third party
 	// modules when the root templates are re-generated.
 	for _, modules := range g.thirdModules {
 		data.Modules = append(data.Modules, modules...)
+		for _, m := range modules {
+			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
+				data.IsConsumerChain = true
+			}
+		}
 	}
-
 	// Make sure the modules are always sorted to keep the import
 	// and module registration order consistent so the generated
 	// files are not changed.
@@ -103,13 +109,19 @@ func (g *tsGenerator) generateModuleTemplates() error {
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
 				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
-				changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
-				if err != nil {
-					return err
-				}
 
-				if !changed {
-					return nil
+				// Always generate module templates by default unless cache is enabled, in which
+				// case the module template is generated when one or more files were changed in
+				// the module since the last generation.
+				if g.g.o.useCache {
+					changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
+					if err != nil {
+						return err
+					}
+
+					if !changed {
+						return nil
+					}
 				}
 
 				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)
@@ -173,16 +185,16 @@ func (g *tsGenerator) generateModuleTemplate(
 	}
 
 	// generate OpenAPI spec
-	oaitemp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
+	tmp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
 	if err != nil {
 		return err
 	}
 
-	defer os.RemoveAll(oaitemp)
+	defer os.RemoveAll(tmp)
 
 	err = protoc.Generate(
 		ctx,
-		oaitemp,
+		tmp,
 		m.Pkg.Path,
 		includePaths,
 		jsOpenAPIOut,
@@ -194,11 +206,11 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// generate the REST client from the OpenAPI spec
 	var (
-		srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
+		srcSpec = filepath.Join(tmp, "apidocs.swagger.json")
 		outREST = filepath.Join(out, "rest.ts")
 	)
 
-	if err := sta.Generate(ctx, outREST, srcspec, sta.WithCommand(staCmd)); err != nil {
+	if err := sta.Generate(ctx, outREST, srcSpec, sta.WithCommand(staCmd)); err != nil {
 		return err
 	}
 

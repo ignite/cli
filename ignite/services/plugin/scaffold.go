@@ -11,8 +11,6 @@ import (
 	"github.com/gobuffalo/plush/v4"
 	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 )
@@ -21,7 +19,7 @@ import (
 var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(moduleName).
-func Scaffold(dir, moduleName string) (string, error) {
+func Scaffold(dir, moduleName string, sharedHost bool) (string, error) {
 	var (
 		name     = filepath.Base(moduleName)
 		finalDir = path.Join(dir, name)
@@ -42,6 +40,8 @@ func Scaffold(dir, moduleName string) (string, error) {
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", moduleName)
 	ctx.Set("Name", name)
+	ctx.Set("SharedHost", sharedHost)
+
 	g.Transformer(xgenny.Transformer(ctx))
 	r := genny.WetRunner(ctx)
 	err := r.With(g)
@@ -51,10 +51,7 @@ func Scaffold(dir, moduleName string) (string, error) {
 	if err := r.Run(); err != nil {
 		return "", errors.WithStack(err)
 	}
-	// FIXME(tb) we need to disable sumdb to get the branch version of CLI
-	// because our git history is too fat.
-	opt := exec.StepOption(step.Env("GOSUMDB=off"))
-	if err := gocmd.ModTidy(context.TODO(), finalDir, opt); err != nil {
+	if err := gocmd.ModTidy(context.TODO(), finalDir); err != nil {
 		return "", errors.WithStack(err)
 	}
 	return finalDir, nil

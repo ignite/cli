@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 func NewScaffoldWasm() *cobra.Command {
@@ -21,7 +22,7 @@ func NewScaffoldWasm() *cobra.Command {
 	return c
 }
 
-func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
+func scaffoldWasmHandler(cmd *cobra.Command, _ []string) error {
 	appPath := flagGetPath(cmd)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -32,7 +33,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}

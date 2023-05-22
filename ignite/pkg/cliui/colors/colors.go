@@ -19,7 +19,7 @@ const (
 var (
 	info     = lipgloss.NewStyle().Foreground(lipgloss.Color(Yellow))
 	infof    = lipgloss.NewStyle().Foreground(lipgloss.Color(Yellow))
-	error    = lipgloss.NewStyle().Foreground(lipgloss.Color(Red))
+	err      = lipgloss.NewStyle().Foreground(lipgloss.Color(Red))
 	success  = lipgloss.NewStyle().Foreground(lipgloss.Color(Green))
 	modified = lipgloss.NewStyle().Foreground(lipgloss.Color(Magenta))
 	name     = lipgloss.NewStyle().Bold(true)
@@ -28,7 +28,7 @@ var (
 )
 
 // SprintFunc returns a function to apply a foreground color to any number of texts.
-// The retuned function receives strings as arguments with the text that should be colorized.
+// The returned function receives strings as arguments with the text that should be colorized.
 // Color specifies a color by hex or ANSI value.
 func SprintFunc(color string) func(i ...interface{}) string {
 	return func(i ...interface{}) string {
@@ -46,7 +46,7 @@ func Infof(format string, i ...interface{}) string {
 }
 
 func Error(i ...interface{}) string {
-	return error.Render(fmt.Sprint(i...))
+	return err.Render(fmt.Sprint(i...))
 }
 
 func Success(i ...interface{}) string {

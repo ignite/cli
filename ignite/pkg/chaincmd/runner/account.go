@@ -46,11 +46,22 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 	// import the account when mnemonic is provided, otherwise create a new one.
 	if mnemonic != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, mnemonic)
+		_, err := fmt.Fprintln(input, mnemonic)
+		if err != nil {
+			return Account{}, err
+		}
 
 		if r.chainCmd.KeyringPassword() != "" {
-			fmt.Fprintln(input, r.chainCmd.KeyringPassword())
-			fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+			_, err = fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+			if err != nil {
+				return Account{}, err
+			}
+
+			_, err = fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+			if err != nil {
+				return Account{}, err
+			}
+
 		}
 
 		if err := r.run(
@@ -98,7 +109,10 @@ func (r Runner) ImportAccount(ctx context.Context, name, keyFile, passphrase str
 	// write the passphrase as input
 	// TODO: manage keyring backend other than test
 	input := &bytes.Buffer{}
-	fmt.Fprintln(input, passphrase)
+	_, err := fmt.Fprintln(input, passphrase)
+	if err != nil {
+		return Account{}, err
+	}
 
 	if err := r.run(
 		ctx,
@@ -169,7 +183,10 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 
 	if r.chainCmd.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		_, err := fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		if err != nil {
+			return Account{}, err
+		}
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 

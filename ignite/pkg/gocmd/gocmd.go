@@ -39,18 +39,27 @@ const (
 	// CommandEnv represents go "env" command.
 	CommandEnv = "env"
 
-	// Go environment variable names.
+	// EnvGOARCH represents GOARCH variable.
 	EnvGOARCH = "GOARCH"
-	EnvGOMOD  = "GOMOD"
-	EnvGOOS   = "GOOS"
+	// EnvGOMOD represents GOMOD variable.
+	EnvGOMOD = "GOMOD"
+	// EnvGOOS represents GOOS variable.
+	EnvGOOS = "GOOS"
 
-	// Go command flags and values.
-	FlagGcflags           = "-gcflags"
+	// FlagGcflags represents gcflags go flag.
+	FlagGcflags = "-gcflags"
+	// FlagGcflagsValueDebug represents debug go flags.
 	FlagGcflagsValueDebug = "all=-N -l"
-	FlagLdflags           = "-ldflags"
-	FlagMod               = "-mod"
-	FlagModValueReadOnly  = "readonly"
-	FlagOut               = "-o"
+	// FlagLdflags represents ldflags go flag.
+	FlagLdflags = "-ldflags"
+	// FlagTags represents tags go flag.
+	FlagTags = "-tags"
+	// FlagMod represents mod go flag.
+	FlagMod = "-mod"
+	// FlagModValueReadOnly represents readonly go flag.
+	FlagModValueReadOnly = "readonly"
+	// FlagOut represents out go flag.
+	FlagOut = "-o"
 )
 
 // Env returns the value of `go env name`.
@@ -76,7 +85,14 @@ func Fmt(ctx context.Context, path string, options ...exec.Option) error {
 
 // ModTidy runs go mod tidy on path with options.
 func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
-	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModTidy}, append(options, exec.StepOption(step.Workdir(path)))...)
+	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModTidy},
+		append(options,
+			exec.StepOption(step.Workdir(path)),
+			// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
+			// mod tidy requests the sumdb, until we understand why, we disable sumdb.
+			// related issue:  https://github.com/golang/go/issues/56174
+			exec.StepOption(step.Env("GOSUMDB=off")),
+		)...)
 }
 
 // ModVerify runs go mod verify on path with options.
@@ -100,15 +116,14 @@ func BuildPath(ctx context.Context, output, binary, path string, flags []string,
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
-// BuildAll runs go build ./... on path with options.
-func BuildAll(ctx context.Context, out, path string, flags []string, options ...exec.Option) error {
+// Build runs go build on path with options.
+func Build(ctx context.Context, out, path string, flags []string, options ...exec.Option) error {
 	command := []string{
 		Name(),
 		CommandBuild,
 		FlagOut, out,
 	}
 	command = append(command, flags...)
-	command = append(command, "./...")
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
@@ -133,6 +148,14 @@ func Install(ctx context.Context, path string, pkgs []string, options ...exec.Op
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
+// IsInstallError returns true if err is interpreted as a go install error.
+func IsInstallError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "no required module provides package")
+}
+
 // Get runs go get pkgs on path with options.
 func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option) error {
 	command := []string{
@@ -146,6 +169,11 @@ func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option
 // Ldflags returns a combined ldflags set from flags.
 func Ldflags(flags ...string) string {
 	return strings.Join(flags, " ")
+}
+
+// Tags returns a combined tags set from flags.
+func Tags(tags ...string) string {
+	return strings.Join(tags, " ")
 }
 
 // BuildTarget builds a GOOS:GOARCH pair.

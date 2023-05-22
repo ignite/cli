@@ -23,7 +23,7 @@ const (
 	DefaultWorkingDir = "."
 )
 
-// Options configures debugging.
+// Option configures debugging.
 type Option func(*debuggerOptions)
 
 type debuggerOptions struct {
@@ -145,7 +145,7 @@ func Run(ctx context.Context, binaryPath string, options ...Option) error {
 	options = append(options, Listener(listener))
 	g, ctx := errgroup.WithContext(ctx)
 
-	// Start the debbugger server
+	// Start the debugger server
 	g.Go(func() error {
 		return Start(ctx, binaryPath, options...)
 	})
@@ -179,8 +179,5 @@ func applyDebuggerOptions(options ...Option) debuggerOptions {
 }
 
 func disableDelveLogging() error {
-	if err := logflags.Setup(false, "", ""); err != nil {
-		return err
-	}
-	return nil
+	return logflags.Setup(false, "", "")
 }

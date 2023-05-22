@@ -15,6 +15,9 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -28,13 +31,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gogogrpc "github.com/gogo/protobuf/grpc"
-	"github.com/gogo/protobuf/proto"
-	prototypes "github.com/gogo/protobuf/types"
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+	"github.com/cosmos/gogoproto/proto"
+	prototypes "github.com/cosmos/gogoproto/types"
 	"github.com/pkg/errors"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
@@ -102,7 +102,7 @@ type Client struct {
 	// context is a Cosmos SDK client context.
 	context client.Context
 
-	// AccountRegistry is the retistry to access accounts.
+	// AccountRegistry is the registry to access accounts.
 	AccountRegistry cosmosaccount.Registry
 
 	accountRetriever client.AccountRetriever
@@ -127,10 +127,11 @@ type Client struct {
 	keyringBackend     cosmosaccount.KeyringBackend
 	keyringDir         string
 
-	gas          string
-	gasPrices    string
-	fees         string
-	generateOnly bool
+	gas           string
+	gasPrices     string
+	gasAdjustment float64
+	fees          string
+	generateOnly  bool
 }
 
 // Option configures your client.
@@ -145,8 +146,8 @@ func WithHome(path string) Option {
 	}
 }
 
-// WithKeyringServiceName used as the keyring's name when you are using OS keyring backend.
-// by default it is `cosmos`.
+// WithKeyringServiceName used as the keyring name when you are using OS keyring backend.
+// by default, it is `cosmos`.
 func WithKeyringServiceName(name string) Option {
 	return func(c *Client) {
 		c.keyringServiceName = name
@@ -206,6 +207,13 @@ func WithGas(gas string) Option {
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
+	}
+}
+
+// WithGasAdjustment sets the gas adjustment.
+func WithGasAdjustment(gasAdjustment float64) Option {
+	return func(c *Client) {
+		c.gasAdjustment = gasAdjustment
 	}
 }
 
@@ -353,7 +361,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	return c, nil
 }
 
-// LatestBlockHeight returns the lastest block height of the app.
+// LatestBlockHeight returns the latest block height of the app.
 func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
 	resp, err := c.Status(ctx)
 	if err != nil {
@@ -369,7 +377,7 @@ func (c Client) WaitForNextBlock(ctx context.Context) error {
 	return c.WaitForNBlocks(ctx, 1)
 }
 
-// WaitForNBlocks reads the current block height and then waits for anothers n
+// WaitForNBlocks reads the current block height and then waits for another n
 // blocks to be committed, or returns an error if ctx is canceled.
 func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
 	start, err := c.LatestBlockHeight(ctx)
@@ -584,6 +592,10 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
+	}
+
+	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+		txf = txf.WithGasAdjustment(c.gasAdjustment)
 	}
 
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)

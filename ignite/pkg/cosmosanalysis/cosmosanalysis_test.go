@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	expectedinterface = []string{"foo", "bar", "foobar"}
+	expectedInterface = []string{"foo", "bar", "foobar"}
 
 	file1 = []byte(`
 package foo
@@ -80,6 +80,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
+}
 `)
 	appTestFile = []byte(`
 package app_test
@@ -90,6 +93,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 }
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
+}
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
 }
 `)
 )
@@ -106,18 +112,18 @@ func TestFindImplementation(t *testing.T) {
 	require.NoError(t, err)
 
 	// find in dir
-	found, err := cosmosanalysis.FindImplementation(tmpDir, expectedinterface)
+	found, err := cosmosanalysis.FindImplementation(tmpDir, expectedInterface)
 	require.NoError(t, err)
 	require.ElementsMatch(t, found, []string{"Foo", "Foobar", "Generic", "GenericP"})
 
 	// empty directory
 	emptyDir := t.TempDir()
-	found, err = cosmosanalysis.FindImplementation(emptyDir, expectedinterface)
+	found, err = cosmosanalysis.FindImplementation(emptyDir, expectedInterface)
 	require.NoError(t, err)
 	require.Empty(t, found)
 
 	// can't provide file
-	_, err = cosmosanalysis.FindImplementation(filepath.Join(tmpDir, "1.go"), expectedinterface)
+	_, err = cosmosanalysis.FindImplementation(filepath.Join(tmpDir, "1.go"), expectedInterface)
 	require.Error(t, err)
 }
 
@@ -131,7 +137,7 @@ func TestFindImplementationInSpreadInMultipleFiles(t *testing.T) {
 	err = os.WriteFile(f2, restOfImplementation, 0o644)
 	require.NoError(t, err)
 
-	found, err := cosmosanalysis.FindImplementation(tmpDir, expectedinterface)
+	found, err := cosmosanalysis.FindImplementation(tmpDir, expectedInterface)
 	require.NoError(t, err)
 	require.Len(t, found, 1)
 	require.Contains(t, found, "Foo")
@@ -149,11 +155,11 @@ func TestFindImplementationNotFound(t *testing.T) {
 	require.NoError(t, err)
 
 	// No implementation
-	found, err := cosmosanalysis.FindImplementation(tmpDir1, expectedinterface)
+	found, err := cosmosanalysis.FindImplementation(tmpDir1, expectedInterface)
 	require.Len(t, found, 0)
 
 	// Partial implementation
-	found, err = cosmosanalysis.FindImplementation(tmpDir2, expectedinterface)
+	found, err = cosmosanalysis.FindImplementation(tmpDir2, expectedInterface)
 	require.Len(t, found, 0)
 }
 
@@ -184,6 +190,7 @@ func TestFindAppFilePath(t *testing.T) {
 	err = os.WriteFile(appTestFilePath, appTestFile, 0o644)
 	require.NoError(t, err)
 	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
+	require.Error(t, err)
 	require.Contains(t, err.Error(), "cannot locate your app.go")
 
 	// With an additional app file (that is app.go)

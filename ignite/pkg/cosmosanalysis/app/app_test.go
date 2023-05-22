@@ -2,6 +2,7 @@ package app_test
 
 import (
 	_ "embed"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -20,8 +21,8 @@ var (
 	NoAppFile []byte
 	//go:embed testdata/two_app.go
 	TwoAppFile []byte
-	//go:embed testdata/app_full.go
-	AppFullFile []byte
+	//go:embed testdata/app_v2.go
+	AppV2 []byte
 )
 
 func TestCheckKeeper(t *testing.T) {
@@ -183,6 +184,40 @@ func TestFindRegisteredModules(t *testing.T) {
 			},
 		},
 		{
+			name: "crescent",
+			path: "testdata/modules/crescent",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/genutil",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/crescent-network/crescent/v3/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant/module",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/ibc-go/v2/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v2/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/tendermint/budget/x/budget",
+				"github.com/crescent-network/crescent/v3/x/farming",
+				"github.com/crescent-network/crescent/v3/x/liquidity",
+				"github.com/crescent-network/crescent/v3/x/liquidstaking",
+				"github.com/crescent-network/crescent/v3/x/liquidfarming",
+				"github.com/crescent-network/crescent/v3/x/claim",
+				"github.com/crescent-network/crescent/v3/x/marketmaker",
+				"github.com/crescent-network/crescent/v3/x/lpfarm",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+			},
+		},
+		{
 			name: "spn",
 			path: "testdata/modules/spn",
 			expectedModules: []string{
@@ -199,10 +234,10 @@ func TestFindRegisteredModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/x/slashing",
 				"github.com/cosmos/cosmos-sdk/x/feegrant/module",
 				"github.com/cosmos/cosmos-sdk/x/authz/module",
-				"github.com/cosmos/ibc-go/v5/modules/core",
+				"github.com/cosmos/ibc-go/v6/modules/core",
 				"github.com/cosmos/cosmos-sdk/x/upgrade",
 				"github.com/cosmos/cosmos-sdk/x/evidence",
-				"github.com/cosmos/ibc-go/v5/modules/apps/transfer",
+				"github.com/cosmos/ibc-go/v6/modules/apps/transfer",
 				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
 				"github.com/tendermint/spn/x/participation",
 				"github.com/ignite/modules/x/claim",
@@ -319,12 +354,53 @@ func TestFindRegisteredModules(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-
 			m, err := app.FindRegisteredModules(tt.path)
 
-			require.NoError(err)
-			require.ElementsMatch(tt.expectedModules, m)
+			require.NoError(t, err)
+			require.ElementsMatch(t, tt.expectedModules, m)
+		})
+	}
+}
+
+func TestCheckAppWiring(t *testing.T) {
+	tests := []struct {
+		name    string
+		appFile []byte
+		want    bool
+		err     error
+	}{
+		{
+			name:    "valid case",
+			appFile: AppV2,
+			want:    true,
+			err:     nil,
+		},
+		{
+			name:    "invalid case",
+			appFile: AppMinimalFile,
+			want:    false,
+		},
+		{
+			name:    "invalid file",
+			appFile: nil,
+			err:     errors.New("expected 'package', found 'EOF'"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			tmpFile := filepath.Join(tmpDir, "app.go")
+			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
+			require.NoError(t, err)
+
+			got, err := app.CheckAppWiring(tmpDir)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tt.err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

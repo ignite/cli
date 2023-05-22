@@ -16,7 +16,7 @@ const faucetTimeout = time.Second * 20
 
 // TryRetrieve tries to retrieve tokens from a faucet. faucet address is used when it's provided.
 // otherwise, it'll try to guess the faucet address from the rpc address of the chain.
-// a non-nil error is returned if cannot determine faucet's address or when coin retrieval is unsuccessful.
+// a non-nil error is returned if faucet's address cannot be determined or when coin retrieval is unsuccessful.
 func TryRetrieve(
 	ctx context.Context,
 	chainID,
@@ -95,9 +95,9 @@ func guessFaucetURLs(rpcAddress string) ([]*url.URL, error) {
 	var guessedURLs []*url.URL
 
 	possibilities := []struct {
-		port         string
-		subname      string
-		nameSperator string
+		port          string
+		subname       string
+		nameSeparator string
 	}{
 		{"4500", "", "."},
 		{"", "faucet", "."},
@@ -128,13 +128,13 @@ func guessFaucetURLs(rpcAddress string) ([]*url.URL, error) {
 
 				// try with replacing the subname for 1 level.
 				// e.g.: faucet.domain.
-				sp := strings.SplitN(u.Hostname(), poss.nameSperator, 2)
+				sp := strings.SplitN(u.Hostname(), poss.nameSeparator, 2)
 				if len(sp) == 2 {
 					bases = append(bases, sp[1])
 				}
 				for _, basename := range bases {
 					guess, _ := url.Parse(guess.String()) // copy guess.
-					guess.Host = fmt.Sprintf("%s%s%s", poss.subname, poss.nameSperator, basename)
+					guess.Host = fmt.Sprintf("%s%s%s", poss.subname, poss.nameSeparator, basename)
 					guessedURLs = append(guessedURLs, guess)
 				}
 			}

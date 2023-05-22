@@ -181,8 +181,7 @@ func (r Registry) EnsureDefaultAccount() error {
 
 // Create creates a new account with name.
 func (r Registry) Create(name string) (acc Account, mnemonic string, err error) {
-	acc, err = r.GetByName(name)
-	if err == nil {
+	if _, err = r.GetByName(name); err == nil {
 		return Account{}, "", ErrAccountExists
 	}
 	var accErr *AccountDoesNotExistError
@@ -260,7 +259,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 	return unsafeExportPrivKeyHex(r.Keyring, name, passphrase)
 }
 
-func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey string, err error) {
+func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privKey string, err error) {
 	priv, err := kr.ExportPrivKeyArmor(uid, passphrase)
 	if err != nil {
 		return "", err

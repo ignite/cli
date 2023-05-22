@@ -16,6 +16,11 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
+const (
+	appWiringImport     = "cosmossdk.io/depinject"
+	appWiringCallMethod = "Inject"
+)
+
 var appImplementation = []string{
 	"RegisterAPIRoutes",
 	"RegisterTxService",
@@ -138,6 +143,32 @@ func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 		}
 	}
 	return modules, nil
+}
+
+// CheckAppWiring check if the app wiring exists finding the `appconfig.Compose` method call.
+func CheckAppWiring(chainRoot string) (bool, error) {
+	// Assumption: modules are registered in the app package
+	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
+	if err != nil {
+		return false, err
+	}
+	// The directory where the app file is located.
+	// This is required to resolve references within the app package.
+	appDir := filepath.Dir(appFilePath)
+
+	appPkg, _, err := xast.ParseDir(appDir)
+	if err != nil {
+		return false, err
+	}
+
+	// Loop on package's files
+	for _, f := range appPkg.Files {
+		exists := goanalysis.FuncVarExists(f, appWiringImport, appWiringCallMethod)
+		if exists {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func exprToString(n ast.Expr) (string, error) {

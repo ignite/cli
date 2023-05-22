@@ -17,9 +17,11 @@ const (
 	ChecksumKey = "checksum"
 )
 
-func randomBytes(n int) []byte {
+func randomBytes(t *testing.T, n int) []byte {
 	bytes := make([]byte, n)
-	rand.Read(bytes)
+	_, err := rand.Read(bytes)
+	require.NoError(t, err)
+
 	return bytes
 }
 
@@ -29,7 +31,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 
 	cacheStorage, err := cache.NewStorage(filepath.Join(cacheDir, "testcache.db"))
 	require.NoError(t, err)
-	cache := cache.New[[]byte](cacheStorage, "testnamespace")
+	c := cache.New[[]byte](cacheStorage, "testnamespace")
 
 	// Create directory tree
 	dir1 := filepath.Join(tempDir, "foo1")
@@ -55,15 +57,15 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	// Create files
 	err = os.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0o644)
 	require.NoError(t, err)
-	err = os.WriteFile(filepath.Join(dir11, "foo"), randomBytes(15), 0o644)
+	err = os.WriteFile(filepath.Join(dir11, "foo"), randomBytes(t, 15), 0o644)
 	require.NoError(t, err)
-	err = os.WriteFile(filepath.Join(dir12, "foo"), randomBytes(20), 0o644)
+	err = os.WriteFile(filepath.Join(dir12, "foo"), randomBytes(t, 20), 0o644)
 	require.NoError(t, err)
-	err = os.WriteFile(filepath.Join(dir21, "foo"), randomBytes(20), 0o644)
+	err = os.WriteFile(filepath.Join(dir21, "foo"), randomBytes(t, 20), 0o644)
 	require.NoError(t, err)
-	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0o644)
+	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(t, 10), 0o644)
 	require.NoError(t, err)
-	err = os.WriteFile(filepath.Join(dir3, "foo2"), randomBytes(10), 0o644)
+	err = os.WriteFile(filepath.Join(dir3, "foo2"), randomBytes(t, 10), 0o644)
 	require.NoError(t, err)
 
 	// Check checksum
@@ -100,7 +102,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NotEqual(t, checksum, tmpChecksum)
 
 	// Checksum changes if a file is modified
-	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0o644)
+	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(t, 10), 0o644)
 	require.NoError(t, err)
 	newChecksum, err := dirchange.ChecksumFromPaths("", paths...)
 	require.NoError(t, err)
@@ -122,37 +124,37 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	saveDir, err := os.MkdirTemp(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(saveDir)
-	err = dirchange.SaveDirChecksum(cache, ChecksumKey, "", paths...)
+	err = dirchange.SaveDirChecksum(c, ChecksumKey, "", paths...)
 	require.NoError(t, err)
-	savedChecksum, err := cache.Get(ChecksumKey)
+	savedChecksum, err := c.Get(ChecksumKey)
 	require.NoError(t, err)
 	require.Equal(t, newChecksum, savedChecksum)
 
 	// Error if the paths contains no file
-	err = dirchange.SaveDirChecksum(cache, ChecksumKey, "", empty1, empty2)
+	err = dirchange.SaveDirChecksum(c, ChecksumKey, "", empty1, empty2)
 	require.Error(t, err)
 
 	// HasDirChecksumChanged returns false if the directory has not changed
-	changed, err := dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", paths...)
+	changed, err := dirchange.HasDirChecksumChanged(c, ChecksumKey, "", paths...)
 	require.NoError(t, err)
 	require.False(t, changed)
 
 	// Return true if cache entry doesn't exist
-	err = cache.Delete(ChecksumKey)
+	err = c.Delete(ChecksumKey)
 	require.NoError(t, err)
-	changed, err = dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", paths...)
+	changed, err = dirchange.HasDirChecksumChanged(c, ChecksumKey, "", paths...)
 	require.NoError(t, err)
 	require.True(t, changed)
 
 	// Return true if the paths contains no file
-	changed, err = dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", empty1, empty2)
+	changed, err = dirchange.HasDirChecksumChanged(c, ChecksumKey, "", empty1, empty2)
 	require.NoError(t, err)
 	require.True(t, changed)
 
 	// Return true if it has been changed
-	err = os.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0o644)
+	err = os.WriteFile(filepath.Join(dir21, "bar"), randomBytes(t, 20), 0o644)
 	require.NoError(t, err)
-	changed, err = dirchange.HasDirChecksumChanged(cache, ChecksumKey, "", paths...)
+	changed, err = dirchange.HasDirChecksumChanged(c, ChecksumKey, "", paths...)
 	require.NoError(t, err)
 	require.True(t, changed)
 }

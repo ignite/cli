@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient/mocks"
 )
 
-//go:generate mockery --srcpkg github.com/tendermint/tendermint/rpc/client --name Client --structname RPCClient --filename rpc_client.go --output ../mocks --with-expecter
+//go:generate mockery --srcpkg github.com/cometbft/cometbft/rpc/client --name Client --structname RPCClient --filename rpc_client.go --output ../mocks --with-expecter
 //go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/client --name AccountRetriever --filename account_retriever.go --output ../mocks --with-expecter
 //go:generate mockery --srcpkg github.com/cosmos/cosmos-sdk/x/bank/types --name QueryClient --structname BankQueryClient --filename bank_query_client.go --output ../mocks --with-expecter
 
@@ -31,12 +31,12 @@ func (m *TendermintClientMock) OnStatus() *mock.Call {
 	return m.On("Status", mock.Anything)
 }
 
-// OnStatus starts a generic call mock on the Block RPC method.
+// OnBlock starts a generic call mock on the Block RPC method.
 func (m *TendermintClientMock) OnBlock() *mock.Call {
 	return m.On("Block", RepeatMockArgs(2)...)
 }
 
-// OnStatus starts a generic call mock on the TxSearch RPC method.
+// OnTxSearch starts a generic call mock on the TxSearch RPC method.
 func (m *TendermintClientMock) OnTxSearch() *mock.Call {
 	return m.On("TxSearch", RepeatMockArgs(6)...)
 }

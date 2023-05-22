@@ -142,7 +142,7 @@ func (m ChainServe) updateCurrentModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ChainServe) processQuitMsg(msg cliuimodel.QuitMsg) (tea.Model, tea.Cmd) {
+func (m ChainServe) processQuitMsg(cliuimodel.QuitMsg) (tea.Model, tea.Cmd) {
 	return m, tea.Quit
 }
 
