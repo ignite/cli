@@ -423,25 +423,25 @@ type InterfaceRPCServer struct {
 	Impl Interface
 }
 
-func (s *InterfaceRPCServer) Manifest(args interface{}, resp *Manifest) error {
+func (s *InterfaceRPCServer) Manifest(_ interface{}, resp *Manifest) error {
 	var err error
 	*resp, err = s.Impl.Manifest()
 	return err
 }
 
-func (s *InterfaceRPCServer) Execute(args map[string]interface{}, resp *interface{}) error {
+func (s *InterfaceRPCServer) Execute(args map[string]interface{}, _ *interface{}) error {
 	return s.Impl.Execute(args["executedCommand"].(ExecutedCommand))
 }
 
-func (s *InterfaceRPCServer) ExecuteHookPre(args map[string]interface{}, resp *interface{}) error {
+func (s *InterfaceRPCServer) ExecuteHookPre(args map[string]interface{}, _ *interface{}) error {
 	return s.Impl.ExecuteHookPre(args["executedHook"].(ExecutedHook))
 }
 
-func (s *InterfaceRPCServer) ExecuteHookPost(args map[string]interface{}, resp *interface{}) error {
+func (s *InterfaceRPCServer) ExecuteHookPost(args map[string]interface{}, _ *interface{}) error {
 	return s.Impl.ExecuteHookPost(args["executedHook"].(ExecutedHook))
 }
 
-func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, resp *interface{}) error {
+func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, _ *interface{}) error {
 	return s.Impl.ExecuteHookCleanUp(args["executedHook"].(ExecutedHook))
 }
 
@@ -464,6 +464,6 @@ func (p *InterfacePlugin) Server(*plugin.MuxBroker) (interface{}, error) {
 	return &InterfaceRPCServer{Impl: p.Impl}, nil
 }
 
-func (InterfacePlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
+func (InterfacePlugin) Client(_ *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
 	return &InterfaceRPC{client: c}, nil
 }

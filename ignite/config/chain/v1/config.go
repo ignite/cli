@@ -29,23 +29,13 @@ func (c *Config) SetDefaults() error {
 	if err := c.Config.SetDefaults(); err != nil {
 		return err
 	}
-
-	// Make sure that validator addresses don't chash with each other
-	if err := c.updateValidatorAddresses(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.updateValidatorAddresses()
 }
 
 // Clone returns an identical copy of the instance.
 func (c *Config) Clone() (version.Converter, error) {
-	copy := Config{}
-	if err := mergo.Merge(&copy, c, mergo.WithAppendSlice); err != nil {
-		return nil, err
-	}
-
-	return &copy, nil
+	cfgCopy := Config{}
+	return &cfgCopy, mergo.Merge(&cfgCopy, c, mergo.WithAppendSlice)
 }
 
 // Decode decodes the config file values from YAML.

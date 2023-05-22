@@ -1,0 +1,43 @@
+package goanalysis
+		
+import (
+    "context"
+    "errors"
+    "path/filepath"
+)
+
+const (
+    fooConst = "foo"
+)
+
+type (
+    fooStruct struct {
+        name string
+    }
+)
+
+var (
+    fooVar       = filepath.Join("test", "join")
+    fooStructVar = fooStruct{}
+)
+
+var (
+    errorFooVar  = errors.New("error foo")
+    bazStructVar = fooStruct{}
+    errorBarVar  = errors.New("error bar")
+)
+
+func fooMethod(foo string) error {
+    return nil
+}
+
+func barMethod(foo string) context.Context {
+    contextVar := context.Background()
+    return contextVar
+}
+
+func bazMethod(foo string) {
+    if list := filepath.SplitList("list"); list == nil {
+        return errors.New("error baz")
+    }
+}

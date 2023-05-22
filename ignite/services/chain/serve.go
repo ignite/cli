@@ -69,6 +69,7 @@ type serveOptions struct {
 	skipProto       bool
 	quitOnFail      bool
 	generateClients bool
+	buildTags       []string
 }
 
 func newServeOption() serveOptions {
@@ -113,6 +114,13 @@ func GenerateClients() ServeOption {
 func ServeSkipProto() ServeOption {
 	return func(c *serveOptions) {
 		c.skipProto = true
+	}
+}
+
+// BuildTags set the build tags for the go build.
+func BuildTags(buildTags ...string) ServeOption {
+	return func(c *serveOptions) {
+		c.buildTags = buildTags
 	}
 }
 
@@ -177,6 +185,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 				err = c.serve(
 					serveCtx,
 					cacheStorage,
+					serveOptions.buildTags,
 					shouldReset,
 					serveOptions.skipProto,
 					serveOptions.generateClients,
@@ -307,6 +316,7 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 func (c *Chain) serve(
 	ctx context.Context,
 	cacheStorage cache.Storage,
+	buildTags []string,
 	forceReset, skipProto, generateClients bool,
 ) error {
 	conf, err := c.Config()
@@ -389,7 +399,7 @@ func (c *Chain) serve(
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx, cacheStorage, "", skipProto, generateClients, true); err != nil {
+		if err := c.build(ctx, cacheStorage, buildTags, "", skipProto, generateClients, true); err != nil {
 			return err
 		}
 	}

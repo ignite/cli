@@ -15,7 +15,7 @@ func newErrMissingPlaceholder(missing []string) *MissingPlaceholdersError {
 }
 
 func TestReplace(t *testing.T) {
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		content string
 		replace []string
@@ -38,7 +38,8 @@ func TestReplace(t *testing.T) {
 			replace: []string{"#one", "#two"},
 			missing: []string{"#one"},
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			tr := New()
 			content := tc.content
@@ -56,7 +57,7 @@ func TestReplace(t *testing.T) {
 }
 
 func TestReplaceAll(t *testing.T) {
-	for _, tc := range []struct {
+	tests := []struct {
 		desc    string
 		content string
 		replace []string
@@ -79,7 +80,8 @@ func TestReplaceAll(t *testing.T) {
 			replace: []string{"#one", "#two"},
 			missing: []string{"#one"},
 		},
-	} {
+	}
+	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			tr := New()
 			content := tc.content

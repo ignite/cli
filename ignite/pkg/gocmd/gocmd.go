@@ -52,6 +52,8 @@ const (
 	FlagGcflagsValueDebug = "all=-N -l"
 	// FlagLdflags represents ldflags go flag.
 	FlagLdflags = "-ldflags"
+	// FlagTags represents tags go flag.
+	FlagTags = "-tags"
 	// FlagMod represents mod go flag.
 	FlagMod = "-mod"
 	// FlagModValueReadOnly represents readonly go flag.
@@ -83,7 +85,14 @@ func Fmt(ctx context.Context, path string, options ...exec.Option) error {
 
 // ModTidy runs go mod tidy on path with options.
 func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
-	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModTidy}, append(options, exec.StepOption(step.Workdir(path)))...)
+	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModTidy},
+		append(options,
+			exec.StepOption(step.Workdir(path)),
+			// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
+			// mod tidy requests the sumdb, until we understand why, we disable sumdb.
+			// related issue:  https://github.com/golang/go/issues/56174
+			exec.StepOption(step.Env("GOSUMDB=off")),
+		)...)
 }
 
 // ModVerify runs go mod verify on path with options.
@@ -139,6 +148,14 @@ func Install(ctx context.Context, path string, pkgs []string, options ...exec.Op
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
+// IsInstallError returns true if err is interpreted as a go install error.
+func IsInstallError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "no required module provides package")
+}
+
 // Get runs go get pkgs on path with options.
 func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option) error {
 	command := []string{
@@ -152,6 +169,11 @@ func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option
 // Ldflags returns a combined ldflags set from flags.
 func Ldflags(flags ...string) string {
 	return strings.Join(flags, " ")
+}
+
+// Tags returns a combined tags set from flags.
+func Tags(tags ...string) string {
+	return strings.Join(tags, " ")
 }
 
 // BuildTarget builds a GOOS:GOARCH pair.

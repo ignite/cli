@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -36,4 +38,8 @@ func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginB
 
 func (Foo) EndBlocker(sdk.Context, abci.RequestEndBlock) abci.ResponseEndBlock {
 	return abci.ResponseEndBlock{}
+}
+
+func (Foo) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	_ = apiSvr.ClientCtx
 }

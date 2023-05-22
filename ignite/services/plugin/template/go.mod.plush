@@ -3,10 +3,6 @@ module <%= ModuleName %>
 go 1.19
 
 require (
-	github.com/hashicorp/go-plugin v1.4.4
-	github.com/ignite/cli v0.25.3-0.20230104184106-15d7be221737
-)
-
-replace (
-	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/hashicorp/go-plugin v1.4.9
+	github.com/ignite/cli v0.26.2-0.20230504112712-4324e2ff958f
 )

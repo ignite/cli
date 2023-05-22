@@ -100,7 +100,7 @@ Use the `--dep` flag to specify that this module depends on and is going to inte
 
 ## Scaffold a list
 
-Use the [scaffold list](/cli#ignite-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
+Use the [scaffold list](../../references/cli#ignite-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
 
 ```bash
 ignite scaffold list loan amount fee collateral deadline state borrower lender --no-message

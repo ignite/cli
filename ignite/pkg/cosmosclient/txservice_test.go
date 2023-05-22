@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"testing"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -12,8 +14,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"

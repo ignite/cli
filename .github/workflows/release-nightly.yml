@@ -1,10 +1,8 @@
 name: Release nightly
 
 on:
-  push:
-    branches:
-      - main
-      - chore/fix-nightly-builds
+  schedule:
+    - cron: '0 2 * * *' # run at 2 AM UTC
 
 jobs:
   consecutiveness:
@@ -24,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Delete the nightly release
-        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           tag_name: nightly
           delete_release: true

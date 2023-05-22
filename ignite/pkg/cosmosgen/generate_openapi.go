@@ -73,6 +73,7 @@ func generateOpenAPISpec(g *generator) error {
 			if err != nil {
 				return err
 			}
+			include = append(include, g.resolveIncludeApp(g.appPath)...)
 
 			err = protoc.Generate(
 				g.ctx,

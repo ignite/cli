@@ -15,6 +15,9 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -28,13 +31,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gogogrpc "github.com/gogo/protobuf/grpc"
-	"github.com/gogo/protobuf/proto"
-	prototypes "github.com/gogo/protobuf/types"
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+	"github.com/cosmos/gogoproto/proto"
+	prototypes "github.com/cosmos/gogoproto/types"
 	"github.com/pkg/errors"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
@@ -127,10 +127,11 @@ type Client struct {
 	keyringBackend     cosmosaccount.KeyringBackend
 	keyringDir         string
 
-	gas          string
-	gasPrices    string
-	fees         string
-	generateOnly bool
+	gas           string
+	gasPrices     string
+	gasAdjustment float64
+	fees          string
+	generateOnly  bool
 }
 
 // Option configures your client.
@@ -206,6 +207,13 @@ func WithGas(gas string) Option {
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
+	}
+}
+
+// WithGasAdjustment sets the gas adjustment.
+func WithGasAdjustment(gasAdjustment float64) Option {
+	return func(c *Client) {
+		c.gasAdjustment = gasAdjustment
 	}
 }
 
@@ -584,6 +592,10 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
+	}
+
+	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+		txf = txf.WithGasAdjustment(c.gasAdjustment)
 	}
 
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
