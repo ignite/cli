@@ -3,10 +3,13 @@ package cosmosgen
 import (
 	"context"
 	"errors"
+	"go/ast"
 
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 )
 
+// DepTools necessary tools to build and run the chain.
 func DepTools() []string {
 	return []string{
 		// the gocosmos plugin.
@@ -32,4 +35,43 @@ func InstallDepTools(ctx context.Context, appPath string) error {
 		return errors.New("unable to install dependency tools, try to run `ignite doctor` and try again")
 	}
 	return err
+}
+
+// MissingTools find missing tools import indo a *ast.File.
+func MissingTools(f *ast.File) (missingTools []string) {
+	imports := make(map[string]string)
+	for name, imp := range goanalysis.FormatImports(f) {
+		imports[imp] = name
+	}
+
+	for _, tool := range DepTools() {
+		if _, ok := imports[tool]; !ok {
+			missingTools = append(missingTools, tool)
+		}
+	}
+	return
+}
+
+// UnusedTools find unused tools import indo a *ast.File.
+func UnusedTools(f *ast.File) (unusedTools []string) {
+	unused := []string{
+		// regen protoc plugin
+		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
+
+		// old ignite repo.
+		"github.com/ignite-hq/cli/ignite/pkg/cmdrunner",
+		"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step",
+	}
+
+	imports := make(map[string]string)
+	for name, imp := range goanalysis.FormatImports(f) {
+		imports[imp] = name
+	}
+
+	for _, tool := range unused {
+		if _, ok := imports[tool]; ok {
+			unusedTools = append(unusedTools, tool)
+		}
+	}
+	return
 }
