@@ -68,9 +68,11 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 	}
 
 	for _, req := range f.Require {
-		if req.Indirect {
-			continue
-		}
+		/*	Commented out to include indirect dependencies as proto files may import from them
+			if req.Indirect {
+				continue
+			}
+		*/
 		if !isReplacementAdded(req.Mod) {
 			versions = append(versions, req.Mod)
 		}

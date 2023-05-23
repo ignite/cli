@@ -104,7 +104,6 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (map[string]string, erro
 	if err != nil {
 		return nil, err
 	}
-	includePaths, err := g.resolveInclude(c.AppPath())
 
 	// Discover any custom modules defined by the user's app
 	g.appModules, err = g.discoverModules(g.appPath, g.protoDir)
@@ -140,7 +139,11 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (map[string]string, erro
 			if err != nil {
 				return nil, err
 			}
-
+			/*
+				Regardless of any modules in use directly defined in the go module
+				add it to the includeDirs for correct proto include resolution
+			*/
+			g.includeDirs = append(g.includeDirs, path)
 			// Discover any modules defined by the package
 			modules, err := g.discoverModules(path, "")
 			if err != nil {
@@ -159,7 +162,11 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (map[string]string, erro
 
 		g.thirdModules[modulesInPath.Path] = append(g.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
 	}
-
+	// Perform include resolution AFTER includeDirs has been fully populated
+	includePaths, err := g.resolveInclude(c.AppPath())
+	if err != nil {
+		return nil, err
+	}
 	var modulelist []ModulesInPath
 	modulelist = append(modulelist, ModulesInPath{Path: c.AppPath(), Modules: g.appModules})
 	for sourcePath, modules := range g.thirdModules {
