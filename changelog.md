@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
+
 ### Changes
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
