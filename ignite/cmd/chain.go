@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/manifoldco/promptui"
@@ -14,14 +15,20 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
 const (
-	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
-	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
-	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
-	msgMigrationBuf    = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
+	msgMigration            = "Migrating blockchain config file from v%d to v%d..."
+	msgMigrationPrefix      = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt      = "Would you like to upgrade your config file to v%d"
+	msgMigrationBuf         = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
+	msgMigrationAddTools    = "Some required imports are missing in %s file: %s. Would you like to add them"
+	msgMigrationRemoveTools = "File %s contains deprecated imports: %s. Would you like to remove them"
+	toolsFile               = "tools/tools.go"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -106,7 +113,60 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 	if err := configMigrationPreRunHandler(cmd, session); err != nil {
 		return err
 	}
+
+	if err := toolsMigrationPreRunHandler(cmd, session); err != nil {
+		return err
+	}
+
 	return bufMigrationPreRunHandler(cmd, session)
+}
+
+func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
+	session.StartSpinner("Checking missing tools...")
+
+	appPath := flagGetPath(cmd)
+	toolsFilename := filepath.Join(appPath, toolsFile)
+	f, _, err := xast.ParseFile(toolsFilename)
+	if err != nil {
+		return err
+	}
+
+	missing := cosmosgen.MissingTools(f)
+	unused := cosmosgen.UnusedTools(f)
+
+	session.StopSpinner()
+	if len(missing) > 0 {
+		question := fmt.Sprintf(
+			msgMigrationAddTools,
+			toolsFilename,
+			strings.Join(missing, ", "),
+		)
+		if err := session.AskConfirm(question); err != nil {
+			missing = []string{}
+		}
+	}
+
+	if len(unused) > 0 {
+		question := fmt.Sprintf(
+			msgMigrationRemoveTools,
+			toolsFilename,
+			strings.Join(unused, ", "),
+		)
+		if err := session.AskConfirm(question); err != nil {
+			unused = []string{}
+		}
+	}
+	if len(missing) == 0 && len(unused) == 0 {
+		return nil
+	}
+	session.StartSpinner("Migrating tools...")
+
+	var buf bytes.Buffer
+	if err := goanalysis.UpdateInitImports(f, &buf, missing, unused); err != nil {
+		return err
+	}
+
+	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
 }
 
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
