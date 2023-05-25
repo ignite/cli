@@ -56,7 +56,7 @@ const (
 
 func collect(ctx context.Context, db postgres.Adapter) error {
 	// Make sure that the data backend schema is up to date
-	if err = db.Init(ctx); err != nil {
+	if err := db.Init(ctx); err != nil {
 		return err
 	}
 
