@@ -107,7 +107,7 @@ func getChain(cmd plugin.ExecutedCommand, chainOption ...chain.Option) (*chain.C
 
 func main() {
 	pluginMap := map[string]hplugin.Plugin{
-		"<%= Name %>": &plugin.InterfacePlugin{Impl: &p{}},
+		"<%= Name %>": &plugin.NewRPCPlugin(&p{}),
 	}
 
 	hplugin.Serve(&hplugin.ServeConfig{

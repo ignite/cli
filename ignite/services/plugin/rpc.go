@@ -20,92 +20,81 @@ func HandshakeConfig() plugin.HandshakeConfig {
 	return handshakeConfig
 }
 
-// InterfaceRPC is an implementation that talks over RPC.
-type InterfaceRPC struct{ client *rpc.Client }
+// NewRPCPlugin returns a new plugin that implements the interface over RPC.
+func NewRPCPlugin(impl Interface) plugin.Plugin {
+	return rpcPlugin{impl}
+}
 
-// Manifest implements Interface.Manifest.
-func (g *InterfaceRPC) Manifest() (Manifest, error) {
+type rpcPlugin struct {
+	impl Interface
+}
+
+// Server returns a new RPC server that implements the plugin interface.
+func (p rpcPlugin) Server(*plugin.MuxBroker) (interface{}, error) {
+	return rpcServer{p.impl}, nil
+}
+
+// Client returns a new RPC client that allows calling the plugin interface over RPC.
+func (rpcPlugin) Client(_ *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
+	return rpcClient{client: c}, nil
+}
+
+type rpcClient struct{ client *rpc.Client }
+
+func (g rpcClient) Manifest() (Manifest, error) {
 	var resp Manifest
 	return resp, g.client.Call("Plugin.Manifest", new(interface{}), &resp)
 }
 
-// Execute implements Interface.Commands.
-func (g *InterfaceRPC) Execute(c ExecutedCommand) error {
+func (g rpcClient) Execute(c ExecutedCommand) error {
 	var resp interface{}
 	return g.client.Call("Plugin.Execute", map[string]interface{}{
 		"executedCommand": c,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookPre(hook ExecutedHook) error {
+func (g rpcClient) ExecuteHookPre(hook ExecutedHook) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookPre", map[string]interface{}{
 		"executedHook": hook,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookPost(hook ExecutedHook) error {
+func (g rpcClient) ExecuteHookPost(hook ExecutedHook) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookPost", map[string]interface{}{
 		"executedHook": hook,
 	}, &resp)
 }
 
-func (g *InterfaceRPC) ExecuteHookCleanUp(hook ExecutedHook) error {
+func (g rpcClient) ExecuteHookCleanUp(hook ExecutedHook) error {
 	var resp interface{}
 	return g.client.Call("Plugin.ExecuteHookCleanUp", map[string]interface{}{
 		"executedHook": hook,
 	}, &resp)
 }
 
-// InterfaceRPCServer is the RPC server that InterfaceRPC talks to, conforming to
-// the requirements of net/rpc.
-type InterfaceRPCServer struct {
-	// This is the real implementation
-	Impl Interface
+type rpcServer struct {
+	impl Interface
 }
 
-func (s *InterfaceRPCServer) Manifest(_ interface{}, resp *Manifest) error {
-	var err error
-	*resp, err = s.Impl.Manifest()
+func (s rpcServer) Manifest(_ interface{}, resp *Manifest) (err error) {
+	*resp, err = s.impl.Manifest()
 	return err
 }
 
-func (s *InterfaceRPCServer) Execute(args map[string]interface{}, _ *interface{}) error {
-	return s.Impl.Execute(args["executedCommand"].(ExecutedCommand))
+func (s rpcServer) Execute(args map[string]interface{}, _ *interface{}) error {
+	return s.impl.Execute(args["executedCommand"].(ExecutedCommand))
 }
 
-func (s *InterfaceRPCServer) ExecuteHookPre(args map[string]interface{}, _ *interface{}) error {
-	return s.Impl.ExecuteHookPre(args["executedHook"].(ExecutedHook))
+func (s rpcServer) ExecuteHookPre(args map[string]interface{}, _ *interface{}) error {
+	return s.impl.ExecuteHookPre(args["executedHook"].(ExecutedHook))
 }
 
-func (s *InterfaceRPCServer) ExecuteHookPost(args map[string]interface{}, _ *interface{}) error {
-	return s.Impl.ExecuteHookPost(args["executedHook"].(ExecutedHook))
+func (s rpcServer) ExecuteHookPost(args map[string]interface{}, _ *interface{}) error {
+	return s.impl.ExecuteHookPost(args["executedHook"].(ExecutedHook))
 }
 
-func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, _ *interface{}) error {
-	return s.Impl.ExecuteHookCleanUp(args["executedHook"].(ExecutedHook))
-}
-
-// This is the implementation of plugin.Interface so we can serve/consume this
-//
-// This has two methods: Server must return an RPC server for this plugin
-// type. We construct a InterfaceRPCServer for this.
-//
-// Client must return an implementation of our interface that communicates
-// over an RPC client. We return InterfaceRPC for this.
-//
-// Ignore MuxBroker. That is used to create more multiplexed streams on our
-// plugin connection and is a more advanced use case.
-type InterfacePlugin struct {
-	// Impl Injection
-	Impl Interface
-}
-
-func (p *InterfacePlugin) Server(*plugin.MuxBroker) (interface{}, error) {
-	return &InterfaceRPCServer{Impl: p.Impl}, nil
-}
-
-func (InterfacePlugin) Client(_ *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
-	return &InterfaceRPC{client: c}, nil
+func (s rpcServer) ExecuteHookCleanUp(args map[string]interface{}, _ *interface{}) error {
+	return s.impl.ExecuteHookCleanUp(args["executedHook"].(ExecutedHook))
 }

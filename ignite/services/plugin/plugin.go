@@ -229,7 +229,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.binaryName: &InterfacePlugin{},
+		p.binaryName: NewRPCPlugin(nil),
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
