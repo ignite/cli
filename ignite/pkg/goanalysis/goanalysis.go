@@ -5,16 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
+	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
 const (
 	mainPackage     = "main"
 	goFileExtension = ".go"
+	toolsBuildTag   = "//go:build tools\n\n"
 )
 
 // ErrMultipleMainPackagesFound is returned when multiple main packages found while expecting only one.
@@ -199,7 +203,7 @@ func FormatImports(f *ast.File) map[string]string {
 	m := make(map[string]string) // name -> import
 	for _, imp := range f.Imports {
 		var importName string
-		if imp.Name != nil {
+		if imp.Name != nil && imp.Name.Name != "_" && imp.Name.Name != "." {
 			importName = imp.Name.Name
 		} else {
 			importParts := strings.Split(imp.Path.Value, "/")
@@ -210,4 +214,56 @@ func FormatImports(f *ast.File) map[string]string {
 		m[name] = strings.Trim(imp.Path.Value, "\"")
 	}
 	return m
+}
+
+// UpdateInitImports helper function to remove and add underscore (init) imports to an *ast.File.
+func UpdateInitImports(file *ast.File, writer io.Writer, importsToAdd, importsToRemove []string) error {
+	// Create a map for faster lookup of items to remove
+	importMap := make(map[string]bool)
+	for _, astImport := range file.Imports {
+		value, err := strconv.Unquote(astImport.Path.Value)
+		if err != nil {
+			return err
+		}
+		importMap[value] = true
+	}
+	for _, removeImport := range importsToRemove {
+		importMap[removeImport] = false
+	}
+	for _, addImport := range importsToAdd {
+		importMap[addImport] = true
+	}
+
+	// Add the imports
+	for _, d := range file.Decls {
+		if dd, ok := d.(*ast.GenDecl); ok {
+			if dd.Tok == token.IMPORT {
+				file.Imports = make([]*ast.ImportSpec, 0)
+				dd.Specs = make([]ast.Spec, 0)
+				for imp, exist := range importMap {
+					if exist {
+						spec := createUnderscoreImport(imp)
+						file.Imports = append(file.Imports, spec)
+						dd.Specs = append(dd.Specs, spec)
+					}
+				}
+			}
+		}
+	}
+
+	if _, err := writer.Write([]byte(toolsBuildTag)); err != nil {
+		return fmt.Errorf("failed to write the build tag: %w", err)
+	}
+	return format.Node(writer, token.NewFileSet(), file)
+}
+
+// createUnderscoreImports helper function to create an AST underscore import with given path.
+func createUnderscoreImport(imp string) *ast.ImportSpec {
+	return &ast.ImportSpec{
+		Name: ast.NewIdent("_"),
+		Path: &ast.BasicLit{
+			Kind:  token.STRING,
+			Value: strconv.Quote(imp),
+		},
+	}
 }

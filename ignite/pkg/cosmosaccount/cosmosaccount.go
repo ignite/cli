@@ -152,7 +152,7 @@ func (a Account) Address(accPrefix string) (string, error) {
 func (a Account) PubKey() (string, error) {
 	pk, err := a.Record.GetPubKey()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return pk.String(), nil
