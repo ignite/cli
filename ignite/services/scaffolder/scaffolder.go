@@ -30,18 +30,7 @@ type Scaffolder struct {
 
 // New creates a new scaffold app.
 func New(appPath string) (Scaffolder, error) {
-	sc, err := newScaffolder(appPath)
-	if err != nil {
-		return sc, err
-	}
-
-	// Make sure that the app was scaffolded with a supported Cosmos SDK version
-	return sc, version.AssertSupportedCosmosSDKVersion(sc.Version)
-}
-
-// newScaffolder creates a new Scaffolder for an existent app.
-func newScaffolder(path string) (Scaffolder, error) {
-	path, err := filepath.Abs(path)
+	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
 	}
@@ -50,17 +39,23 @@ func newScaffolder(path string) (Scaffolder, error) {
 	if err != nil {
 		return Scaffolder{}, err
 	}
-	if err := cosmosanalysis.IsChainPath(path); err != nil {
-		return Scaffolder{}, err
-	}
 
-	version, err := cosmosver.Detect(path)
+	ver, err := cosmosver.Detect(path)
 	if err != nil {
 		return Scaffolder{}, err
 	}
 
+	// Make sure that the app was scaffolded with a supported Cosmos SDK version
+	if err := version.AssertSupportedCosmosSDKVersion(ver); err != nil {
+		return Scaffolder{}, err
+	}
+
+	if err := cosmosanalysis.IsChainPath(path); err != nil {
+		return Scaffolder{}, err
+	}
+
 	s := Scaffolder{
-		Version: version,
+		Version: ver,
 		path:    path,
 		modpath: modpath,
 	}
