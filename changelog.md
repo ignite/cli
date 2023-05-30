@@ -16,6 +16,7 @@
 - [#3497](https://github.com/ignite/cli/pull/3497) Use corret bank balance query url in faucet openapi
 - [#3481](https://github.com/ignite/cli/pull/3481) Use correct checksum format in release checksum file
 - [#3470](https://github.com/ignite/cli/pull/3470) Prevent overriding minimum-gas-prices with default value
+- [#3523](https://github.com/ignite/cli/pull/3523) Upgrade Cosmos SDK compatibility check for scaffolded apps
 
 ## [`v0.26.1`](https://github.com/ignite/cli/releases/tag/v0.26.1)
 
