@@ -22,10 +22,9 @@ import (
 )
 
 const (
-	errMinCosmosSDKVersion = `⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %s.
-Please, follow the migration guide to upgrade your chain to the latest version:
+	errMinCosmosSDKVersion = `Your chain has been scaffolded with an old version of Cosmos SDK: %s
 
-https://docs.ignite.com/migration`
+Please, follow the migration guide to upgrade your chain to the latest version at https://docs.ignite.com/migration`
 
 	versionDev     = "development"
 	versionNightly = "nightly"
