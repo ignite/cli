@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/version"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.
@@ -35,15 +35,8 @@ func New(appPath string) (Scaffolder, error) {
 		return sc, err
 	}
 
-	if sc.Version.LT(cosmosver.StargateFortyFourVersion) {
-		return sc, fmt.Errorf(
-			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
-Please, follow the migration guide to upgrade your chain to the latest version:
-
-https://docs.ignite.com/migration`, sc.Version.String(),
-		)
-	}
-	return sc, nil
+	// Make sure that the app was scaffolded with a supported Cosmos SDK version
+	return sc, version.AssertSupportedCosmosSDKVersion(sc.Version)
 }
 
 // newScaffolder creates a new Scaffolder for an existent app.
