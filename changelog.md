@@ -10,6 +10,7 @@
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
 - [#3494](https://github.com/ignite/cli/pull/3494) bump `cosmos-sdk` and `cometbft` versions
+- [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 
 ### Fixes
 
