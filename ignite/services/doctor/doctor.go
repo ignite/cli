@@ -21,7 +21,8 @@ import (
 )
 
 const (
-	toolsGoFile = "tools/tools.go"
+	// ToolsFile defines the app relative path to the Go tools file.
+	ToolsFile = "tools/tools.go"
 )
 
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better
@@ -110,17 +111,17 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 
 	d.ev.Send("Checking dependency tools:", events.ProgressFinish())
 
-	_, err := os.Stat(toolsGoFile)
+	_, err := os.Stat(ToolsFile)
 
 	switch {
 	case err == nil:
 		d.ev.Send(
-			fmt.Sprintf("%s %s", toolsGoFile, colors.Success("exists")),
+			fmt.Sprintf("%s %s", ToolsFile, colors.Success("exists")),
 			events.Icon(icons.OK),
 			events.ProgressUpdate(),
 		)
 
-		updated, err := d.ensureDependencyImports(toolsGoFile)
+		updated, err := d.ensureDependencyImports(ToolsFile)
 		if err != nil {
 			return errf(err)
 		}
@@ -137,7 +138,7 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		)
 
 	case os.IsNotExist(err):
-		if err := d.createToolsFile(ctx, toolsGoFile); err != nil {
+		if err := d.createToolsFile(ctx, ToolsFile); err != nil {
 			return errf(err)
 		}
 
