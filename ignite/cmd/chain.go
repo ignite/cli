@@ -117,6 +117,10 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 
 	appPath := flagGetPath(cmd)
 	toolsFilename := filepath.Join(appPath, toolsFile)
+	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
+		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
+	}
+
 	f, _, err := xast.ParseFile(toolsFilename)
 	if err != nil {
 		return err
