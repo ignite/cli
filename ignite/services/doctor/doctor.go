@@ -103,12 +103,11 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 
 	switch {
 	case err == nil:
-		// tools.go exists
-		d.ev.Send(fmt.Sprintf("%s exists", toolsGoFile), events.Icon(icons.OK))
+		d.ev.Send(fmt.Sprintf("%s exists", toolsGoFile), events.Icon(icons.OK), events.ProgressUpdate())
 
 		updated, err := d.ensureDependencyImports(toolsGoFile)
 		if err != nil {
-			return err
+			return errf(err)
 		}
 
 		if updated {
@@ -118,43 +117,61 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		}
 
 	case os.IsNotExist(err):
-		// create tools.go
-		pathInfo, err := gomodulepath.ParseAt(".")
-		if err != nil {
+		if err := d.createToolsFile(ctx, toolsGoFile); err != nil {
 			return errf(err)
-		}
-		g, err := app.NewGenerator(&app.Options{
-			ModulePath:       pathInfo.RawPath,
-			AppName:          pathInfo.Package,
-			BinaryNamePrefix: pathInfo.Root,
-			IncludePrefixes:  []string{toolsGoFile},
-		})
-		if err != nil {
-			return errf(err)
-		}
-		// run generator
-		runner := genny.WetRunner(ctx)
-		if err := runner.With(g); err != nil {
-			return errf(err)
-		}
-		if err := runner.Run(); err != nil {
-			return errf(err)
-		}
-		d.ev.Send(fmt.Sprintf("%s %s", toolsGoFile, colors.Success("created")),
-			events.Icon(icons.OK), events.ProgressFinish())
-
-		d.ev.Send("Installing dependency tools", events.ProgressStart())
-		if err := cosmosgen.InstallDepTools(ctx, "."); err != nil {
-			return errf(err)
-		}
-		for _, dep := range cosmosgen.DepTools() {
-			d.ev.Send(fmt.Sprintf("%s %s", path.Base(dep), colors.Success("installed")),
-				events.Icon(icons.OK), events.ProgressFinish())
 		}
 
 	default:
 		return errf(err)
 	}
+
+	return nil
+}
+
+func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error {
+	pathInfo, err := gomodulepath.ParseAt(".")
+	if err != nil {
+		return err
+	}
+
+	g, err := app.NewGenerator(&app.Options{
+		ModulePath:       pathInfo.RawPath,
+		AppName:          pathInfo.Package,
+		BinaryNamePrefix: pathInfo.Root,
+		IncludePrefixes:  []string{toolsFilename},
+	})
+	if err != nil {
+		return err
+	}
+
+	runner := genny.WetRunner(ctx)
+	if err := runner.With(g); err != nil {
+		return err
+	}
+
+	if err := runner.Run(); err != nil {
+		return err
+	}
+
+	d.ev.Send(
+		fmt.Sprintf("%s %s", toolsFilename, colors.Success("created")),
+		events.Icon(icons.OK),
+		events.ProgressFinish(),
+	)
+
+	d.ev.Send("Installing dependency tools", events.ProgressStart())
+	if err := cosmosgen.InstallDepTools(ctx, "."); err != nil {
+		return err
+	}
+
+	for _, dep := range cosmosgen.DepTools() {
+		d.ev.Send(
+			fmt.Sprintf("%s %s", path.Base(dep), colors.Success("installed")),
+			events.Icon(icons.OK),
+			events.ProgressFinish(),
+		)
+	}
+
 	return nil
 }
 
