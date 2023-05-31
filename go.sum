@@ -297,8 +297,8 @@ github.com/cosmos/gogoproto v1.4.8 h1:BrHKc6WFZt8+jRV71vKSQE+JrfF+JAnzrKo2VP7wIZ
 github.com/cosmos/gogoproto v1.4.8/go.mod h1:hnb0DIEWTv+wdNzNcqus5xCQXq5+CXauq1FJuurRfVY=
 github.com/cosmos/iavl v0.20.0 h1:fTVznVlepH0KK8NyKq8w+U7c2L6jofa27aFX6YGlm38=
 github.com/cosmos/iavl v0.20.0/go.mod h1:WO7FyvaZJoH65+HFOsDir7xU9FWk2w9cHXNW1XHcl7A=
-github.com/cosmos/ibc-go/v7 v7.0.0 h1:j4kyywlG0hhDmT9FmSaR5iCIka7Pz7kJTxGWY1nlV9Q=
-github.com/cosmos/ibc-go/v7 v7.0.0/go.mod h1:BFh8nKWjr5zeR2OZfhkzdgDzj1+KjRn3aJLpwapStj8=
+github.com/cosmos/ibc-go/v7 v7.0.1 h1:NIBNRWjlOoFvFQu1ZlgwkaSeHO5avf4C1YQiWegt8jw=
+github.com/cosmos/ibc-go/v7 v7.0.1/go.mod h1:vEaapV6nuLPQlS+g8IKmxMo6auPi0i7HMv1PhViht/E=
 github.com/cosmos/ics23/go v0.9.1-0.20221207100636-b1abd8678aab h1:I9ialKTQo7248V827Bba4OuKPmk+FPzmTVHsLXaIJWw=
 github.com/cosmos/ics23/go v0.9.1-0.20221207100636-b1abd8678aab/go.mod h1:2CwqasX5dSD7Hbp/9b6lhK6BwoBDCBldx7gPKRukR60=
 github.com/cosmos/keyring v1.2.0 h1:8C1lBP9xhImmIabyXW4c3vFjjLiBdGCmfLUfeZlV1Yo=

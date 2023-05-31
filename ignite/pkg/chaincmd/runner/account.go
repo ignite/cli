@@ -139,7 +139,9 @@ func (r Runner) ListAccounts(ctx context.Context) ([]Account, error) {
 	// finishes with exit code 0 and a plain text message.
 	// This behavior was added to Cosmos SDK v0.46.2. See the link
 	// https://github.com/cosmos/cosmos-sdk/blob/d01aa5b4a8/client/keys/list.go#L37
-	if strings.TrimSpace(b.String()) == msgEmptyKeyring {
+
+	// TODO REMOVE WARNINGS FROM PROTO TESTDATA
+	if strings.Contains(b.String(), msgEmptyKeyring) {
 		return nil, nil
 	}
 

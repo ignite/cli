@@ -3,17 +3,15 @@ package app
 import (
 	"bytes"
 	"fmt"
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/pkg/errors"
 	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
 	"path/filepath"
-
-	"github.com/pkg/errors"
-
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
 const (
@@ -21,16 +19,10 @@ const (
 	appWiringCallMethod = "Inject"
 )
 
-var appImplementation = []string{
-	"RegisterAPIRoutes",
-	"RegisterTxService",
-	"RegisterTendermintService",
-}
-
 // CheckKeeper checks for the existence of the keeper with the provided name in the app structure.
 func CheckKeeper(path, keeperName string) error {
 	// find app type
-	appImpl, err := cosmosanalysis.FindImplementation(path, appImplementation)
+	appImpl, err := cosmosanalysis.FindImplementation(path, cosmosanalysis.AppImplementation)
 	if err != nil {
 		return err
 	}
@@ -145,7 +137,7 @@ func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 	return modules, nil
 }
 
-// CheckAppWiring check if the app wiring exists finding the `appconfig.Compose` method call.
+// CheckAppWiring check if the app wiring exists finding the `depinject.Inject` method call.
 func CheckAppWiring(chainRoot string) (bool, error) {
 	// Assumption: modules are registered in the app package
 	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)

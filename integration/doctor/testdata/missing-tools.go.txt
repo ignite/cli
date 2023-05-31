@@ -17,7 +17,7 @@ version: 1
 -- go.mod --
 module github.com/ignite/cli
 
-go 1.19
+go 1.20
 -- tools.go.golden --
 //go:build tools
 

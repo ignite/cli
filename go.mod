@@ -1,6 +1,6 @@
 module github.com/ignite/cli
 
-go 1.19
+go 1.20
 
 require (
 	cosmossdk.io/math v1.0.0
@@ -19,7 +19,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.2
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.8
-	github.com/cosmos/ibc-go/v7 v7.0.0
+	github.com/cosmos/ibc-go/v7 v7.0.1
 	github.com/emicklei/proto v1.11.2
 	github.com/emicklei/proto-contrib v0.14.0
 	github.com/go-delve/delve v1.20.2
