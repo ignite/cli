@@ -60,6 +60,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 	if err != nil {
 		return errf(err)
 	}
+
 	f, err := os.Open(configPath)
 	if err != nil {
 		return errf(err)
@@ -70,21 +71,31 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 	if err != nil {
 		return errf(err)
 	}
+
+	status := "OK"
+
 	if version != chainconfig.LatestVersion {
+		f.Seek(0, 0)
+
 		// migrate config file
 		// Convert the current config to the latest version and update the YAML file
 		var buf bytes.Buffer
-		f.Seek(0, 0)
 		if err := chainconfig.MigrateLatest(f, &buf); err != nil {
 			return errf(err)
 		}
+
 		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
 			return errf(fmt.Errorf("config file migration failed: %w", err))
 		}
-		d.ev.Send(fmt.Sprintf("config file %s", colors.Success("migrated")),
-			events.Icon(icons.OK), events.ProgressFinish())
+
+		status = "migrated"
 	}
-	d.ev.Send("config file OK", events.Icon(icons.OK), events.ProgressFinish())
+
+	d.ev.Send(
+		fmt.Sprintf("config file %s", colors.Success(status)),
+		events.Icon(icons.OK),
+		events.ProgressFinish(),
+	)
 
 	return nil
 }
@@ -103,18 +114,27 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 
 	switch {
 	case err == nil:
-		d.ev.Send(fmt.Sprintf("%s exists", toolsGoFile), events.Icon(icons.OK), events.ProgressUpdate())
+		d.ev.Send(
+			fmt.Sprintf("%s %s", toolsGoFile, colors.Success("exists")),
+			events.Icon(icons.OK),
+			events.ProgressUpdate(),
+		)
 
 		updated, err := d.ensureDependencyImports(toolsGoFile)
 		if err != nil {
 			return errf(err)
 		}
 
+		status := "OK"
 		if updated {
-			d.ev.Send("tools file updated", events.Icon(icons.OK), events.ProgressFinish())
-		} else {
-			d.ev.Send("tools file OK", events.Icon(icons.OK), events.ProgressFinish())
+			status = "updated"
 		}
+
+		d.ev.Send(
+			fmt.Sprintf("tools file %s", colors.Success(status)),
+			events.Icon(icons.OK),
+			events.ProgressFinish(),
+		)
 
 	case os.IsNotExist(err):
 		if err := d.createToolsFile(ctx, toolsGoFile); err != nil {
