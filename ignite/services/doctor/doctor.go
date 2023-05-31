@@ -14,8 +14,14 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/pkg/xast"
 	"github.com/ignite/cli/ignite/templates/app"
+)
+
+const (
+	toolsGoFile = "tools/tools.go"
 )
 
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better
@@ -93,15 +99,23 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 
 	d.ev.Send("Checking dependency tools:", events.ProgressFinish())
 
-	const toolsGoFile = "tools/tools.go"
 	_, err := os.Stat(toolsGoFile)
 
 	switch {
 	case err == nil:
 		// tools.go exists
-		d.ev.Send(fmt.Sprintf("%s exists", toolsGoFile), events.Icon(icons.OK),
-			events.ProgressFinish())
-		// TODO ensure tools.go has the required dependencies
+		d.ev.Send(fmt.Sprintf("%s exists", toolsGoFile), events.Icon(icons.OK))
+
+		updated, err := d.ensureDependencyImports(toolsGoFile)
+		if err != nil {
+			return err
+		}
+
+		if updated {
+			d.ev.Send("tools file updated", events.Icon(icons.OK), events.ProgressFinish())
+		} else {
+			d.ev.Send("tools file OK", events.Icon(icons.OK), events.ProgressFinish())
+		}
 
 	case os.IsNotExist(err):
 		// create tools.go
@@ -142,4 +156,36 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		return errf(err)
 	}
 	return nil
+}
+
+func (d Doctor) ensureDependencyImports(toolsFilename string) (bool, error) {
+	d.ev.Send("Ensuring required tools imports", events.ProgressStart())
+
+	f, _, err := xast.ParseFile(toolsFilename)
+	if err != nil {
+		return false, err
+	}
+
+	var (
+		buf     bytes.Buffer
+		missing = cosmosgen.MissingTools(f)
+		unused  = cosmosgen.UnusedTools(f)
+	)
+
+	// Check if the tools file should be fixed
+	if len(missing) == 0 && len(unused) == 0 {
+		return false, nil
+	}
+
+	err = goanalysis.UpdateInitImports(f, &buf, missing, unused)
+	if err != nil {
+		return false, err
+	}
+
+	err = os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
