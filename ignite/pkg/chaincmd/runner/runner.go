@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"regexp"
 
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
@@ -140,10 +141,27 @@ type buffer struct {
 	*bytes.Buffer
 }
 
+// Bytes returns a slice of length b.Len() holding the unread portion of the buffer.
+// TODO remove this after updating cosmos-sdk to v0.47.3
+// https://github.com/cosmos/gogoproto/issues/66#issuecomment-1544699195
+func (b *buffer) Bytes() []byte {
+	re := regexp.MustCompile(`(?m)^(WARNING:)[\s\S]*?\n`)
+	replaced := re.ReplaceAll(b.Buffer.Bytes(), nil)
+	return bytes.TrimSpace(replaced)
+}
+
+// String returns the contents of the unread portion of the buffer
+// as a string.
+// TODO remove this after updating cosmos-sdk to v0.47.3
+// https://github.com/cosmos/gogoproto/issues/66#issuecomment-1544699195
+func (b *buffer) String() string {
+	return string(b.Bytes())
+}
+
 // JSONEnsuredBytes ensures that encoding format for returned bytes is always
 // JSON even if the written data is originally encoded in YAML.
 func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
-	bz := b.Buffer.Bytes()
+	bz := b.Bytes()
 
 	var out interface{}
 

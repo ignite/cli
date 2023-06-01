@@ -3,15 +3,17 @@ package app
 import (
 	"bytes"
 	"fmt"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/xast"
-	"github.com/pkg/errors"
 	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+
+	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
 const (
