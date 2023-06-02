@@ -1,4 +1,4 @@
-package grpc_test
+package plugin_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/services/plugin/grpc"
+	"github.com/ignite/cli/ignite/services/plugin"
 	v1 "github.com/ignite/cli/ignite/services/plugin/grpc/v1"
 )
 
@@ -15,13 +15,13 @@ func TestCommandToCobraCommand(t *testing.T) {
 	var (
 		require = require.New(t)
 		assert  = assert.New(t)
-		pcmd    = grpc.Command{
+		pcmd    = plugin.Command{
 			Use:     "new",
 			Aliases: []string{"n"},
 			Short:   "short",
 			Long:    "long",
 			Hidden:  true,
-			Flags: []*grpc.Flag{
+			Flags: []*plugin.Flag{
 				{
 					Name:         "bool",
 					Shorthand:    "b",
@@ -39,7 +39,7 @@ func TestCommandToCobraCommand(t *testing.T) {
 					Persistent:   true,
 				},
 			},
-			Commands: []*grpc.Command{
+			Commands: []*plugin.Command{
 				{
 					Use:     "sub",
 					Aliases: []string{"s"},
@@ -70,9 +70,9 @@ func TestCommandToCobraCommand(t *testing.T) {
 }
 
 func TestManifestImportCobraCommand(t *testing.T) {
-	manifest := &grpc.Manifest{
+	manifest := &plugin.Manifest{
 		Name: "hey",
-		Commands: []*grpc.Command{
+		Commands: []*plugin.Command{
 			{Use: "existing"},
 		},
 	}
@@ -101,9 +101,9 @@ func TestManifestImportCobraCommand(t *testing.T) {
 
 	manifest.ImportCobraCommand(cmd, "under")
 
-	expectedManifest := &grpc.Manifest{
+	expectedManifest := &plugin.Manifest{
 		Name: "hey",
-		Commands: []*grpc.Command{
+		Commands: []*plugin.Command{
 			{Use: "existing"},
 			{
 				Use:               "new",
@@ -112,7 +112,7 @@ func TestManifestImportCobraCommand(t *testing.T) {
 				Long:              "long",
 				Hidden:            true,
 				PlaceCommandUnder: "under",
-				Flags: []*grpc.Flag{
+				Flags: []*plugin.Flag{
 					{
 						Name:         "bool",
 						Shorthand:    "b",
@@ -137,13 +137,13 @@ func TestManifestImportCobraCommand(t *testing.T) {
 						Persistent:   true,
 					},
 				},
-				Commands: []*grpc.Command{
+				Commands: []*plugin.Command{
 					{
 						Use:     "sub",
 						Aliases: []string{"s"},
 						Short:   "sub short",
 						Long:    "sub long",
-						Flags: []*grpc.Flag{
+						Flags: []*plugin.Flag{
 							{
 								Name:         "subbool",
 								Shorthand:    "b",
@@ -160,7 +160,7 @@ func TestManifestImportCobraCommand(t *testing.T) {
 								Type:         v1.FlagType_FLAG_TYPE_STRING,
 							},
 						},
-						Commands: []*grpc.Command{{Use: "subsub"}},
+						Commands: []*plugin.Command{{Use: "subsub"}},
 					},
 				},
 			},

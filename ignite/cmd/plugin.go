@@ -18,7 +18,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
-	"github.com/ignite/cli/ignite/services/plugin/grpc"
 )
 
 const (
@@ -153,7 +152,7 @@ func UnloadPlugins() {
 	}
 }
 
-func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []*grpc.Hook) {
+func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []*plugin.Hook) {
 	if p.Error != nil {
 		return
 	}
@@ -162,7 +161,7 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []*grpc.Hoo
 	}
 }
 
-func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *grpc.Hook) {
+func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook) {
 	cmdPath := hook.CommandPath()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
@@ -174,10 +173,10 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *grpc.Hook) {
 		return
 	}
 
-	newExecutedHook := func(hook *grpc.Hook, cmd *cobra.Command, args []string) *grpc.ExecutedHook {
-		execHook := &grpc.ExecutedHook{
+	newExecutedHook := func(hook *plugin.Hook, cmd *cobra.Command, args []string) *plugin.ExecutedHook {
+		execHook := &plugin.ExecutedHook{
 			Hook: hook,
-			ExecutedCommand: &grpc.ExecutedCommand{
+			ExecutedCommand: &plugin.ExecutedCommand{
 				Use:    cmd.Use,
 				Path:   cmd.CommandPath(),
 				Args:   args,
@@ -257,7 +256,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *grpc.Hook) {
 
 // linkPluginCmds tries to add the plugin commands to the legacy ignite
 // commands.
-func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []*grpc.Command) {
+func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []*plugin.Command) {
 	if p.Error != nil {
 		return
 	}
@@ -269,7 +268,7 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []*grpc
 	}
 }
 
-func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *grpc.Command) {
+func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.Command) {
 	cmdPath := pluginCmd.Path()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
@@ -310,7 +309,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *grpc.Com
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			return clictx.Do(ctx, func() error {
-				execCmd := &grpc.ExecutedCommand{
+				execCmd := &plugin.ExecutedCommand{
 					Use:    cmd.Use,
 					Path:   cmd.CommandPath(),
 					Args:   args,

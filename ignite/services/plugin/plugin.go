@@ -26,7 +26,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/pkg/xurl"
-	"github.com/ignite/cli/ignite/services/plugin/grpc"
 )
 
 // PluginsPath holds the plugin cache directory.
@@ -41,7 +40,7 @@ type Plugin struct {
 	pluginsconfig.Plugin
 
 	// Interface allows to communicate with the plugin via net/rpc.
-	Interface grpc.Interface
+	Interface Interface
 
 	// If any error occurred during the plugin load, it's stored here.
 	Error error
@@ -56,7 +55,7 @@ type Plugin struct {
 	client *hplugin.Client
 
 	// Holds a cache of the plugin manifest to prevent mant calls over the rpc boundary.
-	manifest *grpc.Manifest
+	manifest *Manifest
 
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
@@ -230,7 +229,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.binaryName: grpc.NewPlugin(nil),
+		p.binaryName: NewGRPC(nil),
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
@@ -245,7 +244,7 @@ func (p *Plugin) load(ctx context.Context) {
 
 	// Common plugin client configuration values
 	cfg := &hplugin.ClientConfig{
-		HandshakeConfig:  grpc.HandshakeConfig(),
+		HandshakeConfig:  HandshakeConfig(),
 		Plugins:          pluginMap,
 		Logger:           logger,
 		SyncStderr:       os.Stderr,
@@ -285,7 +284,7 @@ func (p *Plugin) load(ctx context.Context) {
 
 	// We should have an Interface now! This feels like a normal interface
 	// implementation but is in fact over an RPC connection.
-	p.Interface = raw.(grpc.Interface)
+	p.Interface = raw.(Interface)
 
 	m, err := p.Interface.Manifest(ctx)
 	if err != nil {

@@ -1,4 +1,4 @@
-package grpc
+package plugin
 
 import (
 	"context"
@@ -23,8 +23,8 @@ func HandshakeConfig() plugin.HandshakeConfig {
 	return handshakeConfig
 }
 
-// NewPlugin returns a new gRPC plugin that implements the interface over gRPC.
-func NewPlugin(impl Interface) plugin.Plugin {
+// NewGRPC returns a new gRPC plugin that implements the interface over gRPC.
+func NewGRPC(impl Interface) plugin.Plugin {
 	return grpcPlugin{impl: impl}
 }
 
