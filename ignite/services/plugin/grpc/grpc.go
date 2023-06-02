@@ -36,43 +36,43 @@ type grpcPlugin struct {
 }
 
 // GRPCServer returns a new server that implements the plugin interface over gRPC.
-func (p grpcPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+func (p grpcPlugin) GRPCServer(_ *plugin.GRPCBroker, s *grpc.Server) error {
 	v1.RegisterInterfaceServiceServer(s, &server{impl: p.impl})
 	return nil
 }
 
 // GRPCClient returns a new plugin client that allows calling the plugin interface over gRPC.
-func (p grpcPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p grpcPlugin) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	return &client{grpc: v1.NewInterfaceServiceClient(c)}, nil
 }
 
 type client struct{ grpc v1.InterfaceServiceClient }
 
-func (c client) Manifest() (*Manifest, error) {
-	r, err := c.grpc.Manifest(context.Background(), &v1.ManifestRequest{})
+func (c client) Manifest(ctx context.Context) (*Manifest, error) {
+	r, err := c.grpc.Manifest(ctx, &v1.ManifestRequest{})
 	if err != nil {
 		return nil, err
 	}
 	return r.Manifest, nil
 }
 
-func (c client) Execute(cmd *ExecutedCommand) error {
-	_, err := c.grpc.Execute(context.Background(), &v1.ExecuteRequest{Cmd: cmd})
+func (c client) Execute(ctx context.Context, cmd *ExecutedCommand) error {
+	_, err := c.grpc.Execute(ctx, &v1.ExecuteRequest{Cmd: cmd})
 	return err
 }
 
-func (c client) ExecuteHookPre(h *ExecutedHook) error {
-	_, err := c.grpc.ExecuteHookPre(context.Background(), &v1.ExecuteHookPreRequest{Hook: h})
+func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook) error {
+	_, err := c.grpc.ExecuteHookPre(ctx, &v1.ExecuteHookPreRequest{Hook: h})
 	return err
 }
 
-func (c client) ExecuteHookPost(h *ExecutedHook) error {
-	_, err := c.grpc.ExecuteHookPost(context.Background(), &v1.ExecuteHookPostRequest{Hook: h})
+func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook) error {
+	_, err := c.grpc.ExecuteHookPost(ctx, &v1.ExecuteHookPostRequest{Hook: h})
 	return err
 }
 
-func (c client) ExecuteHookCleanUp(h *ExecutedHook) error {
-	_, err := c.grpc.ExecuteHookCleanUp(context.Background(), &v1.ExecuteHookCleanUpRequest{Hook: h})
+func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook) error {
+	_, err := c.grpc.ExecuteHookCleanUp(ctx, &v1.ExecuteHookCleanUpRequest{Hook: h})
 	return err
 }
 

@@ -65,7 +65,7 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 		return nil
 	}
 
-	return linkPlugins(rootCmd, plugins)
+	return linkPlugins(ctx, rootCmd, plugins)
 }
 
 func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
@@ -104,12 +104,9 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 	return
 }
 
-func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
+func linkPlugins(ctx context.Context, rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	// Link plugins to related commands
-	var (
-		linkErrors []*plugin.Plugin
-		ctx        = rootCmd.Context()
-	)
+	var linkErrors []*plugin.Plugin
 	for _, p := range plugins {
 		if p.Error != nil {
 			linkErrors = append(linkErrors, p)
