@@ -18,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/plugin"
+	"github.com/ignite/cli/ignite/services/plugin/grpc"
 )
 
 const (
@@ -105,13 +106,16 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 
 func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	// Link plugins to related commands
-	var linkErrors []*plugin.Plugin
+	var (
+		linkErrors []*plugin.Plugin
+		ctx        = rootCmd.Context()
+	)
 	for _, p := range plugins {
 		if p.Error != nil {
 			linkErrors = append(linkErrors, p)
 			continue
 		}
-		manifest, err := p.Interface.Manifest()
+		manifest, err := p.Interface.Manifest(ctx)
 		if err != nil {
 			p.Error = fmt.Errorf("Manifest() error: %w", err)
 			continue
@@ -130,7 +134,7 @@ func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	if len(linkErrors) > 0 {
 		// unload any plugin that could have been loaded
 		defer UnloadPlugins()
-		if err := printPlugins(cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
+		if err := printPlugins(ctx, cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
 			// content of loadErrors is more important than a print error, so we don't
 			// return here, just print the error.
 			fmt.Printf("fail to print: %v\n", err)
@@ -152,7 +156,7 @@ func UnloadPlugins() {
 	}
 }
 
-func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Hook) {
+func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []*grpc.Hook) {
 	if p.Error != nil {
 		return
 	}
@@ -161,8 +165,8 @@ func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Ho
 	}
 }
 
-func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
-	cmdPath := hook.PlaceHookOnFull()
+func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *grpc.Hook) {
+	cmdPath := hook.CommandPath()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
 		p.Error = errors.Errorf("unable to find commandPath %q for plugin hook %q", cmdPath, hook.Name)
@@ -173,30 +177,33 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 		return
 	}
 
-	newExecutedHook := func(hook plugin.Hook, cmd *cobra.Command, args []string) plugin.ExecutedHook {
-		execHook := plugin.ExecutedHook{
+	newExecutedHook := func(hook *grpc.Hook, cmd *cobra.Command, args []string) *grpc.ExecutedHook {
+		execHook := &grpc.ExecutedHook{
 			Hook: hook,
-			ExecutedCommand: plugin.ExecutedCommand{
+			ExecutedCommand: &grpc.ExecutedCommand{
 				Use:    cmd.Use,
 				Path:   cmd.CommandPath(),
 				Args:   args,
-				OSArgs: os.Args,
+				OsArgs: os.Args,
 				With:   p.With,
 			},
 		}
-		execHook.ExecutedCommand.SetFlags(cmd)
+		execHook.ExecutedCommand.ImportFlags(cmd)
 		return execHook
 	}
 
 	preRun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
+
 		if preRun != nil {
 			err := preRun(cmd, args)
 			if err != nil {
 				return err
 			}
 		}
-		err := p.Interface.ExecuteHookPre(newExecutedHook(hook, cmd, args))
+
+		err := p.Interface.ExecuteHookPre(ctx, newExecutedHook(hook, cmd, args))
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPre() error: %w", p.Path, err)
 		}
@@ -210,7 +217,8 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			err := runCmd(cmd, args)
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
-				err := p.Interface.ExecuteHookCleanUp(newExecutedHook(hook, cmd, args))
+				ctx := cmd.Context()
+				err := p.Interface.ExecuteHookCleanUp(ctx, newExecutedHook(hook, cmd, args))
 				if err != nil {
 					fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
@@ -224,10 +232,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 		execHook := newExecutedHook(hook, cmd, args)
 
 		defer func() {
-			err := p.Interface.ExecuteHookCleanUp(execHook)
+			err := p.Interface.ExecuteHookCleanUp(ctx, execHook)
 			if err != nil {
 				fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
@@ -241,7 +250,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}
 
-		err := p.Interface.ExecuteHookPost(execHook)
+		err := p.Interface.ExecuteHookPost(ctx, execHook)
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPost() error : %w", p.Path, err)
 		}
@@ -251,7 +260,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 
 // linkPluginCmds tries to add the plugin commands to the legacy ignite
 // commands.
-func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugin.Command) {
+func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []*grpc.Command) {
 	if p.Error != nil {
 		return
 	}
@@ -263,8 +272,8 @@ func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugi
 	}
 }
 
-func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {
-	cmdPath := pluginCmd.PlaceCommandUnderFull()
+func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *grpc.Command) {
+	cmdPath := pluginCmd.Path()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
 		p.Error = errors.Errorf("unable to find commandPath %q for plugin %q", cmdPath, p.Path)
@@ -302,17 +311,18 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			return clictx.Do(cmd.Context(), func() error {
-				execCmd := plugin.ExecutedCommand{
+			ctx := cmd.Context()
+			return clictx.Do(ctx, func() error {
+				execCmd := &grpc.ExecutedCommand{
 					Use:    cmd.Use,
 					Path:   cmd.CommandPath(),
 					Args:   args,
-					OSArgs: os.Args,
+					OsArgs: os.Args,
 					With:   p.With,
 				}
-				execCmd.SetFlags(cmd)
+				execCmd.ImportFlags(cmd)
 				// Call the plugin Execute
-				err := p.Interface.Execute(execCmd)
+				err := p.Interface.Execute(ctx, execCmd)
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
 				// output from stdout/stderr of the plugin. Without that pause, this
 				// output can be discarded and not printed in the user console.
@@ -367,7 +377,7 @@ func NewPluginList() *cobra.Command {
 		Long:  "Prints status and information of declared plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
-			return printPlugins(s)
+			return printPlugins(cmd.Context(), s)
 		},
 	}
 	return lstCmd
@@ -595,22 +605,23 @@ func NewPluginDescribe() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
+			ctx := cmd.Context()
 
 			for _, p := range plugins {
 				if p.Path == args[0] {
-					manifest, err := p.Interface.Manifest()
+					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
 						return fmt.Errorf("error while loading plugin manifest: %w", err)
 					}
 					s.Printf("Plugin '%s':\n", args[0])
 					s.Printf("%s %d Command(s):\n", icons.Command, len(manifest.Commands))
 					for i, c := range manifest.Commands {
-						cmdPath := fmt.Sprintf("%s %s", c.PlaceCommandUnderFull(), c.Use)
+						cmdPath := fmt.Sprintf("%s %s", c.Path(), c.Use)
 						s.Printf("\t%d) '%s'\n", i+1, cmdPath)
 					}
 					s.Printf("%s %d Hook(s):\n", icons.Hook, len(manifest.Hooks))
 					for i, h := range manifest.Hooks {
-						s.Printf("\t%d) '%s' on command '%s'\n", i+1, h.Name, h.PlaceHookOnFull())
+						s.Printf("\t%d) '%s' on command '%s'\n", i+1, h.Name, h.CommandPath())
 					}
 					break
 				}
@@ -621,14 +632,14 @@ func NewPluginDescribe() *cobra.Command {
 	}
 }
 
-func printPlugins(session *cliui.Session) error {
+func printPlugins(ctx context.Context, session *cliui.Session) error {
 	var (
 		entries     [][]string
 		buildStatus = func(p *plugin.Plugin) string {
 			if p.Error != nil {
 				return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
 			}
-			manifest, err := p.Interface.Manifest()
+			manifest, err := p.Interface.Manifest(ctx)
 			if err != nil {
 				return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
 			}
