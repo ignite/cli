@@ -6,6 +6,17 @@ import (
 	v1 "github.com/ignite/cli/ignite/services/plugin/grpc/v1"
 )
 
+// Flag type aliases.
+const (
+	FlagTypeString      = v1.FlagType_FLAG_TYPE_STRING
+	FlagTypeInt         = v1.FlagType_FLAG_TYPE_INT
+	FlagTypeUint        = v1.FlagType_FLAG_TYPE_UINT
+	FlagTypeInt64       = v1.FlagType_FLAG_TYPE_INT64
+	FlagTypeUint64      = v1.FlagType_FLAG_TYPE_UINT64
+	FlagTypeBool        = v1.FlagType_FLAG_TYPE_BOOL
+	FlagTypeStringSlice = v1.FlagType_FLAG_TYPE_STRING_SLICE
+)
+
 // Type aliases for the current plugin version.
 type (
 	Manifest        = v1.Manifest
