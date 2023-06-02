@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccount_String(t *testing.T) {
+func TestAccountString(t *testing.T) {
 	tests := []struct {
 		name    string
 		account accountview.Account
