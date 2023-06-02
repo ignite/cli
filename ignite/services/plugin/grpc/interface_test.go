@@ -1,4 +1,4 @@
-package plugin_test
+package grpc_test
 
 import (
 	"testing"
@@ -7,38 +7,39 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/services/plugin"
+	"github.com/ignite/cli/ignite/services/plugin/grpc"
+	v1 "github.com/ignite/cli/ignite/services/plugin/grpc/v1"
 )
 
 func TestCommandToCobraCommand(t *testing.T) {
 	var (
 		require = require.New(t)
 		assert  = assert.New(t)
-		pcmd    = plugin.Command{
+		pcmd    = grpc.Command{
 			Use:     "new",
 			Aliases: []string{"n"},
 			Short:   "short",
 			Long:    "long",
 			Hidden:  true,
-			Flags: []plugin.Flag{
+			Flags: []*grpc.Flag{
 				{
-					Name:      "bool",
-					Shorthand: "b",
-					DefValue:  "true",
-					Value:     "true",
-					Usage:     "a bool",
-					Type:      plugin.FlagTypeBool,
+					Name:         "bool",
+					Shorthand:    "b",
+					DefaultValue: "true",
+					Value:        "true",
+					Usage:        "a bool",
+					Type:         v1.FlagType_FLAG_TYPE_BOOL,
 				},
 				{
-					Name:       "string",
-					DefValue:   "hello",
-					Value:      "hello",
-					Usage:      "a string",
-					Type:       plugin.FlagTypeString,
-					Persistent: true,
+					Name:         "string",
+					DefaultValue: "hello",
+					Value:        "hello",
+					Usage:        "a string",
+					Type:         v1.FlagType_FLAG_TYPE_STRING,
+					Persistent:   true,
 				},
 			},
-			Commands: []plugin.Command{
+			Commands: []*grpc.Command{
 				{
 					Use:     "sub",
 					Aliases: []string{"s"},
@@ -69,9 +70,9 @@ func TestCommandToCobraCommand(t *testing.T) {
 }
 
 func TestManifestImportCobraCommand(t *testing.T) {
-	manifest := plugin.Manifest{
+	manifest := &grpc.Manifest{
 		Name: "hey",
-		Commands: []plugin.Command{
+		Commands: []*grpc.Command{
 			{Use: "existing"},
 		},
 	}
@@ -100,9 +101,9 @@ func TestManifestImportCobraCommand(t *testing.T) {
 
 	manifest.ImportCobraCommand(cmd, "under")
 
-	expectedManifest := plugin.Manifest{
+	expectedManifest := &grpc.Manifest{
 		Name: "hey",
-		Commands: []plugin.Command{
+		Commands: []*grpc.Command{
 			{Use: "existing"},
 			{
 				Use:               "new",
@@ -111,55 +112,55 @@ func TestManifestImportCobraCommand(t *testing.T) {
 				Long:              "long",
 				Hidden:            true,
 				PlaceCommandUnder: "under",
-				Flags: []plugin.Flag{
+				Flags: []*grpc.Flag{
 					{
-						Name:      "bool",
-						Shorthand: "b",
-						DefValue:  "true",
-						Value:     "true",
-						Usage:     "a bool",
-						Type:      plugin.FlagTypeBool,
+						Name:         "bool",
+						Shorthand:    "b",
+						DefaultValue: "true",
+						Value:        "true",
+						Usage:        "a bool",
+						Type:         v1.FlagType_FLAG_TYPE_BOOL,
 					},
 					{
-						Name:     "string",
-						DefValue: "hello",
-						Value:    "hello",
-						Usage:    "a string",
-						Type:     plugin.FlagTypeString,
+						Name:         "string",
+						DefaultValue: "hello",
+						Value:        "hello",
+						Usage:        "a string",
+						Type:         v1.FlagType_FLAG_TYPE_STRING,
 					},
 					{
-						Name:       "persistent",
-						DefValue:   "hello",
-						Value:      "hello",
-						Usage:      "a persistent string",
-						Type:       plugin.FlagTypeString,
-						Persistent: true,
+						Name:         "persistent",
+						DefaultValue: "hello",
+						Value:        "hello",
+						Usage:        "a persistent string",
+						Type:         v1.FlagType_FLAG_TYPE_STRING,
+						Persistent:   true,
 					},
 				},
-				Commands: []plugin.Command{
+				Commands: []*grpc.Command{
 					{
 						Use:     "sub",
 						Aliases: []string{"s"},
 						Short:   "sub short",
 						Long:    "sub long",
-						Flags: []plugin.Flag{
+						Flags: []*grpc.Flag{
 							{
-								Name:      "subbool",
-								Shorthand: "b",
-								DefValue:  "true",
-								Value:     "true",
-								Usage:     "a bool",
-								Type:      plugin.FlagTypeBool,
+								Name:         "subbool",
+								Shorthand:    "b",
+								DefaultValue: "true",
+								Value:        "true",
+								Usage:        "a bool",
+								Type:         v1.FlagType_FLAG_TYPE_BOOL,
 							},
 							{
-								Name:     "substring",
-								DefValue: "hello",
-								Value:    "hello",
-								Usage:    "a string",
-								Type:     plugin.FlagTypeString,
+								Name:         "substring",
+								DefaultValue: "hello",
+								Value:        "hello",
+								Usage:        "a string",
+								Type:         v1.FlagType_FLAG_TYPE_STRING,
 							},
 						},
-						Commands: []plugin.Command{{Use: "subsub"}},
+						Commands: []*grpc.Command{{Use: "subsub"}},
 					},
 				},
 			},
