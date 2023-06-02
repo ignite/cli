@@ -9,25 +9,28 @@ message ExecutedCommand {
   // Use is the one-line usage message.
   string use = 1;
 
-	// Path contains the command path, e.g. `ignite scaffold foo`.
+  // Path contains the command path, e.g. `ignite scaffold foo`.
   string path = 2;
 
-	// Args are the command arguments.
+  // Args are the command arguments.
   repeated string args = 3;
 
-	// Full list of args taken from the command line.
+  // Full list of args taken from the command line.
   repeated string os_args = 4;
 
-	// With contains the plugin config parameters.
+  // With contains the plugin config parameters.
   map<string, string> with = 5;
+
+  // Flags holds the list of command flags.
+  repeated Flag flags = 6;
 }
 
 // ExecutedHook represents a plugin hook under execution.
 message ExecutedHook {
-	// Hook is a copy of the original Hook defined in the Manifest.
+  // Hook is a copy of the original Hook defined in the Manifest.
   Hook hook = 1;
 
-	// ExecutedCommand gives access to the command attached by the hook.
+  // ExecutedCommand gives access to the command attached by the hook.
   ExecutedCommand executed_command = 2;
 }
 
