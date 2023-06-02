@@ -26,6 +26,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/ignite/services/plugin/grpc"
 )
 
 // PluginsPath holds the plugin cache directory.
@@ -40,7 +41,7 @@ type Plugin struct {
 	pluginsconfig.Plugin
 
 	// Interface allows to communicate with the plugin via net/rpc.
-	Interface Interface
+	Interface grpc.Interface
 
 	// If any error occurred during the plugin load, it's stored here.
 	Error error
@@ -55,7 +56,7 @@ type Plugin struct {
 	client *hplugin.Client
 
 	// Holds a cache of the plugin manifest to prevent mant calls over the rpc boundary.
-	manifest Manifest
+	manifest *grpc.Manifest
 
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
@@ -229,7 +230,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.binaryName: NewRPCPlugin(nil),
+		p.binaryName: grpc.NewPlugin(nil),
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
@@ -242,6 +243,16 @@ func (p *Plugin) load(ctx context.Context) {
 		Level:  logLevel,
 	})
 
+	// Common plugin client configuration values
+	cfg := &hplugin.ClientConfig{
+		HandshakeConfig:  grpc.HandshakeConfig(),
+		Plugins:          pluginMap,
+		Logger:           logger,
+		SyncStderr:       os.Stderr,
+		SyncStdout:       os.Stdout,
+		AllowedProtocols: []hplugin.Protocol{hplugin.ProtocolGRPC},
+	}
+
 	if checkConfCache(p.Path) {
 		rconf, err := readConfigCache(p.Path)
 		if err != nil {
@@ -249,29 +260,16 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 
-		// We're attaching to an existing server, supply attachment configuration
-		p.client = hplugin.NewClient(&hplugin.ClientConfig{
-			HandshakeConfig: handshakeConfig,
-			Plugins:         pluginMap,
-			Logger:          logger,
-			Reattach:        &rconf,
-			SyncStderr:      os.Stderr,
-			SyncStdout:      os.Stdout,
-		})
-
+		// Attach to an existing plugin process
+		cfg.Reattach = &rconf
+		p.client = hplugin.NewClient(cfg)
 	} else {
-		// We're a host! Start by launching the plugin process.
-		p.client = hplugin.NewClient(&hplugin.ClientConfig{
-			HandshakeConfig: handshakeConfig,
-			Plugins:         pluginMap,
-			Logger:          logger,
-			Cmd:             exec.Command(p.binaryPath()),
-			SyncStderr:      os.Stderr,
-			SyncStdout:      os.Stdout,
-		})
+		// Launch a new plugin process
+		cfg.Cmd = exec.Command(p.binaryPath())
+		p.client = hplugin.NewClient(cfg)
 	}
 
-	// :Connect via RPC
+	// Connect via RPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -287,9 +285,9 @@ func (p *Plugin) load(ctx context.Context) {
 
 	// We should have an Interface now! This feels like a normal interface
 	// implementation but is in fact over an RPC connection.
-	p.Interface = raw.(Interface)
+	p.Interface = raw.(grpc.Interface)
 
-	m, err := p.Interface.Manifest()
+	m, err := p.Interface.Manifest(ctx)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "manifest load")
 	}
