@@ -5,6 +5,7 @@ import (
 )
 
 // ImportCobraCommand appends Cobra command definitions to the list of plugin commands.
+// This method can be used in cases where a plugin defines the commands using Cobra.
 func (m *Manifest) ImportCobraCommand(cmd *cobra.Command, placeCommandUnder string) {
 	m.Commands = append(m.Commands, convertCobraCommand(cmd, placeCommandUnder))
 }
