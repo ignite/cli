@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 const igniteBinaryName = "ignite"
@@ -24,7 +25,14 @@ func (c *Command) ToCobraCommand() (*cobra.Command, error) {
 	}
 
 	for _, f := range c.Flags {
-		if err := f.exportFlags(cmd); err != nil {
+		var fs *pflag.FlagSet
+		if f.Persistent {
+			fs = cmd.PersistentFlags()
+		} else {
+			fs = cmd.Flags()
+		}
+
+		if err := f.exportToFlagSet(fs); err != nil {
 			return nil, err
 		}
 	}
@@ -35,6 +43,40 @@ func (c *Command) ToCobraCommand() (*cobra.Command, error) {
 // ImportFlags imports flags from a Cobra command.
 func (c *ExecutedCommand) ImportFlags(cmd *cobra.Command) {
 	c.Flags = extractCobraFlags(cmd)
+}
+
+// NewFlags creates a new flags set initialized with the executed command's flags.
+func (c *ExecutedCommand) NewFlags() (*pflag.FlagSet, error) {
+	fs := pflag.NewFlagSet(c.OsArgs[0], pflag.ContinueOnError)
+
+	for _, f := range c.Flags {
+		if f.Persistent {
+			continue
+		}
+
+		if err := f.exportToFlagSet(fs); err != nil {
+			return nil, err
+		}
+	}
+
+	return fs, nil
+}
+
+// NewPersistentFlags creates a new flags set initialized with the executed command's persistent flags.
+func (c *ExecutedCommand) NewPersistentFlags() (*pflag.FlagSet, error) {
+	fs := pflag.NewFlagSet(c.OsArgs[0], pflag.ContinueOnError)
+
+	for _, f := range c.Flags {
+		if !f.Persistent {
+			continue
+		}
+
+		if err := f.exportToFlagSet(fs); err != nil {
+			return nil, err
+		}
+	}
+
+	return fs, nil
 }
 
 func ensureFullCommandPath(path string) string {

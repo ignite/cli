@@ -59,7 +59,8 @@ type Plugin struct {
 
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
-	isHost bool
+	isHost       bool
+	isSharedHost bool
 
 	ev events.Bus
 }
@@ -177,7 +178,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
-	if p.manifest.SharedHost && !p.isHost {
+	if p.isSharedHost && !p.isHost {
 		// Don't send kill signal to a shared-host plugin when this process isn't
 		// the one who initiated it.
 		return
@@ -191,6 +192,12 @@ func (p *Plugin) KillClient() {
 		deleteConfCache(p.Path)
 		p.isHost = false
 	}
+}
+
+// Manifest returns plugin's manigest.
+// The manifest is available after the plugin has been loaded.
+func (p Plugin) Manifest() *Manifest {
+	return p.manifest
 }
 
 func (p *Plugin) binaryPath() string {
@@ -268,7 +275,7 @@ func (p *Plugin) load(ctx context.Context) {
 		p.client = hplugin.NewClient(cfg)
 	}
 
-	// Connect via RPC
+	// Connect via gRPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -283,7 +290,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	// We should have an Interface now! This feels like a normal interface
-	// implementation but is in fact over an RPC connection.
+	// implementation but is in fact over an gRPC connection.
 	p.Interface = raw.(Interface)
 
 	m, err := p.Interface.Manifest(ctx)
@@ -291,6 +298,9 @@ func (p *Plugin) load(ctx context.Context) {
 		p.Error = errors.Wrapf(err, "manifest load")
 	}
 
+	p.isSharedHost = m.SharedHost
+
+	// Cache the manifest to avoid extra plugin requests
 	p.manifest = m
 
 	// write the rpc context to cache if the plugin is declared as host.

@@ -32,12 +32,7 @@ func newDefaultFlagValueError(typeName, value string) error {
 	return fmt.Errorf("invalid default value for plugin command %s flag: %s", typeName, value)
 }
 
-func (f *Flag) exportFlags(cmd flagger) error {
-	fs := cmd.Flags()
-	if f.Persistent {
-		fs = cmd.PersistentFlags()
-	}
-
+func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 	switch f.Type {
 	case FlagType_FLAG_TYPE_BOOL:
 		v, err := strconv.ParseBool(f.DefaultValue)

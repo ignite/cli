@@ -111,30 +111,32 @@ func linkPlugins(ctx context.Context, rootCmd *cobra.Command, plugins []*plugin.
 			linkErrors = append(linkErrors, p)
 			continue
 		}
-		manifest, err := p.Interface.Manifest(ctx)
-		if err != nil {
-			p.Error = fmt.Errorf("Manifest() error: %w", err)
-			continue
-		}
+
+		manifest := p.Manifest()
+
 		linkPluginHooks(rootCmd, p, manifest.Hooks)
 		if p.Error != nil {
 			linkErrors = append(linkErrors, p)
 			continue
 		}
+
 		linkPluginCmds(rootCmd, p, manifest.Commands)
 		if p.Error != nil {
 			linkErrors = append(linkErrors, p)
 			continue
 		}
 	}
+
 	if len(linkErrors) > 0 {
 		// unload any plugin that could have been loaded
 		defer UnloadPlugins()
+
 		if err := printPlugins(ctx, cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
 			// content of loadErrors is more important than a print error, so we don't
 			// return here, just print the error.
 			fmt.Printf("fail to print: %v\n", err)
 		}
+
 		var s strings.Builder
 		for _, p := range linkErrors {
 			fmt.Fprintf(&s, "%s: %v", p.Path, p.Error)
