@@ -32,7 +32,7 @@ func InstallDepTools(ctx context.Context, appPath string) error {
 	}
 	err := gocmd.Install(ctx, appPath, DepTools())
 	if gocmd.IsInstallError(err) {
-		return errors.New("unable to install dependency tools, try to run `ignite doctor` and try again")
+		return errors.New("unable to install dependency tools, run `ignite doctor` and try again")
 	}
 	return err
 }
