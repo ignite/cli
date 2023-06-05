@@ -4,22 +4,24 @@ import (
   "context"
 	"encoding/json"
 	"fmt"
-    // this line is used by starport scaffolding # 1
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-
 	abci "github.com/cometbft/cometbft/abci/types"
-
+	"cosmossdk.io/depinject"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"<% } %>
+
+	// this line is used by starport scaffolding # 1
+
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
-	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"<% } %>
 )
 
 var (
@@ -147,4 +149,37 @@ func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
+}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+
+}
+
+type <%= title(moduleName) %>Inputs struct {
+	depinject.In
+
+	KvStoreKey  *storetypes.KVStoreKey
+	MemStoreKey *storetypes.MemoryStoreKey
+	Cdc         codec.Codec
+
+	AccountKeeper types.AccountKeeper
+	BankKeeper    types.BankKeeper
+}
+
+type <%= title(moduleName) %>Outputs struct {
+	depinject.Out
+
+	<%= title(moduleName) %>Keeper *keeper.Keeper
+	Module AppModule
+}
+
+func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Outputs {
+	k := keeper.NewKeeper(in.Cdc, in.KvStoreKey, in.MemStoreKey)
+	m := NewAppModule(in.Cdc, *k, in.AccountKeeper, in.BankKeeper)
+
+	return <%= title(moduleName) %>Outputs{<%= title(moduleName) %>Keeper: k, Module: m}
 }
