@@ -127,6 +127,7 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 	chainOption := []chain.Option{
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+		chain.CheckCosmosSDKVersion(),
 	}
 
 	if flagGetCheckDependencies(cmd) {

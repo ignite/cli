@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/ignite/version"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.
@@ -30,25 +30,7 @@ type Scaffolder struct {
 
 // New creates a new scaffold app.
 func New(appPath string) (Scaffolder, error) {
-	sc, err := newScaffolder(appPath)
-	if err != nil {
-		return sc, err
-	}
-
-	if sc.Version.LT(cosmosver.StargateFortyFourVersion) {
-		return sc, fmt.Errorf(
-			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
-Please, follow the migration guide to upgrade your chain to the latest version:
-
-https://docs.ignite.com/migration`, sc.Version.String(),
-		)
-	}
-	return sc, nil
-}
-
-// newScaffolder creates a new Scaffolder for an existent app.
-func newScaffolder(path string) (Scaffolder, error) {
-	path, err := filepath.Abs(path)
+	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
 	}
@@ -57,17 +39,23 @@ func newScaffolder(path string) (Scaffolder, error) {
 	if err != nil {
 		return Scaffolder{}, err
 	}
-	if err := cosmosanalysis.IsChainPath(path); err != nil {
-		return Scaffolder{}, err
-	}
 
-	version, err := cosmosver.Detect(path)
+	ver, err := cosmosver.Detect(path)
 	if err != nil {
 		return Scaffolder{}, err
 	}
 
+	// Make sure that the app was scaffolded with a supported Cosmos SDK version
+	if err := version.AssertSupportedCosmosSDKVersion(ver); err != nil {
+		return Scaffolder{}, err
+	}
+
+	if err := cosmosanalysis.IsChainPath(path); err != nil {
+		return Scaffolder{}, err
+	}
+
 	s := Scaffolder{
-		Version: version,
+		Version: ver,
 		path:    path,
 		modpath: modpath,
 	}

@@ -29,6 +29,7 @@ func generateGoHandler(cmd *cobra.Command, _ []string) error {
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+		chain.CheckCosmosSDKVersion(),
 	)
 	if err != nil {
 		return err

@@ -19,6 +19,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
 	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/ignite/services/doctor"
 )
 
 const (
@@ -28,7 +29,6 @@ const (
 	msgMigrationBuf         = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
 	msgMigrationAddTools    = "Some required imports are missing in %s file: %s. Would you like to add them"
 	msgMigrationRemoveTools = "File %s contains deprecated imports: %s. Would you like to remove them"
-	toolsFile               = "tools/tools.go"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -125,7 +125,11 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	session.StartSpinner("Checking missing tools...")
 
 	appPath := flagGetPath(cmd)
-	toolsFilename := filepath.Join(appPath, toolsFile)
+	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
+	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
+		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
+	}
+
 	f, _, err := xast.ParseFile(toolsFilename)
 	if err != nil {
 		return err
