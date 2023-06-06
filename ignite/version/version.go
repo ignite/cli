@@ -16,11 +16,16 @@ import (
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 )
 
 const (
+	errOldCosmosSDKVersion = `your chain has been scaffolded with an older version of Cosmos SDK: %s
+
+Please, follow the migration guide to upgrade your chain to the latest version at https://docs.ignite.com/migration`
+
 	versionDev     = "development"
 	versionNightly = "nightly"
 )
@@ -105,7 +110,7 @@ func Long(ctx context.Context) string {
 	)
 	if info, ok := debug.ReadBuildInfo(); ok {
 		for _, dep := range info.Deps {
-			if dep.Path == "github.com/cosmos/cosmos-sdk" {
+			if dep.Path == cosmosver.CosmosModulePath {
 				sdkVersion = dep.Version
 				break
 			}
@@ -180,4 +185,12 @@ func Long(ctx context.Context) string {
 	w.Flush()
 
 	return b.String()
+}
+
+// AssertSupportedCosmosSDKVersion asserts that a Cosmos SDK version is supported by Ignite CLI.
+func AssertSupportedCosmosSDKVersion(v cosmosver.Version) error {
+	if v.LT(cosmosver.StargateFortySevenTwoVersion) {
+		return fmt.Errorf(errOldCosmosSDKVersion, v)
+	}
+	return nil
 }

@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	cosmosModulePath = "github.com/cosmos/cosmos-sdk"
+	// CosmosModulePath defines Cosmos SDK import path.
+	CosmosModulePath = "github.com/cosmos/cosmos-sdk"
 )
 
 // Detect detects major version of Cosmos.
@@ -18,7 +19,7 @@ func Detect(appPath string) (version Version, err error) {
 	for _, r := range parsed.Require {
 		v := r.Mod
 
-		if v.Path == cosmosModulePath {
+		if v.Path == CosmosModulePath {
 			if version, err = Parse(v.Version); err != nil {
 				return version, err
 			}

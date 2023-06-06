@@ -21,6 +21,7 @@ var (
 	StargateFortyVersion          = newVersion("0.40.0")
 	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
 	StargateFortyFiveThreeVersion = newVersion("0.45.3")
+	StargateFortySevenTwoVersion  = newVersion("0.47.2")
 )
 
 var (
@@ -28,6 +29,8 @@ var (
 	Versions = []Version{
 		StargateFortyVersion,
 		StargateFortyFourVersion,
+		StargateFortyFiveThreeVersion,
+		StargateFortySevenTwoVersion,
 	}
 
 	// Latest is the latest known version of the Cosmos-SDK.

@@ -18,13 +18,13 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/ignite/cli/ignite/services/doctor"
 )
 
 const (
 	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
 	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
 	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
-	toolsFile          = "tools/tools.go"
 )
 
 // NewChain returns a command that groups sub commands related to compiling, serving
@@ -116,7 +116,11 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	session.StartSpinner("Checking missing tools...")
 
 	appPath := flagGetPath(cmd)
-	toolsFilename := filepath.Join(appPath, toolsFile)
+	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
+	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
+		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
+	}
+
 	f, _, err := xast.ParseFile(toolsFilename)
 	if err != nil {
 		return err
