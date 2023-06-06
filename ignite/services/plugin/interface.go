@@ -8,13 +8,13 @@ import (
 
 // Flag type aliases.
 const (
-	FlagTypeString      = v1.FlagType_FLAG_TYPE_STRING
-	FlagTypeInt         = v1.FlagType_FLAG_TYPE_INT
-	FlagTypeUint        = v1.FlagType_FLAG_TYPE_UINT
-	FlagTypeInt64       = v1.FlagType_FLAG_TYPE_INT64
-	FlagTypeUint64      = v1.FlagType_FLAG_TYPE_UINT64
-	FlagTypeBool        = v1.FlagType_FLAG_TYPE_BOOL
-	FlagTypeStringSlice = v1.FlagType_FLAG_TYPE_STRING_SLICE
+	FlagTypeString      = v1.Flag_FLAG_TYPE_STRING_UNSPECIFIED
+	FlagTypeInt         = v1.Flag_FLAG_TYPE_INT
+	FlagTypeUint        = v1.Flag_FLAG_TYPE_UINT
+	FlagTypeInt64       = v1.Flag_FLAG_TYPE_INT64
+	FlagTypeUint64      = v1.Flag_FLAG_TYPE_UINT64
+	FlagTypeBool        = v1.Flag_FLAG_TYPE_BOOL
+	FlagTypeStringSlice = v1.Flag_FLAG_TYPE_STRING_SLICE
 )
 
 // Type aliases for the current plugin version.
@@ -23,7 +23,7 @@ type (
 	Command         = v1.Command
 	Hook            = v1.Hook
 	Flag            = v1.Flag
-	FlagType        = v1.FlagType
+	FlagType        = v1.Flag_Type
 	ExecutedHook    = v1.ExecutedHook
 	ExecutedCommand = v1.ExecutedCommand
 )

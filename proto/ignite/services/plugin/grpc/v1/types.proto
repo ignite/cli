@@ -103,6 +103,17 @@ message Command {
 
 // Flag represents of a command line flag.
 message Flag {
+  // Type represents the flag type.
+  enum Type {
+    FLAG_TYPE_STRING_UNSPECIFIED = 0;
+    FLAG_TYPE_INT = 1;
+    FLAG_TYPE_UINT = 2;
+    FLAG_TYPE_INT64 = 3;
+    FLAG_TYPE_UINT64 = 4;
+    FLAG_TYPE_BOOL = 5;
+    FLAG_TYPE_STRING_SLICE = 6;
+  }
+
   // Name as it appears in the command line.
   string name = 1;
 
@@ -116,25 +127,13 @@ message Flag {
   string default_value = 4;
 
   // Flag type.
-  FlagType type = 5;
+  Type type = 5;
 
   // Flag value.
   string value = 6;
 
   // Indicates wether or not the flag is propagated on children commands.
   bool persistent = 7;
-}
-
-// FlagType represents the flag type.
-enum FlagType {
-  FLAG_TYPE_UNSPECIFIED = 0;
-  FLAG_TYPE_STRING = 1;
-  FLAG_TYPE_INT = 2;
-  FLAG_TYPE_UINT = 3;
-  FLAG_TYPE_INT64 = 4;
-  FLAG_TYPE_UINT64 = 5;
-  FLAG_TYPE_BOOL = 6;
-  FLAG_TYPE_STRING_SLICE = 7;
 }
 
 // Hook represents a user defined action within a plugin.
