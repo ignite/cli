@@ -13,16 +13,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
 	moduleCacheNamespace = "generate.setup.module"
-)
-
-var protocGlobalInclude = xfilepath.List( //nolint: unused
-	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
-	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
 
 type ModulesInPath struct {

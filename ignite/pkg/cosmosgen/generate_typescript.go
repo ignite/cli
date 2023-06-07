@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -14,6 +15,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
+	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
+	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
 var dirchangeCacheNamespace = "generate.typescript.dirchange"
@@ -141,6 +144,12 @@ func (g *tsGenerator) generateModuleTemplate(
 	var (
 		out      = g.g.o.jsOut(m)
 		typesOut = filepath.Join(out, "types")
+		conf     = swaggercombine.Config{
+			Swagger: "2.0",
+			Info: swaggercombine.Info{
+				Title: "HTTP API Console",
+			},
+		}
 	)
 
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
@@ -174,12 +183,26 @@ func (g *tsGenerator) generateModuleTemplate(
 		return err
 	}
 
-	// generate the REST client from the OpenAPI spec
-	var (
-		srcSpec = filepath.Join(tmp, "apidocs.swagger.json")
-		outREST = filepath.Join(out, "rest.ts")
-	)
+	// combine all swagger files
+	specs, err := xos.FindFiles(tmp, xos.JSONFile)
+	if err != nil {
+		return err
+	}
 
+	for _, spec := range specs {
+		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
+			return err
+		}
+	}
+
+	// combine specs into one and save to out.
+	srcSpec := filepath.Join(tmp, "apidocs.swagger.json")
+	if err := swaggercombine.Combine(ctx, conf, srcSpec); err != nil {
+		return err
+	}
+
+	// generate the REST client from the OpenAPI spec
+	outREST := filepath.Join(out, "rest.ts")
 	if err := sta.Generate(ctx, outREST, srcSpec, sta.WithCommand(staCmd)); err != nil {
 		return err
 	}
