@@ -13,11 +13,11 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/mod/modfile"
 
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
 
 const (
-	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
 	tendermintModulePath = "github.com/cometbft/cometbft"
 	appFileName          = "app.go"
 	defaultAppFilePath   = "app/" + appFileName
@@ -193,8 +193,8 @@ func IsChainPath(path string) error {
 // ValidateGoMod check if the cosmos-sdk and the tendermint packages are imported.
 func ValidateGoMod(module *modfile.File) error {
 	moduleCheck := map[string]bool{
-		cosmosModulePath:     true,
-		tendermintModulePath: true,
+		cosmosver.CosmosModulePath: true,
+		tendermintModulePath:       true,
 	}
 	for _, r := range module.Require {
 		delete(moduleCheck, r.Mod.Path)

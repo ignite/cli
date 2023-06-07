@@ -20,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/repoversion"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
+	igniteversion "github.com/ignite/cli/ignite/version"
 )
 
 var appBackendSourceWatchPaths = []string{
@@ -67,6 +68,10 @@ type chainOptions struct {
 	// checkDependencies checks that cached Go dependencies of the chain have not
 	// been modified since they were downloaded.
 	checkDependencies bool
+
+	// checkCosmosSDKVersion checks that the app was scaffolded with version of
+	// the Cosmos SDK that is supported by Ignite CLI.
+	checkCosmosSDKVersion bool
 
 	// printGeneratedPaths prints the output paths of the generated code
 	printGeneratedPaths bool
@@ -129,6 +134,14 @@ func CheckDependencies() Option {
 	}
 }
 
+// CheckCosmosSDKVersion checks that the app was scaffolded with a version of
+// the Cosmos SDK that is supported by Ignite CLI.
+func CheckCosmosSDKVersion() Option {
+	return func(c *Chain) {
+		c.options.checkCosmosSDKVersion = true
+	}
+}
+
 // PrintGeneratedPaths prints the output paths of the generated code.
 func PrintGeneratedPaths() Option {
 	return func(c *Chain) {
@@ -161,6 +174,12 @@ func New(path string, options ...Option) (*Chain, error) {
 	c.Version, err = cosmosver.Detect(c.app.Path)
 	if err != nil {
 		return nil, err
+	}
+
+	if c.options.checkCosmosSDKVersion {
+		if err := igniteversion.AssertSupportedCosmosSDKVersion(c.Version); err != nil {
+			return nil, err
+		}
 	}
 
 	return c, nil
