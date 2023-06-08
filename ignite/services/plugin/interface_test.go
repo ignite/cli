@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/services/plugin"
-	v1 "github.com/ignite/cli/ignite/services/plugin/grpc/v1"
 )
 
 func TestCommandToCobraCommand(t *testing.T) {
@@ -28,14 +27,14 @@ func TestCommandToCobraCommand(t *testing.T) {
 					DefaultValue: "true",
 					Value:        "true",
 					Usage:        "a bool",
-					Type:         v1.Flag_FLAG_TYPE_BOOL,
+					Type:         plugin.FlagTypeBool,
 				},
 				{
 					Name:         "string",
 					DefaultValue: "hello",
 					Value:        "hello",
 					Usage:        "a string",
-					Type:         v1.Flag_FLAG_TYPE_STRING_UNSPECIFIED,
+					Type:         plugin.FlagTypeString,
 					Persistent:   true,
 				},
 			},
@@ -119,21 +118,21 @@ func TestManifestImportCobraCommand(t *testing.T) {
 						DefaultValue: "true",
 						Value:        "true",
 						Usage:        "a bool",
-						Type:         v1.Flag_FLAG_TYPE_BOOL,
+						Type:         plugin.FlagTypeBool,
 					},
 					{
 						Name:         "string",
 						DefaultValue: "hello",
 						Value:        "hello",
 						Usage:        "a string",
-						Type:         v1.Flag_FLAG_TYPE_STRING_UNSPECIFIED,
+						Type:         plugin.FlagTypeString,
 					},
 					{
 						Name:         "persistent",
 						DefaultValue: "hello",
 						Value:        "hello",
 						Usage:        "a persistent string",
-						Type:         v1.Flag_FLAG_TYPE_STRING_UNSPECIFIED,
+						Type:         plugin.FlagTypeString,
 						Persistent:   true,
 					},
 				},
@@ -150,14 +149,14 @@ func TestManifestImportCobraCommand(t *testing.T) {
 								DefaultValue: "true",
 								Value:        "true",
 								Usage:        "a bool",
-								Type:         v1.Flag_FLAG_TYPE_BOOL,
+								Type:         plugin.FlagTypeBool,
 							},
 							{
 								Name:         "substring",
 								DefaultValue: "hello",
 								Value:        "hello",
 								Usage:        "a string",
-								Type:         v1.Flag_FLAG_TYPE_STRING_UNSPECIFIED,
+								Type:         plugin.FlagTypeString,
 							},
 						},
 						Commands: []*plugin.Command{{Use: "subsub"}},
