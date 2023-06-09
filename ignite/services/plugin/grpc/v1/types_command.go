@@ -47,7 +47,7 @@ func (c *ExecutedCommand) ImportFlags(cmd *cobra.Command) {
 
 // NewFlags creates a new flags set initialized with the executed command's flags.
 func (c *ExecutedCommand) NewFlags() (*pflag.FlagSet, error) {
-	fs := pflag.NewFlagSet(c.OsArgs[0], pflag.ContinueOnError)
+	fs := pflag.NewFlagSet(igniteBinaryName, pflag.ContinueOnError)
 
 	for _, f := range c.Flags {
 		if f.Persistent {
@@ -64,7 +64,7 @@ func (c *ExecutedCommand) NewFlags() (*pflag.FlagSet, error) {
 
 // NewPersistentFlags creates a new flags set initialized with the executed command's persistent flags.
 func (c *ExecutedCommand) NewPersistentFlags() (*pflag.FlagSet, error) {
-	fs := pflag.NewFlagSet(c.OsArgs[0], pflag.ContinueOnError)
+	fs := pflag.NewFlagSet(igniteBinaryName, pflag.ContinueOnError)
 
 	for _, f := range c.Flags {
 		if !f.Persistent {
