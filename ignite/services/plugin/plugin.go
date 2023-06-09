@@ -39,7 +39,7 @@ type Plugin struct {
 	// Embed the plugin configuration.
 	pluginsconfig.Plugin
 
-	// Interface allows to communicate with the plugin via net/rpc.
+	// Interface allows to communicate with the plugin via RPC.
 	Interface Interface
 
 	// If any error occurred during the plugin load, it's stored here.

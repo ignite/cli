@@ -3,13 +3,13 @@ package plugin
 import (
 	"context"
 
-	"github.com/hashicorp/go-plugin"
+	hplugin "github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 
 	v1 "github.com/ignite/cli/ignite/services/plugin/grpc/v1"
 )
 
-var handshakeConfig = plugin.HandshakeConfig{
+var handshakeConfig = hplugin.HandshakeConfig{
 	ProtocolVersion:  1,
 	MagicCookieKey:   "BASIC_PLUGIN",
 	MagicCookieValue: "hello",
@@ -19,30 +19,30 @@ var handshakeConfig = plugin.HandshakeConfig{
 // If the handshake fails, a user friendly error is shown. This prevents users from
 // executing bad plugins or executing a plugin directory. It is a UX feature, not a
 // security feature.
-func HandshakeConfig() plugin.HandshakeConfig {
+func HandshakeConfig() hplugin.HandshakeConfig {
 	return handshakeConfig
 }
 
 // NewGRPC returns a new gRPC plugin that implements the interface over gRPC.
-func NewGRPC(impl Interface) plugin.Plugin {
+func NewGRPC(impl Interface) hplugin.Plugin {
 	return grpcPlugin{impl: impl}
 }
 
 type grpcPlugin struct {
 	// This is required by the Hashicorp plugin implementation for gRPC plugins
-	plugin.Plugin
+	hplugin.Plugin
 
 	impl Interface
 }
 
 // GRPCServer returns a new server that implements the plugin interface over gRPC.
-func (p grpcPlugin) GRPCServer(_ *plugin.GRPCBroker, s *grpc.Server) error {
+func (p grpcPlugin) GRPCServer(_ *hplugin.GRPCBroker, s *grpc.Server) error {
 	v1.RegisterInterfaceServiceServer(s, &server{impl: p.impl})
 	return nil
 }
 
 // GRPCClient returns a new plugin client that allows calling the plugin interface over gRPC.
-func (p grpcPlugin) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p grpcPlugin) GRPCClient(_ context.Context, _ *hplugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	return &client{grpc: v1.NewInterfaceServiceClient(c)}, nil
 }
 
