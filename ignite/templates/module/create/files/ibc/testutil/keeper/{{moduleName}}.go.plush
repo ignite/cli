@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/stretchr/testify/require"
@@ -74,27 +73,15 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	appCodec := codec.NewProtoCodec(registry)
 	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
 
-	paramsSubspace := typesparams.NewSubspace(appCodec,
-		types.Amino,
-		storeKey,
-		memStoreKey,
-		"<%= title(moduleName) %>Params",
-	)
 	k := keeper.NewKeeper(
         appCodec,
         storeKey,
         memStoreKey,
-        paramsSubspace,
         <%= moduleName %>ChannelKeeper{},
         <%= moduleName %>PortKeeper{},
         capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )
 
-	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, logger)
-
-	// Initialize params
-	k.SetParams(ctx, types.DefaultParams())
-
-	return k, ctx
+	return k, sdk.NewContext(stateStore, tmproto.Header{}, false, logger)
 }

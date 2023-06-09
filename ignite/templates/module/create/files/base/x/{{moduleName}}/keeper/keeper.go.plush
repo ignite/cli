@@ -7,7 +7,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
     <%= if (isIBC) { %>sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
     channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
     capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -22,7 +21,6 @@ type (
 		cdc      	codec.BinaryCodec
 		storeKey 	storetypes.StoreKey
 		memKey   	storetypes.StoreKey
-		paramstore	paramtypes.Subspace
         <%= if (isIBC) { %>
         channelKeeper types.ChannelKeeper
         portKeeper types.PortKeeper
@@ -36,23 +34,16 @@ func NewKeeper(
     cdc codec.BinaryCodec,
     storeKey,
     memKey storetypes.StoreKey,
-    ps paramtypes.Subspace,
     <%= if (isIBC) { %>channelKeeper types.ChannelKeeper,
     portKeeper types.PortKeeper,
     scopedKeeper exported.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %>
     <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %>,<% } %>
 ) *Keeper {
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
-	}
-
 	return &Keeper{
         cdc:      	cdc,
         storeKey: 	storeKey,
         memKey:   	memKey,
-        paramstore:	ps,
         <%= if (isIBC) { %>
         channelKeeper: channelKeeper,
         portKeeper:    portKeeper,

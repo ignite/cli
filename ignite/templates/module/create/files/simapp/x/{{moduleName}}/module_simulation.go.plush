@@ -32,8 +32,7 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	for i, acc := range simState.Accounts {
 		accs[i] = acc.Address.String()
 	}
-	<%= moduleName %>Genesis := types.GenesisState{
-		Params:	types.DefaultParams(),<%= if (isIBC) { %>
+	<%= moduleName %>Genesis := types.GenesisState{<%= if (isIBC) { %>
 		PortId: types.PortID,<% } %>
 		// this line is used by starport scaffolding # simapp/module/genesisState
 	}
