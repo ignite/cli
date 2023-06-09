@@ -112,7 +112,12 @@ func linkPlugins(ctx context.Context, rootCmd *cobra.Command, plugins []*plugin.
 			continue
 		}
 
-		manifest := p.Manifest()
+		manifest, err := p.Interface.Manifest(ctx)
+		if err != nil {
+			p.Error = err
+			linkErrors = append(linkErrors, p)
+			continue
+		}
 
 		linkPluginHooks(rootCmd, p, manifest.Hooks)
 		if p.Error != nil {
