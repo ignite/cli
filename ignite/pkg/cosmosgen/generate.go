@@ -12,12 +12,12 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
-	defaultSDKImport     = "github.com/cosmos/cosmos-sdk"
 	moduleCacheNamespace = "generate.setup.module"
 )
 
@@ -54,12 +54,12 @@ func (g *generator) setup() (err error) {
 		return err
 	}
 
-	g.sdkImport = defaultSDKImport
+	g.sdkImport = cosmosver.CosmosModulePath
 
 	// Check if the Cosmos SDK import path points to a different path
 	// and if so change the default one to the new location.
 	for _, r := range modFile.Replace {
-		if r.Old.Path == defaultSDKImport {
+		if r.Old.Path == cosmosver.CosmosModulePath {
 			g.sdkImport = r.New.Path
 			break
 		}

@@ -105,6 +105,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+		chain.CheckCosmosSDKVersion(),
 	}
 
 	if flagGetCheckDependencies(cmd) {

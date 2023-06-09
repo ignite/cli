@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
     "<%= modulePath %>/x/<%= moduleName %>/types"
     "<%= modulePath %>/x/<%= moduleName %>/keeper"
     keepertest "<%= modulePath %>/testutil/keeper"
@@ -13,4 +14,10 @@ import (
 func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
 	k, ctx := keepertest.<%= title(moduleName) %>Keeper(t)
 	return keeper.NewMsgServerImpl(*k), sdk.WrapSDKContext(ctx)
+}
+
+func TestMsgServer(t *testing.T) {
+	ms, ctx := setupMsgServer(t)
+	require.NotNil(t, ms)
+	require.NotNil(t, ctx)
 }
