@@ -74,7 +74,6 @@ import (
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	"<%= ModulePath %>/docs"
-	appparams "<%= ModulePath %>/app/params"
 )
 
 const (
@@ -252,7 +251,7 @@ func New(
 		&app.FeeGrantKeeper,
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
-		// this line is used by starport scaffolding # stargate/app/inject
+		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
 	}
