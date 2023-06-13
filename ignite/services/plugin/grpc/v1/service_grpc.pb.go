@@ -289,3 +289,95 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "ignite/services/plugin/grpc/v1/service.proto",
 }
+
+const (
+	AnalizerService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.AnalizerService/Dependencies"
+)
+
+// AnalizerServiceClient is the client API for AnalizerService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AnalizerServiceClient interface {
+	// Dependencies returns the app dependencies.
+	Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error)
+}
+
+type analizerServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAnalizerServiceClient(cc grpc.ClientConnInterface) AnalizerServiceClient {
+	return &analizerServiceClient{cc}
+}
+
+func (c *analizerServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
+	out := new(DependenciesResponse)
+	err := c.cc.Invoke(ctx, AnalizerService_Dependencies_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AnalizerServiceServer is the server API for AnalizerService service.
+// All implementations must embed UnimplementedAnalizerServiceServer
+// for forward compatibility
+type AnalizerServiceServer interface {
+	// Dependencies returns the app dependencies.
+	Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error)
+	mustEmbedUnimplementedAnalizerServiceServer()
+}
+
+// UnimplementedAnalizerServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAnalizerServiceServer struct {
+}
+
+func (UnimplementedAnalizerServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Dependencies not implemented")
+}
+func (UnimplementedAnalizerServiceServer) mustEmbedUnimplementedAnalizerServiceServer() {}
+
+// UnsafeAnalizerServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AnalizerServiceServer will
+// result in compilation errors.
+type UnsafeAnalizerServiceServer interface {
+	mustEmbedUnimplementedAnalizerServiceServer()
+}
+
+func RegisterAnalizerServiceServer(s grpc.ServiceRegistrar, srv AnalizerServiceServer) {
+	s.RegisterService(&AnalizerService_ServiceDesc, srv)
+}
+
+func _AnalizerService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DependenciesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalizerServiceServer).Dependencies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalizerService_Dependencies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalizerServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AnalizerService_ServiceDesc is the grpc.ServiceDesc for AnalizerService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AnalizerService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ignite.services.plugin.grpc.v1.AnalizerService",
+	HandlerType: (*AnalizerServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Dependencies",
+			Handler:    _AnalizerService_Dependencies_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "ignite/services/plugin/grpc/v1/service.proto",
+}
