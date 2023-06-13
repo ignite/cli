@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
 ### Features
