@@ -30,7 +30,7 @@ the [interchange repo](https://github.com/tendermint/interchange).
 To build an exchange that works with two or more blockchains, follow the steps in this tutorial to create a Cosmos SDK
 module called `dex`.
 
-The new `dex` module allows you to open an exchange order book for a pair of token: a from one blockchain and a token
+The new `dex` module allows you to open an exchange order book for a pair of token: a token from one blockchain and a token
 on another blockchain. The blockchains are required to have the `dex` module available.
 
 Token can be bought or sold with limit orders on a simple order book. In this tutorial, there is no notion of a
