@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package ignite.services.plugin.grpc.v1;
+
+option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
+
+message Dependency {
+  // Path is the absolute path to the Go module.
+  string path = 1;
+
+  // Modules contains the list of modules defined by the dependency.
+  repeated Module modules = 2;
+}
+
+// TODO: Define other module fields
+message Module {
+  // Name of the module.
+  string name = 1;
+
+  // Go module path of the app where the module is defined.
+  string go_module_path = 2;
+}
