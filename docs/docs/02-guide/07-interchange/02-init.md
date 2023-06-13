@@ -98,7 +98,7 @@ the message.
 
 ## Trace the Denom
 
-The token demons must have the same behavior as described in the `ibc-transfer` module:
+The token denoms must have the same behavior as described in the `ibc-transfer` module:
 
 - An external token received from a chain has a unique `denom`, referred to as `voucher`.
 - When a token is sent to a blockchain and then sent back and received, the chain can resolve the voucher and convert
