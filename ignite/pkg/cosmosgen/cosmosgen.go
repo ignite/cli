@@ -141,6 +141,9 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		if err := g.generateGo(); err != nil {
 			return err
 		}
+		if err := g.generatePulsar(); err != nil {
+			return err
+		}
 	}
 
 	if g.o.jsOut != nil {
