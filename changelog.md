@@ -5,6 +5,7 @@
 ### Features
 
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
+- [#3538](https://github.com/ignite/cli/pull/3538) bump sdk to `v0.47.3` and ibc to `v7.1.0`
 
 ### Changes
 
