@@ -6,11 +6,18 @@
 
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
 - [#3538](https://github.com/ignite/cli/pull/3538) bump sdk to `v0.47.3` and ibc to `v7.1.0`
+- [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
+- [#3381](https://github.com/ignite/cli/pull/3381) Add `ignite doctor` command
+- [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
+- [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
+- [#3524](https://github.com/ignite/cli/pull/3524) Apply auto tools migration to other commands
+- Added compatibility check and auto migration features and interactive guidelines for the latest versions of the SDK
 
 ### Changes
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
 - [#3494](https://github.com/ignite/cli/pull/3494) bump `cosmos-sdk` and `cometbft` versions
+- [#3434](https://github.com/ignite/cli/pull/3434) Detect app wiring implementation
 
 ### Fixes
 
@@ -18,12 +25,13 @@
 - [#3481](https://github.com/ignite/cli/pull/3481) Use correct checksum format in release checksum file
 - [#3470](https://github.com/ignite/cli/pull/3470) Prevent overriding minimum-gas-prices with default value
 - [#3523](https://github.com/ignite/cli/pull/3523) Upgrade Cosmos SDK compatibility check for scaffolded apps
+- [#3441](https://github.com/ignite/cli/pull/3441) Correct wrong client context for cmd query methods
+- [#3487](https://github.com/ignite/cli/pull/3487) Handle ignired error in package `cosmosaccount` `Account.PubKey`
 
 ## [`v0.26.1`](https://github.com/ignite/cli/releases/tag/v0.26.1)
 
 ### Features
 
-- [#3381](https://github.com/ignite/cli/pull/3381) Add `ignite doctor` command
 - [#3238](https://github.com/ignite/cli/pull/3238) Add `Sharedhost` plugin option
 - [#3214](https://github.com/ignite/cli/pull/3214) Global plugins config.
 - [#3142](https://github.com/ignite/cli/pull/3142) Add `ignite network request param-change` command.
@@ -42,9 +50,6 @@
 - [#2999](https://github.com/ignite/cli/pull/2999/) Add `ignite network request remove-account` command.
 - [#2458](https://github.com/ignite/cli/issues/2458) New `chain serve` command UI.
 - [#2992](https://github.com/ignite/cli/issues/2992) Add `ignite chain debug` command.
-- [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
-- [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
-- [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 
 ### Changes
 
