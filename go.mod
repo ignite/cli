@@ -3,7 +3,7 @@ module github.com/ignite/cli
 go 1.19
 
 require (
-	cosmossdk.io/math v1.0.0
+	cosmossdk.io/math v1.0.1
 	github.com/99designs/keyring v1.2.1
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -16,10 +16,10 @@ require (
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cometbft/cometbft v0.37.1
-	github.com/cosmos/cosmos-sdk v0.47.2
+	github.com/cosmos/cosmos-sdk v0.47.3
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/gogoproto v1.4.8
-	github.com/cosmos/ibc-go/v7 v7.0.0
+	github.com/cosmos/gogoproto v1.4.10
+	github.com/cosmos/ibc-go/v7 v7.1.0
 	github.com/emicklei/proto v1.11.2
 	github.com/emicklei/proto-contrib v0.14.0
 	github.com/go-delve/delve v1.20.2
@@ -142,7 +142,7 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.2 // indirect
 	github.com/cosmos/iavl v0.20.0 // indirect
-	github.com/cosmos/ics23/go v0.9.1-0.20221207100636-b1abd8678aab // indirect
+	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
@@ -177,7 +177,7 @@ require (
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-toolsmith/astcast v1.0.0 // indirect
 	github.com/go-toolsmith/astcopy v1.0.2 // indirect
 	github.com/go-toolsmith/astequal v1.0.3 // indirect
@@ -246,7 +246,6 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/jpillora/requestlog v1.0.0 // indirect
 	github.com/jpillora/sizestr v1.0.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/julz/importas v0.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
@@ -259,7 +258,6 @@ require (
 	github.com/kyoh86/exportloopref v0.1.8 // indirect
 	github.com/ldez/gomoddirectives v0.2.3 // indirect
 	github.com/ldez/tagliatelle v0.3.1 // indirect
-	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/leonklingele/grouper v1.1.0 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -284,8 +282,6 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/moby/patternmatcher v0.5.0 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/moricho/tparallel v0.2.1 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
@@ -302,14 +298,14 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/runc v1.1.7 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
-	github.com/petermattis/goid v0.0.0-20221215004737-a150e88a970d // indirect
+	github.com/petermattis/goid v0.0.0-20230317030725-371a4b8eda08 // indirect
 	github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.0.5 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/common v0.40.0 // indirect
+	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/quasilyte/go-ruleguard v0.3.18 // indirect
 	github.com/quasilyte/gogrep v0.0.0-20220828223005-86e4605de09f // indirect
