@@ -85,7 +85,7 @@ func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreat
 	packet.TargetDenom = msg.TargetDenom
 
 	// Transmit the packet
-	err := k.TransmitCreatePairPacket(
+	_, err := k.TransmitCreatePairPacket(
 		ctx,
 		packet,
 		msg.Port,
