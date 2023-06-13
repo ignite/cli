@@ -1,0 +1,28 @@
+# This file is auto-generated from Ignite. You can edit
+# the file content but do not change the file name or path.
+#
+# buf.yaml
+#
+version: v1
+deps:
+  - buf.build/cosmos/cosmos-sdk:954f7b05f38440fc8250134b15adec47
+  - buf.build/cosmos/cosmos-proto:1935555c206d4afb9e94615dfd0fad31
+  - buf.build/cosmos/gogo-proto:34d970b699f84aa382f3c29773a60836
+  - buf.build/googleapis/googleapis:5ae7f88519b04fe1965da0f8a375a088
+  - buf.build/cosmos/ics23:3c44d8daa8b44059ac744cd17d4a49d7
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
+    - COMMENTS
+    - FILE_LOWER_SNAKE_CASE
+  except:
+    - UNARY_RPC
+    - COMMENT_FIELD
+    - SERVICE_SUFFIX
+    - PACKAGE_VERSION_SUFFIX
+    - RPC_REQUEST_STANDARD_NAME
+  ignore:
+    - tendermint

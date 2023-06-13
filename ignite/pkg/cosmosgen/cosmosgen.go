@@ -8,6 +8,7 @@ import (
 	"github.com/iancoleman/strcase"
 	gomodule "golang.org/x/mod/module"
 
+	"github.com/ignite/cli/ignite/pkg/buf"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 )
@@ -97,6 +98,7 @@ func IncludeDirs(dirs []string) Option {
 // generator generates code for sdk and sdk apps.
 type generator struct {
 	ctx          context.Context
+	buf          buf.Buf
 	cacheStorage cache.Storage
 	appPath      string
 	protoDir     string
@@ -110,8 +112,14 @@ type generator struct {
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
 func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir string, options ...Option) error {
+	b, err := buf.New()
+	if err != nil {
+		return err
+	}
+
 	g := &generator{
 		ctx:          ctx,
+		buf:          b,
 		appPath:      appPath,
 		protoDir:     protoDir,
 		o:            &generateOptions{},
@@ -188,7 +196,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	if g.o.specOut != "" {
-		if err := generateOpenAPISpec(g); err != nil {
+		if err := g.generateOpenAPISpec(); err != nil {
 			return err
 		}
 	}

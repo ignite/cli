@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-
+- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature 
 
