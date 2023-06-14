@@ -296,6 +296,7 @@ func (p *Plugin) load(ctx context.Context) {
 	m, err := p.Interface.Manifest(ctx)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "manifest load")
+		return
 	}
 
 	p.isSharedHost = m.SharedHost
