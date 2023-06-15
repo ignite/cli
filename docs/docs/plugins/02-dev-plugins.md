@@ -42,31 +42,31 @@ which implies to implement a predefined interface:
 // An ignite plugin must implements the Plugin interface.
 type Interface interface {
 	// Manifest declares the plugin's Command(s) and Hook(s).
-	Manifest() (Manifest, error)
+	Manifest(context.Context) (*Manifest, error)
 
 	// Execute will be invoked by ignite when a plugin Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
-	Execute(cmd ExecutedCommand) error
+	Execute(context.Context, *ExecutedCommand) error
 
 	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookPre(hook ExecutedHook) error
+	ExecuteHookPre(context.Context, *ExecutedHook) error
 
 	// ExecuteHookPost is invoked by ignite when a command specified by the hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookPost(hook ExecutedHook) error
+	ExecuteHookPost(context.Context, *ExecutedHook) error
 
 	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
 	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
 	// execution status of the command and hooks.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookCleanUp(hook ExecutedHook) error
+	ExecuteHookCleanUp(context.Context, *ExecutedHook) error
 }
 ```
 
@@ -76,31 +76,34 @@ the methods' body.
 
 ## Defining plugin's manifest
 
-Here is the `Manifest` struct :
+Here is the `Manifest` proto message definition:
 
-```go title=ignite/services/plugin/interface.go
-type Manifest struct {
-	Name string
-	// Commands contains the commands that will be added to the list of ignite
-	// commands. Each commands are independent, for nested commands use the
-	// inner Commands field.
-	Commands []Command
-	// Hooks contains the hooks that will be attached to the existing ignite
-	// commands.
-	Hooks []Hook
-	// SharedHost enables sharing a single plugin server across all running instances
-	// of a plugin. Useful if a plugin adds or extends long running commands
-	//
-	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
-	// when the command is run. Now if you want to interact with that instance from commands
-	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
-	// instantiate separate plugin servers.
-	//
-	// When enabled, all plugins of the same `Path` loaded from the same configuration will
-	// attach it's rpc client to a an existing rpc server.
-	//
-	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
-	SharedHost bool `yaml:"shared_host"`
+```protobuf title=proto/ignite/services/plugin/grpc/v1/types.proto
+message Manifest {
+  // Plugin name.
+  string name = 1;
+
+  // Commands contains the commands that will be added to the list of ignite commands.
+  // Each commands are independent, for nested commands use the inner Commands field.
+  bool shared_host = 2;
+
+  // Hooks contains the hooks that will be attached to the existing ignite commands.
+  repeated Command commands = 3;
+
+  // Enables sharing a single plugin server across all running instances of a plugin.
+  // Useful if a plugin adds or extends long running commands.
+  //
+  // Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is
+  // instanciated when the command is run. Now if you want to interact with that instance
+  // from commands defined in that plugin, you need to enable shared host, or else the
+  // commands will just instantiate separate plugin servers.
+  //
+  // When enabled, all plugins of the same path loaded from the same configuration will
+  // attach it's RPC client to a an existing RPC server.
+  //
+  // If a plugin instance has no other running plugin servers, it will create one and it
+  // will be the host.
+  repeated Hook hooks = 4;
 }
 ```
 
@@ -129,16 +132,16 @@ For instance, let's say your plugin adds a new `oracle` command to `ignite
 scaffold`, the `Manifest()` method will look like :
 
 ```go
-func (p) Manifest() (plugin.Manifest, error) {
-	return plugin.Manifest{
+func (p) Manifest(context.Context) (*plugin.Manifest, error) {
+	return &plugin.Manifest{
 		Name: "oracle",
-		Commands: []plugin.Command{
+		Commands: []*plugin.Command{
 			{
 				Use:   "oracle [name]",
 				Short: "Scaffold an oracle module",
 				Long:  "Long description goes here...",
 				// Optionnal flags is required
-				Flags: []plugin.Flag{
+				Flags: []*plugin.Flag{
 					{Name: "source", Type: plugin.FlagTypeString, Usage: "the oracle source"},
 				},
 				// Attach the command to `scaffold`
@@ -153,14 +156,21 @@ To update the plugin execution, you have to change the plugin `Execute` command,
 for instance :
 
 ```go
-func (p) Execute(cmd plugin.ExecutedCommand) error {
+func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("oracle name missing")
 	}
+
+	flags, err := cmd.NewFlags()
+	if err != nil {
+		return err
+	}
+
 	var (
 		name      = cmd.Args[0]
-		source, _ = cmd.Flags().GetString("source")
+		source, _ = flags.GetString("source")
 	)
+
 	// Read chain information
 	c, err := getChain(cmd)
 	if err != nil {
@@ -195,10 +205,10 @@ resulting in `post` and `clean up` not executing.
 The following is an example of a `hook` definition.
 
 ```go
-func (p) Manifest() (plugin.Manifest, error) {
-	return plugin.Manifest{
+func (p) Manifest(context.Context) (*plugin.Manifest, error) {
+	return &plugin.Manifest{
 		Name: "oracle",
-		Hooks: []plugin.Hook{
+		Hooks: []*plugin.Hook{
 			{
 				Name:        "my-hook",
 				PlaceHookOn: "ignite chain build",
@@ -207,8 +217,8 @@ func (p) Manifest() (plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
-	switch hook.Name {
+func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook) error {
+	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed before ignite chain build")
 	default:
@@ -217,8 +227,8 @@ func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
 	return nil
 }
 
-func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
-	switch hook.Name {
+func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook) error {
+	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (if no error)")
 	default:
@@ -227,8 +237,8 @@ func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
-	switch hook.Name {
+func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook) error {
+	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (regardless errors)")
 	default:
