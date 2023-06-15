@@ -71,8 +71,8 @@ message ExecuteHookCleanUpRequest {
 
 message ExecuteHookCleanUpResponse {}
 
-// AnalizerService defines the interface that allows plugins to get chain app analysis info.
-service AnalizerService {
+// AnalyzerService defines the interface that allows plugins to get chain app analysis info.
+service AnalyzerService {
   // Dependencies returns the app dependencies.
   rpc Dependencies(DependenciesRequest) returns (DependenciesResponse);
 }

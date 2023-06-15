@@ -7,10 +7,11 @@
 package v1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -111,7 +112,7 @@ type ExecuteRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Cmd      *ExecutedCommand `protobuf:"bytes,1,opt,name=cmd,proto3" json:"cmd,omitempty"`
-	Analizer uint32           `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	Analyzer uint32           `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
 }
 
 func (x *ExecuteRequest) Reset() {
@@ -153,9 +154,9 @@ func (x *ExecuteRequest) GetCmd() *ExecutedCommand {
 	return nil
 }
 
-func (x *ExecuteRequest) GetAnalizer() uint32 {
+func (x *ExecuteRequest) GetAnalyzer() uint32 {
 	if x != nil {
-		return x.Analizer
+		return x.Analyzer
 	}
 	return 0
 }
@@ -204,7 +205,7 @@ type ExecuteHookPreRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Hook     *ExecutedHook `protobuf:"bytes,1,opt,name=hook,proto3" json:"hook,omitempty"`
-	Analizer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	Analyzer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
 }
 
 func (x *ExecuteHookPreRequest) Reset() {
@@ -246,9 +247,9 @@ func (x *ExecuteHookPreRequest) GetHook() *ExecutedHook {
 	return nil
 }
 
-func (x *ExecuteHookPreRequest) GetAnalizer() uint32 {
+func (x *ExecuteHookPreRequest) GetAnalyzer() uint32 {
 	if x != nil {
-		return x.Analizer
+		return x.Analyzer
 	}
 	return 0
 }
@@ -297,7 +298,7 @@ type ExecuteHookPostRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Hook     *ExecutedHook `protobuf:"bytes,1,opt,name=hook,proto3" json:"hook,omitempty"`
-	Analizer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	Analyzer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
 }
 
 func (x *ExecuteHookPostRequest) Reset() {
@@ -339,9 +340,9 @@ func (x *ExecuteHookPostRequest) GetHook() *ExecutedHook {
 	return nil
 }
 
-func (x *ExecuteHookPostRequest) GetAnalizer() uint32 {
+func (x *ExecuteHookPostRequest) GetAnalyzer() uint32 {
 	if x != nil {
-		return x.Analizer
+		return x.Analyzer
 	}
 	return 0
 }
@@ -390,7 +391,7 @@ type ExecuteHookCleanUpRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Hook     *ExecutedHook `protobuf:"bytes,1,opt,name=hook,proto3" json:"hook,omitempty"`
-	Analizer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	Analyzer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
 }
 
 func (x *ExecuteHookCleanUpRequest) Reset() {
@@ -432,9 +433,9 @@ func (x *ExecuteHookCleanUpRequest) GetHook() *ExecutedHook {
 	return nil
 }
 
-func (x *ExecuteHookCleanUpRequest) GetAnalizer() uint32 {
+func (x *ExecuteHookCleanUpRequest) GetAnalyzer() uint32 {
 	if x != nil {
-		return x.Analizer
+		return x.Analyzer
 	}
 	return 0
 }
@@ -694,25 +695,27 @@ func file_ignite_services_plugin_grpc_v1_service_proto_rawDescGZIP() []byte {
 	return file_ignite_services_plugin_grpc_v1_service_proto_rawDescData
 }
 
-var file_ignite_services_plugin_grpc_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
-var file_ignite_services_plugin_grpc_v1_service_proto_goTypes = []interface{}{
-	(*ManifestRequest)(nil),            // 0: ignite.services.plugin.grpc.v1.ManifestRequest
-	(*ManifestResponse)(nil),           // 1: ignite.services.plugin.grpc.v1.ManifestResponse
-	(*ExecuteRequest)(nil),             // 2: ignite.services.plugin.grpc.v1.ExecuteRequest
-	(*ExecuteResponse)(nil),            // 3: ignite.services.plugin.grpc.v1.ExecuteResponse
-	(*ExecuteHookPreRequest)(nil),      // 4: ignite.services.plugin.grpc.v1.ExecuteHookPreRequest
-	(*ExecuteHookPreResponse)(nil),     // 5: ignite.services.plugin.grpc.v1.ExecuteHookPreResponse
-	(*ExecuteHookPostRequest)(nil),     // 6: ignite.services.plugin.grpc.v1.ExecuteHookPostRequest
-	(*ExecuteHookPostResponse)(nil),    // 7: ignite.services.plugin.grpc.v1.ExecuteHookPostResponse
-	(*ExecuteHookCleanUpRequest)(nil),  // 8: ignite.services.plugin.grpc.v1.ExecuteHookCleanUpRequest
-	(*ExecuteHookCleanUpResponse)(nil), // 9: ignite.services.plugin.grpc.v1.ExecuteHookCleanUpResponse
-	(*DependenciesRequest)(nil),        // 10: ignite.services.plugin.grpc.v1.DependenciesRequest
-	(*DependenciesResponse)(nil),       // 11: ignite.services.plugin.grpc.v1.DependenciesResponse
-	(*Manifest)(nil),                   // 12: ignite.services.plugin.grpc.v1.Manifest
-	(*ExecutedCommand)(nil),            // 13: ignite.services.plugin.grpc.v1.ExecutedCommand
-	(*ExecutedHook)(nil),               // 14: ignite.services.plugin.grpc.v1.ExecutedHook
-	(*Dependency)(nil),                 // 15: ignite.services.plugin.grpc.v1.Dependency
-}
+var (
+	file_ignite_services_plugin_grpc_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+	file_ignite_services_plugin_grpc_v1_service_proto_goTypes  = []interface{}{
+		(*ManifestRequest)(nil),            // 0: ignite.services.plugin.grpc.v1.ManifestRequest
+		(*ManifestResponse)(nil),           // 1: ignite.services.plugin.grpc.v1.ManifestResponse
+		(*ExecuteRequest)(nil),             // 2: ignite.services.plugin.grpc.v1.ExecuteRequest
+		(*ExecuteResponse)(nil),            // 3: ignite.services.plugin.grpc.v1.ExecuteResponse
+		(*ExecuteHookPreRequest)(nil),      // 4: ignite.services.plugin.grpc.v1.ExecuteHookPreRequest
+		(*ExecuteHookPreResponse)(nil),     // 5: ignite.services.plugin.grpc.v1.ExecuteHookPreResponse
+		(*ExecuteHookPostRequest)(nil),     // 6: ignite.services.plugin.grpc.v1.ExecuteHookPostRequest
+		(*ExecuteHookPostResponse)(nil),    // 7: ignite.services.plugin.grpc.v1.ExecuteHookPostResponse
+		(*ExecuteHookCleanUpRequest)(nil),  // 8: ignite.services.plugin.grpc.v1.ExecuteHookCleanUpRequest
+		(*ExecuteHookCleanUpResponse)(nil), // 9: ignite.services.plugin.grpc.v1.ExecuteHookCleanUpResponse
+		(*DependenciesRequest)(nil),        // 10: ignite.services.plugin.grpc.v1.DependenciesRequest
+		(*DependenciesResponse)(nil),       // 11: ignite.services.plugin.grpc.v1.DependenciesResponse
+		(*Manifest)(nil),                   // 12: ignite.services.plugin.grpc.v1.Manifest
+		(*ExecutedCommand)(nil),            // 13: ignite.services.plugin.grpc.v1.ExecutedCommand
+		(*ExecutedHook)(nil),               // 14: ignite.services.plugin.grpc.v1.ExecutedHook
+		(*Dependency)(nil),                 // 15: ignite.services.plugin.grpc.v1.Dependency
+	}
+)
 var file_ignite_services_plugin_grpc_v1_service_proto_depIdxs = []int32{
 	12, // 0: ignite.services.plugin.grpc.v1.ManifestResponse.manifest:type_name -> ignite.services.plugin.grpc.v1.Manifest
 	13, // 1: ignite.services.plugin.grpc.v1.ExecuteRequest.cmd:type_name -> ignite.services.plugin.grpc.v1.ExecutedCommand
@@ -725,13 +728,13 @@ var file_ignite_services_plugin_grpc_v1_service_proto_depIdxs = []int32{
 	4,  // 8: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPre:input_type -> ignite.services.plugin.grpc.v1.ExecuteHookPreRequest
 	6,  // 9: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPost:input_type -> ignite.services.plugin.grpc.v1.ExecuteHookPostRequest
 	8,  // 10: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookCleanUp:input_type -> ignite.services.plugin.grpc.v1.ExecuteHookCleanUpRequest
-	10, // 11: ignite.services.plugin.grpc.v1.AnalizerService.Dependencies:input_type -> ignite.services.plugin.grpc.v1.DependenciesRequest
+	10, // 11: ignite.services.plugin.grpc.v1.AnalyzerService.Dependencies:input_type -> ignite.services.plugin.grpc.v1.DependenciesRequest
 	1,  // 12: ignite.services.plugin.grpc.v1.InterfaceService.Manifest:output_type -> ignite.services.plugin.grpc.v1.ManifestResponse
 	3,  // 13: ignite.services.plugin.grpc.v1.InterfaceService.Execute:output_type -> ignite.services.plugin.grpc.v1.ExecuteResponse
 	5,  // 14: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPre:output_type -> ignite.services.plugin.grpc.v1.ExecuteHookPreResponse
 	7,  // 15: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPost:output_type -> ignite.services.plugin.grpc.v1.ExecuteHookPostResponse
 	9,  // 16: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookCleanUp:output_type -> ignite.services.plugin.grpc.v1.ExecuteHookCleanUpResponse
-	11, // 17: ignite.services.plugin.grpc.v1.AnalizerService.Dependencies:output_type -> ignite.services.plugin.grpc.v1.DependenciesResponse
+	11, // 17: ignite.services.plugin.grpc.v1.AnalyzerService.Dependencies:output_type -> ignite.services.plugin.grpc.v1.DependenciesResponse
 	12, // [12:18] is the sub-list for method output_type
 	6,  // [6:12] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name

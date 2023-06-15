@@ -207,7 +207,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		}
 
 		execHook := newExecutedHook(hook, cmd, args)
-		err := p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewAnalizer())
+		err := p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewAnalyzer())
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPre() error: %w", p.Path, err)
 		}
@@ -223,7 +223,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			if err != nil {
 				ctx := cmd.Context()
 				execHook := newExecutedHook(hook, cmd, args)
-				err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewAnalizer())
+				err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewAnalyzer())
 				if err != nil {
 					fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
@@ -241,7 +241,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		execHook := newExecutedHook(hook, cmd, args)
 
 		defer func() {
-			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewAnalizer())
+			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewAnalyzer())
 			if err != nil {
 				fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
@@ -255,7 +255,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		err := p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewAnalizer())
+		err := p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewAnalyzer())
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPost() error : %w", p.Path, err)
 		}
@@ -327,7 +327,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 				}
 				execCmd.ImportFlags(cmd)
 				// Call the plugin Execute
-				err := p.Interface.Execute(ctx, execCmd, plugin.NewAnalizer())
+				err := p.Interface.Execute(ctx, execCmd, plugin.NewAnalyzer())
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
 				// output from stdout/stderr of the plugin. Without that pause, this
 				// output can be discarded and not printed in the user console.

@@ -8,6 +8,7 @@ package v1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -137,21 +138,24 @@ type InterfaceServiceServer interface {
 }
 
 // UnimplementedInterfaceServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedInterfaceServiceServer struct {
-}
+type UnimplementedInterfaceServiceServer struct{}
 
 func (UnimplementedInterfaceServiceServer) Manifest(context.Context, *ManifestRequest) (*ManifestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Manifest not implemented")
 }
+
 func (UnimplementedInterfaceServiceServer) Execute(context.Context, *ExecuteRequest) (*ExecuteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Execute not implemented")
 }
+
 func (UnimplementedInterfaceServiceServer) ExecuteHookPre(context.Context, *ExecuteHookPreRequest) (*ExecuteHookPreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteHookPre not implemented")
 }
+
 func (UnimplementedInterfaceServiceServer) ExecuteHookPost(context.Context, *ExecuteHookPostRequest) (*ExecuteHookPostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteHookPost not implemented")
 }
+
 func (UnimplementedInterfaceServiceServer) ExecuteHookCleanUp(context.Context, *ExecuteHookCleanUpRequest) (*ExecuteHookCleanUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteHookCleanUp not implemented")
 }
@@ -291,13 +295,13 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	AnalizerService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.AnalizerService/Dependencies"
+	AnalyzerService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.AnalyzerService/Dependencies"
 )
 
-// AnalizerServiceClient is the client API for AnalizerService service.
+// AnalyzerServiceClient is the client API for AnalyzerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AnalizerServiceClient interface {
+type AnalyzerServiceClient interface {
 	// Dependencies returns the app dependencies.
 	Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error)
 }
@@ -306,76 +310,75 @@ type analizerServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAnalizerServiceClient(cc grpc.ClientConnInterface) AnalizerServiceClient {
+func NewAnalyzerServiceClient(cc grpc.ClientConnInterface) AnalyzerServiceClient {
 	return &analizerServiceClient{cc}
 }
 
 func (c *analizerServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
 	out := new(DependenciesResponse)
-	err := c.cc.Invoke(ctx, AnalizerService_Dependencies_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AnalyzerService_Dependencies_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AnalizerServiceServer is the server API for AnalizerService service.
-// All implementations must embed UnimplementedAnalizerServiceServer
+// AnalyzerServiceServer is the server API for AnalyzerService service.
+// All implementations must embed UnimplementedAnalyzerServiceServer
 // for forward compatibility
-type AnalizerServiceServer interface {
+type AnalyzerServiceServer interface {
 	// Dependencies returns the app dependencies.
 	Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error)
-	mustEmbedUnimplementedAnalizerServiceServer()
+	mustEmbedUnimplementedAnalyzerServiceServer()
 }
 
-// UnimplementedAnalizerServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAnalizerServiceServer struct {
-}
+// UnimplementedAnalyzerServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAnalyzerServiceServer struct{}
 
-func (UnimplementedAnalizerServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
+func (UnimplementedAnalyzerServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Dependencies not implemented")
 }
-func (UnimplementedAnalizerServiceServer) mustEmbedUnimplementedAnalizerServiceServer() {}
+func (UnimplementedAnalyzerServiceServer) mustEmbedUnimplementedAnalyzerServiceServer() {}
 
-// UnsafeAnalizerServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AnalizerServiceServer will
+// UnsafeAnalyzerServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AnalyzerServiceServer will
 // result in compilation errors.
-type UnsafeAnalizerServiceServer interface {
-	mustEmbedUnimplementedAnalizerServiceServer()
+type UnsafeAnalyzerServiceServer interface {
+	mustEmbedUnimplementedAnalyzerServiceServer()
 }
 
-func RegisterAnalizerServiceServer(s grpc.ServiceRegistrar, srv AnalizerServiceServer) {
-	s.RegisterService(&AnalizerService_ServiceDesc, srv)
+func RegisterAnalyzerServiceServer(s grpc.ServiceRegistrar, srv AnalyzerServiceServer) {
+	s.RegisterService(&AnalyzerService_ServiceDesc, srv)
 }
 
-func _AnalizerService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AnalyzerService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DependenciesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnalizerServiceServer).Dependencies(ctx, in)
+		return srv.(AnalyzerServiceServer).Dependencies(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AnalizerService_Dependencies_FullMethodName,
+		FullMethod: AnalyzerService_Dependencies_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalizerServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
+		return srv.(AnalyzerServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// AnalizerService_ServiceDesc is the grpc.ServiceDesc for AnalizerService service.
+// AnalyzerService_ServiceDesc is the grpc.ServiceDesc for AnalyzerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AnalizerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ignite.services.plugin.grpc.v1.AnalizerService",
-	HandlerType: (*AnalizerServiceServer)(nil),
+var AnalyzerService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ignite.services.plugin.grpc.v1.AnalyzerService",
+	HandlerType: (*AnalyzerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Dependencies",
-			Handler:    _AnalizerService_Dependencies_Handler,
+			Handler:    _AnalyzerService_Dependencies_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,8 +2,8 @@ package plugin
 
 import "context"
 
-// NewAnalizer creates a new app analizer.
-func NewAnalizer() Analizer {
+// NewAnalyzer creates a new app analizer.
+func NewAnalyzer() Analyzer {
 	return analizer{}
 }
 

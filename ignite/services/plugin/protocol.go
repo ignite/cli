@@ -65,47 +65,47 @@ func (c client) Manifest(ctx context.Context) (*Manifest, error) {
 	return r.Manifest, nil
 }
 
-func (c client) Execute(ctx context.Context, cmd *ExecutedCommand, a Analizer) error {
-	brokerID, stopServer := c.startAnalizerServer(a)
+func (c client) Execute(ctx context.Context, cmd *ExecutedCommand, a Analyzer) error {
+	brokerID, stopServer := c.startAnalyzerServer(a)
 	_, err := c.grpc.Execute(ctx, &v1.ExecuteRequest{
 		Cmd:      cmd,
-		Analizer: brokerID,
+		Analyzer: brokerID,
 	})
 	stopServer()
 	return err
 }
 
-func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook, a Analizer) error {
-	brokerID, stopServer := c.startAnalizerServer(a)
+func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook, a Analyzer) error {
+	brokerID, stopServer := c.startAnalyzerServer(a)
 	_, err := c.grpc.ExecuteHookPre(ctx, &v1.ExecuteHookPreRequest{
 		Hook:     h,
-		Analizer: brokerID,
+		Analyzer: brokerID,
 	})
 	stopServer()
 	return err
 }
 
-func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook, a Analizer) error {
-	brokerID, stopServer := c.startAnalizerServer(a)
+func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook, a Analyzer) error {
+	brokerID, stopServer := c.startAnalyzerServer(a)
 	_, err := c.grpc.ExecuteHookPost(ctx, &v1.ExecuteHookPostRequest{
 		Hook:     h,
-		Analizer: brokerID,
+		Analyzer: brokerID,
 	})
 	stopServer()
 	return err
 }
 
-func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, a Analizer) error {
-	brokerID, stopServer := c.startAnalizerServer(a)
+func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, a Analyzer) error {
+	brokerID, stopServer := c.startAnalyzerServer(a)
 	_, err := c.grpc.ExecuteHookCleanUp(ctx, &v1.ExecuteHookCleanUpRequest{
 		Hook:     h,
-		Analizer: brokerID,
+		Analyzer: brokerID,
 	})
 	stopServer()
 	return err
 }
 
-func (c client) startAnalizerServer(a Analizer) (uint32, func()) {
+func (c client) startAnalyzerServer(a Analyzer) (uint32, func()) {
 	var (
 		srv      *grpc.Server
 		brokerID = c.broker.NextId()
@@ -113,7 +113,7 @@ func (c client) startAnalizerServer(a Analizer) (uint32, func()) {
 
 	go c.broker.AcceptAndServe(brokerID, func(opts []grpc.ServerOption) *grpc.Server {
 		srv = grpc.NewServer(opts...)
-		v1.RegisterAnalizerServiceServer(srv, &analizerServer{impl: a})
+		v1.RegisterAnalyzerServiceServer(srv, &analizerServer{impl: a})
 		return srv
 	})
 
@@ -137,14 +137,14 @@ func (s server) Manifest(ctx context.Context, r *v1.ManifestRequest) (*v1.Manife
 }
 
 func (s server) Execute(ctx context.Context, r *v1.ExecuteRequest) (*v1.ExecuteResponse, error) {
-	conn, err := s.broker.Dial(r.Analizer)
+	conn, err := s.broker.Dial(r.Analyzer)
 	if err != nil {
 		return nil, err
 	}
 
 	defer conn.Close()
 
-	err = s.impl.Execute(ctx, r.GetCmd(), newAnalizerClient(conn))
+	err = s.impl.Execute(ctx, r.GetCmd(), newAnalyzerClient(conn))
 	if err != nil {
 		return nil, err
 	}
@@ -153,14 +153,14 @@ func (s server) Execute(ctx context.Context, r *v1.ExecuteRequest) (*v1.ExecuteR
 }
 
 func (s server) ExecuteHookPre(ctx context.Context, r *v1.ExecuteHookPreRequest) (*v1.ExecuteHookPreResponse, error) {
-	conn, err := s.broker.Dial(r.Analizer)
+	conn, err := s.broker.Dial(r.Analyzer)
 	if err != nil {
 		return nil, err
 	}
 
 	defer conn.Close()
 
-	err = s.impl.ExecuteHookPre(ctx, r.GetHook(), newAnalizerClient(conn))
+	err = s.impl.ExecuteHookPre(ctx, r.GetHook(), newAnalyzerClient(conn))
 	if err != nil {
 		return nil, err
 	}
@@ -169,14 +169,14 @@ func (s server) ExecuteHookPre(ctx context.Context, r *v1.ExecuteHookPreRequest)
 }
 
 func (s server) ExecuteHookPost(ctx context.Context, r *v1.ExecuteHookPostRequest) (*v1.ExecuteHookPostResponse, error) {
-	conn, err := s.broker.Dial(r.Analizer)
+	conn, err := s.broker.Dial(r.Analyzer)
 	if err != nil {
 		return nil, err
 	}
 
 	defer conn.Close()
 
-	err = s.impl.ExecuteHookPost(ctx, r.GetHook(), newAnalizerClient(conn))
+	err = s.impl.ExecuteHookPost(ctx, r.GetHook(), newAnalyzerClient(conn))
 	if err != nil {
 		return nil, err
 	}
@@ -185,14 +185,14 @@ func (s server) ExecuteHookPost(ctx context.Context, r *v1.ExecuteHookPostReques
 }
 
 func (s server) ExecuteHookCleanUp(ctx context.Context, r *v1.ExecuteHookCleanUpRequest) (*v1.ExecuteHookCleanUpResponse, error) {
-	conn, err := s.broker.Dial(r.Analizer)
+	conn, err := s.broker.Dial(r.Analyzer)
 	if err != nil {
 		return nil, err
 	}
 
 	defer conn.Close()
 
-	err = s.impl.ExecuteHookCleanUp(ctx, r.GetHook(), newAnalizerClient(conn))
+	err = s.impl.ExecuteHookCleanUp(ctx, r.GetHook(), newAnalyzerClient(conn))
 	if err != nil {
 		return nil, err
 	}
@@ -200,12 +200,12 @@ func (s server) ExecuteHookCleanUp(ctx context.Context, r *v1.ExecuteHookCleanUp
 	return &v1.ExecuteHookCleanUpResponse{}, nil
 }
 
-func newAnalizerClient(c *grpc.ClientConn) *analizerClient {
-	return &analizerClient{v1.NewAnalizerServiceClient(c)}
+func newAnalyzerClient(c *grpc.ClientConn) *analizerClient {
+	return &analizerClient{v1.NewAnalyzerServiceClient(c)}
 }
 
 type analizerClient struct {
-	grpc v1.AnalizerServiceClient
+	grpc v1.AnalyzerServiceClient
 }
 
 func (c analizerClient) Dependencies(ctx context.Context) ([]*Dependency, error) {
@@ -218,9 +218,9 @@ func (c analizerClient) Dependencies(ctx context.Context) ([]*Dependency, error)
 }
 
 type analizerServer struct {
-	v1.UnimplementedAnalizerServiceServer
+	v1.UnimplementedAnalyzerServiceServer
 
-	impl Analizer
+	impl Analyzer
 }
 
 func (s analizerServer) Dependencies(ctx context.Context, _ *v1.DependenciesRequest) (*v1.DependenciesResponse, error) {
