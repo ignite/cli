@@ -1,13 +1,30 @@
 syntax = "proto3";
 package <%= protoPkgName %>;
 
+import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "<%= appName %>/<%= moduleName %>/params.proto";
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
 // Query defines the gRPC querier service.
 service Query {
+  // Params queries all parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/<%= appName %>/<%= moduleName %>/v1/params";
+  }
+}
 
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }

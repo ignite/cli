@@ -1,0 +1,13 @@
+syntax = "proto3";
+package <%= protoPkgName %>;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+// Params defines the parameters for the auth module.
+message Params {
+  option (amino.name) = "<%= appName %>/x/<%= moduleName %>/Params";
+  option (gogoproto.equal) = true;
+}

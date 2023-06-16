@@ -1,6 +1,7 @@
 package plushhelpers
 
 import (
+	"math/rand"
 	"strings"
 
 	"github.com/gobuffalo/plush/v4"
@@ -17,6 +18,7 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("mergeCustomImports", mergeCustomImports)
 	ctx.Set("title", xstrings.Title)
 	ctx.Set("toLower", strings.ToLower)
+	ctx.Set("randInt", rand.Intn)
 }
 
 func mergeCustomImports(fields ...field.Fields) []string {

@@ -1,27 +1,31 @@
 package <%= moduleName %>
 
 import (
-  "context"
+	"context"
 	"encoding/json"
 	"fmt"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-	abci "github.com/cometbft/cometbft/abci/types"
+    "cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"<% } %>
 
 	// this line is used by starport scaffolding # 1
 
+	// modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module"
+	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
 )
 
 var (
@@ -156,7 +160,9 @@ func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Valid
 // ----------------------------------------------------------------------------
 
 func init() {
-
+	appmodule.Register(&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
 }
 
 type <%= title(moduleName) %>Inputs struct {
@@ -165,6 +171,7 @@ type <%= title(moduleName) %>Inputs struct {
 	KvStoreKey  *storetypes.KVStoreKey
 	MemStoreKey *storetypes.MemoryStoreKey
 	Cdc         codec.Codec
+	Config      *modulev1.Module
 
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper
@@ -178,7 +185,13 @@ type <%= title(moduleName) %>Outputs struct {
 }
 
 func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Outputs {
-	k := keeper.NewKeeper(in.Cdc, in.KvStoreKey, in.MemStoreKey)
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+
+	k := keeper.NewKeeper(in.Cdc, in.KvStoreKey, in.MemStoreKey, authority.String())
 	m := NewAppModule(in.Cdc, *k, in.AccountKeeper, in.BankKeeper)
 
 	return <%= title(moduleName) %>Outputs{<%= title(moduleName) %>Keeper: k, Module: m}

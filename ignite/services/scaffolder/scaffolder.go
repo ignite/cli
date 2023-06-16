@@ -67,6 +67,7 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 	if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
 		return err
 	}
+
 	if err := gocmd.ModTidy(ctx, path); err != nil {
 		return err
 	}

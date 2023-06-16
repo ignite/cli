@@ -95,7 +95,9 @@ func generate(
 	}
 
 	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		runner.With(gen)
+		if err := runner.With(gen); err != nil {
+			return err
+		}
 		runner.Root = absRoot
 		return runner.Run()
 	}
