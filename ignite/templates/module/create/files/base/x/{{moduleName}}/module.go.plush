@@ -29,8 +29,11 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule           = AppModule{}
+	_ module.BeginBlockAppModule = AppModule{}
+	_ module.EndBlockAppModule   = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.AppModuleSimulation = AppModule{}
 	<%= if (isIBC) { %>_ porttypes.IBCModule   = IBCModule{}<% } %>
 )
 
@@ -46,6 +49,12 @@ type AppModuleBasic struct {
 func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
 	return AppModuleBasic{cdc: cdc}
 }
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (AppModuleBasic) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (AppModuleBasic) IsAppModule() {}
 
 // Name returns the name of the module as a string
 func (AppModuleBasic) Name() string {
@@ -180,8 +189,8 @@ type <%= title(moduleName) %>Inputs struct {
 type <%= title(moduleName) %>Outputs struct {
 	depinject.Out
 
-	<%= title(moduleName) %>Keeper *keeper.Keeper
-	Module AppModule
+	<%= title(moduleName) %>Keeper keeper.Keeper
+	Module appmodule.AppModule
 }
 
 func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Outputs {
@@ -192,7 +201,7 @@ func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Ou
 	}
 
 	k := keeper.NewKeeper(in.Cdc, in.KvStoreKey, in.MemStoreKey, authority.String())
-	m := NewAppModule(in.Cdc, *k, in.AccountKeeper, in.BankKeeper)
+	m := NewAppModule(in.Cdc, k, in.AccountKeeper, in.BankKeeper)
 
 	return <%= title(moduleName) %>Outputs{<%= title(moduleName) %>Keeper: k, Module: m}
 }

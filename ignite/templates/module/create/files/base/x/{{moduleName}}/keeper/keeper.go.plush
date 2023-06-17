@@ -44,12 +44,12 @@ func NewKeeper(
     scopedKeeper exported.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %>
     <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %>,<% } %>
-) *Keeper {
+) Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
 	}
 
-	return &Keeper{
+	return Keeper{
         cdc:      	cdc,
         storeKey: 	storeKey,
         memKey:   	memKey,
