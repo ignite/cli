@@ -1,6 +1,8 @@
 package types
 
 import (
+	<%= if (len(params) > 0) { %>"fmt"<% } %>
+
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -12,21 +14,48 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams() Params {
-	return Params{}
+func NewParams(<%= for (param) in params { %>
+	<%= param.Name.LowerCamel %> <%= param.DataType() %>,<% } %>
+) Params {
+	return Params{<%= for (param) in params { %>
+        <%= param.Name.UpperCamel %>: <%= param.Name.LowerCamel %>,<% } %>
+	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams()
+	return NewParams(<%= for (param) in params { %>
+        Default<%= param.Name.UpperCamel %>,<% } %>
+	)
 }
 
 // ParamSetPairs get the params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{}
+	return paramtypes.ParamSetPairs{<%= for (param) in params { %>
+		paramtypes.NewParamSetPair(Key<%= param.Name.UpperCamel %>, &p.<%= param.Name.UpperCamel %>, validate<%= param.Name.UpperCamel %>),<% } %>
+	}
 }
 
 // Validate validates the set of params
-func (p Params) Validate() error {
+func (p Params) Validate() error {<%= for (param) in params { %>
+   	if err := validate<%= param.Name.UpperCamel %>(p.<%= param.Name.UpperCamel %>); err != nil {
+   		return err
+   	}
+   	<% } %>
 	return nil
 }
+
+<%= for (param) in params { %>
+// validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> param
+func validate<%= param.Name.UpperCamel %>(v interface{}) error {
+	<%= param.Name.LowerCamel %>, ok := v.(<%= param.DataType() %>)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", v)
+	}
+
+	// TODO implement validation
+	_ = <%= param.Name.LowerCamel %>
+
+	return nil
+}
+<% } %>

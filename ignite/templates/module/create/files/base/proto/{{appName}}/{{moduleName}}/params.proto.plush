@@ -6,8 +6,11 @@ import "gogoproto/gogo.proto";
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
-// Params defines the parameters for the auth module.
+// Params defines the parameters for the module.
 message Params {
   option (amino.name) = "<%= appName %>/x/<%= moduleName %>/Params";
   option (gogoproto.equal) = true;
+
+  <%= for (i, param) in params { %>
+  <%= param.ProtoType(i+1) %> [(gogoproto.moretags) = "yaml:\"<%= param.Name.Snake %>\""];<% } %>
 }
