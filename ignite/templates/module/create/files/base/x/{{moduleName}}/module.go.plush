@@ -22,7 +22,7 @@ import (
 
 	// this line is used by starport scaffolding # 1
 
-	// modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module"
+	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module"
 	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"

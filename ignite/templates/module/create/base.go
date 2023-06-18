@@ -96,8 +96,9 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 
 		// Import
 		template := `%[2]vmoduletypes "%[3]v/x/%[2]v/types"
+%[2]vmodulev1 "%[3]v/api/%[4]v/%[2]v/module"
 %[1]v`
-		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath)
+		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath, opts.AppName)
 		content := replacer.Replace(fConfig.String(), module.PlaceholderSgAppModuleImport, replacement)
 
 		// Init genesis
@@ -109,6 +110,13 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		content = replacer.Replace(content, module.PlaceholderSgAppBeginBlockers, replacement)
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppEndBlockers, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppEndBlockers, replacement)
+
+		template = `{
+				Name:   %[2]vmoduletypes.ModuleName,
+				Config: appconfig.WrapAny(&%[2]vmodulev1.Module{}),
+			},`
+		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleConfig, opts.ModuleName, opts.ModulePath)
+		content = replacer.Replace(content, module.PlaceholderSgAppModuleConfig, replacement)
 
 		newFile := genny.NewFileS(configPath, content)
 

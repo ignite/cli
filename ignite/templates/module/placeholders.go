@@ -21,6 +21,7 @@ const (
 	PlaceholderSgAppScopedKeeper        = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
 	PlaceholderSgAppBeforeInitReturn    = "// this line is used by starport scaffolding # stargate/app/beforeInitReturn"
 	PlaceholderSgAppMaccPerms           = "// this line is used by starport scaffolding # stargate/app/maccPerms"
+	PlaceholderSgAppModuleConfig        = "// this line is used by starport scaffolding # stargate/app/moduleConfig"
 
 	// Placeholders in app.go for wasm
 	PlaceholderSgWasmAppEnabledProposals = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
