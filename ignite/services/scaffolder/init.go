@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/templates/app"
+	"github.com/ignite/cli/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 	"github.com/ignite/cli/ignite/templates/testutil"
 )
@@ -25,6 +26,7 @@ func Init(
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit bool,
+	params []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -44,7 +46,15 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	if err := generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule); err != nil {
+	if err := generate(
+		ctx,
+		tracer,
+		pathInfo,
+		addressPrefix,
+		path,
+		noDefaultModule,
+		params,
+	); err != nil {
 		return "", err
 	}
 
@@ -70,7 +80,14 @@ func generate(
 	addressPrefix,
 	absRoot string,
 	noDefaultModule bool,
+	params []string,
 ) error {
+	// Parse params with the associated type
+	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
+	if err != nil {
+		return err
+	}
+
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
 		// A username must be added when the app module path has a single element
@@ -112,6 +129,7 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
+			Params:     paramsFields,
 			IsIBC:      false,
 		}
 		g, err = modulecreate.NewGenerator(opts)

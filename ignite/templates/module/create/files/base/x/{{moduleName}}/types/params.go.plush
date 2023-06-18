@@ -8,6 +8,16 @@ import (
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
+<%= for (param) in params { %>
+var (
+	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")<%= if (param.DataType() == "string") { %>
+	// TODO: Determine the default value
+	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = "<%= param.Name.Snake %>"<% } else { %>
+	// TODO: Determine the default value
+	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.ValueIndex() %><% } %>
+)
+<% } %>
+
 // ParamKeyTable the param key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
