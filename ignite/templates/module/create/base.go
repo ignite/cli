@@ -114,8 +114,9 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		template = `{
 				Name:   %[2]vmoduletypes.ModuleName,
 				Config: appconfig.WrapAny(&%[2]vmodulev1.Module{}),
-			},`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleConfig, opts.ModuleName, opts.ModulePath)
+			},
+%[1]v`
+		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleConfig, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppModuleConfig, replacement)
 
 		newFile := genny.NewFileS(configPath, content)
