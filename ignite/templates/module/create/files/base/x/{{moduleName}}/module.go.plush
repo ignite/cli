@@ -189,7 +189,14 @@ type <%= title(moduleName) %>Inputs struct {
 	Config      *modulev1.Module
 
 	AccountKeeper types.AccountKeeper
-	BankKeeper    types.BankKeeper
+	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %>
+    <%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
+    <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %>
+    <% } %><% } %>
+
+    <%= if (isIBC) { %>ChannelKeeper types.ChannelKeeper
+    PortKeeper types.PortKeeper
+    ScopedKeeper exported.ScopedKeeper<% } %>
 }
 
 type <%= title(moduleName) %>Outputs struct {
@@ -206,8 +213,22 @@ func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Ou
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	k := keeper.NewKeeper(in.Cdc, in.KvStoreKey, in.MemStoreKey, authority.String())
-	m := NewAppModule(in.Cdc, k, in.AccountKeeper, in.BankKeeper)
+	k := keeper.NewKeeper(
+	    in.Cdc,
+	    in.KvStoreKey,
+	    in.MemStoreKey,
+	    authority.String(), <%= if (isIBC) { %>
+	    in.ChannelKeeper,
+        in.PortKeeper,
+        in.ScopedKeeper,<% } %><%= for (dependency) in dependencies { %>
+        in.<%= dependency.KeeperName() %>,<% } %>
+	)
+	m := NewAppModule(
+	    in.Cdc,
+	    k,
+	    in.AccountKeeper,
+	    in.BankKeeper,
+	)
 
 	return <%= title(moduleName) %>Outputs{<%= title(moduleName) %>Keeper: k, Module: m}
 }

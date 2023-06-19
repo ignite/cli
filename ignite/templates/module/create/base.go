@@ -185,16 +185,6 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 			}
 		}
 
-		// TODO fix scoped keeper ibc
-		//var scopedKeeperDefinition string
-		//var ibcKeeperArgument string
-		//if opts.IsIBC { //
-		// Scoped keeper definition for IBC module
-		// We set this placeholder so it is modified by the IBC module scaffolder
-		//scopedKeeperDefinition = module.PlaceholderIBCAppScopedKeeperDefinition
-		//ibcKeeperArgument = module.PlaceholderIBCAppKeeperArgument
-		//}
-
 		// Keeper definition
 		template = `&app.%[2]vKeeper,
 		%[1]v`
@@ -204,12 +194,6 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 			xstrings.Title(opts.ModuleName),
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)
-
-		// App Module
-		template = `%[2]vModule,
-%[1]v`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppAppModule, opts.ModuleName)
-		content = replacer.ReplaceAll(content, module.PlaceholderSgAppAppModule, replacement)
 
 		newFile := genny.NewFileS(appPath, content)
 		return r.File(newFile)
