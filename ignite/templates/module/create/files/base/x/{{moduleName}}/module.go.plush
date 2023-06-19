@@ -18,7 +18,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"<% } %>
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v7/modules/core/exported"<% } %>
 
 	// this line is used by starport scaffolding # 1
 
@@ -189,10 +190,8 @@ type <%= title(moduleName) %>Inputs struct {
 	Config      *modulev1.Module
 
 	AccountKeeper types.AccountKeeper
-	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %>
-    <%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
-    <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %>
-    <% } %><% } %>
+	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
+    <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
 
     <%= if (isIBC) { %>ChannelKeeper types.ChannelKeeper
     PortKeeper types.PortKeeper
