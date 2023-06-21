@@ -188,15 +188,16 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// Import
-		templateImport := `%[2]vmodule "%[3]v/x/%[2]v"
-		%[2]vmoduletypes "%[3]v/x/%[2]v/types"
-%[1]v`
+		templateImport := `%[1]v
+%[2]vmodule "%[3]v/x/%[2]v"
+%[2]vmoduletypes "%[3]v/x/%[2]v/types"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderIBCImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderIBCImport, replacementImport)
 
 		// create IBC module
 		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.%[3]vKeeper), app.IBCFeeKeeper)
 ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
+app.%[3]vKeeper.SetIBCKeepers(app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper)
 %[1]v`
 		replacementIBCModule := fmt.Sprintf(
 			templateIBCModule,

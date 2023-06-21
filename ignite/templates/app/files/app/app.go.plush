@@ -220,8 +220,8 @@ func New(
 			depinject.Supply(
 				// supply the application options
 				appOpts,
-				// ADVANCED CONFIGURATION
 
+				// ADVANCED CONFIGURATION
 				//
 				// AUTH
 				//
@@ -301,14 +301,14 @@ func New(
 
 	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
 
+	// Register legacy modules
+	app.RegisterIBCModules()
+
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(app.App.BaseApp, appOpts, app.appCodec, logger, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
 		os.Exit(1)
 	}
-
-	// Register legacy modules
-	app.RegisterIBCModules()
 
 	/****  Module Options ****/
 

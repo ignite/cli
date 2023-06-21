@@ -121,4 +121,18 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
+}
+
+// ScopedKeeper returns the ScopedKeeper
+func (k Keeper) ScopedKeeper() exported.ScopedKeeper {
+	return k.scopedKeeper
+}
+
+// SetIBCKeepers set IBCKeepers for Keeper
+func (k Keeper) SetIBCKeepers(
+	channelKeeper types.ChannelKeeper,
+	portKeeper types.PortKeeper,
+) {
+	k.channelKeeper = channelKeeper
+	k.portKeeper = portKeeper
 }<% } %>
