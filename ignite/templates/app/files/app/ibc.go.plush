@@ -113,13 +113,11 @@ func (app *App) RegisterIBCModules() {
 	transferIBCModule := ibcfee.NewIBCMiddleware(ibctransfer.NewIBCModule(app.TransferKeeper), app.IBCFeeKeeper)
 
 	// integration point for custom authentication modules
-	// see https://medium.com/the-interchain-foundation/ibc-go-v6-changes-to-interchain-accounts-and-how-it-impacts-your-chain-806c185300d7
-	// TODO: Once a public ICA auth module is released, replace nil with the module
-	var noAuthzModule porttypes.IBCModule
-	icaControllerIBCModule := ibcfee.NewIBCMiddleware(
-		icacontroller.NewIBCMiddleware(noAuthzModule, app.ICAControllerKeeper),
-		app.IBCFeeKeeper,
-	)
+    var noAuthzModule porttypes.IBCModule
+    icaControllerIBCModule := ibcfee.NewIBCMiddleware(
+        icacontroller.NewIBCMiddleware(noAuthzModule, app.ICAControllerKeeper),
+        app.IBCFeeKeeper,
+    )
 
 	icaHostIBCModule := ibcfee.NewIBCMiddleware(icahost.NewIBCModule(app.ICAHostKeeper), app.IBCFeeKeeper)
 
