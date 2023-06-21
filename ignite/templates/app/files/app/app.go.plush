@@ -6,70 +6,75 @@ import (
     "os"
     "path/filepath"
 
-    "cosmossdk.io/depinject"
-    dbm "github.com/cometbft/cometbft-db"
-    "github.com/cometbft/cometbft/libs/log"
-    "github.com/cosmos/cosmos-sdk/baseapp"
-    "github.com/cosmos/cosmos-sdk/client"
-    "github.com/cosmos/cosmos-sdk/codec"
-    codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-    "github.com/cosmos/cosmos-sdk/runtime"
-    "github.com/cosmos/cosmos-sdk/server"
-    "github.com/cosmos/cosmos-sdk/server/api"
-    "github.com/cosmos/cosmos-sdk/server/config"
-    servertypes "github.com/cosmos/cosmos-sdk/server/types"
-    "github.com/cosmos/cosmos-sdk/store/streaming"
-    storetypes "github.com/cosmos/cosmos-sdk/store/types"
-    testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
-    "github.com/cosmos/cosmos-sdk/types/module"
-    "github.com/cosmos/cosmos-sdk/x/auth"
-    authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-    authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-    _ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
-    authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-    "github.com/cosmos/cosmos-sdk/x/auth/vesting"
-    authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-    authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
-    "github.com/cosmos/cosmos-sdk/x/bank"
-    bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-    "github.com/cosmos/cosmos-sdk/x/capability"
-    capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-    "github.com/cosmos/cosmos-sdk/x/consensus"
-    consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-    "github.com/cosmos/cosmos-sdk/x/crisis"
-    crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-    distr "github.com/cosmos/cosmos-sdk/x/distribution"
-    distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-    "github.com/cosmos/cosmos-sdk/x/evidence"
-    evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
-    feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-    feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
-    "github.com/cosmos/cosmos-sdk/x/genutil"
-    genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-    "github.com/cosmos/cosmos-sdk/x/gov"
-    govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-    govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-    groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
-    groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
-    "github.com/cosmos/cosmos-sdk/x/mint"
-    mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-    "github.com/cosmos/cosmos-sdk/x/params"
-    paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-    paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-    paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-    "github.com/cosmos/cosmos-sdk/x/slashing"
-    slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-    "github.com/cosmos/cosmos-sdk/x/staking"
-    stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-    "github.com/cosmos/cosmos-sdk/x/upgrade"
-    upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-    upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-    ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
-    "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-    ibc "github.com/cosmos/ibc-go/v7/modules/core"
-    ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
-    solomachine "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
-    ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	"cosmossdk.io/depinject"
+	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/libs/log"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/store/streaming"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/cosmos/cosmos-sdk/x/capability"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	"github.com/cosmos/cosmos-sdk/x/consensus"
+	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
+	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
+	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
+	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
+	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
+	"github.com/cosmos/cosmos-sdk/x/mint"
+	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	"github.com/cosmos/cosmos-sdk/x/params"
+	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
+	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
+	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/keeper"
+	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+	ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	solomachine "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
+	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
@@ -83,6 +88,7 @@ const (
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
+	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
 
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,
@@ -105,28 +111,28 @@ var (
 	// and genesis verification.
 	ModuleBasics = module.NewBasicManager(
 		auth.AppModuleBasic{},
-		authzmodule.AppModuleBasic{},
-		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-		bank.AppModuleBasic{},
-		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
-		mint.AppModuleBasic{},
-		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(getGovProposalHandlers()),
-		params.AppModuleBasic{},
-		crisis.AppModuleBasic{},
-		slashing.AppModuleBasic{},
-		feegrantmodule.AppModuleBasic{},
-		groupmodule.AppModuleBasic{},
-		ibc.AppModuleBasic{},
-		ibctm.AppModuleBasic{},
-		solomachine.AppModuleBasic{},
-		upgrade.AppModuleBasic{},
-		evidence.AppModuleBasic{},
-		transfer.AppModuleBasic{},
-		ica.AppModuleBasic{},
-		vesting.AppModuleBasic{},
-		consensus.AppModuleBasic{},
+        authzmodule.AppModuleBasic{},
+        genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
+        bank.AppModuleBasic{},
+        capability.AppModuleBasic{},
+        staking.AppModuleBasic{},
+        mint.AppModuleBasic{},
+        distr.AppModuleBasic{},
+        gov.NewAppModuleBasic(getGovProposalHandlers()),
+        params.AppModuleBasic{},
+        crisis.AppModuleBasic{},
+        slashing.AppModuleBasic{},
+        feegrantmodule.AppModuleBasic{},
+        groupmodule.AppModuleBasic{},
+        ibc.AppModuleBasic{},
+        ibctm.AppModuleBasic{},
+        solomachine.AppModuleBasic{},
+        upgrade.AppModuleBasic{},
+        evidence.AppModuleBasic{},
+        ibctransfer.AppModuleBasic{},
+        ica.AppModuleBasic{},
+        vesting.AppModuleBasic{},
+        consensus.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 )
@@ -146,6 +152,9 @@ type App struct {
 	txConfig          client.TxConfig
 	interfaceRegistry codectypes.InterfaceRegistry
 
+	// non depinject support modules store keys
+	keys map[string]*storetypes.KVStoreKey
+
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
@@ -163,6 +172,19 @@ type App struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+
+    // IBC
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	IBCFeeKeeper        ibcfeekeeper.Keeper
+	ICAControllerKeeper icacontrollerkeeper.Keeper
+	ICAHostKeeper       icahostkeeper.Keeper
+	TransferKeeper      ibctransferkeeper.Keeper
+
+	// Scoped IBC
+	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
+	ScopedIBCTransferKeeper   capabilitykeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -287,6 +309,9 @@ func New(
 		os.Exit(1)
 	}
 
+	// Register legacy modules
+	app.RegisterIBCModules()
+
 	/****  Module Options ****/
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
@@ -353,9 +378,11 @@ func (app *App) TxConfig() client.TxConfig {
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
+	if key, ok := app.keys[storeKey]; ok {
+		return key
+	}
+
 	sk := app.UnsafeFindStoreKey(storeKey)
 	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
 	if !ok {
@@ -364,6 +391,7 @@ func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
+// kvStoreKeys returns all the kv store keys registered inside App.
 func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
@@ -372,12 +400,14 @@ func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 		}
 	}
 
+	for _, kv := range app.keys {
+		keys[kv.Name()] = kv
+	}
+
 	return keys
 }
 
 // GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace

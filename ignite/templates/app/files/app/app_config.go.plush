@@ -44,7 +44,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
@@ -63,6 +66,9 @@ var (
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		stakingtypes.ModuleName,
+		ibchost.SubModuleName,
+		ibcexported.ModuleName,
+		ibctransfertypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		minttypes.ModuleName,
@@ -75,8 +81,72 @@ var (
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		consensustypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+	}
+
+	// During begin block slashing happens after distr.BeginBlocker so that
+    // there is nothing left over in the validator fee pool, so as to keep the
+    // CanWithdrawInvariant invariant.
+    // NOTE: staking module is required if HistoricalEntries param > 0
+    // NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
+	beginBlockers = []string{
+		upgradetypes.ModuleName,
+		capabilitytypes.ModuleName,
+		minttypes.ModuleName,
+		distrtypes.ModuleName,
+		slashingtypes.ModuleName,
+		evidencetypes.ModuleName,
+		stakingtypes.ModuleName,
+		ibcexported.ModuleName,
+		authtypes.ModuleName,
+		ibctransfertypes.ModuleName,
+		banktypes.ModuleName,
+		govtypes.ModuleName,
+		crisistypes.ModuleName,
+		ibctransfertypes.ModuleName,
+		ibchost.SubModuleName,
+		icatypes.ModuleName,
+		genutiltypes.ModuleName,
+		authz.ModuleName,
+		feegrant.ModuleName,
+		group.ModuleName,
+		paramstypes.ModuleName,
+		vestingtypes.ModuleName,
+		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
+		consensustypes.ModuleName,
+		// this line is used by starport scaffolding # stargate/app/beginBlockers
+	}
+
+	endBlockers = []string{
+		crisistypes.ModuleName,
+		govtypes.ModuleName,
+		stakingtypes.ModuleName,
+		ibcexported.ModuleName,
+		ibctransfertypes.ModuleName,
+		ibchost.SubModuleName,
+		capabilitytypes.ModuleName,
+		authtypes.ModuleName,
+		banktypes.ModuleName,
+		distrtypes.ModuleName,
+		slashingtypes.ModuleName,
+		minttypes.ModuleName,
+		genutiltypes.ModuleName,
+		evidencetypes.ModuleName,
+		authz.ModuleName,
+		feegrant.ModuleName,
+		group.ModuleName,
+		paramstypes.ModuleName,
+		consensustypes.ModuleName,
+		upgradetypes.ModuleName,
+		vestingtypes.ModuleName,
+		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
+		consensustypes.ModuleName,
+		// this line is used by starport scaffolding # stargate/app/endBlockers
 	}
 
 	// module account permissions
@@ -109,54 +179,9 @@ var (
 			{
 				Name: "runtime",
 				Config: appconfig.WrapAny(&runtimev1alpha1.Module{
-					AppName: Name,
-					// During begin block slashing happens after distr.BeginBlocker so that
-					// there is nothing left over in the validator fee pool, so as to keep the
-					// CanWithdrawInvariant invariant.
-					// NOTE: staking module is required if HistoricalEntries param > 0
-					// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
-					BeginBlockers: []string{
-						upgradetypes.ModuleName,
-						capabilitytypes.ModuleName,
-						minttypes.ModuleName,
-						distrtypes.ModuleName,
-						slashingtypes.ModuleName,
-						evidencetypes.ModuleName,
-						stakingtypes.ModuleName,
-						authtypes.ModuleName,
-						banktypes.ModuleName,
-						govtypes.ModuleName,
-						crisistypes.ModuleName,
-						genutiltypes.ModuleName,
-						authz.ModuleName,
-						feegrant.ModuleName,
-						group.ModuleName,
-						paramstypes.ModuleName,
-						vestingtypes.ModuleName,
-						consensustypes.ModuleName,
-						// this line is used by starport scaffolding # stargate/app/beginBlockers
-					},
-					EndBlockers: []string{
-						crisistypes.ModuleName,
-						govtypes.ModuleName,
-						stakingtypes.ModuleName,
-						capabilitytypes.ModuleName,
-						authtypes.ModuleName,
-						banktypes.ModuleName,
-						distrtypes.ModuleName,
-						slashingtypes.ModuleName,
-						minttypes.ModuleName,
-						genutiltypes.ModuleName,
-						evidencetypes.ModuleName,
-						authz.ModuleName,
-						feegrant.ModuleName,
-						group.ModuleName,
-						paramstypes.ModuleName,
-						consensustypes.ModuleName,
-						upgradetypes.ModuleName,
-						vestingtypes.ModuleName,
-						// this line is used by starport scaffolding # stargate/app/endBlockers
-					},
+					AppName:       Name,
+					BeginBlockers: beginBlockers,
+					EndBlockers:   endBlockers,
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{
 							ModuleName: authtypes.ModuleName,
