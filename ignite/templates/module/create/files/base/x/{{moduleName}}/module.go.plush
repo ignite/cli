@@ -19,7 +19,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"<% } %>
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"<% } %>
 
 	// this line is used by starport scaffolding # 1
 
@@ -193,9 +194,8 @@ type <%= title(moduleName) %>Inputs struct {
 	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
     <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
 
-    <%= if (isIBC) { %>ChannelKeeper types.ChannelKeeper
-    PortKeeper types.PortKeeper
-    ScopedKeeper exported.ScopedKeeper<% } %>
+    <%= if (isIBC) { %>	CapabilityKeeper *capabilitykeeper.Keeper
+    // IBCKeeper        *ibckeeper.Keeper<% } %>
 }
 
 type <%= title(moduleName) %>Outputs struct {
@@ -211,15 +211,15 @@ func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Ou
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
-
+    <%= if (isIBC) { %>scopedVoteKeeper := in.CapabilityKeeper.ScopeToModule(types.ModuleName)<% } %>
 	k := keeper.NewKeeper(
 	    in.Cdc,
 	    in.KvStoreKey,
 	    in.MemStoreKey,
 	    authority.String(), <%= if (isIBC) { %>
-	    in.ChannelKeeper,
-        in.PortKeeper,
-        in.ScopedKeeper,<% } %><%= for (dependency) in dependencies { %>
+	    in.IBCKeeper.ChannelKeeper,
+        &in.IBCKeeper.PortKeeper,
+        scopedVoteKeeper,<% } %><%= for (dependency) in dependencies { %>
         in.<%= dependency.KeeperName() %>,<% } %>
 	)
 	m := NewAppModule(

@@ -181,57 +181,40 @@ PortID = "%[1]v"`
 
 func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, module.PathAppGo)
+		path := filepath.Join(opts.AppPath, module.PathIBCConfigGo)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
+		// Import
+		templateImport := `%[2]vmodule "%[3]v/x/%[2]v"
+		%[2]vmoduletypes "%[3]v/x/%[2]v/types"
+%[1]v`
+		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderIBCImport, opts.ModuleName, opts.ModulePath)
+		content := replacer.Replace(f.String(), module.PlaceholderIBCImport, replacementImport)
+
 		// create IBC module
-		templateIBCModule := `%[2]vIBCModule := %[2]vmodule.NewIBCModule(app.%[3]vKeeper)
+		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.%[3]vKeeper), app.IBCFeeKeeper)
+ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 %[1]v`
 		replacementIBCModule := fmt.Sprintf(
 			templateIBCModule,
-			module.PlaceholderSgAppKeeperDefinition,
+			module.PlaceholderIBCNewModule,
 			opts.ModuleName,
 			xstrings.Title(opts.ModuleName),
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderSgAppKeeperDefinition, replacementIBCModule)
+		content = replacer.Replace(content, module.PlaceholderIBCNewModule, replacementIBCModule)
 
-		// Add route to IBC router
-		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
-%[1]v`
-		replacementRouter := fmt.Sprintf(
-			templateRouter,
-			module.PlaceholderIBCAppRouter,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, module.PlaceholderIBCAppRouter, replacementRouter)
-
-		// Scoped keeper declaration for the module
-		templateScopedKeeperDeclaration := `Scoped%[1]vKeeper capabilitykeeper.ScopedKeeper`
-		replacementScopedKeeperDeclaration := fmt.Sprintf(templateScopedKeeperDeclaration, xstrings.Title(opts.ModuleName))
-		content = replacer.Replace(content, module.PlaceholderIBCAppScopedKeeperDeclaration, replacementScopedKeeperDeclaration)
-
-		// Scoped keeper definition
-		templateScopedKeeperDefinition := `scoped%[1]vKeeper := app.CapabilityKeeper.ScopeToModule(%[2]vmoduletypes.ModuleName)
-app.Scoped%[1]vKeeper = scoped%[1]vKeeper`
-		replacementScopedKeeperDefinition := fmt.Sprintf(
-			templateScopedKeeperDefinition,
-			xstrings.Title(opts.ModuleName),
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, module.PlaceholderIBCAppScopedKeeperDefinition, replacementScopedKeeperDefinition)
-
-		// New argument passed to the module keeper
-		templateKeeperArgument := `app.IBCKeeper.ChannelKeeper,
-&app.IBCKeeper.PortKeeper,
-scoped%[1]vKeeper,`
-		replacementKeeperArgument := fmt.Sprintf(
-			templateKeeperArgument,
-			xstrings.Title(opts.ModuleName),
-		)
-		content = replacer.Replace(content, module.PlaceholderIBCAppKeeperArgument, replacementKeeperArgument)
+		//		// New argument passed to the module keeper
+		//		templateKeeperArgument := `app.IBCKeeper.ChannelKeeper,
+		//&app.IBCKeeper.PortKeeper,
+		//scoped%[1]vKeeper,`
+		//		replacementKeeperArgument := fmt.Sprintf(
+		//			templateKeeperArgument,
+		//			xstrings.Title(opts.ModuleName),
+		//		)
+		//		content = replacer.Replace(content, module.PlaceholderIBCAppKeeperArgument, replacementKeeperArgument)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

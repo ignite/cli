@@ -220,8 +220,6 @@ func New(
 			depinject.Supply(
 				// supply the application options
 				appOpts,
-				// this line is used by starport scaffolding # stargate/app/supply
-
 				// ADVANCED CONFIGURATION
 
 				//

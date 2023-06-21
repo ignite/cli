@@ -148,21 +148,13 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		content = replacer.Replace(content, module.PlaceholderSgAppModuleBasic, replacement)
 
 		// Keeper declaration
-		var scopedKeeperDeclaration string
-		if opts.IsIBC {
-			// Scoped keeper declaration for IBC module
-			// We set this placeholder so it is modified by the IBC module scaffolder
-			scopedKeeperDeclaration = module.PlaceholderIBCAppScopedKeeperDeclaration
-		}
-		template = `%[3]v
-		%[4]vKeeper %[2]vmodulekeeper.Keeper
+		template = `%[2]vKeeper %[3]vmodulekeeper.Keeper
 %[1]v`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDeclaration,
-			opts.ModuleName,
-			scopedKeeperDeclaration,
 			xstrings.Title(opts.ModuleName),
+			opts.ModuleName,
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
 
