@@ -57,8 +57,6 @@ func (<%= moduleName %>PortKeeper) BindPort(ctx sdk.Context, portID string) *cap
 	return &capabilitytypes.Capability{}
 }
 
-
-
 func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	logger := log.NewNopLogger()
 
@@ -81,8 +79,9 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
         storeKey,
         memStoreKey,
         authority.String(),
-        <%= moduleName %>ChannelKeeper{},
-        <%= moduleName %>PortKeeper{},
+        func() *ibckeeper.Keeper {
+        	return &ibckeeper.Keeper{}
+        },
         capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )

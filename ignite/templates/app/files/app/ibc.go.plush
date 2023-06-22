@@ -32,7 +32,7 @@ import (
 	// this line is used by starport scaffolding # ibc/app/import
 )
 
-func (app *App) RegisterIBCModules() {
+func (app *App) registerIBCModules() {
 	// set up non depinject support modules store keys
 	app.keys = sdk.NewKVStoreKeys(
 		ibcexported.StoreKey,
@@ -161,6 +161,4 @@ func (app *App) RegisterIBCModules() {
 	app.ScopedIBCTransferKeeper = scopedIBCTransferKeeper
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
-
-	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 }

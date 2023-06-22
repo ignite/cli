@@ -20,7 +20,7 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	sourcePort := types.PortID
-	sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, msg.SourceChannel)
+	sourceChannelEnd, found := k.ibcKeeperFn().ChannelKeeper.GetChannel(ctx, sourcePort, msg.SourceChannel)
 	if !found {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrUnknownRequest,
@@ -33,7 +33,7 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 	destinationChannel := sourceChannelEnd.GetCounterparty().GetChannelID()
 
 	// get the next sequence
-	sequence, found := k.channelKeeper.GetNextSequenceSend(ctx, sourcePort, msg.SourceChannel)
+	sequence, found := k.ibcKeeperFn().ChannelKeeper.GetNextSequenceSend(ctx, sourcePort, msg.SourceChannel)
 	if !found {
 		return nil, sdkerrors.Wrapf(
 			channeltypes.ErrSequenceSendNotFound,
@@ -64,5 +64,5 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
         return sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: " + err.Error())
     }
 
-	return k.channelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
+	return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }

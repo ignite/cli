@@ -220,6 +220,8 @@ func New(
 			depinject.Supply(
 				// supply the application options
 				appOpts,
+                // supply ibc keeper getter for the IBC modules
+                app.GetIBCeKeeper,
 
 				// ADVANCED CONFIGURATION
 				//
@@ -302,7 +304,7 @@ func New(
 	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
 
 	// Register legacy modules
-	app.RegisterIBCModules()
+	app.registerIBCModules()
 
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(app.App.BaseApp, appOpts, app.appCodec, logger, app.kvStoreKeys()); err != nil {
@@ -427,6 +429,11 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 	// register app's OpenAPI routes.
 	docs.RegisterOpenAPIService(Name, apiSvr.Router)
+}
+
+// GetIBCeKeeper returns the IBC keeper
+func (app *App) GetIBCeKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
 }
 
 // GetMaccPerms returns a copy of the module account permissions
