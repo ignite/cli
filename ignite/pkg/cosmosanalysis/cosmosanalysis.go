@@ -26,7 +26,7 @@ const (
 var AppImplementation = []string{
 	"Name",
 	"GetKey",
-	"GetSubspace",
+	"TxConfig",
 	"RegisterAPIRoutes",
 }
 
