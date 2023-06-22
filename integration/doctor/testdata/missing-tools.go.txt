@@ -7,6 +7,7 @@ cmp tools/tools.go tools.go.golden
 exists go.sum
 # assert tools have been installed
 exists $GOPATH/bin/protoc-gen-gocosmos
+exists $GOPATH/bin/protoc-gen-go-pulsar
 exists $GOPATH/bin/buf
 exists $GOPATH/bin/protoc-gen-grpc-gateway
 
@@ -23,10 +24,10 @@ package tools
 
 import (
 	_ "github.com/bufbuild/buf/cmd/buf"
-	_ "github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar"
 	_ "github.com/cosmos/gogoproto/protoc-gen-gocosmos"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
+	_ "github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 )
