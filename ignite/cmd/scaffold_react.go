@@ -11,11 +11,10 @@ import (
 // NewScaffoldReact scaffolds a React app for a chain.
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "react",
-		Short:   "React web app template",
-		Args:    cobra.NoArgs,
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    scaffoldReactHandler,
+		Use:   "react",
+		Short: "React web app template",
+		Args:  cobra.NoArgs,
+		RunE:  scaffoldReactHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())

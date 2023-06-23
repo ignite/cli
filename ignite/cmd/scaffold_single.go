@@ -9,11 +9,10 @@ import (
 // NewScaffoldSingle returns a new command to scaffold a singleton.
 func NewScaffoldSingle() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "single NAME [field]...",
-		Short:   "CRUD for data stored in a single location",
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    scaffoldSingleHandler,
+		Use:   "single NAME [field]...",
+		Short: "CRUD for data stored in a single location",
+		Args:  cobra.MinimumNArgs(1),
+		RunE:  scaffoldSingleHandler,
 	}
 
 	flagSetPath(c)

@@ -36,9 +36,12 @@ meant to be edited by hand.
 	return c
 }
 
-func generatePreRunHandler(cmd *cobra.Command, _ []string) error {
+func generatePreRunHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.End()
 
+	if err := gitChangesConfirmPreRunHandler(cmd, args); err != nil {
+		return err
+	}
 	return toolsMigrationPreRunHandler(cmd, session)
 }

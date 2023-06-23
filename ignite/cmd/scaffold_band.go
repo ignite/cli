@@ -21,13 +21,12 @@ const Version = "bandchain-1"
 // NewScaffoldBandchain creates a new BandChain oracle in the module.
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "band [queryName] --module [moduleName]",
-		Short:   "Scaffold an IBC BandChain query oracle to request real-time data",
-		Long:    "Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module",
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    createBandchainHandler,
-		Hidden:  true,
+		Use:    "band [queryName] --module [moduleName]",
+		Short:  "Scaffold an IBC BandChain query oracle to request real-time data",
+		Long:   "Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module",
+		Args:   cobra.MinimumNArgs(1),
+		RunE:   createBandchainHandler,
+		Hidden: true,
 	}
 
 	flagSetPath(c)

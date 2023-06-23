@@ -95,9 +95,8 @@ you can specify a type for each param. For example:
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
 `,
-		Args:    cobra.ExactArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    scaffoldModuleHandler,
+		Args: cobra.ExactArgs(1),
+		RunE: scaffoldModuleHandler,
 	}
 
 	flagSetPath(c)

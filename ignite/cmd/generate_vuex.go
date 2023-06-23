@@ -10,10 +10,9 @@ import (
 
 func NewGenerateVuex() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "vuex",
-		Short:   "*DEPRECATED* TypeScript frontend client and Vuex stores",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateVuexHandler,
+		Use:   "vuex",
+		Short: "*DEPRECATED* TypeScript frontend client and Vuex stores",
+		RunE:  generateVuexHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())

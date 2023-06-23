@@ -106,9 +106,8 @@ like to scaffold messages manually. Use a flag to skip message scaffolding:
 The "creator" field is not generated if a list is scaffolded with the
 "--no-message" flag.
 `,
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    scaffoldListHandler,
+		Args: cobra.MinimumNArgs(1),
+		RunE: scaffoldListHandler,
 	}
 
 	flagSetPath(c)

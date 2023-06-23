@@ -17,12 +17,11 @@ const (
 // NewScaffoldPacket creates a new packet in the module.
 func NewScaffoldPacket() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "packet [packetName] [field1] [field2] ... --module [moduleName]",
-		Short:   "Message for sending an IBC packet",
-		Long:    "Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module",
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    createPacketHandler,
+		Use:   "packet [packetName] [field1] [field2] ... --module [moduleName]",
+		Short: "Message for sending an IBC packet",
+		Long:  "Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module",
+		Args:  cobra.MinimumNArgs(1),
+		RunE:  createPacketHandler,
 	}
 
 	flagSetPath(c)

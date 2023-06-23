@@ -55,9 +55,8 @@ Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
 `,
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    scaffoldMapHandler,
+		Args: cobra.MinimumNArgs(1),
+		RunE: scaffoldMapHandler,
 	}
 
 	flagSetPath(c)

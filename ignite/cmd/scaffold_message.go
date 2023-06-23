@@ -59,9 +59,8 @@ Message scaffolding follows the rules as "ignite scaffold list/map/single" and
 supports fields with standard and custom types. See "ignite scaffold list —help"
 for details.
 `,
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    messageHandler,
+		Args: cobra.MinimumNArgs(1),
+		RunE: messageHandler,
 	}
 
 	flagSetPath(c)
