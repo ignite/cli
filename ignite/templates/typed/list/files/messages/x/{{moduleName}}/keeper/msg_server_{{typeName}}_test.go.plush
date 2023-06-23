@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"testing"
 
-	sdkerrors "cosmossdk.io/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
