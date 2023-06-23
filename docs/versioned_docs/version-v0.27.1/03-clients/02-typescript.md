@@ -8,8 +8,7 @@ Ignite offers powerful functionality for generating client-side code for your
 blockchain. Think of this as a one-click client SDK generation tailored
 specifically for your blockchain.
 
-See [`ignite generate ts-client --help`](../references/cli#ignite-generate-ts-client) learn
-more on how to use TypeScript code generation.
+See `ignite generate ts-client --help` learn more on how to use TypeScript code generation.
 
 ## Starting a node
 
