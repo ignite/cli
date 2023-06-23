@@ -86,8 +86,9 @@ scaffold IBC packets. An IBC packet represents the data sent from one blockchain
 to another. You can only scaffold IBC packets in IBC-enabled modules scaffolded
 with an "--ibc" flag. Note that the default module is not IBC-enabled.
 `,
-		Aliases: []string{"s"},
-		Args:    cobra.ExactArgs(1),
+		Aliases:           []string{"s"},
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: scaffoldPreRunHandler,
 	}
 
 	c.AddCommand(NewScaffoldChain())
@@ -105,6 +106,17 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
+}
+
+func scaffoldPreRunHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New()
+	defer session.End()
+
+	if err := toolsMigrationPreRunHandler(cmd, session); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session)
 }
 
 func scaffoldType(

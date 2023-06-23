@@ -40,5 +40,9 @@ func generatePreRunHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.End()
 
-	return toolsMigrationPreRunHandler(cmd, session)
+	if err := toolsMigrationPreRunHandler(cmd, session); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session)
 }
