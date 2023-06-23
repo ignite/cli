@@ -112,7 +112,7 @@ type ExecuteRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Cmd      *ExecutedCommand `protobuf:"bytes,1,opt,name=cmd,proto3" json:"cmd,omitempty"`
-	Analyzer uint32           `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	ClientAPI uint32           `protobuf:"varint,2,opt,name=clientapi,proto3" json:"clientapi,omitempty"`
 }
 
 func (x *ExecuteRequest) Reset() {
@@ -154,9 +154,9 @@ func (x *ExecuteRequest) GetCmd() *ExecutedCommand {
 	return nil
 }
 
-func (x *ExecuteRequest) GetAnalyzer() uint32 {
+func (x *ExecuteRequest) GetClientAPI() uint32 {
 	if x != nil {
-		return x.Analyzer
+		return x.ClientAPI
 	}
 	return 0
 }
@@ -205,7 +205,7 @@ type ExecuteHookPreRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Hook     *ExecutedHook `protobuf:"bytes,1,opt,name=hook,proto3" json:"hook,omitempty"`
-	Analyzer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	ClientAPI uint32        `protobuf:"varint,2,opt,name=clientapi,proto3" json:"clientapi,omitempty"`
 }
 
 func (x *ExecuteHookPreRequest) Reset() {
@@ -247,9 +247,9 @@ func (x *ExecuteHookPreRequest) GetHook() *ExecutedHook {
 	return nil
 }
 
-func (x *ExecuteHookPreRequest) GetAnalyzer() uint32 {
+func (x *ExecuteHookPreRequest) GetClientAPI() uint32 {
 	if x != nil {
-		return x.Analyzer
+		return x.ClientAPI
 	}
 	return 0
 }
@@ -298,7 +298,7 @@ type ExecuteHookPostRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Hook     *ExecutedHook `protobuf:"bytes,1,opt,name=hook,proto3" json:"hook,omitempty"`
-	Analyzer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	ClientAPI uint32        `protobuf:"varint,2,opt,name=clientapi,proto3" json:"clientapi,omitempty"`
 }
 
 func (x *ExecuteHookPostRequest) Reset() {
@@ -340,9 +340,9 @@ func (x *ExecuteHookPostRequest) GetHook() *ExecutedHook {
 	return nil
 }
 
-func (x *ExecuteHookPostRequest) GetAnalyzer() uint32 {
+func (x *ExecuteHookPostRequest) GetClientAPI() uint32 {
 	if x != nil {
-		return x.Analyzer
+		return x.ClientAPI
 	}
 	return 0
 }
@@ -391,7 +391,7 @@ type ExecuteHookCleanUpRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Hook     *ExecutedHook `protobuf:"bytes,1,opt,name=hook,proto3" json:"hook,omitempty"`
-	Analyzer uint32        `protobuf:"varint,2,opt,name=analizer,proto3" json:"analizer,omitempty"`
+	ClientAPI uint32        `protobuf:"varint,2,opt,name=clientapi,proto3" json:"clientapi,omitempty"`
 }
 
 func (x *ExecuteHookCleanUpRequest) Reset() {
@@ -433,9 +433,9 @@ func (x *ExecuteHookCleanUpRequest) GetHook() *ExecutedHook {
 	return nil
 }
 
-func (x *ExecuteHookCleanUpRequest) GetAnalyzer() uint32 {
+func (x *ExecuteHookCleanUpRequest) GetClientAPI() uint32 {
 	if x != nil {
-		return x.Analyzer
+		return x.ClientAPI
 	}
 	return 0
 }
@@ -728,13 +728,13 @@ var file_ignite_services_plugin_grpc_v1_service_proto_depIdxs = []int32{
 	4,  // 8: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPre:input_type -> ignite.services.plugin.grpc.v1.ExecuteHookPreRequest
 	6,  // 9: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPost:input_type -> ignite.services.plugin.grpc.v1.ExecuteHookPostRequest
 	8,  // 10: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookCleanUp:input_type -> ignite.services.plugin.grpc.v1.ExecuteHookCleanUpRequest
-	10, // 11: ignite.services.plugin.grpc.v1.AnalyzerService.Dependencies:input_type -> ignite.services.plugin.grpc.v1.DependenciesRequest
+	10, // 11: ignite.services.plugin.grpc.v1.ClientAPIService.Dependencies:input_type -> ignite.services.plugin.grpc.v1.DependenciesRequest
 	1,  // 12: ignite.services.plugin.grpc.v1.InterfaceService.Manifest:output_type -> ignite.services.plugin.grpc.v1.ManifestResponse
 	3,  // 13: ignite.services.plugin.grpc.v1.InterfaceService.Execute:output_type -> ignite.services.plugin.grpc.v1.ExecuteResponse
 	5,  // 14: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPre:output_type -> ignite.services.plugin.grpc.v1.ExecuteHookPreResponse
 	7,  // 15: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookPost:output_type -> ignite.services.plugin.grpc.v1.ExecuteHookPostResponse
 	9,  // 16: ignite.services.plugin.grpc.v1.InterfaceService.ExecuteHookCleanUp:output_type -> ignite.services.plugin.grpc.v1.ExecuteHookCleanUpResponse
-	11, // 17: ignite.services.plugin.grpc.v1.AnalyzerService.Dependencies:output_type -> ignite.services.plugin.grpc.v1.DependenciesResponse
+	11, // 17: ignite.services.plugin.grpc.v1.ClientAPIService.Dependencies:output_type -> ignite.services.plugin.grpc.v1.DependenciesResponse
 	12, // [12:18] is the sub-list for method output_type
 	6,  // [6:12] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
@@ -747,7 +747,7 @@ func file_ignite_services_plugin_grpc_v1_service_proto_init() {
 	if File_ignite_services_plugin_grpc_v1_service_proto != nil {
 		return
 	}
-	file_ignite_services_plugin_grpc_v1_analizer_proto_init()
+	file_ignite_services_plugin_grpc_v1_clientAPI_proto_init()
 	file_ignite_services_plugin_grpc_v1_interface_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_ignite_services_plugin_grpc_v1_service_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {

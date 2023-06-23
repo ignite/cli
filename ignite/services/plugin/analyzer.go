@@ -2,17 +2,17 @@ package plugin
 
 import "context"
 
-// NewAnalyzer creates a new app analizer.
-func NewAnalyzer() Analyzer {
-	return analizer{}
+// NewClientAPI creates a new app ClientAPI.
+func NewClientAPI() clientAPI {
+	return clientAPI{}
 }
 
-type analizer struct{}
+type clientAPI struct{}
 
-// TODO: Implement dependency analizer.
+// TODO: Implement dependency ClientAPI.
 
 // Deoendencies returns chain app dependencies.
-func (a analizer) Dependencies(_ context.Context) ([]*Dependency, error) {
+func (c clientAPI) Dependencies(_ context.Context) ([]*Dependency, error) {
 	return []*Dependency{
 		{Path: "Foo"},
 	}, nil

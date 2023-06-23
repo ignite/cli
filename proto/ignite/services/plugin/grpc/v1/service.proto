@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package ignite.services.plugin.grpc.v1;
 
-import "ignite/services/plugin/grpc/v1/analizer.proto";
+import "ignite/services/plugin/grpc/v1/clientAPI.proto";
 import "ignite/services/plugin/grpc/v1/interface.proto";
 
 option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
@@ -45,34 +45,34 @@ message ManifestResponse {
 
 message ExecuteRequest {
   ExecutedCommand cmd = 1;
-  uint32 analizer = 2;
+  uint32 clientAPI = 2;
 }
 
 message ExecuteResponse {}
 
 message ExecuteHookPreRequest {
   ExecutedHook hook = 1;
-  uint32 analizer = 2;
+  uint32 clientAPI = 2;
 }
 
 message ExecuteHookPreResponse {}
 
 message ExecuteHookPostRequest {
   ExecutedHook hook = 1;
-  uint32 analizer = 2;
+  uint32 clientAPI = 2;
 }
 
 message ExecuteHookPostResponse {}
 
 message ExecuteHookCleanUpRequest {
   ExecutedHook hook = 1;
-  uint32 analizer = 2;
+  uint32 clientAPI = 2;
 }
 
 message ExecuteHookCleanUpResponse {}
 
-// AnalyzerService defines the interface that allows plugins to get chain app analysis info.
-service AnalyzerService {
+// ClientAPIService defines the interface that allows plugins to get chain app analysis info.
+service ClientAPIService {
   // Dependencies returns the app dependencies.
   rpc Dependencies(DependenciesRequest) returns (DependenciesResponse);
 }

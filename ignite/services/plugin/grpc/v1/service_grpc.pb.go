@@ -295,90 +295,90 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	AnalyzerService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.AnalyzerService/Dependencies"
+	ClientAPIService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/Dependencies"
 )
 
-// AnalyzerServiceClient is the client API for AnalyzerService service.
+// ClientAPIServiceClient is the client API for ClientAPIService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AnalyzerServiceClient interface {
+type ClientAPIServiceClient interface {
 	// Dependencies returns the app dependencies.
 	Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error)
 }
 
-type analizerServiceClient struct {
+type clientAPIServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAnalyzerServiceClient(cc grpc.ClientConnInterface) AnalyzerServiceClient {
-	return &analizerServiceClient{cc}
+func NewClientAPIServiceClient(cc grpc.ClientConnInterface) ClientAPIServiceClient {
+	return &clientAPIServiceClient{cc}
 }
 
-func (c *analizerServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
+func (c *clientAPIServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
 	out := new(DependenciesResponse)
-	err := c.cc.Invoke(ctx, AnalyzerService_Dependencies_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ClientAPIService_Dependencies_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AnalyzerServiceServer is the server API for AnalyzerService service.
-// All implementations must embed UnimplementedAnalyzerServiceServer
+// ClientAPIServiceServer is the server API for ClientAPIService service.
+// All implementations must embed UnimplementedClientAPIServiceServer
 // for forward compatibility
-type AnalyzerServiceServer interface {
+type ClientAPIServiceServer interface {
 	// Dependencies returns the app dependencies.
 	Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error)
-	mustEmbedUnimplementedAnalyzerServiceServer()
+	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
-// UnimplementedAnalyzerServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAnalyzerServiceServer struct{}
+// UnimplementedClientAPIServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedClientAPIServiceServer struct{}
 
-func (UnimplementedAnalyzerServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
+func (UnimplementedClientAPIServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Dependencies not implemented")
 }
-func (UnimplementedAnalyzerServiceServer) mustEmbedUnimplementedAnalyzerServiceServer() {}
+func (UnimplementedClientAPIServiceServer) mustEmbedUnimplementedClientAPIServiceServer() {}
 
-// UnsafeAnalyzerServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AnalyzerServiceServer will
+// UnsafeClientAPIServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClientAPIServiceServer will
 // result in compilation errors.
-type UnsafeAnalyzerServiceServer interface {
-	mustEmbedUnimplementedAnalyzerServiceServer()
+type UnsafeClientAPIServiceServer interface {
+	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
-func RegisterAnalyzerServiceServer(s grpc.ServiceRegistrar, srv AnalyzerServiceServer) {
-	s.RegisterService(&AnalyzerService_ServiceDesc, srv)
+func RegisterClientAPIServiceServer(s grpc.ServiceRegistrar, srv ClientAPIServiceServer) {
+	s.RegisterService(&ClientAPIService_ServiceDesc, srv)
 }
 
-func _AnalyzerService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ClientAPIService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DependenciesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnalyzerServiceServer).Dependencies(ctx, in)
+		return srv.(ClientAPIServiceServer).Dependencies(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AnalyzerService_Dependencies_FullMethodName,
+		FullMethod: ClientAPIService_Dependencies_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyzerServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
+		return srv.(ClientAPIServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// AnalyzerService_ServiceDesc is the grpc.ServiceDesc for AnalyzerService service.
+// ClientAPIService_ServiceDesc is the grpc.ServiceDesc for ClientAPIService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AnalyzerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ignite.services.plugin.grpc.v1.AnalyzerService",
-	HandlerType: (*AnalyzerServiceServer)(nil),
+var ClientAPIService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ignite.services.plugin.grpc.v1.ClientAPIService",
+	HandlerType: (*ClientAPIServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Dependencies",
-			Handler:    _AnalyzerService_Dependencies_Handler,
+			Handler:    _ClientAPIService_Dependencies_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
