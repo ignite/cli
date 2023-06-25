@@ -13,16 +13,10 @@ var ErrImportNotFound = errors.New("proto import not found")
 
 const protoFilePattern = "*.proto"
 
-type Cache map[string]Packages // proto dir path-proto packages pair.
-
-func NewCache() Cache {
-	return make(Cache)
-}
-
 // Parse parses proto packages by finding them with given glob pattern.
-func Parse(ctx context.Context, cache Cache, path string) (Packages, error) {
+func Parse(ctx context.Context, cache *Cache, path string) (Packages, error) {
 	if cache != nil {
-		if packages, ok := cache[path]; ok {
+		if packages, ok := cache.Get(path); ok {
 			return packages, nil
 		}
 	}
@@ -39,7 +33,7 @@ func Parse(ctx context.Context, cache Cache, path string) (Packages, error) {
 	}
 
 	if cache != nil {
-		cache[path] = packages
+		cache.Add(path, packages)
 	}
 
 	return packages, nil
