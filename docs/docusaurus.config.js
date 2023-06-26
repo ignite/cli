@@ -247,6 +247,18 @@ const config = {
             to: "/nightly/welcome/install",
           },
         ],
+        createRedirects(existingPath) {
+          if (existingPath.includes('/welcome')) {
+            /*
+            If the link received contains the path /guide, 
+            this will change to /welcome.
+            */ 
+            return [
+              existingPath.replace('/welcome', '/guide'),
+            ];
+          }
+          return undefined; // No redirect created if it doesn't contain /guide
+        },
       },
     ],
     async function myPlugin(context, options) {
