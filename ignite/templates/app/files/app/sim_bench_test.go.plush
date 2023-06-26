@@ -44,6 +44,7 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	bApp := app.New(logger, db, nil, true, appOptions, interBlockCacheOpt())
+    require.Equal(b, app.Name, bApp.Name())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -99,7 +100,8 @@ func BenchmarkInvariants(b *testing.B) {
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	bApp := app.New(logger, db, nil, true, appOptions, interBlockCacheOpt())
-
+    require.Equal(b, app.Name, bApp.Name())
+    
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
 		b,

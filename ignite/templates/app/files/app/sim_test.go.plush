@@ -69,7 +69,7 @@ func interBlockCacheOpt() func(*baseapp.BaseApp) {
 
 // BenchmarkSimulation run the chain simulation
 // Running using starport command:
-// `starport chain simulate -v --numBlocks 200 --blockSize 50`
+// `ignite chain simulate -v --numBlocks 200 --blockSize 50`
 // Running as go benchmark test:
 // `go test -benchmem -run=^$ -bench ^BenchmarkSimulation ./app -NumBlocks=200 -BlockSize 50 -Commit=true -Verbose=true -Enabled=true`
 func BenchmarkSimulation(b *testing.B) {
@@ -97,7 +97,7 @@ func BenchmarkSimulation(b *testing.B) {
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	bApp := app.New(logger, db, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(b, "SimApp", bApp.Name())
+	require.Equal(b, app.Name, bApp.Name())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -142,7 +142,7 @@ func TestAppImportExport(t *testing.T) {
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	bApp := app.New(logger, db, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "SimApp", bApp.Name())
+	require.Equal(t, app.Name, bApp.Name())
 
 	// Run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -182,7 +182,7 @@ func TestAppImportExport(t *testing.T) {
 	}()
 
 	newApp := app.New(log.NewNopLogger(), newDB, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "SimApp", newApp.Name())
+    require.Equal(t, app.Name, newApp.Name())
 
 	var genesisState app.GenesisState
 	err = json.Unmarshal(exported.AppState, &genesisState)
@@ -258,7 +258,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	bApp := app.New(logger, db, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "SimApp", bApp.Name())
+    require.Equal(t, app.Name, bApp.Name())
 
 	// Run randomized simulation
 	stopEarly, simParams, simErr := simulation.SimulateFromSeed(
@@ -303,7 +303,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	}()
 
 	newApp := app.New(log.NewNopLogger(), newDB, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "SimApp", newApp.Name())
+    require.Equal(t, app.Name, newApp.Name())
 
 	newApp.InitChain(abci.RequestInitChain{
 		ChainId:       SimAppChainID,
