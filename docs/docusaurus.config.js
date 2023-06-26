@@ -241,12 +241,6 @@ const config = {
     [
       "@docusaurus/plugin-client-redirects",
       {
-        redirects: [
-          {
-            from: "/nightly/guide/install",
-            to: "/nightly/welcome/install",
-          },
-        ],
         createRedirects(existingPath) {
           if (existingPath.includes('/welcome')) {
             /*
