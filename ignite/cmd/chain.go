@@ -122,11 +122,20 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 	return bufMigrationPreRunHandler(cmd, session)
 }
 
-func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
+func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
 	session.StartSpinner("Checking missing tools...")
 
-	appPath := flagGetPath(cmd)
-	_, appPath, err = gomodulepath.Find(appPath)
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return err
+	}
+
 	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
 	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
 		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
