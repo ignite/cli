@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/xast"
 	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/doctor"
@@ -125,6 +126,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	session.StartSpinner("Checking missing tools...")
 
 	appPath := flagGetPath(cmd)
+	_, appPath, err = gomodulepath.Find(appPath)
 	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
 	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
 		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
