@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"golang.org/x/sync/errgroup"
@@ -68,7 +67,7 @@ func (c Command) String() string {
 }
 
 // Generate runs the buf Generate command for each file into the proto directory.
-func (b Buf) Generate(ctx context.Context, protoDir, output, template string) (err error) {
+func (b Buf) Generate(ctx context.Context, protoDir, output, template string, exlucded ...string) (err error) {
 	flags := map[string]string{
 		flagTemplate:    template,
 		flagOutput:      output,
@@ -81,18 +80,22 @@ func (b Buf) Generate(ctx context.Context, protoDir, output, template string) (e
 	// can't download this folder because is unused as a dependency. We need to
 	// change the workspace copying the files to another folder and generate the
 	// files.
-	if strings.Contains(protoDir, cosmosSDKModulePath) {
-		if b.sdkCache == "" {
-			b.sdkCache, err = prepareSDK(protoDir)
-			if err != nil {
-				return err
-			}
-		}
-		dirs := strings.Split(protoDir, "/proto/")
-		if len(dirs) < 2 {
-			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
-		}
-		protoDir = filepath.Join(b.sdkCache, dirs[1])
+	if strings.Contains(protoDir, cosmosSDKModulePath) ||
+		strings.Contains(protoDir, "github.com/cosmos/gogo-proto") ||
+		strings.Contains(protoDir, cosmosSDKModulePath) ||
+		strings.Contains(protoDir, cosmosSDKModulePath) {
+		return nil
+		//if b.sdkCache == "" {
+		//	b.sdkCache, err = prepareSDK(protoDir)
+		//	if err != nil {
+		//		return err
+		//	}
+		//}
+		//dirs := strings.Split(protoDir, "/proto/")
+		//if len(dirs) < 2 {
+		//	return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+		//}
+		//protoDir = filepath.Join(b.sdkCache, dirs[1])
 	}
 
 	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
