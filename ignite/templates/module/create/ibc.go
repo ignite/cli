@@ -206,16 +206,6 @@ ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 		)
 		content = replacer.Replace(content, module.PlaceholderIBCNewModule, replacementIBCModule)
 
-		//		// New argument passed to the module keeper
-		//		templateKeeperArgument := `app.IBCKeeper.ChannelKeeper,
-		//&app.IBCKeeper.PortKeeper,
-		//scoped%[1]vKeeper,`
-		//		replacementKeeperArgument := fmt.Sprintf(
-		//			templateKeeperArgument,
-		//			xstrings.Title(opts.ModuleName),
-		//		)
-		//		content = replacer.Replace(content, module.PlaceholderIBCAppKeeperArgument, replacementKeeperArgument)
-
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
