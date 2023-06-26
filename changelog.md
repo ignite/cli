@@ -11,6 +11,15 @@
 
 ### Features
 
+
+### Features
+ 
+- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
+
+## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
+
+### Features
+- 
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
 - [#3538](https://github.com/ignite/cli/pull/3538) bump sdk to `v0.47.3` and ibc to `v7.1.0`
 - [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.

@@ -14,7 +14,7 @@ func NewScaffoldReact() *cobra.Command {
 		Use:     "react",
 		Short:   "React web app template",
 		Args:    cobra.NoArgs,
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldReactHandler,
 	}
 

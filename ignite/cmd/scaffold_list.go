@@ -107,7 +107,7 @@ The "creator" field is not generated if a list is scaffolded with the
 "--no-message" flag.
 `,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldListHandler,
 	}
 

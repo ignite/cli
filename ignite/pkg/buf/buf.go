@@ -24,7 +24,7 @@ type (
 	Buf struct {
 		path     string
 		sdkCache string
-		cache    protoanalysis.Cache
+		cache    *protoanalysis.Cache
 	}
 )
 
