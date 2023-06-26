@@ -126,6 +126,11 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) err
 	session.StartSpinner("Checking missing tools...")
 
 	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
 	_, appPath, err := gomodulepath.Find(path)
 	if err != nil {
 		return err
