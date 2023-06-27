@@ -24,7 +24,7 @@ import (
 func TestSignTxWithDashedAppName(t *testing.T) {
 	var (
 		env         = envtest.New(t)
-		appname     = "dashed-app-name"
+		appname     = "da-shed-a-p-p"
 		app         = env.Scaffold(appname)
 		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
