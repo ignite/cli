@@ -34,6 +34,7 @@ func (g *generator) generateGo() error {
 		protoPath,
 		tmp,
 		g.gogoTemplate(),
+		"module.proto",
 	); err != nil {
 		return err
 	}
