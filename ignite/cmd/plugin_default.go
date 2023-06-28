@@ -18,7 +18,7 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginNetworkVersion = "main"
+	PluginNetworkVersion = "v0.1.0"
 	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
 )
 
