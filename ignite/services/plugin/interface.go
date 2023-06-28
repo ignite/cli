@@ -8,13 +8,13 @@ import (
 
 // Flag type aliases.
 const (
-	FlagTypeString      = v1.Flag_FLAG_TYPE_STRING_UNSPECIFIED
-	FlagTypeInt         = v1.Flag_FLAG_TYPE_INT
-	FlagTypeUint        = v1.Flag_FLAG_TYPE_UINT
-	FlagTypeInt64       = v1.Flag_FLAG_TYPE_INT64
-	FlagTypeUint64      = v1.Flag_FLAG_TYPE_UINT64
-	FlagTypeBool        = v1.Flag_FLAG_TYPE_BOOL
-	FlagTypeStringSlice = v1.Flag_FLAG_TYPE_STRING_SLICE
+	FlagTypeString      = v1.Flag_TYPE_FLAG_STRING_UNSPECIFIED
+	FlagTypeInt         = v1.Flag_TYPE_FLAG_INT
+	FlagTypeUint        = v1.Flag_TYPE_FLAG_UINT
+	FlagTypeInt64       = v1.Flag_TYPE_FLAG_INT64
+	FlagTypeUint64      = v1.Flag_TYPE_FLAG_UINT64
+	FlagTypeBool        = v1.Flag_TYPE_FLAG_BOOL
+	FlagTypeStringSlice = v1.Flag_TYPE_FLAG_STRING_SLICE
 )
 
 // Type aliases for the current plugin version.

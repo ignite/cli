@@ -105,13 +105,13 @@ message Command {
 message Flag {
   // Type represents the flag type.
   enum Type {
-    FLAG_TYPE_STRING_UNSPECIFIED = 0;
-    FLAG_TYPE_INT = 1;
-    FLAG_TYPE_UINT = 2;
-    FLAG_TYPE_INT64 = 3;
-    FLAG_TYPE_UINT64 = 4;
-    FLAG_TYPE_BOOL = 5;
-    FLAG_TYPE_STRING_SLICE = 6;
+    TYPE_FLAG_STRING_UNSPECIFIED = 0;
+    TYPE_FLAG_INT = 1;
+    TYPE_FLAG_UINT = 2;
+    TYPE_FLAG_INT64 = 3;
+    TYPE_FLAG_UINT64 = 4;
+    TYPE_FLAG_BOOL = 5;
+    TYPE_FLAG_STRING_SLICE = 6;
   }
 
   // Name as it appears in the command line.
