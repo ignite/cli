@@ -8,7 +8,6 @@ package v1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -138,24 +137,21 @@ type InterfaceServiceServer interface {
 }
 
 // UnimplementedInterfaceServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedInterfaceServiceServer struct{}
+type UnimplementedInterfaceServiceServer struct {
+}
 
 func (UnimplementedInterfaceServiceServer) Manifest(context.Context, *ManifestRequest) (*ManifestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Manifest not implemented")
 }
-
 func (UnimplementedInterfaceServiceServer) Execute(context.Context, *ExecuteRequest) (*ExecuteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Execute not implemented")
 }
-
 func (UnimplementedInterfaceServiceServer) ExecuteHookPre(context.Context, *ExecuteHookPreRequest) (*ExecuteHookPreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteHookPre not implemented")
 }
-
 func (UnimplementedInterfaceServiceServer) ExecuteHookPost(context.Context, *ExecuteHookPostRequest) (*ExecuteHookPostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteHookPost not implemented")
 }
-
 func (UnimplementedInterfaceServiceServer) ExecuteHookCleanUp(context.Context, *ExecuteHookCleanUpRequest) (*ExecuteHookCleanUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteHookCleanUp not implemented")
 }
@@ -306,15 +302,15 @@ type AnalyzerServiceClient interface {
 	Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error)
 }
 
-type analizerServiceClient struct {
+type analyzerServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
 func NewAnalyzerServiceClient(cc grpc.ClientConnInterface) AnalyzerServiceClient {
-	return &analizerServiceClient{cc}
+	return &analyzerServiceClient{cc}
 }
 
-func (c *analizerServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
+func (c *analyzerServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
 	out := new(DependenciesResponse)
 	err := c.cc.Invoke(ctx, AnalyzerService_Dependencies_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -333,7 +329,8 @@ type AnalyzerServiceServer interface {
 }
 
 // UnimplementedAnalyzerServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAnalyzerServiceServer struct{}
+type UnimplementedAnalyzerServiceServer struct {
+}
 
 func (UnimplementedAnalyzerServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Dependencies not implemented")

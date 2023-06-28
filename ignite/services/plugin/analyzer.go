@@ -2,17 +2,17 @@ package plugin
 
 import "context"
 
-// NewAnalyzer creates a new app analizer.
+// NewAnalyzer creates a new app analyzer.
 func NewAnalyzer() Analyzer {
-	return analizer{}
+	return analyzer{}
 }
 
-type analizer struct{}
+type analyzer struct{}
 
-// TODO: Implement dependency analizer.
+// TODO: Implement dependency analyzer.
 
 // Deoendencies returns chain app dependencies.
-func (a analizer) Dependencies(_ context.Context) ([]*Dependency, error) {
+func (a analyzer) Dependencies(_ context.Context) ([]*Dependency, error) {
 	return []*Dependency{
 		{Path: "Foo"},
 	}, nil

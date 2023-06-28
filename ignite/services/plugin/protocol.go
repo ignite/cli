@@ -113,7 +113,7 @@ func (c client) startAnalyzerServer(a Analyzer) (uint32, func()) {
 
 	go c.broker.AcceptAndServe(brokerID, func(opts []grpc.ServerOption) *grpc.Server {
 		srv = grpc.NewServer(opts...)
-		v1.RegisterAnalyzerServiceServer(srv, &analizerServer{impl: a})
+		v1.RegisterAnalyzerServiceServer(srv, &analyzerServer{impl: a})
 		return srv
 	})
 
@@ -200,15 +200,15 @@ func (s server) ExecuteHookCleanUp(ctx context.Context, r *v1.ExecuteHookCleanUp
 	return &v1.ExecuteHookCleanUpResponse{}, nil
 }
 
-func newAnalyzerClient(c *grpc.ClientConn) *analizerClient {
-	return &analizerClient{v1.NewAnalyzerServiceClient(c)}
+func newAnalyzerClient(c *grpc.ClientConn) *analyzerClient {
+	return &analyzerClient{v1.NewAnalyzerServiceClient(c)}
 }
 
-type analizerClient struct {
+type analyzerClient struct {
 	grpc v1.AnalyzerServiceClient
 }
 
-func (c analizerClient) Dependencies(ctx context.Context) ([]*Dependency, error) {
+func (c analyzerClient) Dependencies(ctx context.Context) ([]*Dependency, error) {
 	r, err := c.grpc.Dependencies(ctx, &v1.DependenciesRequest{})
 	if err != nil {
 		return nil, err
@@ -217,13 +217,13 @@ func (c analizerClient) Dependencies(ctx context.Context) ([]*Dependency, error)
 	return r.Dependencies, nil
 }
 
-type analizerServer struct {
+type analyzerServer struct {
 	v1.UnimplementedAnalyzerServiceServer
 
 	impl Analyzer
 }
 
-func (s analizerServer) Dependencies(ctx context.Context, _ *v1.DependenciesRequest) (*v1.DependenciesResponse, error) {
+func (s analyzerServer) Dependencies(ctx context.Context, _ *v1.DependenciesRequest) (*v1.DependenciesResponse, error) {
 	deps, err := s.impl.Dependencies(ctx)
 	if err != nil {
 		return nil, err
