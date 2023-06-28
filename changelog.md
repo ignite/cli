@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
+
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
 
 ### Features
@@ -17,7 +23,6 @@
 
 - [#3444](https://github.com/ignite/cli/pull/3444) Add support for ICS chains in ts-client generation
 - [#3494](https://github.com/ignite/cli/pull/3494) bump `cosmos-sdk` and `cometbft` versions
-- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
 - [#3434](https://github.com/ignite/cli/pull/3434) Detect app wiring implementation
 
 ### Fixes
