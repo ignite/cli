@@ -11,6 +11,10 @@
 
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 
+### Changes
+
+- [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1` 
+
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
 ### Features

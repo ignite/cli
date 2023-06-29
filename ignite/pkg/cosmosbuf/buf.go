@@ -1,4 +1,4 @@
-package buf
+package cosmosbuf
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xos"
@@ -29,13 +30,12 @@ type (
 )
 
 const (
-	cosmosSDKModulePath = "github.com/cosmos/cosmos-sdk"
-	binaryName          = "buf"
-	flagTemplate        = "template"
-	flagOutput          = "output"
-	flagErrorFormat     = "error-format"
-	flagLogFormat       = "log-format"
-	fmtJSON             = "json"
+	binaryName      = "buf"
+	flagTemplate    = "template"
+	flagOutput      = "output"
+	flagErrorFormat = "error-format"
+	flagLogFormat   = "log-format"
+	fmtJSON         = "json"
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
@@ -93,7 +93,7 @@ func (b Buf) Generate(
 	// can't download this folder because is unused as a dependency. We need to
 	// change the workspace copying the files to another folder and generate the
 	// files.
-	if strings.Contains(protoDir, cosmosSDKModulePath) {
+	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
 		if b.sdkCache == "" {
 			b.sdkCache, err = prepareSDK(protoDir)
 			if err != nil {
