@@ -32,6 +32,8 @@ const (
 	msgMigrationRemoveTools = "File %s contains deprecated imports: %s. Would you like to remove them"
 )
 
+var ErrProtocUnsupported = errors.New("code generation using protoc is only supported by Ignite CLI v0.26.1 or older")
+
 // NewChain returns a command that groups sub commands related to compiling, serving
 // blockchains and so on.
 func NewChain() *cobra.Command {
@@ -191,8 +193,7 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error
 		return nil
 	}
 	if err := session.AskConfirm(msgMigrationBuf); err != nil {
-		return fmt.Errorf("build the protobuf files with the protoc binary is only supported on version " +
-			"`v0.26.1` or below. Please downgrade your Ignite version")
+		return ErrProtocUnsupported
 	}
 
 	sm, err := chain.BoxBufFiles(appPath)

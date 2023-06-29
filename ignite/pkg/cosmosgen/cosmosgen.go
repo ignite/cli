@@ -8,9 +8,9 @@ import (
 	"github.com/iancoleman/strcase"
 	gomodule "golang.org/x/mod/module"
 
-	"github.com/ignite/cli/ignite/pkg/buf"
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
 )
 
 // generateOptions used to configure code generation.
@@ -98,7 +98,7 @@ func IncludeDirs(dirs []string) Option {
 // generator generates code for sdk and sdk apps.
 type generator struct {
 	ctx          context.Context
-	buf          buf.Buf
+	buf          cosmosbuf.Buf
 	cacheStorage cache.Storage
 	appPath      string
 	protoDir     string
@@ -112,7 +112,7 @@ type generator struct {
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
 func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir string, options ...Option) error {
-	b, err := buf.New()
+	b, err := cosmosbuf.New()
 	if err != nil {
 		return err
 	}
