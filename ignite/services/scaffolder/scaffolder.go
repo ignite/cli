@@ -89,7 +89,8 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	}
 
 	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(gomodPath),
+		cosmosgen.WithGoGeneration(),
+		cosmosgen.WithPulsarGeneration(),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
@@ -133,5 +134,5 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, options...)
+	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, gomodPath, options...)
 }

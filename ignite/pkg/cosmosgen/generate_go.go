@@ -40,7 +40,7 @@ func (g *generator) generateGo() error {
 	}
 
 	// move generated code for the app under the relative locations in its source code.
-	generatedPath := filepath.Join(tmp, g.o.gomodPath)
+	generatedPath := filepath.Join(tmp, g.gomodPath)
 
 	_, err = os.Stat(generatedPath)
 	if err == nil {
