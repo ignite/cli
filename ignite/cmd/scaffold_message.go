@@ -60,7 +60,7 @@ supports fields with standard and custom types. See "ignite scaffold list —hel
 for details.
 `,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    messageHandler,
 	}
 

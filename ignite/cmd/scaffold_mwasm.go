@@ -10,11 +10,12 @@ import (
 
 func NewScaffoldWasm() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "wasm",
-		Short: "Import the wasm module to your app",
-		Long:  "Add support for WebAssembly smart contracts to your blockchain",
-		Args:  cobra.NoArgs,
-		RunE:  scaffoldWasmHandler,
+		Use:     "wasm",
+		Short:   "Import the wasm module to your app",
+		Long:    "Add support for WebAssembly smart contracts to your blockchain",
+		Args:    cobra.NoArgs,
+		RunE:    scaffoldWasmHandler,
+		PreRunE: migrationPreRunHandler,
 	}
 
 	flagSetPath(c)

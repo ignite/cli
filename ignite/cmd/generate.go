@@ -2,8 +2,6 @@ package ignitecmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
 // NewGenerate returns a command that groups code generation related sub commands.
@@ -21,7 +19,7 @@ meant to be edited by hand.
 `,
 		Aliases:           []string{"g"},
 		Args:              cobra.ExactArgs(1),
-		PersistentPreRunE: generatePreRunHandler,
+		PersistentPreRunE: migrationPreRunHandler,
 	}
 
 	flagSetPath(c)
@@ -34,11 +32,4 @@ meant to be edited by hand.
 	c.AddCommand(NewGenerateOpenAPI())
 
 	return c
-}
-
-func generatePreRunHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
-	defer session.End()
-
-	return toolsMigrationPreRunHandler(cmd, session)
 }

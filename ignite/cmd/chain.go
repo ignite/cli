@@ -17,15 +17,22 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/ignite/cli/ignite/services/chain"
 	"github.com/ignite/cli/ignite/services/doctor"
 )
 
 const (
-	msgMigration       = "Migrating blockchain config file from v%d to v%d..."
-	msgMigrationPrefix = "Your blockchain config version is v%d and the latest is v%d."
-	msgMigrationPrompt = "Would you like to upgrade your config file to v%d"
+	msgMigration            = "Migrating blockchain config file from v%d to v%d..."
+	msgMigrationPrefix      = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt      = "Would you like to upgrade your config file to v%d"
+	msgMigrationBuf         = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
+	msgMigrationAddTools    = "Some required imports are missing in %s file: %s. Would you like to add them"
+	msgMigrationRemoveTools = "File %s contains deprecated imports: %s. Would you like to remove them"
 )
+
+var ErrProtocUnsupported = errors.New("code generation using protoc is only supported by Ignite CLI v0.26.1 or older")
 
 // NewChain returns a command that groups sub commands related to compiling, serving
 // blockchains and so on.
@@ -109,13 +116,28 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 	if err := configMigrationPreRunHandler(cmd, session); err != nil {
 		return err
 	}
-	return toolsMigrationPreRunHandler(cmd, session)
+
+	if err := toolsMigrationPreRunHandler(cmd, session); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session)
 }
 
-func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
+func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
 	session.StartSpinner("Checking missing tools...")
 
-	appPath := flagGetPath(cmd)
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return err
+	}
+
 	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
 	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
 		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
@@ -132,7 +154,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	session.StopSpinner()
 	if len(missing) > 0 {
 		question := fmt.Sprintf(
-			"Some required imports are missing in %s file: %s. Would you like to add them",
+			msgMigrationAddTools,
 			toolsFilename,
 			strings.Join(missing, ", "),
 		)
@@ -143,7 +165,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 
 	if len(unused) > 0 {
 		question := fmt.Sprintf(
-			"File %s contains deprecated imports: %s. Would you like to remove them",
+			msgMigrationRemoveTools,
 			toolsFilename,
 			strings.Join(unused, ", "),
 		)
@@ -162,6 +184,27 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (er
 	}
 
 	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
+}
+
+func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
+	appPath := flagGetPath(cmd)
+	hasFiles := chain.CheckBufFiles(appPath)
+	if hasFiles {
+		return nil
+	}
+	if err := session.AskConfirm(msgMigrationBuf); err != nil {
+		return ErrProtocUnsupported
+	}
+
+	sm, err := chain.BoxBufFiles(appPath)
+	if err != nil {
+		return err
+	}
+
+	session.Print("\n🎉 buf.build files added: \n\n")
+	session.Printf("%s\n\n", strings.Join(sm.CreatedFiles(), "\n"))
+
+	return nil
 }
 
 func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
