@@ -119,6 +119,22 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleConfig, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppModuleConfig, replacement)
 
+		// Module dependencies
+		for _, dep := range opts.Dependencies {
+			// If bank is a dependency, add account permissions to the module
+			if dep.Name == "Bank" {
+				template = `{Account: %[2]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}},
+%[1]v`
+
+				replacement = fmt.Sprintf(
+					template,
+					module.PlaceholderSgAppMaccPerms,
+					opts.ModuleName,
+				)
+				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+			}
+		}
+
 		newFile := genny.NewFileS(configPath, content)
 
 		return r.File(newFile)
@@ -157,25 +173,6 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 			opts.ModuleName,
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
-
-		// Module dependencies
-		var depArgs string
-		for _, dep := range opts.Dependencies {
-			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName())
-
-			// If bank is a dependency, add account permissions to the module
-			if dep.Name == "Bank" {
-				template = `%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
-%[1]v`
-
-				replacement = fmt.Sprintf(
-					template,
-					module.PlaceholderSgAppMaccPerms,
-					opts.ModuleName,
-				)
-				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
-			}
-		}
 
 		// Keeper definition
 		template = `&app.%[2]vKeeper,
