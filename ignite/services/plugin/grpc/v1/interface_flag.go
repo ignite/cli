@@ -19,13 +19,13 @@ const (
 )
 
 var flagTypes = map[string]Flag_Type{
-	cobraFlagTypeBool:        Flag_FLAG_TYPE_BOOL,
-	cobraFlagTypeInt:         Flag_FLAG_TYPE_INT,
-	cobraFlagTypeInt64:       Flag_FLAG_TYPE_INT64,
-	cobraFlagTypeString:      Flag_FLAG_TYPE_STRING_UNSPECIFIED,
-	cobraFlagTypeStringSlice: Flag_FLAG_TYPE_STRING_SLICE,
-	cobraFlagTypeUint:        Flag_FLAG_TYPE_UINT,
-	cobraFlagTypeUint64:      Flag_FLAG_TYPE_UINT64,
+	cobraFlagTypeBool:        Flag_TYPE_FLAG_BOOL,
+	cobraFlagTypeInt:         Flag_TYPE_FLAG_INT,
+	cobraFlagTypeInt64:       Flag_TYPE_FLAG_INT64,
+	cobraFlagTypeString:      Flag_TYPE_FLAG_STRING_UNSPECIFIED,
+	cobraFlagTypeStringSlice: Flag_TYPE_FLAG_STRING_SLICE,
+	cobraFlagTypeUint:        Flag_TYPE_FLAG_UINT,
+	cobraFlagTypeUint64:      Flag_TYPE_FLAG_UINT64,
 }
 
 func newDefaultFlagValueError(typeName, value string) error {
@@ -34,7 +34,7 @@ func newDefaultFlagValueError(typeName, value string) error {
 
 func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 	switch f.Type {
-	case Flag_FLAG_TYPE_BOOL:
+	case Flag_TYPE_FLAG_BOOL:
 		v, err := strconv.ParseBool(f.DefaultValue)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeBool, f.DefaultValue)
@@ -42,7 +42,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 
 		fs.BoolP(f.Name, f.Shorthand, v, f.Usage)
 		fs.Set(f.Name, f.Value)
-	case Flag_FLAG_TYPE_INT:
+	case Flag_TYPE_FLAG_INT:
 		v, err := strconv.Atoi(f.DefaultValue)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeInt, f.DefaultValue)
@@ -50,7 +50,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 
 		fs.IntP(f.Name, f.Shorthand, v, f.Usage)
 		fs.Set(f.Name, f.Value)
-	case Flag_FLAG_TYPE_UINT:
+	case Flag_TYPE_FLAG_UINT:
 		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeUint, f.DefaultValue)
@@ -58,7 +58,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 
 		fs.UintP(f.Name, f.Shorthand, uint(v), f.Usage)
 		fs.Set(f.Name, f.Value)
-	case Flag_FLAG_TYPE_INT64:
+	case Flag_TYPE_FLAG_INT64:
 		v, err := strconv.ParseInt(f.DefaultValue, 10, 64)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeInt64, f.DefaultValue)
@@ -66,7 +66,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 
 		fs.Int64P(f.Name, f.Shorthand, v, f.Usage)
 		fs.Set(f.Name, f.Value)
-	case Flag_FLAG_TYPE_UINT64:
+	case Flag_TYPE_FLAG_UINT64:
 		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeInt64, f.DefaultValue)
@@ -74,11 +74,11 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 
 		fs.Uint64P(f.Name, f.Shorthand, v, f.Usage)
 		fs.Set(f.Name, f.Value)
-	case Flag_FLAG_TYPE_STRING_SLICE:
+	case Flag_TYPE_FLAG_STRING_SLICE:
 		s := strings.Trim(f.DefaultValue, "[]")
 		fs.StringSliceP(f.Name, f.Shorthand, strings.Fields(s), f.Usage)
 		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
-	case Flag_FLAG_TYPE_STRING_UNSPECIFIED:
+	case Flag_TYPE_FLAG_STRING_UNSPECIFIED:
 		fs.StringP(f.Name, f.Shorthand, f.DefaultValue, f.Usage)
 		fs.Set(f.Name, f.Value)
 	}

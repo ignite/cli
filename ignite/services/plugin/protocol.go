@@ -69,7 +69,7 @@ func (c client) Execute(ctx context.Context, cmd *ExecutedCommand, a ClientAPI) 
 	brokerID, stopServer := c.startClientAPIServer(a)
 	_, err := c.grpc.Execute(ctx, &v1.ExecuteRequest{
 		Cmd:       cmd,
-		ClientAPI: brokerID,
+		ClientApi: brokerID,
 	})
 	stopServer()
 	return err
@@ -79,7 +79,7 @@ func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook, a ClientAPI
 	brokerID, stopServer := c.startClientAPIServer(a)
 	_, err := c.grpc.ExecuteHookPre(ctx, &v1.ExecuteHookPreRequest{
 		Hook:      h,
-		ClientAPI: brokerID,
+		ClientApi: brokerID,
 	})
 	stopServer()
 	return err
@@ -89,7 +89,7 @@ func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook, a ClientAP
 	brokerID, stopServer := c.startClientAPIServer(a)
 	_, err := c.grpc.ExecuteHookPost(ctx, &v1.ExecuteHookPostRequest{
 		Hook:      h,
-		ClientAPI: brokerID,
+		ClientApi: brokerID,
 	})
 	stopServer()
 	return err
@@ -99,7 +99,7 @@ func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, a Clien
 	brokerID, stopServer := c.startClientAPIServer(a)
 	_, err := c.grpc.ExecuteHookCleanUp(ctx, &v1.ExecuteHookCleanUpRequest{
 		Hook:      h,
-		ClientAPI: brokerID,
+		ClientApi: brokerID,
 	})
 	stopServer()
 	return err
@@ -137,7 +137,7 @@ func (s server) Manifest(ctx context.Context, r *v1.ManifestRequest) (*v1.Manife
 }
 
 func (s server) Execute(ctx context.Context, r *v1.ExecuteRequest) (*v1.ExecuteResponse, error) {
-	conn, err := s.broker.Dial(r.ClientAPI)
+	conn, err := s.broker.Dial(r.ClientApi)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (s server) Execute(ctx context.Context, r *v1.ExecuteRequest) (*v1.ExecuteR
 }
 
 func (s server) ExecuteHookPre(ctx context.Context, r *v1.ExecuteHookPreRequest) (*v1.ExecuteHookPreResponse, error) {
-	conn, err := s.broker.Dial(r.ClientAPI)
+	conn, err := s.broker.Dial(r.ClientApi)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func (s server) ExecuteHookPre(ctx context.Context, r *v1.ExecuteHookPreRequest)
 }
 
 func (s server) ExecuteHookPost(ctx context.Context, r *v1.ExecuteHookPostRequest) (*v1.ExecuteHookPostResponse, error) {
-	conn, err := s.broker.Dial(r.ClientAPI)
+	conn, err := s.broker.Dial(r.ClientApi)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func (s server) ExecuteHookPost(ctx context.Context, r *v1.ExecuteHookPostReques
 }
 
 func (s server) ExecuteHookCleanUp(ctx context.Context, r *v1.ExecuteHookCleanUpRequest) (*v1.ExecuteHookCleanUpResponse, error) {
-	conn, err := s.broker.Dial(r.ClientAPI)
+	conn, err := s.broker.Dial(r.ClientApi)
 	if err != nil {
 		return nil, err
 	}

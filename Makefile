@@ -59,6 +59,26 @@ lint:
 
 .PHONY: govet format lint
 
+## proto-all: Format, lint and generate code from proto files using buf.
+proto-all: proto-format proto-lint proto-gen
+
+## proto-gen: Run buf generate.
+proto-gen:
+	@echo Generating code from proto...
+	@buf generate --template ./proto/buf.gen.yaml --output ./
+
+## proto-format: Run buf format and update files with invalid proto format>
+proto-format:
+	@echo Formatting proto files...
+	@buf format --write
+
+## proto-lint: Run buf lint.
+proto-lint:
+	@echo Linting proto files...
+	@buf lint
+
+.PHONY: proto-all proto-gen proto-format proto-lint
+
 ## test-unit: Run the unit tests.
 test-unit:
 	@echo Running unit tests...
