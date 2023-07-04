@@ -14,7 +14,7 @@ func NewScaffoldVue() *cobra.Command {
 		Use:     "vue",
 		Short:   "Vue 3 web app template",
 		Args:    cobra.NoArgs,
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldVueHandler,
 	}
 

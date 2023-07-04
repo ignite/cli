@@ -56,7 +56,7 @@ the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
 `,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMapHandler,
 	}
 

@@ -1,6 +1,9 @@
 {
   "ignorePatterns": [
     {
+      "pattern": "^https://twitter.com"
+    },
+    {
       "pattern": "^https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request"
     },
     {

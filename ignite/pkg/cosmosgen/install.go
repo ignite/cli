@@ -12,15 +12,16 @@ import (
 // DepTools necessary tools to build and run the chain.
 func DepTools() []string {
 	return []string{
-		// the gocosmos plugin.
+		// buf build code generation.
+		"github.com/bufbuild/buf/cmd/buf",
 		"github.com/cosmos/gogoproto/protoc-gen-gocosmos",
 
 		// Go code generation plugin.
-		"github.com/golang/protobuf/protoc-gen-go",
+		"google.golang.org/grpc/cmd/protoc-gen-go-grpc",
+		"google.golang.org/protobuf/cmd/protoc-gen-go",
 
 		// grpc-gateway plugins.
 		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
-		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
 		"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
 	}
 }
