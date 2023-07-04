@@ -10,10 +10,9 @@ import (
 
 func NewGenerateHooks() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "hooks",
-		Short:   "TypeScript frontend client and React hooks",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateHooksHandler,
+		Use:   "hooks",
+		Short: "TypeScript frontend client and React hooks",
+		RunE:  generateHooksHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())

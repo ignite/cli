@@ -20,7 +20,7 @@ func NewScaffoldQuery() *cobra.Command {
 		Use:     "query [name] [request_field1] [request_field2] ...",
 		Short:   "Query for fetching data from a blockchain",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    queryHandler,
 	}
 

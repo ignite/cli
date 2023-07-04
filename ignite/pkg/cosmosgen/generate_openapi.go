@@ -13,16 +13,19 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	"github.com/ignite/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
-var openAPIOut = []string{
-	"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,fqn_for_openapi_name=true,simple_operation_ids=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
+const (
+	specCacheNamespace = "generate.openapi.spec"
+	specFilename       = "swagger.config.json"
+)
+
+func (g *generator) openAPITemplate() string {
+	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
 }
 
-const specCacheNamespace = "generate.openapi.spec"
-
-func generateOpenAPISpec(g *generator) error {
+func (g *generator) generateOpenAPISpec() error {
 	var (
 		specDirs []string
 		conf     = swaggercombine.Config{
@@ -50,7 +53,6 @@ func generateOpenAPISpec(g *generator) error {
 		if err != nil {
 			return err
 		}
-		specPath := filepath.Join(dir, "apidocs.swagger.json")
 
 		checksumPaths := append([]string{m.Pkg.Path}, g.o.includeDirs...)
 		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
@@ -64,40 +66,43 @@ func generateOpenAPISpec(g *generator) error {
 		}
 
 		if !errors.Is(err, cache.ErrorNotFound) {
+			specPath := filepath.Join(dir, specFilename)
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-		} else {
-			hasAnySpecChanged = true
-			include, err := g.resolveInclude(src)
-			if err != nil {
-				return err
-			}
-			include = append(include, g.resolveIncludeApp(g.appPath)...)
+			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath)
+		}
 
-			err = protoc.Generate(
-				g.ctx,
-				dir,
-				m.Pkg.Path,
-				include,
-				openAPIOut,
-			)
-			if err != nil {
-				return err
-			}
+		hasAnySpecChanged = true
+		if err := g.buf.Generate(
+			g.ctx,
+			m.Pkg.Path,
+			dir,
+			g.openAPITemplate(),
+		); err != nil {
+			return err
+		}
 
-			f, err := os.ReadFile(specPath)
+		specs, err := xos.FindFiles(dir, xos.JSONFile)
+		if err != nil {
+			return err
+		}
+
+		for _, spec := range specs {
+			f, err := os.ReadFile(spec)
 			if err != nil {
 				return err
 			}
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
+				return err
+			}
 		}
-
 		specDirs = append(specDirs, dir)
 
-		return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath)
+		return nil
 	}
 
 	// generate specs for each module and persist them in the file system
@@ -106,7 +111,6 @@ func generateOpenAPISpec(g *generator) error {
 
 	add := func(src string, modules []module.Module) error {
 		for _, m := range modules {
-			m := m
 			if err := gen(src, m); err != nil {
 				return err
 			}
