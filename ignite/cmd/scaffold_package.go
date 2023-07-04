@@ -21,7 +21,7 @@ func NewScaffoldPacket() *cobra.Command {
 		Short:   "Message for sending an IBC packet",
 		Long:    "Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    createPacketHandler,
 	}
 

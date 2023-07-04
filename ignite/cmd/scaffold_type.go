@@ -12,7 +12,7 @@ func NewScaffoldType() *cobra.Command {
 		Use:     "type NAME [field]...",
 		Short:   "Type definition",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldTypeHandler,
 	}
 

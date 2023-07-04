@@ -34,7 +34,7 @@ with Ignite CLI, see the [Ignite CLI Developer
 Tutorials](https://docs.ignite.com/guide).
 
 To install Ignite CLI locally on GNU, Linux, or macOS, see [Install Ignite
-CLI](https://docs.ignite.com/guide/install).
+CLI](https://docs.ignite.com/welcome/install).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK
 blockchain, see [ignite/web](https://github.com/ignite/web).
@@ -136,9 +136,8 @@ development version of the code. You can create a branch from `main` and
 create a pull request, or maintain your own fork and submit a cross-repository
 pull request.
 
-Our [Ignite CLI bounty program](https://docs.ignite.com/bounty) provides
-incentives for your participation and pays rewards. Track new, in-progress, and
-completed bounties on the [Bounty
+Our Ignite CLI bounty program provides incentives for your participation and
+pays rewards. Track new, in-progress, and completed bounties on the [Bounty
 board](https://github.com/ignite/cli/projects/5) in GitHub.
 
 **Important** Before you start implementing a new Ignite CLI feature, the first

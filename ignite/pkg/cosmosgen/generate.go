@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"bytes"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -14,16 +13,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
 	moduleCacheNamespace = "generate.setup.module"
-)
-
-var protocGlobalInclude = xfilepath.List(
-	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
-	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
 
 type ModulesInPath struct {
@@ -126,69 +119,6 @@ func (g *generator) setup() (err error) {
 	}
 
 	return nil
-}
-
-func (g *generator) resolveDependencyInclude() ([]string, error) {
-	// Init paths with the global include paths for protoc
-	paths, err := protocGlobalInclude()
-	if err != nil {
-		return nil, err
-	}
-
-	// Relative paths to proto directories
-	protoDirs := append([]string{g.protoDir}, g.o.includeDirs...)
-
-	// Create a list of proto import paths for the dependencies.
-	// These paths will be available to be imported from the chain app's proto files.
-	for rootPath, m := range g.thirdModules {
-		// Skip modules without proto files
-		if m == nil {
-			continue
-		}
-
-		// Check each one of the possible proto directory names for the
-		// current module and append them only when the directory exists.
-		for _, d := range protoDirs {
-			p := filepath.Join(rootPath, d)
-			f, err := os.Stat(p)
-			if err != nil {
-				if os.IsNotExist(err) {
-					continue
-				}
-
-				return nil, err
-			}
-
-			if f.IsDir() {
-				paths = append(paths, p)
-			}
-		}
-	}
-
-	return paths, nil
-}
-
-func (g *generator) resolveIncludeApp(path string) (paths []string) {
-	// Append chain app's proto paths
-	paths = append(paths, filepath.Join(path, g.protoDir))
-	for _, p := range g.o.includeDirs {
-		paths = append(paths, filepath.Join(path, p))
-	}
-	return
-}
-
-func (g *generator) resolveInclude(path string) (paths []string, err error) {
-	paths = g.resolveIncludeApp(path)
-
-	// Append paths for dependencies that have protocol buffer files
-	includePaths, err := g.resolveDependencyInclude()
-	if err != nil {
-		return nil, err
-	}
-
-	paths = append(paths, includePaths...)
-
-	return paths, nil
 }
 
 func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {

@@ -107,6 +107,21 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	return c
 }
 
+func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
+	if err := gitChangesConfirmPreRunHandler(cmd, args); err != nil {
+		return err
+	}
+
+	session := cliui.New()
+	defer session.End()
+
+	if err := toolsMigrationPreRunHandler(cmd, session); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session)
+}
+
 func scaffoldType(
 	cmd *cobra.Command,
 	args []string,
