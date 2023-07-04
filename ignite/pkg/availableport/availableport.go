@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-	"time"
 )
 
 // Find finds n number of unused ports.
@@ -16,8 +15,7 @@ func Find(n int) (ports []int, err error) {
 
 	for i := 0; i < n; i++ {
 		for {
-			r := rand.New(rand.NewSource(time.Now().UnixNano()))
-			port := r.Intn(max-min+1) + min
+			port := rand.Intn(max-min+1) + min
 
 			conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
 			// if there is an error, this might mean that no one is listening from this port
