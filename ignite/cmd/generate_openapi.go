@@ -10,10 +10,9 @@ import (
 
 func NewGenerateOpenAPI() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "openapi",
-		Short:   "OpenAPI spec for your chain",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateOpenAPIHandler,
+		Use:   "openapi",
+		Short: "OpenAPI spec for your chain",
+		RunE:  generateOpenAPIHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())

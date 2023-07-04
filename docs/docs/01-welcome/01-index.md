@@ -32,7 +32,7 @@ With just a few commands, you can use Ignite CLI to:
 To install the `ignite` binary in `/usr/local/bin` run the following command:
 
 ```
-curl https://get.ignite.com/cli | bash
+curl https://get.ignite.com/cli! | bash
 ```
 
 ## Projects using Tendermint and Cosmos SDK
