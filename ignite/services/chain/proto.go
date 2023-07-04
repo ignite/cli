@@ -21,7 +21,8 @@ var bufFiles = []string{
 
 func CheckBufFiles(appPath string) bool {
 	for _, bufFile := range bufFiles {
-		if !xos.FileExists(filepath.Join(appPath, bufFile)) {
+		path := filepath.Join(appPath, bufFile)
+		if !xos.FileExists(path) {
 			return false
 		}
 	}
