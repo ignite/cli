@@ -14,6 +14,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	portkeeper "github.com/cosmos/ibc-go/v7/modules/core/05-port/keeper"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 
@@ -38,17 +40,27 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
+	scopedKeeper := capabilityKeeper.ScopeToModule(ibcexported.ModuleName)
+	portKeeper := portkeeper.NewKeeper(scopedKeeper)
+
 	k := keeper.NewKeeper(
         appCodec,
         storeKey,
         memStoreKey,
         authority.String(),
-        func() *ibckeeper.Keeper {
-        	return &ibckeeper.Keeper{}
-        },
-        capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>
+		func() *ibckeeper.Keeper {
+			return &ibckeeper.Keeper{
+				PortKeeper: portKeeper,
+			}
+		},
+        capabilityKeeper.ScopeToModule(types.ModuleName),<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )
 
-	return k, sdk.NewContext(stateStore, tmproto.Header{}, false, logger)
+	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, logger)
+
+	// Initialize params
+	k.SetParams(ctx, types.DefaultParams())
+
+	return k, ctx
 }
