@@ -1,5 +1,5 @@
 version: v1
-name: buf.build/ignite/cli
+name: buf.build/ignitehq/cli
 breaking:
   use:
     - FILE
