@@ -251,7 +251,7 @@ const config = {
               existingPath.replace('/welcome', '/guide'),
             ];
           }
-          return undefined; // No redirect created if it doesn't contain /guide
+          return; // No redirect created if it doesn't contain /guide
         },
       },
     ],
