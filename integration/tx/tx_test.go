@@ -78,7 +78,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 			step.Exec(
 				app.Binary(),
 				"tx",
-				"dashedappname",
+				"dashedapp",
 				"create-item",
 				"helloworld",
 				"--from", "alice",
