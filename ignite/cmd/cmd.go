@@ -262,7 +262,7 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Ignite CLI %s is available!
 ·
-· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install#upgrading-your-ignite-cli-installation
+· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/welcome/install#upgrading-your-ignite-cli-installation
 ·
 ··
 
