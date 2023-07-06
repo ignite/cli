@@ -259,7 +259,7 @@ func checkNewVersion(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/guide/install#upgrade", next)
+	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrading-your-ignite-cli-installation", next)
 }
 
 func printSection(session *cliui.Session, title string) error {
