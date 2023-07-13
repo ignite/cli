@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#3585](https://github.com/ignite/cli/pull/3585) Add `marketplace` command for plugins
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 
 ### Changes
