@@ -30,6 +30,7 @@ require (
 	github.com/gobuffalo/plush/v4 v4.1.16
 	github.com/goccy/go-yaml v1.9.7
 	github.com/golangci/golangci-lint v1.50.1
+	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v48 v48.2.0
 	github.com/gookit/color v1.5.3
 	github.com/gorilla/mux v1.8.0
@@ -60,6 +61,7 @@ require (
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	golang.org/x/mod v0.10.0
+	golang.org/x/oauth2 v0.6.0
 	golang.org/x/sync v0.2.0
 	golang.org/x/term v0.8.0
 	golang.org/x/text v0.9.0
@@ -70,6 +72,8 @@ require (
 	mvdan.cc/gofumpt v0.5.0
 	sigs.k8s.io/yaml v1.3.0
 )
+
+require google.golang.org/appengine v1.6.7 // indirect
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
