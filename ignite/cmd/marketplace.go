@@ -71,7 +71,7 @@ func NewMarketplaceList() *cobra.Command {
 	return c
 }
 
-func listMarketplaceHandler(cmd *cobra.Command, args []string) error {
+func listMarketplaceHandler(_ *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
 	defer session.End()
 
@@ -91,7 +91,7 @@ func listMarketplaceHandler(cmd *cobra.Command, args []string) error {
 	return mpService.ListPlugins(queryCtx, c, opts)
 }
 
-func marketplaceInfoHandler(cmd *cobra.Command, args []string) error {
+func marketplaceInfoHandler(_ *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
 	defer session.End()
 
@@ -106,7 +106,7 @@ func marketplaceInfoHandler(cmd *cobra.Command, args []string) error {
 	return mpService.InfoPlugin(queryCtx, c, args[0])
 }
 
-func marketplaceAddHandler(cmd *cobra.Command, args []string) error {
+func marketplaceAddHandler(_ *cobra.Command, args []string) error {
 	session := cliui.New(cliui.WithStdout(os.Stdout))
 	defer session.End()
 

@@ -9,10 +9,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const (
-	igniteTopic = "ignite-plugin"
-)
-
 type (
 	Client struct {
 		ts     oauth2.TokenSource
