@@ -4,6 +4,11 @@ package ignite.services.plugin.grpc.v1;
 
 option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
 
+message Dependencies {
+  repeated Dependency modules_in_path = 1;
+  repeated string includes = 2;
+}
+
 // Dependecy keeps data about Go module dependencies.
 message Dependency {
   // Path is the absolute path to the Go module.

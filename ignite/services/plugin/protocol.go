@@ -208,7 +208,7 @@ type clientAPIClient struct {
 	grpc v1.ClientAPIServiceClient
 }
 
-func (c clientAPIClient) Dependencies(ctx context.Context) ([]*Dependency, error) {
+func (c clientAPIClient) Dependencies(ctx context.Context) (*Dependencies, error) {
 	r, err := c.grpc.Dependencies(ctx, &v1.DependenciesRequest{})
 	if err != nil {
 		return nil, err

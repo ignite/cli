@@ -80,5 +80,5 @@ service ClientAPIService {
 message DependenciesRequest {}
 
 message DependenciesResponse {
-  repeated Dependency dependencies = 2;
+  Dependencies dependencies = 2;
 }

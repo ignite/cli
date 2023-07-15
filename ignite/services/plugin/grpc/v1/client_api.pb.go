@@ -20,6 +20,61 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Dependencies struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ModulesInPath []*Dependency `protobuf:"bytes,1,rep,name=modules_in_path,json=modulesInPath,proto3" json:"modules_in_path,omitempty"`
+	Includes      []string      `protobuf:"bytes,2,rep,name=includes,proto3" json:"includes,omitempty"`
+}
+
+func (x *Dependencies) Reset() {
+	*x = Dependencies{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Dependencies) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Dependencies) ProtoMessage() {}
+
+func (x *Dependencies) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Dependencies.ProtoReflect.Descriptor instead.
+func (*Dependencies) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Dependencies) GetModulesInPath() []*Dependency {
+	if x != nil {
+		return x.ModulesInPath
+	}
+	return nil
+}
+
+func (x *Dependencies) GetIncludes() []string {
+	if x != nil {
+		return x.Includes
+	}
+	return nil
+}
+
 // Dependecy keeps data about Go module dependencies.
 type Dependency struct {
 	state         protoimpl.MessageState
@@ -35,7 +90,7 @@ type Dependency struct {
 func (x *Dependency) Reset() {
 	*x = Dependency{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[0]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -48,7 +103,7 @@ func (x *Dependency) String() string {
 func (*Dependency) ProtoMessage() {}
 
 func (x *Dependency) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[0]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +116,7 @@ func (x *Dependency) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Dependency.ProtoReflect.Descriptor instead.
 func (*Dependency) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{0}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Dependency) GetPath() string {
@@ -101,7 +156,7 @@ type Module struct {
 func (x *Module) Reset() {
 	*x = Module{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -114,7 +169,7 @@ func (x *Module) String() string {
 func (*Module) ProtoMessage() {}
 
 func (x *Module) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -127,7 +182,7 @@ func (x *Module) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Module.ProtoReflect.Descriptor instead.
 func (*Module) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{1}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Module) GetName() string {
@@ -195,7 +250,7 @@ type ProtoPackage struct {
 func (x *ProtoPackage) Reset() {
 	*x = ProtoPackage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -208,7 +263,7 @@ func (x *ProtoPackage) String() string {
 func (*ProtoPackage) ProtoMessage() {}
 
 func (x *ProtoPackage) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -221,7 +276,7 @@ func (x *ProtoPackage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtoPackage.ProtoReflect.Descriptor instead.
 func (*ProtoPackage) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{2}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ProtoPackage) GetName() string {
@@ -281,7 +336,7 @@ type ProtoFile struct {
 func (x *ProtoFile) Reset() {
 	*x = ProtoFile{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -294,7 +349,7 @@ func (x *ProtoFile) String() string {
 func (*ProtoFile) ProtoMessage() {}
 
 func (x *ProtoFile) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -307,7 +362,7 @@ func (x *ProtoFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtoFile.ProtoReflect.Descriptor instead.
 func (*ProtoFile) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{3}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ProtoFile) GetPath() string {
@@ -344,7 +399,7 @@ type ProtoMessage struct {
 func (x *ProtoMessage) Reset() {
 	*x = ProtoMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -357,7 +412,7 @@ func (x *ProtoMessage) String() string {
 func (*ProtoMessage) ProtoMessage() {}
 
 func (x *ProtoMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -370,7 +425,7 @@ func (x *ProtoMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtoMessage.ProtoReflect.Descriptor instead.
 func (*ProtoMessage) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{4}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ProtoMessage) GetName() string {
@@ -416,7 +471,7 @@ type ProtoService struct {
 func (x *ProtoService) Reset() {
 	*x = ProtoService{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -429,7 +484,7 @@ func (x *ProtoService) String() string {
 func (*ProtoService) ProtoMessage() {}
 
 func (x *ProtoService) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -442,7 +497,7 @@ func (x *ProtoService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtoService.ProtoReflect.Descriptor instead.
 func (*ProtoService) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{5}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ProtoService) GetName() string {
@@ -480,7 +535,7 @@ type ProtoServiceFunc struct {
 func (x *ProtoServiceFunc) Reset() {
 	*x = ProtoServiceFunc{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -493,7 +548,7 @@ func (x *ProtoServiceFunc) String() string {
 func (*ProtoServiceFunc) ProtoMessage() {}
 
 func (x *ProtoServiceFunc) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +561,7 @@ func (x *ProtoServiceFunc) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtoServiceFunc.ProtoReflect.Descriptor instead.
 func (*ProtoServiceFunc) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{6}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ProtoServiceFunc) GetName() string {
@@ -561,7 +616,7 @@ type Message struct {
 func (x *Message) Reset() {
 	*x = Message{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -574,7 +629,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -587,7 +642,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{7}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Message) GetName() string {
@@ -630,7 +685,7 @@ type HTTPQuery struct {
 func (x *HTTPQuery) Reset() {
 	*x = HTTPQuery{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -643,7 +698,7 @@ func (x *HTTPQuery) String() string {
 func (*HTTPQuery) ProtoMessage() {}
 
 func (x *HTTPQuery) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -656,7 +711,7 @@ func (x *HTTPQuery) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HTTPQuery.ProtoReflect.Descriptor instead.
 func (*HTTPQuery) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{8}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *HTTPQuery) GetName() string {
@@ -704,7 +759,7 @@ type HTTPRule struct {
 func (x *HTTPRule) Reset() {
 	*x = HTTPRule{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -717,7 +772,7 @@ func (x *HTTPRule) String() string {
 func (*HTTPRule) ProtoMessage() {}
 
 func (x *HTTPRule) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -730,7 +785,7 @@ func (x *HTTPRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HTTPRule.ProtoReflect.Descriptor instead.
 func (*HTTPRule) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{9}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *HTTPRule) GetParams() []string {
@@ -769,7 +824,7 @@ type Type struct {
 func (x *Type) Reset() {
 	*x = Type{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10]
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -782,7 +837,7 @@ func (x *Type) String() string {
 func (*Type) ProtoMessage() {}
 
 func (x *Type) ProtoReflect() protoreflect.Message {
-	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10]
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -795,7 +850,7 @@ func (x *Type) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Type.ProtoReflect.Descriptor instead.
 func (*Type) Descriptor() ([]byte, []int) {
-	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{10}
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Type) GetName() string {
@@ -820,7 +875,15 @@ var file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc = []byte{
 	0x2f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x12, 0x1e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
 	0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76,
-	0x31, 0x22, 0x62, 0x0a, 0x0a, 0x44, 0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x63, 0x79, 0x12,
+	0x31, 0x22, 0x7e, 0x0a, 0x0c, 0x44, 0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x63, 0x69, 0x65,
+	0x73, 0x12, 0x52, 0x0a, 0x0f, 0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x73, 0x5f, 0x69, 0x6e, 0x5f,
+	0x70, 0x61, 0x74, 0x68, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x69, 0x67, 0x6e,
+	0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75,
+	0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x65, 0x70, 0x65,
+	0x6e, 0x64, 0x65, 0x6e, 0x63, 0x79, 0x52, 0x0d, 0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x73, 0x49,
+	0x6e, 0x50, 0x61, 0x74, 0x68, 0x12, 0x1a, 0x0a, 0x08, 0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65,
+	0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x08, 0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65,
+	0x73, 0x22, 0x62, 0x0a, 0x0a, 0x44, 0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x63, 0x79, 0x12,
 	0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70,
 	0x61, 0x74, 0x68, 0x12, 0x40, 0x0a, 0x07, 0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x73, 0x18, 0x02,
 	0x20, 0x03, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65,
@@ -950,39 +1013,41 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP() []byte {
 	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescData
 }
 
-var file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_ignite_services_plugin_grpc_v1_client_api_proto_goTypes = []interface{}{
-	(*Dependency)(nil),       // 0: ignite.services.plugin.grpc.v1.Dependency
-	(*Module)(nil),           // 1: ignite.services.plugin.grpc.v1.Module
-	(*ProtoPackage)(nil),     // 2: ignite.services.plugin.grpc.v1.ProtoPackage
-	(*ProtoFile)(nil),        // 3: ignite.services.plugin.grpc.v1.ProtoFile
-	(*ProtoMessage)(nil),     // 4: ignite.services.plugin.grpc.v1.ProtoMessage
-	(*ProtoService)(nil),     // 5: ignite.services.plugin.grpc.v1.ProtoService
-	(*ProtoServiceFunc)(nil), // 6: ignite.services.plugin.grpc.v1.ProtoServiceFunc
-	(*Message)(nil),          // 7: ignite.services.plugin.grpc.v1.Message
-	(*HTTPQuery)(nil),        // 8: ignite.services.plugin.grpc.v1.HTTPQuery
-	(*HTTPRule)(nil),         // 9: ignite.services.plugin.grpc.v1.HTTPRule
-	(*Type)(nil),             // 10: ignite.services.plugin.grpc.v1.Type
-	nil,                      // 11: ignite.services.plugin.grpc.v1.ProtoMessage.FieldsEntry
+	(*Dependencies)(nil),     // 0: ignite.services.plugin.grpc.v1.Dependencies
+	(*Dependency)(nil),       // 1: ignite.services.plugin.grpc.v1.Dependency
+	(*Module)(nil),           // 2: ignite.services.plugin.grpc.v1.Module
+	(*ProtoPackage)(nil),     // 3: ignite.services.plugin.grpc.v1.ProtoPackage
+	(*ProtoFile)(nil),        // 4: ignite.services.plugin.grpc.v1.ProtoFile
+	(*ProtoMessage)(nil),     // 5: ignite.services.plugin.grpc.v1.ProtoMessage
+	(*ProtoService)(nil),     // 6: ignite.services.plugin.grpc.v1.ProtoService
+	(*ProtoServiceFunc)(nil), // 7: ignite.services.plugin.grpc.v1.ProtoServiceFunc
+	(*Message)(nil),          // 8: ignite.services.plugin.grpc.v1.Message
+	(*HTTPQuery)(nil),        // 9: ignite.services.plugin.grpc.v1.HTTPQuery
+	(*HTTPRule)(nil),         // 10: ignite.services.plugin.grpc.v1.HTTPRule
+	(*Type)(nil),             // 11: ignite.services.plugin.grpc.v1.Type
+	nil,                      // 12: ignite.services.plugin.grpc.v1.ProtoMessage.FieldsEntry
 }
 var file_ignite_services_plugin_grpc_v1_client_api_proto_depIdxs = []int32{
-	1,  // 0: ignite.services.plugin.grpc.v1.Dependency.modules:type_name -> ignite.services.plugin.grpc.v1.Module
-	2,  // 1: ignite.services.plugin.grpc.v1.Module.package:type_name -> ignite.services.plugin.grpc.v1.ProtoPackage
-	7,  // 2: ignite.services.plugin.grpc.v1.Module.messages:type_name -> ignite.services.plugin.grpc.v1.Message
-	8,  // 3: ignite.services.plugin.grpc.v1.Module.http_queries:type_name -> ignite.services.plugin.grpc.v1.HTTPQuery
-	10, // 4: ignite.services.plugin.grpc.v1.Module.types:type_name -> ignite.services.plugin.grpc.v1.Type
-	3,  // 5: ignite.services.plugin.grpc.v1.ProtoPackage.files:type_name -> ignite.services.plugin.grpc.v1.ProtoFile
-	4,  // 6: ignite.services.plugin.grpc.v1.ProtoPackage.messages:type_name -> ignite.services.plugin.grpc.v1.ProtoMessage
-	5,  // 7: ignite.services.plugin.grpc.v1.ProtoPackage.services:type_name -> ignite.services.plugin.grpc.v1.ProtoService
-	11, // 8: ignite.services.plugin.grpc.v1.ProtoMessage.fields:type_name -> ignite.services.plugin.grpc.v1.ProtoMessage.FieldsEntry
-	6,  // 9: ignite.services.plugin.grpc.v1.ProtoService.functions:type_name -> ignite.services.plugin.grpc.v1.ProtoServiceFunc
-	9,  // 10: ignite.services.plugin.grpc.v1.ProtoServiceFunc.http_rules:type_name -> ignite.services.plugin.grpc.v1.HTTPRule
-	9,  // 11: ignite.services.plugin.grpc.v1.HTTPQuery.rules:type_name -> ignite.services.plugin.grpc.v1.HTTPRule
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	1,  // 0: ignite.services.plugin.grpc.v1.Dependencies.modules_in_path:type_name -> ignite.services.plugin.grpc.v1.Dependency
+	2,  // 1: ignite.services.plugin.grpc.v1.Dependency.modules:type_name -> ignite.services.plugin.grpc.v1.Module
+	3,  // 2: ignite.services.plugin.grpc.v1.Module.package:type_name -> ignite.services.plugin.grpc.v1.ProtoPackage
+	8,  // 3: ignite.services.plugin.grpc.v1.Module.messages:type_name -> ignite.services.plugin.grpc.v1.Message
+	9,  // 4: ignite.services.plugin.grpc.v1.Module.http_queries:type_name -> ignite.services.plugin.grpc.v1.HTTPQuery
+	11, // 5: ignite.services.plugin.grpc.v1.Module.types:type_name -> ignite.services.plugin.grpc.v1.Type
+	4,  // 6: ignite.services.plugin.grpc.v1.ProtoPackage.files:type_name -> ignite.services.plugin.grpc.v1.ProtoFile
+	5,  // 7: ignite.services.plugin.grpc.v1.ProtoPackage.messages:type_name -> ignite.services.plugin.grpc.v1.ProtoMessage
+	6,  // 8: ignite.services.plugin.grpc.v1.ProtoPackage.services:type_name -> ignite.services.plugin.grpc.v1.ProtoService
+	12, // 9: ignite.services.plugin.grpc.v1.ProtoMessage.fields:type_name -> ignite.services.plugin.grpc.v1.ProtoMessage.FieldsEntry
+	7,  // 10: ignite.services.plugin.grpc.v1.ProtoService.functions:type_name -> ignite.services.plugin.grpc.v1.ProtoServiceFunc
+	10, // 11: ignite.services.plugin.grpc.v1.ProtoServiceFunc.http_rules:type_name -> ignite.services.plugin.grpc.v1.HTTPRule
+	10, // 12: ignite.services.plugin.grpc.v1.HTTPQuery.rules:type_name -> ignite.services.plugin.grpc.v1.HTTPRule
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_ignite_services_plugin_grpc_v1_client_api_proto_init() }
@@ -992,7 +1057,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Dependency); i {
+			switch v := v.(*Dependencies); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1004,7 +1069,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Module); i {
+			switch v := v.(*Dependency); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1016,7 +1081,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProtoPackage); i {
+			switch v := v.(*Module); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1028,7 +1093,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProtoFile); i {
+			switch v := v.(*ProtoPackage); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1040,7 +1105,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProtoMessage); i {
+			switch v := v.(*ProtoFile); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1052,7 +1117,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProtoService); i {
+			switch v := v.(*ProtoMessage); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1064,7 +1129,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProtoServiceFunc); i {
+			switch v := v.(*ProtoService); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1076,7 +1141,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Message); i {
+			switch v := v.(*ProtoServiceFunc); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1088,7 +1153,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HTTPQuery); i {
+			switch v := v.(*Message); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1100,7 +1165,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HTTPRule); i {
+			switch v := v.(*HTTPQuery); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1112,6 +1177,18 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			}
 		}
 		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*HTTPRule); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Type); i {
 			case 0:
 				return &v.state
@@ -1130,7 +1207,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1,9 +1,8 @@
-package cosmosgen
+package chain
 
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,7 +51,7 @@ type Analyzer struct {
 	thirdModules map[string][]module.Module // app dependency-modules pair.
 }
 
-func GetModuleList(ctx context.Context, c *chain.Chain) (map[string]string, error) {
+func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
 	conf, err := c.Config()
 	if err != nil {
 		return nil, err
@@ -71,12 +70,12 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (map[string]string, erro
 	if err := cmdrunner.
 		New(
 			cmdrunner.DefaultStderr(&errb),
-			cmdrunner.DefaultWorkdir(g.appPath),
-		).Run(g.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
+			cmdrunner.DefaultWorkdir(c.AppPath()),
+		).Run(ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
 		return nil, errors.Wrap(err, errb.String())
 	}
 
-	modFile, err := gomodule.ParseAt(g.appPath)
+	modFile, err := gomodule.ParseAt(c.AppPath())
 	a := &Analyzer{
 		ctx:          ctx,
 		appPath:      c.AppPath(),
@@ -174,10 +173,7 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (map[string]string, erro
 		ModulePaths: modulelist,
 		Includes:    includePaths,
 	}
-	ret := make(map[string]string)
-	jsonm, _ := json.Marshal(allModules)
-	ret["ModuleAnalysis"] = string(jsonm)
-	return ret, nil
+	return allModules, nil
 }
 
 func (a *Analyzer) resolveDependencyInclude() ([]string, error) {
