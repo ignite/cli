@@ -3,6 +3,7 @@ package plugin
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/chain"
 	chainservice "github.com/ignite/cli/ignite/services/chain"
@@ -34,5 +35,6 @@ func (c clientAPI) Dependencies(ctx context.Context) (*Dependencies, error) {
 		return nil, err
 	}
 	json.Unmarshal(bytes, ret)
+	fmt.Println(ret)
 	return ret, nil
 }

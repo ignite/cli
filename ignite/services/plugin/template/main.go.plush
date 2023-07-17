@@ -73,6 +73,11 @@ func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, c plugin.Clie
 			fmt.Println("Deleting stuff...")
 		}
 	*/
+	
+	// Calling the ClientAPI example
+	/*
+		fmt.Println(c.Dependencies(ctx))
+	/*
 	return nil
 }
 

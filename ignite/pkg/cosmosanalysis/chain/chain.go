@@ -31,12 +31,12 @@ var protocGlobalInclude = xfilepath.List(
 )
 
 type ModulesInPath struct {
-	Path    string
-	Modules []module.Module
+	Path    string          `json:"path,omitempty"`
+	Modules []module.Module `json:"modules,omitempty"`
 }
 type AllModules struct {
-	ModulePaths []ModulesInPath
-	Includes    []string
+	ModulePaths []ModulesInPath `json:"modules_in_path,omitempty"`
+	Includes    []string        `json:"includes,omitempty"`
 }
 
 type Analyzer struct {
