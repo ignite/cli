@@ -350,12 +350,14 @@ func NewPlugin() *cobra.Command {
 		Short: "Handle plugins",
 	}
 
-	c.AddCommand(NewPluginList())
-	c.AddCommand(NewPluginUpdate())
-	c.AddCommand(NewPluginScaffold())
-	c.AddCommand(NewPluginDescribe())
-	c.AddCommand(NewPluginAdd())
-	c.AddCommand(NewPluginRemove())
+	c.AddCommand(
+		NewPluginList(),
+		NewPluginUpdate(),
+		NewPluginScaffold(),
+		NewPluginDescribe(),
+		NewPluginAdd(),
+		NewPluginRemove(),
+	)
 
 	return c
 }

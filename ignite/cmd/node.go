@@ -22,8 +22,10 @@ func NewNode() *cobra.Command {
 
 	c.PersistentFlags().String(flagNode, cosmosRPCAddress, "<host>:<port> to tendermint rpc interface for this chain")
 
-	c.AddCommand(NewNodeQuery())
-	c.AddCommand(NewNodeTx())
+	c.AddCommand(
+		NewNodeQuery(),
+		NewNodeTx(),
+	)
 
 	return c
 }
