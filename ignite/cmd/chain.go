@@ -113,20 +113,6 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.End()
 
-	if err := configMigrationPreRunHandler(cmd, session); err != nil {
-		return err
-	}
-
-	if err := toolsMigrationPreRunHandler(cmd, session); err != nil {
-		return err
-	}
-
-	return bufMigrationPreRunHandler(cmd, session)
-}
-
-func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
-	session.StartSpinner("Checking missing tools...")
-
 	path := flagGetPath(cmd)
 	path, err := filepath.Abs(path)
 	if err != nil {
@@ -137,6 +123,20 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) err
 	if err != nil {
 		return err
 	}
+
+	if err := configMigrationPreRunHandler(cmd, session, appPath); err != nil {
+		return err
+	}
+
+	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session, appPath)
+}
+
+func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
+	session.StartSpinner("Checking missing tools...")
 
 	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
 	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
@@ -152,25 +152,27 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) err
 	unused := cosmosgen.UnusedTools(f)
 
 	session.StopSpinner()
-	if len(missing) > 0 {
-		question := fmt.Sprintf(
-			msgMigrationAddTools,
-			toolsFilename,
-			strings.Join(missing, ", "),
-		)
-		if err := session.AskConfirm(question); err != nil {
-			missing = []string{}
+	if !getYes(cmd) {
+		if len(missing) > 0 {
+			question := fmt.Sprintf(
+				msgMigrationAddTools,
+				toolsFilename,
+				strings.Join(missing, ", "),
+			)
+			if err := session.AskConfirm(question); err != nil {
+				missing = []string{}
+			}
 		}
-	}
 
-	if len(unused) > 0 {
-		question := fmt.Sprintf(
-			msgMigrationRemoveTools,
-			toolsFilename,
-			strings.Join(unused, ", "),
-		)
-		if err := session.AskConfirm(question); err != nil {
-			unused = []string{}
+		if len(unused) > 0 {
+			question := fmt.Sprintf(
+				msgMigrationRemoveTools,
+				toolsFilename,
+				strings.Join(unused, ", "),
+			)
+			if err := session.AskConfirm(question); err != nil {
+				unused = []string{}
+			}
 		}
 	}
 	if len(missing) == 0 && len(unused) == 0 {
@@ -186,14 +188,16 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) err
 	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
 }
 
-func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error {
-	appPath := flagGetPath(cmd)
+func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
 	hasFiles := chain.CheckBufFiles(appPath)
 	if hasFiles {
 		return nil
 	}
-	if err := session.AskConfirm(msgMigrationBuf); err != nil {
-		return ErrProtocUnsupported
+
+	if !getYes(cmd) {
+		if err := session.AskConfirm(msgMigrationBuf); err != nil {
+			return ErrProtocUnsupported
+		}
 	}
 
 	sm, err := chain.BoxBufFiles(appPath)
@@ -207,8 +211,7 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) error
 	return nil
 }
 
-func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session) (err error) {
-	appPath := flagGetPath(cmd)
+func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) (err error) {
 	configPath := getConfig(cmd)
 	if configPath == "" {
 		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
