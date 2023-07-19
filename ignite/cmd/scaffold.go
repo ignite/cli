@@ -92,19 +92,20 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		Args:    cobra.ExactArgs(1),
 	}
 
-	c.AddCommand(NewScaffoldChain())
-	c.AddCommand(NewScaffoldModule())
-	c.AddCommand(NewScaffoldList())
-	c.AddCommand(NewScaffoldMap())
-	c.AddCommand(NewScaffoldSingle())
-	c.AddCommand(NewScaffoldType())
-	c.AddCommand(NewScaffoldMessage())
-	c.AddCommand(NewScaffoldQuery())
-	c.AddCommand(NewScaffoldPacket())
-	c.AddCommand(NewScaffoldBandchain())
-	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldReact())
-	// c.AddCommand(NewScaffoldWasm())
+	c.AddCommand(
+		NewScaffoldChain(),
+		NewScaffoldModule(),
+		NewScaffoldList(),
+		NewScaffoldMap(),
+		NewScaffoldSingle(),
+		NewScaffoldType(),
+		NewScaffoldMessage(),
+		NewScaffoldQuery(),
+		NewScaffoldPacket(),
+		NewScaffoldBandchain(),
+		NewScaffoldVue(),
+		NewScaffoldReact(),
+	)
 
 	return c
 }
