@@ -68,17 +68,19 @@ To get started, create a blockchain:
 		},
 	}
 
-	c.AddCommand(NewScaffold())
-	c.AddCommand(NewChain())
-	c.AddCommand(NewGenerate())
-	c.AddCommand(NewNode())
-	c.AddCommand(NewAccount())
-	c.AddCommand(NewRelayer())
-	c.AddCommand(NewTools())
-	c.AddCommand(NewDocs())
-	c.AddCommand(NewVersion())
-	c.AddCommand(NewPlugin())
-	c.AddCommand(NewDoctor())
+	c.AddCommand(
+		NewScaffold(),
+		NewChain(),
+		NewGenerate(),
+		NewNode(),
+		NewAccount(),
+		NewRelayer(),
+		NewTools(),
+		NewDocs(),
+		NewVersion(),
+		NewPlugin(),
+		NewDoctor(),
+	)
 	c.AddCommand(deprecated()...)
 
 	// Load plugins if any
