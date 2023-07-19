@@ -25,8 +25,10 @@ func NewNodeQuery() *cobra.Command {
 		Aliases: []string{"q"},
 	}
 
-	c.AddCommand(NewNodeQueryBank())
-	c.AddCommand(NewNodeQueryTx())
+	c.AddCommand(
+		NewNodeQueryBank(),
+		NewNodeQueryTx(),
+	)
 
 	return c
 }

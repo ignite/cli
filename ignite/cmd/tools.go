@@ -18,8 +18,10 @@ func NewTools() *cobra.Command {
 		Use:   "tools",
 		Short: "Tools for advanced users",
 	}
-	c.AddCommand(NewToolsIBCSetup())
-	c.AddCommand(NewToolsIBCRelayer())
+	c.AddCommand(
+		NewToolsIBCSetup(),
+		NewToolsIBCRelayer(),
+	)
 	return c
 }
 
