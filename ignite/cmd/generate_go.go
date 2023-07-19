@@ -10,10 +10,9 @@ import (
 
 func NewGenerateGo() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "proto-go",
-		Short:   "Compile protocol buffer files to Go source code required by Cosmos SDK",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateGoHandler,
+		Use:   "proto-go",
+		Short: "Compile protocol buffer files to Go source code required by Cosmos SDK",
+		RunE:  generateGoHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
@@ -29,6 +28,7 @@ func generateGoHandler(cmd *cobra.Command, _ []string) error {
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+		chain.CheckCosmosSDKVersion(),
 	)
 	if err != nil {
 		return err

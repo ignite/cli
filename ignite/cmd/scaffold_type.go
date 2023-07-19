@@ -16,7 +16,7 @@ func NewScaffoldType() *cobra.Command {
 		Long:    fmt.Sprintf("Type information\n%s\n", supportFieldTypes),
 		Example: "   ignite scaffold type todo-item priority:int desc:string tags:array.string done:bool",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldTypeHandler,
 	}
 

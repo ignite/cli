@@ -1,8 +1,12 @@
 name: Release nightly
 
 on:
-  schedule:
-    - cron: '0 2 * * *' # run at 2 AM UTC
+  workflow_dispatch:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
   consecutiveness:
@@ -53,7 +57,7 @@ jobs:
         goarch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v3
-      - uses: wangyoucao577/go-release-action@v1.34
+      - uses: wangyoucao577/go-release-action@v1.38
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           project_path: "./ignite/cmd/ignite"
@@ -63,5 +67,5 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version=nightly
-          goversion: "1.19"
+          goversion: "./go.mod"
           retry: 10

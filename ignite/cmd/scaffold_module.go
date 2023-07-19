@@ -96,7 +96,7 @@ Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
 `,
 		Args:    cobra.ExactArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldModuleHandler,
 	}
 

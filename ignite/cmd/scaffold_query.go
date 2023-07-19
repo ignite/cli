@@ -21,7 +21,7 @@ func NewScaffoldQuery() *cobra.Command {
 		Short:   "Query for fetching data from a blockchain\n",
 		Long:    "Query for fetching data from a blockchain\nFor detailed type information use ignite scaffold type --help",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    queryHandler,
 	}
 

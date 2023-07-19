@@ -13,7 +13,7 @@ func NewScaffoldSingle() *cobra.Command {
 		Short:   "CRUD for data stored in a single location",
 		Long:    "CRUD for data stored in a single location\nFor detailed type information use ignite scaffold type --help",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldSingleHandler,
 	}
 

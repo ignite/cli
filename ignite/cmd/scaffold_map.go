@@ -58,7 +58,7 @@ custom types.
 For detailed type information use ignite scaffold type --help
 `,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMapHandler,
 	}
 

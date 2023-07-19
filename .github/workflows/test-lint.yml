@@ -8,24 +8,17 @@ on:
       - main
 jobs:
   lint:
-    name: golangci-lint
+    name: Lint Go code
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v3.4.0
-
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
             **/*.go
             go.mod
             go.sum
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.19
-
       - uses: golangci/golangci-lint-action@v3
         with:
           version: v1.52.1
