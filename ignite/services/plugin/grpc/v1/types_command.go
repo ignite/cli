@@ -81,6 +81,10 @@ func (c *ExecutedCommand) NewPersistentFlags() (*pflag.FlagSet, error) {
 
 func ensureFullCommandPath(path string) string {
 	path = strings.TrimSpace(path)
+	if path == "" {
+		return igniteBinaryName
+	}
+
 	if !strings.HasPrefix(path, igniteBinaryName) {
 		path = igniteBinaryName + " " + path
 	}
