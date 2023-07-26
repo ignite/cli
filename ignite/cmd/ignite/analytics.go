@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	gaid     = "<GA_KEY>" // Google Analytics' tracking id.
-	loginAny = "any"
+	gaid          = "<GA_KEY>" // Google Analytics' tracking id.
+	loginAny      = "any"
+	envDoNotTrack = "DO_NOT_TRACK"
 )
 
 var (
@@ -35,6 +36,10 @@ type Metric struct {
 }
 
 func addMetric(m Metric) {
+	if doNotTrack() {
+		return
+	}
+
 	fullCommand := os.Args
 	var rootCommand string
 	if len(os.Args) > 1 { // first is ignite (binary name).
@@ -84,4 +89,12 @@ func prepLoginName() (name string, hadLogin bool) {
 		return loginAny, false
 	}
 	return name, false
+}
+
+// doNotTrack returns the bool value for DO_NOT_TRACK env var
+func doNotTrack() bool {
+	if os.Getenv(envDoNotTrack) == "1" {
+		return true
+	}
+	return false
 }
