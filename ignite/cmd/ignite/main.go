@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
@@ -20,6 +21,29 @@ func main() {
 }
 
 func run() int {
+	defer func() {
+		if r := recover(); r != nil {
+			addMetric(Metric{
+				Err: fmt.Errorf("%v", r),
+			})
+			fmt.Println(r)
+			os.Exit(1)
+		}
+	}()
+	gaclient = gacli.New(gaid)
+	name, hadLogin := prepLoginName()
+	if !hadLogin {
+		addMetric(Metric{
+			Login:          name,
+			IsInstallation: true,
+		})
+	}
+	// if running serve command, don't wait sending metric until the end of
+	// execution because it takes a long time.
+	if len(os.Args) > 1 && os.Args[1] == "serve" {
+		addMetric(Metric{})
+	}
+
 	const (
 		exitCodeOK    = 0
 		exitCodeError = 1
@@ -36,6 +60,9 @@ func run() int {
 	err = cmd.ExecuteContext(ctx)
 
 	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
+		addMetric(Metric{
+			Err: err,
+		})
 		fmt.Println("aborted")
 		return exitCodeOK
 	}
