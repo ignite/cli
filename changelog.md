@@ -12,6 +12,10 @@
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1` 
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 
+### Fixes
+
+- [#3592](https://github.com/ignite/cli/pull/3592) fix(pkg/protoanalysis): support HTTP rule parameter arguments
+
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
 ### Features
