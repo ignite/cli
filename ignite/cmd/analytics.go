@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,7 +83,7 @@ func prepareMetrics() (identity, error) {
 	if err != nil {
 		return identity{}, err
 	}
-	if err := os.Mkdir(filepath.Join(home, igniteDir), 0o700); err != nil {
+	if err := os.Mkdir(filepath.Join(home, igniteDir), 0o700); err != nil && !os.IsExist(err) {
 		return identity{}, err
 	}
 	anonPath := filepath.Join(home, igniteDir, igniteAnonIdentity)
