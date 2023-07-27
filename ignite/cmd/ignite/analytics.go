@@ -1,4 +1,4 @@
-package ignitecmd
+package main
 
 import (
 	"encoding/json"
@@ -75,6 +75,7 @@ func addCmdMetric(m metric) error {
 	}
 	met.User = ident.Name
 	met.Version = version.Version
+	fmt.Printf("\n\n**************** %s", met)
 	return gaclient.Send(met)
 }
 

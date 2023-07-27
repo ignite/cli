@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
+	"sync"
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
@@ -20,6 +23,30 @@ func main() {
 }
 
 func run() int {
+	defer func() {
+		if r := recover(); r != nil {
+			_ = addCmdMetric(metric{
+				err:     fmt.Errorf("%v", r),
+				command: strings.Join(os.Args, " "),
+			})
+			fmt.Println(r)
+			os.Exit(1)
+		}
+	}()
+	gaclient = gacli.New(gaid)
+
+	var wg sync.WaitGroup
+	if len(os.Args) > 1 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_ = addCmdMetric(metric{
+				command: strings.Join(os.Args, " "),
+			})
+		}()
+	}
+	defer wg.Wait()
+
 	const (
 		exitCodeOK    = 0
 		exitCodeError = 1
