@@ -2,11 +2,12 @@ package ignitecmd
 
 import (
 	"encoding/json"
-	"github.com/Pallinder/go-randomdata"
-	"github.com/manifoldco/promptui"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Pallinder/go-randomdata"
+	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/version"
