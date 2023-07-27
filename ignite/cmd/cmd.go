@@ -64,6 +64,7 @@ To get started, create a blockchain:
 				checkNewVersion(cmd.Context())
 			}
 
+			addCmdMetric(metric{command: cmd.CommandPath()})
 			return goenv.ConfigurePath()
 		},
 	}
