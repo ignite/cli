@@ -14,7 +14,8 @@
 
 ### Fixes
 
-- [#3592](https://github.com/ignite/cli/pull/3592) fix(pkg/protoanalysis): support HTTP rule parameter arguments
+- [#3592](https://github.com/ignite/cli/pull/3592) Fix `pkg/protoanalysis` to support HTTP rule parameter arguments
+- [#3598](https://github.com/ignite/cli/pull/3598) Fix consensus param keeper constructor key in `app.go`
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
