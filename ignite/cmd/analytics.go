@@ -2,12 +2,11 @@ package ignitecmd
 
 import (
 	"encoding/json"
+	"github.com/Pallinder/go-randomdata"
+	"github.com/manifoldco/promptui"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/Pallinder/go-randomdata"
-	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/version"
@@ -47,19 +46,14 @@ func init() {
 }
 
 func addCmdMetric(m metric) error {
-	if os.Getenv(envDoNotTrack) == "1" {
+	envDoNotTrackVar := os.Getenv(envDoNotTrack)
+	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
 		return nil
 	}
 
 	ident, err := prepareMetrics()
 	if err != nil {
 		return err
-	}
-
-	fullCommand := os.Args
-	var rootCommand string
-	if len(os.Args) > 1 { // first is ignite (binary name).
-		rootCommand = os.Args[1]
 	}
 
 	var met gacli.Metric
@@ -70,8 +64,13 @@ func addCmdMetric(m metric) error {
 		met.Category = "error"
 		met.Value = m.err.Error()
 	}
-	met.Action = rootCommand
-	met.Label = strings.Join(fullCommand, " ")
+	met.Action = m.command
+
+	cmds := strings.Split(m.command, " ")
+	met.Label = cmds[0]
+	if len(cmds) > 0 {
+		met.Label = cmds[1]
+	}
 	met.User = ident.Name
 	met.Version = version.Version
 	return gaclient.Send(met)
