@@ -11,6 +11,7 @@
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1` 
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
+- [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.9.0`
 
 ### Fixes
 
