@@ -9,10 +9,12 @@ import (
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/ignite/version"
 )
 
 // flags related to component scaffolding.
@@ -126,6 +128,15 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 
 	_, appPath, err := gomodulepath.Find(path)
 	if err != nil {
+		return err
+	}
+
+	ver, err := cosmosver.Detect(path)
+	if err != nil {
+		return err
+	}
+
+	if err := version.AssertSupportedCosmosSDKVersion(ver); err != nil {
 		return err
 	}
 
