@@ -131,7 +131,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	ver, err := cosmosver.Detect(path)
+	ver, err := cosmosver.Detect(appPath)
 	if err != nil {
 		return err
 	}
