@@ -190,6 +190,10 @@ func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 
+	analyzer := &struct {
+		Analyzer
+	}{}
+
 	tests := []struct {
 		name          string
 		buildPlugin   func(t *testing.T) Plugin
@@ -355,10 +359,10 @@ func TestPluginLoad(t *testing.T) {
 			manifest, err := p.Interface.Manifest(ctx)
 			require.NoError(err)
 			assert.Equal(p.binaryName, manifest.Name)
-			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{}))
-			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}))
-			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}))
-			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}))
+			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{}, analyzer))
+			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}, analyzer))
+			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}, analyzer))
+			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}, analyzer))
 		})
 	}
 }
