@@ -29,7 +29,7 @@ func (p) Manifest(context.Context) (*plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand) error {
+func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand, az plugin.Analyzer) error {
 	fmt.Printf("Hello I'm the example-plugin plugin\n")
 	fmt.Printf("My executed command: %q\n", cmd.Path)
 	fmt.Printf("My args: %v\n", cmd.Args)
@@ -45,17 +45,17 @@ func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand) error {
 	return nil
 }
 
-func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook) error {
+func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, az plugin.Analyzer) error {
 	fmt.Printf("Executing hook pre %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook) error {
+func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, az plugin.Analyzer) error {
 	fmt.Printf("Executing hook post %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook) error {
+func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, az plugin.Analyzer) error {
 	fmt.Printf("Executing hook cleanup %q\n", h.Hook.GetName())
 	return nil
 }
