@@ -67,7 +67,7 @@ type Interface interface {
 
 // Analyzer defines the interface for plugins to get chain app code analysis info.
 //
-//go:generate mockery --srcpkg . --name Analyzer --structname PluginAnalyzer --filename interface.go --with-expecter
+//go:generate mockery --srcpkg . --name Analyzer --structname PluginAnalyzer --filename analyzer.go --with-expecter
 type Analyzer interface {
 	// Dependencies returns the app dependencies.
 	Dependencies(context.Context) ([]*Dependency, error)
