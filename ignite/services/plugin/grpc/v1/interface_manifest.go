@@ -1,8 +1,6 @@
 package v1
 
-import (
-	"github.com/spf13/cobra"
-)
+import "github.com/spf13/cobra"
 
 // ImportCobraCommand appends Cobra command definitions to the list of plugin commands.
 // This method can be used in cases where a plugin defines the commands using Cobra.

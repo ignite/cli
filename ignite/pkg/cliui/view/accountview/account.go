@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/muesli/reflow/indent"
-	"github.com/muesli/reflow/wordwrap"
-
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 )
@@ -48,10 +45,7 @@ func (a Account) String() string {
 
 	// The account is new when the mnemonic is available
 	if a.Mnemonic != "" {
-		m := wordwrap.String(a.Mnemonic, 80)
-		m = indent.String(m, 2)
-
-		return fmt.Sprintf(fmtNewAccount, icons.OK, name, a.Address, colors.Mnemonic(m))
+		return fmt.Sprintf(fmtNewAccount, icons.OK, name, a.Address, colors.Mnemonic(a.Mnemonic))
 	}
 
 	return fmt.Sprintf(fmtExistingAccount, icons.User, name, a.Address)

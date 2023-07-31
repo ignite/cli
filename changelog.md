@@ -20,6 +20,12 @@
 
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1` 
+- [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
+
+### Fixes
+
+- [#3592](https://github.com/ignite/cli/pull/3592) Fix `pkg/protoanalysis` to support HTTP rule parameter arguments
+- [#3598](https://github.com/ignite/cli/pull/3598) Fix consensus param keeper constructor key in `app.go`
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 

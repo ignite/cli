@@ -1,6 +1,6 @@
 module example-plugin
 
-go 1.19
+go 1.20
 
 require (
 	github.com/hashicorp/go-plugin v1.4.9

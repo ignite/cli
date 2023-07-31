@@ -90,9 +90,16 @@ type flagger interface {
 	PersistentFlags() *pflag.FlagSet
 }
 
-func extractCobraFlags(cmd flagger) (flags []*Flag) {
+func extractCobraFlags(cmd flagger) []*Flag {
+	var flags []*Flag
+
 	if cmd.Flags() != nil {
 		cmd.Flags().VisitAll(func(pf *pflag.Flag) {
+			// Skip persistent flags
+			if cmd.PersistentFlags().Lookup(pf.Name) != nil {
+				return
+			}
+
 			flags = append(flags, &Flag{
 				Name:         pf.Name,
 				Shorthand:    pf.Shorthand,
@@ -118,5 +125,5 @@ func extractCobraFlags(cmd flagger) (flags []*Flag) {
 		})
 	}
 
-	return
+	return flags
 }
