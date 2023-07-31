@@ -127,7 +127,7 @@ type server struct {
 	broker *hplugin.GRPCBroker
 }
 
-func (s server) Manifest(ctx context.Context, r *v1.ManifestRequest) (*v1.ManifestResponse, error) {
+func (s server) Manifest(ctx context.Context, _ *v1.ManifestRequest) (*v1.ManifestResponse, error) {
 	m, err := s.impl.Manifest(ctx)
 	if err != nil {
 		return nil, err
