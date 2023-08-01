@@ -14,6 +14,13 @@ func Find(n int) (ports []int, err error) {
 	min := 44000
 	max := 55000
 
+	// If the number of ports required is bigger than the range, this stops it
+	if n > (max - min) {
+		return nil, fmt.Errorf("Invalid amount of ports requested: limit is %d", min-max)
+	}
+
+	// Marker to point if a port is already added in the list
+	registered := make(map[int]bool)
 	for i := 0; i < n; i++ {
 		for {
 			r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -26,7 +33,13 @@ func Find(n int) (ports []int, err error) {
 				conn.Close()
 				continue
 			}
+			// if the port is already registered we skip it to the next one
+			// otherwise it's added to the ports list and pointed in our map
+			if registered[port] {
+				continue
+			}
 			ports = append(ports, port)
+			registered[port] = true
 			break
 		}
 	}
