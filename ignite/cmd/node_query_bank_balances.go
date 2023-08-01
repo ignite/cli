@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
@@ -26,6 +24,9 @@ func NewNodeQueryBankBalances() *cobra.Command {
 }
 
 func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
+	defer session.End()
+
 	inputAccount := args[0]
 
 	client, err := newNodeCosmosClient(cmd)
@@ -44,9 +45,6 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
-	defer session.Cleanup()
-	session.StartSpinner("Querying...")
 	balances, err := client.BankBalances(cmd.Context(), address, pagination)
 	if err != nil {
 		return err
@@ -54,9 +52,8 @@ func nodeQueryBankBalancesHandler(cmd *cobra.Command, args []string) error {
 
 	var rows [][]string
 	for _, b := range balances {
-		rows = append(rows, []string{fmt.Sprintf("%s", b.Amount), b.Denom})
+		rows = append(rows, []string{b.Amount.String(), b.Denom})
 	}
 
-	session.StopSpinner()
 	return session.PrintTable([]string{"Amount", "Denom"}, rows...)
 }

@@ -5,29 +5,33 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
 const (
 	flagPaginated = "paginated"
 )
 
-// NewScaffoldQuery command creates a new type command to scaffold queries
+// NewScaffoldQuery command creates a new type command to scaffold queries.
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "query [name] [request_field1] [request_field2] ...",
-		Short: "Query to get data from the blockchain",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  queryHandler,
+		Use:     "query [name] [request_field1] [request_field2] ...",
+		Short:   "Query for fetching data from a blockchain",
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: migrationPreRunHandler,
+		RunE:    queryHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
-	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
-	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
-	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
-	c.Flags().Bool(flagPaginated, false, "Define if the request can be paginated")
+
+	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().String(flagModule, "", "module to add the query into. Default: app's main module")
+	c.Flags().StringSliceP(flagResponse, "r", []string{}, "response fields")
+	c.Flags().StringP(flagDescription, "d", "", "description of the CLI to broadcast a tx with the message")
+	c.Flags().Bool(flagPaginated, false, "define if the request can be paginated")
 
 	return c
 }
@@ -35,8 +39,8 @@ func NewScaffoldQuery() *cobra.Command {
 func queryHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
 
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	defer session.End()
 
 	// Get the module to add the type into
 	module, err := cmd.Flags().GetString(flagModule)
@@ -70,7 +74,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
@@ -80,15 +84,13 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
 	modificationsStr, err := sourceModificationToString(sm)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(modificationsStr)
-	fmt.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
+	session.Println(modificationsStr)
+	session.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
 
 	return nil
 }

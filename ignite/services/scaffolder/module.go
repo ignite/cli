@@ -10,7 +10,26 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gobuffalo/genny"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	grouptypes "github.com/cosmos/cosmos-sdk/x/group"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
@@ -38,60 +57,61 @@ const (
 )
 
 var (
-	// reservedNames are either names from the default modules defined in a Cosmos-SDK app or names used in the default query and tx CLI namespace
-	// A new module's name can't be equal to a reserved name
-	// A map is used for direct comparing
+	// reservedNames are either names from the default modules defined in a Cosmos-SDK app or names used in the default query and tx CLI namespace.
+	// A new module's name can't be equal to a reserved name.
+	// A map is used for direct comparing.
 	reservedNames = map[string]struct{}{
-		"account":      {},
-		"auth":         {},
-		"authz":        {},
-		"bank":         {},
-		"block":        {},
-		"broadcast":    {},
-		"crisis":       {},
-		"capability":   {},
-		"distribution": {},
-		"encode":       {},
-		"evidence":     {},
-		"feegrant":     {},
-		"genutil":      {},
-		"gov":          {},
-		"group":        {},
-		"ibc":          {},
-		"mint":         {},
-		"multisign":    {},
-		"params":       {},
-		"sign":         {},
-		"slashing":     {},
-		"staking":      {},
-		"transfer":     {},
-		"tx":           {},
-		"txs":          {},
-		"upgrade":      {},
-		"vesting":      {},
+		"account":                    {},
+		"block":                      {},
+		"broadcast":                  {},
+		"encode":                     {},
+		"multisign":                  {},
+		"sign":                       {},
+		"tx":                         {},
+		"txs":                        {},
+		ibcexported.ModuleName:       {},
+		transfertypes.ModuleName:     {},
+		authtypes.ModuleName:         {},
+		authztypes.ModuleName:        {},
+		banktypes.ModuleName:         {},
+		crisistypes.ModuleName:       {},
+		capabilitytypes.ModuleName:   {},
+		distributiontypes.ModuleName: {},
+		evidencetypes.ModuleName:     {},
+		feegranttypes.ModuleName:     {},
+		genutiltypes.ModuleName:      {},
+		govtypes.ModuleName:          {},
+		grouptypes.ModuleName:        {},
+		minttypes.ModuleName:         {},
+		paramstypes.ModuleName:       {},
+		slashingtypes.ModuleName:     {},
+		stakingtypes.ModuleName:      {},
+		upgradetypes.ModuleName:      {},
+		vestingtypes.ModuleName:      {},
 	}
 
-	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app
-	// A new module's name can't have a defined store key in its prefix because of potential store key collision
+	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
+	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
-		"acc",
-		"bank",
-		"capability",
-		"distribution",
-		"evidence",
-		"feegrant",
-		"gov",
-		"group",
-		"mint",
-		"slashing",
-		"staking",
-		"upgrade",
-		"ibc",
-		"transfer",
+		ibcexported.StoreKey,
+		transfertypes.StoreKey,
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		capabilitytypes.StoreKey,
+		distributiontypes.StoreKey,
+		evidencetypes.StoreKey,
+		feegranttypes.StoreKey,
+		govtypes.StoreKey,
+		grouptypes.StoreKey,
+		minttypes.StoreKey,
+		paramstypes.StoreKey,
+		slashingtypes.StoreKey,
+		stakingtypes.StoreKey,
+		upgradetypes.StoreKey,
 	}
 )
 
-// moduleCreationOptions holds options for creating a new module
+// moduleCreationOptions holds options for creating a new module.
 type moduleCreationOptions struct {
 	// ibc true if the module is an ibc module
 	ibc bool
@@ -109,21 +129,21 @@ type moduleCreationOptions struct {
 // ModuleCreationOption configures Chain.
 type ModuleCreationOption func(*moduleCreationOptions)
 
-// WithIBC scaffolds a module with IBC enabled
+// WithIBC scaffolds a module with IBC enabled.
 func WithIBC() ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.ibc = true
 	}
 }
 
-// WithParams scaffolds a module with params
+// WithParams scaffolds a module with params.
 func WithParams(params []string) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.params = params
 	}
 }
 
-// WithIBCChannelOrdering configures channel ordering of the IBC module
+// WithIBCChannelOrdering configures channel ordering of the IBC module.
 func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		switch ordering {
@@ -137,15 +157,16 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 	}
 }
 
-// WithDependencies specifies the name of the modules that the module depends on
+// WithDependencies specifies the name of the modules that the module depends on.
 func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.dependencies = dependencies
 	}
 }
 
-// CreateModule creates a new empty module in the scaffolded app
+// CreateModule creates a new empty module in the scaffolded app.
 func (s Scaffolder) CreateModule(
+	ctx context.Context,
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	moduleName string,
@@ -199,8 +220,7 @@ func (s Scaffolder) CreateModule(
 		Dependencies: creationOpts.dependencies,
 	}
 
-	// Generator from Cosmos SDK version
-	g, err := modulecreate.NewStargate(opts)
+	g, err := modulecreate.NewGenerator(opts)
 	if err != nil {
 		return sm, err
 	}
@@ -220,18 +240,23 @@ func (s Scaffolder) CreateModule(
 	}
 
 	// Modify app.go to register the module
-	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewAppModify(tracer, opts))
 	sm.Merge(newSourceModification)
 	var validationErr validation.Error
 	if runErr != nil && !errors.As(runErr, &validationErr) {
 		return sm, runErr
 	}
 
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
+func (s Scaffolder) ImportModule(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	tracer *placeholder.Tracer,
+	name string,
+) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
@@ -246,7 +271,7 @@ func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder
 	}
 
 	// run generator
-	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+	g, err := moduleimport.NewGenerator(tracer, &moduleimport.ImportOptions{
 		AppPath:          s.path,
 		Feature:          name,
 		AppName:          s.modpath.Package,
@@ -272,10 +297,10 @@ func (s Scaffolder) ImportModule(cacheStorage cache.Storage, tracer *placeholder
 		return sm, err
 	}
 
-	return sm, finish(cacheStorage, s.path, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, s.path, s.modpath.RawPath)
 }
 
-// moduleExists checks if the module exists in the app
+// moduleExists checks if the module exists in the app.
 func moduleExists(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
 	if err != nil {
@@ -291,7 +316,7 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 	return err == nil, err
 }
 
-// checkModuleName checks if the name can be used as a module name
+// checkModuleName checks if the name can be used as a module name.
 func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
@@ -371,17 +396,17 @@ func (s Scaffolder) installWasm() error {
 	}
 }
 
-// checkDependencies perform checks on the dependencies
+// checkDependencies perform checks on the dependencies.
 func checkDependencies(dependencies []modulecreate.Dependency, appPath string) error {
 	depMap := make(map[string]struct{})
 	for _, dep := range dependencies {
 		// check the dependency has been registered
 		path := filepath.Join(appPath, module.PathAppModule)
-		if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
+		if err := appanalysis.CheckKeeper(path, dep.KeeperName()); err != nil {
 			return fmt.Errorf(
-				"the module cannot have %s as a dependency: %s",
+				"the module cannot have %s as a dependency: %w",
 				dep.Name,
-				err.Error(),
+				err,
 			)
 		}
 

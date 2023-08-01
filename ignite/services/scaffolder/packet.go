@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
@@ -21,20 +21,20 @@ const (
 	ibcModuleImplementation = "module_ibc.go"
 )
 
-// packetOptions represents configuration for the packet scaffolding
+// packetOptions represents configuration for the packet scaffolding.
 type packetOptions struct {
 	withoutMessage bool
 	signer         string
 }
 
-// newPacketOptions returns a packetOptions with default options
+// newPacketOptions returns a packetOptions with default options.
 func newPacketOptions() packetOptions {
 	return packetOptions{
 		signer: "creator",
 	}
 }
 
-// PacketOption configures the packet scaffolding
+// PacketOption configures the packet scaffolding.
 type PacketOption func(*packetOptions)
 
 // PacketWithoutMessage disables generating sdk compatible messages and tx related APIs.
@@ -44,7 +44,7 @@ func PacketWithoutMessage() PacketOption {
 	}
 }
 
-// PacketWithSigner provides a custom signer name for the packet
+// PacketWithSigner provides a custom signer name for the packet.
 func PacketWithSigner(signer string) PacketOption {
 	return func(m *packetOptions) {
 		m.signer = signer
@@ -103,7 +103,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Check and parse packet fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, packetFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, packetFields); err != nil {
 		return sm, err
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
@@ -112,7 +112,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// check and parse acknowledgment fields
-	if err := checkCustomTypes(ctx, s.path, moduleName, ackFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, ackFields); err != nil {
 		return sm, err
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
@@ -143,11 +143,11 @@ func (s Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface
-// we naively check the existence of module_ibc.go for this check
+// we naively check the existence of module_ibc.go for this check.
 func isIBCModule(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
 	if err != nil {
@@ -163,7 +163,7 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 	return true, err
 }
 
-// checkForbiddenPacketField returns true if the name is forbidden as a packet name
+// checkForbiddenPacketField returns true if the name is forbidden as a packet name.
 func checkForbiddenPacketField(name string) error {
 	mfName, err := multiformatname.NewName(name)
 	if err != nil {

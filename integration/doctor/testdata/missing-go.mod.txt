@@ -1,0 +1,7 @@
+# Test fix dependency tools
+# if no go.mod the cmd fails
+! exec $IGNITE doctor
+stdout 'go.mod not found'
+
+-- config.yml --
+version: 1

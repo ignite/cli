@@ -42,10 +42,10 @@ type KeyringBackend string
 
 const (
 	// KeyringTest is the test keyring backend. With this backend, your keys will be
-	// stored under your app's data dir,
+	// stored under your app's data dir.
 	KeyringTest KeyringBackend = "test"
 
-	// KeyringOS is the OS keyring backend. with this backend, your keys will be
+	// KeyringOS is the OS keyring backend. With this backend, your keys will be
 	// stored in your operating system's secured keyring.
 	KeyringOS KeyringBackend = "os"
 
@@ -152,7 +152,7 @@ func (a Account) Address(accPrefix string) (string, error) {
 func (a Account) PubKey() (string, error) {
 	pk, err := a.Record.GetPubKey()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return pk.String(), nil
@@ -181,8 +181,7 @@ func (r Registry) EnsureDefaultAccount() error {
 
 // Create creates a new account with name.
 func (r Registry) Create(name string) (acc Account, mnemonic string, err error) {
-	acc, err = r.GetByName(name)
-	if err == nil {
+	if _, err = r.GetByName(name); err == nil {
 		return Account{}, "", ErrAccountExists
 	}
 	var accErr *AccountDoesNotExistError
@@ -260,7 +259,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 	return unsafeExportPrivKeyHex(r.Keyring, name, passphrase)
 }
 
-func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privkey string, err error) {
+func unsafeExportPrivKeyHex(kr keyring.Keyring, uid, passphrase string) (privKey string, err error) {
 	priv, err := kr.ExportPrivKeyArmor(uid, passphrase)
 	if err != nil {
 		return "", err
@@ -328,7 +327,7 @@ func (r Registry) List() ([]Account, error) {
 // DeleteByName deletes an account by name.
 func (r Registry) DeleteByName(name string) error {
 	err := r.Keyring.Delete(name)
-	if err == dkeyring.ErrKeyNotFound {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) {
 		return &AccountDoesNotExistError{name}
 	}
 	return err

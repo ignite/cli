@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/confile"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	envtest "github.com/ignite/cli/integration"
@@ -26,39 +26,44 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		isBackendAliveErr error
 	)
 
-	var c chainconfig.Config
-
+	var cfg chainconfig.Config
 	cf := confile.New(confile.DefaultYAMLEncodingCreator, filepath.Join(app.SourcePath(), "config.yml"))
-	require.NoError(t, cf.Load(&c))
+	require.NoError(t, cf.Load(&cfg))
 
-	c.Genesis = map[string]interface{}{"chain_id": "cosmos"}
-	c.Init.App = map[string]interface{}{"hello": "cosmos"}
-	c.Init.Config = map[string]interface{}{"fast_sync": false}
+	cfg.Genesis = map[string]interface{}{"chain_id": "cosmos"}
+	cfg.Validators[0].App["hello"] = "cosmos"
+	cfg.Validators[0].Config["log_format"] = "json"
 
-	require.NoError(t, cf.Save(c))
+	require.NoError(t, cf.Save(cfg))
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+
+		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
+
 	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
-	configs := []struct {
-		ec          confile.EncodingCreator
-		relpath     string
-		key         string
-		expectedVal interface{}
+	cases := []struct {
+		ec      confile.EncodingCreator
+		relpath string
+		key     string
+		want    interface{}
 	}{
 		{confile.DefaultJSONEncodingCreator, "config/genesis.json", "chain_id", "cosmos"},
 		{confile.DefaultTOMLEncodingCreator, "config/app.toml", "hello", "cosmos"},
-		{confile.DefaultTOMLEncodingCreator, "config/config.toml", "fast_sync", false},
+		{confile.DefaultTOMLEncodingCreator, "config/config.toml", "log_format", "json"},
 	}
+	for _, tt := range cases {
+		t.Run("test "+tt.relpath, func(t *testing.T) {
+			var conf map[string]interface{}
 
-	for _, c := range configs {
-		var conf map[string]interface{}
-		cf := confile.New(c.ec, filepath.Join(env.AppHome(appname), c.relpath))
-		require.NoError(t, cf.Load(&conf))
-		require.Equal(t, c.expectedVal, conf[c.key])
+			path := filepath.Join(env.AppHome(appname), tt.relpath)
+			c := confile.New(tt.ec, path)
+
+			require.NoError(t, c.Load(&conf))
+			require.Equalf(t, tt.want, conf[tt.key], "unexpected value for %s", tt.relpath)
+		})
 	}
 }

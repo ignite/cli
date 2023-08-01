@@ -5,13 +5,13 @@ import (
 	"encoding/base64"
 	"time"
 
-	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
-	"github.com/tendermint/tendermint/libs/bytes"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/libs/bytes"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 )
 
-// ConsensusInfo is the validator consensus info
+// ConsensusInfo is the validator consensus info.
 type ConsensusInfo struct {
 	Timestamp          string                `json:"Timestamp"`
 	Root               string                `json:"Root"`
@@ -20,7 +20,7 @@ type ConsensusInfo struct {
 }
 
 // ConsensusInfo returns the appropriate tendermint consensus state by given height
-// and the validator set for the next height
+// and the validator set for the next height.
 func (c Client) ConsensusInfo(ctx context.Context, height int64) (ConsensusInfo, error) {
 	node, err := c.Context().GetNode()
 	if err != nil {

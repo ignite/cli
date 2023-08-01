@@ -16,7 +16,7 @@ import (
 // ErrConfirmationFailed is returned when second answer is not the same with first one.
 var ErrConfirmationFailed = errors.New("failed to confirm, your answers were different")
 
-// Question holds information on what to ask to user and where
+// Question holds information on what to ask user and where
 // the answer stored at.
 type Question struct {
 	question      string
@@ -120,7 +120,7 @@ func ask(q Question) error {
 // Ask asks questions and collect answers.
 func Ask(question ...Question) (err error) {
 	defer func() {
-		if err == terminal.InterruptErr {
+		if errors.Is(err, terminal.InterruptErr) {
 			err = context.Canceled
 		}
 	}()
@@ -133,7 +133,7 @@ func Ask(question ...Question) (err error) {
 		if q.shouldConfirm {
 			var secondAnswer string
 
-			options := []Option{}
+			var options []Option
 			if q.required {
 				options = append(options, Required())
 			}
@@ -167,7 +167,7 @@ func NewFlag(name string, isRequired bool) Flag {
 
 // ValuesFromFlagsOrAsk returns values of flags within map[string]string where map's
 // key is the name of the flag and value is flag's value.
-// when provided, values are collected through command otherwise they're asked to user by prompting.
+// when provided, values are collected through command otherwise they're asked by prompting user.
 // title used as a message while prompting.
 func ValuesFromFlagsOrAsk(fset *pflag.FlagSet, title string, flags ...Flag) (values map[string]string, err error) {
 	values = make(map[string]string)

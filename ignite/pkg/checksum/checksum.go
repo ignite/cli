@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
+
+	"github.com/ignite/cli/ignite/pkg/xexec"
 )
 
 // Sum reads files from dirPath, calculates sha256 for each file and creates a new checksum
@@ -33,7 +34,10 @@ func Sum(dirPath, outPath string) error {
 			return err
 		}
 
-		if _, err := b.WriteString(fmt.Sprintf("%x %s\n", h.Sum(nil), info.Name())); err != nil {
+		// Note that checksum entry has two spaces as separator to follow
+		// FIPS-180-2 regarding the character prefix for text file types.
+		// This is required for tools like sha256sum with a strict verification.
+		if _, err := b.WriteString(fmt.Sprintf("%x  %s\n", h.Sum(nil), info.Name())); err != nil {
 			return err
 		}
 	}
@@ -41,10 +45,10 @@ func Sum(dirPath, outPath string) error {
 	return os.WriteFile(outPath, b.Bytes(), 0o666)
 }
 
-// Binary returns SHA256 hash of executable file, file is searched by name in PATH
+// Binary returns SHA256 hash of executable file, file is searched by name in PATH.
 func Binary(binaryName string) (string, error) {
 	// get binary path
-	binaryPath, err := exec.LookPath(binaryName)
+	binaryPath, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +66,7 @@ func Binary(binaryName string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-// Strings concatenates all inputs and returns SHA256 hash of them
+// Strings concatenates all inputs and returns SHA256 hash of them.
 func Strings(inputs ...string) string {
 	h := sha256.New()
 	for _, input := range inputs {

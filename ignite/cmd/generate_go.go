@@ -1,27 +1,35 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
 func NewGenerateGo() *cobra.Command {
-	return &cobra.Command{
+	c := &cobra.Command{
 		Use:   "proto-go",
-		Short: "Generate proto based Go code needed for the app's source code",
+		Short: "Compile protocol buffer files to Go source code required by Cosmos SDK",
 		RunE:  generateGoHandler,
 	}
+
+	c.Flags().AddFlagSet(flagSetYes())
+
+	return c
 }
 
-func generateGoHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Generating...")
-	defer s.Stop()
+func generateGoHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
+	defer session.End()
 
-	c, err := newChainWithHomeFlags(cmd)
+	c, err := newChainWithHomeFlags(
+		cmd,
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+		chain.CheckCosmosSDKVersion(),
+	)
 	if err != nil {
 		return err
 	}
@@ -35,8 +43,5 @@ func generateGoHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-	fmt.Println("⛏️  Generated go code.")
-
-	return nil
+	return session.Println(icons.OK, "Generated Go code")
 }

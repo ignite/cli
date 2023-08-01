@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/genny/v2"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -18,11 +17,11 @@ import (
 const msgServiceImport = `"github.com/cosmos/cosmos-sdk/types/msgservice"`
 
 // AddMsgServerConventionToLegacyModule add the files and the necessary modifications to an existing module that doesn't support MsgServer convention
-// https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
+// https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-031-msg-service.md
 func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *MsgServerOptions) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/", opts.AppPath)
+		template = xgenny.NewEmbedWalker(fsMsgServer, "files/msgserver/", opts.AppPath)
 	)
 
 	g.RunFn(codecPath(replacer, opts.AppPath, opts.ModuleName))
@@ -40,7 +39,8 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
 
 	plushhelpers.ExtendPlushContext(ctx)
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
 }
@@ -54,10 +54,10 @@ func codecPath(replacer placeholder.Replacer, appPath, moduleName string) genny.
 		}
 
 		// Add msgservice import
-		old := "import ("
-		new := fmt.Sprintf(`%v
-%v`, old, msgServiceImport)
-		content := replacer.Replace(f.String(), old, new)
+		oldImport := "import ("
+		newImport := fmt.Sprintf(`%v
+%v`, oldImport, msgServiceImport)
+		content := replacer.Replace(f.String(), oldImport, newImport)
 
 		// Add RegisterMsgServiceDesc method call
 		template := `%[1]v

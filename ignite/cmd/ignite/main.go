@@ -7,29 +7,62 @@ import (
 	"os"
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/clictx"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
+	const (
+		exitCodeOK    = 0
+		exitCodeError = 1
+	)
 	ctx := clictx.From(context.Background())
 
-	err := ignitecmd.New().ExecuteContext(ctx)
+	cmd, cleanUp, err := ignitecmd.New(ctx)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return exitCodeError
+	}
+	defer cleanUp()
 
-	if ctx.Err() == context.Canceled || err == context.Canceled {
+	err = cmd.ExecuteContext(ctx)
+
+	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
 		fmt.Println("aborted")
-		return
+		return exitCodeOK
 	}
 
 	if err != nil {
-		var validationErr validation.Error
+		var (
+			validationErr validation.Error
+			versionErr    chainconfig.VersionError
+			msg           string
+		)
 
 		if errors.As(err, &validationErr) {
-			fmt.Println(validationErr.ValidationInfo())
+			msg = validationErr.ValidationInfo()
 		} else {
-			fmt.Println(err)
+			msg = err.Error()
 		}
 
-		os.Exit(1)
+		// Make sure the error message starts with an upper case character
+		msg = xstrings.ToUpperFirst(msg)
+
+		fmt.Printf("%s %s\n", icons.NotOK, colors.Error(msg))
+
+		if errors.As(err, &versionErr) {
+			fmt.Println("Use a more recent CLI version or upgrade blockchain app's config")
+		}
+
+		return exitCodeError
 	}
+	return exitCodeOK
 }

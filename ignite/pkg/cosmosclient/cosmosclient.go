@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -14,6 +15,9 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -21,52 +25,91 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/gogo/protobuf/proto"
-	prototypes "github.com/gogo/protobuf/types"
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+	"github.com/cosmos/gogoproto/proto"
+	prototypes "github.com/cosmos/gogoproto/types"
 	"github.com/pkg/errors"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 )
 
-// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
-// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
-var FaucetTransferEnsureDuration = time.Second * 40
+var (
+	// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
+	// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
+	FaucetTransferEnsureDuration = time.Second * 40
 
-var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+	// ErrInvalidBlockHeight is returned when a block height value is not valid.
+	ErrInvalidBlockHeight = errors.New("block height must be greater than 0")
+
+	errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
+)
 
 const (
+	// GasAuto allows to calculate gas automatically when sending transaction.
+	GasAuto = "auto"
+
 	defaultNodeAddress   = "http://localhost:26657"
 	defaultGasAdjustment = 1.0
 	defaultGasLimit      = 300000
-)
 
-const (
 	defaultFaucetAddress   = "http://localhost:4500"
 	defaultFaucetDenom     = "token"
 	defaultFaucetMinAmount = 100
+
+	defaultTXsPerPage = 30
+
+	searchHeight = "tx.height"
+
+	orderAsc = "asc"
 )
+
+// FaucetClient allows to mock the cosmosfaucet.Client.
+//
+//go:generate mockery --srcpkg . --name FaucetClient --structname FaucetClient --filename faucet_client.go --with-expecter
+type FaucetClient interface {
+	Transfer(context.Context, cosmosfaucet.TransferRequest) (cosmosfaucet.TransferResponse, error)
+}
+
+// Gasometer allows to mock the tx.CalculateGas func.
+//
+//go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
+type Gasometer interface {
+	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
+}
+
+// Signer allows to mock the tx.Sign func.
+//
+//go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
+type Signer interface {
+	Sign(txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
+}
 
 // Client is a client to access your chain by querying and broadcasting transactions.
 type Client struct {
 	// RPC is Tendermint RPC.
-	RPC *rpchttp.HTTP
+	RPC rpcclient.Client
 
-	// Factory is a Cosmos SDK tx factory.
-	Factory tx.Factory
+	// TxFactory is a Cosmos SDK tx factory.
+	TxFactory tx.Factory
 
 	// context is a Cosmos SDK client context.
 	context client.Context
 
-	// AccountRegistry is the retistry to access accounts.
+	// AccountRegistry is the registry to access accounts.
 	AccountRegistry cosmosaccount.Registry
+
+	accountRetriever client.AccountRetriever
+	bankQueryClient  banktypes.QueryClient
+	faucetClient     FaucetClient
+	gasometer        Gasometer
+	signer           Signer
 
 	addressPrefix string
 
@@ -86,8 +129,8 @@ type Client struct {
 
 	gas           string
 	gasPrices     string
+	gasAdjustment float64
 	fees          string
-	broadcastMode string
 	generateOnly  bool
 }
 
@@ -103,8 +146,8 @@ func WithHome(path string) Option {
 	}
 }
 
-// WithKeyringServiceName used as the keyring's name when you are using OS keyring backend.
-// by default it is `cosmos`.
+// WithKeyringServiceName used as the keyring name when you are using OS keyring backend.
+// by default, it is `cosmos`.
 func WithKeyringServiceName(name string) Option {
 	return func(c *Client) {
 		c.keyringServiceName = name
@@ -118,7 +161,7 @@ func WithKeyringBackend(backend cosmosaccount.KeyringBackend) Option {
 	}
 }
 
-// WithKeyringDir sets the directory of the keyring. By default, it uses cosmosaccount.KeyringHome
+// WithKeyringDir sets the directory of the keyring. By default, it uses cosmosaccount.KeyringHome.
 func WithKeyringDir(keyringDir string) Option {
 	return func(c *Client) {
 		c.keyringDir = keyringDir
@@ -153,37 +196,86 @@ func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 }
 
 // WithGas sets an explicit gas-limit on transactions.
-// Set to "auto" to calculate automatically
+// Set to "auto" to calculate automatically.
 func WithGas(gas string) Option {
 	return func(c *Client) {
 		c.gas = gas
 	}
 }
 
-// WithGasPrices sets the price per gas (e.g. 0.1uatom)
+// WithGasPrices sets the price per gas (e.g. 0.1uatom).
 func WithGasPrices(gasPrices string) Option {
 	return func(c *Client) {
 		c.gasPrices = gasPrices
 	}
 }
 
-// WithFees sets the fees (e.g. 10uatom)
+// WithGasAdjustment sets the gas adjustment.
+func WithGasAdjustment(gasAdjustment float64) Option {
+	return func(c *Client) {
+		c.gasAdjustment = gasAdjustment
+	}
+}
+
+// WithFees sets the fees (e.g. 10uatom).
 func WithFees(fees string) Option {
 	return func(c *Client) {
 		c.fees = fees
 	}
 }
 
-// WithBroadcastMode sets the broadcast mode
-func WithBroadcastMode(broadcastMode string) Option {
-	return func(c *Client) {
-		c.broadcastMode = broadcastMode
-	}
-}
-
+// WithGenerateOnly tells if txs will be generated only.
 func WithGenerateOnly(generateOnly bool) Option {
 	return func(c *Client) {
 		c.generateOnly = generateOnly
+	}
+}
+
+// WithRPCClient sets a tendermint RPC client.
+// Already set by default.
+func WithRPCClient(rpc rpcclient.Client) Option {
+	return func(c *Client) {
+		c.RPC = rpc
+	}
+}
+
+// WithAccountRetriever sets the account retriever
+// Already set by default.
+func WithAccountRetriever(accountRetriever client.AccountRetriever) Option {
+	return func(c *Client) {
+		c.accountRetriever = accountRetriever
+	}
+}
+
+// WithBankQueryClient sets the bank query client.
+// Already set by default.
+func WithBankQueryClient(bankQueryClient banktypes.QueryClient) Option {
+	return func(c *Client) {
+		c.bankQueryClient = bankQueryClient
+	}
+}
+
+// WithFaucetClient sets the faucet client.
+// Already set by default.
+func WithFaucetClient(faucetClient FaucetClient) Option {
+	return func(c *Client) {
+		c.faucetClient = faucetClient
+	}
+}
+
+// WithGasometer sets the gasometer.
+// Already set by default.
+func WithGasometer(gasometer Gasometer) Option {
+	return func(c *Client) {
+		c.gasometer = gasometer
+	}
+}
+
+// WithSigner sets the signer.
+// Already set by default.
+func WithSigner(signer Signer) Option {
+	return func(c *Client) {
+		c.signer = signer
 	}
 }
 
@@ -198,7 +290,6 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		faucetMinAmount: defaultFaucetMinAmount,
 		out:             io.Discard,
 		gas:             strconv.Itoa(defaultGasLimit),
-		broadcastMode:   flags.BroadcastBlock,
 	}
 
 	var err error
@@ -207,8 +298,15 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		apply(&c)
 	}
 
-	if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
-		return Client{}, err
+	if c.RPC == nil {
+		if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
+			return Client{}, err
+		}
+	}
+	// Wrap RPC client to have more contextualized errors
+	c.RPC = rpcWrapper{
+		Client:      c.RPC,
+		nodeAddress: c.nodeAddress,
 	}
 
 	statusResp, err := c.RPC.Status(ctx)
@@ -240,17 +338,32 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	}
 
 	c.context = c.newContext()
-	c.Factory = newFactory(c.context)
+	c.TxFactory = newFactory(c.context)
 
+	if c.accountRetriever == nil {
+		c.accountRetriever = authtypes.AccountRetriever{}
+	}
+	if c.bankQueryClient == nil {
+		c.bankQueryClient = banktypes.NewQueryClient(c.context)
+	}
+	if c.faucetClient == nil {
+		c.faucetClient = cosmosfaucet.NewClient(c.faucetAddress)
+	}
+	if c.gasometer == nil {
+		c.gasometer = gasometer{}
+	}
+	if c.signer == nil {
+		c.signer = signer{}
+	}
 	// set address prefix in SDK global config
 	c.SetConfigAddressPrefix()
 
 	return c, nil
 }
 
-// LatestBlockHeight returns the lastest block height of the app.
-func (c Client) LatestBlockHeight() (int64, error) {
-	resp, err := c.Status(context.Background())
+// LatestBlockHeight returns the latest block height of the app.
+func (c Client) LatestBlockHeight(ctx context.Context) (int64, error) {
+	resp, err := c.Status(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -259,41 +372,65 @@ func (c Client) LatestBlockHeight() (int64, error) {
 
 // WaitForNextBlock waits until next block is committed.
 // It reads the current block height and then waits for another block to be
-// committed.
-func (c Client) WaitForNextBlock() error {
-	return c.WaitForNBlocks(1)
+// committed, or returns an error if ctx is canceled.
+func (c Client) WaitForNextBlock(ctx context.Context) error {
+	return c.WaitForNBlocks(ctx, 1)
 }
 
-// WaitForNBlocks reads the current block height and then waits for anothers n
-// blocks to be committed.
-func (c Client) WaitForNBlocks(n int64) error {
-	start, err := c.LatestBlockHeight()
+// WaitForNBlocks reads the current block height and then waits for another n
+// blocks to be committed, or returns an error if ctx is canceled.
+func (c Client) WaitForNBlocks(ctx context.Context, n int64) error {
+	start, err := c.LatestBlockHeight(ctx)
 	if err != nil {
 		return err
 	}
-	return c.WaitForBlockHeight(start + n)
+	return c.WaitForBlockHeight(ctx, start+n)
 }
 
-// WaitForBlockHeight waits until block height h is committed, or return an
-// error if a timeout is reached (10s).
-func (c Client) WaitForBlockHeight(h int64) error {
+// WaitForBlockHeight waits until block height h is committed, or returns an
+// error if ctx is canceled.
+func (c Client) WaitForBlockHeight(ctx context.Context, h int64) error {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	timeout := time.After(10 * time.Second)
 
 	for {
-		status, err := c.RPC.Status(context.Background())
+		latestHeight, err := c.LatestBlockHeight(ctx)
 		if err != nil {
 			return err
 		}
-		if status.SyncInfo.LatestBlockHeight >= h {
+		if latestHeight >= h {
 			return nil
 		}
 		select {
-		case <-timeout:
-			return errors.New("timeout exceeded waiting for block")
+		case <-ctx.Done():
+			return errors.Wrap(ctx.Err(), "timeout exceeded waiting for block")
 		case <-ticker.C:
 		}
+	}
+}
+
+// WaitForTx requests the tx from hash, if not found, waits for next block and
+// tries again. Returns an error if ctx is canceled.
+func (c Client) WaitForTx(ctx context.Context, hash string) (*ctypes.ResultTx, error) {
+	bz, err := hex.DecodeString(hash)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to decode tx hash '%s'", hash)
+	}
+	for {
+		resp, err := c.RPC.Tx(ctx, bz, false)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				// Tx not found, wait for next block and try again
+				err := c.WaitForNextBlock(ctx)
+				if err != nil {
+					return nil, errors.Wrap(err, "waiting for next block")
+				}
+				continue
+			}
+			return nil, errors.Wrapf(err, "fetching tx '%s'", hash)
+		}
+		// Tx found
+		return resp, nil
 	}
 }
 
@@ -301,38 +438,28 @@ func (c Client) WaitForBlockHeight(h int64) error {
 func (c Client) Account(nameOrAddress string) (cosmosaccount.Account, error) {
 	defer c.lockBech32Prefix()()
 
-	return c.account(nameOrAddress)
-}
-
-func (c Client) account(nameOrAddress string) (cosmosaccount.Account, error) {
-	a, err := c.AccountRegistry.GetByName(nameOrAddress)
+	acc, err := c.AccountRegistry.GetByName(nameOrAddress)
 	if err == nil {
-		return a, nil
+		return acc, nil
 	}
 	return c.AccountRegistry.GetByAddress(nameOrAddress)
 }
 
 // Address returns the account address from account name.
 func (c Client) Address(accountName string) (string, error) {
-	defer c.lockBech32Prefix()()
-
-	account, err := c.account(accountName)
+	a, err := c.AccountRegistry.GetByName(accountName)
 	if err != nil {
 		return "", err
 	}
-	sdkaddr, err := account.Record.GetAddress()
-	if err != nil {
-		return "", err
-	}
-	return sdkaddr.String(), nil
+	return a.Address(c.addressPrefix)
 }
 
-// Context returns client context
+// Context returns client context.
 func (c Client) Context() client.Context {
 	return c.context
 }
 
-// SetConfigAddressPrefix sets the account prefix in the SDK global config
+// SetConfigAddressPrefix sets the account prefix in the SDK global config.
 func (c Client) SetConfigAddressPrefix() {
 	// TODO find a better way if possible.
 	// https://github.com/ignite/cli/issues/2744
@@ -362,6 +489,8 @@ type Response struct {
 //	}
 //
 // ```
+//
+//nolint:godot,nolintlint
 func (r Response) Decode(message proto.Message) error {
 	data, err := hex.DecodeString(r.Data)
 	if err != nil {
@@ -392,7 +521,7 @@ func (r Response) Decode(message proto.Message) error {
 	}, message)
 }
 
-// Status returns the node status
+// Status returns the node status.
 func (c Client) Status(ctx context.Context) (*ctypes.ResultStatus, error) {
 	return c.RPC.Status(ctx)
 }
@@ -407,55 +536,55 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	return mconf.Unlock
 }
 
-func (c Client) BroadcastTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
-	txService, err := c.CreateTx(account, msgs...)
+func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
+	txService, err := c.CreateTx(ctx, account, msgs...)
 	if err != nil {
 		return Response{}, err
 	}
 
-	return txService.Broadcast()
+	return txService.Broadcast(ctx)
 }
 
-func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
 		addr, err := account.Address(c.addressPrefix)
 		if err != nil {
-			return TxService{}, err
+			return TxService{}, errors.WithStack(err)
 		}
-		if err := c.makeSureAccountHasTokens(context.Background(), addr); err != nil {
+		if err := c.makeSureAccountHasTokens(goCtx, addr); err != nil {
 			return TxService{}, err
 		}
 	}
 
 	sdkaddr, err := account.Record.GetAddress()
 	if err != nil {
-		return TxService{}, err
+		return TxService{}, errors.WithStack(err)
 	}
 
 	ctx := c.context.
 		WithFromName(account.Name).
 		WithFromAddress(sdkaddr)
 
-	txf, err := prepareFactory(ctx, c.Factory)
+	txf, err := c.prepareFactory(ctx)
 	if err != nil {
 		return TxService{}, err
 	}
 
 	var gas uint64
-	if c.gas != "" && c.gas != "auto" {
+	if c.gas != "" && c.gas != GasAuto {
 		gas, err = strconv.ParseUint(c.gas, 10, 64)
 		if err != nil {
-			return TxService{}, err
+			return TxService{}, errors.WithStack(err)
 		}
 	} else {
-		_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
+		_, gas, err = c.gasometer.CalculateGas(ctx, txf, msgs...)
 		if err != nil {
-			return TxService{}, err
+			return TxService{}, errors.WithStack(err)
 		}
 		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an additional amount to ensure sufficient gas is provided
+		// we add an amount to ensure sufficient gas is provided
 		gas += 20000
 	}
 	txf = txf.WithGas(gas)
@@ -465,9 +594,13 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 		txf = txf.WithGasPrices(c.gasPrices)
 	}
 
+	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+		txf = txf.WithGasAdjustment(c.gasAdjustment)
+	}
+
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
-		return TxService{}, err
+		return TxService{}, errors.WithStack(err)
 	}
 
 	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
@@ -480,16 +613,102 @@ func (c Client) CreateTx(account cosmosaccount.Account, msgs ...sdktypes.Msg) (T
 	}, nil
 }
 
-// makeSureAccountHasTokens makes sure the address has a positive balance
-// it requests funds from the faucet if the address has an empty balance
+// GetBlockTXs returns the transactions in a block.
+// The list of transactions can be empty if there are no transactions in the block
+// at the moment this method is called.
+// Tendermint might index a limited number of block so trying to fetch transactions
+// from a block that is not indexed would return an error.
+func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err error) {
+	if height == 0 {
+		return nil, ErrInvalidBlockHeight
+	}
+
+	r, err := c.RPC.Block(ctx, &height)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
+	}
+
+	query := createTxSearchByHeightQuery(height)
+
+	// TODO: improve to fetch pages in parallel (requires fetching page 1 to calculate n. of pages)
+	page := 1
+	perPage := defaultTXsPerPage
+	blockTime := r.Block.Time
+	for {
+		res, err := c.RPC.TxSearch(ctx, query, false, &page, &perPage, orderAsc)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, tx := range res.Txs {
+			txs = append(txs, TX{
+				BlockTime: blockTime,
+				Raw:       tx,
+			})
+		}
+
+		// Stop when the last page is fetched
+		if res.TotalCount <= (page * perPage) {
+			break
+		}
+
+		page++
+	}
+
+	return txs, nil
+}
+
+// CollectTXs collects transactions from multiple consecutive blocks.
+// Transactions from a single block are send to the channel only if all transactions
+// from that block are collected successfully.
+// Blocks are traversed sequentially starting from a height until the latest block height
+// available at the moment this method is called.
+// The channel might contain the transactions collected successfully up until that point
+// when an error is returned.
+func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX) error {
+	defer close(tc)
+
+	latestHeight, err := c.LatestBlockHeight(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to fetch latest block height: %w", err)
+	}
+
+	if fromHeight == 0 {
+		fromHeight = 1
+	}
+
+	for height := fromHeight; height <= latestHeight; height++ {
+		txs, err := c.GetBlockTXs(ctx, height)
+		if err != nil {
+			return err
+		}
+
+		// Ignore blocks without transactions
+		if txs == nil {
+			continue
+		}
+
+		// Make sure that collection finishes if the context
+		// is done when the transactions channel is full
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case tc <- txs:
+		}
+	}
+
+	return nil
+}
+
+// makeSureAccountHasTokens makes sure the address has a positive balance.
+// It requests funds from the faucet if the address has an empty balance.
 func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
 	if err := c.checkAccountBalance(ctx, address); err == nil {
 		return nil
 	}
 
 	// request coins from the faucet.
-	fc := cosmosfaucet.NewClient(c.faucetAddress)
-	faucetResp, err := fc.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
+	faucetResp, err := c.faucetClient.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
 	if err != nil {
 		return errors.Wrap(errCannotRetrieveFundsFromFaucet, err.Error())
 	}
@@ -507,7 +726,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 }
 
 func (c *Client) checkAccountBalance(ctx context.Context, address string) error {
-	resp, err := banktypes.NewQueryClient(c.context).Balance(ctx, &banktypes.QueryBalanceRequest{
+	resp, err := c.bankQueryClient.Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   c.faucetDenom,
 	})
@@ -522,34 +741,36 @@ func (c *Client) checkAccountBalance(ctx context.Context, address string) error 
 	return fmt.Errorf("account has not enough %q balance, min. required amount: %d", c.faucetDenom, c.faucetMinAmount)
 }
 
-// handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
+// handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred.
 func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your account has enough balance")
 		}
-
 		return err
 	}
 
 	if resp.Code > 0 {
-		return fmt.Errorf("error code: '%d' msg: '%s'", resp.Code, resp.RawLog)
+		return errors.Errorf("error code: '%d' msg: '%s'", resp.Code, resp.RawLog)
 	}
 	return nil
 }
 
-func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
-	from := clientCtx.GetFromAddress()
+func (c *Client) prepareFactory(clientCtx client.Context) (tx.Factory, error) {
+	var (
+		from = clientCtx.GetFromAddress()
+		txf  = c.TxFactory
+	)
 
-	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
-		return txf, err
+	if err := c.accountRetriever.EnsureExists(clientCtx, from); err != nil {
+		return txf, errors.WithStack(err)
 	}
 
 	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
 	if initNum == 0 || initSeq == 0 {
-		num, seq, err := txf.AccountRetriever().GetAccountNumberSequence(clientCtx, from)
+		num, seq, err := c.accountRetriever.GetAccountNumberSequence(clientCtx, from)
 		if err != nil {
-			return txf, err
+			return txf, errors.WithStack(err)
 		}
 
 		if initNum == 0 {
@@ -587,8 +808,8 @@ func (c Client) newContext() client.Context {
 		WithLegacyAmino(amino).
 		WithInput(os.Stdin).
 		WithOutput(c.out).
-		WithAccountRetriever(authtypes.AccountRetriever{}).
-		WithBroadcastMode(c.broadcastMode).
+		WithAccountRetriever(c.accountRetriever).
+		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(c.homePath).
 		WithClient(c.RPC).
 		WithSkipConfirmation(true).
@@ -605,4 +826,10 @@ func newFactory(clientCtx client.Context) tx.Factory {
 		WithSignMode(signing.SignMode_SIGN_MODE_UNSPECIFIED).
 		WithAccountRetriever(clientCtx.AccountRetriever).
 		WithTxConfig(clientCtx.TxConfig)
+}
+
+func createTxSearchByHeightQuery(height int64) string {
+	params := url.Values{}
+	params.Set(searchHeight, strconv.FormatInt(height, 10))
+	return params.Encode()
 }

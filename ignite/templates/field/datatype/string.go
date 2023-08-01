@@ -3,11 +3,14 @@ package datatype
 import (
 	"fmt"
 
+	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 )
 
 var (
-	// DataString string data type definition
+	// DataString is a string data type definition.
 	DataString = DataType{
 		DataType:          func(string) string { return "string" },
 		DefaultTestValue:  "xyz",
@@ -29,9 +32,12 @@ var (
 		ToString: func(name string) string {
 			return name
 		},
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "string", index)
+		},
 	}
 
-	// DataStringSlice string array data type definition
+	// DataStringSlice is a string array data type definition.
 	DataStringSlice = DataType{
 		DataType:         func(string) string { return "[]string" },
 		DefaultTestValue: "abc,xyz",
@@ -47,5 +53,8 @@ var (
 		},
 		GoCLIImports: []GoImport{{Name: "strings"}},
 		NonIndex:     true,
+		ToProtoField: func(_, name string, index int) *proto.NormalField {
+			return protoutil.NewField(name, "string", index, protoutil.Repeated())
+		},
 	}
 )

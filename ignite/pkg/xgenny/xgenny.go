@@ -6,6 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gobuffalo/genny/v2"
+	"github.com/gobuffalo/plush/v4"
+	"github.com/pkg/errors"
+
 	"github.com/gobuffalo/packd"
 )
 
@@ -39,22 +43,35 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 			continue
 		}
 
-		path := filepath.Join(path, entry.Name())
+		entryPath := filepath.Join(path, entry.Name())
 
-		data, err := w.fs.ReadFile(path)
+		data, err := w.fs.ReadFile(entryPath)
 		if err != nil {
 			return err
 		}
 
-		ppath := strings.TrimPrefix(path, w.trimPrefix)
-		ppath = filepath.Join(w.path, ppath)
-		f, err := packd.NewFile(ppath, bytes.NewReader(data))
+		trimPath := strings.TrimPrefix(entryPath, w.trimPrefix)
+		trimPath = filepath.Join(w.path, trimPath)
+		f, err := packd.NewFile(trimPath, bytes.NewReader(data))
 		if err != nil {
 			return err
 		}
 
-		wl(ppath, f)
+		wl(trimPath, f)
 	}
 
 	return nil
+}
+
+// Transformer will plush-ify any file that has a ".plush" extension.
+func Transformer(ctx *plush.Context) genny.Transformer {
+	t := genny.NewTransformer(".plush", func(f genny.File) (genny.File, error) {
+		s, err := plush.RenderR(f, ctx)
+		if err != nil {
+			return f, errors.Wrap(err, f.Name())
+		}
+		return genny.NewFileS(f.Name(), s), nil
+	})
+	t.StripExt = true
+	return t
 }

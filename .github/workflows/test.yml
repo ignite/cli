@@ -6,21 +6,35 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
-      - develop
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: technote-space/get-diff-action@v4
+      - uses: actions/checkout@v3.4.0
+      - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
-            **/*
-            !**/*.md
-      - uses: actions/setup-go@v2
+            **/*.go
+            go.mod
+            go.sum
+            **/testdata/**
+
+      - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version: 1.18
-      - run: ./scripts/test-unit
+          go-version: 1.19
+          cache: true
+          cache-dependency-path: go.sum
+
+      - run: ./scripts/test-coverage
         if: env.GIT_DIFF
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3.1.1
+        if: env.GIT_DIFF
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: true
+          verbose: true
+

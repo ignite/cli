@@ -12,13 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/config/chain/base"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/pkg/xurl"
+	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/integration"
 )
 
@@ -64,16 +66,18 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	aliceAccount, aliceMnemonic, err := ca.Create(alice)
 	require.NoError(t, err)
 
-	app.EditConfig(func(conf *chainconfig.Config) {
-		conf.Accounts = []chainconfig.Account{
+	app.EditConfig(func(c *chainconfig.Config) {
+		c.Accounts = []base.Account{
 			{
 				Name:     alice,
 				Mnemonic: aliceMnemonic,
 				Coins:    []string{"5600atoken", "1200btoken", "100000000stake"},
 			},
 		}
-		conf.Faucet = chainconfig.Faucet{}
-		conf.Init.KeyringBackend = keyring.BackendTest
+		c.Faucet = base.Faucet{}
+		c.Validators[0].Client = xyaml.Map{
+			"keyring-backend": keyring.BackendTest,
+		}
 	})
 
 	env.Must(env.Exec("import alice",
@@ -99,7 +103,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		if isBackendAliveErr = env.IsAppServed(ctx, servers); isBackendAliveErr != nil {
+		if isBackendAliveErr = env.IsAppServed(ctx, servers.API); isBackendAliveErr != nil {
 			return
 		}
 
@@ -108,7 +112,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 			cosmosclient.WithNodeAddress(node),
 		)
 		require.NoError(t, err)
-		require.NoError(t, client.WaitForNextBlock())
+		waitForNextBlock(env, client)
 
 		b := &bytes.Buffer{}
 
@@ -278,7 +282,7 @@ func TestNodeQueryBankBalances(t *testing.T) {
 		)
 	}()
 
-	env.Must(app.Serve("should serve with Stargate version", envtest.ExecCtx(ctx)))
+	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

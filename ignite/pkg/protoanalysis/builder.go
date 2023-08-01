@@ -9,11 +9,11 @@ import (
 )
 
 type builder struct {
-	p pkg
+	p protoPackage
 }
 
-// buil turns a low lovel proto pkg into a high level Package.
-func build(p pkg) Package {
+// build turns a low level proto pkg into a high level Package.
+func build(p protoPackage) Package {
 	br := builder{p}
 
 	pk := Package{
@@ -45,16 +45,22 @@ func (b builder) buildFiles() (files []File) {
 func (b builder) buildMessages() (messages []Message) {
 	for _, f := range b.p.files {
 		for _, message := range f.messages {
+			// Keep track of the message fields and types
+			fields := make(map[string]string)
 
 			// Find the highest field number
 			var highestFieldNumber int
 			for _, elem := range message.Elements {
 				field, ok := elem.(*proto.NormalField)
-				if ok {
-					if field.Sequence > highestFieldNumber {
-						highestFieldNumber = field.Sequence
-					}
+				if !ok {
+					continue
 				}
+
+				if field.Sequence > highestFieldNumber {
+					highestFieldNumber = field.Sequence
+				}
+
+				fields[field.Name] = field.Type
 			}
 
 			// some proto messages might be defined inside another proto messages.
@@ -82,6 +88,7 @@ func (b builder) buildMessages() (messages []Message) {
 				Name:               name,
 				Path:               f.path,
 				HighestFieldNumber: highestFieldNumber,
+				Fields:             fields,
 			})
 		}
 	}
@@ -151,7 +158,11 @@ func (b builder) elementsToHTTPRules(requestMessage *proto.Message, elems []prot
 	return
 }
 
-var urlParamRe = regexp.MustCompile(`(?m){(.+?)}`)
+// Regexp to extract HTTP rule URL parameter names.
+// The expression extracts parameter names defined within "{}".
+// Extra parameter arguments are ignored. These arguments are normally
+// defined after an "=", for example as "{param=**}".
+var urlParamRe = regexp.MustCompile(`(?m){([^=]+?)(?:=.+?)?}`)
 
 func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant proto.Literal) (httpRules []HTTPRule) {
 	// find out the endpoint template.

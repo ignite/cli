@@ -3,10 +3,10 @@ package ignitecmd
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/ignite/pkg/cliui"
 )
 
 func NewNodeQueryTx() *cobra.Command {
@@ -20,15 +20,19 @@ func NewNodeQueryTx() *cobra.Command {
 }
 
 func nodeQueryTxHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(cliui.StartSpinnerWithText(statusQuerying))
+	defer session.End()
+
 	bz, err := hex.DecodeString(args[0])
 	if err != nil {
 		return err
 	}
-	rpc, err := sdkclient.NewClientFromNode(getRPC(cmd))
+	client, err := newNodeCosmosClient(cmd)
 	if err != nil {
 		return err
 	}
-	resp, err := rpc.Tx(cmd.Context(), bz, false)
+
+	resp, err := client.RPC.Tx(cmd.Context(), bz, false)
 	if err != nil {
 		return err
 	}
@@ -36,6 +40,6 @@ func nodeQueryTxHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bz))
-	return nil
+
+	return session.Println(string(bz))
 }

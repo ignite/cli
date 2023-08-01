@@ -9,7 +9,7 @@ import (
 )
 
 // AllOrSomeFilter filters elems out from the list as they  present in filterList and
-// returns the remaning ones.
+// returns the remaining ones.
 // if filterList is empty, all elems from list returned.
 func AllOrSomeFilter(list, filterList []string) []string {
 	if len(filterList) == 0 {
@@ -50,17 +50,17 @@ func List(n int, do func(i int) string) []string {
 	return list
 }
 
-// FormatUsername formats a username to make it usable as a variable
+// FormatUsername formats a username to make it usable as a variable.
 func FormatUsername(s string) string {
 	return NoDash(NoNumberPrefix(s))
 }
 
-// NoDash removes dash from the string
+// NoDash removes dash from the string.
 func NoDash(s string) string {
 	return strings.ReplaceAll(s, "-", "")
 }
 
-// NoNumberPrefix adds a underscore at the beginning of the string if it stars with a number
+// NoNumberPrefix adds an underscore at the beginning of the string if it stars with a number
 // this is used for package of proto files template because the package name can't start with a number.
 func NoNumberPrefix(s string) string {
 	// Check if it starts with a digit
@@ -72,6 +72,11 @@ func NoNumberPrefix(s string) string {
 
 // Title returns a copy of the string s with all Unicode letters that begin words
 // mapped to their Unicode title case.
-func Title(title string) string {
-	return cases.Title(language.English).String(title)
+func Title(s string) string {
+	return cases.Title(language.English).String(s)
+}
+
+// ToUpperFirst returns a copy of the string with the first unicode letter in upper case.
+func ToUpperFirst(s string) string {
+	return strings.ToUpper(s[:1]) + s[1:]
 }

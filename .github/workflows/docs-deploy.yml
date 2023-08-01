@@ -3,7 +3,7 @@ name: Docs Deploy
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   consecutiveness:
@@ -19,34 +19,34 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: docs/node_modules
-          key: node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: npm
-          cache-dependency-path: docs/package-lock.json
+          cache: yarn
+          cache-dependency-path: docs/yarn.lock
 
       - name: Install Dependencies
-        run: npm install
+        run: yarn install
         working-directory: ./docs
 
       - name: Build
-        run: npm run build
+        run: yarn run build
         working-directory: ./docs
 
       - name: Deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGNITE_HQ }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGNTSERVICES }}"
           channelId: live
           target: docs.ignite.com
-          projectId: ignite-hq
+          projectId: igntservices

@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
+	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/xurl"
@@ -48,14 +49,24 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	if _, err := commands.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
-		if err == chaincmdrunner.ErrAccountDoesNotExist {
+		if errors.Is(err, chaincmdrunner.ErrAccountDoesNotExist) {
 			return cosmosfaucet.Faucet{}, ErrFaucetAccountDoesNotExist
 		}
 		return cosmosfaucet.Faucet{}, err
 	}
 
 	// construct faucet options.
-	apiAddress := conf.Host.API
+	validator, err := chainconfig.FirstValidator(conf)
+	if err != nil {
+		return cosmosfaucet.Faucet{}, err
+	}
+
+	servers, err := validator.GetServers()
+	if err != nil {
+		return cosmosfaucet.Faucet{}, err
+	}
+
+	apiAddress := servers.API.Address
 	if envAPIAddress != "" {
 		apiAddress = envAPIAddress
 	}
@@ -75,7 +86,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 		}
 
 		var amountMax uint64
@@ -84,7 +95,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		for _, coinMax := range conf.Faucet.CoinsMax {
 			parsedMax, err := sdk.ParseCoinNormalized(coinMax)
 			if err != nil {
-				return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+				return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 			}
 			if parsedMax.Denom == parsedCoin.Denom {
 				amountMax = parsedMax.Amount.Uint64()
@@ -98,7 +109,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	if conf.Faucet.RateLimitWindow != "" {
 		rateLimitWindow, err := time.ParseDuration(conf.Faucet.RateLimitWindow)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, conf.Faucet.RateLimitWindow)
+			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, conf.Faucet.RateLimitWindow)
 		}
 
 		faucetOptions = append(faucetOptions, cosmosfaucet.RefreshWindow(rateLimitWindow))

@@ -6,28 +6,38 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/chainconfig"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/env"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 
 const (
-	IgniteApp = "ignite"
-	Stargate  = "stargate"
+	ConfigYML = "config.yml"
 )
 
-var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
+var (
+	// IgniteApp hold the location of the ignite binary used in the integration
+	// tests. The binary is compiled the first time the env.New() function is
+	// invoked.
+	IgniteApp = path.Join(os.TempDir(), "ignite-tests", "ignite")
+
+	isCI, _           = strconv.ParseBool(os.Getenv("CI"))
+	compileBinaryOnce sync.Once
+)
 
 // Env provides an isolated testing environment and what's needed to
 // make it possible.
@@ -38,18 +48,45 @@ type Env struct {
 
 // New creates a new testing environment.
 func New(t *testing.T) Env {
+	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	e := Env{
 		t:   t,
 		ctx: ctx,
 	}
+	// To avoid conflicts with the default config folder located in $HOME, we
+	// set an other one thanks to env var.
+	cfgDir := path.Join(t.TempDir(), ".ignite")
+	env.SetConfigDir(cfgDir)
+
 	t.Cleanup(cancel)
-
-	if !xexec.IsCommandAvailable(IgniteApp) {
-		t.Fatal("ignite needs to be installed")
-	}
-
+	compileBinaryOnce.Do(func() {
+		compileBinary(ctx)
+	})
 	return e
+}
+
+func compileBinary(ctx context.Context) {
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(fmt.Sprintf("unable to get working dir: %v", err))
+	}
+	_, appPath, err := gomodulepath.Find(wd)
+	if err != nil {
+		panic(fmt.Sprintf("unable to read go module path: %v", err))
+	}
+	var (
+		output, binary = filepath.Split(IgniteApp)
+		path           = path.Join(appPath, "ignite", "cmd", "ignite")
+	)
+	err = gocmd.BuildPath(ctx, output, binary, path, nil)
+	if err != nil {
+		panic(fmt.Sprintf("error while building binary: %v", err))
+	}
+}
+
+func (e Env) T() *testing.T {
+	return e.t
 }
 
 // SetCleanup registers a function to be called when the test (or subtest) and all its
@@ -63,18 +100,17 @@ func (e Env) Ctx() context.Context {
 	return e.ctx
 }
 
-// IsAppServed checks that app is served properly and servers are started to listening
-// before ctx canceled.
-func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
+// IsAppServed checks that app is served properly and servers are started to listening before ctx canceled.
+func (e Env) IsAppServed(ctx context.Context, apiAddr string) error {
 	checkAlive := func() error {
-		addr, err := xurl.HTTP(host.API)
+		addr, err := xurl.HTTP(apiAddr)
 		if err != nil {
 			return err
 		}
 
 		ok, err := httpstatuschecker.Check(ctx, fmt.Sprintf("%s/cosmos/base/tendermint/v1beta1/node_info", addr))
 		if err == nil && !ok {
-			err = errors.New("app is not online")
+			err = errors.New("waiting for app")
 		}
 		if HasTestVerboseFlag() {
 			fmt.Printf("IsAppServed at %s: %v\n", addr, err)
@@ -85,7 +121,7 @@ func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
 
-// IsFaucetServed checks that faucet of the app is served properly
+// IsFaucetServed checks that faucet of the app is served properly.
 func (e Env) IsFaucetServed(ctx context.Context, faucetClient cosmosfaucet.HTTPClient) error {
 	checkAlive := func() error {
 		_, err := faucetClient.FaucetInfo(ctx)

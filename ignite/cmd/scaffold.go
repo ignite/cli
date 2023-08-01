@@ -2,32 +2,38 @@ package ignitecmd
 
 import (
 	"errors"
-	"fmt"
+	"path/filepath"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 
-// flags related to component scaffolding
+// flags related to component scaffolding.
 const (
 	flagModule       = "module"
 	flagNoMessage    = "no-message"
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+
+	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
+	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
+
+	statusScaffolding = "Scaffolding..."
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
 func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "scaffold [command]",
-		Short: "Scaffold a new blockchain, module, message, query, and more",
+		Short: "Create a new blockchain, module, message, query, and more",
 		Long: `Scaffolding is a quick way to generate code for major pieces of your
 application.
 
@@ -86,21 +92,48 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		Args:    cobra.ExactArgs(1),
 	}
 
-	c.AddCommand(NewScaffoldChain())
-	c.AddCommand(addGitChangesVerifier(NewScaffoldModule()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldList()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldMap()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldSingle()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldType()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldMessage()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldQuery()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldPacket()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldBandchain()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldVue()))
-	c.AddCommand(addGitChangesVerifier(NewScaffoldFlutter()))
-	// c.AddCommand(NewScaffoldWasm())
+	c.AddCommand(
+		NewScaffoldChain(),
+		NewScaffoldModule(),
+		NewScaffoldList(),
+		NewScaffoldMap(),
+		NewScaffoldSingle(),
+		NewScaffoldType(),
+		NewScaffoldMessage(),
+		NewScaffoldQuery(),
+		NewScaffoldPacket(),
+		NewScaffoldBandchain(),
+		NewScaffoldVue(),
+		NewScaffoldReact(),
+	)
 
 	return c
+}
+
+func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
+	if err := gitChangesConfirmPreRunHandler(cmd, args); err != nil {
+		return err
+	}
+
+	session := cliui.New()
+	defer session.End()
+
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return err
+	}
+
+	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session, appPath)
 }
 
 func scaffoldType(
@@ -137,10 +170,10 @@ func scaffoldType(
 		}
 	}
 
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	defer session.End()
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
@@ -155,57 +188,57 @@ func scaffoldType(
 		return err
 	}
 
-	s.Stop()
-
 	modificationsStr, err := sourceModificationToString(sm)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(modificationsStr)
-	fmt.Printf("\n🎉 %s added. \n\n", typeName)
+	session.Println(modificationsStr)
+	session.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil
 }
 
-func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().AddFlagSet(flagSetYes())
-
-	preRunFun := cmd.PreRunE
-	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if preRunFun != nil {
-			if err := preRunFun(cmd, args); err != nil {
-				return err
-			}
-		}
-
-		appPath := flagGetPath(cmd)
-
-		changesCommitted, err := xgit.AreChangesCommitted(appPath)
-		if err != nil {
-			return err
-		}
-
-		if !getYes(cmd) && !changesCommitted {
-			var confirmed bool
-			prompt := &survey.Confirm{
-				Message: "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
-			}
-			if err := survey.AskOne(prompt, &confirmed); err != nil || !confirmed {
-				return errors.New("said no")
-			}
-		}
+func gitChangesConfirmPreRunHandler(cmd *cobra.Command, _ []string) error {
+	// Don't confirm when the "--yes" flag is present
+	if getYes(cmd) {
 		return nil
 	}
-	return cmd
+
+	appPath := flagGetPath(cmd)
+	session := cliui.New()
+
+	defer session.End()
+
+	return confirmWhenUncommittedChanges(session, appPath)
+}
+
+func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error {
+	cleanState, err := xgit.AreChangesCommitted(appPath)
+	if err != nil {
+		return err
+	}
+
+	if !cleanState {
+		session.Println(msgCommitPrefix)
+		if err := session.AskConfirm(msgCommitPrompt); err != nil {
+			if errors.Is(err, promptui.ErrAbort) {
+				return errors.New("No")
+			}
+
+			return err
+		}
+	}
+
+	return nil
 }
 
 func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
-	f.String(flagModule, "", "Module to add into. Default is app's main module")
-	f.Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
-	f.Bool(flagNoSimulation, false, "Disable CRUD simulation scaffolding")
-	f.String(flagSigner, "", "Label for the message signer (default: creator)")
+	f.String(flagModule, "", "specify which module to generate code in")
+	f.Bool(flagNoMessage, false, "skip generating message handling logic")
+	f.Bool(flagNoSimulation, false, "skip simulation logic")
+	f.String(flagSigner, "", "label for the message signer (default: creator)")
 	return f
 }
 

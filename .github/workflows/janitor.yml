@@ -1,0 +1,16 @@
+name: Janitor
+# Janitor cleans up previous runs that are not completed for a given workflow
+# It cancels Sims and Tests
+# Reference the API https://api.github.com/repos/:org/:repo/actions/workflows to find workflow ids
+on:
+  pull_request:
+
+jobs:
+  cancel:
+    name: "Cancel Previous Runs"
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}

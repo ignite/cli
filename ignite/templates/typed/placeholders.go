@@ -1,5 +1,6 @@
 package typed
 
+//nolint:godot
 const (
 	Placeholder  = "// this line is used by starport scaffolding # 1"
 	Placeholder2 = "// this line is used by starport scaffolding # 2"
@@ -24,4 +25,5 @@ const (
 	PlaceholderSimappConst        = "// this line is used by starport scaffolding # simapp/module/const"
 	PlaceholderSimappGenesisState = "// this line is used by starport scaffolding # simapp/module/genesisState"
 	PlaceholderSimappOperation    = "// this line is used by starport scaffolding # simapp/module/operation"
+	PlaceholderSimappOperationMsg = "// this line is used by starport scaffolding # simapp/module/OpMsg"
 )

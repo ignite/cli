@@ -5,18 +5,18 @@ import (
 )
 
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed files/base/* files/base/**/*
+	fsBase embed.FS
 
-	//go:embed ibc/* ibc/**/*
+	//go:embed files/ibc/* files/ibc/**/*
 	fsIBC embed.FS
 
-	//go:embed msgserver/* msgserver/**/*
+	//go:embed files/msgserver/* files/msgserver/**/*
 	fsMsgServer embed.FS
 
-	//go:embed genesistest/* genesistest/**/*
+	//go:embed files/genesistest/* files/genesistest/**/*
 	fsGenesisTest embed.FS
 
-	//go:embed simapp/* simapp/**/*
+	//go:embed files/simapp/* files/simapp/**/*
 	fsSimapp embed.FS
 )

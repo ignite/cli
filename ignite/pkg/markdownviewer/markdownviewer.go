@@ -14,15 +14,11 @@ func View(path string) error {
 		return err
 	}
 
+	// TODO: Enable bubbletea WithAltScreen and WithMouseCellMotion options when glow supports them
 	p := ui.NewProgram(conf)
 
-	p.EnterAltScreen()
-	defer p.ExitAltScreen()
-
-	p.EnableMouseCellMotion()
-	defer p.DisableMouseCellMotion()
-
-	return p.Start()
+	_, err = p.Run()
+	return err
 }
 
 func config(path string) (ui.Config, error) {

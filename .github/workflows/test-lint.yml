@@ -5,30 +5,22 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
-      - develop
+      - main
 jobs:
   lint:
-    name: golangci-lint
+    name: Lint Go code
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v2
-      - uses: technote-space/get-diff-action@v4
+      - uses: actions/checkout@v3.4.0
+      - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
-            **/**.go
+            **/*.go
             go.mod
             go.sum
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        if: env.GIT_DIFF
+      - uses: golangci/golangci-lint-action@v3
         with:
-          go-version: 1.18
-      - uses: golangci/golangci-lint-action@master
-        if: env.GIT_DIFF
-        with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.45.2
+          version: v1.52.1
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}

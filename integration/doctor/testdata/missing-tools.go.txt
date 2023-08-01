@@ -1,0 +1,31 @@
+# Test fix dependency tools
+# if no tools.go it should populate a new one
+exec $IGNITE doctor
+# assert generated tools.go
+cmp tools/tools.go tools.go.golden
+# assert go.sum has been generated (go mod tidy has run)
+exists go.sum
+# assert tools have been installed
+exists $GOPATH/bin/protoc-gen-gocosmos
+exists $GOPATH/bin/buf
+exists $GOPATH/bin/protoc-gen-grpc-gateway
+
+-- config.yml --
+version: 1
+-- go.mod --
+module github.com/ignite/cli
+
+go 1.19
+-- tools.go.golden --
+//go:build tools
+
+package tools
+
+import (
+	_ "github.com/bufbuild/buf/cmd/buf"
+	_ "github.com/cosmos/gogoproto/protoc-gen-gocosmos"
+	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
+	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
+	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
+)

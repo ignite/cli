@@ -1,0 +1,58 @@
+# Test fix config
+# old config should be migrated
+exec $IGNITE doctor
+cmp config.yml config.yml.golden
+
+-- config.yml --
+accounts:
+  - name: alice
+    coins: ["100000000uatom", "100000000000000000000aevmos"]
+    mnemonic: "ozone unfold device pave lemon potato omit insect column wise cover hint narrow large provide kidney episode clay notable milk mention dizzy muffin crazy"
+  - name: bob
+    coins: ["5000000000000aevmos"]
+    address: "cosmos1adn9gxjmrc3hrsdx5zpc9sj2ra7kgqkmphf8yw"
+validator:
+  name: alice
+  staked: "100000000000000000000aevmos"
+-- go.mod --
+module github.com/ignite/cli
+
+go 1.19
+-- tools/tools.go --
+//go:build tools
+
+package tools
+
+import (
+	_ "github.com/cosmos/gogoproto/protoc-gen-gocosmos"
+	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
+	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway"
+	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
+)
+-- config.yml.golden --
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
+accounts:
+- name: alice
+  coins:
+  - 100000000uatom
+  - 100000000000000000000aevmos
+  mnemonic: ozone unfold device pave lemon potato omit insect column wise cover hint
+    narrow large provide kidney episode clay notable milk mention dizzy muffin crazy
+- name: bob
+  coins:
+  - 5000000000000aevmos
+  address: cosmos1adn9gxjmrc3hrsdx5zpc9sj2ra7kgqkmphf8yw
+faucet:
+  name: null
+  coins: []
+  host: 0.0.0.0:4500
+validators:
+- name: alice
+  bonded: 100000000000000000000aevmos

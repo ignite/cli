@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/datatype"
 )
 
-// validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI
+// validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI.
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
 	fieldSplit := strings.Split(field, datatype.Separator)
 	if len(fieldSplit) > 2 {
@@ -22,7 +22,7 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 
 	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
 	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", fmt.Errorf("%s can't be used as a field Name: %s", name, err.Error())
+		return name, "", fmt.Errorf("%s can't be used as a field Name: %w", name, err)
 	}
 
 	// Check if the object has an explicit type. The default is a string
@@ -35,7 +35,7 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 }
 
 // ParseFields parses the provided fields, analyses the types
-// and checks there is no duplicated field
+// and checks there is no duplicated field.
 func ParseFields(
 	fields []string,
 	isForbiddenField func(string) error,
@@ -63,7 +63,7 @@ func ParseFields(
 		existingFields[name.LowerCamel] = struct{}{}
 
 		// Check if is a static type
-		if _, ok := datatype.SupportedTypes[datatypeName]; ok {
+		if _, ok := datatype.IsSupportedType(datatypeName); ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
 				DatatypeName: datatypeName,

@@ -1,12 +1,12 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -23,8 +23,10 @@ By default, the data directory will be initialized in $HOME/.mychain, where
 "mychain" is the name of the project. To set a custom data directory use the
 --home flag or set the value in config.yml:
 
-init:
-  home: "~/.customdir"
+	validators:
+	  - name: alice
+	    bonded: '100000000stake'
+	    home: "~/.customdir"
 
 The data directory contains three files in the "config" directory: app.toml,
 config.toml, client.toml. These files let you customize the behavior of your
@@ -32,15 +34,17 @@ blockchain node and the client executable. When a chain is re-initialized the
 data directory can be reset. To make some values in these files persistent, set
 them in config.yml:
 
-init:
-  app:
-    minimum-gas-prices: "0.025stake"
-  config:
-    consensus:
-      timeout_commit: "5s"
-      timeout_propose: "5s"
-  client:
-    output: "json"
+	validators:
+	  - name: alice
+	    bonded: '100000000stake'
+	    app:
+	      minimum-gas-prices: "0.025stake"
+	    config:
+	      consensus:
+	        timeout_commit: "5s"
+	        timeout_propose: "5s"
+	    client:
+	      output: "json"
 
 The configuration above changes the minimum gas price of the validator (by
 default the gas price is set to 0 to allow "free" transactions), sets the block
@@ -61,11 +65,11 @@ directory "config" subdirectory and contains the initial state of the chain,
 including consensus and module parameters. You can customize the values of the
 genesis in config.yml:
 
-genesis:
-  app_state:
-    staking:
-      params:
-        bond_denom: "foo"
+	genesis:
+	  app_state:
+	    staking:
+	      params:
+	        bond_denom: "foo"
 
 The example above changes the staking token to "foo". If you change the staking
 denom, make sure the validator account has the right tokens.
@@ -84,14 +88,24 @@ commands manually to ensure a production-level node initialization.
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
+	c.Flags().AddFlagSet(flagSetDebug())
+	c.Flags().StringSlice(flagBuildTags, []string{cosmosver.DefaultVersion().String()}, "parameters to build the chain binary")
 
 	return c
 }
 
 func chainInitHandler(cmd *cobra.Command, _ []string) error {
+	session := cliui.New(
+		cliui.WithVerbosity(getVerbosity(cmd)),
+		cliui.StartSpinner(),
+	)
+	defer session.End()
+
 	chainOption := []chain.Option{
-		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+		chain.WithOutputer(session),
+		chain.CollectEvents(session.EventBus()),
+		chain.CheckCosmosSDKVersion(),
 	}
 
 	if flagGetCheckDependencies(cmd) {
@@ -108,11 +122,15 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if _, err := c.Build(cmd.Context(), cacheStorage, "", flagGetSkipProto(cmd)); err != nil {
+	var (
+		ctx          = cmd.Context()
+		buildTags, _ = cmd.Flags().GetStringSlice(flagBuildTags)
+	)
+	if _, err = c.Build(ctx, cacheStorage, buildTags, "", flagGetSkipProto(cmd), flagGetDebug(cmd)); err != nil {
 		return err
 	}
 
-	if err := c.Init(cmd.Context(), true); err != nil {
+	if err := c.Init(ctx, chain.InitArgsAll); err != nil {
 		return err
 	}
 
@@ -121,7 +139,5 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	fmt.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
-
-	return nil
+	return session.Printf("🗃  Initialized. Checkout your chain's home (data) directory: %s\n", colors.Info(home))
 }

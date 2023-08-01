@@ -9,26 +9,20 @@ In this browser-based development environment, the terminal window is in the low
 To create a blockchain and start a node in development:
 
 ```bash
-ignite scaffold chain github.com/username/mars
+ignite scaffold chain example
 
-cd mars
+cd example
 
 ignite chain serve
 ```
-
-where:
-
-* github.com represents a local development repository
-* username is a placeholder, be sure to replace username with your name
-* blog is the name of your chain
 
 ## Next steps
 
 📺 **[Introduction to Ignite CLI](https://www.youtube.com/watch?v=5RqAIE0b8Kw)**: Watch an introductory video to learn about Ignite CLI.
 
-🧑‍🏫 **[Developer Guide](https://docs.ignite.com/guide/)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
+🧑‍🏫 **[Developer Guide](https://docs.ignite.com/guide)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
 
-📕 **Ignite CLI Documentation](https://docs.ignite.com)**: Explore the features of Ignite CLI.
+📕 **Ignite CLI Documentation](<https://docs.ignite.com>)**: Explore the features of Ignite CLI.
 
 📚 [Cosmos SDK Documentation](https://docs.cosmos.network): Learn about the framework for building application-specific blockchains.
 
@@ -39,16 +33,16 @@ where:
 * Scaffold modules, messages, types with CRUD operations, IBC packets, and more
 * Start a blockchain node in development with live reloading
 * Connect to other blockchains with a built-in IBC relayer
-* Use automatically generated TypeScript/Vuex clients to interact with your blockchain
-* Use the Vue.js web app template with a set of components and Vuex modules
+* Use automatically generated TypeScript clients and Vuex stores to interact with your blockchain
+* Use the Vue 3 web app template with a set of UI components to build your custom web application
 
 ## Install Ignite CLI locally
 
 ```
-curl https://get.ignite.com/cli! | bash
+curl https://get.ignite.com/cli | bash
 ```
 
-The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/guide/install.html).
+The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/welcome/install).
 
 ## Stay in touch
 
@@ -60,8 +54,8 @@ Ignite CLI is a free and open source product maintained by [Ignite](https://igni
 
 * [ignite.com website](https://ignite.com)
 * [@ignite_dev on Twitter](https://twitter.com/ignite_dev)
-* [ignite.com/blog](https://ignite.com/blog/)
-* [Ignite Discord](https://discord.com/ignite)
-* [Ignite YouTube](https://www.youtube.com/channel/ignitehq)
-* [Ignite docs](https://docs.ignite.com/)
+* [ignite.com/blog](https://ignite.com/blog)
+* [Ignite Discord](https://discord.gg/ignite)
+* [Ignite YouTube](https://www.youtube.com/@ignitehq)
+* [Ignite docs](https://docs.ignite.com)
 * [Ignite jobs](https://ignite.com/careers)

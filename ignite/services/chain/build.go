@@ -7,8 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
-	"github.com/docker/docker/pkg/archive"
+	"github.com/moby/moby/pkg/archive"
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -17,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
@@ -33,14 +35,15 @@ const (
 func (c *Chain) Build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
+	buildTags []string,
 	output string,
-	skipProto bool,
+	skipProto, debug bool,
 ) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx, cacheStorage, output, skipProto); err != nil {
+	if err := c.build(ctx, cacheStorage, buildTags, output, skipProto, false, debug); err != nil {
 		return "", err
 	}
 
@@ -50,8 +53,9 @@ func (c *Chain) Build(
 func (c *Chain) build(
 	ctx context.Context,
 	cacheStorage cache.Storage,
+	buildTags []string,
 	output string,
-	skipProto bool,
+	skipProto, generateClients, debug bool,
 ) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
@@ -61,16 +65,21 @@ func (c *Chain) build(
 		}
 	}()
 
-	// generate from proto files
 	if !skipProto {
-		if err := c.generateFromConfig(ctx, cacheStorage); err != nil {
+		// Generate code from proto files
+		if err := c.generateFromConfig(ctx, cacheStorage, generateClients); err != nil {
 			return err
 		}
 	}
 
-	buildFlags, err := c.preBuild(ctx, cacheStorage)
+	buildFlags, err := c.preBuild(ctx, cacheStorage, buildTags...)
 	if err != nil {
 		return err
+	}
+
+	if debug {
+		// Add flags to disable binary optimizations and inlining to allow debugging
+		buildFlags = append(buildFlags, gocmd.FlagGcflags, gocmd.FlagGcflagsValueDebug)
 	}
 
 	binary, err := c.Binary()
@@ -89,7 +98,13 @@ func (c *Chain) build(
 // BuildRelease builds binaries for a release. targets is a list
 // of GOOS:GOARCH when provided. It defaults to your system when no targets provided.
 // prefix is used as prefix to tarballs containing each target.
-func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, output, prefix string, targets ...string) (releasePath string, err error) {
+func (c *Chain) BuildRelease(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	buildParams []string,
+	output, prefix string,
+	targets ...string,
+) (releasePath string, err error) {
 	if prefix == "" {
 		prefix = c.app.Name
 	}
@@ -102,7 +117,7 @@ func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, ou
 		return "", err
 	}
 
-	buildFlags, err := c.preBuild(ctx, cacheStorage)
+	buildFlags, err := c.preBuild(ctx, cacheStorage, buildParams...)
 	if err != nil {
 		return "", err
 	}
@@ -180,7 +195,11 @@ func (c *Chain) BuildRelease(ctx context.Context, cacheStorage cache.Storage, ou
 	return releasePath, checksum.Sum(releasePath, checksumPath)
 }
 
-func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (buildFlags []string, err error) {
+func (c *Chain) preBuild(
+	ctx context.Context,
+	cacheStorage cache.Storage,
+	buildTags ...string,
+) (buildFlags []string, err error) {
 	config, err := c.Config()
 	if err != nil {
 		return nil, err
@@ -197,14 +216,16 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.AppName=%sd", c.app.Name),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Version=%s", c.sourceVersion.tag),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Commit=%s", c.sourceVersion.hash),
+		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.BuildTags=%s", strings.Join(buildTags, ",")),
 		fmt.Sprintf("-X %s/cmd/%s/cmd.ChainID=%s", c.app.ImportPath, c.app.D(), chainID),
 	)
 	buildFlags = []string{
 		gocmd.FlagMod, gocmd.FlagModValueReadOnly,
+		gocmd.FlagTags, gocmd.Tags(buildTags...),
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
 	}
 
-	fmt.Fprintln(c.stdLog().out, "📦 Installing dependencies...")
+	c.ev.Send("Installing dependencies...", events.ProgressUpdate())
 
 	// We do mod tidy before checking for checksum changes, because go.mod gets modified often
 	// and the mod verify command is the expensive one anyway
@@ -232,7 +253,7 @@ func (c *Chain) preBuild(ctx context.Context, cacheStorage cache.Storage) (build
 		}
 	}
 
-	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")
+	c.ev.Send("Building the blockchain...", events.ProgressUpdate())
 
 	return buildFlags, nil
 }
@@ -248,7 +269,7 @@ func (c *Chain) discoverMain(path string) (pkgPath string, err error) {
 	}
 
 	path, err = goanalysis.DiscoverOneMain(path)
-	if err == goanalysis.ErrMultipleMainPackagesFound {
+	if errors.Is(err, goanalysis.ErrMultipleMainPackagesFound) {
 		return "", errors.Wrap(err, "specify the path to your chain's main package in your config.yml>build.main")
 	}
 	return path, err

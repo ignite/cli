@@ -38,8 +38,8 @@ const (
 	flagSourceClientID      = "source-client-id"
 	flagTargetClientID      = "target-client-id"
 
-	relayerSource = "source"
-	relayerTarget = "target"
+	RelayerSource = "source"
+	RelayerTarget = "target"
 
 	defaultSourceRPCAddress = "http://localhost:26657"
 	defaultTargetRPCAddress = "https://rpc.cosmos.network:443"
@@ -63,25 +63,25 @@ func NewRelayerConfigure() *cobra.Command {
 		RunE:    relayerConfigureHandler,
 	}
 
-	c.Flags().BoolP(flagAdvanced, "a", false, "Advanced configuration options for custom IBC modules")
+	c.Flags().BoolP(flagAdvanced, "a", false, "advanced configuration options for custom IBC modules")
 	c.Flags().String(flagSourceRPC, "", "RPC address of the source chain")
 	c.Flags().String(flagTargetRPC, "", "RPC address of the target chain")
-	c.Flags().String(flagSourceFaucet, "", "Faucet address of the source chain")
-	c.Flags().String(flagTargetFaucet, "", "Faucet address of the target chain")
+	c.Flags().String(flagSourceFaucet, "", "faucet address of the source chain")
+	c.Flags().String(flagTargetFaucet, "", "faucet address of the target chain")
 	c.Flags().String(flagSourcePort, "", "IBC port ID on the source chain")
-	c.Flags().String(flagSourceVersion, "", "Module version on the source chain")
+	c.Flags().String(flagSourceVersion, "", "module version on the source chain")
 	c.Flags().String(flagTargetPort, "", "IBC port ID on the target chain")
-	c.Flags().String(flagTargetVersion, "", "Module version on the target chain")
-	c.Flags().String(flagSourceGasPrice, "", "Gas price used for transactions on source chain")
-	c.Flags().String(flagTargetGasPrice, "", "Gas price used for transactions on target chain")
-	c.Flags().Int64(flagSourceGasLimit, 0, "Gas limit used for transactions on source chain")
-	c.Flags().Int64(flagTargetGasLimit, 0, "Gas limit used for transactions on target chain")
-	c.Flags().String(flagSourceAddressPrefix, "", "Address prefix of the source chain")
-	c.Flags().String(flagTargetAddressPrefix, "", "Address prefix of the target chain")
-	c.Flags().String(flagSourceAccount, "", "Source Account")
-	c.Flags().String(flagTargetAccount, "", "Target Account")
-	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
-	c.Flags().BoolP(flagReset, "r", false, "Reset the relayer config")
+	c.Flags().String(flagTargetVersion, "", "module version on the target chain")
+	c.Flags().String(flagSourceGasPrice, "", "gas price used for transactions on source chain")
+	c.Flags().String(flagTargetGasPrice, "", "gas price used for transactions on target chain")
+	c.Flags().Int64(flagSourceGasLimit, 0, "gas limit used for transactions on source chain")
+	c.Flags().Int64(flagTargetGasLimit, 0, "gas limit used for transactions on target chain")
+	c.Flags().String(flagSourceAddressPrefix, "", "address prefix of the source chain")
+	c.Flags().String(flagTargetAddressPrefix, "", "address prefix of the target chain")
+	c.Flags().String(flagSourceAccount, "", "source Account")
+	c.Flags().String(flagTargetAccount, "", "target Account")
+	c.Flags().Bool(flagOrdered, false, "set the channel as ordered")
+	c.Flags().BoolP(flagReset, "r", false, "reset the relayer config")
 	c.Flags().String(flagSourceClientID, "", "use a custom client id for source")
 	c.Flags().String(flagTargetClientID, "", "use a custom client id for target")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -90,13 +90,13 @@ func NewRelayerConfigure() *cobra.Command {
 	return c
 }
 
-func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
+func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	defer func() {
 		err = handleRelayerAccountErr(err)
 	}()
 
 	session := cliui.New()
-	defer session.Cleanup()
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -387,11 +387,11 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 	r := relayer.New(ca)
 
 	// initialize the chains
-	sourceChain, err := initChain(
+	sourceChain, err := InitChain(
 		cmd,
 		r,
 		session,
-		relayerSource,
+		RelayerSource,
 		sourceAccount,
 		sourceRPCAddress,
 		sourceFaucetAddress,
@@ -408,11 +408,11 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	targetChain, err := initChain(
+	targetChain, err := InitChain(
 		cmd,
 		r,
 		session,
-		relayerTarget,
+		RelayerTarget,
 		targetAccount,
 		targetRPCAddress,
 		targetFaucetAddress,
@@ -452,17 +452,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	session.StopSpinner()
-	session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
-
-	return nil
+	return session.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 }
 
-// initChain initializes chain information for the relayer connection
-func initChain(
+// InitChain initializes chain information for the relayer connection.
+func InitChain(
 	cmd *cobra.Command,
 	r relayer.Relayer,
-	session cliui.Session,
+	session *cliui.Session,
 	name,
 	accountName,
 	rpcAddr,

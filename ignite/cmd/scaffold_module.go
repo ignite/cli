@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
-	"strings"
+	"regexp"
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/services/scaffolder"
@@ -22,13 +21,21 @@ const (
 	flagParams              = "params"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
+
+	govDependencyWarning = `⚠️ If your app has been scaffolded with Ignite CLI 0.16.x or below
+Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
+
+app.GovKeeper = ...
+...
+[your module keeper definition]
+`
 )
 
-// NewScaffoldModule returns the command to scaffold a Cosmos SDK module
+// NewScaffoldModule returns the command to scaffold a Cosmos SDK module.
 func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "module [name]",
-		Short: "Scaffold a Cosmos SDK module",
+		Short: "Custom Cosmos SDK module",
 		Long: `Scaffold a new Cosmos SDK module.
 
 Cosmos SDK is a modular framework and each independent piece of functionality is
@@ -62,7 +69,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-  ignite scaffold module foo --dep bank
+	ignite scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -70,7 +77,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-  ignite scaffold module bar --dep foo,mint,account
+	ignite scaffold module bar --dep foo,mint,account,FeeGrant
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -83,22 +90,25 @@ blockchain is running. An example of a param is "Inflation rate change" of the
 that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-  ignite scaffold module foo --params baz:uint,bar:bool
+	ignite scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
 `,
-		Args: cobra.ExactArgs(1),
-		RunE: scaffoldModuleHandler,
+		Args:    cobra.ExactArgs(1),
+		PreRunE: migrationPreRunHandler,
+		RunE:    scaffoldModuleHandler,
 	}
 
 	flagSetPath(c)
 	flagSetClearCache(c)
-	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
-	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
+
+	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().StringSlice(flagDep, []string{}, "add a dependency on another module")
+	c.Flags().Bool(flagIBC, false, "add IBC functionality")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
-	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
-	c.Flags().StringSlice(flagParams, []string{}, "scaffold module params")
+	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
+	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
 
 	return c
 }
@@ -108,8 +118,9 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		name    = args[0]
 		appPath = flagGetPath(cmd)
 	)
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
+
+	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	defer session.End()
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)
 	if err != nil {
@@ -150,36 +161,30 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if len(dependencies) > 0 {
-		var formattedDependencies []modulecreate.Dependency
+		var deps []modulecreate.Dependency
 
-		// Parse the provided dependencies
-		for _, dependency := range dependencies {
-			var formattedDependency modulecreate.Dependency
+		isValid := regexp.MustCompile(`^[a-zA-Z]+$`).MatchString
 
-			splitted := strings.Split(dependency, ":")
-			switch len(splitted) {
-			case 1:
-				formattedDependency = modulecreate.NewDependency(splitted[0], "")
-			case 2:
-				formattedDependency = modulecreate.NewDependency(splitted[0], splitted[1])
-			default:
-				return fmt.Errorf("dependency %s is invalid, must have <depName> or <depName>.<depKeeperName>", dependency)
+		for _, name := range dependencies {
+			if !isValid(name) {
+				return fmt.Errorf("invalid module dependency name format '%s'", name)
 			}
-			formattedDependencies = append(formattedDependencies, formattedDependency)
+
+			deps = append(deps, modulecreate.NewDependency(name))
 		}
-		options = append(options, scaffolder.WithDependencies(formattedDependencies))
+
+		options = append(options, scaffolder.WithDependencies(deps))
 	}
 
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 
-	sc, err := newApp(appPath)
+	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
 
-	sm, err := sc.CreateModule(cacheStorage, placeholder.New(), name, options...)
-	s.Stop()
+	sm, err := sc.CreateModule(cmd.Context(), cacheStorage, placeholder.New(), name, options...)
 	if err != nil {
 		var validationErr validation.Error
 		if !requireRegistration && errors.As(err, &validationErr) {
@@ -194,33 +199,19 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		fmt.Println(modificationsStr)
+		session.Println(modificationsStr)
 	}
 
-	if len(dependencies) > 0 {
-		dependencyWarning(dependencies)
-	}
+	// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
+	// therefore we must warn the user to manually move the definition if it's the case
+	// https://github.com/ignite/cli/issues/818#issuecomment-865736052
+	for _, name := range dependencies {
+		if name == "Gov" {
+			session.Print(govDependencyWarning)
 
-	io.Copy(cmd.OutOrStdout(), &msg)
-	return nil
-}
-
-// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
-// therefore we must warn the user to manually move the definition if it's the case
-// https://github.com/ignite/cli/issues/818#issuecomment-865736052
-const govWarning = `⚠️ If your app has been scaffolded with Ignite CLI 0.16.x or below
-Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
-
-app.GovKeeper = ...
-...
-[your module keeper definition]
-`
-
-// dependencyWarning is used to print a warning if gov is provided as a dependency
-func dependencyWarning(dependencies []string) {
-	for _, dep := range dependencies {
-		if dep == "gov" {
-			fmt.Print(govWarning)
+			break
 		}
 	}
+
+	return session.Print(msg.String())
 }

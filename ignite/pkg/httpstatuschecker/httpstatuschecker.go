@@ -1,4 +1,4 @@
-// httpstatuschecker is a tool check health of http pages.
+// Package httpstatuschecker is a tool check health of http pages.
 package httpstatuschecker
 
 import (
@@ -42,6 +42,7 @@ func (c *checker) check(ctx context.Context) (bool, error) {
 	}
 	res, err := c.c.Do(req)
 	if err != nil {
+		// ignore some errors like "connect: connection refused"
 		return false, nil
 	}
 	defer res.Body.Close()

@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
@@ -20,6 +19,9 @@ func NewNodeTxBankSend() *cobra.Command {
 }
 
 func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New()
+	defer session.End()
+
 	var (
 		fromAccountInput = args[0]
 		toAccountInput   = args[1]
@@ -49,36 +51,27 @@ func nodeTxBankSendHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	tx, err := client.BankSendTx(fromAccount, toAddress, coins)
+	tx, err := client.BankSendTx(cmd.Context(), fromAccount, toAddress, coins)
 	if err != nil {
 		return err
 	}
 
-	session := cliui.New()
-	defer session.Cleanup()
 	if generateOnly {
 		json, err := tx.EncodeJSON()
 		if err != nil {
 			return err
 		}
 
-		session.StopSpinner()
 		return session.Println(string(json))
 	}
 
 	session.StartSpinner("Sending transaction...")
-	resp, err := tx.Broadcast()
+	resp, err := tx.Broadcast(cmd.Context())
 	if err != nil {
 		return err
 	}
 
-	session.StopSpinner()
 	session.Printf("Transaction broadcast successful! (hash = %s)\n", resp.TxHash)
 	session.Printf("%s sent from %s to %s\n", amount, fromAccountInput, toAccountInput)
-	if getBroadcastMode(cmd) != flags.BroadcastBlock {
-		session.Println("Transaction waiting to be included in a block.")
-		session.Println("Run the following command to follow the transaction status:")
-		session.Printf("  ignite node --node %s q tx %s\n", getRPC(cmd), resp.TxHash)
-	}
 	return nil
 }

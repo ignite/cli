@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e -x
+
+go test -v -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... $(go list github.com/ignite/cli/ignite/...)
+
+# append "||true" to grep so if no match the return code stays 0
+excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER' || true)"
+excludelist+=" $(find ./ -type f -name '*.pb.go')"
+excludelist+=" $(find ./ -type f -name '*.pb.gw.go')"
+excludelist+=" $(find ./actions -type d)"
+excludelist+=" $(find ./assets -type d)"
+excludelist+=" $(find ./docs -type d)"
+excludelist+=" $(find ./integration -type d)"
+excludelist+=" $(find ./scripts -type d)"
+for filename in ${excludelist}; do
+  filename=${filename#".//"}
+  echo "Excluding ${filename} from coverage report..."
+  filename=$(echo "$filename" | sed 's/\//\\\//g')
+  sed -i.bak "/""$filename""/d" coverage.txt
+done

@@ -1,0 +1,13 @@
+syntax = "proto3";
+package <%= protoPkgName %>;
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+message <%= title(moduleName) %>PacketData {
+    oneof packet {
+        NoData noData = 1;
+    }
+}
+
+message NoData {
+}

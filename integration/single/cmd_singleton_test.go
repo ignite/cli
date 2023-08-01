@@ -9,7 +9,7 @@ import (
 	envtest "github.com/ignite/cli/integration"
 )
 
-func TestCreateSingletonWithStargate(t *testing.T) {
+func TestCreateSingleton(t *testing.T) {
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")
