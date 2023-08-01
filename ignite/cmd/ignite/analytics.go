@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +14,7 @@ import (
 )
 
 const (
-	gaid          = "<GA_KEY>" // Google Analytics' tracking id.
+	gaid          = "<GA_TRACK_ID>"
 	envDoNotTrack = "DO_NOT_TRACK"
 )
 
@@ -47,15 +46,19 @@ func init() {
 	gaclient = gacli.New(gaid)
 }
 
-func addCmdMetric(m metric) error {
+func addCmdMetric(m metric) {
 	envDoNotTrackVar := os.Getenv(envDoNotTrack)
 	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
-		return nil
+		return
+	}
+
+	if m.command == "ignite version" {
+		return
 	}
 
 	ident, err := prepareMetrics()
 	if err != nil {
-		return err
+		return
 	}
 
 	var met gacli.Metric
@@ -75,8 +78,9 @@ func addCmdMetric(m metric) error {
 	}
 	met.User = ident.Name
 	met.Version = version.Version
-	fmt.Printf("\n\n**************** %s", met)
-	return gaclient.Send(met)
+	go func() {
+		gaclient.Send(met)
+	}()
 }
 
 func prepareMetrics() (identity, error) {
@@ -110,6 +114,11 @@ func prepareMetrics() (identity, error) {
 	}
 	if _, err := prompt.Run(); err != nil {
 		return identity{}, err
+	}
+
+	data, err = json.Marshal(&i)
+	if err != nil {
+		return i, err
 	}
 
 	return i, os.WriteFile(anonPath, data, 0o700)
