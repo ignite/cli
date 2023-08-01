@@ -1,0 +1,72 @@
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something isn't working"
+  },
+  {
+    "name": "bug fix",
+    "color": "8a1d1c",
+    "description": "Functionality that fixes a bug"
+  },
+  {
+    "name": "dependencies",
+    "color": "5319e7",
+    "description": "Update to the dependencies"
+  },
+  {
+    "name": "documentation",
+    "color": "0075ca",
+    "description": "Improvements or additions to documentation"
+  },
+  {
+    "name": "duplicate",
+    "color": "cfd3d7",
+    "description": "This issue or pull request already exists"
+  },
+  {
+    "name": "good first issue",
+    "color": "7057ff",
+    "description": "Good for newcomers"
+  },
+  {
+    "name": "help wanted",
+    "color": "008672",
+    "description": "Extra attention is needed"
+  },
+  {
+    "name": "breaking change",
+    "color": "a7327e",
+    "description": "Functionality that contains breaking changes"
+  },
+  {
+    "name": "don't merge",
+    "color": "b60205",
+    "description": "Please don't merge this functionality temporarily"
+  },
+  {
+    "name": "feature",
+    "color": "ffb703",
+    "description": "New update to Gno"
+  },
+  {
+    "name": "hotfix",
+    "color": "003049",
+    "description": "Major bug fix that should be merged ASAP"
+  },
+  {
+    "name": "info needed",
+    "color": "54eba0",
+    "description": "More information needed"
+  },
+  {
+    "name": "question",
+    "color": "fbca04",
+    "description": "Questions about Gno"
+  },
+  {
+    "name": "investigating",
+    "color": "8c008c",
+    "description": "This behavior is still being tested out"
+  }
+]
