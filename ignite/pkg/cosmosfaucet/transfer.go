@@ -16,17 +16,17 @@ import (
 var transferMutex = &sync.Mutex{}
 
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
-func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount uint64, err error) {
+func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount sdk.Int, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
-		return 0, err
+		return sdk.NewInt(0), err
 	}
 
 	events, err := f.runner.QueryTxEvents(ctx,
 		chaincmdrunner.NewEventSelector("message", "sender", fromAccount.Address),
 		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress))
 	if err != nil {
-		return 0, err
+		return sdk.NewInt(0), err
 	}
 
 	for _, event := range events {
@@ -35,13 +35,12 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 				if attr.Key == "amount" {
 					coins, err := sdk.ParseCoinsNormalized(attr.Value)
 					if err != nil {
-						return 0, err
+						return sdk.NewInt(0), err
 					}
 
-					amount := coins.AmountOf(denom).Uint64()
-
-					if amount > 0 && time.Since(event.Time) < f.limitRefreshWindow {
-						totalAmount += amount
+					amount := coins.AmountOf(denom)
+					if amount.GT(sdk.NewInt(0)) && time.Since(event.Time) < f.limitRefreshWindow {
+						totalAmount = totalAmount.Add(amount)
 					}
 				}
 			}
@@ -65,8 +64,8 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 			return err
 		}
 
-		if f.coinsMax[c.Denom] != 0 {
-			if totalSent >= f.coinsMax[c.Denom] {
+		if !f.coinsMax[c.Denom].Equal(sdk.NewInt(0)) {
+			if totalSent.GTE(f.coinsMax[c.Denom]) {
 				return fmt.Errorf(
 					"account has reached to the max. allowed amount (%d) for %q denom",
 					f.coinsMax[c.Denom],
@@ -74,7 +73,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 				)
 			}
 
-			if (totalSent + c.Amount.Uint64()) > f.coinsMax[c.Denom] {
+			if (totalSent.Add(c.Amount)).GT(f.coinsMax[c.Denom]) {
 				return fmt.Errorf(
 					`ask less amount for %q denom. account is reaching to the limit (%d) that faucet can tolerate`,
 					c.Denom,
