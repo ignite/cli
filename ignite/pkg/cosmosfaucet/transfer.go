@@ -8,7 +8,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	sdkmath "cosmossdk.io/math"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
@@ -19,14 +19,14 @@ var transferMutex = &sync.Mutex{}
 func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount sdk.Int, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
-		return sdk.NewInt(0), err
+		return sdkmath.NewInt(0), err
 	}
 
 	events, err := f.runner.QueryTxEvents(ctx,
 		chaincmdrunner.NewEventSelector("message", "sender", fromAccount.Address),
 		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress))
 	if err != nil {
-		return sdk.NewInt(0), err
+		return sdkmath.NewInt(0), err
 	}
 
 	for _, event := range events {
@@ -35,11 +35,11 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 				if attr.Key == "amount" {
 					coins, err := sdk.ParseCoinsNormalized(attr.Value)
 					if err != nil {
-						return sdk.NewInt(0), err
+						return sdkmath.NewInt(0), err
 					}
 
 					amount := coins.AmountOf(denom)
-					if amount.GT(sdk.NewInt(0)) && time.Since(event.Time) < f.limitRefreshWindow {
+					if amount.GT(sdkmath.NewInt(0)) && time.Since(event.Time) < f.limitRefreshWindow {
 						totalAmount = totalAmount.Add(amount)
 					}
 				}
@@ -64,7 +64,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 			return err
 		}
 		coinMax, found := f.coinsMax[c.Denom]
-		if found && !coinMax.IsNil() && !coinMax.Equal(sdk.NewInt(0)) {
+		if found && !coinMax.IsNil() && !coinMax.Equal(sdkmath.NewInt(0)) {
 			if totalSent.GTE(coinMax) {
 				return fmt.Errorf(
 					"account has reached to the max. allowed amount (%d) for %q denom",

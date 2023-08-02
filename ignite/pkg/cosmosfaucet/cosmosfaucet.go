@@ -7,6 +7,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
 
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
@@ -53,7 +54,7 @@ type Faucet struct {
 
 	// coinsMax is a denom-max pair.
 	// it holds the maximum amounts of coins that can be sent to a single account.
-	coinsMax map[string]sdk.Int
+	coinsMax map[string]sdkmath.Int
 
 	limitRefreshWindow time.Duration
 
