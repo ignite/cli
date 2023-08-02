@@ -89,7 +89,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 		}
 
-		var amountMax uint64
+		var amountMax sdk.Int
 
 		// find out the max amount for this coin.
 		for _, coinMax := range conf.Faucet.CoinsMax {
@@ -103,7 +103,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 			}
 		}
 
-		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(parsedCoin.Amount.Uint64(), amountMax, parsedCoin.Denom))
+		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(parsedCoin.Amount, amountMax, parsedCoin.Denom))
 	}
 
 	if conf.Faucet.RateLimitWindow != "" {
