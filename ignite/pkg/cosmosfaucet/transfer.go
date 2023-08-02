@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 )
 
@@ -16,7 +16,7 @@ import (
 var transferMutex = &sync.Mutex{}
 
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
-func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount sdk.Int, err error) {
+func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount sdkmath.Int, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
 		return sdkmath.NewInt(0), err
@@ -29,6 +29,7 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 		return sdkmath.NewInt(0), err
 	}
 
+	totalAmount = sdkmath.NewInt(0)
 	for _, event := range events {
 		if event.Type == "transfer" {
 			for _, attr := range event.Attributes {
