@@ -63,21 +63,21 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 		if err != nil {
 			return err
 		}
-
-		if !f.coinsMax[c.Denom].Equal(sdk.NewInt(0)) {
-			if totalSent.GTE(f.coinsMax[c.Denom]) {
+		coinMax, found := f.coinsMax[c.Denom]
+		if found && !coinMax.IsNil() && !coinMax.Equal(sdk.NewInt(0)) {
+			if totalSent.GTE(coinMax) {
 				return fmt.Errorf(
 					"account has reached to the max. allowed amount (%d) for %q denom",
-					f.coinsMax[c.Denom],
+					coinMax,
 					c.Denom,
 				)
 			}
 
-			if (totalSent.Add(c.Amount)).GT(f.coinsMax[c.Denom]) {
+			if (totalSent.Add(c.Amount)).GT(coinMax) {
 				return fmt.Errorf(
 					`ask less amount for %q denom. account is reaching to the limit (%d) that faucet can tolerate`,
 					c.Denom,
-					f.coinsMax[c.Denom],
+					coinMax,
 				)
 			}
 		}

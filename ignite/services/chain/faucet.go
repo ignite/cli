@@ -98,7 +98,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 				return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 			}
 			if parsedMax.Denom == parsedCoin.Denom {
-				amountMax = parsedMax.Amount.Uint64()
+				amountMax = parsedMax.Amount
 				break
 			}
 		}
