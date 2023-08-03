@@ -15,7 +15,7 @@
     "description": "Update to the dependencies"
   },
   {
-    "name": "documentation",
+    "name": "docs",
     "color": "0075ca",
     "description": "Improvements or additions to documentation"
   },
