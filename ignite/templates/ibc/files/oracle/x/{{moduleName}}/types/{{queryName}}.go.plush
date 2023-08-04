@@ -1,6 +1,7 @@
 package types
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -75,10 +76,10 @@ func (m *Msg<%= queryName.UpperCamel %>Data) GetSignBytes() []byte {
 func (m *Msg<%= queryName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
 	}
 	if m.SourceChannel == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid source channel")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid source channel")
 	}
 	return nil
 }
