@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"github.com/ignite/ignite-files/nodetime/programs/sta"
+	swaggercombine "github.com/ignite/ignite-files/nodetime/programs/swagger-combine"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
-	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite/cli/ignite/pkg/xos"
 )
 

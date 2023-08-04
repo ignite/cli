@@ -12,12 +12,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	tsrelayer "github.com/ignite/ignite-files/nodetime/programs/ts-relayer"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/ctxticker"
-	tsrelayer "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-relayer"
 	relayerconf "github.com/ignite/cli/ignite/pkg/relayer/config"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )

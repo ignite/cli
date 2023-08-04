@@ -8,11 +8,11 @@ import (
 	"sort"
 
 	"github.com/iancoleman/strcase"
+	swaggercombine "github.com/ignite/ignite-files/nodetime/programs/swagger-combine"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
-	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
