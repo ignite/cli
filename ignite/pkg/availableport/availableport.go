@@ -1,4 +1,4 @@
-package availableport
+package main
 
 import (
 	"fmt"
@@ -7,23 +7,59 @@ import (
 	"time"
 )
 
+type optionalParameters struct {
+	WithRandomizer *rand.Rand
+	WithMinPort    int
+	WithMaxPort    int
+}
+
 // Find finds n number of unused ports.
 // it is not guaranteed that these ports will not be allocated to
 // another program in the time of calling Find().
-func Find(n int) (ports []int, err error) {
-	min := 44000
-	max := 55000
+func Find(n int, moreParameters ...optionalParameters) (ports []int, err error) {
+	var min int
+	var max int
+	var r *rand.Rand
+
+	if len(moreParameters) != 0 {
+		extra := moreParameters[0]
+		if extra.WithMinPort != 0 {
+			min = extra.WithMinPort
+		} else {
+			min = 44000
+		}
+		if extra.WithMaxPort != 0 {
+			max = extra.WithMaxPort
+		} else {
+			max = 55000
+		}
+		if extra.WithRandomizer != nil {
+			r = extra.WithRandomizer
+		} else {
+			r = rand.New(rand.NewSource(time.Now().UnixNano()))
+		}
+	} else {
+		// If we don't require special conditions, we can
+		// return to the original parameters
+		min = 44000
+		max = 55000
+		r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	}
+
+	// If the number of ports required is bigger than the range, this stops it
+	if max < min {
+		return nil, fmt.Errorf("invalid ports range: max < min (%d < %d)", max, min)
+	}
 
 	// If the number of ports required is bigger than the range, this stops it
 	if n > (max - min) {
-		return nil, fmt.Errorf("Invalid amount of ports requested: limit is %d", min-max)
+		return nil, fmt.Errorf("invalid amount of ports requested: limit is %d", max-min)
 	}
 
 	// Marker to point if a port is already added in the list
 	registered := make(map[int]bool)
 	for i := 0; i < n; i++ {
 		for {
-			r := rand.New(rand.NewSource(time.Now().UnixNano()))
 			port := r.Intn(max-min+1) + min
 
 			conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
