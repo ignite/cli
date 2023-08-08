@@ -29,4 +29,5 @@
   - ignite/version/**/*
 
 ":wrench: configs":
+  - "!*.md"
   - "*"
