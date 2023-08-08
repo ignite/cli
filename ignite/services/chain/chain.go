@@ -314,7 +314,7 @@ func (c *Chain) Home() (string, error) {
 	return home, nil
 }
 
-// AppPath returns the configured App's path
+// AppPath returns the configured App's path.
 func (c *Chain) AppPath() string {
 	return c.app.Path
 }

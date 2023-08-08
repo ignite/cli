@@ -100,7 +100,7 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
 	}
 
 	// Read the dependencies defined in the `go.mod` file
-	a.deps, err = gomodule.ResolveDependencies(modFile)
+	a.deps, err = gomodule.ResolveDependencies(modFile, true)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
 			if err != nil {
 				return nil, err
 			}
-
+			a.includeDirs = append(a.includeDirs, path)
 			// Discover any modules defined by the package
 			modules, err := a.discoverModules(path, "")
 			if err != nil {
@@ -155,7 +155,6 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
 				return nil, err
 			}
 		}
-
 		a.thirdModules[modulesInPath.Path] = append(a.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
 	}
 
@@ -183,7 +182,7 @@ func (a *Analyzer) resolveDependencyInclude() ([]string, error) {
 		return nil, err
 	}
 
-	// Relative paths to proto directories
+	// Relative and absolute  paths to proto directories
 	protoDirs := append([]string{a.protoDir}, a.includeDirs...)
 
 	// Create a list of proto import paths for the dependencies.
@@ -193,10 +192,10 @@ func (a *Analyzer) resolveDependencyInclude() ([]string, error) {
 		if m == nil {
 			continue
 		}
-
 		// Check each one of the possible proto directory names for the
 		// current module and append them only when the directory exists.
 		for _, d := range protoDirs {
+
 			p := filepath.Join(rootPath, d)
 			f, err := os.Stat(p)
 			if err != nil {
@@ -220,7 +219,20 @@ func (a *Analyzer) resolveIncludeApp(path string) (paths []string) {
 	// Append chain app's proto paths
 	paths = append(paths, filepath.Join(path, a.protoDir))
 	for _, p := range a.includeDirs {
-		paths = append(paths, filepath.Join(path, p))
+		f, err := os.Stat(p)
+		if err != nil {
+			f, err = os.Stat(filepath.Join(path, p))
+			if err == nil {
+
+				if f.IsDir() {
+					paths = append(paths, filepath.Join(path, p))
+				}
+			}
+			continue
+		}
+		if f.IsDir() {
+			paths = append(paths, p)
+		}
 	}
 	return
 }

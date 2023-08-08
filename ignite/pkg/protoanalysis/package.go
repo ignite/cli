@@ -73,11 +73,14 @@ func (p Package) GoImportPath() string {
 type Message struct {
 	// Name of the message.
 	Name string `json:"name,omitempty"`
+
 	// Path of the proto file where the message is defined.
 	Path string `json:"path,omitempty"`
+
 	// Highest field name is the highest field number among fields of the message.
 	// This allows to determine new field number when writing to proto message.
 	HighestFieldNumber int `json:"highest_field_number,omitempty"`
+
 	// Fields contains message's field names and types.
 	Fields map[string]string `json:"fields,omitempty"`
 }

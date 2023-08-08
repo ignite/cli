@@ -44,8 +44,10 @@ type Module struct {
 type Msg struct {
 	// Name of the type.
 	Name string `json:"name,omitempty"`
+
 	// URI of the type.
 	URI string `json:"uri,omitempty"`
+
 	// File path is the path of the proto file where message is defined.
 	FilePath string `json:"file_path,omitempty"`
 }
@@ -69,6 +71,7 @@ type HTTPQuery struct {
 type Type struct {
 	// Name pf the type.
 	Name string `json:"name,omitempty"`
+
 	// File path is the path of the .proto file where message is defined at.
 	FilePath string `json:"file_path,omitempty"`
 }

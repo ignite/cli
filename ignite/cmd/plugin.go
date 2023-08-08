@@ -180,6 +180,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		return
 	}
 
+	c, err := newChainWithHomeFlags(cmd)
+	if err != nil {
+		p.Error = errors.Errorf("unable to obtain chain information.")
+		return
+	}
 	newExecutedHook := func(hook *plugin.Hook, cmd *cobra.Command, args []string) *plugin.ExecutedHook {
 		execHook := &plugin.ExecutedHook{
 			Hook: hook,
@@ -207,11 +212,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		}
 
 		execHook := newExecutedHook(hook, cmd, args)
-		c, err := newChainWithHomeFlags(cmd)
-		if err != nil {
-			return err
-		}
-		err = p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewClientAPI(c))
+		err := p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewClientAPI(c))
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPre() error: %w", p.Path, err)
 		}
@@ -227,10 +228,6 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			if err != nil {
 				ctx := cmd.Context()
 				execHook := newExecutedHook(hook, cmd, args)
-				c, err := newChainWithHomeFlags(cmd)
-				if err != nil {
-					return err
-				}
 				err = p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
 				if err != nil {
 					fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
@@ -248,10 +245,6 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		ctx := cmd.Context()
 		execHook := newExecutedHook(hook, cmd, args)
 
-		c, err := newChainWithHomeFlags(cmd)
-		if err != nil {
-			return err
-		}
 		defer func() {
 			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
 			if err != nil {
@@ -267,10 +260,6 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		c, err = newChainWithHomeFlags(cmd)
-		if err != nil {
-			return err
-		}
 		err = p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewClientAPI(c))
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPost() error : %w", p.Path, err)
@@ -305,6 +294,11 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 		return
 	}
 
+	c, err := newChainWithHomeFlags(cmd)
+	if err != nil {
+		p.Error = errors.Errorf("unable to obtain chain information.")
+		return
+	}
 	// Check for existing commands
 	// pluginCmd.Use can be like `command [args]` so we need to remove those
 	// extra args if any.
@@ -343,10 +337,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 				}
 				execCmd.ImportFlags(cmd)
 				// Call the plugin Execute
-				c, err := newChainWithHomeFlags(cmd)
-				if err != nil {
-					return err
-				}
 				err = p.Interface.Execute(ctx, execCmd, plugin.NewClientAPI(c))
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
 				// output from stdout/stderr of the plugin. Without that pause, this
