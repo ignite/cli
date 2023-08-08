@@ -17,7 +17,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/services/chain"
 	gomod "golang.org/x/mod/module"
 )
 
@@ -51,18 +50,13 @@ type Analyzer struct {
 	thirdModules map[string][]module.Module // app dependency-modules pair.
 }
 
-func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
-	conf, err := c.Config()
+func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPaths []string) (*AllModules, error) {
+	cacheStorage, err := cache.NewStorage(filepath.Join(appPath, "analyzer_cache.db"))
 	if err != nil {
 		return nil, err
 	}
 
-	cacheStorage, err := cache.NewStorage(filepath.Join(c.AppPath(), "analyzer_cache.db"))
-	if err != nil {
-		return nil, err
-	}
-
-	if err := cosmosgen.InstallDepTools(ctx, c.AppPath()); err != nil {
+	if err := cosmosgen.InstallDepTools(ctx, appPath); err != nil {
 		return nil, err
 	}
 
@@ -70,17 +64,17 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
 	if err := cmdrunner.
 		New(
 			cmdrunner.DefaultStderr(&errb),
-			cmdrunner.DefaultWorkdir(c.AppPath()),
+			cmdrunner.DefaultWorkdir(appPath),
 		).Run(ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
 		return nil, errors.Wrap(err, errb.String())
 	}
 
-	modFile, err := gomodule.ParseAt(c.AppPath())
+	modFile, err := gomodule.ParseAt(appPath)
 	a := &Analyzer{
 		ctx:          ctx,
-		appPath:      c.AppPath(),
-		protoDir:     conf.Build.Proto.Path,
-		includeDirs:  conf.Build.Proto.ThirdPartyPaths,
+		appPath:      appPath,
+		protoDir:     protoPath,
+		includeDirs:  thirdPartyPaths,
 		thirdModules: make(map[string][]module.Module),
 		cacheStorage: cacheStorage,
 	}
@@ -159,12 +153,12 @@ func GetModuleList(ctx context.Context, c *chain.Chain) (*AllModules, error) {
 	}
 
 	// Perform include resolution AFTER includeDirs has been fully populated
-	includePaths, err := a.resolveInclude(c.AppPath())
+	includePaths, err := a.resolveInclude(appPath)
 	if err != nil {
 		return nil, err
 	}
 	var modulelist []ModulesInPath
-	modulelist = append(modulelist, ModulesInPath{Path: c.AppPath(), Modules: a.appModules})
+	modulelist = append(modulelist, ModulesInPath{Path: appPath, Modules: a.appModules})
 	for sourcePath, modules := range a.thirdModules {
 		modulelist = append(modulelist, ModulesInPath{Path: sourcePath, Modules: modules})
 	}

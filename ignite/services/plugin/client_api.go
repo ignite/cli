@@ -21,8 +21,11 @@ type clientAPI struct {
 
 // Deoendencies returns chain app dependencies.
 func (c clientAPI) Dependencies(ctx context.Context) (*Dependencies, error) {
-
-	mods, err := chain.GetModuleList(ctx, c.chain)
+	conf, err := c.chain.Config()
+	if err != nil {
+		return nil, err
+	}
+	mods, err := chain.GetModuleList(ctx, c.chain.AppPath(), conf.Build.Proto.Path, conf.Build.Proto.ThirdPartyPaths)
 	if err != nil {
 		return nil, err
 	}
