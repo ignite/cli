@@ -13,8 +13,6 @@ plugins:
       - logtostderr=true
       - allow_merge=true
       - json_names_for_fields=false
-      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
-      - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
       - ts_proto_opt=snakeToCamel=true
       - ts_proto_opt=esModuleInterop=true
       - ts_proto_out=.
