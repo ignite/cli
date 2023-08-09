@@ -1,0 +1,33 @@
+":robot: CI":
+  - "!.github/labeler.yml"
+  - "!.github/labels.json"
+  - .github/**/*
+
+":book: docs":
+  - assets/**/*
+  - docs/**/*
+
+":hammer: tools":
+  - .actions/**/*
+  - .scripts/**/*
+
+":package: packages":
+  - ignite/pkg/**/*
+
+":arrow_forward: cmd":
+  - ignite/cmd/**/*
+
+":taxi: services":
+  - ignite/services/**/*
+
+":bookmark: templates":
+  - ignite/templates/**/*
+
+":door: internal":
+  - ignite/config/**/*
+  - ignite/internal/**/*
+  - ignite/version/**/*
+
+":wrench: configs":
+  - "!*.md"
+  - "*"
