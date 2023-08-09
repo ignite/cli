@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type optionalParameters struct {
+type OptionalParameters struct {
 	WithRandomizer *rand.Rand
 	WithMinPort    int
 	WithMaxPort    int
@@ -16,8 +16,8 @@ type optionalParameters struct {
 // Find finds n number of unused ports.
 // it is not guaranteed that these ports will not be allocated to
 // another program in the time of calling Find().
-func Find(n int, moreParameters ...optionalParameters) (ports []int, err error) {
-	// Defining them before so we can set a value depending on the optionalParameters
+func Find(n int, moreParameters ...OptionalParameters) (ports []int, err error) {
+	// Defining them before so we can set a value depending on the OptionalParameters
 	var min int
 	var max int
 	var r *rand.Rand
