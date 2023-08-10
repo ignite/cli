@@ -137,7 +137,7 @@ the chain that the app is connected to, and must match the prefix used by the
 chain.
 
 By default, Ignite creates a chain with the the `cosmos` prefix. If you have
-created your chain with `ignite scaffold chain ... --adddress-prefix foo` or
+created your chain with `ignite scaffold chain ... --address-prefix foo` or
 manually changed the prefix in the source code of the chain, you need to set the
 prefix in the Vue app.
 
