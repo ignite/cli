@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
+	sdkmath "cosmossdk.io/math"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
@@ -89,7 +90,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 		}
 
-		var amountMax uint64
+		var amountMax sdkmath.Int
 
 		// find out the max amount for this coin.
 		for _, coinMax := range conf.Faucet.CoinsMax {
@@ -98,12 +99,12 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 				return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
 			}
 			if parsedMax.Denom == parsedCoin.Denom {
-				amountMax = parsedMax.Amount.Uint64()
+				amountMax = parsedMax.Amount
 				break
 			}
 		}
 
-		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(parsedCoin.Amount.Uint64(), amountMax, parsedCoin.Denom))
+		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(parsedCoin.Amount, amountMax, parsedCoin.Denom))
 	}
 
 	if conf.Faucet.RateLimitWindow != "" {
