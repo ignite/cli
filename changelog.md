@@ -9,18 +9,21 @@
 ### Changes
 
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
-- [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1` 
+- [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 
 ### Fixes
 
 - [#3592](https://github.com/ignite/cli/pull/3592) Fix `pkg/protoanalysis` to support HTTP rule parameter arguments
 - [#3598](https://github.com/ignite/cli/pull/3598) Fix consensus param keeper constructor key in `app.go`
+- [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`
+- [#3618](https://github.com/ignite/cli/pull/3618) Fix TS client generation import path issue
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
 ### Features
-- 
+
+-
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
 - [#3538](https://github.com/ignite/cli/pull/3538) bump sdk to `v0.47.3` and ibc to `v7.1.0`
 - [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
