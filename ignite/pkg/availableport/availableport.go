@@ -7,10 +7,30 @@ import (
 	"time"
 )
 
-type OptionalParameters struct {
+type optionalParameters struct {
 	WithRandomizer *rand.Rand
 	WithMinPort    int
 	WithMaxPort    int
+}
+
+type OptionalParameters func(o *optionalParameters)
+
+func WithRandomizer(r *rand.Rand) OptionalParameters {
+	return func(o *optionalParameters) {
+		o.WithRandomizer = r
+	}
+}
+
+func WithMaxPort(maxPort int) OptionalParameters {
+	return func(o *optionalParameters) {
+		o.WithMaxPort = maxPort
+	}
+}
+
+func WithMinPort(minPort int) OptionalParameters {
+	return func(o *optionalParameters) {
+		o.WithMinPort = minPort
+	}
 }
 
 // Find finds n number of unused ports.
@@ -22,40 +42,44 @@ func Find(n int, moreParameters ...OptionalParameters) (ports []int, err error) 
 	var max int
 	var r *rand.Rand
 
+	options := &optionalParameters{}
 	if len(moreParameters) != 0 {
-		extra := moreParameters[0]
-		if extra.WithMinPort != 0 {
-			if extra.WithMinPort > -1 {
-				min = extra.WithMinPort
-			} else {
-				// This is not required since the port would become 0
-				// but the user could not notice that sent a negative port
-				return nil, fmt.Errorf("ports can't be negative (negative min port given)")
-			}
-		} else {
-			min = 44000
-		}
-		if extra.WithMaxPort != 0 {
-			if extra.WithMaxPort > -1 {
-				max = extra.WithMaxPort
-			} else {
-				// This is not required since the port would become 0
-				// but the user could not notice that sent a negative port
-				return nil, fmt.Errorf("ports can't be negative (negative max port given)")
-			}
-		} else {
-			max = 55000
-		}
-		if extra.WithRandomizer != nil {
-			r = extra.WithRandomizer
-		} else {
-			r = rand.New(rand.NewSource(time.Now().UnixNano()))
-		}
+		opt := moreParameters[0]
+		opt(options)
 	} else {
 		// If we don't require special conditions, we can
 		// return to the original parameters
 		min = 44000
 		max = 55000
+		r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	}
+
+	if options.WithMinPort != 0 {
+		if options.WithMinPort > -1 {
+			min = options.WithMinPort
+		} else {
+			// This is not required since the port would become 0
+			// but the user could not notice that sent a negative port
+			return nil, fmt.Errorf("ports can't be negative (negative min port given)")
+		}
+	} else {
+		min = 44000
+	}
+
+	if options.WithMaxPort != 0 {
+		if options.WithMaxPort > -1 {
+			max = options.WithMaxPort
+		} else {
+			// This is not required since the port would become 0
+			// but the user could not notice that sent a negative port
+			return nil, fmt.Errorf("ports can't be negative (negative max port given)")
+		}
+	} else {
+		max = 55000
+	}
+	if options.WithRandomizer != nil {
+		r = options.WithRandomizer
+	} else {
 		r = rand.New(rand.NewSource(time.Now().UnixNano()))
 	}
 
