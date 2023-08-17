@@ -38,7 +38,11 @@ type PathEnd = {
 
 export default class Relayer {
     private defaultMaxAge = 86400;
+    private logLevel = 2;
 
+    constructor(logLevel: number=2) {
+        if (logLevel) this.logLevel=logLevel;
+    }
     public async link([
                           path,
                           srcChain,
@@ -48,7 +52,7 @@ export default class Relayer {
                       ]: [Path, Chain, Chain, string, string]): Promise<Path> {
         const srcClient = await Relayer.getIBCClient(srcChain, srcKey);
         const dstClient = await Relayer.getIBCClient(dstChain, dstKey);
-        const link = await Relayer.create(srcClient, dstClient, srcChain.client_id, dstChain.client_id);
+        const link = await Relayer.create(srcClient, dstClient, srcChain.client_id, dstChain.client_id, this.logLevel);
 
         const channels = await link.createChannel(
             'A',
@@ -65,7 +69,7 @@ export default class Relayer {
 
         return path;
     }
-
+    
     public async start([
                            path,
                            srcChain,
@@ -81,7 +85,7 @@ export default class Relayer {
             dstClient,
             path.src.connection_id,
             path.dst.connection_id,
-            new ConsoleLogger()
+            new ConsoleLogger(this.logLevel)
         );
 
         const heights = await link.checkAndRelayPacketsAndAcks(
@@ -127,7 +131,8 @@ export default class Relayer {
         nodeA: IbcClient,
         nodeB: IbcClient,
         clientA: string,
-        clientB: string
+        clientB: string,
+        logLevel:number
     ): Promise<Link> {
         let dstClientID = clientB;
         if (!clientB) {
@@ -193,6 +198,6 @@ export default class Relayer {
         const endA = new Endpoint(nodeA, srcClientID, connIdA);
         const endB = new Endpoint(nodeB, dstClientID, connIdB);
 
-        return new Link(endA, endB, new ConsoleLogger());
+        return new Link(endA, endB, new ConsoleLogger(logLevel));
     }
 }

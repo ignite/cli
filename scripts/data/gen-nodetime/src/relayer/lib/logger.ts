@@ -15,23 +15,37 @@ export default class ConsoleLogger {
 	public readonly verbose: LogMethod;
 	public readonly debug: LogMethod;
 
-	constructor() {
-		this.error = () => {
-			return this;
-		};
-		this.warn = () => {
-			return this;
-		};
-		this.info = (msg) => {
-			if (msg.indexOf('Relay') == 0 && msg.indexOf('Relay 0') == -1) {
+	constructor(logLevel:number) {
+		this.error = (msg) => {
+			if(logLevel>=0) {
 				console.log(msg);
 			}
 			return this;
 		};
-		this.verbose = () => {
+		this.warn = (msg) => {
+			if(logLevel>=1) {
+				console.log(msg);
+			}
 			return this;
 		};
-		this.debug = () => {
+		this.info = (msg) => {
+			if(logLevel>=2) {
+				if (msg.indexOf('Relay') == 0 && msg.indexOf('Relay 0') == -1) {
+					console.log(msg);
+				}
+			}
+			return this;
+		};
+		this.verbose = (msg) => {
+			if(logLevel>=3) {
+				console.log(msg);
+			}
+			return this;
+		};
+		this.debug = (msg) => {
+			if(logLevel>=4) {
+				console.log(msg);
+			}
 			return this;
 		};
 	}
