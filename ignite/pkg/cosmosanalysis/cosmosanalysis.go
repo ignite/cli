@@ -23,10 +23,10 @@ const (
 	defaultAppFilePath   = "app/" + appFileName
 )
 
-var appImplementation = []string{
+var AppImplementation = []string{
 	"Name",
-	"BeginBlocker",
-	"EndBlocker",
+	"GetKey",
+	"TxConfig",
 	"RegisterAPIRoutes",
 }
 
@@ -205,7 +205,7 @@ func ValidateGoMod(module *modfile.File) error {
 	return nil
 }
 
-// FindAppFilePath looks for the app file that implements the interfaces listed in appImplementation.
+// FindAppFilePath looks for the app file that implements the interfaces listed in AppImplementation.
 func FindAppFilePath(chainRoot string) (path string, err error) {
 	var found []string
 
@@ -223,8 +223,7 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 			return err
 		}
 
-		currFound := findImplementationInFiles([]*ast.File{f}, appImplementation)
-
+		currFound := findImplementationInFiles([]*ast.File{f}, AppImplementation)
 		if len(currFound) > 0 {
 			found = append(found, path)
 		}

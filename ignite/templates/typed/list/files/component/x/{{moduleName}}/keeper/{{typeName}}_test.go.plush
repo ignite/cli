@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createN<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
+func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
 		items[i].Id = keeper.Append<%= TypeName.UpperCamel%>(ctx, items[i])
