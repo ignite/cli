@@ -25,6 +25,7 @@ meant to be edited by hand.
 	flagSetPath(c)
 	flagSetClearCache(c)
 	c.AddCommand(NewGenerateGo())
+	c.AddCommand(NewGeneratePulsar())
 	c.AddCommand(NewGenerateTSClient())
 	c.AddCommand(NewGenerateVuex())
 	c.AddCommand(NewGenerateComposables())

@@ -3,21 +3,23 @@ package keeper
 import (
 	"testing"
 
+    tmdb "github.com/cometbft/cometbft-db"
+    "github.com/cometbft/cometbft/libs/log"
+    tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+    "github.com/cosmos/cosmos-sdk/codec"
+    codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+    "github.com/cosmos/cosmos-sdk/store"
+    storetypes "github.com/cosmos/cosmos-sdk/store/types"
+    sdk "github.com/cosmos/cosmos-sdk/types"
+    authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+    govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+    "github.com/stretchr/testify/require"
+
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/store"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/stretchr/testify/require"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmdb "github.com/cometbft/cometbft-db"
 )
 
-func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -29,18 +31,13 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 
 	registry := codectypes.NewInterfaceRegistry()
 	cdc := codec.NewProtoCodec(registry)
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	paramsSubspace := typesparams.NewSubspace(cdc,
-		types.Amino,
-		storeKey,
-		memStoreKey,
-		"<%= title(moduleName) %>Params",
-	)
 	k := keeper.NewKeeper(
 	    cdc,
 	    storeKey,
 	    memStoreKey,
-	    paramsSubspace, <%= for (dependency) in dependencies { %>
+	    authority.String(), <%= for (dependency) in dependencies { %>
         nil,<% } %>
 	)
 

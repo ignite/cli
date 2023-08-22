@@ -143,7 +143,7 @@ type buffer struct {
 // JSONEnsuredBytes ensures that encoding format for returned bytes is always
 // JSON even if the written data is originally encoded in YAML.
 func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
-	bz := b.Buffer.Bytes()
+	bz := b.Bytes()
 
 	var out interface{}
 

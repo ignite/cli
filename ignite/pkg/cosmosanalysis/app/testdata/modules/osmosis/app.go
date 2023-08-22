@@ -401,6 +401,8 @@ func (app *OsmosisApp) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
 }
 
+func (app *OsmosisApp) GetKey(storeKey string) *storetypes.KVStoreKey { return nil }
+
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
 func (app *OsmosisApp) setupUpgradeStoreLoaders() {
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
