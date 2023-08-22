@@ -1,7 +1,6 @@
 package chaincmdrunner
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -53,7 +52,7 @@ func (r Runner) Gentx(
 	selfDelegation string,
 	options ...chaincmd.GentxOption,
 ) (gentxPath string, err error) {
-	b := &bytes.Buffer{}
+	b := newBuffer()
 
 	if err := r.run(ctx, runOptions{
 		stdout: b,
@@ -83,7 +82,7 @@ func (r Runner) UnsafeReset(ctx context.Context) error {
 
 // ShowNodeID shows node id.
 func (r Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
-	b := &bytes.Buffer{}
+	b := newBuffer()
 	err = r.run(ctx, runOptions{stdout: b}, r.chainCmd.ShowNodeIDCommand())
 	nodeID = strings.TrimSpace(b.String())
 	return
@@ -150,7 +149,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	if r.chainCmd.KeyringPassword() != "" {
-		input := &bytes.Buffer{}
+		input := newBuffer()
 		_, err := fmt.Fprintln(input, r.chainCmd.KeyringPassword())
 		if err != nil {
 			return "", err
@@ -227,7 +226,7 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 		return err
 	}
 
-	stdout, stderr := &bytes.Buffer{}, &bytes.Buffer{}
+	stdout, stderr := newBuffer(), newBuffer()
 	if err := r.run(ctx, runOptions{stdout: stdout, stderr: stderr}, r.chainCmd.ExportCommand()); err != nil {
 		return err
 	}

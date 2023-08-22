@@ -68,12 +68,24 @@ func (c Command) String() string {
 }
 
 // Generate runs the buf Generate command for each file into the proto directory.
-func (b Buf) Generate(ctx context.Context, protoDir, output, template string) (err error) {
-	flags := map[string]string{
-		flagTemplate:    template,
-		flagOutput:      output,
-		flagErrorFormat: fmtJSON,
-		flagLogFormat:   fmtJSON,
+func (b Buf) Generate(
+	ctx context.Context,
+	protoDir,
+	output,
+	template string,
+	excludeFilename ...string,
+) (err error) {
+	var (
+		excluded = make(map[string]struct{})
+		flags    = map[string]string{
+			flagTemplate:    template,
+			flagOutput:      output,
+			flagErrorFormat: fmtJSON,
+			flagLogFormat:   fmtJSON,
+		}
+	)
+	for _, file := range excludeFilename {
+		excluded[file] = struct{}{}
 	}
 
 	// TODO find a better way to generate the cosmos-sdk files
@@ -103,6 +115,9 @@ func (b Buf) Generate(ctx context.Context, protoDir, output, template string) (e
 	g, ctx := errgroup.WithContext(ctx)
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Files {
+			if _, ok := excluded[filepath.Base(file.Path)]; ok {
+				continue
+			}
 			cmd, err := b.generateCommand(
 				CMDGenerate,
 				flags,
