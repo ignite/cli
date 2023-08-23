@@ -18,8 +18,8 @@ func TestGenesis(t *testing.T) {
 	}
 
 	k, ctx := keepertest.<%= title(moduleName) %>Keeper(t)
-	<%= moduleName %>.InitGenesis(ctx, *k, genesisState)
-	got := <%= moduleName %>.ExportGenesis(ctx, *k)
+	<%= moduleName %>.InitGenesis(ctx, k, genesisState)
+	got := <%= moduleName %>.ExportGenesis(ctx, k)
 	require.NotNil(t, got)
 
 	nullify.Fill(&genesisState)

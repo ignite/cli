@@ -1,8 +1,8 @@
 package keeper
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gogotypes "github.com/cosmos/gogoproto/types"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
@@ -17,7 +17,7 @@ func (k Keeper) Set<%= queryName.UpperCamel %>Result(ctx sdk.Context, requestID 
 func (k Keeper) Get<%= queryName.UpperCamel %>Result(ctx sdk.Context, id types.OracleRequestID) (types.<%= queryName.UpperCamel %>Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.<%= queryName.UpperCamel %>ResultStoreKey(id))
 	if bz == nil {
-		return types.<%= queryName.UpperCamel %>Result{}, sdkerrors.Wrapf(types.ErrSample,
+		return types.<%= queryName.UpperCamel %>Result{}, errorsmod.Wrapf(types.ErrSample,
 			"GetResult: Result for request ID %d is not available.", id,
 		)
 	}

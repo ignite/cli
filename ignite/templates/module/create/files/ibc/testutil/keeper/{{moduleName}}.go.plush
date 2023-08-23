@@ -3,62 +3,27 @@ package keeper
 import (
 	"testing"
 
-	"<%= modulePath %>/x/<%= moduleName %>/keeper"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
-
+	tmdb "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	portkeeper "github.com/cosmos/ibc-go/v7/modules/core/05-port/keeper"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/stretchr/testify/require"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmdb "github.com/cometbft/cometbft-db"
+
+	"<%= modulePath %>/x/<%= moduleName %>/keeper"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-// <%= moduleName %>ChannelKeeper is a stub of cosmosibckeeper.ChannelKeeper.
-type <%= moduleName %>ChannelKeeper struct{}
-
-func (<%= moduleName %>ChannelKeeper) GetChannel(ctx sdk.Context, portID, channelID string) (channeltypes.Channel, bool) {
-	return channeltypes.Channel{}, false
-}
-
-func (<%= moduleName %>ChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool) {
-	return 0, false
-}
-
-func (<%= moduleName %>ChannelKeeper) SendPacket(
-    ctx sdk.Context,
-    channelCap *capabilitytypes.Capability,
-    sourcePort string,
-    sourceChannel string,
-    timeoutHeight clienttypes.Height,
-    timeoutTimestamp uint64,
-    data []byte,
-) (uint64, error) {
-    return 0, nil
-}
-
-func (<%= moduleName %>ChannelKeeper) ChanCloseInit(ctx sdk.Context, portID, channelID string, chanCap *capabilitytypes.Capability) error {
-	return nil
-}
-
-// <%= moduleName %>portKeeper is a stub of cosmosibckeeper.PortKeeper
-type <%= moduleName %>PortKeeper struct{}
-
-func (<%= moduleName %>PortKeeper) BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability {
-	return &capabilitytypes.Capability{}
-}
-
-
-
-func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	logger := log.NewNopLogger()
 
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
@@ -73,21 +38,22 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	registry := codectypes.NewInterfaceRegistry()
 	appCodec := codec.NewProtoCodec(registry)
 	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	paramsSubspace := typesparams.NewSubspace(appCodec,
-		types.Amino,
-		storeKey,
-		memStoreKey,
-		"<%= title(moduleName) %>Params",
-	)
+	scopedKeeper := capabilityKeeper.ScopeToModule(ibcexported.ModuleName)
+	portKeeper := portkeeper.NewKeeper(scopedKeeper)
+
 	k := keeper.NewKeeper(
         appCodec,
         storeKey,
         memStoreKey,
-        paramsSubspace,
-        <%= moduleName %>ChannelKeeper{},
-        <%= moduleName %>PortKeeper{},
-        capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>
+        authority.String(),
+		func() *ibckeeper.Keeper {
+			return &ibckeeper.Keeper{
+				PortKeeper: portKeeper,
+			}
+		},
+        capabilityKeeper.ScopeToModule(types.ModuleName),<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )
 

@@ -17,6 +17,7 @@ import (
 type generateOptions struct {
 	useCache             bool
 	isGoEnabled          bool
+	isPulsarEnabled      bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
 	isHooksEnabled       bool
@@ -35,6 +36,13 @@ type GenerateTarget func(*generateOptions)
 func GenerateGo() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isGoEnabled = true
+	}
+}
+
+// GeneratePulsar enables generating proto based Go code needed for the chain's source code.
+func GeneratePulsar() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isPulsarEnabled = true
 	}
 }
 
@@ -149,7 +157,11 @@ func (c *Chain) Generate(
 	}
 
 	if targetOptions.isGoEnabled {
-		options = append(options, cosmosgen.WithGoGeneration(c.app.ImportPath))
+		options = append(options, cosmosgen.WithGoGeneration())
+	}
+
+	if targetOptions.isPulsarEnabled {
+		options = append(options, cosmosgen.WithPulsarGeneration())
 	}
 
 	var (
@@ -272,7 +284,14 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	if err := cosmosgen.Generate(ctx, cacheStorage, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
+	if err := cosmosgen.Generate(
+		ctx,
+		cacheStorage,
+		c.app.Path,
+		conf.Build.Proto.Path,
+		c.app.ImportPath,
+		options...,
+	); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

@@ -93,7 +93,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 				"s",
 				"module",
 				"--yes",
-				"example_with_dep",
+				"with_dep",
 				"--ibc",
 				"--dep",
 				"account,bank,staking,slashing",
