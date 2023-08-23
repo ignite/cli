@@ -8,7 +8,7 @@ import {buildCreateClientArgs, prepareConnectionHandshake} from "@confio/relayer
 import {orderFromJSON} from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
 
 // local imports.
-import ConsoleLogger from './logger';
+import ConsoleLogger, { LogLevels } from './logger';
 
 type Chain = {
     id: string;
@@ -40,7 +40,7 @@ export default class Relayer {
     private defaultMaxAge = 86400;
     private logLevel = 2;
 
-    constructor(logLevel: number=2) {
+    constructor(logLevel: LogLevels=LogLevels.INFO) {
         if (logLevel) this.logLevel=logLevel;
     }
     public async link([

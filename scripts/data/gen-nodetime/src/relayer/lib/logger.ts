@@ -7,7 +7,13 @@ interface Logger {
 	verbose: LogMethod;
 	debug: LogMethod;
 }
-
+export enum LogLevels {
+	ERROR = 0,
+	WARN = 1,
+	INFO = 2,
+	VERBOSE = 3,
+	DEBUG = 4
+}
 export default class ConsoleLogger {
 	public readonly error: LogMethod;
 	public readonly warn: LogMethod;
@@ -15,7 +21,7 @@ export default class ConsoleLogger {
 	public readonly verbose: LogMethod;
 	public readonly debug: LogMethod;
 
-	constructor(logLevel:number) {
+	constructor(logLevel:LogLevels) {
 		this.error = (msg) => {
 			if(logLevel>=0) {
 				console.log(msg);
