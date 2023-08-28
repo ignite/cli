@@ -79,6 +79,7 @@ func (g *generator) generateOpenAPISpec() error {
 			m.Pkg.Path,
 			dir,
 			g.openAPITemplate(),
+			"module.proto",
 		); err != nil {
 			return err
 		}
