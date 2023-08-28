@@ -14,7 +14,7 @@ import (
 
 func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
-	srv := keeper.NewMsgServerImpl(*k)
+	srv := keeper.NewMsgServerImpl(k)
 	wctx := sdk.WrapSDKContext(ctx)
 	<%= MsgSigner.LowerCamel %> := "A"
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
@@ -46,7 +46,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
-			srv := keeper.NewMsgServerImpl(*k)
+			srv := keeper.NewMsgServerImpl(k)
 			wctx := sdk.WrapSDKContext(ctx)
 			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
@@ -86,7 +86,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
-			srv := keeper.NewMsgServerImpl(*k)
+			srv := keeper.NewMsgServerImpl(k)
 			wctx := sdk.WrapSDKContext(ctx)
 
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})

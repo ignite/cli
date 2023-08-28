@@ -8,6 +8,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -51,3 +52,7 @@ func (Foo) RegisterAPIRoutes(s *api.Server, cfg config.APIConfig) {
 	authtx.RegisterGRPCGatewayRoutes(s.ClientCtx, s.GRPCGatewayRouter)
 	tmservice.RegisterGRPCGatewayRoutes(s.ClientCtx, s.GRPCGatewayRouter)
 }
+
+func (Foo) GetKey(storeKey string) *storetypes.KVStoreKey { return nil }
+
+func (Foo) TxConfig() client.TxConfig { return nil }

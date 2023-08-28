@@ -3,7 +3,7 @@
 
 ## prep the base image.
 #
-FROM golang:1.19 as base
+FROM golang:1.20 as base
 
 RUN apt update && \
     apt-get install -y \

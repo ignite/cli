@@ -17,7 +17,7 @@ anyone can be a coordinator or a validator.
 
 ## Launching a chain on Ignite
 
-Launching with the CLI can be as simple as a few short commands with the the CLI using `ignite network` command
+Launching with the CLI can be as simple as a few short commands with the CLI using `ignite network` command
 namespace.
 
 > **NOTE:** `ignite n` can also be used as a shortcut for `ignite network`.
