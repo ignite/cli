@@ -21,6 +21,11 @@ func main() {
 }
 
 func run() int {
+	const (
+		exitCodeOK    = 0
+		exitCodeError = 1
+	)
+
 	defer func() {
 		if r := recover(); r != nil {
 			addCmdMetric(metric{
@@ -28,7 +33,7 @@ func run() int {
 				command: strings.Join(os.Args, " "),
 			})
 			fmt.Println(r)
-			os.Exit(1)
+			os.Exit(exitCodeError)
 		}
 	}()
 	gaclient = gacli.New(gaid)
