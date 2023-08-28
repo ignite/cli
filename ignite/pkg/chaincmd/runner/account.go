@@ -1,7 +1,6 @@
 package chaincmdrunner
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -45,7 +44,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 
 	// import the account when mnemonic is provided, otherwise create a new one.
 	if mnemonic != "" {
-		input := &bytes.Buffer{}
+		input := newBuffer()
 		_, err := fmt.Fprintln(input, mnemonic)
 		if err != nil {
 			return Account{}, err
@@ -108,7 +107,7 @@ func (r Runner) ImportAccount(ctx context.Context, name, keyFile, passphrase str
 
 	// write the passphrase as input
 	// TODO: manage keyring backend other than test
-	input := &bytes.Buffer{}
+	input := newBuffer()
 	_, err := fmt.Fprintln(input, passphrase)
 	if err != nil {
 		return Account{}, err
@@ -175,14 +174,13 @@ func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 
 // ShowAccount shows details of an account.
 func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
-	b := &bytes.Buffer{}
-
+	b := newBuffer()
 	opt := []step.Option{
 		r.chainCmd.ShowKeyAddressCommand(name),
 	}
 
 	if r.chainCmd.KeyringPassword() != "" {
-		input := &bytes.Buffer{}
+		input := newBuffer()
 		_, err := fmt.Fprintln(input, r.chainCmd.KeyringPassword())
 		if err != nil {
 			return Account{}, err

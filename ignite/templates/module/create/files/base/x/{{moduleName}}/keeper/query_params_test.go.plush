@@ -5,15 +5,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	testkeeper 	"<%= modulePath %>/testutil/keeper"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
+
+    keepertest "<%= modulePath %>/testutil/keeper"
+    "<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 func TestParamsQuery(t *testing.T) {
-	keeper, ctx := testkeeper.<%= title(moduleName) %>Keeper(t)
+	keeper, ctx := keepertest.<%= title(moduleName) %>Keeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	params := types.DefaultParams()
-	keeper.SetParams(ctx, params)
+	require.NoError(t, keeper.SetParams(ctx, params))
 
 	response, err := keeper.Params(wctx, &types.QueryParamsRequest{})
 	require.NoError(t, err)

@@ -74,28 +74,28 @@ func (f Foo) foobar() {}
 package app
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey   { return nil }
+func (app *App) RegisterAPIRoutes()                              {}
+func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
-}
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	_ = apiSvr.ClientCtx
 }
 `)
 	appTestFile = []byte(`
 package app_test
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey   { return nil }
+func (app *App) RegisterAPIRoutes()                              {}
+func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
-}
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	_ = apiSvr.ClientCtx
 }
 `)
 )
