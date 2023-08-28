@@ -12,7 +12,7 @@ import (
     "<%= ModulePath %>/testutil/nullify"
 )
 
-func createTest<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
+func createTest<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
 	item := types.<%= TypeName.UpperCamel %>{}
 	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
 	return item

@@ -19,6 +19,7 @@ type Foo struct {
 var ModuleBasics = module.NewBasicManager(mars.AppModuleBasic{})
 
 func (Foo) Name() string                                    { return app.BaseApp.Name() }
+func (Foo) GetKey(storeKey string) *storetypes.KVStoreKey   { return nil }
 func (Foo) RegisterAPIRoutes()                              {}
 func (Foo) RegisterTxService()                              {}
 func (Foo) RegisterTendermintService()                      {}

@@ -7,8 +7,8 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	simappparams "cosmossdk.io/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
@@ -39,7 +39,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
 			MsgType:         msg.Type(),
@@ -85,7 +85,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
 			MsgType:         msg.Type(),
@@ -131,7 +131,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
 			MsgType:         msg.Type(),

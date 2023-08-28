@@ -2,10 +2,9 @@
 import {fromHex} from "@cosmjs/encoding";
 import {DirectSecp256k1Wallet} from "@cosmjs/proto-signing";
 import {GasPrice} from "@cosmjs/stargate";
-
 import {Endpoint, IbcClient, Link} from "@confio/relayer/build";
-import {buildCreateClientArgs, prepareConnectionHandshake} from "@confio/relayer/build/lib/ibcclient";
-import {orderFromJSON} from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
+import {buildCreateClientArgs, IbcClientOptions, prepareConnectionHandshake} from "@confio/relayer/build/lib/ibcclient";
+import {orderFromJSON} from "cosmjs-types/ibc/core/channel/v1/channel";
 
 // local imports.
 import ConsoleLogger from './logger';
@@ -17,6 +16,8 @@ type Chain = {
     rpc_address: string;
     gas_price: string;
     client_id: string;
+    estimated_block_time: number;
+    estimated_indexer_time: number;
 };
 
 type Path = {
@@ -35,6 +36,9 @@ type PathEnd = {
     packet_height?: number;
     ack_height?: number;
 };
+
+const defaultEstimatedBlockTime = 400;
+const defaultEstimatedIndexerTime = 80;
 
 export default class Relayer {
     private defaultMaxAge = 86400;
@@ -111,15 +115,17 @@ export default class Relayer {
         const signer = await DirectSecp256k1Wallet.fromKey(fromHex(key), chain.address_prefix);
 
         const [account] = await signer.getAccounts();
+        const options: IbcClientOptions = {
+            gasPrice: chainGP,
+            estimatedBlockTime: chain.estimated_block_time ?? defaultEstimatedBlockTime,
+            estimatedIndexerTime: chain.estimated_indexer_time ?? defaultEstimatedIndexerTime
+        }
 
         return await IbcClient.connectWithSigner(
             chain.rpc_address,
             signer,
             account.address,
-            {
-                prefix: chain.address_prefix,
-                gasPrice: chainGP
-            }
+            options
         );
     }
 

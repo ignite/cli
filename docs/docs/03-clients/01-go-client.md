@@ -77,7 +77,7 @@ To import dependencies for your package, you can add the following code to the
 ```text title="blogclient/go.mod"
 module blogclient
 
-go 1.19
+go 1.20
 
 require (
 	blog v0.0.0-00010101000000-000000000000
