@@ -101,7 +101,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 				return true
 			})
 			if err != nil {
-				return
+				return err
 			}
 		}
 	}

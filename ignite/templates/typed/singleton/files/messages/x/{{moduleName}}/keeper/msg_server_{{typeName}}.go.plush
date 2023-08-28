@@ -4,6 +4,7 @@ import (
 	"context"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -15,7 +16,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     // Check if the value already exists
     _, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
     if isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "already set")
+        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "already set")
     }
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
@@ -36,12 +37,12 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     // Check if the value exists
     valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
     if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "not set")
+        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }
 
-    // Checks if the the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
+    // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
     if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
@@ -60,12 +61,12 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     // Check if the value exists
     valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
     if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "not set")
+        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }
 
-    // Checks if the the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
+    // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
     if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
 	k.Remove<%= TypeName.UpperCamel %>(ctx)

@@ -7,12 +7,12 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-    <%= if (isIBC) { %>sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+    <%= if (isIBC) { %>errorsmod "cosmossdk.io/errors"
     channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
     capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
     host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-    "github.com/cosmos/ibc-go/v7/modules/core/exported"<% } %>
+    "github.com/cosmos/ibc-go/v7/modules/core/exported"
+    ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"<% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
@@ -22,10 +22,12 @@ type (
 		cdc      	codec.BinaryCodec
 		storeKey 	storetypes.StoreKey
 		memKey   	storetypes.StoreKey
-		paramstore	paramtypes.Subspace
+
+        // the address capable of executing a MsgUpdateParams message. Typically, this
+        // should be the x/gov module account.
+        authority string
         <%= if (isIBC) { %>
-        channelKeeper types.ChannelKeeper
-        portKeeper types.PortKeeper
+        ibcKeeperFn  func() *ibckeeper.Keeper
         scopedKeeper exported.ScopedKeeper<% } %>
 		<%= for (dependency) in dependencies { %>
         <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %><% } %>
@@ -36,30 +38,36 @@ func NewKeeper(
     cdc codec.BinaryCodec,
     storeKey,
     memKey storetypes.StoreKey,
-    ps paramtypes.Subspace,
-    <%= if (isIBC) { %>channelKeeper types.ChannelKeeper,
-    portKeeper types.PortKeeper,
+	authority string,<%= if (isIBC) { %>
+	ibcKeeperFn func() *ibckeeper.Keeper,
     scopedKeeper exported.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %>
     <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %>,<% } %>
-) *Keeper {
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
+) Keeper {
+	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+		panic(fmt.Sprintf("invalid authority address: %s", authority))
 	}
 
-	return &Keeper{
+	return Keeper{
         cdc:      	cdc,
         storeKey: 	storeKey,
         memKey:   	memKey,
-        paramstore:	ps,
-        <%= if (isIBC) { %>
-        channelKeeper: channelKeeper,
-        portKeeper:    portKeeper,
+		authority: authority,<%= if (isIBC) { %>
+        ibcKeeperFn:   ibcKeeperFn,
         scopedKeeper:  scopedKeeper,<% } %>
 		<%= for (dependency) in dependencies { %>
 		<%= toVariableName(dependency.KeeperName()) %>: <%= toVariableName(dependency.KeeperName()) %>,<% } %>
 	}
+}
+
+// GetAuthority returns the module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
+}
+
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 <%= if (isIBC) { %>// ----------------------------------------------------------------------------
@@ -71,9 +79,9 @@ func (k Keeper) ChanCloseInit(ctx sdk.Context, portID, channelID string) error {
 	capName := host.ChannelCapabilityPath(portID, channelID)
 	chanCap, ok := k.scopedKeeper.GetCapability(ctx, capName)
 	if !ok {
-		return sdkerrors.Wrapf(channeltypes.ErrChannelCapabilityNotFound, "could not retrieve channel capability at: %s", capName)
+		return errorsmod.Wrapf(channeltypes.ErrChannelCapabilityNotFound, "could not retrieve channel capability at: %s", capName)
 	}
-	return k.channelKeeper.ChanCloseInit(ctx, portID, channelID, chanCap)
+	return k.ibcKeeperFn().ChannelKeeper.ChanCloseInit(ctx, portID, channelID, chanCap)
 }
 
 // IsBound checks if the IBC app module is already bound to the desired port
@@ -85,7 +93,7 @@ func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
 // BindPort defines a wrapper function for the port Keeper's function in
 // order to expose it to module's InitGenesis function
 func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
-	cap := k.portKeeper.BindPort(ctx, portID)
+	cap := k.ibcKeeperFn().PortKeeper.BindPort(ctx, portID)
 	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
 }
 
@@ -110,8 +118,9 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
-}<% } %>
-
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+// ScopedKeeper returns the ScopedKeeper
+func (k Keeper) ScopedKeeper() exported.ScopedKeeper {
+	return k.scopedKeeper
+}<% } %>

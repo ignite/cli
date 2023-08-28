@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-	"time"
 )
 
 type availablePortOptions struct {

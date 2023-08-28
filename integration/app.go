@@ -22,7 +22,10 @@ import (
 
 const ServeTimeout = time.Minute * 15
 
-const defaultConfigFileName = "config.yml"
+const (
+	defaultConfigFileName = "config.yml"
+	defaultTestTimeout    = 20 * time.Minute // Go's default is 10m
+)
 
 // Hosts contains the "hostname:port" addresses for different service hosts.
 type Hosts struct {
@@ -36,9 +39,10 @@ type Hosts struct {
 }
 
 type App struct {
-	path       string
-	configPath string
-	homePath   string
+	path        string
+	configPath  string
+	homePath    string
+	testTimeout time.Duration
 
 	env Env
 }
@@ -54,6 +58,12 @@ func AppConfigPath(path string) AppOption {
 func AppHomePath(path string) AppOption {
 	return func(o *App) {
 		o.homePath = path
+	}
+}
+
+func AppTestTimeout(d time.Duration) AppOption {
+	return func(o *App) {
+		o.testTimeout = d
 	}
 }
 
@@ -88,8 +98,9 @@ func (e Env) Scaffold(name string, flags ...string) App {
 
 func (e Env) App(path string, options ...AppOption) App {
 	app := App{
-		env:  e,
-		path: path,
+		env:         e,
+		path:        path,
+		testTimeout: defaultTestTimeout,
 	}
 
 	for _, apply := range options {
@@ -175,7 +186,7 @@ func (a App) EnsureSteady() {
 
 	a.env.Exec("make sure app is steady",
 		step.NewSteps(step.New(
-			step.Exec(gocmd.Name(), "test", "./..."),
+			step.Exec(gocmd.Name(), "test", "-timeout", a.testTimeout.String(), "./..."),
 			step.Workdir(a.path),
 		)),
 	)
