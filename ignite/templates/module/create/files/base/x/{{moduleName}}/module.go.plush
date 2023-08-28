@@ -1,30 +1,41 @@
 package <%= moduleName %>
 
 import (
-  "context"
+	"context"
 	"encoding/json"
 	"fmt"
-    // this line is used by starport scaffolding # 1
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
+    "cosmossdk.io/core/appmodule"
+	"cosmossdk.io/depinject"
 	abci "github.com/cometbft/cometbft/abci/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"<% } %>
+
+	// this line is used by starport scaffolding # 1
+
+	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module"
+	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
-	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"<% } %>
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule           = AppModule{}
+	_ module.BeginBlockAppModule = AppModule{}
+	_ module.EndBlockAppModule   = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.AppModuleSimulation = AppModule{}
 	<%= if (isIBC) { %>_ porttypes.IBCModule   = IBCModule{}<% } %>
 )
 
@@ -41,6 +52,12 @@ func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
 	return AppModuleBasic{cdc: cdc}
 }
 
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (AppModuleBasic) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (AppModuleBasic) IsAppModule() {}
+
 // Name returns the name of the module as a string
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
@@ -48,7 +65,7 @@ func (AppModuleBasic) Name() string {
 
 // RegisterLegacyAminoCodec registers the amino codec for the module, which is used to marshal and unmarshal structs to/from []byte in order to persist them in the module's KVStore
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterCodec(cdc)
+	types.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message
@@ -72,7 +89,13 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err := types.RegisterQueryHandlerClient(
+		context.Background(),
+		mux,
+		types.NewQueryClient(clientCtx),
+	); err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns the root Tx command for the module. The subcommands of this root command are used by end-users to generate new transactions containing messages defined in the module
@@ -147,4 +170,63 @@ func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 // EndBlock contains the logic that is automatically triggered at the end of each block
 func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
+}
+
+// ----------------------------------------------------------------------------
+// App Wiring Setup
+// ----------------------------------------------------------------------------
+
+func init() {
+	appmodule.Register(&modulev1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
+}
+
+type <%= title(moduleName) %>Inputs struct {
+	depinject.In
+
+	KvStoreKey  *storetypes.KVStoreKey
+	MemStoreKey *storetypes.MemoryStoreKey
+	Cdc         codec.Codec
+	Config      *modulev1.Module
+
+	AccountKeeper types.AccountKeeper
+	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
+    <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
+
+    <%= if (isIBC) { %>	CapabilityKeeper *capabilitykeeper.Keeper
+    IBCKeeperFn      func() *ibckeeper.Keeper<% } %>
+}
+
+type <%= title(moduleName) %>Outputs struct {
+	depinject.Out
+
+	<%= title(moduleName) %>Keeper keeper.Keeper
+	Module appmodule.AppModule
+}
+
+func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Outputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+    <%= if (isIBC) { %>scopedVoteKeeper := in.CapabilityKeeper.ScopeToModule(types.ModuleName)<% } %>
+	k := keeper.NewKeeper(
+	    in.Cdc,
+	    in.KvStoreKey,
+	    in.MemStoreKey,
+	    authority.String(), <%= if (isIBC) { %>
+		in.IBCKeeperFn,
+        scopedVoteKeeper,<% } %><%= for (dependency) in dependencies { %>
+        in.<%= dependency.KeeperName() %>,<% } %>
+	)
+	m := NewAppModule(
+	    in.Cdc,
+	    k,
+	    in.AccountKeeper,
+	    in.BankKeeper,
+	)
+
+	return <%= title(moduleName) %>Outputs{<%= title(moduleName) %>Keeper: k, Module: m}
 }

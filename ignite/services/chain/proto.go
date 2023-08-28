@@ -12,6 +12,7 @@ import (
 var bufFiles = []string{
 	"buf.work.yaml",
 	"proto/buf.gen.gogo.yaml",
+	"proto/buf.gen.pulsar.yaml",
 	"proto/buf.gen.swagger.yaml",
 	"proto/buf.gen.ts.yaml",
 	"proto/buf.lock",

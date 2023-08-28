@@ -1,6 +1,8 @@
 package foo
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -11,10 +13,12 @@ type Foo struct {
 	FooKeeper foo.keeper
 }
 
-func (f Foo) RegisterAPIRoutes()         {}
-func (f Foo) RegisterTxService()         {}
-func (f Foo) RegisterTendermintService() {}
-func (f Foo) Name() string               { return app.BaseApp.Name() }
+func (f Foo) GetKey(storeKey string) *storetypes.KVStoreKey { return nil }
+func (f Foo) TxConfig() client.TxConfig                     { return nil }
+func (f Foo) RegisterAPIRoutes()                            {}
+func (f Foo) RegisterTxService()                            {}
+func (f Foo) RegisterTendermintService()                    {}
+func (f Foo) Name() string                                  { return app.BaseApp.Name() }
 func (f Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }

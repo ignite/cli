@@ -36,7 +36,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	// this line is used by starport scaffolding # root/moduleImport
 
 	"<%= ModulePath %>/app"
 	appparams "<%= ModulePath %>/app/params"
@@ -122,7 +121,6 @@ func initRootCmd(
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		config.Cmd(),
-		// this line is used by starport scaffolding # root/commands
 	)
 
 	a := appCreator{
@@ -201,7 +199,6 @@ func txCommand() *cobra.Command {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	// this line is used by starport scaffolding # root/arguments
 }
 
 func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
@@ -279,10 +276,6 @@ func (a appCreator) newApp(
 		db,
 		traceStore,
 		true,
-		skipUpgradeHeights,
-		cast.ToString(appOpts.Get(flags.FlagHome)),
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		a.encodingConfig,
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
@@ -320,10 +313,6 @@ func (a appCreator) appExport(
 		db,
 		traceStore,
 		height == -1, // -1: no height provided
-		map[int64]bool{},
-		homePath,
-		uint(1),
-		a.encodingConfig,
 		appOpts,
 	)
 
