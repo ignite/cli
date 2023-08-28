@@ -62,8 +62,8 @@ func addCmdMetric(m metric) {
 	}
 
 	met := gacli.Metric{
-		Action: m.command,
-		User: ident.Name,
+		Action:  m.command,
+		User:    ident.Name,
 		Version: version.Version,
 	}
 
@@ -108,10 +108,10 @@ func prepareMetrics() (identity, error) {
 	}
 
 	prompt := promptui.Prompt{
-		Label: "Now, Ignite collects metrics so we can constantly improve our tools. " +
-			"Since you are running ignite for the first time, we should ask. " +
-			"It would be great if we could collect your metrics. " +
-			"Do you want to share them with us? We will only ask for it one time!",
+		Label: "Ignite would like to collect metrics about command usage. " +
+			"All data will be anonymous and helps to improve Ignite. " +
+			"Ignite respect the DNT rules (consoledonottrack.com). " +
+			"Would you agree to share these metrics with us?",
 		IsConfirm: true,
 	}
 	if _, err := prompt.Run(); err != nil {
