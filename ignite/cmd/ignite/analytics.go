@@ -61,7 +61,12 @@ func addCmdMetric(m metric) {
 		return
 	}
 
-	var met gacli.Metric
+	met := gacli.Metric{
+		Action: m.command,
+		User: ident.Name,
+		Version: version.Version,
+	}
+
 	switch {
 	case m.err == nil:
 		met.Category = "success"
@@ -69,15 +74,12 @@ func addCmdMetric(m metric) {
 		met.Category = "error"
 		met.Value = m.err.Error()
 	}
-	met.Action = m.command
 
 	cmds := strings.Split(m.command, " ")
 	met.Label = cmds[0]
 	if len(cmds) > 0 {
 		met.Label = cmds[1]
 	}
-	met.User = ident.Name
-	met.Version = version.Version
 	go func() {
 		gaclient.Send(met)
 	}()
