@@ -14,14 +14,14 @@ import (
 )
 
 const (
-	gaid          = "<GA_TRACK_ID>"
-	envDoNotTrack = "DO_NOT_TRACK"
+	gaid               = "<GA_TRACK_ID>"
+	envDoNotTrack      = "DO_NOT_TRACK"
+	igniteDir          = ".ignite"
+	igniteAnonIdentity = "anon"
 )
 
 var (
-	gaclient           *gacli.Client
-	igniteDir          = ".ignite"
-	igniteAnonIdentity = "anon"
+	gaclient *gacli.Client
 )
 
 type (
