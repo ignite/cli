@@ -13,7 +13,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
@@ -28,10 +27,12 @@ var protocGlobalInclude = xfilepath.List(
 	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
 	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
+var protoFound = errors.New("Proto file found") // Hacky way to terminate dir walk early
 
 type ModulesInPath struct {
-	Path    string          `json:"path,omitempty"`
-	Modules []module.Module `json:"modules,omitempty"`
+	Path     string          `json:"path,omitempty"`
+	Modules  []module.Module `json:"modules,omitempty"`
+	HasProto bool            `json:"has_proto,omitempty"`
 }
 type AllModules struct {
 	ModulePaths []ModulesInPath `json:"modules_in_path,omitempty"`
@@ -55,11 +56,6 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 	if err != nil {
 		return nil, err
 	}
-
-	if err := cosmosgen.InstallDepTools(ctx, appPath); err != nil {
-		return nil, err
-	}
-
 	var errb bytes.Buffer
 	if err := cmdrunner.
 		New(
@@ -133,23 +129,36 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 			if err != nil {
 				return nil, err
 			}
-			a.includeDirs = append(a.includeDirs, path)
-			// Discover any modules defined by the package
-			modules, err := a.discoverModules(path, "")
+			hasProto, err := a.checkForProto(path)
 			if err != nil {
 				return nil, err
 			}
+			if hasProto {
+				// Discover any modules defined by the package
+				modules, err := a.discoverModules(path, "")
+				if err != nil {
+					return nil, err
+				}
 
-			modulesInPath = ModulesInPath{
-				Path:    path,
-				Modules: modules,
+				modulesInPath = ModulesInPath{
+					Path:     path,
+					Modules:  modules,
+					HasProto: true,
+				}
+			} else {
+				modulesInPath = ModulesInPath{
+					Path:     path,
+					Modules:  []module.Module{},
+					HasProto: false,
+				}
 			}
-
 			if err := moduleCache.Put(cacheKey, modulesInPath); err != nil {
 				return nil, err
 			}
 		}
-		a.thirdModules[modulesInPath.Path] = append(a.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
+		if modulesInPath.HasProto {
+			a.thirdModules[modulesInPath.Path] = append(a.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
+		}
 	}
 
 	// Perform include resolution AFTER includeDirs has been fully populated
@@ -160,13 +169,35 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 	var modulelist []ModulesInPath
 	modulelist = append(modulelist, ModulesInPath{Path: appPath, Modules: a.appModules})
 	for sourcePath, modules := range a.thirdModules {
-		modulelist = append(modulelist, ModulesInPath{Path: sourcePath, Modules: modules})
+		{
+			modulelist = append(modulelist, ModulesInPath{Path: sourcePath, Modules: modules})
+		}
 	}
 	allModules := &AllModules{
 		ModulePaths: modulelist,
 		Includes:    includePaths,
 	}
 	return allModules, nil
+}
+
+func (a *Analyzer) checkForProto(modpath string) (bool, error) {
+	err := filepath.Walk(modpath,
+		func(path string, _ os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if filepath.Ext(path) == ".proto" {
+				return protoFound
+			}
+			return nil
+		})
+	if err == protoFound {
+		return true, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return false, nil
 }
 
 func (a *Analyzer) resolveDependencyInclude() ([]string, error) {
@@ -181,11 +212,7 @@ func (a *Analyzer) resolveDependencyInclude() ([]string, error) {
 
 	// Create a list of proto import paths for the dependencies.
 	// These paths will be available to be imported from the chain app's proto files.
-	for rootPath, m := range a.thirdModules {
-		// Skip modules without proto files
-		if m == nil {
-			continue
-		}
+	for rootPath := range a.thirdModules {
 		// Check each one of the possible proto directory names for the
 		// current module and append them only when the directory exists.
 		for _, d := range protoDirs {
@@ -217,7 +244,6 @@ func (a *Analyzer) resolveIncludeApp(path string) (paths []string) {
 		if err != nil {
 			f, err = os.Stat(filepath.Join(path, p))
 			if err == nil {
-
 				if f.IsDir() {
 					paths = append(paths, filepath.Join(path, p))
 				}
@@ -262,6 +288,5 @@ func (a *Analyzer) discoverModules(path, protoDir string) ([]module.Module, erro
 
 		filteredModules = append(filteredModules, m)
 	}
-
 	return filteredModules, nil
 }
