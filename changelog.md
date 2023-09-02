@@ -5,14 +5,12 @@
 ### Features
 
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
+- [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
 
 ### Changes
 
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
-
-### Changes
-
 - [#3621](https://github.com/ignite/cli/pull/3621) Refactor `ignite/pkg/availablePort` package to allow custom parametersin `Find` function.
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
