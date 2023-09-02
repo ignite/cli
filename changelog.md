@@ -10,6 +10,7 @@
 
 ### Changes
 
+- [#3642](https://github.com/ignite/cli/pull/3642) Bump cosmos-sdk to `v0.47.5`
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
