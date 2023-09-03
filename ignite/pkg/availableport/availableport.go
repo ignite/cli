@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"time"
 )
 
 type availablePortOptions struct {
@@ -72,7 +73,9 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 				conn.Close()
 				continue
 			}
-			defer conn.Close()
+			if conn != nil {
+				defer conn.Close()
+			}
 
 			// if the port is already registered we skip it to the next one
 			// otherwise it's added to the ports list and pointed in our map
