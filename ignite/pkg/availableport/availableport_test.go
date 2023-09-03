@@ -22,62 +22,49 @@ func TestAvailablePort(t *testing.T) {
 	}
 
 	// Case no ports generated
-	options := availableport.OptionalParameters{
-		WithMinPort: 1,
-		WithMaxPort: 1,
+	options := []availableport.Options{
+		availableport.WithMinPort(1),
+		availableport.WithMaxPort(1),
 	}
-	ports, err = availableport.Find(10, options)
+	ports, err = availableport.Find(10, options...)
 	require.Equal(t, fmt.Errorf("invalid amount of ports requested: limit is 0"), err)
 	require.Equal(t, 0, len(ports))
 
-	// Case max < min
-	options = availableport.OptionalParameters{
-		WithMinPort: 5,
-		WithMaxPort: 1,
+	//	// Case max < min
+	options = []availableport.Options{
+		availableport.WithMinPort(5),
+		availableport.WithMaxPort(1),
 	}
-	ports, err = availableport.Find(10, options)
+	ports, err = availableport.Find(10, options...)
 	require.Equal(t, fmt.Errorf("invalid ports range: max < min (1 < 5)"), err)
 	require.Equal(t, 0, len(ports))
 
 	// Case max < min min restriction given
-	options = availableport.OptionalParameters{
-		WithMinPort: 55001,
+	options = []availableport.Options{
+		availableport.WithMinPort(55001),
+		availableport.WithMaxPort(1),
 	}
-	ports, err = availableport.Find(10, options)
-	require.Equal(t, fmt.Errorf("invalid ports range: max < min (55000 < 55001)"), err)
+	ports, err = availableport.Find(10, options...)
+	require.Equal(t, fmt.Errorf("invalid ports range: max < min (1 < 55001)"), err)
 	require.Equal(t, 0, len(ports))
 
-	// Case max < min max restriction given
-	options = availableport.OptionalParameters{
-		WithMaxPort: 43999,
+	//	 Case max < min max restriction given
+	options = []availableport.Options{
+		availableport.WithMaxPort(43999),
 	}
-	ports, err = availableport.Find(10, options)
+	ports, err = availableport.Find(10, options...)
 	require.Equal(t, fmt.Errorf("invalid ports range: max < min (43999 < 44000)"), err)
 	require.Equal(t, 0, len(ports))
 
-	// Case negative min
-	options = availableport.OptionalParameters{
-		WithMinPort: -10,
-	}
-	ports, err = availableport.Find(10, options)
-	require.Equal(t, fmt.Errorf("ports can't be negative (negative min port given)"), err)
-	require.Equal(t, 0, len(ports))
+	//	Case randomizer given
 
-	// Case negative max
-	options = availableport.OptionalParameters{
-		WithMaxPort: -10,
+	options = []availableport.Options{
+		availableport.WithRandomizer(rand.New(rand.NewSource(2023))),
+		availableport.WithMinPort(100),
+		availableport.WithMaxPort(200),
 	}
-	ports, err = availableport.Find(10, options)
-	require.Equal(t, fmt.Errorf("ports can't be negative (negative max port given)"), err)
-	require.Equal(t, 0, len(ports))
 
-	// Case randomizer given
-	options = availableport.OptionalParameters{
-		WithRandomizer: rand.New(rand.NewSource(2023)),
-		WithMinPort:    100,
-		WithMaxPort:    200,
-	}
-	ports, err = availableport.Find(10, options)
+	ports, err = availableport.Find(10, options...)
 	require.Equal(t, 10, len(ports))
-	require.Equal(t, []int{195, 129, 150, 108, 120, 169, 166, 121, 131, 160}, ports)
+	require.Equal(t, []uint([]uint{0xc3, 0x81, 0x96, 0x6c, 0x78, 0xa9, 0xa6, 0x79, 0x83, 0xa0}), ports)
 }
