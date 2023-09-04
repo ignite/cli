@@ -39,6 +39,6 @@ func (c clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
 		ChainId:    chain_id,
 		AppPath:    app_path,
 		ConfigPath: config_path,
-		Rpc:        rpc,
+		RpcAddress: rpc,
 	}, nil
 }

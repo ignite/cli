@@ -8,5 +8,5 @@ message ChainInfo {
   string chain_id = 1;
   string app_path = 2;
   string config_path = 3;
-  string rpc = 4;
+  string rpc_address = 4;
 }
