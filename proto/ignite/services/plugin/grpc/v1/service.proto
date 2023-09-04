@@ -84,10 +84,3 @@ message GetChainInfoRequest {}
 message GetChainInfoResponse {
   ChainInfo chain_info = 1;
 }
-/*
-   message DependenciesRequest {}
-
-   message DependenciesResponse {
-     Dependencies dependencies = 2;
-   }
-*/
