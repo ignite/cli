@@ -24,8 +24,8 @@ type clientAPI struct {
 	chain Chainer
 }
 
-func (api clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
-	chainId, err := api.chain.ID()
+func (api clientAPI) GetChainInfo(_ context.Context) (*ChainInfo, error) {
+	chainID, err := api.chain.ID()
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (api clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
 		return nil, err
 	}
 	return &ChainInfo{
-		ChainId:    chainId,
+		ChainId:    chainID,
 		AppPath:    appPath,
 		ConfigPath: configPath,
 		RpcAddress: rpc,
