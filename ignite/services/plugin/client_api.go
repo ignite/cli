@@ -2,43 +2,28 @@ package plugin
 
 import (
 	"context"
-
-	chainservice "github.com/ignite/cli/ignite/services/chain"
 )
 
+type Chainer interface {
+	// AppPath returns the configured App's path.
+	AppPath() string
+	// ID returns the configured App's chain id.
+	ID() (string, error)
+	// ConfigPath returns the path to the App's config file.
+	ConfigPath() string
+	// RPCPublicAddress returns the configured App's rpc endpoint.
+	RPCPublicAddress() (string, error)
+}
+
 // NewClientAPI creates a new app ClientAPI.
-func NewClientAPI(c *chainservice.Chain) ClientAPI {
+func NewClientAPI(c Chainer) ClientAPI {
 	return clientAPI{chain: c}
 }
 
 type clientAPI struct {
-	chain *chainservice.Chain
+	chain Chainer
 }
 
-// TODO: Implement dependency ClientAPI.
-
-// Deoendencies returns chain app dependencies.
-/*
-func (c clientAPI) Dependencies(ctx context.Context) (*Dependencies, error) {
-	conf, err := c.chain.Config()
-	if err != nil {
-		return nil, err
-	}
-	mods, err := chain.GetModuleList(ctx, c.chain.AppPath(), conf.Build.Proto.Path, conf.Build.Proto.ThirdPartyPaths)
-	if err != nil {
-		return nil, err
-	}
-	bz, err := json.Marshal(mods)
-	if err != nil {
-		return nil, err
-	}
-	var d Dependencies
-	if err := json.Unmarshal(bz, &d); err != nil {
-		return nil, err
-	}
-	return &d, nil
-}
-*/
 func (c clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
 	chain_id, err := c.chain.ID()
 	if err != nil {
