@@ -24,14 +24,14 @@ type clientAPI struct {
 	chain Chainer
 }
 
-func (c clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
-	chain_id, err := c.chain.ID()
+func (api clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
+	chain_id, err := api.chain.ID()
 	if err != nil {
 		return nil, err
 	}
-	app_path := c.chain.AppPath()
-	config_path := c.chain.ConfigPath()
-	rpc, err := c.chain.RPCPublicAddress()
+	app_path := api.chain.AppPath()
+	config_path := api.chain.ConfigPath()
+	rpc, err := api.chain.RPCPublicAddress()
 	if err != nil {
 		return nil, err
 	}

@@ -65,8 +65,8 @@ func (c client) Manifest(ctx context.Context) (*Manifest, error) {
 	return r.Manifest, nil
 }
 
-func (c client) Execute(ctx context.Context, cmd *ExecutedCommand, a ClientAPI) error {
-	brokerID, stopServer := c.startClientAPIServer(a)
+func (c client) Execute(ctx context.Context, cmd *ExecutedCommand, api ClientAPI) error {
+	brokerID, stopServer := c.startClientAPIServer(api)
 	_, err := c.grpc.Execute(ctx, &v1.ExecuteRequest{
 		Cmd:       cmd,
 		ClientApi: brokerID,
@@ -75,8 +75,8 @@ func (c client) Execute(ctx context.Context, cmd *ExecutedCommand, a ClientAPI) 
 	return err
 }
 
-func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook, a ClientAPI) error {
-	brokerID, stopServer := c.startClientAPIServer(a)
+func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook, api ClientAPI) error {
+	brokerID, stopServer := c.startClientAPIServer(api)
 	_, err := c.grpc.ExecuteHookPre(ctx, &v1.ExecuteHookPreRequest{
 		Hook:      h,
 		ClientApi: brokerID,
@@ -85,8 +85,8 @@ func (c client) ExecuteHookPre(ctx context.Context, h *ExecutedHook, a ClientAPI
 	return err
 }
 
-func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook, a ClientAPI) error {
-	brokerID, stopServer := c.startClientAPIServer(a)
+func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook, api ClientAPI) error {
+	brokerID, stopServer := c.startClientAPIServer(api)
 	_, err := c.grpc.ExecuteHookPost(ctx, &v1.ExecuteHookPostRequest{
 		Hook:      h,
 		ClientApi: brokerID,
@@ -95,8 +95,8 @@ func (c client) ExecuteHookPost(ctx context.Context, h *ExecutedHook, a ClientAP
 	return err
 }
 
-func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, a ClientAPI) error {
-	brokerID, stopServer := c.startClientAPIServer(a)
+func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, api ClientAPI) error {
+	brokerID, stopServer := c.startClientAPIServer(api)
 	_, err := c.grpc.ExecuteHookCleanUp(ctx, &v1.ExecuteHookCleanUpRequest{
 		Hook:      h,
 		ClientApi: brokerID,
@@ -105,7 +105,7 @@ func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, a Clien
 	return err
 }
 
-func (c client) startClientAPIServer(a ClientAPI) (uint32, func()) {
+func (c client) startClientAPIServer(api ClientAPI) (uint32, func()) {
 	var (
 		srv      *grpc.Server
 		brokerID = c.broker.NextId()
@@ -113,7 +113,7 @@ func (c client) startClientAPIServer(a ClientAPI) (uint32, func()) {
 
 	go c.broker.AcceptAndServe(brokerID, func(opts []grpc.ServerOption) *grpc.Server {
 		srv = grpc.NewServer(opts...)
-		v1.RegisterClientAPIServiceServer(srv, &clientAPIServer{impl: a})
+		v1.RegisterClientAPIServiceServer(srv, &clientAPIServer{impl: api})
 		return srv
 	})
 
