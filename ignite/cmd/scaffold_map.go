@@ -21,7 +21,7 @@ dictionary) in the blockchain state.
 
 The "map" command is very similar to "ignite scaffold list" with the main
 difference in how values are indexed. With "list" values are indexed by an
-incrementing integer, whereas "list" values are indexed by a user-provided value
+incrementing integer, whereas "map" values are indexed by a user-provided value
 (or multiple values).
 
 Let's use the same blog post example:
@@ -56,7 +56,7 @@ the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
 `,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMapHandler,
 	}
 

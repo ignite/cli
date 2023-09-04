@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   pre-test:
     runs-on: ubuntu-latest
@@ -50,10 +54,10 @@ jobs:
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version: 1.19
+          go-version: '1.20'
       - name: Run Integration Tests
         if: env.GIT_DIFF
-        run: GOSUMDB=off go test -v -timeout 80m ./integration/${{ matrix.test-path }}
+        run: GOSUMDB=off go test -v -timeout 120m ./integration/${{ matrix.test-path }}
 
   status:
     runs-on: ubuntu-latest

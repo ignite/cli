@@ -9,7 +9,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/nodetime"
-	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
 // NewTools returns a command where various tools (binaries) are attached as sub commands
@@ -19,9 +18,10 @@ func NewTools() *cobra.Command {
 		Use:   "tools",
 		Short: "Tools for advanced users",
 	}
-	c.AddCommand(NewToolsIBCSetup())
-	c.AddCommand(NewToolsIBCRelayer())
-	c.AddCommand(NewToolsProtoc())
+	c.AddCommand(
+		NewToolsIBCSetup(),
+		NewToolsIBCRelayer(),
+	)
 	return c
 }
 
@@ -44,16 +44,6 @@ func NewToolsIBCRelayer() *cobra.Command {
 	}
 }
 
-func NewToolsProtoc() *cobra.Command {
-	return &cobra.Command{
-		Use:     "protoc [--] [...]",
-		Short:   "Execute the protoc command",
-		Long:    "The protoc command. You don't need to setup the global protoc include folder with -I, it's automatically handled",
-		RunE:    toolsProtocProxy,
-		Example: `ignite tools protoc -- --version`,
-	}
-}
-
 func toolsNodetimeProxy(c nodetime.CommandName) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		command, cleanup, err := nodetime.Command(c)
@@ -64,16 +54,6 @@ func toolsNodetimeProxy(c nodetime.CommandName) func(cmd *cobra.Command, args []
 
 		return toolsProxy(cmd.Context(), append(command, args...))
 	}
-}
-
-func toolsProtocProxy(cmd *cobra.Command, args []string) error {
-	command, cleanup, err := protoc.Command()
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
-	return toolsProxy(cmd.Context(), append(command.Command(), args...))
 }
 
 func toolsProxy(ctx context.Context, command []string) error {

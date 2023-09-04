@@ -16,6 +16,10 @@ const (
     <%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/name<% } %>
 )
 
+var (
+	ParamsKey = []byte("p_<%= moduleName %>")
+)
+
 <%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/port<% } %>
 
 func KeyPrefix(p string) []byte {

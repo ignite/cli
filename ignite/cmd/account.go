@@ -39,12 +39,14 @@ chain.
 	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
 	c.PersistentFlags().AddFlagSet(flagSetKeyringDir())
 
-	c.AddCommand(NewAccountCreate())
-	c.AddCommand(NewAccountDelete())
-	c.AddCommand(NewAccountShow())
-	c.AddCommand(NewAccountList())
-	c.AddCommand(NewAccountImport())
-	c.AddCommand(NewAccountExport())
+	c.AddCommand(
+		NewAccountCreate(),
+		NewAccountDelete(),
+		NewAccountShow(),
+		NewAccountList(),
+		NewAccountImport(),
+		NewAccountExport(),
+	)
 
 	return c
 }

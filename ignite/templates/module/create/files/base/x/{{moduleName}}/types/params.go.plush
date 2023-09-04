@@ -4,7 +4,6 @@ import (
 	<%= if (len(params) > 0) { %>"fmt"<% } %>
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"gopkg.in/yaml.v2"
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -56,11 +55,6 @@ func (p Params) Validate() error {<%= for (param) in params { %>
 	return nil
 }
 
-// String implements the Stringer interface.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
-}
 <%= for (param) in params { %>
 // validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> param
 func validate<%= param.Name.UpperCamel %>(v interface{}) error {

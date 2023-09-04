@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
@@ -32,11 +31,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/validation"
@@ -44,12 +39,9 @@ import (
 	"github.com/ignite/cli/ignite/templates/field"
 	"github.com/ignite/cli/ignite/templates/module"
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-	moduleimport "github.com/ignite/cli/ignite/templates/module/import"
 )
 
 const (
-	wasmImport    = "github.com/CosmWasm/wasmd"
-	wasmVersion   = "v0.16.0"
 	extrasImport  = "github.com/tendermint/spm-extras"
 	extrasVersion = "v0.1.0"
 	appPkg        = "app"
@@ -250,56 +242,6 @@ func (s Scaffolder) CreateModule(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// ImportModule imports specified module with name to the scaffolded app.
-func (s Scaffolder) ImportModule(
-	ctx context.Context,
-	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
-	name string,
-) (sm xgenny.SourceModification, err error) {
-	// Only wasm is currently supported
-	if name != "wasm" {
-		return sm, errors.New("module cannot be imported. Supported module: wasm")
-	}
-
-	ok, err := isWasmImported(s.path)
-	if err != nil {
-		return sm, err
-	}
-	if ok {
-		return sm, errors.New("wasm is already imported")
-	}
-
-	// run generator
-	g, err := moduleimport.NewGenerator(tracer, &moduleimport.ImportOptions{
-		AppPath:          s.path,
-		Feature:          name,
-		AppName:          s.modpath.Package,
-		BinaryNamePrefix: s.modpath.Root,
-	})
-	if err != nil {
-		return sm, err
-	}
-
-	sm, err = xgenny.RunWithValidation(tracer, g)
-	if err != nil {
-		var validationErr validation.Error
-		if errors.As(err, &validationErr) {
-			// TODO: implement a more generic method when there will be new methods to import wasm
-			return sm, errors.New("wasm cannot be imported. Apps initialized with Starport <=0.16.2 must downgrade Starport to 0.16.2 to import wasm")
-		}
-		return sm, err
-	}
-
-	// import a specific version of ComsWasm
-	// NOTE(dshulyak) it must be installed after validation
-	if err := s.installWasm(); err != nil {
-		return sm, err
-	}
-
-	return sm, finish(ctx, cacheStorage, s.path, s.modpath.RawPath)
-}
-
 // moduleExists checks if the module exists in the app.
 func moduleExists(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
@@ -361,39 +303,6 @@ func checkModuleName(appPath, moduleName string) error {
 	}
 
 	return nil
-}
-
-func isWasmImported(appPath string) (bool, error) {
-	abspath := filepath.Join(appPath, appPkg)
-	fset := token.NewFileSet()
-	all, err := parser.ParseDir(fset, abspath, func(os.FileInfo) bool { return true }, parser.ImportsOnly)
-	if err != nil {
-		return false, err
-	}
-	for _, pkg := range all {
-		for _, f := range pkg.Files {
-			for _, imp := range f.Imports {
-				if strings.Contains(imp.Path.Value, wasmImport) {
-					return true, nil
-				}
-			}
-		}
-	}
-	return false, nil
-}
-
-func (s Scaffolder) installWasm() error {
-	switch {
-	case s.Version.GTE(cosmosver.StargateFortyVersion):
-		return cmdrunner.
-			New().
-			Run(context.Background(),
-				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(wasmImport, wasmVersion))),
-				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(extrasImport, extrasVersion))),
-			)
-	default:
-		return errors.New("version not supported")
-	}
 }
 
 // checkDependencies perform checks on the dependencies.

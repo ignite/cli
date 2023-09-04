@@ -67,7 +67,7 @@ type Interface interface {
 
 // ClientAPI defines the interface for plugins to get chain app code analysis info.
 //
-//go:generate mockery --srcpkg . --name ClientAPI --structname PluginClientAPI --filename interface.go --with-expecter
+//go:generate mockery --srcpkg . --name ClientAPI --structname PluginClientAPI --filename client_api.go --with-expecter
 type ClientAPI interface {
 	// Dependencies returns the app dependencies.
 	GetChainInfo(context.Context) (*ChainInfo, error)

@@ -25,7 +25,7 @@ func NewScaffoldBandchain() *cobra.Command {
 		Short:   "Scaffold an IBC BandChain query oracle to request real-time data",
 		Long:    "Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module",
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    createBandchainHandler,
 		Hidden:  true,
 	}

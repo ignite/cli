@@ -10,13 +10,16 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
 )
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
 	includeDirs []string
-	gomodPath   string
 	useCache    bool
+
+	isGoEnabled     bool
+	isPulsarEnabled bool
 
 	jsOut            func(module.Module) string
 	tsClientRootPath string
@@ -73,9 +76,16 @@ func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
 }
 
 // WithGoGeneration adds Go code generation.
-func WithGoGeneration(gomodPath string) Option {
+func WithGoGeneration() Option {
 	return func(o *generateOptions) {
-		o.gomodPath = gomodPath
+		o.isGoEnabled = true
+	}
+}
+
+// WithPulsarGeneration adds Go pulsar code generation.
+func WithPulsarGeneration() Option {
+	return func(o *generateOptions) {
+		o.isPulsarEnabled = true
 	}
 }
 
@@ -97,9 +107,11 @@ func IncludeDirs(dirs []string) Option {
 // generator generates code for sdk and sdk apps.
 type generator struct {
 	ctx          context.Context
+	buf          cosmosbuf.Buf
 	cacheStorage cache.Storage
 	appPath      string
 	protoDir     string
+	gomodPath    string
 	o            *generateOptions
 	sdkImport    string
 	deps         []gomodule.Version
@@ -109,11 +121,18 @@ type generator struct {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir string, options ...Option) error {
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, gomodPath string, options ...Option) error {
+	b, err := cosmosbuf.New()
+	if err != nil {
+		return err
+	}
+
 	g := &generator{
 		ctx:          ctx,
+		buf:          b,
 		appPath:      appPath,
 		protoDir:     protoDir,
+		gomodPath:    gomodPath,
 		o:            &generateOptions{},
 		thirdModules: make(map[string][]module.Module),
 		cacheStorage: cacheStorage,
@@ -129,8 +148,13 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
-	if g.o.gomodPath != "" {
+	if g.o.isGoEnabled {
 		if err := g.generateGo(); err != nil {
+			return err
+		}
+	}
+	if g.o.isPulsarEnabled {
+		if err := g.generatePulsar(); err != nil {
 			return err
 		}
 	}
@@ -188,7 +212,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	if g.o.specOut != "" {
-		if err := generateOpenAPISpec(g); err != nil {
+		if err := g.generateOpenAPISpec(); err != nil {
 			return err
 		}
 	}
