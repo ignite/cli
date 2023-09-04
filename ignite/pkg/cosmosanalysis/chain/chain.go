@@ -3,6 +3,7 @@ package chain
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,7 +21,9 @@ import (
 )
 
 const (
-	moduleCacheNamespace = "analyze.setup.module"
+	moduleCacheNamespace       = "analyze.setup.module"
+	includeProtoCacheNamespace = "analyze.includes.proto"
+	includeCacheNamespace      = "analyze.includes.module"
 )
 
 var protocGlobalInclude = xfilepath.List(
@@ -33,10 +36,10 @@ type ModulesInPath struct {
 	Path     string          `json:"path,omitempty"`
 	Modules  []module.Module `json:"modules,omitempty"`
 	HasProto bool            `json:"has_proto,omitempty"`
+	Includes []string        `json:"includes,omitempty"`
 }
 type AllModules struct {
 	ModulePaths []ModulesInPath `json:"modules_in_path,omitempty"`
-	Includes    []string        `json:"includes,omitempty"`
 }
 
 type Analyzer struct {
@@ -48,7 +51,7 @@ type Analyzer struct {
 	cacheStorage cache.Storage
 	deps         []gomod.Version
 	includeDirs  []string
-	thirdModules map[string][]module.Module // app dependency-modules pair.
+	thirdModules map[string][]ModulesInPath // app dependency-modules pair.
 }
 
 func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPaths []string) (*AllModules, error) {
@@ -71,7 +74,7 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 		appPath:      appPath,
 		protoDir:     protoPath,
 		includeDirs:  thirdPartyPaths,
-		thirdModules: make(map[string][]module.Module),
+		thirdModules: make(map[string][]ModulesInPath),
 		cacheStorage: cacheStorage,
 	}
 	if err != nil {
@@ -139,11 +142,15 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 				if err != nil {
 					return nil, err
 				}
-
+				includePaths, err := a.getProtoIncludeFolders(path)
+				if err != nil {
+					return nil, err
+				}
 				modulesInPath = ModulesInPath{
 					Path:     path,
 					Modules:  modules,
 					HasProto: true,
+					Includes: includePaths,
 				}
 			} else {
 				modulesInPath = ModulesInPath{
@@ -157,27 +164,74 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 			}
 		}
 		if modulesInPath.HasProto {
-			a.thirdModules[modulesInPath.Path] = append(a.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
+			a.thirdModules[modulesInPath.Path] = append(a.thirdModules[modulesInPath.Path], modulesInPath)
 		}
 	}
 
-	// Perform include resolution AFTER includeDirs has been fully populated
-	includePaths, err := a.resolveInclude(appPath)
 	if err != nil {
 		return nil, err
 	}
 	var modulelist []ModulesInPath
 	modulelist = append(modulelist, ModulesInPath{Path: appPath, Modules: a.appModules})
-	for sourcePath, modules := range a.thirdModules {
+	for _, modules := range a.thirdModules {
 		{
-			modulelist = append(modulelist, ModulesInPath{Path: sourcePath, Modules: modules})
+			modulelist = append(modulelist, modules...)
 		}
 	}
 	allModules := &AllModules{
 		ModulePaths: modulelist,
-		Includes:    includePaths,
 	}
+	fmt.Println(allModules)
 	return allModules, nil
+}
+
+func (a *Analyzer) getProtoIncludeFolders(modPath string) ([]string, error) {
+	// Read the mod file for this module
+	modFile, err := gomodule.ParseAt(modPath)
+	if err != nil {
+		return nil, err
+	}
+	includePaths := []string{}
+	// Get the imports/deps from the mod file (include indirect)
+	deps, err := gomodule.ResolveDependencies(modFile, true)
+	if err != nil {
+		return nil, err
+	}
+	// Initialize include cache for proto checking (lots of common includes across modules. No need to traverse repeatedly)
+	includeProtoCache := cache.New[bool](a.cacheStorage, includeProtoCacheNamespace)
+
+	for _, dep := range deps {
+
+		// Check for proto file in this dependency
+		cacheKey := cache.Key(dep.Path, dep.Version)
+		hasProto, err := includeProtoCache.Get(cacheKey)
+
+		// Return unexpected error
+		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
+			return nil, err
+		}
+
+		// If result not already cached
+		if errors.Is(err, cache.ErrorNotFound) {
+			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, a.appPath, dep)
+			if err != nil {
+				return nil, err
+			}
+			hasProto, err = a.checkForProto(path)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if hasProto {
+			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, a.appPath, dep)
+			if err != nil {
+				return nil, err
+			}
+			includePaths = append(includePaths, path)
+		}
+	}
+	return includePaths, nil
 }
 
 func (a *Analyzer) checkForProto(modpath string) (bool, error) {
@@ -198,77 +252,6 @@ func (a *Analyzer) checkForProto(modpath string) (bool, error) {
 		return false, err
 	}
 	return false, nil
-}
-
-func (a *Analyzer) resolveDependencyInclude() ([]string, error) {
-	// Init paths with the global include paths for protoc
-	paths, err := protocGlobalInclude()
-	if err != nil {
-		return nil, err
-	}
-
-	// Relative and absolute  paths to proto directories
-	protoDirs := append([]string{a.protoDir}, a.includeDirs...)
-
-	// Create a list of proto import paths for the dependencies.
-	// These paths will be available to be imported from the chain app's proto files.
-	for rootPath := range a.thirdModules {
-		// Check each one of the possible proto directory names for the
-		// current module and append them only when the directory exists.
-		for _, d := range protoDirs {
-
-			p := filepath.Join(rootPath, d)
-			f, err := os.Stat(p)
-			if err != nil {
-				if os.IsNotExist(err) {
-					continue
-				}
-
-				return nil, err
-			}
-
-			if f.IsDir() {
-				paths = append(paths, p)
-			}
-		}
-	}
-
-	return paths, nil
-}
-
-func (a *Analyzer) resolveIncludeApp(path string) (paths []string) {
-	// Append chain app's proto paths
-	paths = append(paths, filepath.Join(path, a.protoDir))
-	for _, p := range a.includeDirs {
-		f, err := os.Stat(p)
-		if err != nil {
-			f, err = os.Stat(filepath.Join(path, p))
-			if err == nil {
-				if f.IsDir() {
-					paths = append(paths, filepath.Join(path, p))
-				}
-			}
-			continue
-		}
-		if f.IsDir() {
-			paths = append(paths, p)
-		}
-	}
-	return
-}
-
-func (a *Analyzer) resolveInclude(path string) (paths []string, err error) {
-	paths = a.resolveIncludeApp(path)
-
-	// Append paths for dependencies that have protocol buffer files
-	includePaths, err := a.resolveDependencyInclude()
-	if err != nil {
-		return nil, err
-	}
-
-	paths = append(paths, includePaths...)
-
-	return paths, nil
 }
 
 func (a *Analyzer) discoverModules(path, protoDir string) ([]module.Module, error) {

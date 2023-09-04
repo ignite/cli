@@ -6,7 +6,6 @@ option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
 
 message Dependencies {
   repeated Dependency modules_in_path = 1;
-  repeated string includes = 2;
 }
 
 // Dependecy keeps data about Go module dependencies.
@@ -16,6 +15,7 @@ message Dependency {
 
   // Modules contains the list of modules defined by the dependency.
   repeated Module modules = 2;
+  repeated string includes = 3;
 }
 
 // Module keeps metadata about a Cosmos SDK module.
