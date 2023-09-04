@@ -208,13 +208,13 @@ type clientAPIClient struct {
 	grpc v1.ClientAPIServiceClient
 }
 
-func (c clientAPIClient) Dependencies(ctx context.Context) (*Dependencies, error) {
-	r, err := c.grpc.Dependencies(ctx, &v1.DependenciesRequest{})
+func (c clientAPIClient) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
+	r, err := c.grpc.GetChainInfo(ctx, &v1.GetChainInfoRequest{})
 	if err != nil {
 		return nil, err
 	}
 
-	return r.Dependencies, nil
+	return r.ChainInfo, nil
 }
 
 type clientAPIServer struct {
@@ -223,11 +223,11 @@ type clientAPIServer struct {
 	impl ClientAPI
 }
 
-func (s clientAPIServer) Dependencies(ctx context.Context, _ *v1.DependenciesRequest) (*v1.DependenciesResponse, error) {
-	deps, err := s.impl.Dependencies(ctx)
+func (s clientAPIServer) GetChainInfo(ctx context.Context, _ *v1.GetChainInfoRequest) (*v1.GetChainInfoResponse, error) {
+	chainInfo, err := s.impl.GetChainInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &v1.DependenciesResponse{Dependencies: deps}, nil
+	return &v1.GetChainInfoResponse{ChainInfo: chainInfo}, nil
 }

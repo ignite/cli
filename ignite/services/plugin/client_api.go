@@ -2,9 +2,7 @@ package plugin
 
 import (
 	"context"
-	"encoding/json"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/chain"
 	chainservice "github.com/ignite/cli/ignite/services/chain"
 )
 
@@ -20,6 +18,7 @@ type clientAPI struct {
 // TODO: Implement dependency ClientAPI.
 
 // Deoendencies returns chain app dependencies.
+/*
 func (c clientAPI) Dependencies(ctx context.Context) (*Dependencies, error) {
 	conf, err := c.chain.Config()
 	if err != nil {
@@ -38,4 +37,23 @@ func (c clientAPI) Dependencies(ctx context.Context) (*Dependencies, error) {
 		return nil, err
 	}
 	return &d, nil
+}
+*/
+func (c clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
+	chain_id, err := c.chain.ID()
+	if err != nil {
+		return nil, err
+	}
+	app_path := c.chain.AppPath()
+	config_path := c.chain.ConfigPath()
+	rpc, err := c.chain.RPCPublicAddress()
+	if err != nil {
+		return nil, err
+	}
+	return &ChainInfo{
+		ChainId:    chain_id,
+		AppPath:    app_path,
+		ConfigPath: config_path,
+		Rpc:        rpc,
+	}, nil
 }

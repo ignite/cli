@@ -73,12 +73,21 @@ message ExecuteHookCleanUpResponse {}
 
 // ClientAPIService defines the interface that allows plugins to get chain app analysis info.
 service ClientAPIService {
+  // GetChainInfo returns basic chain info for the configured app
+  rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
+
   // Dependencies returns the app dependencies.
-  rpc Dependencies(DependenciesRequest) returns (DependenciesResponse);
+  //rpc Dependencies(DependenciesRequest) returns (DependenciesResponse);
 }
+message GetChainInfoRequest {}
 
-message DependenciesRequest {}
-
-message DependenciesResponse {
-  Dependencies dependencies = 2;
+message GetChainInfoResponse {
+  ChainInfo chain_info = 1;
 }
+/*
+   message DependenciesRequest {}
+
+   message DependenciesResponse {
+     Dependencies dependencies = 2;
+   }
+*/

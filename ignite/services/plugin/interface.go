@@ -20,7 +20,7 @@ const (
 // Type aliases for the current plugin version.
 type (
 	Command         = v1.Command
-	Dependencies    = v1.Dependencies
+	ChainInfo       = v1.ChainInfo
 	ExecutedCommand = v1.ExecutedCommand
 	ExecutedHook    = v1.ExecutedHook
 	Flag            = v1.Flag
@@ -70,5 +70,5 @@ type Interface interface {
 //go:generate mockery --srcpkg . --name ClientAPI --structname PluginClientAPI --filename interface.go --with-expecter
 type ClientAPI interface {
 	// Dependencies returns the app dependencies.
-	Dependencies(context.Context) (*Dependencies, error)
+	GetChainInfo(context.Context) (*ChainInfo, error)
 }

@@ -291,15 +291,15 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ClientAPIService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/Dependencies"
+	ClientAPIService_GetChainInfo_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
 )
 
 // ClientAPIServiceClient is the client API for ClientAPIService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClientAPIServiceClient interface {
-	// Dependencies returns the app dependencies.
-	Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error)
+	// GetChainInfo returns basic chain info for the configured app
+	GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error)
 }
 
 type clientAPIServiceClient struct {
@@ -310,9 +310,9 @@ func NewClientAPIServiceClient(cc grpc.ClientConnInterface) ClientAPIServiceClie
 	return &clientAPIServiceClient{cc}
 }
 
-func (c *clientAPIServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
-	out := new(DependenciesResponse)
-	err := c.cc.Invoke(ctx, ClientAPIService_Dependencies_FullMethodName, in, out, opts...)
+func (c *clientAPIServiceClient) GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error) {
+	out := new(GetChainInfoResponse)
+	err := c.cc.Invoke(ctx, ClientAPIService_GetChainInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -323,8 +323,8 @@ func (c *clientAPIServiceClient) Dependencies(ctx context.Context, in *Dependenc
 // All implementations must embed UnimplementedClientAPIServiceServer
 // for forward compatibility
 type ClientAPIServiceServer interface {
-	// Dependencies returns the app dependencies.
-	Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error)
+	// GetChainInfo returns basic chain info for the configured app
+	GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error)
 	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
@@ -332,8 +332,8 @@ type ClientAPIServiceServer interface {
 type UnimplementedClientAPIServiceServer struct {
 }
 
-func (UnimplementedClientAPIServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Dependencies not implemented")
+func (UnimplementedClientAPIServiceServer) GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChainInfo not implemented")
 }
 func (UnimplementedClientAPIServiceServer) mustEmbedUnimplementedClientAPIServiceServer() {}
 
@@ -348,20 +348,20 @@ func RegisterClientAPIServiceServer(s grpc.ServiceRegistrar, srv ClientAPIServic
 	s.RegisterService(&ClientAPIService_ServiceDesc, srv)
 }
 
-func _ClientAPIService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DependenciesRequest)
+func _ClientAPIService_GetChainInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChainInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ClientAPIServiceServer).Dependencies(ctx, in)
+		return srv.(ClientAPIServiceServer).GetChainInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ClientAPIService_Dependencies_FullMethodName,
+		FullMethod: ClientAPIService_GetChainInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientAPIServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
+		return srv.(ClientAPIServiceServer).GetChainInfo(ctx, req.(*GetChainInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -374,8 +374,8 @@ var ClientAPIService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ClientAPIServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Dependencies",
-			Handler:    _ClientAPIService_Dependencies_Handler,
+			MethodName: "GetChainInfo",
+			Handler:    _ClientAPIService_GetChainInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
