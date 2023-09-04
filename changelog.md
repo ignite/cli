@@ -5,6 +5,7 @@
 ### Features
 
 - [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
+- [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
 
 ### Changes
 
