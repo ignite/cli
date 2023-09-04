@@ -25,20 +25,20 @@ type clientAPI struct {
 }
 
 func (api clientAPI) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
-	chain_id, err := api.chain.ID()
+	chainId, err := api.chain.ID()
 	if err != nil {
 		return nil, err
 	}
-	app_path := api.chain.AppPath()
-	config_path := api.chain.ConfigPath()
+	appPath := api.chain.AppPath()
+	configPath := api.chain.ConfigPath()
 	rpc, err := api.chain.RPCPublicAddress()
 	if err != nil {
 		return nil, err
 	}
 	return &ChainInfo{
-		ChainId:    chain_id,
-		AppPath:    app_path,
-		ConfigPath: config_path,
+		ChainId:    chainId,
+		AppPath:    appPath,
+		ConfigPath: configPath,
 		RpcAddress: rpc,
 	}, nil
 }
