@@ -37,7 +37,7 @@ func (k Keeper) ShowPost(goCtx context.Context, req *types.QueryShowPostRequest)
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 
-	return &types.QueryShowPostResponse{Post: post}, nil
+	return &types.QueryShowPostResponse{Post: &post}, nil
 }
 ```
 
