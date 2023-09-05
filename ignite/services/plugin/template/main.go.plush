@@ -74,8 +74,7 @@ func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.Cl
 		}
 	*/
 	
-	// Calling the ClientAPI example
-	
+	// ClientAPI call example
 	fmt.Println(api.GetChainInfo(ctx))
 	
 	return nil

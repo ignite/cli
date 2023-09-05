@@ -69,6 +69,6 @@ type Interface interface {
 //
 //go:generate mockery --srcpkg . --name ClientAPI --structname PluginClientAPI --filename client_api.go --with-expecter
 type ClientAPI interface {
-	// Dependencies returns the app dependencies.
+	// GetChainInfo returns basic info for the configured blockchain app.
 	GetChainInfo(context.Context) (*ChainInfo, error)
 }
