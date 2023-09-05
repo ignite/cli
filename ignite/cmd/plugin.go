@@ -252,6 +252,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		if err != nil {
 			return err
 		}
+
 		defer func() {
 			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
 			if err != nil {
@@ -267,10 +268,6 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		c, err = newChainWithHomeFlags(cmd)
-		if err != nil {
-			return err
-		}
 		err = p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewClientAPI(c))
 		if err != nil {
 			return fmt.Errorf("plugin %q ExecuteHookPost() error : %w", p.Path, err)

@@ -30,7 +30,7 @@ type Module struct {
 	// Pkg holds the proto package info.
 	Pkg protoanalysis.Package `json:"package,omitempty"`
 
-	// Msg is a list of sdk.Msg implementation of the module.
+	// Msgs is a list of sdk.Msg implementation of the module.
 	Msgs []Msg `json:"messages,omitempty"`
 
 	// HTTPQueries is a list of module queries.
@@ -48,7 +48,7 @@ type Msg struct {
 	// URI of the type.
 	URI string `json:"uri,omitempty"`
 
-	// File path is the path of the proto file where message is defined.
+	// FilePath is the path of the proto file where message is defined.
 	FilePath string `json:"file_path,omitempty"`
 }
 
@@ -60,7 +60,7 @@ type HTTPQuery struct {
 	// FullName of the query with service name and rpc func name.
 	FullName string `json:"full_name,omitempty"`
 
-	// HTTPAnnotations keeps info about http annotations of query.
+	// Rules keeps info about configured HTTP rules of RPC functions.
 	Rules []protoanalysis.HTTPRule `json:"rules,omitempty"`
 
 	// Paginated indicates that the query is using pagination.
@@ -69,10 +69,10 @@ type HTTPQuery struct {
 
 // Type is a proto type that might be used by module.
 type Type struct {
-	// Name pf the type.
+	// Name of the type.
 	Name string `json:"name,omitempty"`
 
-	// File path is the path of the .proto file where message is defined at.
+	// FilePath is the path of the .proto file where message is defined at.
 	FilePath string `json:"file_path,omitempty"`
 }
 

@@ -42,6 +42,7 @@ type Files []File
 type File struct {
 	// Path of the file.
 	Path string `json:"path,omitempty"`
+
 	// Dependencies is a list of imported proto packages.
 	Dependencies []string `json:"dependencies,omitempty"`
 }
@@ -77,7 +78,7 @@ type Message struct {
 	// Path of the proto file where the message is defined.
 	Path string `json:"path,omitempty"`
 
-	// Highest field name is the highest field number among fields of the message.
+	// HighestFieldNumber is the highest field number among fields of the message.
 	// This allows to determine new field number when writing to proto message.
 	HighestFieldNumber int `json:"highest_field_number,omitempty"`
 
@@ -90,7 +91,7 @@ type Service struct {
 	// Name of the services.
 	Name string `json:"name,omitempty"`
 
-	// RPC is a list of RPC funcs of the service.
+	// RPCFuncs is a list of RPC funcs of the service.
 	RPCFuncs []RPCFunc `json:"functions,omitempty"`
 }
 
@@ -118,8 +119,10 @@ type RPCFunc struct {
 type HTTPRule struct {
 	// Params is a list of parameters defined in the HTTP endpoint itself.
 	Params []string `json:"params,omitempty"`
-	// Has query indicates if there is a request query.
+
+	// HasQuery indicates if there is a request query.
 	HasQuery bool `json:"has_query,omitempty"`
-	// Has body indicates if there is a request payload.
+
+	// HasBody indicates if there is a request payload.
 	HasBody bool `json:"has_body,omitempty"`
 }
