@@ -47,30 +47,30 @@ type Interface interface {
 	// Execute will be invoked by ignite when a plugin Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
-	// The analizer argument can be used by plugins to get chain app analysis info.
-	Execute(context.Context, *ExecutedCommand, Analyzer) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	Execute(context.Context, *ExecutedCommand, ClientAPI) error
 
 	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	// The analizer argument can be used by plugins to get chain app analysis info.
-	ExecuteHookPre(context.Context, *ExecutedHook, Analyzer) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookPre(context.Context, *ExecutedHook, ClientAPI) error
 
 	// ExecuteHookPost is invoked by ignite when a command specified by the hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	// The analizer argument can be used by plugins to get chain app analysis info.
-	ExecuteHookPost(context.Context, *ExecutedHook, Analyzer) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookPost(context.Context, *ExecutedHook, ClientAPI) error
 
 	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
 	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
 	// execution status of the command and hooks.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	// The analizer argument can be used by plugins to get chain app analysis info.
-	ExecuteHookCleanUp(context.Context, *ExecutedHook, Analyzer) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookCleanUp(context.Context, *ExecutedHook, ClientAPI) error
 }
 ```
 
@@ -160,7 +160,7 @@ To update the plugin execution, you have to change the plugin `Execute` command,
 for instance :
 
 ```go
-func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand, _ plugin.Analyzer) error {
+func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("oracle name missing")
 	}
@@ -221,7 +221,7 @@ func (p) Manifest(context.Context) (*plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.Analyzer) error {
+func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed before ignite chain build")
@@ -231,7 +231,7 @@ func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.Anal
 	return nil
 }
 
-func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.Analyzer) error {
+func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (if no error)")
@@ -241,7 +241,7 @@ func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.Ana
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, _ plugin.Analyzer) error {
+func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (regardless errors)")

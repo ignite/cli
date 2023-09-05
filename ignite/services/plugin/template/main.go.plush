@@ -41,7 +41,7 @@ func (p) Manifest(ctx context.Context) (*plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, az plugin.Analyzer) error {
+func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.ClientAPI) error {
 	// TODO: write command execution here
 	fmt.Printf("Hello I'm the example-plugin plugin\n")
 	fmt.Printf("My executed command: %q\n", cmd.Path)
@@ -73,20 +73,25 @@ func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, az plugin.Ana
 			fmt.Println("Deleting stuff...")
 		}
 	*/
+	
+	// Calling the ClientAPI example
+	
+	fmt.Println(api.GetChainInfo(ctx))
+	
 	return nil
 }
 
-func (p) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook, az plugin.Analyzer) error {
+func (p) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
 	fmt.Printf("Executing hook pre %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook, az plugin.Analyzer) error {
+func (p) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
 	fmt.Printf("Executing hook post %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook, az plugin.Analyzer) error {
+func (p) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
 	fmt.Printf("Executing hook cleanup %q\n", h.Hook.GetName())
 	return nil
 }

@@ -97,7 +97,7 @@ func TestLinkPluginCmds(t *testing.T) {
 				}),
 				mock.Anything,
 			).
-			Run(func(_ context.Context, execCmd *plugin.ExecutedCommand, _ plugin.Analyzer) {
+			Run(func(_ context.Context, execCmd *plugin.ExecutedCommand, _ plugin.ClientAPI) {
 				// Assert execCmd is populated correctly
 				assert.True(t, strings.HasSuffix(execCmd.Path, cmd.Use), "wrong path %s", execCmd.Path)
 				assert.Equal(t, args, execCmd.Args)
@@ -419,8 +419,8 @@ func TestLinkPluginHooks(t *testing.T) {
 						hook.PlaceHookOn == execHook.Hook.PlaceHookOn
 				})
 			}
-			asserter := func(hook *plugin.Hook) func(_ context.Context, hook *plugin.ExecutedHook, _ plugin.Analyzer) {
-				return func(_ context.Context, execHook *plugin.ExecutedHook, _ plugin.Analyzer) {
+			asserter := func(hook *plugin.Hook) func(_ context.Context, hook *plugin.ExecutedHook, _ plugin.ClientAPI) {
+				return func(_ context.Context, execHook *plugin.ExecutedHook, _ plugin.ClientAPI) {
 					assert.True(t, strings.HasSuffix(execHook.ExecutedCommand.Path, hook.PlaceHookOn), "wrong path %q want %q", execHook.ExecutedCommand.Path, hook.PlaceHookOn)
 					assert.Equal(t, args, execHook.ExecutedCommand.Args)
 					assertFlags(t, expectedFlags, execHook.ExecutedCommand)

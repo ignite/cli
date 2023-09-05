@@ -291,91 +291,91 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	AnalyzerService_Dependencies_FullMethodName = "/ignite.services.plugin.grpc.v1.AnalyzerService/Dependencies"
+	ClientAPIService_GetChainInfo_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
 )
 
-// AnalyzerServiceClient is the client API for AnalyzerService service.
+// ClientAPIServiceClient is the client API for ClientAPIService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AnalyzerServiceClient interface {
-	// Dependencies returns the app dependencies.
-	Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error)
+type ClientAPIServiceClient interface {
+	// GetChainInfo returns basic chain info for the configured app
+	GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error)
 }
 
-type analyzerServiceClient struct {
+type clientAPIServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAnalyzerServiceClient(cc grpc.ClientConnInterface) AnalyzerServiceClient {
-	return &analyzerServiceClient{cc}
+func NewClientAPIServiceClient(cc grpc.ClientConnInterface) ClientAPIServiceClient {
+	return &clientAPIServiceClient{cc}
 }
 
-func (c *analyzerServiceClient) Dependencies(ctx context.Context, in *DependenciesRequest, opts ...grpc.CallOption) (*DependenciesResponse, error) {
-	out := new(DependenciesResponse)
-	err := c.cc.Invoke(ctx, AnalyzerService_Dependencies_FullMethodName, in, out, opts...)
+func (c *clientAPIServiceClient) GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error) {
+	out := new(GetChainInfoResponse)
+	err := c.cc.Invoke(ctx, ClientAPIService_GetChainInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AnalyzerServiceServer is the server API for AnalyzerService service.
-// All implementations must embed UnimplementedAnalyzerServiceServer
+// ClientAPIServiceServer is the server API for ClientAPIService service.
+// All implementations must embed UnimplementedClientAPIServiceServer
 // for forward compatibility
-type AnalyzerServiceServer interface {
-	// Dependencies returns the app dependencies.
-	Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error)
-	mustEmbedUnimplementedAnalyzerServiceServer()
+type ClientAPIServiceServer interface {
+	// GetChainInfo returns basic chain info for the configured app
+	GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error)
+	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
-// UnimplementedAnalyzerServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAnalyzerServiceServer struct {
+// UnimplementedClientAPIServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedClientAPIServiceServer struct {
 }
 
-func (UnimplementedAnalyzerServiceServer) Dependencies(context.Context, *DependenciesRequest) (*DependenciesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Dependencies not implemented")
+func (UnimplementedClientAPIServiceServer) GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChainInfo not implemented")
 }
-func (UnimplementedAnalyzerServiceServer) mustEmbedUnimplementedAnalyzerServiceServer() {}
+func (UnimplementedClientAPIServiceServer) mustEmbedUnimplementedClientAPIServiceServer() {}
 
-// UnsafeAnalyzerServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AnalyzerServiceServer will
+// UnsafeClientAPIServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClientAPIServiceServer will
 // result in compilation errors.
-type UnsafeAnalyzerServiceServer interface {
-	mustEmbedUnimplementedAnalyzerServiceServer()
+type UnsafeClientAPIServiceServer interface {
+	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
-func RegisterAnalyzerServiceServer(s grpc.ServiceRegistrar, srv AnalyzerServiceServer) {
-	s.RegisterService(&AnalyzerService_ServiceDesc, srv)
+func RegisterClientAPIServiceServer(s grpc.ServiceRegistrar, srv ClientAPIServiceServer) {
+	s.RegisterService(&ClientAPIService_ServiceDesc, srv)
 }
 
-func _AnalyzerService_Dependencies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DependenciesRequest)
+func _ClientAPIService_GetChainInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChainInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnalyzerServiceServer).Dependencies(ctx, in)
+		return srv.(ClientAPIServiceServer).GetChainInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AnalyzerService_Dependencies_FullMethodName,
+		FullMethod: ClientAPIService_GetChainInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyzerServiceServer).Dependencies(ctx, req.(*DependenciesRequest))
+		return srv.(ClientAPIServiceServer).GetChainInfo(ctx, req.(*GetChainInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// AnalyzerService_ServiceDesc is the grpc.ServiceDesc for AnalyzerService service.
+// ClientAPIService_ServiceDesc is the grpc.ServiceDesc for ClientAPIService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AnalyzerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ignite.services.plugin.grpc.v1.AnalyzerService",
-	HandlerType: (*AnalyzerServiceServer)(nil),
+var ClientAPIService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ignite.services.plugin.grpc.v1.ClientAPIService",
+	HandlerType: (*ClientAPIServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Dependencies",
-			Handler:    _AnalyzerService_Dependencies_Handler,
+			MethodName: "GetChainInfo",
+			Handler:    _ClientAPIService_GetChainInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

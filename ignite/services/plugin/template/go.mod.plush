@@ -4,5 +4,5 @@ go 1.20
 
 require (
 	github.com/hashicorp/go-plugin v1.4.9
-	github.com/ignite/cli v0.27.1
+	github.com/ignite/cli v0.27.2-0.20230904104007-0977ce42d467
 )

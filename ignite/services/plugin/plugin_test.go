@@ -186,13 +186,17 @@ func makeGitRepo(t *testing.T, name string) (string, *git.Repository) {
 	return repoDir, repo
 }
 
+type TestClientAPI struct{ ClientAPI }
+
+func (TestClientAPI) GetChainInfo(context.Context) (*ChainInfo, error) {
+	return &ChainInfo{}, nil
+}
+
 func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 
-	analyzer := &struct {
-		Analyzer
-	}{}
+	clientAPI := &TestClientAPI{}
 
 	tests := []struct {
 		name          string
@@ -359,10 +363,10 @@ func TestPluginLoad(t *testing.T) {
 			manifest, err := p.Interface.Manifest(ctx)
 			require.NoError(err)
 			assert.Equal(p.binaryName, manifest.Name)
-			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{}, analyzer))
-			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}, analyzer))
-			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}, analyzer))
-			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}, analyzer))
+			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{}, clientAPI))
+			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}, clientAPI))
+			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}, clientAPI))
+			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}, clientAPI))
 		})
 	}
 }
