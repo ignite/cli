@@ -186,13 +186,17 @@ func makeGitRepo(t *testing.T, name string) (string, *git.Repository) {
 	return repoDir, repo
 }
 
+type TestClientAPI struct{ ClientAPI }
+
+func (TestClientAPI) GetChainInfo(context.Context) (*ChainInfo, error) {
+	return &ChainInfo{}, nil
+}
+
 func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 
-	clientAPI := &struct {
-		ClientAPI
-	}{}
+	clientAPI := &TestClientAPI{}
 
 	tests := []struct {
 		name          string
