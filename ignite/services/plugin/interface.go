@@ -21,6 +21,7 @@ const (
 type (
 	Command         = v1.Command
 	ChainInfo       = v1.ChainInfo
+	ModuleList      = v1.ModuleList
 	ExecutedCommand = v1.ExecutedCommand
 	ExecutedHook    = v1.ExecutedHook
 	Flag            = v1.Flag
@@ -71,4 +72,5 @@ type Interface interface {
 type ClientAPI interface {
 	// GetChainInfo returns basic info for the configured blockchain app.
 	GetChainInfo(context.Context) (*ChainInfo, error)
+	GetModuleList(context.Context) (*ModuleList, error)
 }
