@@ -217,6 +217,15 @@ func (c clientAPIClient) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
 	return r.ChainInfo, nil
 }
 
+func (c clientAPIClient) GetModuleList(ctx context.Context) (*ModuleList, error) {
+	r, err := c.grpc.GetModuleList(ctx, &v1.GetModuleListRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return r.ModuleList, nil
+}
+
 type clientAPIServer struct {
 	v1.UnimplementedClientAPIServiceServer
 

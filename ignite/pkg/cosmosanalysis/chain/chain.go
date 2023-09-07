@@ -39,7 +39,7 @@ type ModulesInPath struct {
 	Includes []string        `json:"includes,omitempty"`
 }
 type AllModules struct {
-	ModulePaths []ModulesInPath `json:"modules_in_path,omitempty"`
+	ModulePaths []ModulesInPath `json:"go_module,omitempty"`
 }
 
 type Analyzer struct {
