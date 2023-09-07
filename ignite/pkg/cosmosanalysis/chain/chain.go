@@ -97,7 +97,7 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(a.deps)
 	// Discover any custom modules defined by the user's app
 	a.appModules, err = a.discoverModules(a.appPath, a.protoDir)
 	if err != nil {
@@ -124,10 +124,10 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
 			return nil, err
 		}
-
 		// Discover the modules of the dependency package when they are not cached
 		if errors.Is(err, cache.ErrorNotFound) {
 			// Get the absolute path to the package's directory
+			fmt.Println(dep)
 			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, a.appPath, dep)
 			if err != nil {
 				return nil, err
@@ -188,9 +188,17 @@ func GetModuleList(ctx context.Context, appPath, protoPath string, thirdPartyPat
 func (a *Analyzer) getProtoIncludeFolders(modPath string) ([]string, error) {
 	// Read the mod file for this module
 	modFile, err := gomodule.ParseAt(modPath)
+	// var errb bytes.Buffer
 	if err != nil {
 		return nil, err
-	}
+	} /*
+		if err := cmdrunner.
+			New(
+				cmdrunner.DefaultStderr(&errb),
+				cmdrunner.DefaultWorkdir(modPath),
+			).Run(a.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
+			return nil, errors.Wrap(err, errb.String())
+		}*/
 	includePaths := []string{}
 	// Get the imports/deps from the mod file (include indirect)
 	deps, err := gomodule.ResolveDependencies(modFile, true)
@@ -213,7 +221,7 @@ func (a *Analyzer) getProtoIncludeFolders(modPath string) ([]string, error) {
 
 		// If result not already cached
 		if errors.Is(err, cache.ErrorNotFound) {
-			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, a.appPath, dep)
+			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, modPath, dep)
 			if err != nil {
 				return nil, err
 			}
@@ -222,9 +230,8 @@ func (a *Analyzer) getProtoIncludeFolders(modPath string) ([]string, error) {
 				return nil, err
 			}
 		}
-
 		if hasProto {
-			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, a.appPath, dep)
+			path, err := gomodule.LocatePath(a.ctx, a.cacheStorage, modPath, dep)
 			if err != nil {
 				return nil, err
 			}

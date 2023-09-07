@@ -113,7 +113,6 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 	}
 
 	d := json.NewDecoder(out)
-
 	for {
 		var mod struct {
 			Path, Version, Dir string

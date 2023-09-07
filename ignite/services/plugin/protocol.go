@@ -240,3 +240,12 @@ func (s clientAPIServer) GetChainInfo(ctx context.Context, _ *v1.GetChainInfoReq
 
 	return &v1.GetChainInfoResponse{ChainInfo: chainInfo}, nil
 }
+
+func (s clientAPIServer) GetModuleList(ctx context.Context, _ *v1.GetModuleListRequest) (*v1.GetModuleListResponse, error) {
+	moduleList, err := s.impl.GetModuleList(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v1.GetModuleListResponse{ModuleList: moduleList}, nil
+}
