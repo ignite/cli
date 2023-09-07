@@ -291,7 +291,8 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ClientAPIService_GetChainInfo_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
+	ClientAPIService_GetChainInfo_FullMethodName  = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
+	ClientAPIService_GetModuleList_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetModuleList"
 )
 
 // ClientAPIServiceClient is the client API for ClientAPIService service.
@@ -300,6 +301,8 @@ const (
 type ClientAPIServiceClient interface {
 	// GetChainInfo returns basic chain info for the configured app
 	GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error)
+	// GetModuleList returns the app modules and their dependencies.
+	GetModuleList(ctx context.Context, in *GetModuleListRequest, opts ...grpc.CallOption) (*GetModuleListResponse, error)
 }
 
 type clientAPIServiceClient struct {
@@ -319,12 +322,23 @@ func (c *clientAPIServiceClient) GetChainInfo(ctx context.Context, in *GetChainI
 	return out, nil
 }
 
+func (c *clientAPIServiceClient) GetModuleList(ctx context.Context, in *GetModuleListRequest, opts ...grpc.CallOption) (*GetModuleListResponse, error) {
+	out := new(GetModuleListResponse)
+	err := c.cc.Invoke(ctx, ClientAPIService_GetModuleList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientAPIServiceServer is the server API for ClientAPIService service.
 // All implementations must embed UnimplementedClientAPIServiceServer
 // for forward compatibility
 type ClientAPIServiceServer interface {
 	// GetChainInfo returns basic chain info for the configured app
 	GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error)
+	// GetModuleList returns the app modules and their dependencies.
+	GetModuleList(context.Context, *GetModuleListRequest) (*GetModuleListResponse, error)
 	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
@@ -334,6 +348,9 @@ type UnimplementedClientAPIServiceServer struct {
 
 func (UnimplementedClientAPIServiceServer) GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChainInfo not implemented")
+}
+func (UnimplementedClientAPIServiceServer) GetModuleList(context.Context, *GetModuleListRequest) (*GetModuleListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModuleList not implemented")
 }
 func (UnimplementedClientAPIServiceServer) mustEmbedUnimplementedClientAPIServiceServer() {}
 
@@ -366,6 +383,24 @@ func _ClientAPIService_GetChainInfo_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientAPIService_GetModuleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetModuleListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientAPIServiceServer).GetModuleList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientAPIService_GetModuleList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientAPIServiceServer).GetModuleList(ctx, req.(*GetModuleListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientAPIService_ServiceDesc is the grpc.ServiceDesc for ClientAPIService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -376,6 +411,10 @@ var ClientAPIService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetChainInfo",
 			Handler:    _ClientAPIService_GetChainInfo_Handler,
+		},
+		{
+			MethodName: "GetModuleList",
+			Handler:    _ClientAPIService_GetModuleList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -91,6 +91,853 @@ func (x *ChainInfo) GetRpcAddress() string {
 	return ""
 }
 
+type ModuleList struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GoModule []*GoModule `protobuf:"bytes,1,rep,name=go_module,json=goModule,proto3" json:"go_module,omitempty"`
+}
+
+func (x *ModuleList) Reset() {
+	*x = ModuleList{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ModuleList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModuleList) ProtoMessage() {}
+
+func (x *ModuleList) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModuleList.ProtoReflect.Descriptor instead.
+func (*ModuleList) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ModuleList) GetGoModule() []*GoModule {
+	if x != nil {
+		return x.GoModule
+	}
+	return nil
+}
+
+// Dependecy keeps data about Go module dependencies.
+type GoModule struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Path is the absolute path to the Go module.
+	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	// Modules contains the list of modules defined by the dependency.
+	Modules  []*Module `protobuf:"bytes,2,rep,name=modules,proto3" json:"modules,omitempty"`
+	Includes []string  `protobuf:"bytes,3,rep,name=includes,proto3" json:"includes,omitempty"`
+}
+
+func (x *GoModule) Reset() {
+	*x = GoModule{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GoModule) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoModule) ProtoMessage() {}
+
+func (x *GoModule) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoModule.ProtoReflect.Descriptor instead.
+func (*GoModule) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GoModule) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *GoModule) GetModules() []*Module {
+	if x != nil {
+		return x.Modules
+	}
+	return nil
+}
+
+func (x *GoModule) GetIncludes() []string {
+	if x != nil {
+		return x.Includes
+	}
+	return nil
+}
+
+// Module keeps metadata about a Cosmos SDK module.
+type Module struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the module.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Go module path of the app where the module is defined.
+	GoModulePath string `protobuf:"bytes,2,opt,name=go_module_path,json=goModulePath,proto3" json:"go_module_path,omitempty"`
+	// Package contains proto package info.
+	Package *ProtoPackage `protobuf:"bytes,3,opt,name=package,proto3" json:"package,omitempty"`
+	// Messages is the list of sdk.Msg that the module implements.
+	Messages []*Message `protobuf:"bytes,4,rep,name=messages,proto3" json:"messages,omitempty"`
+	// HTTP queries is a list of module queries.
+	HttpQueries []*HTTPQuery `protobuf:"bytes,5,rep,name=http_queries,json=httpQueries,proto3" json:"http_queries,omitempty"`
+	// Types is a list of proto types that could be used by the module.
+	Types []*Type `protobuf:"bytes,6,rep,name=types,proto3" json:"types,omitempty"`
+}
+
+func (x *Module) Reset() {
+	*x = Module{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Module) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Module) ProtoMessage() {}
+
+func (x *Module) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Module.ProtoReflect.Descriptor instead.
+func (*Module) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Module) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Module) GetGoModulePath() string {
+	if x != nil {
+		return x.GoModulePath
+	}
+	return ""
+}
+
+func (x *Module) GetPackage() *ProtoPackage {
+	if x != nil {
+		return x.Package
+	}
+	return nil
+}
+
+func (x *Module) GetMessages() []*Message {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *Module) GetHttpQueries() []*HTTPQuery {
+	if x != nil {
+		return x.HttpQueries
+	}
+	return nil
+}
+
+func (x *Module) GetTypes() []*Type {
+	if x != nil {
+		return x.Types
+	}
+	return nil
+}
+
+// ProtoPackage represents a proto package.
+type ProtoPackage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the proto package.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Path of the proto package.
+	Path string `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	// Files is list of package proto files.
+	Files []*ProtoFile `protobuf:"bytes,3,rep,name=files,proto3" json:"files,omitempty"`
+	// Go import name for the proto package.
+	GoImportName string `protobuf:"bytes,4,opt,name=go_import_name,json=goImportName,proto3" json:"go_import_name,omitempty"`
+	// Messages is list of messages defined within the proto package.
+	Messages []*ProtoMessage `protobuf:"bytes,5,rep,name=messages,proto3" json:"messages,omitempty"`
+	// Services is list of services defined within the proto package.
+	Services []*ProtoService `protobuf:"bytes,6,rep,name=services,proto3" json:"services,omitempty"`
+}
+
+func (x *ProtoPackage) Reset() {
+	*x = ProtoPackage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProtoPackage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProtoPackage) ProtoMessage() {}
+
+func (x *ProtoPackage) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProtoPackage.ProtoReflect.Descriptor instead.
+func (*ProtoPackage) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ProtoPackage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProtoPackage) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *ProtoPackage) GetFiles() []*ProtoFile {
+	if x != nil {
+		return x.Files
+	}
+	return nil
+}
+
+func (x *ProtoPackage) GetGoImportName() string {
+	if x != nil {
+		return x.GoImportName
+	}
+	return ""
+}
+
+func (x *ProtoPackage) GetMessages() []*ProtoMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *ProtoPackage) GetServices() []*ProtoService {
+	if x != nil {
+		return x.Services
+	}
+	return nil
+}
+
+// ProtoFile represents a proto file.
+type ProtoFile struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Path to the file.
+	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	// Dependencies is a list of imported proto packages.
+	Dependencies []string `protobuf:"bytes,2,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
+}
+
+func (x *ProtoFile) Reset() {
+	*x = ProtoFile{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProtoFile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProtoFile) ProtoMessage() {}
+
+func (x *ProtoFile) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProtoFile.ProtoReflect.Descriptor instead.
+func (*ProtoFile) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ProtoFile) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *ProtoFile) GetDependencies() []string {
+	if x != nil {
+		return x.Dependencies
+	}
+	return nil
+}
+
+// ProtoMessage represents a proto message.
+type ProtoMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the message.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Path of the proto file where the message is defined.
+	Path string `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	// Highest field name is the highest field number among fields of the message.
+	// This allows to determine new field number when writing to proto message.
+	HighestFieldNumber int32 `protobuf:"varint,3,opt,name=highest_field_number,json=highestFieldNumber,proto3" json:"highest_field_number,omitempty"`
+	// Fields contains message's field names and types.
+	Fields map[string]string `protobuf:"bytes,4,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+}
+
+func (x *ProtoMessage) Reset() {
+	*x = ProtoMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProtoMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProtoMessage) ProtoMessage() {}
+
+func (x *ProtoMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProtoMessage.ProtoReflect.Descriptor instead.
+func (*ProtoMessage) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProtoMessage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProtoMessage) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *ProtoMessage) GetHighestFieldNumber() int32 {
+	if x != nil {
+		return x.HighestFieldNumber
+	}
+	return 0
+}
+
+func (x *ProtoMessage) GetFields() map[string]string {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+// ProtoService represents a proto RPC service.
+type ProtoService struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the service.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Functions is a list of RPC functions.
+	Functions []*ProtoServiceFunc `protobuf:"bytes,2,rep,name=functions,proto3" json:"functions,omitempty"`
+}
+
+func (x *ProtoService) Reset() {
+	*x = ProtoService{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProtoService) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProtoService) ProtoMessage() {}
+
+func (x *ProtoService) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProtoService.ProtoReflect.Descriptor instead.
+func (*ProtoService) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ProtoService) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProtoService) GetFunctions() []*ProtoServiceFunc {
+	if x != nil {
+		return x.Functions
+	}
+	return nil
+}
+
+// Proto service func represents a proto RPC function.
+type ProtoServiceFunc struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the RPC function.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Request type is the request type of the RPC function.
+	RequestType string `protobuf:"bytes,2,opt,name=request_type,json=requestType,proto3" json:"request_type,omitempty"`
+	// Return type is the return type of the RPC function.
+	ReturnType string `protobuf:"bytes,3,opt,name=return_type,json=returnType,proto3" json:"return_type,omitempty"`
+	// Paginated indicates that the function is using pagination.
+	Paginated bool `protobuf:"varint,4,opt,name=paginated,proto3" json:"paginated,omitempty"`
+	// HTTP rules keeps info about HTTP annotations of query.
+	HttpRules []*HTTPRule `protobuf:"bytes,5,rep,name=http_rules,json=httpRules,proto3" json:"http_rules,omitempty"`
+}
+
+func (x *ProtoServiceFunc) Reset() {
+	*x = ProtoServiceFunc{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProtoServiceFunc) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProtoServiceFunc) ProtoMessage() {}
+
+func (x *ProtoServiceFunc) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProtoServiceFunc.ProtoReflect.Descriptor instead.
+func (*ProtoServiceFunc) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ProtoServiceFunc) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProtoServiceFunc) GetRequestType() string {
+	if x != nil {
+		return x.RequestType
+	}
+	return ""
+}
+
+func (x *ProtoServiceFunc) GetReturnType() string {
+	if x != nil {
+		return x.ReturnType
+	}
+	return ""
+}
+
+func (x *ProtoServiceFunc) GetPaginated() bool {
+	if x != nil {
+		return x.Paginated
+	}
+	return false
+}
+
+func (x *ProtoServiceFunc) GetHttpRules() []*HTTPRule {
+	if x != nil {
+		return x.HttpRules
+	}
+	return nil
+}
+
+// Message keeps metadata about an sdk.Msg implementation.
+type Message struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the type.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// URI of the type.
+	Uri string `protobuf:"bytes,2,opt,name=uri,proto3" json:"uri,omitempty"`
+	// File path is the path of the proto file where message is defined.
+	FilePath string `protobuf:"bytes,3,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+}
+
+func (x *Message) Reset() {
+	*x = Message{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Message) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Message) ProtoMessage() {}
+
+func (x *Message) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Message.ProtoReflect.Descriptor instead.
+func (*Message) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *Message) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Message) GetUri() string {
+	if x != nil {
+		return x.Uri
+	}
+	return ""
+}
+
+func (x *Message) GetFilePath() string {
+	if x != nil {
+		return x.FilePath
+	}
+	return ""
+}
+
+// HTTPQuery is an SDK query.
+type HTTPQuery struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name of the RPC function.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Full name of the query with service name and RPC function name.
+	FullName string `protobuf:"bytes,2,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
+	// Paginated indicates that the query is using pagination.
+	Paginated bool `protobuf:"varint,3,opt,name=paginated,proto3" json:"paginated,omitempty"`
+	// HTTP rules keeps info about HTTP annotations of query.
+	Rules []*HTTPRule `protobuf:"bytes,4,rep,name=rules,proto3" json:"rules,omitempty"`
+}
+
+func (x *HTTPQuery) Reset() {
+	*x = HTTPQuery{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *HTTPQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HTTPQuery) ProtoMessage() {}
+
+func (x *HTTPQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HTTPQuery.ProtoReflect.Descriptor instead.
+func (*HTTPQuery) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *HTTPQuery) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *HTTPQuery) GetFullName() string {
+	if x != nil {
+		return x.FullName
+	}
+	return ""
+}
+
+func (x *HTTPQuery) GetPaginated() bool {
+	if x != nil {
+		return x.Paginated
+	}
+	return false
+}
+
+func (x *HTTPQuery) GetRules() []*HTTPRule {
+	if x != nil {
+		return x.Rules
+	}
+	return nil
+}
+
+// HTTP rule keeps info about a configured HTTP rule of an RPC function.
+type HTTPRule struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Params is a list of parameters defined in the HTTP endpoint itself.
+	Params []string `protobuf:"bytes,1,rep,name=params,proto3" json:"params,omitempty"`
+	// Has query indicates if there is a request query.
+	HasQuery bool `protobuf:"varint,2,opt,name=has_query,json=hasQuery,proto3" json:"has_query,omitempty"`
+	// Has body indicates if there is a request payload.
+	HasBody bool `protobuf:"varint,3,opt,name=has_body,json=hasBody,proto3" json:"has_body,omitempty"`
+}
+
+func (x *HTTPRule) Reset() {
+	*x = HTTPRule{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *HTTPRule) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HTTPRule) ProtoMessage() {}
+
+func (x *HTTPRule) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HTTPRule.ProtoReflect.Descriptor instead.
+func (*HTTPRule) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *HTTPRule) GetParams() []string {
+	if x != nil {
+		return x.Params
+	}
+	return nil
+}
+
+func (x *HTTPRule) GetHasQuery() bool {
+	if x != nil {
+		return x.HasQuery
+	}
+	return false
+}
+
+func (x *HTTPRule) GetHasBody() bool {
+	if x != nil {
+		return x.HasBody
+	}
+	return false
+}
+
+// Type is a proto type.
+type Type struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Name pf the type.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// File path is the path of the .proto file where message is defined at.
+	FilePath string `protobuf:"bytes,2,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+}
+
+func (x *Type) Reset() {
+	*x = Type{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Type) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Type) ProtoMessage() {}
+
+func (x *Type) ProtoReflect() protoreflect.Message {
+	mi := &file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Type.ProtoReflect.Descriptor instead.
+func (*Type) Descriptor() ([]byte, []int) {
+	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *Type) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Type) GetFilePath() string {
+	if x != nil {
+		return x.FilePath
+	}
+	return ""
+}
+
 var File_ignite_services_plugin_grpc_v1_client_api_proto protoreflect.FileDescriptor
 
 var file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc = []byte{
@@ -107,11 +954,129 @@ var file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc = []byte{
 	0x70, 0x61, 0x74, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x63, 0x6f, 0x6e, 0x66,
 	0x69, 0x67, 0x50, 0x61, 0x74, 0x68, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x70, 0x63, 0x5f, 0x61, 0x64,
 	0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x70, 0x63,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x42, 0x36, 0x5a, 0x34, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2f, 0x63, 0x6c, 0x69,
-	0x2f, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73,
-	0x2f, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x76, 0x31, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0x53, 0x0a, 0x0a, 0x4d, 0x6f, 0x64, 0x75, 0x6c,
+	0x65, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x45, 0x0a, 0x09, 0x67, 0x6f, 0x5f, 0x6d, 0x6f, 0x64, 0x75,
+	0x6c, 0x65, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x28, 0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74,
+	0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69,
+	0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x6f, 0x4d, 0x6f, 0x64, 0x75,
+	0x6c, 0x65, 0x52, 0x08, 0x67, 0x6f, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x22, 0x7c, 0x0a, 0x08,
+	0x47, 0x6f, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x12, 0x40, 0x0a, 0x07,
+	0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x26, 0x2e,
+	0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e,
+	0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4d,
+	0x6f, 0x64, 0x75, 0x6c, 0x65, 0x52, 0x07, 0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x73, 0x12, 0x1a,
+	0x0a, 0x08, 0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x08, 0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x73, 0x22, 0xd9, 0x02, 0x0a, 0x06, 0x4d,
+	0x6f, 0x64, 0x75, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x24, 0x0a, 0x0e, 0x67, 0x6f, 0x5f,
+	0x6d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x74, 0x68, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0c, 0x67, 0x6f, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x12,
+	0x46, 0x0a, 0x07, 0x70, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x2c, 0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76,
+	0x31, 0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x52, 0x07,
+	0x70, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x12, 0x43, 0x0a, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x69, 0x67, 0x6e, 0x69,
+	0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67,
+	0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x52, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x12, 0x4c, 0x0a, 0x0c,
+	0x68, 0x74, 0x74, 0x70, 0x5f, 0x71, 0x75, 0x65, 0x72, 0x69, 0x65, 0x73, 0x18, 0x05, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x29, 0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63,
+	0x2e, 0x76, 0x31, 0x2e, 0x48, 0x54, 0x54, 0x50, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x0b, 0x68,
+	0x74, 0x74, 0x70, 0x51, 0x75, 0x65, 0x72, 0x69, 0x65, 0x73, 0x12, 0x3a, 0x0a, 0x05, 0x74, 0x79,
+	0x70, 0x65, 0x73, 0x18, 0x06, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x69, 0x67, 0x6e, 0x69,
+	0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67,
+	0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x79, 0x70, 0x65, 0x52,
+	0x05, 0x74, 0x79, 0x70, 0x65, 0x73, 0x22, 0xb1, 0x02, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x74, 0x6f,
+	0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70,
+	0x61, 0x74, 0x68, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x12,
+	0x3f, 0x0a, 0x05, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x29,
+	0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73,
+	0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e,
+	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x05, 0x66, 0x69, 0x6c, 0x65, 0x73,
+	0x12, 0x24, 0x0a, 0x0e, 0x67, 0x6f, 0x5f, 0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x5f, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x67, 0x6f, 0x49, 0x6d, 0x70, 0x6f,
+	0x72, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x48, 0x0a, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74,
+	0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69,
+	0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x4d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x12, 0x48, 0x0a, 0x08, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x18, 0x06, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63,
+	0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x52, 0x08, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x22, 0x43, 0x0a, 0x09, 0x50, 0x72,
+	0x6f, 0x74, 0x6f, 0x46, 0x69, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x12, 0x22, 0x0a, 0x0c, 0x64,
+	0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x63, 0x69, 0x65, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28,
+	0x09, 0x52, 0x0c, 0x64, 0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x63, 0x69, 0x65, 0x73, 0x22,
+	0xf5, 0x01, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x6e, 0x61, 0x6d, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x12, 0x30, 0x0a, 0x14, 0x68, 0x69, 0x67, 0x68,
+	0x65, 0x73, 0x74, 0x5f, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x12, 0x68, 0x69, 0x67, 0x68, 0x65, 0x73, 0x74, 0x46,
+	0x69, 0x65, 0x6c, 0x64, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x50, 0x0a, 0x06, 0x66, 0x69,
+	0x65, 0x6c, 0x64, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x38, 0x2e, 0x69, 0x67, 0x6e,
+	0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75,
+	0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x74,
+	0x6f, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x45,
+	0x6e, 0x74, 0x72, 0x79, 0x52, 0x06, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x1a, 0x39, 0x0a, 0x0b,
+	0x46, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b,
+	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a,
+	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x72, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x74, 0x6f,
+	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x4e, 0x0a, 0x09, 0x66,
+	0x75, 0x6e, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x30,
+	0x2e, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73,
+	0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e,
+	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x46, 0x75, 0x6e, 0x63,
+	0x52, 0x09, 0x66, 0x75, 0x6e, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0xd1, 0x01, 0x0a, 0x10,
+	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x46, 0x75, 0x6e, 0x63,
+	0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x6e, 0x61, 0x6d, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x5f,
+	0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x72, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x74, 0x75, 0x72,
+	0x6e, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65,
+	0x74, 0x75, 0x72, 0x6e, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x70, 0x61, 0x67, 0x69,
+	0x6e, 0x61, 0x74, 0x65, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x09, 0x70, 0x61, 0x67,
+	0x69, 0x6e, 0x61, 0x74, 0x65, 0x64, 0x12, 0x47, 0x0a, 0x0a, 0x68, 0x74, 0x74, 0x70, 0x5f, 0x72,
+	0x75, 0x6c, 0x65, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x28, 0x2e, 0x69, 0x67, 0x6e,
+	0x69, 0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75,
+	0x67, 0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x48, 0x54, 0x54, 0x50,
+	0x52, 0x75, 0x6c, 0x65, 0x52, 0x09, 0x68, 0x74, 0x74, 0x70, 0x52, 0x75, 0x6c, 0x65, 0x73, 0x22,
+	0x4c, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x10,
+	0x0a, 0x03, 0x75, 0x72, 0x69, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x75, 0x72, 0x69,
+	0x12, 0x1b, 0x0a, 0x09, 0x66, 0x69, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x74, 0x68, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x22, 0x9a, 0x01,
+	0x0a, 0x09, 0x48, 0x54, 0x54, 0x50, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x6e,
+	0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12,
+	0x1b, 0x0a, 0x09, 0x66, 0x75, 0x6c, 0x6c, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x08, 0x66, 0x75, 0x6c, 0x6c, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x1c, 0x0a, 0x09,
+	0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x09, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x65, 0x64, 0x12, 0x3e, 0x0a, 0x05, 0x72, 0x75,
+	0x6c, 0x65, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x28, 0x2e, 0x69, 0x67, 0x6e, 0x69,
+	0x74, 0x65, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2e, 0x70, 0x6c, 0x75, 0x67,
+	0x69, 0x6e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x48, 0x54, 0x54, 0x50, 0x52,
+	0x75, 0x6c, 0x65, 0x52, 0x05, 0x72, 0x75, 0x6c, 0x65, 0x73, 0x22, 0x5a, 0x0a, 0x08, 0x48, 0x54,
+	0x54, 0x50, 0x52, 0x75, 0x6c, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x1b,
+	0x0a, 0x09, 0x68, 0x61, 0x73, 0x5f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x08, 0x68, 0x61, 0x73, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x19, 0x0a, 0x08, 0x68,
+	0x61, 0x73, 0x5f, 0x62, 0x6f, 0x64, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x68,
+	0x61, 0x73, 0x42, 0x6f, 0x64, 0x79, 0x22, 0x37, 0x0a, 0x04, 0x54, 0x79, 0x70, 0x65, 0x12, 0x12,
+	0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x66, 0x69, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x74, 0x68, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x42,
+	0x36, 0x5a, 0x34, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x69, 0x67,
+	0x6e, 0x69, 0x74, 0x65, 0x2f, 0x63, 0x6c, 0x69, 0x2f, 0x69, 0x67, 0x6e, 0x69, 0x74, 0x65, 0x2f,
+	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2f,
+	0x67, 0x72, 0x70, 0x63, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -126,16 +1091,42 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescGZIP() []byte {
 	return file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescData
 }
 
-var file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_ignite_services_plugin_grpc_v1_client_api_proto_goTypes = []interface{}{
-	(*ChainInfo)(nil), // 0: ignite.services.plugin.grpc.v1.ChainInfo
+	(*ChainInfo)(nil),        // 0: ignite.services.plugin.grpc.v1.ChainInfo
+	(*ModuleList)(nil),       // 1: ignite.services.plugin.grpc.v1.ModuleList
+	(*GoModule)(nil),         // 2: ignite.services.plugin.grpc.v1.GoModule
+	(*Module)(nil),           // 3: ignite.services.plugin.grpc.v1.Module
+	(*ProtoPackage)(nil),     // 4: ignite.services.plugin.grpc.v1.ProtoPackage
+	(*ProtoFile)(nil),        // 5: ignite.services.plugin.grpc.v1.ProtoFile
+	(*ProtoMessage)(nil),     // 6: ignite.services.plugin.grpc.v1.ProtoMessage
+	(*ProtoService)(nil),     // 7: ignite.services.plugin.grpc.v1.ProtoService
+	(*ProtoServiceFunc)(nil), // 8: ignite.services.plugin.grpc.v1.ProtoServiceFunc
+	(*Message)(nil),          // 9: ignite.services.plugin.grpc.v1.Message
+	(*HTTPQuery)(nil),        // 10: ignite.services.plugin.grpc.v1.HTTPQuery
+	(*HTTPRule)(nil),         // 11: ignite.services.plugin.grpc.v1.HTTPRule
+	(*Type)(nil),             // 12: ignite.services.plugin.grpc.v1.Type
+	nil,                      // 13: ignite.services.plugin.grpc.v1.ProtoMessage.FieldsEntry
 }
 var file_ignite_services_plugin_grpc_v1_client_api_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2,  // 0: ignite.services.plugin.grpc.v1.ModuleList.go_module:type_name -> ignite.services.plugin.grpc.v1.GoModule
+	3,  // 1: ignite.services.plugin.grpc.v1.GoModule.modules:type_name -> ignite.services.plugin.grpc.v1.Module
+	4,  // 2: ignite.services.plugin.grpc.v1.Module.package:type_name -> ignite.services.plugin.grpc.v1.ProtoPackage
+	9,  // 3: ignite.services.plugin.grpc.v1.Module.messages:type_name -> ignite.services.plugin.grpc.v1.Message
+	10, // 4: ignite.services.plugin.grpc.v1.Module.http_queries:type_name -> ignite.services.plugin.grpc.v1.HTTPQuery
+	12, // 5: ignite.services.plugin.grpc.v1.Module.types:type_name -> ignite.services.plugin.grpc.v1.Type
+	5,  // 6: ignite.services.plugin.grpc.v1.ProtoPackage.files:type_name -> ignite.services.plugin.grpc.v1.ProtoFile
+	6,  // 7: ignite.services.plugin.grpc.v1.ProtoPackage.messages:type_name -> ignite.services.plugin.grpc.v1.ProtoMessage
+	7,  // 8: ignite.services.plugin.grpc.v1.ProtoPackage.services:type_name -> ignite.services.plugin.grpc.v1.ProtoService
+	13, // 9: ignite.services.plugin.grpc.v1.ProtoMessage.fields:type_name -> ignite.services.plugin.grpc.v1.ProtoMessage.FieldsEntry
+	8,  // 10: ignite.services.plugin.grpc.v1.ProtoService.functions:type_name -> ignite.services.plugin.grpc.v1.ProtoServiceFunc
+	11, // 11: ignite.services.plugin.grpc.v1.ProtoServiceFunc.http_rules:type_name -> ignite.services.plugin.grpc.v1.HTTPRule
+	11, // 12: ignite.services.plugin.grpc.v1.HTTPQuery.rules:type_name -> ignite.services.plugin.grpc.v1.HTTPRule
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_ignite_services_plugin_grpc_v1_client_api_proto_init() }
@@ -156,6 +1147,150 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 				return nil
 			}
 		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ModuleList); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GoModule); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Module); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProtoPackage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProtoFile); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProtoMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProtoService); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProtoServiceFunc); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Message); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*HTTPQuery); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*HTTPRule); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_ignite_services_plugin_grpc_v1_client_api_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Type); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -163,7 +1298,7 @@ func file_ignite_services_plugin_grpc_v1_client_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

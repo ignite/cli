@@ -76,11 +76,17 @@ service ClientAPIService {
   // GetChainInfo returns basic chain info for the configured app
   rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
 
-  // Dependencies returns the app dependencies.
-  //rpc Dependencies(DependenciesRequest) returns (DependenciesResponse);
+  // GetModuleList returns the app modules and their dependencies.
+  rpc GetModuleList(GetModuleListRequest) returns (GetModuleListResponse);
 }
 message GetChainInfoRequest {}
 
 message GetChainInfoResponse {
   ChainInfo chain_info = 1;
+}
+
+message GetModuleListRequest {}
+
+message GetModuleListResponse {
+  ModuleList module_list = 1;
 }
