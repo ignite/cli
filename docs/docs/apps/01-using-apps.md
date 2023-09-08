@@ -15,7 +15,7 @@ To use an app within your project execute the following command inside the
 project directory:
 
 ```sh
-ignite app install github.com/project/cli-plugin
+ignite app install github.com/project/cli-app
 ```
 
 The app will be available only when running `ignite` inside the project
@@ -24,7 +24,7 @@ directory.
 To use an app globally on the other hand, execute the following command:
 
 ```sh
-ignite app install -g github.com/project/cli-plugin
+ignite app install -g github.com/project/cli-app
 ```
 
 The command will compile the app and make it immediately available to the
