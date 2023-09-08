@@ -31,6 +31,8 @@ type ModulesInPath struct {
 	Modules []module.Module
 }
 
+var protoFound = errors.New("Proto file found") // Hacky way to terminate dir walk early
+
 func (g *generator) setup() (err error) {
 	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
 	// blockchain apps. Generate should be aware of these and make them available to the blockchain
@@ -128,6 +130,26 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
+func (g *generator) checkForProto(modpath string) (bool, error) {
+	err := filepath.Walk(modpath,
+		func(path string, _ os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if filepath.Ext(path) == ".proto" {
+				return protoFound
+			}
+			return nil
+		})
+	if err == protoFound {
+		return true, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return false, nil
+}
+
 func (g *generator) resolveDependencyInclude() ([]string, error) {
 	// Init paths with the global include paths for protoc
 	paths, err := protocGlobalInclude()
@@ -140,6 +162,20 @@ func (g *generator) resolveDependencyInclude() ([]string, error) {
 
 	// Create a list of proto import paths for the dependencies.
 	// These paths will be available to be imported from the chain app's proto files.
+	for _, dep := range g.deps {
+
+		path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
+		if err != nil {
+			return nil, err
+		}
+		hasProto, err := g.checkForProto(path)
+		if err != nil {
+			return nil, err
+		}
+		if hasProto {
+			paths = append(paths, path)
+		}
+	}
 	for rootPath, m := range g.thirdModules {
 		// Skip modules without proto files
 		if m == nil {
