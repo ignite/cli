@@ -46,7 +46,10 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	if err == nil {
 		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
 	}
-	ensureDefaultPlugins(cmd, globalCfg)
+
+	if err = ensureDefaultPlugins(cmd, globalCfg); err != nil {
+		return err
+	}
 
 	if len(pluginsConfigs) == 0 {
 		return nil

@@ -3,6 +3,7 @@ package network_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,19 +14,18 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
-	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xgit"
+	"github.com/ignite/cli/ignite/services/plugin"
 	envtest "github.com/ignite/cli/integration"
 )
 
 const (
-	spnModule            = "github.com/tendermint/spn"
-	spnRepoURL           = "https://" + spnModule
-	spnConfigFile        = "config_2.yml"
-	pluginNetworkRepoURL = "https://" + ignitecmd.PluginNetworkPath
+	spnModule     = "github.com/tendermint/spn"
+	spnRepoURL    = "https://" + spnModule
+	spnConfigFile = "config_2.yml"
 )
 
 // setupSPN executes the following tasks:
@@ -43,9 +43,12 @@ func setupSPN(env envtest.Env) string {
 		spnVersion string
 	)
 	// Clone the cli-plugin-network with the expected version
-	err := xgit.Clone(context.Background(), pluginNetworkRepoURL, pluginPath)
+	p, err := plugin.GetDefaultNetworkPlugin()
 	require.NoError(err)
-	t.Logf("Checkout cli-plugin-revision to ref %q", ignitecmd.PluginNetworkPath)
+	pluginNetworkRepoURL := fmt.Sprintf("https://%s", p.Path)
+	err = xgit.Clone(context.Background(), pluginNetworkRepoURL, pluginPath)
+	require.NoError(err)
+	t.Logf("Checkout cli-plugin-revision to ref %q", p.Path)
 	// Add plugin to config
 	env.Must(env.Exec("add plugin network",
 		step.NewSteps(step.New(

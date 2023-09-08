@@ -34,7 +34,8 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := &cobra.Command{Use: "ignite"}
 
-			ensureDefaultPlugins(cmd, tt.cfg)
+			err := ensureDefaultPlugins(cmd, tt.cfg)
+			assert.NoError(t, err)
 
 			expectedCmd := findCommandByPath(cmd, "ignite network")
 			if tt.expectAddedInCommand {
