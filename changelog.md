@@ -7,6 +7,7 @@
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3650](https://github.com/ignite/cli/pull/3650) Support changing default Ignite Apps from Markdown file
 
 ### Changes
 
