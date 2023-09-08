@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -15,11 +14,15 @@ import (
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
-	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	"github.com/ignite/cli/ignite/pkg/xos"
+	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
-var dirchangeCacheNamespace = "generate.typescript.dirchange"
+var (
+	dirchangeCacheNamespace = "generate.typescript.dirchange"
+	jsOpenAPIOut            = []string{"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:."}
+	tsOut                   = []string{"--ts_proto_out=."}
+)
 
 type tsGenerator struct {
 	g *generator
@@ -75,11 +78,21 @@ func (g *generator) generateTS() error {
 	return tsg.generateRootTemplates(data)
 }
 
-func (g *tsGenerator) tsTemplate() string {
-	return filepath.Join(g.g.appPath, g.g.protoDir, "buf.gen.ts.yaml")
-}
-
 func (g *tsGenerator) generateModuleTemplates() error {
+	protocCmd, cleanupProtoc, err := protoc.Command()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupProtoc()
+
+	tsprotoPluginPath, cleanupPlugin, err := tsproto.BinaryPath()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupPlugin()
+
 	staCmd, cleanupSTA, err := sta.Command()
 	if err != nil {
 		return err
@@ -111,7 +124,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 					}
 				}
 
-				err = g.generateModuleTemplate(g.g.ctx, staCmd, sourcePath, m)
+				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)
 				if err != nil {
 					return err
 				}
@@ -137,33 +150,37 @@ func (g *tsGenerator) generateModuleTemplates() error {
 
 func (g *tsGenerator) generateModuleTemplate(
 	ctx context.Context,
+	protocCmd protoc.Cmd,
 	staCmd sta.Cmd,
-	appPath string,
+	tsprotoPluginPath, appPath string,
 	m module.Module,
 ) error {
 	var (
 		out      = g.g.o.jsOut(m)
 		typesOut = filepath.Join(out, "types")
-		conf     = swaggercombine.Config{
-			Swagger: "2.0",
-			Info: swaggercombine.Info{
-				Title: "HTTP API Console",
-			},
-		}
 	)
+
+	includePaths, err := g.g.resolveInclude(appPath)
+	if err != nil {
+		return err
+	}
 
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 
 	// generate ts-proto types
-	if err := g.g.buf.Generate(
+	err = protoc.Generate(
 		ctx,
-		m.Pkg.Path,
 		typesOut,
-		g.tsTemplate(),
-		"module.proto",
-	); err != nil {
+		m.Pkg.Path,
+		includePaths,
+		tsOut,
+		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=true", "--ts_proto_opt=esModuleInterop=true"),
+		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
+		protoc.WithCommand(protocCmd),
+	)
+	if err != nil {
 		return err
 	}
 
@@ -175,36 +192,24 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	defer os.RemoveAll(tmp)
 
-	if err := g.g.buf.Generate(
+	err = protoc.Generate(
 		ctx,
-		m.Pkg.Path,
 		tmp,
-		g.g.openAPITemplate(),
-		"module.proto",
-	); err != nil {
-		return err
-	}
-
-	// combine all swagger files
-	specs, err := xos.FindFiles(tmp, xos.JSONFile)
+		m.Pkg.Path,
+		includePaths,
+		jsOpenAPIOut,
+		protoc.WithCommand(protocCmd),
+	)
 	if err != nil {
 		return err
 	}
 
-	for _, spec := range specs {
-		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
-			return err
-		}
-	}
-
-	// combine specs into one and save to out.
-	srcSpec := filepath.Join(tmp, "apidocs.swagger.json")
-	if err := swaggercombine.Combine(ctx, conf, srcSpec); err != nil {
-		return err
-	}
-
 	// generate the REST client from the OpenAPI spec
-	outREST := filepath.Join(out, "rest.ts")
+	var (
+		srcSpec = filepath.Join(tmp, "apidocs.swagger.json")
+		outREST = filepath.Join(out, "rest.ts")
+	)
+
 	if err := sta.Generate(ctx, outREST, srcSpec, sta.WithCommand(staCmd)); err != nil {
 		return err
 	}
