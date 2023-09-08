@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	moduleCacheNamespace = "generate.setup.module"
+	moduleCacheNamespace       = "generate.setup.module"
+	includeProtoCacheNamespace = "generator.includes.proto"
 )
 
 var protocGlobalInclude = xfilepath.List(
@@ -130,6 +131,64 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
+func (g *generator) getProtoIncludeFolders(modPath string) ([]string, error) {
+	// Read the mod file for this module
+	modFile, err := gomodule.ParseAt(modPath)
+	var errb bytes.Buffer
+	if err != nil {
+		return nil, err
+	}
+
+	// Cache this go_module's dependencies locally
+	if err := cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(&errb),
+			cmdrunner.DefaultWorkdir(modPath),
+		).Run(g.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
+		return nil, errors.Wrap(err, errb.String())
+	}
+	includePaths := []string{}
+	// Get the imports/deps from the mod file (exclude indirect)
+	deps, err := gomodule.ResolveDependencies(modFile, false)
+	if err != nil {
+		return nil, err
+	}
+	// Initialize include cache for proto checking (lots of common includes across modules. No need to traverse repeatedly)
+	includeProtoCache := cache.New[bool](g.cacheStorage, includeProtoCacheNamespace)
+
+	for _, dep := range deps {
+
+		// Check for proto file in this dependency
+		cacheKey := cache.Key(dep.Path, dep.Version)
+		hasProto, err := includeProtoCache.Get(cacheKey)
+
+		// Return unexpected error
+		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
+			return nil, err
+		}
+
+		// If result not already cached
+		if errors.Is(err, cache.ErrorNotFound) {
+			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, modPath, dep)
+			if err != nil {
+				return nil, err
+			}
+			hasProto, err = g.checkForProto(path)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if hasProto {
+			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, modPath, dep)
+			if err != nil {
+				return nil, err
+			}
+			includePaths = append(includePaths, path)
+		}
+	}
+	return includePaths, nil
+}
+
 func (g *generator) checkForProto(modpath string) (bool, error) {
 	err := filepath.Walk(modpath,
 		func(path string, _ os.FileInfo, err error) error {
@@ -163,7 +222,6 @@ func (g *generator) resolveDependencyInclude() ([]string, error) {
 	// Create a list of proto import paths for the dependencies.
 	// These paths will be available to be imported from the chain app's proto files.
 	for _, dep := range g.deps {
-
 		path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
 		if err != nil {
 			return nil, err
@@ -172,8 +230,16 @@ func (g *generator) resolveDependencyInclude() ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+		// If this go module contains proto files add it to the includes
 		if hasProto {
 			paths = append(paths, path)
+			// Look for indirect proto dependencies
+			additionalPaths, err := g.getProtoIncludeFolders(path)
+			if err != nil {
+				return nil, err
+			}
+
+			paths = append(paths, additionalPaths...)
 		}
 	}
 	for rootPath, m := range g.thirdModules {
