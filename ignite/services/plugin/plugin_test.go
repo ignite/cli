@@ -55,8 +55,8 @@ func TestNewPlugin(t *testing.T) {
 			name:      "ok: local plugin",
 			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata")},
 			expectedPlugin: Plugin{
-				srcPath:    path.Join(wd, "testdata"),
-				binaryName: "testdata",
+				srcPath: path.Join(wd, "testdata"),
+				name:    "testdata",
 			},
 		},
 		{
@@ -77,72 +77,72 @@ func TestNewPlugin(t *testing.T) {
 			name:      "ok: remote plugin",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin"},
 			expectedPlugin: Plugin{
-				repoPath:   "github.com/ignite/plugin",
-				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin",
-				reference:  "",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin",
-				binaryName: "plugin",
+				repoPath:  "github.com/ignite/plugin",
+				cloneURL:  "https://github.com/ignite/plugin",
+				cloneDir:  ".ignite/plugins/github.com/ignite/plugin",
+				reference: "",
+				srcPath:   ".ignite/plugins/github.com/ignite/plugin",
+				name:      "plugin",
 			},
 		},
 		{
 			name:      "ok: remote plugin with @ref",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin@develop"},
 			expectedPlugin: Plugin{
-				repoPath:   "github.com/ignite/plugin@develop",
-				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-develop",
-				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin-develop",
-				binaryName: "plugin",
+				repoPath:  "github.com/ignite/plugin@develop",
+				cloneURL:  "https://github.com/ignite/plugin",
+				cloneDir:  ".ignite/plugins/github.com/ignite/plugin-develop",
+				reference: "develop",
+				srcPath:   ".ignite/plugins/github.com/ignite/plugin-develop",
+				name:      "plugin",
 			},
 		},
 		{
 			name:      "ok: remote plugin with @ref containing slash",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin@package/v1.0.0"},
 			expectedPlugin: Plugin{
-				repoPath:   "github.com/ignite/plugin@package/v1.0.0",
-				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
-				reference:  "package/v1.0.0",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
-				binaryName: "plugin",
+				repoPath:  "github.com/ignite/plugin@package/v1.0.0",
+				cloneURL:  "https://github.com/ignite/plugin",
+				cloneDir:  ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				reference: "package/v1.0.0",
+				srcPath:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				name:      "plugin",
 			},
 		},
 		{
 			name:      "ok: remote plugin with subpath",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1"},
 			expectedPlugin: Plugin{
-				repoPath:   "github.com/ignite/plugin",
-				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin",
-				reference:  "",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin/plugin1",
-				binaryName: "plugin1",
+				repoPath:  "github.com/ignite/plugin",
+				cloneURL:  "https://github.com/ignite/plugin",
+				cloneDir:  ".ignite/plugins/github.com/ignite/plugin",
+				reference: "",
+				srcPath:   ".ignite/plugins/github.com/ignite/plugin/plugin1",
+				name:      "plugin1",
 			},
 		},
 		{
 			name:      "ok: remote plugin with subpath and @ref",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1@develop"},
 			expectedPlugin: Plugin{
-				repoPath:   "github.com/ignite/plugin@develop",
-				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-develop",
-				reference:  "develop",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin-develop/plugin1",
-				binaryName: "plugin1",
+				repoPath:  "github.com/ignite/plugin@develop",
+				cloneURL:  "https://github.com/ignite/plugin",
+				cloneDir:  ".ignite/plugins/github.com/ignite/plugin-develop",
+				reference: "develop",
+				srcPath:   ".ignite/plugins/github.com/ignite/plugin-develop/plugin1",
+				name:      "plugin1",
 			},
 		},
 		{
 			name:      "ok: remote plugin with subpath and @ref containing slash",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/plugin/plugin1@package/v1.0.0"},
 			expectedPlugin: Plugin{
-				repoPath:   "github.com/ignite/plugin@package/v1.0.0",
-				cloneURL:   "https://github.com/ignite/plugin",
-				cloneDir:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
-				reference:  "package/v1.0.0",
-				srcPath:    ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0/plugin1",
-				binaryName: "plugin1",
+				repoPath:  "github.com/ignite/plugin@package/v1.0.0",
+				cloneURL:  "https://github.com/ignite/plugin",
+				cloneDir:  ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0",
+				reference: "package/v1.0.0",
+				srcPath:   ".ignite/plugins/github.com/ignite/plugin-package-v1.0.0/plugin1",
+				name:      "plugin1",
 			},
 		},
 	}
@@ -202,8 +202,8 @@ func TestPluginLoad(t *testing.T) {
 			name: "fail: no go files in srcPath",
 			buildPlugin: func(t *testing.T) Plugin {
 				return Plugin{
-					srcPath:    path.Join(wd, "testdata"),
-					binaryName: "testdata",
+					srcPath: path.Join(wd, "testdata"),
+					name:    "testdata",
 				}
 			},
 			expectedError: `no Go files in`,
@@ -213,8 +213,8 @@ func TestPluginLoad(t *testing.T) {
 			buildPlugin: func(t *testing.T) Plugin {
 				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar", false)
 				return Plugin{
-					srcPath:    path,
-					binaryName: "bar",
+					srcPath: path,
+					name:    "bar",
 				}
 			},
 		},
@@ -225,10 +225,10 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					cloneURL:   repoDir,
-					cloneDir:   cloneDir,
-					srcPath:    path.Join(cloneDir, "remote"),
-					binaryName: "remote",
+					cloneURL: repoDir,
+					cloneDir: cloneDir,
+					srcPath:  path.Join(cloneDir, "remote"),
+					name:     "remote",
 				}
 			},
 		},
@@ -261,11 +261,11 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					cloneURL:   repoDir,
-					reference:  "v1",
-					cloneDir:   cloneDir,
-					srcPath:    path.Join(cloneDir, "remote-tag"),
-					binaryName: "remote-tag",
+					cloneURL:  repoDir,
+					reference: "v1",
+					cloneDir:  cloneDir,
+					srcPath:   path.Join(cloneDir, "remote-tag"),
+					name:      "remote-tag",
 				}
 			},
 		},
@@ -284,11 +284,11 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					cloneURL:   repoDir,
-					reference:  "branch1",
-					cloneDir:   cloneDir,
-					srcPath:    path.Join(cloneDir, "remote-branch"),
-					binaryName: "remote-branch",
+					cloneURL:  repoDir,
+					reference: "branch1",
+					cloneDir:  cloneDir,
+					srcPath:   path.Join(cloneDir, "remote-branch"),
+					name:      "remote-branch",
 				}
 			},
 		},
@@ -302,11 +302,11 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					cloneURL:   repoDir,
-					reference:  h.Hash().String(),
-					cloneDir:   cloneDir,
-					srcPath:    path.Join(cloneDir, "remote-hash"),
-					binaryName: "remote-hash",
+					cloneURL:  repoDir,
+					reference: h.Hash().String(),
+					cloneDir:  cloneDir,
+					srcPath:   path.Join(cloneDir, "remote-hash"),
+					name:      "remote-hash",
 				}
 			},
 		},
@@ -318,11 +318,11 @@ func TestPluginLoad(t *testing.T) {
 				cloneDir := t.TempDir()
 
 				return Plugin{
-					cloneURL:   repoDir,
-					reference:  "doesnt_exists",
-					cloneDir:   cloneDir,
-					srcPath:    path.Join(cloneDir, "remote-no-ref"),
-					binaryName: "remote-no-ref",
+					cloneURL:  repoDir,
+					reference: "doesnt_exists",
+					cloneDir:  cloneDir,
+					srcPath:   path.Join(cloneDir, "remote-no-ref"),
+					name:      "remote-no-ref",
 				}
 			},
 			expectedError: `cloning ".*": reference not found`,
@@ -347,7 +347,7 @@ func TestPluginLoad(t *testing.T) {
 			require.NotNil(p.Interface)
 			manifest, err := p.Interface.Manifest()
 			require.NoError(err)
-			assert.Equal(p.binaryName, manifest.Name)
+			assert.Equal(p.name, manifest.Name)
 			assert.NoError(p.Interface.Execute(ExecutedCommand{}))
 			assert.NoError(p.Interface.ExecuteHookPre(ExecutedHook{}))
 			assert.NoError(p.Interface.ExecuteHookPost(ExecutedHook{}))
@@ -397,9 +397,9 @@ func TestPluginLoadSharedHost(t *testing.T) {
 			// Load one plugin per instance
 			for i := 0; i < tt.instances; i++ {
 				p := Plugin{
-					Plugin:     pluginsconfig.Plugin{Path: path},
-					srcPath:    path,
-					binaryName: filepath.Base(path),
+					Plugin:  pluginsconfig.Plugin{Path: path},
+					srcPath: path,
+					name:    filepath.Base(path),
 				}
 				p.load(context.Background())
 				require.NoError(p.Error)
