@@ -39,11 +39,13 @@ const (
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
+	CMDExport   Command = "export"
 )
 
 var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
+		CMDExport:   {},
 	}
 
 	// ErrInvalidCommand error invalid command name.
@@ -65,6 +67,32 @@ func New() (Buf, error) {
 // String returns the command name.
 func (c Command) String() string {
 	return string(c)
+}
+
+// Export runs the buf Export command for the files in the proto directory.
+func (b Buf) Export(
+	ctx context.Context,
+	protoDir,
+	output string,
+) (err error) {
+	flags := map[string]string{
+		flagOutput: output,
+	}
+	g, ctx := errgroup.WithContext(ctx)
+
+	cmd, err := b.generateCommand(
+		CMDExport,
+		flags,
+		protoDir,
+	)
+	if err != nil {
+		return err
+	}
+	g.Go(func() error {
+		cmd := cmd
+		return b.runCommand(ctx, cmd...)
+	})
+	return g.Wait()
 }
 
 // Generate runs the buf Generate command for each file into the proto directory.
