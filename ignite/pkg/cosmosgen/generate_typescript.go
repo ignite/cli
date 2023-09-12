@@ -20,7 +20,6 @@ import (
 
 var (
 	dirchangeCacheNamespace = "generate.typescript.dirchange"
-	jsOpenAPIOut            = []string{"--openapiv2_out=logtostderr=true,allow_merge=true,json_names_for_fields=false,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:."}
 	tsOut                   = []string{"--ts_proto_out=."}
 )
 
@@ -99,7 +98,6 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	}
 
 	defer cleanupSTA()
-
 	gg := &errgroup.Group{}
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
 	add := func(sourcePath string, modules []module.Module) {
@@ -159,12 +157,19 @@ func (g *tsGenerator) generateModuleTemplate(
 		out      = g.g.o.jsOut(m)
 		typesOut = filepath.Join(out, "types")
 	)
-
 	includePaths, err := g.g.resolveInclude(appPath)
 	if err != nil {
 		return err
 	}
-
+	protoPath, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+	err = g.g.buf.Export(ctx, g.g.protoDir, protoPath)
+	if err != nil {
+		return err
+	}
+	includePaths = append(includePaths, protoPath)
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
@@ -184,29 +189,9 @@ func (g *tsGenerator) generateModuleTemplate(
 		return err
 	}
 
-	// generate OpenAPI spec
-	tmp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
-	if err != nil {
-		return err
-	}
-
-	defer os.RemoveAll(tmp)
-
-	err = protoc.Generate(
-		ctx,
-		tmp,
-		m.Pkg.Path,
-		includePaths,
-		jsOpenAPIOut,
-		protoc.WithCommand(protocCmd),
-	)
-	if err != nil {
-		return err
-	}
-
 	// generate the REST client from the OpenAPI spec
 	var (
-		srcSpec = filepath.Join(tmp, "apidocs.swagger.json")
+		srcSpec = g.g.o.specOut
 		outREST = filepath.Join(out, "rest.ts")
 	)
 

@@ -159,6 +159,12 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		}
 	}
 
+	if g.o.specOut != "" {
+		if err := g.generateOpenAPISpec(); err != nil {
+			return err
+		}
+	}
+
 	if g.o.jsOut != nil {
 		if err := g.generateTS(); err != nil {
 			return err
@@ -207,12 +213,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateComposableDependencies("react"); err != nil {
-			return err
-		}
-	}
-
-	if g.o.specOut != "" {
-		if err := g.generateOpenAPISpec(); err != nil {
 			return err
 		}
 	}
