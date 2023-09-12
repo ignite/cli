@@ -163,9 +163,13 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 
 	c.ev.SendView(accounts, events.ProgressFinish())
 
-	// 0 length validator set when using network config
-	if len(cfg.Validators) != 0 {
-		_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+	// Consumer chain doesn't need to create validators from gentxs, because
+	// the validators already exist in the provider chain.
+	if !cfg.IsConsumerChain() {
+		// 0 length validator set when using network config
+		if len(cfg.Validators) != 0 {
+			_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+		}
 	}
 
 	return err
