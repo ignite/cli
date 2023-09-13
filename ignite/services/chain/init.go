@@ -2,11 +2,19 @@ package chain
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/imdario/mergo"
+
+	cmtkv "github.com/cometbft/cometbft/abci/example/kvstore"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	ccvconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
+	ccvtypes "github.com/cosmos/interchain-security/v3/x/ccv/types"
 
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
@@ -163,16 +171,65 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 
 	c.ev.SendView(accounts, events.ProgressFinish())
 
-	// Consumer chain doesn't need to create validators from gentxs, because
-	// the validators already exist in the provider chain.
-	if !cfg.IsConsumerChain() {
+	if cfg.IsConsumerChain() {
+		// Consumer chain writes validators in the consumer module genesis
+		var (
+			clientState       = &ibctmtypes.ClientState{}
+			providerConsState = &ibctmtypes.ConsensusState{}
+			// Like for sovereign chain, provide only a single validator
+			valUpdates = cmtkv.RandVals(1)
+			params     = ccvconsumertypes.NewParams(
+				true,
+				1000, // ignore distribution
+				"",   // ignore distribution
+				"",   // ignore distribution
+				ccvtypes.DefaultCCVTimeoutPeriod,
+				ccvconsumertypes.DefaultTransferTimeoutPeriod,
+				ccvconsumertypes.DefaultConsumerRedistributeFrac,
+				ccvconsumertypes.DefaultHistoricalEntries,
+				ccvconsumertypes.DefaultConsumerUnbondingPeriod,
+				"0", // disable soft opt-out
+				[]string{},
+				[]string{},
+			)
+		)
+		consumerGen := ccvconsumertypes.NewInitialGenesisState(clientState, providerConsState, valUpdates, params)
+		// Read genesis file
+		genPath, err := c.GenesisPath()
+		if err != nil {
+			return err
+		}
+		genState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genPath)
+		if err != nil {
+			return err
+		}
+		// Update consumer module gen state
+		bz, err := json.MarshalIndent(consumerGen, "", "  ")
+		if err != nil {
+			return err
+		}
+		genState[ccvconsumertypes.ModuleName] = bz
+		// Update whole genesis
+		bz, err = json.MarshalIndent(genState, "", "  ")
+		if err != nil {
+			return err
+		}
+		genDoc.AppState = bz
+		// Save genesis
+		if err := genDoc.SaveAs(genPath); err != nil {
+			return err
+		}
+	} else {
+		// Sovereign chain writes validators in gentxs.
 		// 0 length validator set when using network config
 		if len(cfg.Validators) != 0 {
-			_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+			_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+			if err != nil {
+				return err
+			}
 		}
 	}
-
-	return err
+	return nil
 }
 
 // IssueGentx generates a gentx from the validator information in chain config and imports it in the chain genesis.

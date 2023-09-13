@@ -23,7 +23,8 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.1.0
-	github.com/emicklei/proto v1.12.1
+	github.com/cosmos/interchain-security/v3 v3.1.0
+	github.com/emicklei/proto v1.11.2
 	github.com/emicklei/proto-contrib v0.14.0
 	github.com/go-delve/delve v1.20.2
 	github.com/go-git/go-git/v5 v5.6.1
@@ -143,7 +144,8 @@ require (
 	github.com/cilium/ebpf v0.10.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
-	github.com/cometbft/cometbft-db v0.7.0 // indirect
+	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
+	github.com/cometbft/cometbft-db v0.8.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/containerd/console v1.0.4-0.20230508195404-8d3c090fd31c // indirect
 	github.com/containerd/containerd v1.7.0-beta.2 // indirect
@@ -153,7 +155,7 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.2 // indirect
 	github.com/cosmos/iavl v0.20.0 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
-	github.com/cosmos/ledger-cosmos-go v0.12.1 // indirect
+	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
 	github.com/daixiang0/gci v0.8.1 // indirect
@@ -167,7 +169,7 @@ require (
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
-	github.com/dlclark/regexp2 v1.2.0 // indirect
+	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
@@ -193,7 +195,6 @@ require (
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-toolsmith/astcast v1.0.0 // indirect
 	github.com/go-toolsmith/astcopy v1.0.2 // indirect
 	github.com/go-toolsmith/astequal v1.0.3 // indirect
@@ -212,6 +213,7 @@ require (
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gofrs/uuid v4.3.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/golang/glog v1.1.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -281,6 +283,7 @@ require (
 	github.com/ldez/tagliatelle v0.3.1 // indirect
 	github.com/leonklingele/grouper v1.1.0 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
+	github.com/linxGnu/grocksdb v1.7.16 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/lufeee/execinquery v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -374,7 +377,6 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
-	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
 	github.com/tetafro/godot v1.4.11 // indirect
 	github.com/tidwall/btree v1.6.0 // indirect
