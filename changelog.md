@@ -22,6 +22,7 @@
 - [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`
 - [#3618](https://github.com/ignite/cli/pull/3618) Fix TS client generation import path issue
 - [#3631](https://github.com/ignite/cli/pull/3631) Fix unnecessary vue import in hooks/composables template
+- [#3655](https://github.com/ignite/cli/pull/3655) Re-enable TS client generation
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
