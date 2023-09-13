@@ -80,6 +80,19 @@ func (b Buf) Export(
 	}
 	g, ctx := errgroup.WithContext(ctx)
 
+	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
+		if b.sdkCache == "" {
+			b.sdkCache, err = PrepareSDK(protoDir)
+			if err != nil {
+				return err
+			}
+		}
+		dirs := strings.Split(protoDir, "/proto")
+		if len(dirs) < 2 {
+			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+		}
+		protoDir = filepath.Join(b.sdkCache, dirs[1])
+	}
 	cmd, err := b.generateCommand(
 		CMDExport,
 		flags,
@@ -123,7 +136,7 @@ func (b Buf) Generate(
 	// files.
 	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
 		if b.sdkCache == "" {
-			b.sdkCache, err = prepareSDK(protoDir)
+			b.sdkCache, err = PrepareSDK(protoDir)
 			if err != nil {
 				return err
 			}
@@ -196,7 +209,7 @@ func (b Buf) generateCommand(
 }
 
 // findSDKProtoPath find the cosmos-sdk proto folder path.
-func findSDKProtoPath(protoDir string) (string, error) {
+func FindSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
 		return "", fmt.Errorf("invalid sdk mod dir: %s", protoDir)
@@ -207,12 +220,12 @@ func findSDKProtoPath(protoDir string) (string, error) {
 
 // prepareSDK copy the cosmos sdk proto folder to a temporary directory
 // so we can skip the buf workspace.
-func prepareSDK(protoDir string) (string, error) {
+func PrepareSDK(protoDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "proto-sdk")
 	if err != nil {
 		return "", err
 	}
-	srcPath, err := findSDKProtoPath(protoDir)
+	srcPath, err := FindSDKProtoPath(protoDir)
 	if err != nil {
 		return "", err
 	}

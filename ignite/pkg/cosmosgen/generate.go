@@ -228,21 +228,19 @@ func (g *generator) resolveIncludes(path string) (paths []string, err error) {
 		}
 	}
 	if f.IsDir() {
-		if !strings.Contains(p, "cosmos/cosmos-sdk") { // ignore cosmos-sdk
-			bufPath, err := g.checkForBuf(p) // Look for a buf file to make our lives easier
-			if err != nil && !errors.Is(err, errFileNotFound) {
+		bufPath, err := g.checkForBuf(p) // Look for a buf file to make our lives easier
+		if err != nil && !errors.Is(err, errFileNotFound) {
+			return nil, err
+		}
+		if err == nil { // If it exists, use buf export to package all protos needed to build the modules in a temp folder
+			protoPath, err := g.generateBufIncludeFolder(p)
+			if err != nil {
 				return nil, err
 			}
-			if err == nil { // If it exists, use buf export to package all protos needed to build the modules in a temp folder
-				protoPath, err := g.generateBufIncludeFolder(p)
-				if err != nil {
-					return nil, err
-				}
-				paths = append(paths, protoPath)
-			}
-			if bufPath == "" { // if it doesn't exist, get list of include folders the old-fashioned way
-				paths = append(paths, g.getProtoIncludeFolders(path)...)
-			}
+			paths = append(paths, protoPath)
+		}
+		if bufPath == "" { // if it doesn't exist, get list of include folders the old-fashioned way
+			paths = append(paths, g.getProtoIncludeFolders(path)...)
 		}
 	}
 

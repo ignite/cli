@@ -43,7 +43,7 @@ func TestFindSDKPath(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := findSDKProtoPath(tt.protoDir)
+			got, err := FindSDKProtoPath(tt.protoDir)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.err.Error(), err.Error())
