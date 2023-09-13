@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -55,8 +56,8 @@ func (g *generator) generateTS() error {
 	// custom modules losing the registration of the third party
 	// modules when the root templates are re-generated.
 	for _, modules := range g.thirdModules {
-		data.Modules = append(data.Modules, modules...)
-		for _, m := range modules {
+		data.Modules = append(data.Modules, modules.Modules...)
+		for _, m := range modules.Modules {
 			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
 				data.IsConsumerChain = true
 			}
@@ -100,7 +101,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	defer cleanupSTA()
 	gg := &errgroup.Group{}
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
-	add := func(sourcePath string, modules []module.Module) {
+	add := func(sourcePath string, modules []module.Module, includes []string) {
 		for _, m := range modules {
 			m := m
 
@@ -122,7 +123,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 					}
 				}
 
-				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m)
+				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m, includes)
 				if err != nil {
 					return err
 				}
@@ -132,7 +133,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 		}
 	}
 
-	add(g.g.appPath, g.g.appModules)
+	add(g.g.appPath, g.g.appModules, g.g.appIncludes)
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -140,7 +141,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		add(sourcePath, modules)
+		add(sourcePath, modules.Modules, append(g.g.appIncludes, modules.Includes...))
 	}
 
 	return gg.Wait()
@@ -152,30 +153,18 @@ func (g *tsGenerator) generateModuleTemplate(
 	staCmd sta.Cmd,
 	tsprotoPluginPath, appPath string,
 	m module.Module,
+	includePaths []string,
 ) error {
 	var (
 		out      = g.g.o.jsOut(m)
 		typesOut = filepath.Join(out, "types")
 	)
-	includePaths, err := g.g.resolveInclude(appPath)
-	if err != nil {
-		return err
-	}
-	protoPath, err := os.MkdirTemp("", "")
-	if err != nil {
-		return err
-	}
-	err = g.g.buf.Export(ctx, g.g.protoDir, protoPath)
-	if err != nil {
-		return err
-	}
-	includePaths = append(includePaths, protoPath)
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 
 	// generate ts-proto types
-	err = protoc.Generate(
+	err := protoc.Generate(
 		ctx,
 		typesOut,
 		m.Pkg.Path,
@@ -189,9 +178,13 @@ func (g *tsGenerator) generateModuleTemplate(
 		return err
 	}
 
+	specPath := filepath.Join(out, "api.swagger.yml")
+	fmt.Println(specPath)
+	g.g.generateModuleOpenAPISpec(m, specPath)
 	// generate the REST client from the OpenAPI spec
+
 	var (
-		srcSpec = g.g.o.specOut
+		srcSpec = specPath
 		outREST = filepath.Join(out, "rest.ts")
 	)
 

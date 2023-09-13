@@ -37,6 +37,10 @@ type generateOptions struct {
 }
 
 // TODO add WithInstall.
+type ModuleIncludes struct {
+	Includes []string
+	Modules  []module.Module
+}
 
 // ModulePathFunc defines a function type that returns a path based on a Cosmos SDK module.
 type ModulePathFunc func(module.Module) string
@@ -116,7 +120,8 @@ type generator struct {
 	sdkImport    string
 	deps         []gomodule.Version
 	appModules   []module.Module
-	thirdModules map[string][]module.Module // app dependency-modules pair.
+	appIncludes  []string
+	thirdModules map[string]ModuleIncludes // app dependency-modules/includes pair.
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
@@ -134,7 +139,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		protoDir:     protoDir,
 		gomodPath:    gomodPath,
 		o:            &generateOptions{},
-		thirdModules: make(map[string][]module.Module),
+		thirdModules: make(map[string]ModuleIncludes),
 		cacheStorage: cacheStorage,
 	}
 

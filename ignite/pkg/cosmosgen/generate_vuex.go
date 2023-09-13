@@ -171,7 +171,7 @@ func (g *generator) generateVuex() error {
 	}
 
 	for _, modules := range g.thirdModules {
-		data.Modules = append(data.Modules, modules...)
+		data.Modules = append(data.Modules, modules.Modules...)
 	}
 
 	vsg := newVuexGenerator(g)
