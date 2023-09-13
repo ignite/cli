@@ -183,7 +183,7 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
-	gen := func(src string, m module.Module) (err error) {
+	gen := func(m module.Module) (err error) {
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
@@ -193,7 +193,7 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 			g.ctx,
 			m.Pkg.Path,
 			dir,
-			g.openAPITemplate(),
+			g.openAPITemplateForSTA(),
 			"module.proto",
 		); err != nil {
 			return err
@@ -221,9 +221,9 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 	// after add their path and config to swaggercombine.Config so we can combine them
 	// into a single spec.
 
-	add := func(src string, modules []module.Module) error {
+	add := func(modules []module.Module) error {
 		for _, m := range modules {
-			if err := gen(src, m); err != nil {
+			if err := gen(m); err != nil {
 				return err
 			}
 		}
@@ -231,7 +231,7 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 	}
 
 	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := add(m.GoModulePath, []module.Module{m}); err != nil {
+	if err := add([]module.Module{m}); err != nil {
 		return err
 	}
 
@@ -244,9 +244,6 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 	}
 
 	// combine specs into one and save to out.
-	if err := swaggercombine.Combine(g.ctx, conf, out); err != nil {
-		return err
-	}
-
-	return nil
+	err := swaggercombine.Combine(g.ctx, conf, out)
+	return err
 }

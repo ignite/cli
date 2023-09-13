@@ -34,8 +34,8 @@ type ModulesInPath struct {
 }
 
 var (
-	fileFound    = errors.New("Searched file found")     // Hacky way to terminate dir walk early
-	fileNotFound = errors.New("Searched file not found") // Hacky way to terminate dir walk early
+	errFileFound    = errors.New("Searched file found")     // Hacky way to terminate dir walk early
+	errFileNotFound = errors.New("Searched file not found") // Hacky way to terminate dir walk early
 )
 
 func (g *generator) setup() (err error) {
@@ -84,6 +84,9 @@ func (g *generator) setup() (err error) {
 		return err
 	}
 	g.appIncludes, err = g.resolveIncludes(g.appPath)
+	if err != nil {
+		return err
+	}
 	// Go through the Go dependencies of the user's app within go.mod, some of them might be hosting Cosmos SDK modules
 	// that could be in use by user's blockchain.
 	//
@@ -128,7 +131,7 @@ func (g *generator) setup() (err error) {
 			}
 			modulesInPath = ModulesInPath{
 				Path: path, // Each go module
-				ModuleIncludes: ModuleIncludes{ // Has a set of sdk modules and a set of includes to buidl them
+				ModuleIncludes: ModuleIncludes{ // Has a set of sdk modules and a set of includes to build them
 					Includes: includes,
 					Modules:  modules,
 				},
@@ -145,93 +148,37 @@ func (g *generator) setup() (err error) {
 	return nil
 }
 
-func (g *generator) getProtoIncludeFolders(modPath string) ([]string, error) {
-	/*
-		// Read the mod file for this module
-		modFile, err := gomodule.ParseAt(modPath)
-		var errb bytes.Buffer
-		if err != nil {
-			return nil, nil
-		}
-
-		// Cache this go_module's dependencies locally
-		if err := cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(&errb),
-				cmdrunner.DefaultWorkdir(modPath),
-			).Run(g.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
-			return nil, nil
-		}
-	*/
+func (g *generator) getProtoIncludeFolders(modPath string) []string {
 	includePaths := []string{filepath.Join(modPath, g.protoDir)} // Add default protoDir and default includeDirs
 	for _, dir := range g.o.includeDirs {
 		includePaths = append(includePaths, filepath.Join(modPath, dir))
 	}
-	/*
-		// Get the imports/deps from the mod file (exclude indirect)
-		deps, err := gomodule.ResolveDependencies(modFile, false)
+	return includePaths
+}
+
+/*
+Leave this here for reference to improve resolution algorithm
+
+	func (g *generator) checkForProto(modpath string) (bool, error) {
+		err := filepath.WalkDir(modpath,
+			func(path string, _ fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				if filepath.Ext(path) == ".proto" {
+					return errFileFound
+				}
+				return nil
+			})
+		if err == errFileFound {
+			return true, nil
+		}
 		if err != nil {
-			return nil, err
+			return false, err
 		}
-		// Initialize include cache for proto checking (lots of common includes across modules. No need to traverse repeatedly)
-		includeProtoCache := cache.New[bool](g.cacheStorage, includeProtoCacheNamespace)
-
-		for _, dep := range deps {
-
-			// Check for proto file in this dependency
-			cacheKey := cache.Key(dep.Path, dep.Version)
-			hasProto, err := includeProtoCache.Get(cacheKey)
-
-			// Return unexpected error
-			if err != nil && !errors.Is(err, cache.ErrorNotFound) {
-				return nil, err
-			}
-
-			// If result not already cached
-			if errors.Is(err, cache.ErrorNotFound) {
-				path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, modPath, dep)
-				if err != nil {
-					return nil, err
-				}
-				hasProto, err = g.checkForProto(path)
-				if err != nil {
-					return nil, err
-				}
-			}
-			if hasProto {
-				path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, modPath, dep)
-				if err != nil {
-					return nil, err
-				}
-				if !strings.Contains(path, "gogo/googleapis") {
-					//	includePaths = append(includePaths, path)
-				}
-			}
-		}
-	*/
-	return includePaths, nil
-}
-
-func (g *generator) checkForProto(modpath string) (bool, error) {
-	err := filepath.WalkDir(modpath,
-		func(path string, _ fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			if filepath.Ext(path) == ".proto" {
-				return fileFound
-			}
-			return nil
-		})
-	if err == fileFound {
-		return true, nil
+		return false, errFileNotFound
 	}
-	if err != nil {
-		return false, err
-	}
-	return false, fileNotFound
-}
-
+*/
 func (g *generator) checkForBuf(modpath string) (string, error) {
 	var bufPath string
 	err := filepath.WalkDir(modpath,
@@ -241,17 +188,17 @@ func (g *generator) checkForBuf(modpath string) (string, error) {
 			}
 			if filepath.Base(path) == "buf.yaml" {
 				bufPath = path
-				return fileFound
+				return errFileFound
 			}
 			return nil
 		})
-	if err == fileFound {
+	if errors.Is(err, errFileFound) {
 		return bufPath, nil
 	}
 	if err != nil {
 		return "", err
 	}
-	return "", fileNotFound
+	return "", errFileNotFound
 }
 
 func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
@@ -283,7 +230,7 @@ func (g *generator) resolveIncludes(path string) (paths []string, err error) {
 	if f.IsDir() {
 		if !strings.Contains(p, "cosmos/cosmos-sdk") { // ignore cosmos-sdk
 			bufPath, err := g.checkForBuf(p) // Look for a buf file to make our lives easier
-			if err != nil && err != fileNotFound {
+			if err != nil && !errors.Is(err, errFileNotFound) {
 				return nil, err
 			}
 			if err == nil { // If it exists, use buf export to package all protos needed to build the modules in a temp folder
@@ -293,12 +240,8 @@ func (g *generator) resolveIncludes(path string) (paths []string, err error) {
 				}
 				paths = append(paths, protoPath)
 			}
-			if bufPath == "" { // if it doesn't exist, get list of incldue folders the old-fashioned way
-				protoPaths, err := g.getProtoIncludeFolders(path)
-				if err != nil {
-					return nil, err
-				}
-				paths = append(paths, protoPaths...)
+			if bufPath == "" { // if it doesn't exist, get list of include folders the old-fashioned way
+				paths = append(paths, g.getProtoIncludeFolders(path)...)
 			}
 		}
 	}
