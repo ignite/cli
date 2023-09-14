@@ -11,6 +11,8 @@ import (
 	"github.com/imdario/mergo"
 
 	cmtkv "github.com/cometbft/cometbft/abci/example/kvstore"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	ccvconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
@@ -204,7 +206,9 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 			return err
 		}
 		// Update consumer module gen state
-		bz, err := json.MarshalIndent(consumerGen, "", "  ")
+		interfaceRegistry := codectypes.NewInterfaceRegistry()
+		marshaler := codec.NewProtoCodec(interfaceRegistry)
+		bz, err := marshaler.MarshalJSON(consumerGen)
 		if err != nil {
 			return err
 		}
