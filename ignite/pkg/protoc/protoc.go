@@ -2,17 +2,22 @@
 package protoc
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ignite/ignite-files/protoc"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/localfs"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite/cli/ignite/pkg/protoc/data"
 )
 
 // Option configures Generate configs.
@@ -77,12 +82,31 @@ func (c Cmd) Includes() []string {
 
 // Command sets the protoc binary up and returns the command needed to execute c.
 func Command() (command Cmd, cleanup func(), err error) {
-	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0o755)
+	// Unpack binary content
+	gzr, err := gzip.NewReader(bytes.NewReader(protoc.Binary()))
 	if err != nil {
 		return Cmd{}, nil, err
 	}
 
-	include, cleanupInclude, err := localfs.SaveTemp(data.Include())
+	defer gzr.Close()
+
+	// Unarchive binary content
+	tr := tar.NewReader(gzr)
+	if _, err := tr.Next(); err != nil {
+		return Cmd{}, nil, err
+	}
+
+	binary, err := io.ReadAll(tr)
+	if err != nil {
+		return Cmd{}, nil, err
+	}
+
+	path, cleanupProto, err := localfs.SaveBytesTemp(binary, "protoc", 0o755)
+	if err != nil {
+		return Cmd{}, nil, err
+	}
+
+	include, cleanupInclude, err := localfs.SaveTemp(protoc.Include())
 	if err != nil {
 		cleanupProto()
 		return Cmd{}, nil, err

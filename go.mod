@@ -37,6 +37,7 @@ require (
 	github.com/hashicorp/go-hclog v1.2.0
 	github.com/hashicorp/go-plugin v1.4.9
 	github.com/iancoleman/strcase v0.2.0
+	github.com/ignite/ignite-files/protoc v0.0.1
 	github.com/ignite/web v0.4.3
 	github.com/imdario/mergo v0.3.15
 	github.com/jpillora/chisel v1.8.1
