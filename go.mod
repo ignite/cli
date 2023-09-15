@@ -59,7 +59,7 @@ require (
 	github.com/vektra/mockery/v2 v2.27.1
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
-	golang.org/x/mod v0.10.0
+	golang.org/x/mod v0.12.0
 	golang.org/x/sync v0.2.0
 	golang.org/x/term v0.8.0
 	golang.org/x/text v0.9.0
