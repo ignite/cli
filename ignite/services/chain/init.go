@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/imdario/mergo"
 
@@ -176,8 +178,20 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
 		var (
-			clientState       = &ibctmtypes.ClientState{}
-			providerConsState = &ibctmtypes.ConsensusState{}
+			providerClientState = &ibctmtypes.ClientState{
+				ChainId:         "provider",
+				TrustLevel:      ibctmtypes.DefaultTrustLevel,
+				TrustingPeriod:  time.Hour * 64,
+				UnbondingPeriod: time.Hour * 128,
+				MaxClockDrift:   time.Minute * 5,
+			}
+			providerConsState = &ibctmtypes.ConsensusState{
+				Timestamp: time.Now().Add(time.Hour * 24),
+				Root: commitmenttypes.NewMerkleRoot(
+					[]byte("LpGpeyQVLUo9HpdsgJr12NP2eCICspcULiWa5u9udOA="),
+				),
+				NextValidatorsHash: []byte("E30CE736441FB9101FADDAF7E578ABBE6DFDB67207112350A9A904D554E1F5BE"),
+			}
 			// Like for sovereign chain, provide only a single validator
 			valUpdates = cmtkv.RandVals(1)
 			params     = ccvconsumertypes.NewParams(
@@ -195,7 +209,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 				[]string{},
 			)
 		)
-		consumerGen := ccvconsumertypes.NewInitialGenesisState(clientState, providerConsState, valUpdates, params)
+		consumerGen := ccvconsumertypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
 		// Read genesis file
 		genPath, err := c.GenesisPath()
 		if err != nil {
