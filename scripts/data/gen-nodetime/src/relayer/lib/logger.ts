@@ -23,19 +23,19 @@ export default class ConsoleLogger {
 
 	constructor(logLevel:LogLevels) {
 		this.error = (msg) => {
-			if(logLevel>=0) {
+			if(logLevel>=LogLevels.ERROR) {
 				console.log(msg);
 			}
 			return this;
 		};
 		this.warn = (msg) => {
-			if(logLevel>=1) {
+			if(logLevel>=LogLevels.WARN) {
 				console.log(msg);
 			}
 			return this;
 		};
 		this.info = (msg) => {
-			if(logLevel>=2) {
+			if(logLevel>=LogLevels.INFO) {
 				if (msg.indexOf('Relay') == 0 && msg.indexOf('Relay 0') == -1) {
 					console.log(msg);
 				}
@@ -43,13 +43,13 @@ export default class ConsoleLogger {
 			return this;
 		};
 		this.verbose = (msg) => {
-			if(logLevel>=3) {
+			if(logLevel>=LogLevels.VERBOSE) {
 				console.log(msg);
 			}
 			return this;
 		};
 		this.debug = (msg) => {
-			if(logLevel>=4) {
+			if(logLevel>=LogLevels.DEBUG) {
 				console.log(msg);
 			}
 			return this;
