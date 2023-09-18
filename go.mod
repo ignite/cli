@@ -59,7 +59,7 @@ require (
 	github.com/vektra/mockery/v2 v2.27.1
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-	golang.org/x/mod v0.11.0
+	golang.org/x/mod v0.12.0
 	golang.org/x/sync v0.2.0
 	golang.org/x/term v0.10.0
 	golang.org/x/text v0.12.0
@@ -71,6 +71,13 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
+require (
+	cosmossdk.io/api v0.3.1 // indirect
+	cosmossdk.io/core v0.5.1 // indirect
+	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
+	cosmossdk.io/errors v1.0.0 // indirect
+)
+
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
@@ -80,10 +87,6 @@ replace (
 
 require (
 	4d63.com/gochecknoglobals v0.1.0 // indirect
-	cosmossdk.io/api v0.3.1 // indirect
-	cosmossdk.io/core v0.5.1 // indirect
-	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/errors v1.0.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/Abirdcfly/dupword v0.0.7 // indirect
