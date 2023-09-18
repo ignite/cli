@@ -5,9 +5,9 @@ go 1.20
 require (
 	cosmossdk.io/api v0.3.1
 	cosmossdk.io/core v0.5.1
-	cosmossdk.io/depinject v1.0.0-alpha.3
-	cosmossdk.io/errors v1.0.0-beta.7
-	cosmossdk.io/math v1.0.1
+	cosmossdk.io/depinject v1.0.0-alpha.4
+	cosmossdk.io/errors v1.0.0
+	cosmossdk.io/math v1.1.2
 	github.com/bufbuild/buf v1.23.1
 	github.com/cometbft/cometbft v0.37.2
 	github.com/cometbft/cometbft-db v0.8.0
@@ -23,8 +23,8 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
-	google.golang.org/grpc v1.55.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
+	google.golang.org/grpc v1.56.2
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
 	google.golang.org/protobuf v1.31.0
 )
