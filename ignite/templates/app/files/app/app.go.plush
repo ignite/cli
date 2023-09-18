@@ -18,7 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/store/streaming"
+	"cosmossdk.io/store/streaming"
 	storetypes "cosmossdk.io/store/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -62,7 +62,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"cosmossdk.io/x/upgrade"
-	upgradeclient "cosmossdk.io/x/upgrade/client"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
@@ -92,8 +91,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,
-		upgradeclient.LegacyProposalHandler,
-		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
 		// this line is used by starport scaffolding # stargate/app/govProposalHandler
@@ -153,7 +150,9 @@ type App struct {
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// non depinject support modules store keys
-	keys map[string]*storetypes.KVStoreKey
+	keys    map[string]*storetypes.KVStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
 
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
@@ -301,7 +300,7 @@ func New(
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
-	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
+	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
 	// Register legacy modules
 	app.registerIBCModules()

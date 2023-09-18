@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"

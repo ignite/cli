@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"cosmossdk.io/x/feegrant"
-	"github.com/cosmos/cosmos-sdk/x/nft"
 )
 
 <%= for (dependency) in dependencies { %>
@@ -14,7 +13,7 @@ import (
     dependency.Name != "Staking" && dependency.Name != "Slashing" &&
     dependency.Name != "Distribution" && dependency.Name != "Mint" &&
     dependency.Name != "Authz" && dependency.Name != "Feegrant" &&
-    dependency.Name != "Group" && dependency.Name != "Nft") { %>
+    dependency.Name != "Group") { %>
 type <%= dependency.KeeperName() %> interface {
 	// TODO Add methods imported from <%= toLower(dependency.Name) %> should be defined here
 }
@@ -72,12 +71,6 @@ type FeegrantKeeper interface {
 // GroupKeeper defines the expected interface for the Group module.
 type GroupKeeper interface {
 	GetGroupSequence(sdk.Context) uint64
-	// Methods imported from account should be defined here
-}
-
-// NftKeeper defines the expected interface for the NFT module.
-type NftKeeper interface {
-	Mint(sdk.Context, nft.NFT, sdk.AccAddress) error
 	// Methods imported from account should be defined here
 }
 

@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
 )
 
 // Get<%= TypeName.UpperCamel %>Count get the total number of <%= TypeName.LowerCamel %>

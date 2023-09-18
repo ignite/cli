@@ -39,8 +39,8 @@ func NewKeeper(
     cdc codec.BinaryCodec,
     storeKey,
     memKey storetypes.StoreKey,
-	authority string,
-	logger log.Logger,<%= if (isIBC) { %>
+    logger log.Logger,
+	authority string,<%= if (isIBC) { %>
 	ibcKeeperFn func() *ibckeeper.Keeper,
     scopedKeeper exported.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %>
