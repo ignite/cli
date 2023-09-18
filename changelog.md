@@ -15,6 +15,7 @@
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 - [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.10.0`
 - [#3653](https://github.com/ignite/cli/pull/3653) Add "app" extension to plugin binaries
+- [#3656](https://github.com/ignite/cli/pull/3656) Disable Go toolchain download
 
 ### Fixes
 
