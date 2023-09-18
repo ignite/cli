@@ -8,11 +8,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
     <%= if (isIBC) { %>errorsmod "cosmossdk.io/errors"
-    channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-    capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-    host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-    "github.com/cosmos/ibc-go/v7/modules/core/exported"
-    ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"<% } %>
+    channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+    capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+    host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
+    "github.com/cosmos/ibc-go/v8/modules/core/exported"
+    ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
