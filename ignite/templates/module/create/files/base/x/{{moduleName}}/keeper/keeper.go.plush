@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
     <%= if (isIBC) { %>errorsmod "cosmossdk.io/errors"
@@ -22,6 +22,7 @@ type (
 		cdc      	codec.BinaryCodec
 		storeKey 	storetypes.StoreKey
 		memKey   	storetypes.StoreKey
+        logger      log.Logger
 
         // the address capable of executing a MsgUpdateParams message. Typically, this
         // should be the x/gov module account.
@@ -38,7 +39,8 @@ func NewKeeper(
     cdc codec.BinaryCodec,
     storeKey,
     memKey storetypes.StoreKey,
-	authority string,<%= if (isIBC) { %>
+	authority string,
+	logger log.Logger,<%= if (isIBC) { %>
 	ibcKeeperFn func() *ibckeeper.Keeper,
     scopedKeeper exported.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %>
@@ -52,7 +54,8 @@ func NewKeeper(
         cdc:      	cdc,
         storeKey: 	storeKey,
         memKey:   	memKey,
-		authority: authority,<%= if (isIBC) { %>
+		authority: authority,
+		logger:    logger,<%= if (isIBC) { %>
         ibcKeeperFn:   ibcKeeperFn,
         scopedKeeper:  scopedKeeper,<% } %>
 		<%= for (dependency) in dependencies { %>
