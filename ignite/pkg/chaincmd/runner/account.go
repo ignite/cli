@@ -26,6 +26,7 @@ type Account struct {
 	Name     string `json:"name"`
 	Address  string `json:"address"`
 	Mnemonic string `json:"mnemonic,omitempty"`
+	PubKey   string `json:"pubkey"`
 }
 
 // AddAccount creates a new account or imports an account when mnemonic is provided.
@@ -176,7 +177,7 @@ func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
 func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 	b := newBuffer()
 	opt := []step.Option{
-		r.chainCmd.ShowKeyAddressCommand(name),
+		r.chainCmd.ShowKeyCommand(name),
 	}
 
 	if r.chainCmd.KeyringPassword() != "" {
@@ -196,10 +197,8 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 		return Account{}, err
 	}
 
-	return Account{
-		Name:    name,
-		Address: strings.TrimSpace(b.String()),
-	}, nil
+	var a Account
+	return a, json.Unmarshal(b.Bytes(), &a)
 }
 
 // AddGenesisAccount adds account to genesis by its address.

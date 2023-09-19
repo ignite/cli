@@ -3,6 +3,7 @@ package chain
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,9 +13,11 @@ import (
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/imdario/mergo"
 
-	cmtkv "github.com/cometbft/cometbft/abci/example/kvstore"
+	cmtypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	ccvconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
@@ -175,25 +178,34 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 
 	c.ev.SendView(accounts, events.ProgressFinish())
 
+	// 0 length validator set when using network config
+	if len(cfg.Validators) == 0 {
+		return nil
+	}
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
-		if err := c.writeConsumerGenesis(); err != nil {
+		// Like for sovereign chain, provide only a single validator, the first one
+		// found in the config.
+		validator, err := commands.ShowAccount(ctx, cfg.Validators[0].Name)
+		if err != nil {
+			return err
+		}
+		if err := c.writeConsumerGenesis(validator); err != nil {
 			return err
 		}
 	} else {
 		// Sovereign chain writes validators in gentxs.
-		// 0 length validator set when using network config
-		if len(cfg.Validators) != 0 {
-			_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
-			if err != nil {
-				return err
-			}
+		_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+		if err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func (c *Chain) writeConsumerGenesis() error {
+// writeConsumerGenesis updates the consumer module genesis in the genesis.json
+// file of c.
+func (c *Chain) writeConsumerGenesis(validator chaincmdrunner.Account) error {
 	var (
 		providerClientState = &ibctmtypes.ClientState{
 			ChainId:         "provider",
@@ -209,9 +221,7 @@ func (c *Chain) writeConsumerGenesis() error {
 			),
 			NextValidatorsHash: []byte("E30CE736441FB9101FADDAF7E578ABBE6DFDB67207112350A9A904D554E1F5BE"),
 		}
-		// Like for sovereign chain, provide only a single validator
-		valUpdates = cmtkv.RandVals(1)
-		params     = ccvconsumertypes.NewParams(
+		params = ccvconsumertypes.NewParams(
 			true,
 			1000, // ignore distribution
 			"",   // ignore distribution
@@ -225,7 +235,18 @@ func (c *Chain) writeConsumerGenesis() error {
 			[]string{},
 			[]string{},
 		)
+		interfaceRegistry = codectypes.NewInterfaceRegistry()
+		codec             = codec.NewProtoCodec(interfaceRegistry)
+		pk                cryptotypes.PubKey
 	)
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	// Transform the pubkey found in the keyring into cmtypes.ValidatorUpdate
+	if err := codec.UnmarshalInterfaceJSON([]byte(validator.PubKey), &pk); err != nil {
+		return fmt.Errorf("unmarshalling %q: %w", validator.PubKey, err)
+	}
+	valUpdates := cmtypes.ValidatorUpdates{
+		cmtypes.UpdateValidator(pk.Bytes(), 1, pk.Type()),
+	}
 	consumerGen := ccvconsumertypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
 	// Read genesis file
 	genPath, err := c.GenesisPath()
@@ -237,9 +258,7 @@ func (c *Chain) writeConsumerGenesis() error {
 		return err
 	}
 	// Update consumer module gen state
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
-	marshaler := codec.NewProtoCodec(interfaceRegistry)
-	bz, err := marshaler.MarshalJSON(consumerGen)
+	bz, err := codec.MarshalJSON(consumerGen)
 	if err != nil {
 		return err
 	}

@@ -228,13 +228,14 @@ func (c ChainCmd) ImportKeyCommand(accountName, keyFile string) step.Option {
 	return c.cliCommand(command)
 }
 
-// ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring.
-func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
+// ShowKeyCommand returns the command to print the address of a key in the chain keyring.
+func (c ChainCmd) ShowKeyCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"show",
 		accountName,
-		optionAddress,
+		optionOutput,
+		constJSON,
 	}
 	command = c.attachKeyringBackend(command)
 
