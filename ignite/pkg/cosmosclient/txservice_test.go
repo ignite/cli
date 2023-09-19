@@ -116,7 +116,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
 					Return(&ctypes.ResultTx{
 						Hash: txHash,
-						TxResult: abci.ResponseDeliverTx{
+						TxResult: abci.ExecTxResult{
 							Log: "log",
 						},
 					}, nil)
@@ -142,7 +142,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
 					Return(&ctypes.ResultTx{
 						Hash: txHash,
-						TxResult: abci.ResponseDeliverTx{
+						TxResult: abci.ExecTxResult{
 							Code: 42,
 							Log:  "oups",
 						},
