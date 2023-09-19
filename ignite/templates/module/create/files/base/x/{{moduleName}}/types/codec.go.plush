@@ -6,6 +6,7 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 
 	// this line is used by starport scaffolding # 1
 )
@@ -16,6 +17,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterConcrete(Params{}, "<%= appName %>/x/<%= moduleName %>/Params", nil)
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "<%= appName %>/x/<%= moduleName %>/MsgUpdateParams")
+
+	legacytx.RegisterLegacyAminoCodec(cdc)
 }
 
 

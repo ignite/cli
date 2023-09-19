@@ -151,8 +151,7 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		}
 
 		// Import
-		template := `%[2]vmodule "%[3]v/x/%[2]v"
-		%[2]vmodulekeeper "%[3]v/x/%[2]v/keeper"
+		template := `%[2]vmodulekeeper "%[3]v/x/%[2]v/keeper"
 %[1]v`
 		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderSgAppModuleImport, replacement)
