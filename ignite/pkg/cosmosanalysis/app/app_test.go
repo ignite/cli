@@ -373,9 +373,6 @@ func TestFindRegisteredModules(t *testing.T) {
 	}
 }
 
-func TestResolveCosmosPackagePath(t *testing.T) {
-}
-
 func TestCheckAppWiring(t *testing.T) {
 	tests := []struct {
 		name    string
