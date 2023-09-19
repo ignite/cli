@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,7 +41,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 		FromAddress: sdkaddr.String(),
 		ToAddress:   "cosmos1k8e50d2d8xkdfw9c4et3m45llh69e7xzw6uzga",
 		Amount: sdktypes.NewCoins(
-			sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+			sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 		),
 	}
 	tests := []struct {
@@ -67,7 +68,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
+					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -82,7 +83,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
+					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -103,7 +104,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
+					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -129,7 +130,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
+					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -158,7 +159,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(mock.Anything, "bob", mock.Anything, true).
+					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).

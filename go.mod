@@ -2,8 +2,6 @@ module github.com/ignite/cli
 
 go 1.21
 
-toolchain go1.21.1
-
 require (
 	cosmossdk.io/math v1.1.2
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
