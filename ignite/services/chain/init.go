@@ -177,64 +177,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
-		var (
-			providerClientState = &ibctmtypes.ClientState{
-				ChainId:         "provider",
-				TrustLevel:      ibctmtypes.DefaultTrustLevel,
-				TrustingPeriod:  time.Hour * 64,
-				UnbondingPeriod: time.Hour * 128,
-				MaxClockDrift:   time.Minute * 5,
-			}
-			providerConsState = &ibctmtypes.ConsensusState{
-				Timestamp: time.Now().Add(time.Hour * 24),
-				Root: commitmenttypes.NewMerkleRoot(
-					[]byte("LpGpeyQVLUo9HpdsgJr12NP2eCICspcULiWa5u9udOA="),
-				),
-				NextValidatorsHash: []byte("E30CE736441FB9101FADDAF7E578ABBE6DFDB67207112350A9A904D554E1F5BE"),
-			}
-			// Like for sovereign chain, provide only a single validator
-			valUpdates = cmtkv.RandVals(1)
-			params     = ccvconsumertypes.NewParams(
-				true,
-				1000, // ignore distribution
-				"",   // ignore distribution
-				"",   // ignore distribution
-				ccvtypes.DefaultCCVTimeoutPeriod,
-				ccvconsumertypes.DefaultTransferTimeoutPeriod,
-				ccvconsumertypes.DefaultConsumerRedistributeFrac,
-				ccvconsumertypes.DefaultHistoricalEntries,
-				ccvconsumertypes.DefaultConsumerUnbondingPeriod,
-				"0", // disable soft opt-out
-				[]string{},
-				[]string{},
-			)
-		)
-		consumerGen := ccvconsumertypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
-		// Read genesis file
-		genPath, err := c.GenesisPath()
-		if err != nil {
-			return err
-		}
-		genState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genPath)
-		if err != nil {
-			return err
-		}
-		// Update consumer module gen state
-		interfaceRegistry := codectypes.NewInterfaceRegistry()
-		marshaler := codec.NewProtoCodec(interfaceRegistry)
-		bz, err := marshaler.MarshalJSON(consumerGen)
-		if err != nil {
-			return err
-		}
-		genState[ccvconsumertypes.ModuleName] = bz
-		// Update whole genesis
-		bz, err = json.MarshalIndent(genState, "", "  ")
-		if err != nil {
-			return err
-		}
-		genDoc.AppState = bz
-		// Save genesis
-		if err := genDoc.SaveAs(genPath); err != nil {
+		if err := c.writeConsumerGenesis(); err != nil {
 			return err
 		}
 	} else {
@@ -248,6 +191,67 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 		}
 	}
 	return nil
+}
+
+func (c *Chain) writeConsumerGenesis() error {
+	var (
+		providerClientState = &ibctmtypes.ClientState{
+			ChainId:         "provider",
+			TrustLevel:      ibctmtypes.DefaultTrustLevel,
+			TrustingPeriod:  time.Hour * 64,
+			UnbondingPeriod: time.Hour * 128,
+			MaxClockDrift:   time.Minute * 5,
+		}
+		providerConsState = &ibctmtypes.ConsensusState{
+			Timestamp: time.Now().Add(time.Hour * 24),
+			Root: commitmenttypes.NewMerkleRoot(
+				[]byte("LpGpeyQVLUo9HpdsgJr12NP2eCICspcULiWa5u9udOA="),
+			),
+			NextValidatorsHash: []byte("E30CE736441FB9101FADDAF7E578ABBE6DFDB67207112350A9A904D554E1F5BE"),
+		}
+		// Like for sovereign chain, provide only a single validator
+		valUpdates = cmtkv.RandVals(1)
+		params     = ccvconsumertypes.NewParams(
+			true,
+			1000, // ignore distribution
+			"",   // ignore distribution
+			"",   // ignore distribution
+			ccvtypes.DefaultCCVTimeoutPeriod,
+			ccvconsumertypes.DefaultTransferTimeoutPeriod,
+			ccvconsumertypes.DefaultConsumerRedistributeFrac,
+			ccvconsumertypes.DefaultHistoricalEntries,
+			ccvconsumertypes.DefaultConsumerUnbondingPeriod,
+			"0", // disable soft opt-out
+			[]string{},
+			[]string{},
+		)
+	)
+	consumerGen := ccvconsumertypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
+	// Read genesis file
+	genPath, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+	genState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genPath)
+	if err != nil {
+		return err
+	}
+	// Update consumer module gen state
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	marshaler := codec.NewProtoCodec(interfaceRegistry)
+	bz, err := marshaler.MarshalJSON(consumerGen)
+	if err != nil {
+		return err
+	}
+	genState[ccvconsumertypes.ModuleName] = bz
+	// Update whole genesis
+	bz, err = json.MarshalIndent(genState, "", "  ")
+	if err != nil {
+		return err
+	}
+	genDoc.AppState = bz
+	// Save genesis
+	return genDoc.SaveAs(genPath)
 }
 
 // IssueGentx generates a gentx from the validator information in chain config and imports it in the chain genesis.
