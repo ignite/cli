@@ -14,6 +14,7 @@
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 - [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.10.0`
+- [#3656](https://github.com/ignite/cli/pull/3656) Disable Go toolchain download
 
 ### Fixes
 
@@ -36,6 +37,7 @@
 - [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
 - [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 - [#3524](https://github.com/ignite/cli/pull/3524) Apply auto tools migration to other commands
+- [#3636](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - Added compatibility check and auto migration features and interactive guidelines for the latest versions of the SDK
 
 ### Changes
