@@ -291,12 +291,42 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 }
 
 // IsInitialized checks if the chain is initialized.
-// The check is performed by checking if the gentx dir exists in the config.
+// The check is performed by checking if the gentx dir exists in the config,
+// unless c is a consumer chain, in that case the check relies on checking
+// if the consumer genesis module is filled with validators.
 func (c *Chain) IsInitialized() (bool, error) {
 	home, err := c.Home()
 	if err != nil {
 		return false, err
 	}
+	cfg, err := c.Config()
+	if err != nil {
+		return false, err
+	}
+	if cfg.IsConsumerChain() {
+		// Consumer chain doesn't have necessarily gentxs, so we can't rely on that
+		// to determine if it's initialized. To perform that check, we need to
+		// ensure the consumer genesis has InitialValSet filled.
+		genPath, err := c.GenesisPath()
+		if err != nil {
+			return false, err
+		}
+		genState, _, err := genutiltypes.GenesisStateFromGenFile(genPath)
+		if err != nil {
+			return false, err
+		}
+		var (
+			consumerGenesis   ccvconsumertypes.GenesisState
+			interfaceRegistry = codectypes.NewInterfaceRegistry()
+			codec             = codec.NewProtoCodec(interfaceRegistry)
+		)
+		err = codec.UnmarshalJSON(genState[ccvconsumertypes.ModuleName], &consumerGenesis)
+		if err != nil {
+			return false, err
+		}
+		return len(consumerGenesis.InitialValSet) != 0, nil
+	}
+
 	gentxDir := filepath.Join(home, "config", "gentx")
 
 	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
