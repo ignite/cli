@@ -16,6 +16,7 @@
 - [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.10.0`
 - [#3653](https://github.com/ignite/cli/pull/3653) Add "app" extension to plugin binaries
 - [#3656](https://github.com/ignite/cli/pull/3656) Disable Go toolchain download
+- [#3662](https://github.com/ignite/cli/pull/3662) Refactor CLI "plugin" command to "app"
 
 ### Fixes
 
