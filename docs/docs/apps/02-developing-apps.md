@@ -42,10 +42,10 @@ All apps must implement a predefined interface:
 
 ```go title=ignite/services/plugin/interface.go
 type Interface interface {
-	// Manifest declares the plugin's Command(s) and Hook(s).
+	// Manifest declares app's Command(s) and Hook(s).
 	Manifest() (Manifest, error)
 
-	// Execute will be invoked by ignite when a plugin Command is executed.
+	// Execute will be invoked by ignite when an app Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
 	Execute(cmd ExecutedCommand) error
@@ -91,18 +91,19 @@ type Manifest struct {
 	// commands.
 	Hooks []Hook
 
-	// SharedHost enables sharing a single plugin server across all running instances
-	// of a plugin. Useful if a plugin adds or extends long running commands
+	// SharedHost enables sharing a single app server across all running instances
+	// of an app. Useful if an app adds or extends long running commands
 	//
-	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// Example: if an app defines a hook on `ignite chain serve`, a server is instanciated
 	// when the command is run. Now if you want to interact with that instance from commands
-	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
-	// instantiate separate plugin servers.
+	// defined in that app, you need to enable `SharedHost`, or else the commands will just
+	// instantiate separate app servers.
 	//
-	// When enabled, all plugins of the same `Path` loaded from the same configuration will
-	// attach it's rpc client to a an existing rpc server.
+	// When enabled, all apps of the same `Path` loaded from the same configuration will
+	// attach it's gRPC client to a an existing gRPC server.
 	//
-	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
+	// If an app instance has no other running app servers, it will create one and it
+	// will be the host.
 	SharedHost bool `yaml:"shared_host"`
 }
 ```
@@ -131,7 +132,7 @@ For instance, let's say your app adds a new `oracle` command to `ignite
 scaffold`, then the `Manifest` method will look like :
 
 ```go
-func (p) Manifest() (plugin.Manifest, error) {
+func (app) Manifest() (plugin.Manifest, error) {
 	return plugin.Manifest{
 		Name: "oracle",
 		Commands: []plugin.Command{
@@ -155,7 +156,7 @@ To update the app execution, you have to change the `Execute` command. For
 example:
 
 ```go
-func (p) Execute(cmd plugin.ExecutedCommand) error {
+func (app) Execute(cmd plugin.ExecutedCommand) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("oracle name missing")
 	}
@@ -198,7 +199,7 @@ resulting in `post` and `clean up` not executing.
 The following is an example of a `hook` definition.
 
 ```go
-func (p) Manifest() (plugin.Manifest, error) {
+func (app) Manifest() (plugin.Manifest, error) {
 	return plugin.Manifest{
 		Name: "oracle",
 		Hooks: []plugin.Hook{
@@ -210,7 +211,7 @@ func (p) Manifest() (plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookPre(hook plugin.ExecutedHook) error {
 	switch hook.Name {
 	case "my-hook":
 		fmt.Println("I'm executed before ignite chain build")
@@ -220,7 +221,7 @@ func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
 	return nil
 }
 
-func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookPost(hook plugin.ExecutedHook) error {
 	switch hook.Name {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (if no error)")
@@ -230,7 +231,7 @@ func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
 	switch hook.Name {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (regardless errors)")
