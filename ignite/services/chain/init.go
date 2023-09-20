@@ -3,7 +3,6 @@ package chain
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,10 +13,9 @@ import (
 	"github.com/imdario/mergo"
 
 	cmtypes "github.com/cometbft/cometbft/abci/types"
+	cmprivval "github.com/cometbft/cometbft/privval"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	ccvconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
@@ -235,18 +233,22 @@ func (c *Chain) writeConsumerGenesis(validator chaincmdrunner.Account) error {
 			[]string{},
 			[]string{},
 		)
-		interfaceRegistry = codectypes.NewInterfaceRegistry()
-		codec             = codec.NewProtoCodec(interfaceRegistry)
-		pk                cryptotypes.PubKey
 	)
-	cryptocodec.RegisterInterfaces(interfaceRegistry)
-	// Transform the pubkey found in the keyring into cmtypes.ValidatorUpdate
-	if err := codec.UnmarshalInterfaceJSON([]byte(validator.PubKey), &pk); err != nil {
-		return fmt.Errorf("unmarshalling %q: %w", validator.PubKey, err)
+	// Load public key from priv_validator_key.json file
+	pvKeyFile, err := c.PrivValidatorKeyPath()
+	if err != nil {
+		return err
 	}
+	filePV := cmprivval.LoadFilePVEmptyState(pvKeyFile, "")
+	pk, err := filePV.GetPubKey()
+	if err != nil {
+		return err
+	}
+	// Feed initial_val_set with this public key
 	valUpdates := cmtypes.ValidatorUpdates{
 		cmtypes.UpdateValidator(pk.Bytes(), 1, pk.Type()),
 	}
+	// Build consumer genesis
 	consumerGen := ccvconsumertypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
 	// Read genesis file
 	genPath, err := c.GenesisPath()
@@ -258,6 +260,8 @@ func (c *Chain) writeConsumerGenesis(validator chaincmdrunner.Account) error {
 		return err
 	}
 	// Update consumer module gen state
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	codec := codec.NewProtoCodec(interfaceRegistry)
 	bz, err := codec.MarshalJSON(consumerGen)
 	if err != nil {
 		return err
