@@ -10,6 +10,7 @@ var (
 	User    = "👤"
 	Command = "❯⎯"
 	Hook    = "🪝"
+	Tada    = "🎉"
 
 	// OK is an OK mark.
 	OK = colors.SprintFunc(colors.Green)("✔")
