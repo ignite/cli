@@ -29,6 +29,7 @@ const (
 	releaseChecksumKey           = "release_checksum"
 	modChecksumKey               = "go_mod_checksum"
 	buildDirchangeCacheNamespace = "build.dirchange"
+	skipCCVMsgFilterBuildTag     = "skip_ccv_msg_filter"
 )
 
 // Build builds and installs app binaries.
@@ -70,6 +71,17 @@ func (c *Chain) build(
 		if err := c.generateFromConfig(ctx, cacheStorage, generateClients); err != nil {
 			return err
 		}
+	}
+
+	cfg, err := c.Config()
+	if err != nil {
+		return err
+	}
+	if cfg.IsConsumerChain() {
+		// When building a non-release consumer chain, enable skipCCVMsgFilterBuildTag
+		// so the consumer anteHandler doesn't filter non-IBC message when it's not
+		// initialized with a provider chain.
+		buildTags = append(buildTags, skipCCVMsgFilterBuildTag)
 	}
 
 	buildFlags, err := c.preBuild(ctx, cacheStorage, buildTags...)
