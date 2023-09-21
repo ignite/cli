@@ -46,8 +46,6 @@ func New(ctx context.Context, chainCmd chaincmd.ChainCmd, options ...Option) (Ru
 		stdout:   io.Discard,
 		stderr:   io.Discard,
 	}
-	// runner.stdout = os.Stdout
-	// runner.stderr = os.Stderr
 
 	applyOptions(&runner, options)
 
