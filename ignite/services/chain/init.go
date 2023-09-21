@@ -317,7 +317,9 @@ func (c *Chain) IsInitialized() (bool, error) {
 		}
 		genState, _, err := genutiltypes.GenesisStateFromGenFile(genPath)
 		if err != nil {
-			return false, err
+			// If the genesis isn't readable, don't propagate the error, just
+			// consider the chain isn't initialized.
+			return false, nil
 		}
 		var (
 			consumerGenesis   ccvconsumertypes.GenesisState
