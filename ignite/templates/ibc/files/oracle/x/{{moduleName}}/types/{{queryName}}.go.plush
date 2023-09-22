@@ -66,12 +66,6 @@ func (m *Msg<%= queryName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
-// GetSignBytes returns the signed bytes from the message
-func (m *Msg<%= queryName.UpperCamel %>Data) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(m)
-	return sdk.MustSortJSON(bz)
-}
-
 // ValidateBasic check the basic message validation
 func (m *Msg<%= queryName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)

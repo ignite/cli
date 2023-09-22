@@ -95,8 +95,9 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		}
 
 		// Import
-		template := `%[2]vmoduletypes "%[3]v/x/%[2]v/types"
-%[2]vmodulev1 "%[3]v/api/%[4]v/%[2]v/module"
+		template := `%[2]vmodulev1 "%[3]v/api/%[4]v/%[2]v/module"
+_ "%[3]v/x/%[2]v" // import for side-effects
+%[2]vmoduletypes "%[3]v/x/%[2]v/types"
 %[1]v`
 		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath, opts.AppName)
 		content := replacer.Replace(fConfig.String(), module.PlaceholderSgAppModuleImport, replacement)

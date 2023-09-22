@@ -33,11 +33,6 @@ func (msg *Msg<%= MsgName.UpperCamel %>) GetSigners() []sdk.AccAddress {
   return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
-func (msg *Msg<%= MsgName.UpperCamel %>) GetSignBytes() []byte {
-  bz := ModuleCdc.MustMarshalJSON(msg)
-  return sdk.MustSortJSON(bz)
-}
-
 func (msg *Msg<%= MsgName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   	if err != nil {

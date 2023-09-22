@@ -44,11 +44,6 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
   return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
-func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
-  bz := ModuleCdc.MustMarshalJSON(msg)
-  return sdk.MustSortJSON(bz)
-}
-
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   	if err != nil {
@@ -89,11 +84,6 @@ func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
   return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
-func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
-  bz := ModuleCdc.MustMarshalJSON(msg)
-  return sdk.MustSortJSON(bz)
-}
-
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
@@ -129,11 +119,6 @@ func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
     panic(err)
   }
   return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
-func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
-  bz := ModuleCdc.MustMarshalJSON(msg)
-  return sdk.MustSortJSON(bz)
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) ValidateBasic() error {
