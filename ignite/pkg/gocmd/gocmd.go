@@ -91,7 +91,9 @@ func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
 			// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
 			// mod tidy requests the sumdb, until we understand why, we disable sumdb.
 			// related issue:  https://github.com/golang/go/issues/56174
-			exec.StepOption(step.Env("GOSUMDB=off")),
+			// Also disable Go toolchain download because it doesn't work without a valid
+			// GOSUMDB value: https://go.dev/doc/toolchain#download
+			exec.StepOption(step.Env("GOSUMDB=off", "GOTOOLCHAIN=local+path")),
 		)...)
 }
 
