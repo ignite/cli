@@ -607,8 +607,8 @@ Or globally:
 func NewAppDescribe() *cobra.Command {
 	return &cobra.Command{
 		Use:   "describe [path]",
-		Short: "Output information about installed apps",
-		Long: `Output information about an installed Ignite App commands and hooks.
+		Short: "Print information about installed apps",
+		Long: `Print information about an installed Ignite App commands and hooks.
 
 Example:
   ignite app describe github.com/org/my-app/`,
