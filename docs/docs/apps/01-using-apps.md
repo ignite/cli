@@ -9,7 +9,7 @@ core concepts within apps: `Commands` and `Hooks`. `Commands` extend the CLI's
 functionality and `Hooks` extend existing CLI command functionality.
 
 Apps are registered in an Ignite scaffolded blockchain project through the
-`apps.yml`, or globally through `$HOME/.ignite/apps/apps.yml`.
+`plugins.yml`, or globally through `$HOME/.ignite/plugins/plugins.yml`.
 
 To use an app within your project execute the following command inside the
 project directory:
