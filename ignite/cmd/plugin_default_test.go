@@ -32,11 +32,13 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Arrange
 			cmd := &cobra.Command{Use: "ignite"}
 
-			err := ensureDefaultPlugins(cmd, tt.cfg)
-			assert.NoError(t, err)
+			// Act
+			ensureDefaultPlugins(cmd, tt.cfg)
 
+			// Assert
 			expectedCmd := findCommandByPath(cmd, "ignite network")
 			if tt.expectAddedInCommand {
 				assert.NotNil(t, expectedCmd)

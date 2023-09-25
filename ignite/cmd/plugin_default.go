@@ -12,13 +12,8 @@ import (
 
 // ensureDefaultPlugins ensures that all defaultPlugins are wether registered
 // in cfg OR have an install command added to rootCmd.
-func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *pluginsconfig.Config) error {
-	defaultPlugins, err := plugin.GetDefaultPlugins()
-	if err != nil {
-		return err
-	}
-
-	for _, dp := range defaultPlugins {
+func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *pluginsconfig.Config) {
+	for _, dp := range plugin.GetDefaultPlugins() {
 		// Check if plugin is declared in global config
 		if cfg.HasPlugin(dp.Path) {
 			// plugin found nothing to do
@@ -27,8 +22,6 @@ func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *pluginsconfig.Config) err
 		// plugin not found in config, add a proxy install command
 		rootCmd.AddCommand(newPluginInstallCmd(dp))
 	}
-
-	return nil
 }
 
 // newPluginInstallCmd mimics the plugin command but acts as proxy to first:
