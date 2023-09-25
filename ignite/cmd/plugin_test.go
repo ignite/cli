@@ -412,27 +412,6 @@ func TestLinkPluginHooks(t *testing.T) {
 		expectedError string
 		setup         func(*testing.T, *mocks.PluginInterface)
 	}{
-		// TODO(tb): commented because linkPluginCmds is not invoked in this test,
-		// so it's not possible to assert that a hook can't be placed on a plugin
-		// command.
-		/*
-			{
-				name: "fail: hook plugin command",
-				setup: func(t *testing.T, p*mocks.PluginInterface) {
-					p.EXPECT().Manifest().Return(plugin.Manifest{Commands:[]plugin.Command{{Use: "test-plugin"}}, nil)
-					p.EXPECT().Manifest().Return(plugin.Manifest{
-						[]plugin.Hook{
-							{
-								Name:        "test-hook",
-								PlaceHookOn: "ignite test-plugin",
-							},
-						},
-						nil,
-					)
-				},
-				expectedError: `unable to find command path "ignite test-plugin" for plugin hook "test-hook"`,
-			},
-		*/
 		{
 			name: "fail: command not runnable",
 			setup: func(t *testing.T, p *mocks.PluginInterface) {
