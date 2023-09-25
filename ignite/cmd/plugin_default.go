@@ -67,7 +67,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 				// plugin already declared in global plugins, this shouldn't happen
 				// because this is actually why this command has been added, so let's
 				// break violently
-				panic(fmt.Sprintf("plugin %q unexpected in global config", dp.path))
+				panic(fmt.Sprintf("app %q unexpected in global config", dp.path))
 			}
 
 			// add plugin to config

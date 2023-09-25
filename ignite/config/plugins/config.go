@@ -13,9 +13,9 @@ import (
 )
 
 type Config struct {
-	// path to the config file
 	path string
 
+	// Plugins holds the list of installed plugins.
 	Plugins []Plugin `yaml:"plugins"`
 }
 
@@ -38,8 +38,10 @@ type Plugin struct {
 	//
 	// path: github.com/foo/bar/plugin1@v42
 	Path string `yaml:"path"`
+
 	// With holds arguments passed to the plugin interface
 	With map[string]string `yaml:"with,omitempty"`
+
 	// Global holds whether the plugin is installed globally
 	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
 	Global bool `yaml:"-"`
@@ -85,9 +87,8 @@ func (p Plugin) IsLocalPath() bool {
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.
-// Example:
-// github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true"
-// will be returned.
+// For example github.com/foo/bar@v1 and github.com/foo/bar@v2 have the
+// same path so "true" will be returned.
 func (p Plugin) HasPath(path string) bool {
 	if path == "" {
 		return false

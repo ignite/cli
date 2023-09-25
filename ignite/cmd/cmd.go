@@ -39,8 +39,8 @@ const (
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
-// Returns the cobra.Command, a cleanUp function and an error. The cleanUp
-// function must be invoked by the caller to clean eventual plugin instances.
+// Returns the cobra.Command, a cleanup function and an error. The cleanup
+// function must be invoked by the caller to clean eventual Ignite App instances.
 func New(ctx context.Context) (*cobra.Command, func(), error) {
 	cobra.EnableCommandSorting = false
 
@@ -85,7 +85,7 @@ To get started, create a blockchain:
 
 	// Load plugins if any
 	if err := LoadPlugins(ctx, c); err != nil {
-		return nil, nil, fmt.Errorf("error while loading plugins: %w", err)
+		return nil, nil, fmt.Errorf("error while loading apps: %w", err)
 	}
 	return c, UnloadPlugins, nil
 }
