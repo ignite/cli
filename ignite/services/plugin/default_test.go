@@ -12,7 +12,7 @@ func TestGetDefaultPlugins(t *testing.T) {
 	plugins := GetDefaultPlugins()
 
 	// Assert
-	require.Greater(t, plugins, 0)
+	require.Greater(t, len(plugins), 0)
 }
 
 func TestGetDefaultNetworkPlugin(t *testing.T) {

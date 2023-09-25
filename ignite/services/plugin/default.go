@@ -8,7 +8,7 @@ var defaultPlugins = []DefaultPlugin{
 	{
 		Use:     "network",
 		Short:   "Launch a blockchain in production",
-		Aliases: []string{},
+		Aliases: []string{"n"},
 		Path:    "github.com/ignite/cli-plugin-network@v0.1.1",
 	},
 }
