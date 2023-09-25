@@ -38,14 +38,14 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "fail: local app doesnt exists",
+			name:      "fail: local plugin doesnt exists",
 			pluginCfg: pluginsconfig.Plugin{Path: "/xxx/yyy/app"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`local app path "/xxx/yyy/app" not found`),
 			},
 		},
 		{
-			name:      "fail: local app is not a directory",
+			name:      "fail: local plugin is not a directory",
 			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata/fakebin")},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
@@ -60,14 +60,14 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "fail: remote app with only domain",
+			name:      "fail: remote plugin with only domain",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`app path "github.com" is not a valid repository URL`),
 			},
 		},
 		{
-			name:      "fail: remote app with incomplete URL",
+			name:      "fail: remote plugin with incomplete URL",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
@@ -86,7 +86,7 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "ok: remote app with @ref",
+			name:      "ok: remote plugin with @ref",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app@develop"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@develop",
@@ -98,7 +98,7 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "ok: remote app with @ref containing slash",
+			name:      "ok: remote plugin with @ref containing slash",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app@package/v1.0.0"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@package/v1.0.0",
@@ -110,7 +110,7 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "ok: remote app with subpath",
+			name:      "ok: remote plugin with subpath",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app/plugin1"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app",
@@ -122,7 +122,7 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "ok: remote app with subpath and @ref",
+			name:      "ok: remote plugin with subpath and @ref",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app/plugin1@develop"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@develop",
@@ -134,7 +134,7 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "ok: remote app with subpath and @ref containing slash",
+			name:      "ok: remote plugin with subpath and @ref containing slash",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app/plugin1@package/v1.0.0"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@package/v1.0.0",
@@ -190,7 +190,7 @@ func TestPluginLoad(t *testing.T) {
 		expectedError string
 	}{
 		{
-			name: "fail: app is already in error",
+			name: "fail: plugin is already in error",
 			buildPlugin: func(t *testing.T) Plugin {
 				return Plugin{
 					Error: errors.New("oups"),
@@ -460,7 +460,7 @@ func TestPluginClean(t *testing.T) {
 			},
 		},
 		{
-			name:   "dont clean app with errors",
+			name:   "dont clean plugin with errors",
 			plugin: &Plugin{Error: errors.New("oups")},
 		},
 		{
