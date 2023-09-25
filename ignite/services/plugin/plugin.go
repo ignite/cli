@@ -45,12 +45,12 @@ type Plugin struct {
 	// If any error occurred during the plugin load, it's stored here.
 	Error error
 
-	repoPath   string
-	cloneURL   string
-	cloneDir   string
-	reference  string
-	srcPath    string
-	binaryName string
+	name      string
+	repoPath  string
+	cloneURL  string
+	cloneDir  string
+	reference string
+	srcPath   string
 
 	client *hplugin.Client
 
@@ -83,8 +83,8 @@ func CollectEvents(ev events.Bus) Option {
 // Remote plugins require to be fetched first, in $HOME/.ignite/plugins folder, then they are loaded
 // from there.
 //
-// If an error occurs during a plugin load, it's not returned but rather stored in the Plugin.Error field.
-// This prevents the loading of other plugins to be interrupted.
+// If an error occurs during a plugin load, it's not returned but rather stored in the `Plugin.Error`
+// field. This prevents the loading of other plugins to be interrupted.
 func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
@@ -141,7 +141,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 			return p
 		}
 		p.srcPath = pluginPath
-		p.binaryName = path.Base(pluginPath)
+		p.name = path.Base(pluginPath)
 		return p
 	}
 	// This is a remote plugin, parse the URL
@@ -171,7 +171,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	repoSubPath := path.Join(parts[3:]...)
 
 	p.srcPath = path.Join(p.cloneDir, repoSubPath)
-	p.binaryName = path.Base(pluginPath)
+	p.name = path.Base(pluginPath)
 
 	return p
 }
@@ -200,8 +200,12 @@ func (p Plugin) Manifest() *Manifest {
 	return p.manifest
 }
 
-func (p *Plugin) binaryPath() string {
-	return path.Join(p.srcPath, p.binaryName)
+func (p Plugin) binaryName() string {
+	return fmt.Sprintf("%s.app", p.name)
+}
+
+func (p Plugin) binaryPath() string {
+	return path.Join(p.srcPath, p.binaryName())
 }
 
 // load tries to fill p.Interface, ensuring the plugin is usable.
@@ -236,7 +240,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.binaryName: NewGRPC(nil),
+		p.name: NewGRPC(nil),
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
@@ -283,7 +287,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	// Request the plugin
-	raw, err := rpcClient.Dispense(p.binaryName)
+	raw, err := rpcClient.Dispense(p.name)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "dispensing")
 		return
@@ -349,7 +353,7 @@ func (p *Plugin) build(ctx context.Context) {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	if err := gocmd.Build(ctx, p.binaryName, p.srcPath, nil); err != nil {
+	if err := gocmd.Build(ctx, p.binaryName(), p.srcPath, nil); err != nil {
 		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
