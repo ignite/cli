@@ -559,7 +559,7 @@ Example:
 func NewAppScaffold() *cobra.Command {
 	return &cobra.Command{
 		Use:   "scaffold [name]",
-		Short: "Scaffold a new Ignire App",
+		Short: "Scaffold a new Ignite App",
 		Long: `Scaffolds a new Ignite App in the current directory.
 
 A git repository will be created with the given module name, unless the current directory is already a git repository.
