@@ -471,7 +471,6 @@ func (c ChainCmd) UnsafeResetCommand() step.Option {
 // ExportCommand returns the command to export the state of the blockchain into a genesis file.
 func (c ChainCmd) ExportCommand() step.Option {
 	command := []string{
-		commandGenesis,
 		commandExport,
 	}
 	return c.daemonCommand(command)
