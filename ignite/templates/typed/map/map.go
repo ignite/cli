@@ -546,22 +546,31 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
 			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
 		}
-		commonFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
+
+		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		commonFields := []*proto.NormalField{creator}
 		commonFields = append(commonFields, indexes...)
 
 		msgCreate := protoutil.NewMessage(
 			"MsgCreate"+typenameUpper,
 			protoutil.WithFields(append(commonFields, fields...)...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage("MsgCreate" + typenameUpper + "Response")
 
 		msgUpdate := protoutil.NewMessage(
 			"MsgUpdate"+typenameUpper,
 			protoutil.WithFields(append(commonFields, fields...)...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + typenameUpper + "Response")
 
-		msgDelete := protoutil.NewMessage("MsgDelete"+typenameUpper, protoutil.WithFields(commonFields...))
+		msgDelete := protoutil.NewMessage(
+			"MsgDelete"+typenameUpper,
+			protoutil.WithFields(commonFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + typenameUpper + "Response")
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,

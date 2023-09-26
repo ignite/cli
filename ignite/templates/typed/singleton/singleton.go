@@ -395,20 +395,27 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 		// Add the messages
 		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 		fields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			fields = append(fields, field.ToProtoField(i+3))
 		}
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+name, protoutil.WithFields(fields...),
+			"MsgCreate"+name,
+			protoutil.WithFields(fields...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage("MsgCreate" + name + "Response")
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+name, protoutil.WithFields(fields...),
+			"MsgUpdate"+name,
+			protoutil.WithFields(fields...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + name + "Response")
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+name, protoutil.WithFields(creator),
+			"MsgDelete"+name,
+			protoutil.WithFields(creator),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + name + "Response")
 		protoutil.Append(protoFile,

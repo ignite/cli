@@ -130,6 +130,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// Messages
 		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 		createFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			createFields = append(createFields, field.ToProtoField(i+2))
@@ -140,17 +141,35 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			updateFields = append(updateFields, field.ToProtoField(i+3))
 		}
 
-		msgCreate := protoutil.NewMessage("MsgCreate"+typenameUpper, protoutil.WithFields(createFields...))
+		msgCreate := protoutil.NewMessage(
+			"MsgCreate"+typenameUpper,
+			protoutil.WithFields(createFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgCreateResponse := protoutil.NewMessage(
 			"MsgCreate"+typenameUpper+"Response",
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
-		msgUpdate := protoutil.NewMessage("MsgUpdate"+typenameUpper, protoutil.WithFields(updateFields...))
+		msgUpdate := protoutil.NewMessage(
+			"MsgUpdate"+typenameUpper,
+			protoutil.WithFields(updateFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + typenameUpper + "Response")
-		msgDelete := protoutil.NewMessage("MsgDelete"+typenameUpper, protoutil.WithFields(udfields...))
+		msgDelete := protoutil.NewMessage(
+			"MsgDelete"+typenameUpper,
+			protoutil.WithFields(udfields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + typenameUpper + "Response")
-		protoutil.Append(protoFile,
-			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
+		protoutil.Append(
+			protoFile,
+			msgCreate,
+			msgCreateResponse,
+			msgUpdate,
+			msgUpdateResponse,
+			msgDelete,
+			msgDeleteResponse,
 		)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
