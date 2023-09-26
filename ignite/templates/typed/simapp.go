@@ -30,7 +30,7 @@ func ModuleSimulationMsgModify(
 
 		// simulation operations
 		templateOp := `var weightMsg%[2]v%[3]v int
-	simState.AppParams.GetOrGenerate(simState.Cdc, opWeightMsg%[2]v%[3]v, &weightMsg%[2]v%[3]v, nil,
+	simState.AppParams.GetOrGenerate(opWeightMsg%[2]v%[3]v, &weightMsg%[2]v%[3]v, nil,
 		func(_ *rand.Rand) {
 			weightMsg%[2]v%[3]v = defaultWeightMsg%[2]v%[3]v
 		},

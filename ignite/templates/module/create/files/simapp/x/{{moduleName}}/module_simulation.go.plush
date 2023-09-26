@@ -3,22 +3,23 @@ package <%= moduleName %>
 import (
 	"math/rand"
 
-	"<%= modulePath %>/testutil/sample"
-	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+
+	"<%= modulePath %>/testutil/sample"
+	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 // avoid unused import issue
 var (
-	_ = sample.AccAddress
 	_ = <%= moduleName %>simulation.FindAccount
-	_ = simulation.MsgEntryKind
-	_ = baseapp.Paramspace
 	_ = rand.Rand{}
+	_ = sample.AccAddress
+	_ = sdk.AccAddress{}
+	_ = simulation.MsgEntryKind
 )
 
 const (
