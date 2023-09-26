@@ -91,6 +91,7 @@ var (
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		crisistypes.ModuleName,
+		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
@@ -100,9 +101,6 @@ var (
 		vestingtypes.ModuleName,
 		circuittypes.ModuleName,
 	    // ibc modules
-		capabilitytypes.ModuleName,
-		ibcexported.ModuleName,
-		genutiltypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
@@ -125,12 +123,11 @@ var (
 		stakingtypes.ModuleName,
 		authz.ModuleName,
 		// ibc modules
-		capabilitytypes.ModuleName,
-		ibcexported.ModuleName,
-		ibctransfertypes.ModuleName,
-		genutiltypes.ModuleName,
-		icatypes.ModuleName,
-		ibcfeetypes.ModuleName,
+		// capabilitytypes.ModuleName,
+		// ibcexported.ModuleName,
+		// ibctransfertypes.ModuleName,
+		// icatypes.ModuleName,
+		// ibcfeetypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
@@ -146,7 +143,6 @@ var (
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		capabilitytypes.ModuleName,
-		genutiltypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		// chain modules
