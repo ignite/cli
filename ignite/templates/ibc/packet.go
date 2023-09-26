@@ -369,17 +369,6 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
 
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(
-			templateRegistry,
-			module.Placeholder2,
-			opts.PacketName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
-
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[2]v{},

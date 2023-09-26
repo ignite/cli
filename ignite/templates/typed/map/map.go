@@ -604,19 +604,6 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
 
-		// Concrete
-		templateConcrete := `cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
-cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
-cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
-%[1]v`
-		replacementConcrete := fmt.Sprintf(
-			templateConcrete,
-			typed.Placeholder2,
-			opts.TypeName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
-
 		// Interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgCreate%[2]v{},

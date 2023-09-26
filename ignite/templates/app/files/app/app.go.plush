@@ -162,7 +162,10 @@ func New(
 			depinject.Supply(
 				// supply the application options
 				appOpts,
-                // supply ibc keeper getter for the IBC modules
+                // Supply with IBC keeper getter for the IBC modules with App Wiring.
+                // The IBC Keeper cannot be passed because it has not been initiated yet.
+                // Passing the getter, the app IBC Keeper will always be accessible.
+                // This needs to be removed after IBC supported App Wiring.
                 app.GetIBCeKeeper,
 				// supply the logger
 				logger,

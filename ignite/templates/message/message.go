@@ -163,16 +163,6 @@ func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
 
-		templateRegisterConcrete := `cdc.RegisterConcrete(&Msg%[2]v{}, "%[3]v/%[2]v", nil)
-%[1]v`
-		replacementRegisterConcrete := fmt.Sprintf(
-			templateRegisterConcrete,
-			Placeholder2,
-			opts.MsgName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, Placeholder2, replacementRegisterConcrete)
-
 		templateRegisterImplementations := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&Msg%[2]v{},
 )

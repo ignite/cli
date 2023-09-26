@@ -280,12 +280,6 @@ func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacement)
 
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&Msg%[3]vData{}, "%[2]v/%[3]vData", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(templateRegistry, Placeholder2, opts.ModuleName, opts.QueryName.UpperCamel)
-		content = replacer.Replace(content, Placeholder2, replacementRegistry)
-
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&Msg%[2]vData{},
