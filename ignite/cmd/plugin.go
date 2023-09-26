@@ -658,8 +658,7 @@ func printPlugins(session *cliui.Session) error {
 
 func flagSetPluginsGlobal() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration"+
-		" ($HOME/.ignite/plugins/plugins.yml)")
+	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration ($HOME/.ignite/apps/igniteapps.yml)")
 	return fs
 }
 

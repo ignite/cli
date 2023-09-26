@@ -12,7 +12,7 @@ import (
 
 // ParseDir expects to find a plugin config file in dir. If dir is not a folder,
 // an error is returned.
-// The plugin config file format can be `plugins.yml` or `plugins.yaml`. If
+// The plugin config file format can be `igniteapps.yml` or `igniteapps.yaml`. If
 // found, the file is parsed into a Config and returned. If no file from the
 // given names above are found, then an empty config is returned, w/o errors.
 func ParseDir(dir string) (*Config, error) {
@@ -53,7 +53,7 @@ func ParseDir(dir string) (*Config, error) {
 }
 
 var (
-	filenames       = []string{"plugins.yml", "plugins.yaml"}
+	filenames       = []string{"igniteapps.yml", "igniteapps.yaml"}
 	defaultFilename = filenames[0]
 )
 

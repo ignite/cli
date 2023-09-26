@@ -273,11 +273,11 @@ func TestConfigSave(t *testing.T) {
 		{
 			name: "ok: config path is an existing file",
 			buildConfig: func(t *testing.T) *pluginsconfig.Config {
-				// copy testdata/plugins.yml to tmp because it will be modified
+				// copy testdata/igniteapps.yml to tmp because it will be modified
 				dir := t.TempDir()
-				bz, err := os.ReadFile("testdata/plugins.yml")
+				bz, err := os.ReadFile("testdata/igniteapps.yml")
 				require.NoError(t, err)
-				err = os.WriteFile(path.Join(dir, "plugins.yml"), bz, 0o666)
+				err = os.WriteFile(path.Join(dir, "igniteapps.yml"), bz, 0o666)
 				require.NoError(t, err)
 				// load from tmp
 				cfg, _ := pluginsconfig.ParseDir(dir)
