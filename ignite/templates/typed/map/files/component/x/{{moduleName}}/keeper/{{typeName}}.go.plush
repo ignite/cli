@@ -68,4 +68,3 @@ func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx context.Context) (list []ty
 
     return
 }
-x
