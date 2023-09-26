@@ -39,12 +39,12 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
 	} else if err == nil {
-		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
+		pluginsConfigs = append(pluginsConfigs, localCfg.Apps...)
 	}
 
 	globalCfg, err := parseGlobalPlugins()
 	if err == nil {
-		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
+		pluginsConfigs = append(pluginsConfigs, globalCfg.Apps...)
 	}
 	ensureDefaultPlugins(cmd, globalCfg)
 
@@ -97,8 +97,8 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 		return &pluginsconfig.Config{}, nil
 	}
 
-	for i := range cfg.Plugins {
-		cfg.Plugins[i].Global = true
+	for i := range cfg.Apps {
+		cfg.Apps[i].Global = true
 	}
 	return
 }
@@ -436,7 +436,7 @@ Example:
 				return err
 			}
 
-			for _, p := range conf.Plugins {
+			for _, p := range conf.Apps {
 				if p.Path == args[0] {
 					return fmt.Errorf("cannot add duplicate plugin %s", args[0])
 				}
@@ -476,7 +476,7 @@ Example:
 				return fmt.Errorf("error while loading plugin %q: %w", args[0], plugins[0].Error)
 			}
 			session.Println("Done loading plugin")
-			conf.Plugins = append(conf.Plugins, p)
+			conf.Apps = append(conf.Apps, p)
 
 			if err := conf.Save(); err != nil {
 				return err
@@ -517,9 +517,9 @@ func NewPluginRemove() *cobra.Command {
 			}
 
 			removed := false
-			for i, cp := range conf.Plugins {
+			for i, cp := range conf.Apps {
 				if cp.Path == args[0] {
-					conf.Plugins = append(conf.Plugins[:i], conf.Plugins[i+1:]...)
+					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
 				}

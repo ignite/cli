@@ -23,13 +23,13 @@ func TestAddRemovePlugin(t *testing.T) {
 		assertPlugins = func(expectedLocalPlugins, expectedGlobalPlugins []pluginsconfig.Plugin) {
 			localCfg, err := pluginsconfig.ParseDir(app.SourcePath())
 			require.NoError(err)
-			assert.ElementsMatch(expectedLocalPlugins, localCfg.Plugins, "unexpected local plugins")
+			assert.ElementsMatch(expectedLocalPlugins, localCfg.Apps, "unexpected local plugins")
 
 			globalCfgPath, err := plugin.PluginsPath()
 			require.NoError(err)
 			globalCfg, err := pluginsconfig.ParseDir(globalCfgPath)
 			require.NoError(err)
-			assert.ElementsMatch(expectedGlobalPlugins, globalCfg.Plugins, "unexpected global plugins")
+			assert.ElementsMatch(expectedGlobalPlugins, globalCfg.Apps, "unexpected global plugins")
 		}
 	)
 

@@ -83,7 +83,7 @@ func TestParseDir(t *testing.T) {
 				return
 			}
 			require.NoError(err)
-			require.Equal(tt.expectedPlugins, cfg.Plugins)
+			require.Equal(tt.expectedPlugins, cfg.Apps)
 			require.Equal(tt.expectedPath, cfg.Path())
 		})
 	}

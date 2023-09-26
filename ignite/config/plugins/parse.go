@@ -53,7 +53,6 @@ func ParseDir(dir string) (*Config, error) {
 }
 
 var (
-	// filenames is a list of recognized names as Ignite's plugins config file.
 	filenames       = []string{"plugins.yml", "plugins.yaml"}
 	defaultFilename = filenames[0]
 )

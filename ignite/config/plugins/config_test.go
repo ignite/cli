@@ -268,7 +268,7 @@ func TestConfigSave(t *testing.T) {
 				require.NoError(t, err)
 				return cfg
 			},
-			expectedContent: "plugins: []\n",
+			expectedContent: "apps: []\n",
 		},
 		{
 			name: "ok: config path is an existing file",
@@ -282,16 +282,16 @@ func TestConfigSave(t *testing.T) {
 				// load from tmp
 				cfg, _ := pluginsconfig.ParseDir(dir)
 				// add a new plugin
-				cfg.Plugins = append(cfg.Plugins, pluginsconfig.Plugin{
+				cfg.Apps = append(cfg.Apps, pluginsconfig.Plugin{
 					Path: "/path/to/plugin3",
 					With: map[string]string{"key": "val"},
 				})
 				// update a plugin
-				cfg.Plugins[1].Path = "/path/to/plugin22"
-				cfg.Plugins[1].With["key"] = "val"
+				cfg.Apps[1].Path = "/path/to/plugin22"
+				cfg.Apps[1].With["key"] = "val"
 				return cfg
 			},
-			expectedContent: `plugins:
+			expectedContent: `apps:
 - path: /path/to/plugin1
 - path: /path/to/plugin22
   with:
@@ -338,7 +338,7 @@ func TestConfigHasPlugin(t *testing.T) {
 		{
 			name: "not found in config",
 			cfg: pluginsconfig.Config{
-				Plugins: []pluginsconfig.Plugin{
+				Apps: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 				},
 			},
@@ -347,7 +347,7 @@ func TestConfigHasPlugin(t *testing.T) {
 		{
 			name: "found in config",
 			cfg: pluginsconfig.Config{
-				Plugins: []pluginsconfig.Plugin{
+				Apps: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 					{Path: "github.com/ignite/example@master"},
 				},
@@ -357,7 +357,7 @@ func TestConfigHasPlugin(t *testing.T) {
 		{
 			name: "found in config but from a local plugin",
 			cfg: pluginsconfig.Config{
-				Plugins: []pluginsconfig.Plugin{
+				Apps: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 					{Path: path.Join(wd, "testdata", "localplugin", "example")},
 				},
