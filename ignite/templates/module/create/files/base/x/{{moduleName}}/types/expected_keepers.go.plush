@@ -35,7 +35,7 @@ import (
     <% } else if (dependency.Name == "Mint") { %>
         // MintKeeper defines the expected interface for the Mint module.
         type MintKeeper interface {
-        	MintCoins(sdk.Context, sdk.Coins) error
+        	MintCoins(context.Context, sdk.Coins) error
         	// Methods imported from account should be defined here
         }
 
@@ -56,7 +56,7 @@ import (
     <% } else if (dependency.Name == "Group") { %>
         // GroupKeeper defines the expected interface for the Group module.
         type GroupKeeper interface {
-        	GetGroupSequence(sdk.Context) uint64
+        	GetGroupSequence(context.Context) uint64
         	// Methods imported from account should be defined here
         }
 
@@ -81,6 +81,6 @@ type BankKeeper interface {
 
 // ParamSubspace defines the expected Subspace interface for parameters.
 type ParamSubspace interface {
-	Get(sdk.Context, []byte, interface{})
-	Set(sdk.Context, []byte, interface{})
+	Get(context.Context, []byte, interface{})
+	Set(context.Context, []byte, interface{})
 }

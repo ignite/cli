@@ -22,12 +22,10 @@ import (
 
 func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
-	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
 	db := dbm.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
 	stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
-	stateStore.MountStoreWithDB(memStoreKey, storetypes.StoreTypeMemory, nil)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
@@ -36,8 +34,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 
 	k := keeper.NewKeeper(
 	    cdc,
-	    storeKey,
-	    memStoreKey,
+	    runtime.NewKVStoreService(storeKey),
         log.NewNopLogger(),
 	    authority.String(), <%= for (dependency) in dependencies { %>
         nil,<% } %>

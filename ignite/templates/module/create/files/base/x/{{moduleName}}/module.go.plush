@@ -6,13 +6,12 @@ import (
 	"fmt"
 
     "cosmossdk.io/core/appmodule"
+    "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -34,7 +33,7 @@ import (
 var (
 	_ module.AppModuleBasic      = (*AppModule)(nil)
 	_ module.AppModuleSimulation = (*AppModule)(nil)
-	_ module.HasABCIGenesis      = (*AppModule)(nil)
+	_ module.HasGenesis          = (*AppModule)(nil)
 	_ module.HasInvariants       = (*AppModule)(nil)
 	_ module.HasConsensusVersion = (*AppModule)(nil)
 
@@ -148,14 +147,12 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
 	cdc.MustUnmarshalJSON(gs, &genState)
 
 	InitGenesis(ctx, am.keeper, genState)
-
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
@@ -197,11 +194,10 @@ func init() {
 type <%= title(moduleName) %>Inputs struct {
 	depinject.In
 
-	KvStoreKey  *storetypes.KVStoreKey
-	MemStoreKey *storetypes.MemoryStoreKey
-	Cdc         codec.Codec
-	Config      *modulev1.Module
-	Logger      log.Logger
+	StoreService store.KVStoreService
+	Cdc          codec.Codec
+	Config       *modulev1.Module
+	Logger       log.Logger
 
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
@@ -227,8 +223,7 @@ func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Ou
     <%= if (isIBC) { %>scopedVoteKeeper := in.CapabilityKeeper.ScopeToModule(types.ModuleName)<% } %>
 	k := keeper.NewKeeper(
 	    in.Cdc,
-	    in.KvStoreKey,
-	    in.MemStoreKey,
+		in.StoreService,
 	    in.Logger,
 	    authority.String(), <%= if (isIBC) { %>
 		in.IBCKeeperFn,

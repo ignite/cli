@@ -3,11 +3,12 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
     <%= if (isIBC) { %>errorsmod "cosmossdk.io/errors"
+    "github.com/cosmos/cosmos-sdk/runtime"
     channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
     capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
     host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
@@ -19,10 +20,9 @@ import (
 
 type (
 	Keeper struct {
-		cdc      	codec.BinaryCodec
-		storeKey 	storetypes.StoreKey
-		memKey   	storetypes.StoreKey
-        logger      log.Logger
+		cdc          codec.BinaryCodec
+		storeService store.KVStoreService
+		logger       log.Logger
 
         // the address capable of executing a MsgUpdateParams message. Typically, this
         // should be the x/gov module account.
@@ -37,8 +37,7 @@ type (
 
 func NewKeeper(
     cdc codec.BinaryCodec,
-    storeKey,
-    memKey storetypes.StoreKey,
+	storeService store.KVStoreService,
     logger log.Logger,
 	authority string,<%= if (isIBC) { %>
 	ibcKeeperFn func() *ibckeeper.Keeper,
@@ -51,11 +50,10 @@ func NewKeeper(
 	}
 
 	return Keeper{
-        cdc:      	cdc,
-        storeKey: 	storeKey,
-        memKey:   	memKey,
-		authority: authority,
-		logger:    logger,<%= if (isIBC) { %>
+		cdc:          cdc,
+		storeService: storeService,
+		authority:    authority,
+		logger:       logger,<%= if (isIBC) { %>
         ibcKeeperFn:   ibcKeeperFn,
         scopedKeeper:  scopedKeeper,<% } %>
 		<%= for (dependency) in dependencies { %>
@@ -69,8 +67,8 @@ func (k Keeper) GetAuthority() string {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger() log.Logger {
+	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 <%= if (isIBC) { %>// ----------------------------------------------------------------------------
@@ -78,7 +76,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // ----------------------------------------------------------------------------
 
 // ChanCloseInit defines a wrapper function for the channel Keeper's function.
-func (k Keeper) ChanCloseInit(ctx sdk.Context, portID, channelID string) error {
+func (k Keeper) ChanCloseInit(ctx context.Context, portID, channelID string) error {
 	capName := host.ChannelCapabilityPath(portID, channelID)
 	chanCap, ok := k.scopedKeeper.GetCapability(ctx, capName)
 	if !ok {
@@ -88,38 +86,38 @@ func (k Keeper) ChanCloseInit(ctx sdk.Context, portID, channelID string) error {
 }
 
 // IsBound checks if the IBC app module is already bound to the desired port
-func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
+func (k Keeper) IsBound(ctx context.Context, portID string) bool {
 	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
 	return ok
 }
 
 // BindPort defines a wrapper function for the port Keeper's function in
 // order to expose it to module's InitGenesis function
-func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
+func (k Keeper) BindPort(ctx context.Context, portID string) error {
 	cap := k.ibcKeeperFn().PortKeeper.BindPort(ctx, portID)
 	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
 }
 
 // GetPort returns the portID for the IBC app module. Used in ExportGenesis
-func (k Keeper) GetPort(ctx sdk.Context) string {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) GetPort(ctx context.Context) string {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	return string(store.Get(types.PortKey))
 }
 
 // SetPort sets the portID for the IBC app module. Used in InitGenesis
-func (k Keeper) SetPort(ctx sdk.Context, portID string) {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) SetPort(ctx context.Context, portID string) {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store.Set(types.PortKey, []byte(portID))
 }
 
 // AuthenticateCapability wraps the scopedKeeper's AuthenticateCapability function
-func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool {
+func (k Keeper) AuthenticateCapability(ctx context.Context, cap *capabilitytypes.Capability, name string) bool {
 	return k.scopedKeeper.AuthenticateCapability(ctx, cap, name)
 }
 
 // ClaimCapability allows the IBC app module to claim a capability that core IBC
 // passes to it
-func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
+func (k Keeper) ClaimCapability(ctx context.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
 }
 

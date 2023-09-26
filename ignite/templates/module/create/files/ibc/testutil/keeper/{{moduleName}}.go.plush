@@ -45,8 +45,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 
 	k := keeper.NewKeeper(
         appCodec,
-        storeKey,
-        memStoreKey,
+        runtime.NewKVStoreService(storeKey),
         log.NewNopLogger(),
         authority.String(),
 		func() *ibckeeper.Keeper {
