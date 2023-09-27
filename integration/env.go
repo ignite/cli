@@ -20,7 +20,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
@@ -71,10 +70,14 @@ func compileBinary(ctx context.Context) {
 	if err != nil {
 		panic(fmt.Sprintf("unable to get working dir: %v", err))
 	}
-	_, appPath, err := gomodulepath.Find(wd)
+	pkgs, err := gocmd.List(ctx, wd, []string{"-m", "-f={{.Dir}}", "github.com/ignite/cli"})
 	if err != nil {
-		panic(fmt.Sprintf("unable to read go module path: %v", err))
+		panic(fmt.Sprintf("unable to list ignite cli package: %v", err))
 	}
+	if len(pkgs) != 1 {
+		panic(fmt.Sprintf("expected only one package, got %d", len(pkgs)))
+	}
+	appPath := pkgs[0]
 	var (
 		output, binary = filepath.Split(IgniteApp)
 		path           = path.Join(appPath, "ignite", "cmd", "ignite")
