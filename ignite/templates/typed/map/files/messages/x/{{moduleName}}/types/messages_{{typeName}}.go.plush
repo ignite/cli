@@ -6,12 +6,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-const (
-	TypeMsgCreate<%= TypeName.UpperCamel %> = "create_<%= TypeName.Snake %>"
-	TypeMsgUpdate<%= TypeName.UpperCamel %> = "update_<%= TypeName.Snake %>"
-	TypeMsgDelete<%= TypeName.UpperCamel %> = "delete_<%= TypeName.Snake %>"
-)
-
 var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
 
 func NewMsgCreate<%= TypeName.UpperCamel %>(

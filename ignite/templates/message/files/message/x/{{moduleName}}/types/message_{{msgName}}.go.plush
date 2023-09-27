@@ -6,8 +6,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-const TypeMsg<%= MsgName.UpperCamel %> = "<%= MsgName.Snake %>"
-
 var _ sdk.Msg = &Msg<%= MsgName.UpperCamel %>{}
 
 func NewMsg<%= MsgName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *Msg<%= MsgName.UpperCamel %> {

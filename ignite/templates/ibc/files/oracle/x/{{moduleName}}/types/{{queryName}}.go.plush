@@ -6,8 +6,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-const TypeMsg<%= queryName.UpperCamel %>Data = "<%= queryName.Snake %>_data"
-
 var (
 	_ sdk.Msg = &Msg<%= queryName.UpperCamel %>Data{}
 
