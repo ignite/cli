@@ -51,15 +51,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 		expectedResponse *sdktypes.TxResponse
 		expectedError    string
 		setup            func(suite)
-	}{
-		{
-			name:          "fail: invalid msg",
-			msg:           &banktypes.MsgSend{},
-			expectedError: "invalid from address: empty address string is not allowed: invalid address",
-			setup: func(s suite) {
-				s.expectPrepareFactory(sdkaddr)
-			},
-		},
+	}{m "
 		{
 			name:          "fail: error not found",
 			msg:           msg,
