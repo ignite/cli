@@ -53,7 +53,7 @@ func (app *App) registerIBCModules() {
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
 		app.AppCodec(),
 		app.GetKey(capabilitytypes.StoreKey),
-		app.memKeys[capabilitytypes.MemStoreKey],
+		app.GetMemKey(capabilitytypes.MemStoreKey),
 	)
 
 	// add capability keeper and ScopeToModule for ibc module
