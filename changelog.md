@@ -15,6 +15,8 @@
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 - [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.10.0`
+- [#3658](https://github.com/ignite/cli/pull/3658) Rename Marshaler to Codec in EncodingConfig
+- [#3653](https://github.com/ignite/cli/pull/3653) Add "app" extension to plugin binaries
 - [#3656](https://github.com/ignite/cli/pull/3656) Disable Go toolchain download
 
 ### Fixes
@@ -24,6 +26,7 @@
 - [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`
 - [#3618](https://github.com/ignite/cli/pull/3618) Fix TS client generation import path issue
 - [#3631](https://github.com/ignite/cli/pull/3631) Fix unnecessary vue import in hooks/composables template
+- [#3661](https://github.com/ignite/cli/pull/3661) Change `pkg/cosmosanalysis` to find Cosmos SDK runtime app registered modules
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
@@ -37,6 +40,7 @@
 - [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
 - [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 - [#3524](https://github.com/ignite/cli/pull/3524) Apply auto tools migration to other commands
+- [#3636](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - Added compatibility check and auto migration features and interactive guidelines for the latest versions of the SDK
 
 ### Changes
