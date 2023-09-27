@@ -1,0 +1,15 @@
+syntax = "proto3";
+package mars.mars;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/ignite/mars/x/mars/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "mars/x/mars/Params";
+  option (gogoproto.equal) = true;
+
+  
+}
