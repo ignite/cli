@@ -26,22 +26,6 @@ func NewMsgSend<%= packetName.UpperCamel %>(
 	}
 }
 
-func (msg *MsgSend<%= packetName.UpperCamel %>) Route() string {
-    return RouterKey
-}
-
-func (msg *MsgSend<%= packetName.UpperCamel %>) Type() string {
-    return TypeMsgSend<%= packetName.UpperCamel %>
-}
-
-func (msg *MsgSend<%= packetName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-    <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-    if err != nil {
-        panic(err)
-    }
-    return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
 func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
     _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
     if err != nil {

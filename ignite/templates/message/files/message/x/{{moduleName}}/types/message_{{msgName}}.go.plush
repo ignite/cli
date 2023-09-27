@@ -17,22 +17,6 @@ func NewMsg<%= MsgName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (
 	}
 }
 
-func (msg *Msg<%= MsgName.UpperCamel %>) Route() string {
-  return RouterKey
-}
-
-func (msg *Msg<%= MsgName.UpperCamel %>) Type() string {
-  return TypeMsg<%= MsgName.UpperCamel %>
-}
-
-func (msg *Msg<%= MsgName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  if err != nil {
-    panic(err)
-  }
-  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
 func (msg *Msg<%= MsgName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   	if err != nil {

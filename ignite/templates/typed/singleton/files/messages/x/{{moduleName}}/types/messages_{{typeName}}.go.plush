@@ -21,22 +21,6 @@ func NewMsgCreate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%
 	}
 }
 
-func (msg *MsgCreate<%= TypeName.UpperCamel %>) Route() string {
-  return RouterKey
-}
-
-func (msg *MsgCreate<%= TypeName.UpperCamel %>) Type() string {
-  return TypeMsgCreate<%= TypeName.UpperCamel %>
-}
-
-func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  if err != nil {
-    panic(err)
-  }
-  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   	if err != nil {
@@ -54,22 +38,6 @@ func NewMsgUpdate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%
 	}
 }
 
-func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Route() string {
-  return RouterKey
-}
-
-func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Type() string {
-  return TypeMsgUpdate<%= TypeName.UpperCamel %>
-}
-
-func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  if err != nil {
-    panic(err)
-  }
-  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
@@ -84,21 +52,6 @@ func NewMsgDelete<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string) 
   return &MsgDelete<%= TypeName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 	}
-}
-func (msg *MsgDelete<%= TypeName.UpperCamel %>) Route() string {
-  return RouterKey
-}
-
-func (msg *MsgDelete<%= TypeName.UpperCamel %>) Type() string {
-  return TypeMsgDelete<%= TypeName.UpperCamel %>
-}
-
-func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  if err != nil {
-    panic(err)
-  }
-  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) ValidateBasic() error {

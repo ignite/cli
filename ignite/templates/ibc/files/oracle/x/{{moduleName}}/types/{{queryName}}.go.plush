@@ -47,25 +47,6 @@ func NewMsg<%= queryName.UpperCamel %>Data(
 	}
 }
 
-// Route returns the message route
-func (m *Msg<%= queryName.UpperCamel %>Data) Route() string {
-	return RouterKey
-}
-
-// Type returns the message type
-func (m *Msg<%= queryName.UpperCamel %>Data) Type() string {
-	return TypeMsg<%= queryName.UpperCamel %>Data
-}
-
-// GetSigners returns the message signers
-func (m *Msg<%= queryName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
-	<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
 // ValidateBasic check the basic message validation
 func (m *Msg<%= queryName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
