@@ -51,7 +51,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 		expectedResponse *sdktypes.TxResponse
 		expectedError    string
 		setup            func(suite)
-	}{m "
+	}{
 		{
 			name:          "fail: error not found",
 			msg:           msg,
