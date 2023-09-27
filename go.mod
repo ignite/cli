@@ -2,8 +2,6 @@ module github.com/ignite/cli
 
 go 1.21
 
-toolchain go1.21.1
-
 require (
 	cosmossdk.io/math v1.0.1
 	github.com/99designs/keyring v1.2.1
