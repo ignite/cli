@@ -194,20 +194,17 @@ func updatePluginsConfig(r io.Reader) ([]byte, error) {
 }
 
 func findPluginsConfigPath(dir string) (string, error) {
-	var path string
-
 	for _, ext := range []string{"yml", "yaml"} {
-		path = filepath.Join(dir, fmt.Sprintf("plugins.%s", ext))
+		path := filepath.Join(dir, fmt.Sprintf("plugins.%s", ext))
 		_, err := os.Stat(path)
 		if err == nil {
 			// File found
-			break
+			return path, nil
 		}
 
 		if !os.IsNotExist(err) {
 			return "", err
 		}
 	}
-
-	return path, nil
+	return "", nil
 }
