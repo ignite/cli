@@ -33,7 +33,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
-	ctx.Set("IsConsumer", opts.IsConsumer)
+	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 
 	plushhelpers.ExtendPlushContext(ctx)

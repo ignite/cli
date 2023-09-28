@@ -64,6 +64,7 @@ func DefaultConfig() network.Config {
 				tmdb.NewMemDB(),
 				nil,
 				true,
+				encoding,
 				simtestutil.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),

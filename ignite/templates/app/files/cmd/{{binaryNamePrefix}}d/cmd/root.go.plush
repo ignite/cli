@@ -231,6 +231,7 @@ func (a appCreator) newApp(
 		db,
 		traceStore,
 		true,
+		a.encodingConfig,
 		appOpts,
 		server.DefaultBaseappOptions(appOpts)...,
 	)
@@ -257,6 +258,7 @@ func (a appCreator) appExport(
 		db,
 		traceStore,
 		height == -1, // -1: no height provided
+		a.encodingConfig,
 		appOpts,
 	)
 

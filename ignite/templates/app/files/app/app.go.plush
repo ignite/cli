@@ -38,31 +38,20 @@ import (
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
-	"github.com/cosmos/cosmos-sdk/x/mint"
-	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	"github.com/cosmos/cosmos-sdk/x/params"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
@@ -71,14 +60,33 @@ import (
 	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
-	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-
+	<%= if (IsConsumerChain) { %>
+		"fmt"
+		"github.com/cosmos/cosmos-sdk/x/auth/ante"
+		ibcconsumer "github.com/cosmos/interchain-security/v3/x/ccv/consumer"
+		ibcconsumerkeeper "github.com/cosmos/interchain-security/v3/x/ccv/consumer/keeper"
+		ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
+	<% } else { %>
+		distr "github.com/cosmos/cosmos-sdk/x/distribution"
+		distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+		"github.com/cosmos/cosmos-sdk/x/gov"
+		govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
+		govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+		"github.com/cosmos/cosmos-sdk/x/mint"
+		mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+		paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
+		"github.com/cosmos/cosmos-sdk/x/staking"
+		stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+		upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
+		ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	<% } %>
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	"<%= ModulePath %>/docs"
+	appparams "<%= ModulePath %>/app/params"
 )
 
 const (
@@ -86,6 +94,7 @@ const (
 	Name                 = "<%= BinaryNamePrefix %>"
 )
 
+<%= if (!IsConsumerChain) { %>
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
 	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
@@ -101,6 +110,7 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 
 	return govProposalHandlers
 }
+<% } %>
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -115,10 +125,6 @@ var (
         genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
         bank.AppModuleBasic{},
         capability.AppModuleBasic{},
-        staking.AppModuleBasic{},
-        mint.AppModuleBasic{},
-        distr.AppModuleBasic{},
-        gov.NewAppModuleBasic(getGovProposalHandlers()),
         params.AppModuleBasic{},
         crisis.AppModuleBasic{},
         slashing.AppModuleBasic{},
@@ -132,7 +138,16 @@ var (
         ibctransfer.AppModuleBasic{},
         ica.AppModuleBasic{},
         vesting.AppModuleBasic{},
-        consensus.AppModuleBasic{},
+		consensus.AppModuleBasic{},
+		<%= if (IsConsumerChain) { %>
+			ibcconsumer.AppModuleBasic{},
+		<% } else { %>
+			staking.AppModuleBasic{},
+        	mint.AppModuleBasic{},
+        	distr.AppModuleBasic{},
+        	gov.NewAppModuleBasic(getGovProposalHandlers()),
+        	consensus.AppModuleBasic{},
+		<% } %>
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 )
@@ -159,11 +174,15 @@ type App struct {
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
-	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
-	MintKeeper            mintkeeper.Keeper
-	DistrKeeper           distrkeeper.Keeper
-	GovKeeper             *govkeeper.Keeper
+	<%= if (IsConsumerChain) { %>
+		ConsumerKeeper    ibcconsumerkeeper.Keeper
+	<% } else { %>
+		StakingKeeper         *stakingkeeper.Keeper
+		MintKeeper            mintkeeper.Keeper
+		DistrKeeper           distrkeeper.Keeper
+		GovKeeper             *govkeeper.Keeper
+	<% } %>
 	CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
@@ -207,6 +226,7 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
+	encodingConfig appparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
@@ -222,6 +242,10 @@ func New(
 				appOpts,
                 // supply ibc keeper getter for the IBC modules
                 app.GetIBCeKeeper,
+				<%= if (IsConsumerChain) { %>
+					// supply the consumer keeper getter for the consumer module
+					&app.ConsumerKeeper,
+				<% } %>
 
 				// ADVANCED CONFIGURATION
 				//
@@ -257,11 +281,13 @@ func New(
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.CapabilityKeeper,
-		&app.StakingKeeper,
 		&app.SlashingKeeper,
-		&app.MintKeeper,
-		&app.DistrKeeper,
-		&app.GovKeeper,
+		<%= if (!IsConsumerChain) { %>
+			&app.StakingKeeper,
+			&app.MintKeeper,
+			&app.DistrKeeper,
+			&app.GovKeeper,
+		<% } %>
 		&app.CrisisKeeper,
 		&app.UpgradeKeeper,
 		&app.ParamsKeeper,
@@ -329,6 +355,28 @@ func New(
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
 	app.sm.RegisterStoreDecoders()
+
+	<%= if (IsConsumerChain) { %>
+		// TODO theres probably a better way to SetAnteHandler with app wiring
+		anteHandler, err := NewAnteHandler(
+			HandlerOptions{
+				HandlerOptions: ante.HandlerOptions{
+					AccountKeeper:   app.AccountKeeper,
+					BankKeeper:      app.BankKeeper,
+					FeegrantKeeper:  app.FeeGrantKeeper,
+					SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+					SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+				},
+				IBCKeeper:      app.IBCKeeper,
+				ConsumerKeeper: app.ConsumerKeeper,
+			},
+			app.Logger(),
+		)
+		if err != nil {
+			panic(fmt.Errorf("failed to create AnteHandler: %w", err))
+		}
+		app.SetAnteHandler(anteHandler)
+	<% } %>
 
 	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
 	// By default, when using app wiring enabled module, this is not required.
@@ -459,5 +507,11 @@ func BlockedAddresses() map[string]bool {
 			result[addr] = true
 		}
 	}
+	<%= if (IsConsumerChain) { %>
+		// Remove the fee-pool from the group of blocked recipient addresses in bank
+		// this is required for the consumer chain to be able to send tokens to
+		// the provider chain
+		delete(result, authtypes.NewModuleAddress(ibcconsumertypes.ConsumerToSendToProviderName).String())
+	<% } %>
 	return result
 }
