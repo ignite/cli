@@ -4,8 +4,16 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	<%= if (IsConsumerChain) { %>
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	ibcconsumer "github.com/cosmos/interchain-security/v3/x/ccv/consumer"
+	ibcconsumerkeeper "github.com/cosmos/interchain-security/v3/x/ccv/consumer/keeper"
+	ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
+	<% } else { %>
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	<% } %>
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
@@ -25,7 +33,6 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -45,6 +52,9 @@ func (app *App) registerIBCModules() {
 		storetypes.NewKVStoreKey(ibctransfertypes.StoreKey),
 		storetypes.NewKVStoreKey(ibcfeetypes.StoreKey),
 		storetypes.NewKVStoreKey(icahosttypes.StoreKey),
+		<%= if (IsConsumerChain) { %>
+		storetypes.NewKVStoreKey(ibcconsumetypes.StoreKey),
+		<% } %>
 		storetypes.NewKVStoreKey(icacontrollertypes.StoreKey),
 		storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey),
 		storetypes.NewTransientStoreKey(paramstypes.TStoreKey),
@@ -58,6 +68,9 @@ func (app *App) registerIBCModules() {
 	app.ParamsKeeper.Subspace(ibcexported.ModuleName).WithKeyTable(keyTable)
 	app.ParamsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
 	app.ParamsKeeper.Subspace(icacontrollertypes.SubModuleName).WithKeyTable(icacontrollertypes.ParamKeyTable())
+	<%= if (IsConsumerChain) { %>
+	app.ParamsKeeper.Subspace(ibcconsumertypes.ModuleName).WithKeyTable(ibcconsumertypes.ParamKeyTable())
+	<% } %>
 	app.ParamsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 
 	// add capability keeper and ScopeToModule for ibc module
@@ -72,8 +85,56 @@ func (app *App) registerIBCModules() {
 	scopedIBCTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	<%= if (IsConsumerChain) { %>
+		scopedIBCConsumerKeeper := app.CapabilityKeeper.ScopeToModule(ibcconsumertypes.ModuleName)
+
+		// pre-initialize ConsumerKeeper to satisfy ibckeeper.NewKeeper
+		// which would panic on nil or zero keeper
+		// ConsumerKeeper implements StakingKeeper but all function calls result in no-ops so this is safe
+		// communication over IBC is not affected by these changes
+		app.ConsumerKeeper = ibcconsumerkeeper.NewNonZeroKeeper(
+			app.appCodec,
+			app.GetKey(ibcconsumertypes.StoreKey),
+			app.GetSubspace(ibcconsumertypes.ModuleName),
+		)
+	<% } %>
 
 	// Create IBC keeper
+	<%= if (IsConsumerChain) { %>
+	app.IBCKeeper = ibckeeper.NewKeeper(
+		app.appCodec,
+		app.GetKey(ibcexported.StoreKey),
+		app.GetSubspace(ibcexported.ModuleName),
+		app.ConsumerKeeper,
+		app.UpgradeKeeper,
+		scopedIBCKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	// initialize the actual consumer keeper
+	app.ConsumerKeeper = ibcconsumerkeeper.NewKeeper(
+		app.appCodec,
+		app.GetKey(ibcconsumertypes.StoreKey),
+		app.GetSubspace(ibcconsumertypes.ModuleName),
+		scopedIBCConsumerKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.ConnectionKeeper,
+		app.IBCKeeper.ClientKeeper,
+		app.SlashingKeeper,
+		app.BankKeeper,
+		app.AccountKeeper,
+		&app.TransferKeeper,
+		app.IBCKeeper,
+		authtypes.FeeCollectorName,
+	)
+
+	// register slashing module Slashing hooks to the consumer keeper
+	app.ConsumerKeeper = *app.ConsumerKeeper.SetHooks(app.SlashingKeeper.Hooks())
+
+	consumerModule := ibcconsumer.NewAppModule(app.ConsumerKeeper, app.GetSubspace(ibcconsumertypes.ModuleName))
+
+	<% } else { %>
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		app.appCodec,
 		app.GetKey(ibcexported.StoreKey),
@@ -90,6 +151,7 @@ func (app *App) registerIBCModules() {
 	// See: https://docs.cosmos.network/main/modules/gov#proposal-messages
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler)
+	<% } %>
 
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		app.appCodec, app.GetKey(ibcfeetypes.StoreKey),
@@ -136,7 +198,7 @@ func (app *App) registerIBCModules() {
 		app.MsgServiceRouter(),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	app.GovKeeper.SetLegacyRouter(govRouter)
+	<%= if (!IsConsumerChain) { %>app.GovKeeper.SetLegacyRouter(govRouter)<% } %>
 
 	// Create IBC modules with ibcfee middleware
 	transferIBCModule := ibcfee.NewIBCMiddleware(ibctransfer.NewIBCModule(app.TransferKeeper), app.IBCFeeKeeper)
@@ -154,6 +216,7 @@ func (app *App) registerIBCModules() {
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
+		<%= if (IsConsumerChain) { %>AddRoute(ibcconsumertypes.ModuleName, consumerModule).<% } %>
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
 
 	// this line is used by starport scaffolding # ibc/app/module
@@ -172,6 +235,7 @@ func (app *App) registerIBCModules() {
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		icamodule.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		capability.NewAppModule(app.appCodec, *app.CapabilityKeeper, false),
+		<%= if (IsConsumerChain) { %>consumerModule,<% } %>
 		ibctm.AppModule{},
 		solomachine.AppModule{},
 	); err != nil {

@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 
+	"<%= ModulePath %>/app"
+
 	"cosmossdk.io/client/v2/autocli"
 	clientv2keyring "cosmossdk.io/client/v2/autocli/keyring"
 	"cosmossdk.io/core/address"
@@ -23,13 +25,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"<%= ModulePath %>/app"
 )
 
 // NewRootCmd creates a new root command for <%= BinaryNamePrefix %>d. It is called once in the main function.
 func NewRootCmd() *cobra.Command {
-    initSDKConfig()
+	initSDKConfig()
 
 	var (
 		txConfigOpts       tx.ConfigOptions
@@ -61,8 +61,8 @@ func NewRootCmd() *cobra.Command {
 	app.AddIBCModuleManager(moduleBasicManager)
 
 	rootCmd := &cobra.Command{
-		Use:   app.Name + "d",
-		Short: "Start <%= AppName %> node",
+		Use:           app.Name + "d",
+		Short:         "Start <%= AppName %> node",
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs

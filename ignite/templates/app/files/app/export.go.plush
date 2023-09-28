@@ -3,15 +3,20 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	storetypes "cosmossdk.io/store/types"
+	<%= if (IsConsumerChain) { %>
+		tmtypes "github.com/cometbft/cometbft/types"
+	<% } %>
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	<%= if (!IsConsumerChain) { %>
+		"log"
+		"github.com/cosmos/cosmos-sdk/x/staking"
+		stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	<% } %>
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
@@ -38,7 +43,15 @@ func (app *App) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators, err := staking.WriteValidators(ctx, app.StakingKeeper)
+	<%= if (IsConsumerChain) { %>
+		validators, err := app.GetValidatorSet(ctx)
+		if err != nil {
+			return servertypes.ExportedApp{}, err
+		}
+	<% } else { %>
+		validators, err := staking.WriteValidators(ctx, app.StakingKeeper)
+	<% } %>
+
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,
@@ -52,26 +65,29 @@ func (app *App) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs
 //
 //	in favor of export at a block height
 func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
-	applyAllowedAddrs := false
+	<%= if (!IsConsumerChain) { %>
+		applyAllowedAddrs := false
 
-	// check if there is a allowed address list
-	if len(jailAllowedAddrs) > 0 {
-		applyAllowedAddrs = true
-	}
-
-	allowedAddrsMap := make(map[string]bool)
-
-	for _, addr := range jailAllowedAddrs {
-		_, err := sdk.ValAddressFromBech32(addr)
-		if err != nil {
-			log.Fatal(err)
+		// check if there is a allowed address list
+		if len(jailAllowedAddrs) > 0 {
+			applyAllowedAddrs = true
 		}
-		allowedAddrsMap[addr] = true
-	}
+
+		allowedAddrsMap := make(map[string]bool)
+
+		for _, addr := range jailAllowedAddrs {
+			_, err := sdk.ValAddressFromBech32(addr)
+			if err != nil {
+				log.Fatal(err)
+			}
+			allowedAddrsMap[addr] = true
+		}
+	<% } %>
 
 	/* Just to be safe, assert the invariants on current state. */
 	app.CrisisKeeper.AssertInvariants(ctx)
 
+	<%= if (!IsConsumerChain) { %>
 	/* Handle fee distribution state. */
 
 	// withdraw all validator commission
@@ -99,21 +115,18 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 			panic(err)
 		}
 
-		delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
-
-		_, _ = app.DistrKeeper.WithdrawDelegationRewards(ctx, delAddr, valAddr)
-	}
-
-	// clear validator slash events
-	app.DistrKeeper.DeleteAllValidatorSlashEvents(ctx)
+		// clear validator slash events
+		app.DistrKeeper.DeleteAllValidatorSlashEvents(ctx)
 
 	// clear validator historical rewards
 	app.DistrKeeper.DeleteAllValidatorHistoricalRewards(ctx)
+	<% } %>
 
 	// set context height to zero
 	height := ctx.BlockHeight()
 	ctx = ctx.WithBlockHeight(0)
 
+	<%= if (!IsConsumerChain) { %>
 	// reinitialize all validators
 	err = app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		valBz, err := app.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())
@@ -158,11 +171,13 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
 		}
 	}
+	<% } %>
 
 	// reset context height
 	ctx = ctx.WithBlockHeight(height)
 
-	/* Handle staking state. */
+	<%= if (!IsConsumerChain) { %>
+		/* Handle staking state. */
 
 	// iterate through redelegations, reset creation height
 	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
@@ -201,9 +216,9 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 			panic("expected validator, not found")
 		}
 
-		validator.UnbondingHeight = 0
-		if applyAllowedAddrs && !allowedAddrsMap[addr.String()] {
-			validator.Jailed = true
+		if err := iter.Close(); err != nil {
+			app.Logger().Error("error while closing the key-value store reverse prefix iterator: ", err)
+			return
 		}
 
 		app.StakingKeeper.SetValidator(ctx, validator)
@@ -219,6 +234,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	if err != nil {
 		log.Fatal(err)
 	}
+	<% } %>
 
 	/* Handle slashing state. */
 
@@ -232,3 +248,19 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 		},
 	)
 }
+
+<%= if (IsConsumerChain) { %>
+// GetValidatorSet returns a slice of bonded validators.
+func (app *App) GetValidatorSet(ctx sdk.Context) ([]tmtypes.GenesisValidator, error) {
+	cVals := app.ConsumerKeeper.GetAllCCValidator(ctx)
+	if len(cVals) == 0 {
+		return nil, fmt.Errorf("empty validator set")
+	}
+
+	vals := []tmtypes.GenesisValidator{}
+	for _, v := range cVals {
+		vals = append(vals, tmtypes.GenesisValidator{Address: v.Address, Power: v.Power})
+	}
+	return vals, nil
+}
+<% } %>
