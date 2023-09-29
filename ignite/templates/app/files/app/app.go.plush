@@ -91,11 +91,6 @@ type App struct {
 	txConfig          client.TxConfig
 	interfaceRegistry codectypes.InterfaceRegistry
 
-	// non depinject support modules store keys
-	keys    map[string]*storetypes.KVStoreKey
-	memKeys map[string]*storetypes.MemoryStoreKey
-	tkeys   map[string]*storetypes.TransientStoreKey
-
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
@@ -233,8 +228,8 @@ func New(
 		&app.FeeGrantKeeper,
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
-		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 		&app.CircuitBreakerKeeper,
+		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
 	}
@@ -317,9 +312,6 @@ func New(
 	return app
 }
 
-// Name returns the name of the App
-func (app *App) Name() string { return app.BaseApp.Name() }
-
 // LegacyAmino returns App's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
@@ -348,16 +340,22 @@ func (app *App) TxConfig() client.TxConfig {
 
 // GetKey returns the KVStoreKey for the provided store key.
 func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
-	if key, ok := app.keys[storeKey]; ok {
-		return key
-	}
-
 	sk := app.UnsafeFindStoreKey(storeKey)
 	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
 	if !ok {
 		return nil
 	}
 	return kvStoreKey
+}
+
+// GetMemKey returns the MemoryStoreKey for the provided store key.
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+	key, ok := app.UnsafeFindStoreKey(storeKey).(*storetypes.MemoryStoreKey)
+	if !ok {
+		return nil
+	}
+
+	return key
 }
 
 // kvStoreKeys returns all the kv store keys registered inside App.
@@ -367,10 +365,6 @@ func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 		if kv, ok := k.(*storetypes.KVStoreKey); ok {
 			keys[kv.Name()] = kv
 		}
-	}
-
-	for _, kv := range app.keys {
-		keys[kv.Name()] = kv
 	}
 
 	return keys
