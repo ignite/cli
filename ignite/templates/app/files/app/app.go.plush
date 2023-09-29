@@ -161,7 +161,7 @@ func New(
                 // The IBC Keeper cannot be passed because it has not been initiated yet.
                 // Passing the getter, the app IBC Keeper will always be accessible.
                 // This needs to be removed after IBC supported App Wiring.
-                app.GetIBCeKeeper,
+                app.GetIBCKeeper,
 				// supply the logger
 				logger,
 
@@ -394,8 +394,8 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
 
-// GetIBCeKeeper returns the IBC keeper
-func (app *App) GetIBCeKeeper() *ibckeeper.Keeper {
+// GetIBCKeeper returns the IBC keeper
+func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
 	return app.IBCKeeper
 }
 
