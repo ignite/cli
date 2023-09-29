@@ -2,7 +2,6 @@ package chaincmd
 
 import (
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
@@ -516,10 +515,11 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	command := []string{
 		commandQuery,
 		"txs",
-		"--events",
+		"--query",
 		query,
 		"--page", "1",
 		"--limit", "1000",
+		"--output", "json",
 	}
 
 	command = c.attachNode(command)
