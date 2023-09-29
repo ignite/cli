@@ -47,6 +47,9 @@ func (app *App) registerIBCModules() {
 		ibcfeetypes.StoreKey,
 		icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey,
+	  <%= if (IsConsumerChain) { %>
+		ibcconsumertypes.StoreKey,
+		<% } %>
 	)
 	app.MountKVStores(app.keys)
 
