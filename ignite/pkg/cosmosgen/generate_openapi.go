@@ -131,7 +131,6 @@ func (g *generator) generateOpenAPISpec() error {
 	}
 
 	out := g.o.specOut
-
 	if !hasAnySpecChanged {
 		// In case the generated output has been changed
 		changed, err := dirchange.HasDirChecksumChanged(specCache, out, g.appPath, out)

@@ -100,7 +100,6 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	// Additional code generation targets
 	var targets []GenerateTarget
-
 	if generateClients {
 		if p := conf.Client.Typescript.Path; p != "" {
 			targets = append(targets, GenerateTSClient(p, true))
