@@ -53,13 +53,12 @@ func ParseDir(dir string) (*Config, error) {
 }
 
 var (
-	Filenames = []string{"igniteapps.yml", "igniteapps.yaml"}
-
-	defaultFilename = Filenames[0]
+	filenames       = []string{"igniteapps.yml", "igniteapps.yaml"}
+	defaultFilename = filenames[0]
 )
 
 func locateFile(root string) (string, error) {
-	for _, name := range Filenames {
+	for _, name := range filenames {
 		path := filepath.Join(root, name)
 		_, err := os.Stat(path)
 		if err == nil {
