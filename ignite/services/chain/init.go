@@ -182,13 +182,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	}
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
-		// Like for sovereign chain, provide only a single validator, the first one
-		// found in the config.
-		validator, err := commands.ShowAccount(ctx, cfg.Validators[0].Name)
-		if err != nil {
-			return err
-		}
-		if err := c.writeConsumerGenesis(validator); err != nil {
+		if err := c.writeConsumerGenesis(); err != nil {
 			return err
 		}
 	} else {
@@ -203,7 +197,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 
 // writeConsumerGenesis updates the consumer module genesis in the genesis.json
 // file of c.
-func (c *Chain) writeConsumerGenesis(validator chaincmdrunner.Account) error {
+func (c *Chain) writeConsumerGenesis() error {
 	var (
 		providerClientState = &ibctmtypes.ClientState{
 			ChainId:         "provider",
@@ -245,6 +239,7 @@ func (c *Chain) writeConsumerGenesis(validator chaincmdrunner.Account) error {
 		return err
 	}
 	// Feed initial_val_set with this public key
+	// Like for sovereign chain, provide only a single validator.
 	valUpdates := cmtypes.ValidatorUpdates{
 		cmtypes.UpdateValidator(pk.Bytes(), 1, pk.Type()),
 	}
