@@ -31,19 +31,18 @@ import (
 
 func (app *App) registerIBCModules() {
 	// set up non depinject support modules store keys
-	app.keys = storetypes.NewKVStoreKeys(
-		capabilitytypes.StoreKey,
-		ibcexported.StoreKey,
-		ibctransfertypes.StoreKey,
-		ibcfeetypes.StoreKey,
-		icahosttypes.StoreKey,
-		icacontrollertypes.StoreKey,
-	)
-	app.MountKVStores(app.keys)
-	app.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
-	app.MountTransientStores(app.tkeys)
-	app.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
-	app.MountMemoryStores(app.memKeys)
+	if err := app.RegisterStores(
+		storetypes.NewKVStoreKey(capabilitytypes.StoreKey),
+		storetypes.NewKVStoreKey(ibcexported.StoreKey),
+		storetypes.NewKVStoreKey(ibctransfertypes.StoreKey),
+		storetypes.NewKVStoreKey(ibcfeetypes.StoreKey),
+		storetypes.NewKVStoreKey(icahosttypes.StoreKey),
+		storetypes.NewKVStoreKey(icacontrollertypes.StoreKey),
+		storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey),
+		storetypes.NewTransientStoreKey(paramstypes.TStoreKey),
+	); err != nil {
+		panic(err)
+	}
 
 	// set params subspaces
 	for _, m := range []string{ibctransfertypes.ModuleName, ibcexported.ModuleName, icahosttypes.SubModuleName, icacontrollertypes.SubModuleName} {
@@ -53,8 +52,8 @@ func (app *App) registerIBCModules() {
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
 		app.AppCodec(),
-		app.keys[capabilitytypes.StoreKey],
-		app.memKeys[capabilitytypes.MemStoreKey],
+		app.GetKey(capabilitytypes.StoreKey),
+		app.GetMemKey(capabilitytypes.MemStoreKey),
 	)
 
 	// add capability keeper and ScopeToModule for ibc module
