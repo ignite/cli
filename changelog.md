@@ -7,6 +7,7 @@
 - [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
 - [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
+- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
