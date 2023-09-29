@@ -282,13 +282,10 @@ func (r Runner) QueryTxEvents(
 	for _, event := range eventsSelectors {
 		list = append(list, fmt.Sprintf("%s.%s='%s'", event.typ, event.attr, event.value))
 	}
-
 	query := strings.Join(list, " AND ")
-	query = fmt.Sprintf(`"%s"`, query)
 
 	// execute the command and parse the output.
 	b := newBuffer()
-
 	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {
 		return nil, err
 	}
@@ -317,7 +314,6 @@ func (r Runner) QueryTxEvents(
 	}
 
 	var events []Event
-
 	for _, tx := range out.Txs {
 		for _, log := range tx.Logs {
 			for _, e := range log.Events {
