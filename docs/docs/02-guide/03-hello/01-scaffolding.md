@@ -187,7 +187,7 @@ to the list of available commands, allowing users to call it from the
 command-line interface (CLI).
 
 ```go title="x/hello/client/cli/query.go"
-func GetQueryCmd(queryRoute string) *cobra.Command {
+func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      fmt.Sprintf("Querying commands for the %s module", types.ModuleName),
