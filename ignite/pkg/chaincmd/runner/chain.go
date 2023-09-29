@@ -286,7 +286,6 @@ func (r Runner) QueryTxEvents(
 
 	// execute the command and parse the output.
 	b := newBuffer()
-
 	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {
 		return nil, err
 	}
@@ -315,7 +314,6 @@ func (r Runner) QueryTxEvents(
 	}
 
 	var events []Event
-
 	for _, tx := range out.Txs {
 		for _, log := range tx.Logs {
 			for _, e := range log.Events {
