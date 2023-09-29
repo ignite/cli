@@ -280,10 +280,11 @@ func (r Runner) QueryTxEvents(
 	eventsSelectors := append([]EventSelector{selector}, moreSelectors...)
 
 	for _, event := range eventsSelectors {
-		list = append(list, fmt.Sprintf("%s.%s=%s", event.typ, event.attr, event.value))
+		list = append(list, fmt.Sprintf("%s.%s='%s'", event.typ, event.attr, event.value))
 	}
 
-	query := strings.Join(list, "&")
+	query := strings.Join(list, " AND ")
+	query = fmt.Sprintf(`"%s"`, query)
 
 	// execute the command and parse the output.
 	b := newBuffer()
