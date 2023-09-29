@@ -30,6 +30,7 @@ import (
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 func NewRootCmd() *cobra.Command {
 	var (
+		txConfigOpts       tx.ConfigOptions
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
 		initClientCtx      client.Context
@@ -46,6 +47,7 @@ func NewRootCmd() *cobra.Command {
 				ProvideKeyring,
 			),
 		),
+		&txConfigOpts,
 		&autoCliOpts,
 		&moduleBasicManager,
 		&initClientCtx,
@@ -73,15 +75,11 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			// This needs to go after ReadFromClientConfig, as that function
-			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
-			txConfigOpts := tx.ConfigOptions{
-				EnabledSignModes:           enabledSignModes,
-				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
-			}
+			// This needs to go after ReadFromClientConfig, as that function sets the RPC client needed for SIGN_MODE_TEXTUAL.
+			txConfigOpts.EnabledSignModes = append(txConfigOpts.EnabledSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
+			txConfigOpts.TextualCoinMetadataQueryFn = txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx)
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
-				codec.NewProtoCodec(interfaceRegistry),
+				codec.NewProtoCodec(initClientCtx.InterfaceRegistry),
 				txConfigOpts,
 			)
 			if err != nil {
