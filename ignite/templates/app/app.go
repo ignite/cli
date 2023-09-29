@@ -25,17 +25,15 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	}
 	var (
 		includePrefix = opts.IncludePrefixes
-		includeSuffix []string
 		excludePrefix []string
-		excludeSuffix []string
 	)
 	if !opts.IsConsumerChain {
-		// non consumer chain doesn't need "ccv_msg_filter_*" & "ante_handler.go" files
+		// non-consumer chain doesn't need "ccv_msg_filter_*" & "ante_handler.go" files
 		excludePrefix = append(excludePrefix, "app/ccv_msg_filter_")
 		excludePrefix = append(excludePrefix, "app/ante_handler.go")
 	}
 	g := genny.New()
-	if err := g.SelectiveFS(subfs, includePrefix, includeSuffix, excludePrefix, excludeSuffix); err != nil {
+	if err := g.SelectiveFS(subfs, includePrefix, nil, excludePrefix, nil); err != nil {
 		return g, fmt.Errorf("generator fs: %w", err)
 	}
 	ctx := plush.NewContext()
