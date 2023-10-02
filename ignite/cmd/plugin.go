@@ -381,11 +381,9 @@ func NewAppUpdate() *cobra.Command {
 		Short: "Update app",
 		Long: `Updates an Ignite App specified by path.
 
-If no path is specified all declared apps are updated.
-
-Example:
-  ignite app update github.com/org/my-app/`,
-		Args: cobra.MaximumNArgs(1),
+If no path is specified all declared apps are updated.`,
+		Example: "ignite app update github.com/org/my-app/",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// update all plugins
@@ -418,11 +416,9 @@ func NewAppInstall() *cobra.Command {
 		Short: "Install app",
 		Long: `Installs an Ignite App.
 
-Respects key value pairs declared after the app path to be added to the generated configuration definition.
-
-Example:
-  ignite app install github.com/org/my-app/ foo=bar baz=qux`,
-		Args: cobra.MinimumNArgs(1),
+Respects key value pairs declared after the app path to be added to the generated configuration definition.`,
+		Example: "ignite app install github.com/org/my-app/ foo=bar baz=qux",
+		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.WithStdout(os.Stdout))
 			defer session.End()
@@ -503,11 +499,9 @@ func NewAppUninstall() *cobra.Command {
 		Use:     "uninstall [path]",
 		Aliases: []string{"rm"},
 		Short:   "Uninstall app",
-		Long: `Uninstalls an Ignite App specified by path.
-
-Example:
-  ignite app uninstall github.com/org/my-app/`,
-		Args: cobra.ExactArgs(1),
+		Long:    "Uninstalls an Ignite App specified by path.",
+		Example: "ignite app uninstall github.com/org/my-app/",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
@@ -562,11 +556,9 @@ func NewAppScaffold() *cobra.Command {
 		Short: "Scaffold a new Ignite App",
 		Long: `Scaffolds a new Ignite App in the current directory.
 
-A git repository will be created with the given module name, unless the current directory is already a git repository.
-
-Example:
-  ignite app scaffold github.com/org/my-app/`,
-		Args: cobra.ExactArgs(1),
+A git repository will be created with the given module name, unless the current directory is already a git repository.`,
+		Example: "ignite app scaffold github.com/org/my-app/",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 			defer session.End()
@@ -606,13 +598,11 @@ Or globally:
 
 func NewAppDescribe() *cobra.Command {
 	return &cobra.Command{
-		Use:   "describe [path]",
-		Short: "Print information about installed apps",
-		Long: `Print information about an installed Ignite App commands and hooks.
-
-Example:
-  ignite app describe github.com/org/my-app/`,
-		Args: cobra.ExactArgs(1),
+		Use:     "describe [path]",
+		Short:   "Print information about installed apps",
+		Long:    "Print information about an installed Ignite App commands and hooks.",
+		Example: "ignite app describe github.com/org/my-app/",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
