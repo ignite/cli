@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	appsconfig "github.com/ignite/cli/ignite/config/apps"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 )
@@ -28,7 +28,7 @@ func TestNewPlugin(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		pluginCfg      pluginsconfig.Plugin
+		appCfg         appsconfig.App
 		expectedPlugin Plugin
 	}{
 		{
@@ -38,119 +38,119 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "fail: local plugin doesnt exists",
-			pluginCfg: pluginsconfig.Plugin{Path: "/xxx/yyy/app"},
+			name:   "fail: local plugin doesnt exists",
+			appCfg: appsconfig.App{Path: "/xxx/yyy/app"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`local app path "/xxx/yyy/app" not found`),
 			},
 		},
 		{
-			name:      "fail: local plugin is not a directory",
-			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata/fakebin")},
+			name:   "fail: local plugin is not a directory",
+			appCfg: appsconfig.App{Path: path.Join(wd, "testdata/fakebin")},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
 			},
 		},
 		{
-			name:      "ok: local plugin",
-			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata")},
+			name:   "ok: local plugin",
+			appCfg: appsconfig.App{Path: path.Join(wd, "testdata")},
 			expectedPlugin: Plugin{
 				srcPath: path.Join(wd, "testdata"),
 				name:    "testdata",
 			},
 		},
 		{
-			name:      "fail: remote plugin with only domain",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
+			name:   "fail: remote plugin with only domain",
+			appCfg: appsconfig.App{Path: "github.com"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`app path "github.com" is not a valid repository URL`),
 			},
 		},
 		{
-			name:      "fail: remote plugin with incomplete URL",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite"},
+			name:   "fail: remote plugin with incomplete URL",
+			appCfg: appsconfig.App{Path: "github.com/ignite"},
 			expectedPlugin: Plugin{
 				Error: errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
 			},
 		},
 		{
-			name:      "ok: remote app",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app"},
+			name:   "ok: remote app",
+			appCfg: appsconfig.App{Path: "github.com/ignite/app"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app",
+				cloneDir:  ".ignite/apps/github.com/ignite/app",
 				reference: "",
-				srcPath:   ".ignite/plugins/github.com/ignite/app",
+				srcPath:   ".ignite/apps/github.com/ignite/app",
 				name:      "app",
 			},
 		},
 		{
-			name:      "ok: remote plugin with @ref",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app@develop"},
+			name:   "ok: remote plugin with @ref",
+			appCfg: appsconfig.App{Path: "github.com/ignite/app@develop"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@develop",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-develop",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-develop",
 				reference: "develop",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-develop",
+				srcPath:   ".ignite/apps/github.com/ignite/app-develop",
 				name:      "app",
 			},
 		},
 		{
-			name:      "ok: remote plugin with @ref containing slash",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app@package/v1.0.0"},
+			name:   "ok: remote plugin with @ref containing slash",
+			appCfg: appsconfig.App{Path: "github.com/ignite/app@package/v1.0.0"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@package/v1.0.0",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-package-v1.0.0",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				reference: "package/v1.0.0",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-package-v1.0.0",
+				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				name:      "app",
 			},
 		},
 		{
-			name:      "ok: remote plugin with subpath",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app/plugin1"},
+			name:   "ok: remote plugin with subpath",
+			appCfg: appsconfig.App{Path: "github.com/ignite/app/plugin1"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app",
+				cloneDir:  ".ignite/apps/github.com/ignite/app",
 				reference: "",
-				srcPath:   ".ignite/plugins/github.com/ignite/app/plugin1",
+				srcPath:   ".ignite/apps/github.com/ignite/app/plugin1",
 				name:      "plugin1",
 			},
 		},
 		{
-			name:      "ok: remote plugin with subpath and @ref",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app/plugin1@develop"},
+			name:   "ok: remote plugin with subpath and @ref",
+			appCfg: appsconfig.App{Path: "github.com/ignite/app/plugin1@develop"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@develop",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-develop",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-develop",
 				reference: "develop",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-develop/plugin1",
+				srcPath:   ".ignite/apps/github.com/ignite/app-develop/plugin1",
 				name:      "plugin1",
 			},
 		},
 		{
-			name:      "ok: remote plugin with subpath and @ref containing slash",
-			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite/app/plugin1@package/v1.0.0"},
+			name:   "ok: remote plugin with subpath and @ref containing slash",
+			appCfg: appsconfig.App{Path: "github.com/ignite/app/plugin1@package/v1.0.0"},
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@package/v1.0.0",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-package-v1.0.0",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				reference: "package/v1.0.0",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-package-v1.0.0/plugin1",
+				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0/plugin1",
 				name:      "plugin1",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.expectedPlugin.Plugin = tt.pluginCfg
+			tt.expectedPlugin.App = tt.appCfg
 
-			p := newPlugin(".ignite/plugins", tt.pluginCfg)
+			p := newPlugin(".ignite/apps", tt.appCfg)
 
 			assertPlugin(t, tt.expectedPlugin, *p)
 		})
@@ -397,7 +397,7 @@ func TestPluginLoadSharedHost(t *testing.T) {
 			// Load one plugin per instance
 			for i := 0; i < tt.instances; i++ {
 				p := Plugin{
-					Plugin:  pluginsconfig.Plugin{Path: path},
+					App:     appsconfig.App{Path: path},
 					srcPath: path,
 					name:    filepath.Base(path),
 				}
@@ -456,7 +456,7 @@ func TestPluginClean(t *testing.T) {
 		{
 			name: "dont clean local app",
 			plugin: &Plugin{
-				Plugin: pluginsconfig.Plugin{Path: "/local"},
+				App: appsconfig.App{Path: "/local"},
 			},
 		},
 		{

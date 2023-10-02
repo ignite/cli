@@ -19,7 +19,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/config"
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	appsconfig "github.com/ignite/cli/ignite/config/apps"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/events"
@@ -37,8 +37,9 @@ var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
-	// Embed the plugin configuration
-	pluginsconfig.Plugin
+	// Embed app configuration
+	appsconfig.App
+
 	// Interface allows to communicate with the plugin via net/rpc.
 	Interface Interface
 	// If any error occurred during the plugin load, it's stored here
@@ -82,14 +83,14 @@ func CollectEvents(ev events.Bus) Option {
 //
 // If an error occurs during a plugin load, it's not returned but rather stored in the `Plugin.Error`
 // field. This prevents the loading of other plugins to be interrupted.
-func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
+func Load(ctx context.Context, apps []appsconfig.App, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	var loaded []*Plugin
-	for _, cp := range plugins {
-		p := newPlugin(pluginsDir, cp, options...)
+	for _, a := range apps {
+		p := newPlugin(pluginsDir, a, options...)
 		p.load(ctx)
 
 		loaded = append(loaded, p)
@@ -97,7 +98,7 @@ func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option
 	return loaded, nil
 }
 
-// Update removes the cache directory of plugins and fetch them again.
+// Update removes the cache directory of apps and fetch them again.
 func Update(plugins ...*Plugin) error {
 	for _, p := range plugins {
 		err := p.clean()
@@ -110,14 +111,9 @@ func Update(plugins ...*Plugin) error {
 }
 
 // newPlugin creates a Plugin from configuration.
-func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *Plugin {
-	var (
-		p = &Plugin{
-			Plugin: cp,
-		}
-		pluginPath = cp.Path
-	)
-	if pluginPath == "" {
+func newPlugin(pluginsDir string, app appsconfig.App, options ...Option) *Plugin {
+	p := &Plugin{App: app}
+	if p.Path == "" {
 		p.Error = errors.Errorf(`missing app property "path"`)
 		return p
 	}
@@ -127,6 +123,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		apply(p)
 	}
 
+	pluginPath := p.Path
 	if strings.HasPrefix(pluginPath, "/") {
 		// This is a local plugin, check if the file exists
 		st, err := os.Stat(pluginPath)

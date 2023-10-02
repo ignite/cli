@@ -6,24 +6,24 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	appsconfig "github.com/ignite/cli/ignite/config/apps"
 )
 
 func TestEnsureDefaultPlugins(t *testing.T) {
 	tests := []struct {
 		name                 string
-		cfg                  *pluginsconfig.Config
+		cfg                  *appsconfig.Config
 		expectAddedInCommand bool
 	}{
 		{
 			name:                 "should add because absent from config",
-			cfg:                  &pluginsconfig.Config{},
+			cfg:                  &appsconfig.Config{},
 			expectAddedInCommand: true,
 		},
 		{
 			name: "should not add because already present in config",
-			cfg: &pluginsconfig.Config{
-				Plugins: []pluginsconfig.Plugin{{
+			cfg: &appsconfig.Config{
+				Apps: []appsconfig.App{{
 					Path: "github.com/ignite/cli-plugin-network@v42",
 				}},
 			},

@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	appsconfig "github.com/ignite/cli/ignite/config/apps"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
@@ -32,30 +32,30 @@ var plugins []*plugin.Plugin
 // If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	var (
-		rootCmd        = cmd.Root()
-		pluginsConfigs []pluginsconfig.Plugin
+		rootCmd    = cmd.Root()
+		appConfigs []appsconfig.App
 	)
 	localCfg, err := parseLocalPlugins(rootCmd)
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
 	} else if err == nil {
-		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
+		appConfigs = append(appConfigs, localCfg.Apps...)
 	}
 
 	globalCfg, err := parseGlobalPlugins()
 	if err == nil {
-		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
+		appConfigs = append(appConfigs, globalCfg.Apps...)
 	}
 	ensureDefaultPlugins(cmd, globalCfg)
 
-	if len(pluginsConfigs) == 0 {
+	if len(appConfigs) == 0 {
 		return nil
 	}
 
 	session := cliui.New(cliui.WithStdout(os.Stdout))
 	defer session.End()
 
-	uniquePlugins := pluginsconfig.RemoveDuplicates(pluginsConfigs)
+	uniquePlugins := appsconfig.RemoveDuplicates(appConfigs)
 	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	return linkPlugins(rootCmd, plugins)
 }
 
-func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
+func parseLocalPlugins(cmd *cobra.Command) (*appsconfig.Config, error) {
 	// FIXME(tb): like other commands that works on a chain directory,
 	// parseLocalPlugins should rely on `-p` flag to guess that chain directory.
 	// Unfortunately parseLocalPlugins is invoked before flags are parsed, so
@@ -81,24 +81,24 @@ func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
 	if err := cosmosanalysis.IsChainPath(wd); err != nil {
 		return nil, err
 	}
-	return pluginsconfig.ParseDir(wd)
+	return appsconfig.ParseDir(wd)
 }
 
-func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
+func parseGlobalPlugins() (cfg *appsconfig.Config, err error) {
 	globalDir, err := plugin.PluginsPath()
 	if err != nil {
 		return cfg, err
 	}
 
-	cfg, err = pluginsconfig.ParseDir(globalDir)
+	cfg, err = appsconfig.ParseDir(globalDir)
 	// if there is error parsing, return empty config and continue execution to load
 	// local plugins if they exist.
 	if err != nil {
-		return &pluginsconfig.Config{}, nil
+		return &appsconfig.Config{}, nil
 	}
 
-	for i := range cfg.Plugins {
-		cfg.Plugins[i].Global = true
+	for i := range cfg.Apps {
+		cfg.Apps[i].Global = true
 	}
 	return
 }
@@ -424,7 +424,7 @@ Respects key value pairs declared after the app path to be added to the generate
 			defer session.End()
 
 			var (
-				conf *pluginsconfig.Config
+				conf *appsconfig.Config
 				err  error
 			)
 
@@ -438,13 +438,13 @@ Respects key value pairs declared after the app path to be added to the generate
 				return err
 			}
 
-			for _, p := range conf.Plugins {
-				if p.Path == args[0] {
+			for _, app := range conf.Apps {
+				if app.Path == args[0] {
 					return fmt.Errorf("app %s is already installed", args[0])
 				}
 			}
 
-			p := pluginsconfig.Plugin{
+			app := appsconfig.App{
 				Path:   args[0],
 				With:   make(map[string]string),
 				Global: global,
@@ -464,11 +464,11 @@ Respects key value pairs declared after the app path to be added to the generate
 				if len(kv) != 2 {
 					return fmt.Errorf("malformed key=value arg: %s", pa)
 				}
-				p.With[kv[0]] = kv[1]
+				app.With[kv[0]] = kv[1]
 			}
 
 			session.StartSpinner("Loading app")
-			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{p}, pluginsOptions...)
+			plugins, err := plugin.Load(cmd.Context(), []appsconfig.App{app}, pluginsOptions...)
 			if err != nil {
 				return err
 			}
@@ -478,7 +478,7 @@ Respects key value pairs declared after the app path to be added to the generate
 				return fmt.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
 			}
 			session.Println(icons.OK, "Done loading apps")
-			conf.Plugins = append(conf.Plugins, p)
+			conf.Apps = append(conf.Apps, app)
 
 			if err := conf.Save(); err != nil {
 				return err
@@ -506,7 +506,7 @@ func NewAppUninstall() *cobra.Command {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 
 			var (
-				conf *pluginsconfig.Config
+				conf *appsconfig.Config
 				err  error
 			)
 
@@ -521,9 +521,9 @@ func NewAppUninstall() *cobra.Command {
 			}
 
 			removed := false
-			for i, cp := range conf.Plugins {
+			for i, cp := range conf.Apps {
 				if cp.Path == args[0] {
-					conf.Plugins = append(conf.Plugins[:i], conf.Plugins[i+1:]...)
+					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
 				}

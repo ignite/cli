@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	appsconfig "github.com/ignite/cli/ignite/config/apps"
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/services/plugin"
 )
@@ -34,10 +34,10 @@ var defaultPlugins = []defaultPlugin{
 
 // ensureDefaultPlugins ensures that all defaultPlugins are wether registered
 // in cfg OR have an install command added to rootCmd.
-func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *pluginsconfig.Config) {
+func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *appsconfig.Config) {
 	for _, dp := range defaultPlugins {
 		// Check if plugin is declared in global config
-		if cfg.HasPlugin(dp.path) {
+		if cfg.HasApp(dp.path) {
 			// plugin found nothing to do
 			continue
 		}
@@ -63,10 +63,8 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			}
 
 			// add plugin to config
-			pluginCfg := pluginsconfig.Plugin{
-				Path: dp.path,
-			}
-			cfg.Plugins = append(cfg.Plugins, pluginCfg)
+			appCfg := appsconfig.App{Path: dp.path}
+			cfg.Apps = append(cfg.Apps, appCfg)
 			if err := cfg.Save(); err != nil {
 				return err
 			}
@@ -77,7 +75,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			// load and link the plugin
 			plugins, err := plugin.Load(
 				cmd.Context(),
-				[]pluginsconfig.Plugin{pluginCfg},
+				[]appsconfig.App{appCfg},
 				plugin.CollectEvents(session.EventBus()),
 			)
 			if err != nil {

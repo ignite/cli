@@ -1,0 +1,8 @@
+apps:
+  - name: app1
+    path: /path/to/app1
+  - name: app2
+    path: /path/to/app2
+    with:
+      foo: bar
+      bar: baz

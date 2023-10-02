@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	appsconfig "github.com/ignite/cli/ignite/config/apps"
 	"github.com/ignite/cli/ignite/services/plugin"
 	"github.com/ignite/cli/ignite/services/plugin/mocks"
 )
@@ -323,7 +323,7 @@ ignite
 			assert := assert.New(t)
 			pi := mocks.NewPluginInterface(t)
 			p := &plugin.Plugin{
-				Plugin: pluginsconfig.Plugin{
+				App: appsconfig.App{
 					Path: "foo",
 					With: pluginParams,
 				},
@@ -531,7 +531,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			// assert := assert.New(t)
 			pi := mocks.NewPluginInterface(t)
 			p := &plugin.Plugin{
-				Plugin: pluginsconfig.Plugin{
+				App: appsconfig.App{
 					Path: "foo",
 					With: pluginParams,
 				},
