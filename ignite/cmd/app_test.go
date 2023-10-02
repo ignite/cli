@@ -60,7 +60,7 @@ func assertFlags(t *testing.T, expectedFlags []plugin.Flag, execCmd plugin.Execu
 	assert.Equal(t, expected, have)
 }
 
-func TestLinkPluginCmds(t *testing.T) {
+func TestLinkAppCmds(t *testing.T) {
 	var (
 		args         = []string{"arg1", "arg2"}
 		pluginParams = map[string]string{"key": "val"}
@@ -332,7 +332,7 @@ ignite
 			rootCmd := buildRootCmd()
 			tt.setup(t, pi)
 
-			linkPlugins(rootCmd, []*plugin.Plugin{p})
+			linkApps(rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.Error(p.Error)
@@ -366,7 +366,7 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 	}
 }
 
-func TestLinkPluginHooks(t *testing.T) {
+func TestLinkAppHooks(t *testing.T) {
 	var (
 		args         = []string{"arg1", "arg2"}
 		pluginParams = map[string]string{"key": "val"}
@@ -540,7 +540,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			rootCmd := buildRootCmd()
 			tt.setup(t, pi)
 
-			linkPlugins(rootCmd, []*plugin.Plugin{p})
+			linkApps(rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.EqualError(p.Error, tt.expectedError)

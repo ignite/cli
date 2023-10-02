@@ -21,32 +21,32 @@ import (
 )
 
 const (
-	flagPluginsGlobal = "global"
+	flagAppsGlobal = "global"
 )
 
 // plugins hold the list of plugin declared in the config.
 // A global variable is used so the list is accessible to the plugin commands.
 var plugins []*plugin.Plugin
 
-// LoadPlugins tries to load all the plugins found in configurations.
+// LoadApps tries to load all the apps found in configurations.
 // If no configurations found, it returns w/o error.
-func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
+func LoadApps(ctx context.Context, cmd *cobra.Command) error {
 	var (
 		rootCmd    = cmd.Root()
 		appConfigs []appsconfig.App
 	)
-	localCfg, err := parseLocalPlugins(rootCmd)
+	localCfg, err := parseLocalApps(rootCmd)
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
 	} else if err == nil {
 		appConfigs = append(appConfigs, localCfg.Apps...)
 	}
 
-	globalCfg, err := parseGlobalPlugins()
+	globalCfg, err := parseGlobalApps()
 	if err == nil {
 		appConfigs = append(appConfigs, globalCfg.Apps...)
 	}
-	ensureDefaultPlugins(cmd, globalCfg)
+	ensureDefaultApps(cmd, globalCfg)
 
 	if len(appConfigs) == 0 {
 		return nil
@@ -55,8 +55,8 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	session := cliui.New(cliui.WithStdout(os.Stdout))
 	defer session.End()
 
-	uniquePlugins := appsconfig.RemoveDuplicates(appConfigs)
-	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
+	uniqueApps := appsconfig.RemoveDuplicates(appConfigs)
+	plugins, err = plugin.Load(ctx, uniqueApps, plugin.CollectEvents(session.EventBus()))
 	if err != nil {
 		return err
 	}
@@ -64,15 +64,15 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 		return nil
 	}
 
-	return linkPlugins(rootCmd, plugins)
+	return linkApps(rootCmd, plugins)
 }
 
-func parseLocalPlugins(cmd *cobra.Command) (*appsconfig.Config, error) {
+func parseLocalApps(cmd *cobra.Command) (*appsconfig.Config, error) {
 	// FIXME(tb): like other commands that works on a chain directory,
-	// parseLocalPlugins should rely on `-p` flag to guess that chain directory.
-	// Unfortunately parseLocalPlugins is invoked before flags are parsed, so
+	// parseLocalApps should rely on `-p` flag to guess that chain directory.
+	// Unfortunately parseLocalApps is invoked before flags are parsed, so
 	// we cannot rely on `-p` flag. As a workaround, we use the working dir.
-	// The drawback is we cannot load chain's plugin when using `-p`.
+	// The drawback is we cannot load chain's app when using `-p`.
 	_ = cmd
 	wd, err := os.Getwd()
 	if err != nil {
@@ -84,7 +84,7 @@ func parseLocalPlugins(cmd *cobra.Command) (*appsconfig.Config, error) {
 	return appsconfig.ParseDir(wd)
 }
 
-func parseGlobalPlugins() (cfg *appsconfig.Config, err error) {
+func parseGlobalApps() (cfg *appsconfig.Config, err error) {
 	globalDir, err := plugin.PluginsPath()
 	if err != nil {
 		return cfg, err
@@ -92,7 +92,7 @@ func parseGlobalPlugins() (cfg *appsconfig.Config, err error) {
 
 	cfg, err = appsconfig.ParseDir(globalDir)
 	// if there is error parsing, return empty config and continue execution to load
-	// local plugins if they exist.
+	// local apps if they exist.
 	if err != nil {
 		return &appsconfig.Config{}, nil
 	}
@@ -103,8 +103,8 @@ func parseGlobalPlugins() (cfg *appsconfig.Config, err error) {
 	return
 }
 
-func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
-	// Link plugins to related commands
+func linkApps(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
+	// Link apps to related commands
 	var linkErrors []*plugin.Plugin
 	for _, p := range plugins {
 		if p.Error != nil {
@@ -116,21 +116,21 @@ func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 			p.Error = fmt.Errorf("Manifest() error: %w", err)
 			continue
 		}
-		linkPluginHooks(rootCmd, p, manifest.Hooks)
+		linkAppHooks(rootCmd, p, manifest.Hooks)
 		if p.Error != nil {
 			linkErrors = append(linkErrors, p)
 			continue
 		}
-		linkPluginCmds(rootCmd, p, manifest.Commands)
+		linkAppCmds(rootCmd, p, manifest.Commands)
 		if p.Error != nil {
 			linkErrors = append(linkErrors, p)
 			continue
 		}
 	}
 	if len(linkErrors) > 0 {
-		// unload any plugin that could have been loaded
-		defer UnloadPlugins()
-		if err := printPlugins(cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
+		// unload any app that could have been loaded
+		defer UnloadApps()
+		if err := printApps(cliui.New(cliui.WithStdout(os.Stdout))); err != nil {
 			// content of loadErrors is more important than a print error, so we don't
 			// return here, just print the error.
 			fmt.Printf("fail to print: %v\n", err)
@@ -144,24 +144,24 @@ func linkPlugins(rootCmd *cobra.Command, plugins []*plugin.Plugin) error {
 	return nil
 }
 
-// UnloadPlugins releases any loaded plugins, which is basically killing the
-// plugin server instance.
-func UnloadPlugins() {
+// UnloadApps releases any loaded apps, which is basically killing the
+// app server instance.
+func UnloadApps() {
 	for _, p := range plugins {
 		p.KillClient()
 	}
 }
 
-func linkPluginHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Hook) {
+func linkAppHooks(rootCmd *cobra.Command, p *plugin.Plugin, hooks []plugin.Hook) {
 	if p.Error != nil {
 		return
 	}
 	for _, hook := range hooks {
-		linkPluginHook(rootCmd, p, hook)
+		linkAppHook(rootCmd, p, hook)
 	}
 }
 
-func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
+func linkAppHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) {
 	cmdPath := hook.PlaceHookOnFull()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
@@ -249,21 +249,21 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 	}
 }
 
-// linkPluginCmds tries to add the plugin commands to the legacy ignite
+// linkAppCmds tries to add the app commands to the legacy ignite
 // commands.
-func linkPluginCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugin.Command) {
+func linkAppCmds(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmds []plugin.Command) {
 	if p.Error != nil {
 		return
 	}
 	for _, pluginCmd := range pluginCmds {
-		linkPluginCmd(rootCmd, p, pluginCmd)
+		linkAppCmd(rootCmd, p, pluginCmd)
 		if p.Error != nil {
 			return
 		}
 	}
 }
 
-func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {
+func linkAppCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Command) {
 	cmdPath := pluginCmd.PlaceCommandUnderFull()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
@@ -294,10 +294,10 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	cmd.AddCommand(newCmd)
 
 	// NOTE(tb) we could probably simplify by removing this condition and call the
-	// plugin even if the invoked command isn't runnable. If we do so, the plugin
+	// app even if the invoked command isn't runnable. If we do so, the app
 	// will be responsible for outputing the standard cobra output, which implies
 	// it must use cobra too. This is how cli-plugin-network works, but to make
-	// it for all, we need to change the `plugin scaffold` output (so it outputs
+	// it for all, we need to change the `app scaffold` output (so it outputs
 	// something similar than the cli-plugin-network) and update the docs.
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
@@ -311,10 +311,10 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 					With:   p.With,
 				}
 				execCmd.SetFlags(cmd)
-				// Call the plugin Execute
+				// Call the app Execute
 				err := p.Interface.Execute(execCmd)
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
-				// output from stdout/stderr of the plugin. Without that pause, this
+				// output from stdout/stderr of the app. Without that pause, this
 				// output can be discarded and not printed in the user console.
 				time.Sleep(100 * time.Millisecond)
 				return err
@@ -323,7 +323,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd plugin.Co
 	} else {
 		for _, pluginCmd := range pluginCmd.Commands {
 			pluginCmd.PlaceCommandUnder = newCmd.CommandPath()
-			linkPluginCmd(newCmd, p, pluginCmd)
+			linkAppCmd(newCmd, p, pluginCmd)
 			if p.Error != nil {
 				return
 			}
@@ -369,7 +369,7 @@ func NewAppList() *cobra.Command {
 		Long:  "Prints status and information of all installed Ignite Apps.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
-			return printPlugins(s)
+			return printApps(s)
 		},
 	}
 	return lstCmd
@@ -386,7 +386,7 @@ If no path is specified all declared apps are updated.`,
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				// update all plugins
+				// update all apps
 				err := plugin.Update(plugins...)
 				if err != nil {
 					return err
@@ -394,7 +394,7 @@ If no path is specified all declared apps are updated.`,
 				fmt.Printf("All apps updated.\n")
 				return nil
 			}
-			// find the plugin to update
+			// find the app to update
 			for _, p := range plugins {
 				if p.Path == args[0] {
 					err := plugin.Update(p)
@@ -411,7 +411,7 @@ If no path is specified all declared apps are updated.`,
 }
 
 func NewAppInstall() *cobra.Command {
-	cmdPluginAdd := &cobra.Command{
+	cmdAppAdd := &cobra.Command{
 		Use:   "install [path] [key=value]...",
 		Short: "Install app",
 		Long: `Installs an Ignite App.
@@ -428,11 +428,11 @@ Respects key value pairs declared after the app path to be added to the generate
 				err  error
 			)
 
-			global := flagGetPluginsGlobal(cmd)
+			global := flagGetAppsGlobal(cmd)
 			if global {
-				conf, err = parseGlobalPlugins()
+				conf, err = parseGlobalApps()
 			} else {
-				conf, err = parseLocalPlugins(cmd)
+				conf, err = parseLocalApps(cmd)
 			}
 			if err != nil {
 				return err
@@ -454,15 +454,15 @@ Respects key value pairs declared after the app path to be added to the generate
 				plugin.CollectEvents(session.EventBus()),
 			}
 
-			var pluginArgs []string
+			var appArgs []string
 			if len(args) > 1 {
-				pluginArgs = args[1:]
+				appArgs = args[1:]
 			}
 
-			for _, pa := range pluginArgs {
-				kv := strings.Split(pa, "=")
+			for _, a := range appArgs {
+				kv := strings.Split(a, "=")
 				if len(kv) != 2 {
-					return fmt.Errorf("malformed key=value arg: %s", pa)
+					return fmt.Errorf("malformed key=value arg: %s", a)
 				}
 				app.With[kv[0]] = kv[1]
 			}
@@ -489,13 +489,13 @@ Respects key value pairs declared after the app path to be added to the generate
 		},
 	}
 
-	cmdPluginAdd.Flags().AddFlagSet(flagSetPluginsGlobal())
+	cmdAppAdd.Flags().AddFlagSet(flagSetAppsGlobal())
 
-	return cmdPluginAdd
+	return cmdAppAdd
 }
 
 func NewAppUninstall() *cobra.Command {
-	cmdPluginRemove := &cobra.Command{
+	cmdAppRemove := &cobra.Command{
 		Use:     "uninstall [path]",
 		Aliases: []string{"rm"},
 		Short:   "Uninstall app",
@@ -510,11 +510,11 @@ func NewAppUninstall() *cobra.Command {
 				err  error
 			)
 
-			global := flagGetPluginsGlobal(cmd)
+			global := flagGetAppsGlobal(cmd)
 			if global {
-				conf, err = parseGlobalPlugins()
+				conf, err = parseGlobalApps()
 			} else {
-				conf, err = parseLocalPlugins(cmd)
+				conf, err = parseLocalApps(cmd)
 			}
 			if err != nil {
 				return err
@@ -530,7 +530,7 @@ func NewAppUninstall() *cobra.Command {
 			}
 
 			if !removed {
-				// return if no matching plugin path found
+				// return if no matching app path found
 				return fmt.Errorf("app %s not found", args[0])
 			}
 
@@ -545,9 +545,9 @@ func NewAppUninstall() *cobra.Command {
 		},
 	}
 
-	cmdPluginRemove.Flags().AddFlagSet(flagSetPluginsGlobal())
+	cmdAppRemove.Flags().AddFlagSet(flagSetAppsGlobal())
 
-	return cmdPluginRemove
+	return cmdAppRemove
 }
 
 func NewAppScaffold() *cobra.Command {
@@ -637,14 +637,14 @@ func NewAppDescribe() *cobra.Command {
 	}
 }
 
-func getPluginLocationName(p *plugin.Plugin) string {
+func getAppLocationName(p *plugin.Plugin) string {
 	if p.IsGlobal() {
 		return "global"
 	}
 	return "local"
 }
 
-func getPluginStatus(p *plugin.Plugin) string {
+func getAppStatus(p *plugin.Plugin) string {
 	if p.Error != nil {
 		return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
 	}
@@ -657,10 +657,10 @@ func getPluginStatus(p *plugin.Plugin) string {
 	return fmt.Sprintf("%s Loaded", icons.OK)
 }
 
-func printPlugins(session *cliui.Session) error {
+func printApps(session *cliui.Session) error {
 	var entries [][]string
 	for _, p := range plugins {
-		entries = append(entries, []string{p.Path, getPluginLocationName(p), getPluginStatus(p)})
+		entries = append(entries, []string{p.Path, getAppLocationName(p), getAppStatus(p)})
 	}
 
 	if err := session.PrintTable([]string{"Path", "Config", "Status"}, entries...); err != nil {
@@ -669,13 +669,13 @@ func printPlugins(session *cliui.Session) error {
 	return nil
 }
 
-func flagSetPluginsGlobal() *flag.FlagSet {
+func flagSetAppsGlobal() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration ($HOME/.ignite/plugins/plugins.yml)")
+	fs.BoolP(flagAppsGlobal, "g", false, "use global apps configuration ($HOME/.ignite/apps/igniteapps.yml)")
 	return fs
 }
 
-func flagGetPluginsGlobal(cmd *cobra.Command) bool {
-	global, _ := cmd.Flags().GetBool(flagPluginsGlobal)
+func flagGetAppsGlobal(cmd *cobra.Command) bool {
+	global, _ := cmd.Flags().GetBool(flagAppsGlobal)
 	return global
 }

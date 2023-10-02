@@ -9,7 +9,7 @@ import (
 	appsconfig "github.com/ignite/cli/ignite/config/apps"
 )
 
-func TestEnsureDefaultPlugins(t *testing.T) {
+func TestEnsureDefaultApps(t *testing.T) {
 	tests := []struct {
 		name                 string
 		cfg                  *appsconfig.Config
@@ -34,7 +34,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := &cobra.Command{Use: "ignite"}
 
-			ensureDefaultPlugins(cmd, tt.cfg)
+			ensureDefaultApps(cmd, tt.cfg)
 
 			expectedCmd := findCommandByPath(cmd, "ignite network")
 			if tt.expectAddedInCommand {

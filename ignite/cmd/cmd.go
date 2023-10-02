@@ -84,10 +84,10 @@ To get started, create a blockchain:
 	c.AddCommand(deprecated()...)
 
 	// Load plugins if any
-	if err := LoadPlugins(ctx, c); err != nil {
+	if err := LoadApps(ctx, c); err != nil {
 		return nil, nil, fmt.Errorf("error while loading apps: %w", err)
 	}
-	return c, UnloadPlugins, nil
+	return c, UnloadApps, nil
 }
 
 func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
