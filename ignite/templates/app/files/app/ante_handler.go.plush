@@ -56,8 +56,12 @@ func NewAnteHandler(options HandlerOptions, logger log.Logger) (sdk.AnteHandler,
 	}
 
 	// This constant depends on build tag.
-	// When true, this allows to test locally without the provider chain running
-	if !SkipCcvMsgFilter {
+	// When true the consumer ante decorator is not added. This decorator rejects
+	// all non-IBC messages until the CCV channel is established with the
+	// provider chain. While this is useful for production, for development it's
+	// more convenient to avoid it so the consumer chain can be tested without
+	// a provider chain and a relayer running on top.
+	if !ConsumerSkipMsgFilter {
 		anteDecorators = append(anteDecorators, consumerante.NewMsgFilterDecorator(options.ConsumerKeeper))
 	} else {
 		logger.Error("WARNING: BUILT WITH skip_ccv_msg_filter. THIS IS NOT A PRODUCTION BUILD")

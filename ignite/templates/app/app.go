@@ -28,8 +28,8 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 		excludePrefix []string
 	)
 	if !opts.IsConsumerChain {
-		// non-consumer chain doesn't need "ccv_msg_filter_*" & "ante_handler.go" files
-		excludePrefix = append(excludePrefix, "app/ccv_msg_filter_")
+		// non-consumer chain doesn't need "consumer_*" & "ante_handler.go" files
+		excludePrefix = append(excludePrefix, "app/consumer_")
 		excludePrefix = append(excludePrefix, "app/ante_handler.go")
 	}
 	g := genny.New()
