@@ -24,6 +24,7 @@ require (
 	cosmossdk.io/x/feegrant v0.1.0
 	cosmossdk.io/x/upgrade v0.1.0
 	github.com/bufbuild/buf v1.27.2
+	<%= if (IsConsumerChain) { %>github.com/cosmos/interchain-security/v3 v3.1.0<% } %>
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
@@ -44,3 +45,8 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.31.0
 )
+
+require (
+	github.com/coinbase/rosetta-sdk-go/types v1.0.0 // indirect
+}
+
