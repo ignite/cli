@@ -109,12 +109,12 @@ To get your blockchain to say `Hello! Ignite CLI`, you need to make these change
 
 Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. The rpc calls are also responsible for exposing an HTTP API.
 
-For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/main/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
+For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/main/building-modules/keeper) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, the next step is to register the query. You only need to register a query once.
 
 A typical blockchain developer workflow looks something like this:
 
-- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/main/building-modules/msg-services.html)
-- Define and register [queries](https://docs.cosmos.network/main/building-modules/query-services.html)
+- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/main/building-modules/msg-services)
+- Define and register [queries](https://docs.cosmos.network/main/building-modules/query-services)
 - Define message handler logic
 - Finally, implement the logic of these queries and message handlers in keeper functions
 
