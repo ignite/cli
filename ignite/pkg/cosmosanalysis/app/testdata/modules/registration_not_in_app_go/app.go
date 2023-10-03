@@ -7,6 +7,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/gogo/protobuf/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -17,6 +18,8 @@ func (Foo) Name() string {
 }
 
 var mm *module.Manager
+
+func (Foo) AppCodec() codec.Codec { return nil }
 
 func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return abci.ResponseBeginBlock{}

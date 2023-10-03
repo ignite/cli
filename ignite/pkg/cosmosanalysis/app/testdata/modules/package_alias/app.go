@@ -13,6 +13,7 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/gogo/protobuf/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 	foomodule "github.com/username/test/x/foo"
 )
@@ -33,6 +34,8 @@ type Foo struct{}
 func (Foo) Name() string {
 	return "foo"
 }
+
+func (Foo) AppCodec() codec.Codec { return nil }
 
 func (Foo) BeginBlocker(sdk.Context, abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return abci.ResponseBeginBlock{}

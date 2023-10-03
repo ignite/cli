@@ -17,6 +17,7 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/gogo/protobuf/codec"
 	foomodule "github.com/username/test/x/foo"
 )
 
@@ -36,6 +37,7 @@ type Foo struct {
 }
 
 func (Foo) Name() string                                    { return "foo" }
+func (Foo) AppCodec() codec.Codec                           { return nil }
 func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
 func (Foo) TxConfig() client.TxConfig                       { return nil }
 func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }

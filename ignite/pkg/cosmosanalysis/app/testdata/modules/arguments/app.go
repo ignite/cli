@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -33,6 +34,8 @@ type Foo struct{}
 func (Foo) Name() string {
 	return "foo"
 }
+
+func (Foo) AppCodec() codec.Codec { return nil }
 
 func (Foo) GetKey(storeKey string) *storetypes.KVStoreKey { return nil }
 
