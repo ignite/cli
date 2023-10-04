@@ -66,7 +66,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			pluginCfg := pluginsconfig.Plugin{
 				Path: dp.path,
 			}
-			cfg.Plugins = append(cfg.Plugins, pluginCfg)
+			cfg.Apps = append(cfg.Apps, pluginCfg)
 			if err := cfg.Save(); err != nil {
 				return err
 			}

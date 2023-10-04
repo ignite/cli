@@ -79,9 +79,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app",
+				cloneDir:  ".ignite/apps/github.com/ignite/app",
 				reference: "",
-				srcPath:   ".ignite/plugins/github.com/ignite/app",
+				srcPath:   ".ignite/apps/github.com/ignite/app",
 				name:      "app",
 			},
 		},
@@ -91,9 +91,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@develop",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-develop",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-develop",
 				reference: "develop",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-develop",
+				srcPath:   ".ignite/apps/github.com/ignite/app-develop",
 				name:      "app",
 			},
 		},
@@ -103,9 +103,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@package/v1.0.0",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-package-v1.0.0",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				reference: "package/v1.0.0",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-package-v1.0.0",
+				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				name:      "app",
 			},
 		},
@@ -115,9 +115,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app",
+				cloneDir:  ".ignite/apps/github.com/ignite/app",
 				reference: "",
-				srcPath:   ".ignite/plugins/github.com/ignite/app/plugin1",
+				srcPath:   ".ignite/apps/github.com/ignite/app/plugin1",
 				name:      "plugin1",
 			},
 		},
@@ -127,9 +127,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@develop",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-develop",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-develop",
 				reference: "develop",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-develop/plugin1",
+				srcPath:   ".ignite/apps/github.com/ignite/app-develop/plugin1",
 				name:      "plugin1",
 			},
 		},
@@ -139,9 +139,9 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				repoPath:  "github.com/ignite/app@package/v1.0.0",
 				cloneURL:  "https://github.com/ignite/app",
-				cloneDir:  ".ignite/plugins/github.com/ignite/app-package-v1.0.0",
+				cloneDir:  ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				reference: "package/v1.0.0",
-				srcPath:   ".ignite/plugins/github.com/ignite/app-package-v1.0.0/plugin1",
+				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0/plugin1",
 				name:      "plugin1",
 			},
 		},
@@ -150,7 +150,7 @@ func TestNewPlugin(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.expectedPlugin.Plugin = tt.pluginCfg
 
-			p := newPlugin(".ignite/plugins", tt.pluginCfg)
+			p := newPlugin(".ignite/apps", tt.pluginCfg)
 
 			assertPlugin(t, tt.expectedPlugin, *p)
 		})
