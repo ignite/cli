@@ -31,7 +31,7 @@ import (
 // PluginsPath holds the plugin cache directory.
 var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 	config.DirPath,
-	xfilepath.Path("plugins"),
+	xfilepath.Path("apps"),
 ))
 
 // Plugin represents a ignite plugin.
@@ -76,11 +76,11 @@ func CollectEvents(ev events.Bus) Option {
 // There's 2 kinds of plugins, local or remote.
 // Local plugins have their path starting with a `/`, while remote plugins don't.
 // Local plugins are useful for development purpose.
-// Remote plugins require to be fetched first, in $HOME/.ignite/plugins folder, then they are loaded
-// from there.
+// Remote plugins require to be fetched first, in $HOME/.ignite/apps folder,
+// then they are loaded from there.
 //
-// If an error occurs during a plugin load, it's not returned but rather stored in the `Plugin.Error`
-// field. This prevents the loading of other plugins to be interrupted.
+// If an error occurs during a plugin load, it's not returned but rather stored in
+// the `Plugin.Error` field. This prevents the loading of other plugins to be interrupted.
 func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
@@ -163,8 +163,8 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	}
 
-	// Plugin can have a subpath within its repository. For example,
-	// "github.com/ignite/plugins/plugin1" where "plugin1" is the subpath.
+	// Plugin can have a subpath within its repository.
+	// For example, "github.com/ignite/apps/app1" where "app1" is the subpath.
 	repoSubPath := path.Join(parts[3:]...)
 
 	p.srcPath = path.Join(p.cloneDir, repoSubPath)
