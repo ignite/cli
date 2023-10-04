@@ -4,6 +4,9 @@ import (
     "context"
     "errors"
     "path/filepath"
+
+    _ "embed"
+	_ "mvdan.cc/gofumpt"
 )
 
 const (

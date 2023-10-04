@@ -84,7 +84,9 @@ func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 	}
 
 	// Loop on package's files
+	var blankImports []string
 	for _, f := range appPkg.Files {
+		blankImports = append(blankImports, goanalysis.FindBlankImports(f)...)
 		fileImports := goanalysis.FormatImports(f)
 		discovered, err := FindKeepersModules(appPkg, fileImports)
 		if err != nil {
@@ -141,7 +143,7 @@ func FindKeepersModules(n ast.Node, fileImports map[string]string) ([]string, er
 					}
 					goto CheckSpec
 				case *ast.SelectorExpr:
-					if spec.Sel.Name != "Keeper" {
+					if !strings.HasSuffix(spec.Sel.Name, "Keeper") {
 						continue
 					}
 					ident, ok := spec.X.(*ast.Ident)
