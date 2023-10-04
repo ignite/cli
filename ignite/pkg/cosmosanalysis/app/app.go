@@ -68,7 +68,8 @@ func CheckKeeper(path, keeperName string) error {
 	return nil
 }
 
-func FindRegisteredModules(chainRoot string) (modules []string, err error) {
+// FindRegisteredModules returns all registered modules into the chain root.
+func FindRegisteredModules(chainRoot string) ([]string, error) {
 	// Assumption: modules are registered in the app package
 	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
 	if err != nil {
@@ -85,19 +86,53 @@ func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 
 	// Loop on package's files
 	var blankImports []string
+	var discovered []string
 	for _, f := range appPkg.Files {
 		blankImports = append(blankImports, goanalysis.FindBlankImports(f)...)
 		fileImports := goanalysis.FormatImports(f)
-		discovered, err := FindKeepersModules(appPkg, fileImports)
+		d, err := FindKeepersModules(f, fileImports)
 		if err != nil {
 			return nil, err
 		}
-		modules = append(modules, discovered...)
+		discovered = append(discovered, d...)
 	}
-
-	return modules, nil
+	return mergeImports(blankImports, discovered), nil
 }
 
+// mergeImports merge all discovered imports into the blank imports found in the app files.
+func mergeImports(blankImports, discovered []string) []string {
+	imports := make([]string, len(blankImports))
+	copy(imports, blankImports)
+	for i, m := range discovered {
+		split := strings.Split(m, "/")
+
+		j := len(split)
+		maxTrim := len(split) - 3
+	LoopBack:
+		for j > maxTrim {
+			j--
+			// x path means we are reaching the root of the module
+			if split[j] == "x" {
+				j = maxTrim
+				goto LoopBack
+			}
+			for _, imp := range blankImports {
+				// check if the import exist into the blank imports
+				if strings.Contains(imp, m) {
+					j = -1
+					goto LoopBack
+				}
+			}
+			m = strings.TrimSuffix(m, "/"+split[j])
+		}
+		if j == maxTrim {
+			imports = append(imports, discovered[i])
+		}
+	}
+	return imports
+}
+
+// FindKeepersModules find a map of import modules based on the keepers params on the App struct.
 func FindKeepersModules(n ast.Node, fileImports map[string]string) ([]string, error) {
 	// find app type
 	appImpl := cosmosanalysis.FindImplementationInFile(n, cosmosanalysis.AppImplementation)

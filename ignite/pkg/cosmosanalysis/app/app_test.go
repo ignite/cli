@@ -1,4 +1,4 @@
-package app_test
+package app
 
 import (
 	_ "embed"
@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
 )
@@ -68,13 +67,212 @@ func TestCheckKeeper(t *testing.T) {
 			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
 			require.NoError(t, err)
 
-			err = app.CheckKeeper(tmpDir, tt.keeperName)
+			err = CheckKeeper(tmpDir, tt.keeperName)
 
 			if tt.expectedError != "" {
 				require.EqualError(t, err, tt.expectedError)
 				return
 			}
 			require.NoError(t, err)
+		})
+	}
+}
+
+func TestFindRegisteredModules(t *testing.T) {
+	basicModules := []string{
+		"github.com/cosmos/cosmos-sdk/x/auth",
+		"github.com/cosmos/cosmos-sdk/x/bank",
+		"github.com/cosmos/cosmos-sdk/x/staking",
+		"github.com/cosmos/cosmos-sdk/x/gov",
+		"github.com/username/test/x/foo",
+	}
+
+	cases := []struct {
+		name            string
+		path            string
+		expectedModules []string
+	}{
+		{
+			name:            "new basic manager arguments",
+			path:            "testdata/modules/arguments",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "cosmos-sdk/types/module with alias",
+			path:            "testdata/modules/package_alias",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "package not called app",
+			path:            "testdata/modules/package_not_called_app",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "append with arguments",
+			path:            "testdata/modules/append_arguments",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "registration not in app.go",
+			path:            "testdata/modules/registration_not_in_app_go",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same file variable",
+			path:            "testdata/modules/file_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same package variable",
+			path:            "testdata/modules/package_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "other package variable",
+			path:            "testdata/modules/external_variable",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "with runtime api routes",
+			path:            "testdata/modules/runtime_api_routes",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same file function",
+			path:            "testdata/modules/file_function",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "same package function",
+			path:            "testdata/modules/package_function",
+			expectedModules: basicModules,
+		},
+		{
+			name:            "append same package function",
+			path:            "testdata/modules/append_package_function",
+			expectedModules: basicModules,
+		},
+		{
+			name: "gaia",
+			path: "testdata/modules/gaia",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/cosmos/cosmos-sdk/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant",
+				"github.com/cosmos/cosmos-sdk/x/authz",
+				"github.com/cosmos/cosmos-sdk/x/group",
+				"github.com/cosmos/ibc-go/v5/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v5/modules/apps/transfer",
+				"github.com/gravity-devs/liquidity/v2/x/liquidity",
+				"github.com/strangelove-ventures/packet-forward-middleware/v2/router",
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/gaia/v8/x/icamauth",
+				"github.com/cosmos/cosmos-sdk/client/docs/statik",
+			},
+		},
+		{
+			name: "crescent",
+			path: "testdata/modules/crescent",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/crescent-network/crescent/v3/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant",
+				"github.com/cosmos/cosmos-sdk/x/authz",
+				"github.com/cosmos/ibc-go/v2/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v2/modules/apps/transfer",
+				"github.com/tendermint/budget/x/budget",
+				"github.com/crescent-network/crescent/v3/x/farming",
+				"github.com/crescent-network/crescent/v3/x/liquidity",
+				"github.com/crescent-network/crescent/v3/x/liquidstaking",
+				"github.com/crescent-network/crescent/v3/x/liquidfarming",
+				"github.com/crescent-network/crescent/v3/x/claim",
+				"github.com/crescent-network/crescent/v3/x/marketmaker",
+				"github.com/crescent-network/crescent/v3/x/lpfarm",
+				"github.com/crescent-network/crescent/v3/client/docs/statik",
+			},
+		},
+		{
+			name: "spn",
+			path: "testdata/modules/spn",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/ignite/modules/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/feegrant",
+				"github.com/cosmos/cosmos-sdk/x/authz",
+				"github.com/cosmos/ibc-go/v6/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v6/modules/apps/transfer",
+				"github.com/tendermint/spn/x/participation",
+				"github.com/ignite/modules/x/claim",
+				"github.com/tendermint/spn/x/profile",
+				"github.com/tendermint/spn/x/launch",
+				"github.com/tendermint/spn/x/campaign",
+				"github.com/tendermint/spn/x/monitoringc",
+				"github.com/tendermint/spn/x/monitoringp",
+				"github.com/tendermint/spn/x/reward",
+				"github.com/tendermint/fundraising/x/fundraising",
+			},
+		},
+		{
+			name: "juno",
+			path: "testdata/modules/juno",
+			expectedModules: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/capability",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/CosmosContracts/juno/v10/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/ibc-go/v3/modules/core",
+				"github.com/cosmos/cosmos-sdk/x/feegrant",
+				"github.com/cosmos/cosmos-sdk/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/evidence",
+				"github.com/cosmos/ibc-go/v3/modules/apps/transfer",
+				"github.com/cosmos/cosmos-sdk/x/authz",
+				"github.com/CosmWasm/wasmd/x/wasm",
+				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := FindRegisteredModules(tt.path)
+			require.NoError(t, err)
+			require.ElementsMatch(t, tt.expectedModules, got)
 		})
 	}
 }
@@ -275,13 +473,154 @@ func TestFindKeepersModules(t *testing.T) {
 			got := make([]string, 0)
 			for _, f := range appPkg.Files {
 				fileImports := goanalysis.FormatImports(f)
-				modules, err := app.FindKeepersModules(f, fileImports)
+				modules, err := FindKeepersModules(f, fileImports)
 				require.NoError(t, err)
 				if modules != nil {
 					got = append(got, modules...)
 				}
 			}
 			require.ElementsMatch(t, tt.expectedModules, got)
+		})
+	}
+}
+
+func Test_mergeImports(t *testing.T) {
+	tests := []struct {
+		name         string
+		blankImports []string
+		discovered   []string
+		want         []string
+	}{
+		{
+			name:         "test nil imports",
+			blankImports: nil,
+			discovered:   nil,
+			want:         nil,
+		},
+		{
+			name:         "test empty imports",
+			blankImports: []string{},
+			discovered:   []string{},
+			want:         []string{},
+		},
+		{
+			name:         "test only one blank import",
+			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth"},
+			discovered:   []string{},
+			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
+		},
+		{
+			name:         "test only one discovered import",
+			blankImports: []string{},
+			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth"},
+			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
+		},
+		{
+			name:         "test only one import",
+			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth"},
+			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth/keeper"},
+			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
+		},
+		{
+			name:         "test only one keeper import",
+			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth/module"},
+			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth/keeper"},
+			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth/module"},
+		},
+		{
+			name: "test two keeper import",
+			blankImports: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth/module",
+				"github.com/cosmos/cosmos-sdk/x/bank/module",
+			},
+			discovered: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth/keeper",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+			},
+			want: []string{
+				"github.com/cosmos/cosmos-sdk/x/auth/module",
+				"github.com/cosmos/cosmos-sdk/x/bank/module",
+			},
+		},
+		{
+			name: "test two keeper import",
+			blankImports: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+			},
+			discovered: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+			},
+			want: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+			},
+		},
+		{
+			name: "test three keeper import",
+			blankImports: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"cosmossdk.io/x/feegrant/module",
+			},
+			discovered: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+				"cosmossdk.io/x/feegrant/types",
+				"cosmossdk.io/x/feegrant",
+				"cosmossdk.io/x/foo",
+			},
+			want: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+				"cosmossdk.io/x/feegrant/module",
+				"cosmossdk.io/x/foo",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mergeImports(tt.blankImports, tt.discovered)
+			require.ElementsMatch(t, tt.want, got)
+		})
+	}
+}
+
+func Test_removeKeeperPkgPath(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  string
+		want string
+	}{
+		{
+			name: "test controller keeper",
+			arg:  "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
+			want: "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+		},
+		{
+			name: "test controller",
+			arg:  "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller",
+			want: "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+		},
+		{
+			name: "test keeper",
+			arg:  "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/keeper",
+			want: "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+		},
+		{
+			name: "test controller keeper",
+			arg:  "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/controller/keeper",
+			want: "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+		},
+		{
+			name: "test host controller keeper",
+			arg:  "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/host/keeper",
+			want: "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := removeKeeperPkgPath(tt.arg)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
