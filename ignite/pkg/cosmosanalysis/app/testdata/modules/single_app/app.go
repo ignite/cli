@@ -6,32 +6,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/gogo/protobuf/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
-	foomodule "github.com/username/test/x/foo"
 	fookeeper "github.com/username/test/x/foo/keeper"
-)
-
-// App modules are defined as NewBasicManager arguments
-var ModuleBasics = module.NewBasicManager(
-	auth.AppModuleBasic{},
-	bank.AppModuleBasic{},
-	staking.AppModuleBasic{},
-	gov.NewAppModuleBasic([]govclient.ProposalHandler{
-		paramsclient.ProposalHandler,
-	}),
-	foomodule.AppModuleBasic{},
 )
 
 type Foo struct {

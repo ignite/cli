@@ -93,64 +93,39 @@ func TestFindRegisteredModules(t *testing.T) {
 		expectedModules []string
 	}{
 		{
-			name:            "new basic manager arguments",
-			path:            "testdata/modules/arguments",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "cosmos-sdk/types/module with alias",
-			path:            "testdata/modules/package_alias",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "package not called app",
-			path:            "testdata/modules/package_not_called_app",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "append with arguments",
-			path:            "testdata/modules/append_arguments",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "registration not in app.go",
-			path:            "testdata/modules/registration_not_in_app_go",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same file variable",
-			path:            "testdata/modules/file_variable",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same package variable",
-			path:            "testdata/modules/package_variable",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "other package variable",
-			path:            "testdata/modules/external_variable",
+			name:            "new basic manager with only a app.go",
+			path:            "testdata/modules/single_app",
 			expectedModules: basicModules,
 		},
 		{
 			name:            "with runtime api routes",
-			path:            "testdata/modules/runtime_api_routes",
+			path:            "testdata/modules/runtime",
 			expectedModules: basicModules,
 		},
 		{
-			name:            "same file function",
-			path:            "testdata/modules/file_function",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same package function",
-			path:            "testdata/modules/package_function",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "append same package function",
-			path:            "testdata/modules/append_package_function",
-			expectedModules: basicModules,
+			name: "with app_config.go file",
+			path: "testdata/modules/app_config",
+			expectedModules: []string{
+				"cosmossdk.io/x/circuit",
+				"cosmossdk.io/x/evidence",
+				"cosmossdk.io/x/feegrant/module",
+				"cosmossdk.io/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx/config",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
+				"github.com/cosmos/cosmos-sdk/x/authz/module",
+				"github.com/cosmos/cosmos-sdk/x/bank",
+				"github.com/cosmos/cosmos-sdk/x/consensus",
+				"github.com/cosmos/cosmos-sdk/x/crisis",
+				"github.com/cosmos/cosmos-sdk/x/distribution",
+				"github.com/cosmos/cosmos-sdk/x/group/module",
+				"github.com/cosmos/cosmos-sdk/x/mint",
+				"github.com/cosmos/cosmos-sdk/x/params",
+				"github.com/cosmos/cosmos-sdk/x/slashing",
+				"github.com/cosmos/cosmos-sdk/x/staking",
+				"github.com/ignite/mars/x/mars",
+				"github.com/cosmos/cosmos-sdk/x/gov",
+				"github.com/username/test/x/foo",
+			},
 		},
 		{
 			name: "gaia",
@@ -292,63 +267,18 @@ func TestFindKeepersModules(t *testing.T) {
 		expectedModules []string
 	}{
 		{
-			name:            "new basic manager arguments",
-			path:            "testdata/modules/arguments",
+			name:            "new basic manager with only a app.go",
+			path:            "testdata/modules/single_app",
 			expectedModules: basicModules,
 		},
 		{
-			name:            "cosmos-sdk/types/module with alias",
-			path:            "testdata/modules/package_alias",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "package not called app",
-			path:            "testdata/modules/package_not_called_app",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "append with arguments",
-			path:            "testdata/modules/append_arguments",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "registration not in app.go",
-			path:            "testdata/modules/registration_not_in_app_go",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same file variable",
-			path:            "testdata/modules/file_variable",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same package variable",
-			path:            "testdata/modules/package_variable",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "other package variable",
-			path:            "testdata/modules/external_variable",
+			name:            "with app_config.go file",
+			path:            "testdata/modules/app_config",
 			expectedModules: basicModules,
 		},
 		{
 			name:            "with runtime api routes",
-			path:            "testdata/modules/runtime_api_routes",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same file function",
-			path:            "testdata/modules/file_function",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "same package function",
-			path:            "testdata/modules/package_function",
-			expectedModules: basicModules,
-		},
-		{
-			name:            "append same package function",
-			path:            "testdata/modules/append_package_function",
+			path:            "testdata/modules/runtime",
 			expectedModules: basicModules,
 		},
 		{
