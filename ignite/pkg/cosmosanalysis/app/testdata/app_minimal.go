@@ -2,6 +2,7 @@ package foo
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -19,6 +20,7 @@ func (f Foo) RegisterAPIRoutes()                            {}
 func (f Foo) RegisterTxService()                            {}
 func (f Foo) RegisterTendermintService()                    {}
 func (f Foo) Name() string                                  { return app.BaseApp.Name() }
+func (f Foo) AppCodec() codec.Codec                         { return app.appCodec }
 func (f Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }

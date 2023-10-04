@@ -38,9 +38,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	fookeeper "github.com/username/test/x/foo/keeper"
 
 	"github.com/osmosis-labs/osmosis/v12/app/upgrades"
 	v10 "github.com/osmosis-labs/osmosis/v12/app/upgrades/v10"
@@ -132,6 +137,12 @@ type OsmosisApp struct {
 	mm           *module.Manager
 	sm           *simtypes.Manager
 	configurator module.Configurator
+
+	AuthKeeper    authkeeper.Keeper
+	BankKeeper    bankkeeper.Keeper
+	StakingKeeper stakingkeeper.Keeper
+	GovKeeper     govkeeper.Keeper
+	FooKeeper     fookeeper.Keeper
 }
 
 // init sets DefaultNodeHome to default osmosisd install location.

@@ -45,7 +45,12 @@ func (app *App) registerIBCModules() {
 	}
 
 	// set params subspaces
-	for _, m := range []string{ibctransfertypes.ModuleName, ibcexported.ModuleName, icahosttypes.SubModuleName, icacontrollertypes.SubModuleName} {
+	for _, m := range []string{
+		ibctransfertypes.ModuleName,
+		ibcexported.ModuleName,
+		icahosttypes.SubModuleName,
+		icacontrollertypes.SubModuleName,
+	} {
 		app.ParamsKeeper.Subspace(m)
 	}
 

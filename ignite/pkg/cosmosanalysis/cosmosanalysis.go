@@ -75,67 +75,72 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 		for _, f := range pkg.Files {
 			files = append(files, f)
 		}
-		found = append(found, findImplementationInFiles(files, interfaceList)...)
+		found = append(found, FindImplementationInFiles(files, interfaceList)...)
 	}
 
 	return found, nil
 }
 
-func findImplementationInFiles(files []*ast.File, interfaceList []string) (found []string) {
+func FindImplementationInFiles(files []*ast.File, interfaceList []string) (found []string) {
+	for _, f := range files {
+		found = append(found, FindImplementationInFile(f, interfaceList)...)
+	}
+	return found
+}
+
+func FindImplementationInFile(n ast.Node, interfaceList []string) (found []string) {
 	// collect all structs under path to find out the ones that satisfies the implementation
 	structImplementations := make(map[string]implementation)
 
-	for _, f := range files {
-		ast.Inspect(f, func(n ast.Node) bool {
-			// look for struct methods.
-			methodDecl, ok := n.(*ast.FuncDecl)
-			if !ok {
-				return true
-			}
+	ast.Inspect(n, func(n ast.Node) bool {
+		// look for struct methods.
+		methodDecl, ok := n.(*ast.FuncDecl)
+		if !ok {
+			return true
+		}
 
-			// not a method.
-			if methodDecl.Recv == nil {
-				return true
-			}
+		// not a method.
+		if methodDecl.Recv == nil {
+			return true
+		}
 
-			methodName := methodDecl.Name.Name
+		methodName := methodDecl.Name.Name
 
-			// find the struct name that method belongs to.
-			t := methodDecl.Recv.List[0].Type
-			var ident *ast.Ident
-			switch t := t.(type) {
+		// find the struct name that method belongs to.
+		t := methodDecl.Recv.List[0].Type
+		var ident *ast.Ident
+		switch t := t.(type) {
+		case *ast.Ident:
+			// method with a value receiver
+			ident = t
+		case *ast.IndexExpr:
+			// generic method with a value receiver
+			ident = t.X.(*ast.Ident)
+		case *ast.StarExpr:
+			switch t := t.X.(type) {
 			case *ast.Ident:
-				// method with a value receiver
+				// method with a pointer receiver
 				ident = t
 			case *ast.IndexExpr:
-				// generic method with a value receiver
+				// generic method with a pointer receiver
 				ident = t.X.(*ast.Ident)
-			case *ast.StarExpr:
-				switch t := t.X.(type) {
-				case *ast.Ident:
-					// method with a pointer receiver
-					ident = t
-				case *ast.IndexExpr:
-					// generic method with a pointer receiver
-					ident = t.X.(*ast.Ident)
-				default:
-					return true
-				}
 			default:
 				return true
 			}
-			structName := ident.Name
-
-			// mark the implementation that this struct satisfies.
-			if _, ok := structImplementations[structName]; !ok {
-				structImplementations[structName] = newImplementation(interfaceList)
-			}
-
-			structImplementations[structName][methodName] = true
-
+		default:
 			return true
-		})
-	}
+		}
+		structName := ident.Name
+
+		// mark the implementation that this struct satisfies.
+		if _, ok := structImplementations[structName]; !ok {
+			structImplementations[structName] = newImplementation(interfaceList)
+		}
+
+		structImplementations[structName][methodName] = true
+
+		return true
+	})
 
 	for name, impl := range structImplementations {
 		if checkImplementation(impl) {
@@ -223,7 +228,7 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 			return err
 		}
 
-		currFound := findImplementationInFiles([]*ast.File{f}, AppImplementation)
+		currFound := FindImplementationInFiles([]*ast.File{f}, AppImplementation)
 		if len(currFound) > 0 {
 			found = append(found, path)
 		}

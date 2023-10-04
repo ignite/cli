@@ -2,6 +2,7 @@ package chaincmd
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"

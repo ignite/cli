@@ -2,7 +2,6 @@ package app_test
 
 import (
 	_ "embed"
-	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -10,6 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/ignite/pkg/xast"
 )
 
 var (
@@ -54,6 +55,11 @@ func TestCheckKeeper(t *testing.T) {
 			keeperName:    "FooKeeper",
 			expectedError: "app.go should contain a single app (got 2)",
 		},
+		{
+			name:       "app v2",
+			appFile:    AppV2,
+			keeperName: "FooKeeper",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,7 +79,7 @@ func TestCheckKeeper(t *testing.T) {
 	}
 }
 
-func TestFindRegisteredModules(t *testing.T) {
+func TestFindKeepersModules(t *testing.T) {
 	basicModules := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
 		"github.com/cosmos/cosmos-sdk/x/bank",
@@ -365,53 +371,19 @@ func TestFindRegisteredModules(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			m, err := app.FindRegisteredModules(tt.path)
-
-			require.NoError(t, err)
-			require.ElementsMatch(t, tt.expectedModules, m)
-		})
-	}
-}
-
-func TestCheckAppWiring(t *testing.T) {
-	tests := []struct {
-		name    string
-		appFile []byte
-		want    bool
-		err     error
-	}{
-		{
-			name:    "valid case",
-			appFile: AppV2,
-			want:    true,
-			err:     nil,
-		},
-		{
-			name:    "invalid case",
-			appFile: AppMinimalFile,
-			want:    false,
-		},
-		{
-			name:    "invalid file",
-			appFile: nil,
-			err:     errors.New("expected 'package', found 'EOF'"),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tmpDir := t.TempDir()
-			tmpFile := filepath.Join(tmpDir, "app.go")
-			err := os.WriteFile(tmpFile, tt.appFile, 0o644)
+			appPkg, _, err := xast.ParseDir(tt.path)
 			require.NoError(t, err)
 
-			got, err := app.CheckAppWiring(tmpDir)
-			if tt.err != nil {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), tt.err.Error())
-				return
+			got := make([]string, 0)
+			for _, f := range appPkg.Files {
+				fileImports := goanalysis.FormatImports(f)
+				modules, err := app.FindKeepersModules(f, fileImports)
+				require.NoError(t, err)
+				if modules != nil {
+					got = append(got, modules...)
+				}
 			}
-			require.NoError(t, err)
-			require.Equal(t, tt.want, got)
+			require.ElementsMatch(t, tt.expectedModules, got)
 		})
 	}
 }

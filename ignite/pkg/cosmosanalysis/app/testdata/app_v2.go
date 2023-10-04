@@ -135,6 +135,7 @@ type SimApp struct {
 	GroupKeeper           groupkeeper.Keeper
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+	FooKeeper             foo.keeper
 
 	// simulation manager
 	sm *module.SimulationManager
