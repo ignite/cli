@@ -29,7 +29,7 @@ const (
 	releaseChecksumKey           = "release_checksum"
 	modChecksumKey               = "go_mod_checksum"
 	buildDirchangeCacheNamespace = "build.dirchange"
-	skipCCVMsgFilterBuildTag     = "skip_ccv_msg_filter"
+	consumerDevel                = "consumer_devel"
 )
 
 // Build builds and installs app binaries.
@@ -78,10 +78,10 @@ func (c *Chain) build(
 		return err
 	}
 	if cfg.IsConsumerChain() {
-		// When building a non-release consumer chain, enable skipCCVMsgFilterBuildTag
-		// so the consumer anteHandler doesn't filter non-IBC message when it's not
-		// initialized with a provider chain.
-		buildTags = append(buildTags, skipCCVMsgFilterBuildTag)
+		// When building a non-release consumer chain (which is the case for this
+		// build() method), enable consumerDevel (see templates consumer_devel and
+		// consumer_final for more info).
+		buildTags = append(buildTags, consumerDevel)
 	}
 
 	buildFlags, err := c.preBuild(ctx, cacheStorage, buildTags...)
