@@ -12,9 +12,10 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/gogo/protobuf/codec"
-	app "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app/testdata/modules/registration_not_in_app_go"
 	fookeeper "github.com/tendermint/planet/x/foo/keeper"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	app "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app/testdata/modules/registration_not_in_app_go"
 )
 
 type Foo struct {
