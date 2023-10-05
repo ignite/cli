@@ -13,10 +13,4 @@ var (
 
 	//go:embed files/msgserver/* files/msgserver/**/*
 	fsMsgServer embed.FS
-
-	//go:embed files/genesistest/* files/genesistest/**/*
-	fsGenesisTest embed.FS
-
-	//go:embed files/simapp/* files/simapp/**/*
-	fsSimapp embed.FS
 )

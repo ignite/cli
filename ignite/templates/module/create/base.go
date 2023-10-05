@@ -26,11 +26,6 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 			"files/msgserver/",
 			opts.AppPath,
 		)
-		genesisTestTemplate = xgenny.NewEmbedWalker(
-			fsGenesisTest,
-			"files/genesistest/",
-			opts.AppPath,
-		)
 		baseTemplate = xgenny.NewEmbedWalker(
 			fsBase,
 			"files/base/",
@@ -39,9 +34,6 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	)
 
 	if err := g.Box(msgServerTemplate); err != nil {
-		return g, err
-	}
-	if err := g.Box(genesisTestTemplate); err != nil {
 		return g, err
 	}
 	if err := g.Box(baseTemplate); err != nil {
@@ -65,12 +57,6 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	g.Transformer(xgenny.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-
-	gSimapp, err := AddSimulation(opts.AppPath, opts.ModulePath, opts.ModuleName, opts.Params...)
-	if err != nil {
-		return g, err
-	}
-	g.Merge(gSimapp)
 
 	return g, nil
 }
@@ -96,7 +82,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 
 		// Import
 		template := `%[2]vmodulev1 "%[3]v/api/%[4]v/%[2]v/module"
-_ "%[3]v/x/%[2]v" // import for side-effects
+_ "%[3]v/x/%[2]v/module" // import for side-effects
 %[2]vmoduletypes "%[3]v/x/%[2]v/types"
 %[1]v`
 		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath, opts.AppName)
